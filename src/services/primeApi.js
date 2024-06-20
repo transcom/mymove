@@ -4,6 +4,7 @@ import { makeSwaggerRequest, makeSwaggerRequestRaw, requestInterceptor, response
 
 let primeSimulatorClient = null;
 let primeSimulatorClientV2 = null;
+let primeSimulatorClientV3 = null;
 
 // setting up the same config from Swagger/api.js
 export async function getPrimeSimulatorClient() {
@@ -29,6 +30,18 @@ export async function getPrimeSimulatorClientV2() {
   return primeSimulatorClientV2;
 }
 
+// setting up the same config from Swagger/api.js
+export async function getPrimeSimulatorClientV3() {
+  if (!primeSimulatorClientV3) {
+    primeSimulatorClientV3 = await Swagger({
+      url: '/prime/v3/swagger.yaml',
+      requestInterceptor,
+      responseInterceptor,
+    });
+  }
+  return primeSimulatorClientV3;
+}
+
 export async function makePrimeSimulatorRequest(operationPath, params = {}, options = {}) {
   const client = await getPrimeSimulatorClient();
   return makeSwaggerRequest(client, operationPath, params, options);
@@ -39,13 +52,18 @@ export async function makePrimeSimulatorRequestV2(operationPath, params = {}, op
   return makeSwaggerRequest(client, operationPath, params, options);
 }
 
+export async function makePrimeSimulatorRequestV3(operationPath, params = {}, options = {}) {
+  const client = await getPrimeSimulatorClientV3();
+  return makeSwaggerRequest(client, operationPath, params, options);
+}
+
 export async function getPrimeSimulatorAvailableMoves() {
   const operationPath = 'moveTaskOrder.listMoves';
   return makePrimeSimulatorRequest(operationPath, {}, { schemaKey: 'listMoves', normalize: false });
 }
 
 export async function getPrimeSimulatorMove(key, locator) {
-  return makePrimeSimulatorRequestV2('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
+  return makePrimeSimulatorRequestV3('moveTaskOrder.getMoveTaskOrder', { moveID: locator }, { normalize: false });
 }
 
 export async function createPaymentRequest({ moveTaskOrderID, serviceItems }) {
@@ -106,6 +124,17 @@ export function createPrimeMTOShipmentV2({ normalize = false, schemaKey = 'mtoSh
   );
 }
 
+export function createPrimeMTOShipmentV3({ normalize = false, schemaKey = 'mtoShipment', body }) {
+  const operationPath = 'mtoShipment.createMTOShipment';
+  return makePrimeSimulatorRequestV3(
+    operationPath,
+    {
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function updatePrimeMTOShipment({
   mtoShipmentID,
   ifMatchETag,
@@ -134,6 +163,25 @@ export function updatePrimeMTOShipmentV2({
 }) {
   const operationPath = 'mtoShipment.updateMTOShipment';
   return makePrimeSimulatorRequestV2(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function updatePrimeMTOShipmentV3({
+  mtoShipmentID,
+  ifMatchETag,
+  normalize = true,
+  schemaKey = 'mtoShipment',
+  body,
+}) {
+  const operationPath = 'mtoShipment.updateMTOShipment';
+  return makePrimeSimulatorRequestV3(
     operationPath,
     {
       mtoShipmentID,

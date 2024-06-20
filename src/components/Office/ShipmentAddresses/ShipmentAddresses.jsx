@@ -22,8 +22,9 @@ const ShipmentAddresses = ({
   destinationAddress,
   originDutyLocation,
   destinationDutyLocation,
-  handleDivertShipment,
+  handleShowDiversionModal,
   shipmentInfo,
+  isMoveLocked,
 }) => {
   let pickupHeader;
   let destinationHeader;
@@ -51,19 +52,21 @@ const ShipmentAddresses = ({
         columnHeaders={[
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
-            {shipmentInfo.status !== shipmentStatuses.CANCELED && (
-              <Restricted to={permissionTypes.createShipmentDiversionRequest}>
-                <Restricted to={permissionTypes.updateMTOPage}>
-                  <Button
-                    type="button"
-                    onClick={() => handleDivertShipment(shipmentInfo.id, shipmentInfo.eTag)}
-                    unstyled
-                  >
-                    Request diversion
-                  </Button>
+            {shipmentInfo.status !== shipmentStatuses.CANCELED &&
+              shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.PPM && (
+                <Restricted to={permissionTypes.createShipmentDiversionRequest}>
+                  <Restricted to={permissionTypes.updateMTOPage}>
+                    <Button
+                      type="button"
+                      onClick={() => handleShowDiversionModal(shipmentInfo)}
+                      unstyled
+                      disabled={isMoveLocked}
+                    >
+                      Request diversion
+                    </Button>
+                  </Restricted>
                 </Restricted>
-              </Restricted>
-            )}
+              )}
           </div>,
         ]}
         dataRow={[
@@ -90,7 +93,7 @@ ShipmentAddresses.propTypes = {
   destinationAddress: AddressShape,
   originDutyLocation: AddressShape,
   destinationDutyLocation: AddressShape,
-  handleDivertShipment: PropTypes.func.isRequired,
+  handleShowDiversionModal: PropTypes.func.isRequired,
   shipmentInfo: PropTypes.shape({
     id: PropTypes.string.isRequired,
     eTag: PropTypes.string.isRequired,

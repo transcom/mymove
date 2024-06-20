@@ -38,7 +38,7 @@ func init() {
   "paths": {
     "/move-task-orders/{moveID}": {
       "get": {
-        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
+        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\n**NOTE**: New version in v3. Version will return PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress\nsecondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,\ndestinationPostalCode and secondaryDestinationPostalCode].\n",
         "produces": [
           "application/json"
         ],
@@ -80,7 +80,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**NOTE**: New version in v3. Version will accept PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress\nsecondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,\ndestinationPostalCode and secondaryDestinationPostalCode].\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -197,7 +197,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "patch": {
-        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n\n**NOTE**: New version in v3. Version will accept PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress\nsecondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,\ndestinationPostalCode and secondaryDestinationPostalCode].\n",
         "consumes": [
           "application/json"
         ],
@@ -352,6 +352,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -862,6 +868,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -1262,6 +1272,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -1476,7 +1490,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -1513,12 +1527,24 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -1552,6 +1578,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -1876,14 +1908,18 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "BLUEBARK"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SAFETY": "Safety",
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
@@ -2127,15 +2163,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -2607,7 +2643,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -3463,7 +3502,7 @@ func init() {
   "paths": {
     "/move-task-orders/{moveID}": {
       "get": {
-        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n",
+        "description": "### Functionality\nThis endpoint gets an individual MoveTaskOrder by ID.\n\nIt will provide information about the Customer and any associated MTOShipments, MTOServiceItems and PaymentRequests.\n\n**NOTE**: New version in v3. Version will return PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress\nsecondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,\ndestinationPostalCode and secondaryDestinationPostalCode].\n",
         "produces": [
           "application/json"
         ],
@@ -3517,7 +3556,7 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
+        "description": "Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**NOTE**: When creating a child shipment diversion, you can no longer specify the ` + "`" + `primeActualWeight` + "`" + `.\nIf you create a new diverted shipment with the ` + "`" + `diversion` + "`" + ` and ` + "`" + `divertedFromShipmentId` + "`" + ` parameter, it will automatically\ninherit the primeActualWeight of its ` + "`" + `divertedFromShipmentId` + "`" + ` parent. Payment requests created on a diverted shipment \"chain\" will utilize\nthe lowest weight possible in the chain to prevent overcharging as they are still separate shipments.\n\n**NOTE**: New version in v3. Version will accept PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress\nsecondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,\ndestinationPostalCode and secondaryDestinationPostalCode].\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
         "consumes": [
           "application/json"
         ],
@@ -3646,7 +3685,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}": {
       "patch": {
-        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
+        "description": "Updates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n\n**NOTE**: New version in v3. Version will accept PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress\nsecondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,\ndestinationPostalCode and secondaryDestinationPostalCode].\n",
         "consumes": [
           "application/json"
         ],
@@ -3826,6 +3865,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -4336,6 +4381,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4736,6 +4785,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -4950,7 +5003,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -4987,12 +5040,24 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -5026,6 +5091,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -5350,14 +5421,18 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "BLUEBARK"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SAFETY": "Safety",
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
@@ -5601,15 +5676,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -6081,7 +6156,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {

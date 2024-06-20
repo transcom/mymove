@@ -30,6 +30,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	state := "FL"
 	postalcode := "33621"
 	country := "US"
+	county := "HILLSBOROUGH"
 
 	expectedAddress := models.Address{
 		StreetAddress1: streetAddress1,
@@ -39,6 +40,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		State:          state,
 		PostalCode:     postalcode,
 		Country:        &country,
+		County:         county,
 	}
 
 	expectedPPMShipment := models.PPMShipment{
@@ -58,6 +60,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
 		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
+		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
 		suite.Equal(expectedPPMShipment.DestinationAddress.StreetAddress2, returnedPPMShipment.DestinationAddress.StreetAddress2)
@@ -66,6 +69,8 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
 		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
+		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
+
 	})
 }
 
@@ -105,6 +110,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		State:          "CA",
 		PostalCode:     "89503",
 		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	oldAddress := models.Address{
@@ -113,6 +119,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		State:          "CA",
 		PostalCode:     "89502",
 		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	sitOriginalAddress := models.Address{
@@ -121,6 +128,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		State:          "CA",
 		PostalCode:     "89501",
 		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
 	newSitDistanceBetween := 0
@@ -223,6 +231,55 @@ func (suite *PayloadsSuite) TestProofOfServiceDoc() {
 	})
 }
 
+func (suite *PayloadsSuite) TestCustomer() {
+	id, _ := uuid.NewV4()
+	id2, _ := uuid.NewV4()
+
+	residentialAddress := models.Address{
+		StreetAddress1: "123 New St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89503",
+		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
+	}
+
+	backupAddress := models.Address{
+		StreetAddress1: "123 Old St",
+		City:           "Beverly Hills",
+		State:          "CA",
+		PostalCode:     "89502",
+		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
+	}
+
+	phone := "444-555-6677"
+
+	firstName := "First"
+	lastName := "Last"
+	affiliation := models.AffiliationARMY
+	email := "dontEmailMe@gmail.com"
+	cacValidated := true
+	customer := models.ServiceMember{
+		ID:                   id,
+		UserID:               id2,
+		FirstName:            &firstName,
+		LastName:             &lastName,
+		Affiliation:          &affiliation,
+		PersonalEmail:        &email,
+		Telephone:            &phone,
+		ResidentialAddress:   &residentialAddress,
+		BackupMailingAddress: &backupAddress,
+		CacValidated:         cacValidated,
+	}
+
+	suite.Run("Success - Returns a ghcmessages Customer payload from Customer Struct", func() {
+		customer := Customer(&customer)
+
+		suite.IsType(customer, &ghcmessages.Customer{})
+	})
+}
+
 func (suite *PayloadsSuite) TestCreateCustomer() {
 	id, _ := uuid.NewV4()
 	id2, _ := uuid.NewV4()
@@ -248,6 +305,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		State:          "CA",
 		PostalCode:     "89503",
 		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	backupAddress := models.Address{
@@ -256,6 +314,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		State:          "CA",
 		PostalCode:     "89502",
 		Country:        models.StringPointer("United States"),
+		County:         *models.StringPointer("WASHOE"),
 	}
 
 	phone := "444-555-6677"

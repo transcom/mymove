@@ -14,6 +14,7 @@ import { shipmentTypes } from 'constants/shipments';
 import { HistoryLogRecordShape } from 'constants/MoveHistory/UIDisplay/HistoryLogShape';
 import optionFields from 'constants/MoveHistory/Database/OptionFields';
 import statusFields from 'constants/MoveHistory/Database/StatusFields';
+import { expenseTypeLabels } from 'constants/ppmExpenseTypes.js';
 import {
   formatCents,
   formatCustomerDate,
@@ -39,6 +40,7 @@ export const withMappings = () => {
     ({ value }) =>
       (value in optionFields && optionFields[value]) ||
       (value in statusFields && statusFields[value]) ||
+      (value in expenseTypeLabels && expenseTypeLabels[value]) ||
       (`${value}` && value) ||
       '—',
   ];
@@ -69,15 +71,33 @@ export const retrieveTextToDisplay = (fieldName, value) => {
   const { fn: valueFormatFn } = getMappedDisplayName(fieldName);
   const displayValue = valueFormatFn({ value });
 
+  if (fieldName === 'has_received_advance') {
+    return {
+      displayName,
+      displayValue: (!`${value}` && '—') || (value && displayValue) || 'No',
+    };
+  }
+
   return {
     displayName,
-    displayValue: (!`${value}` && '—') || (value && displayValue) || '—',
+    displayValue: (!`${value}` && '—') || (value !== null && value !== '' && displayValue) || '—',
   };
 };
 
 // testable for code coverage //
-export const createLineItemLabel = (shipmentType, shipmentIdDisplay, serviceItemName, movingExpenseType) =>
-  [shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentIdDisplay}`, serviceItemName, movingExpenseType]
+export const createLineItemLabel = (
+  shipmentType,
+  shipmentLocator,
+  serviceItemName,
+  movingExpenseType,
+  belongs_to_self,
+) =>
+  [
+    shipmentType && `${shipmentTypes[shipmentType]} shipment #${shipmentLocator}`,
+    serviceItemName,
+    movingExpenseType && `${expenseTypeLabels[movingExpenseType]}`,
+    belongs_to_self,
+  ]
     .filter((e) => e)
     .join(', ');
 
@@ -121,15 +141,26 @@ export const filterInLineItemValues = (changedValues, oldValues) =>
 const LabeledDetails = ({ historyRecord }) => {
   const { changedValues, oldValues = {} } = historyRecord;
 
-  const { shipment_type, shipment_id_display, service_item_name, moving_expense_type, ...changedValuesToUse } =
-    changedValues;
+  const { shipment_type, shipment_locator, service_item_name, ...changedValuesToUse } = changedValues;
+
+  let belongs_to_self =
+    oldValues?.belongs_to_self !== null && oldValues?.belongs_to_self !== ''
+      ? oldValues?.belongs_to_self
+      : changedValues.belongs_to_self;
+  const moving_expense_type = oldValues?.moving_expense_type
+    ? oldValues?.moving_expense_type
+    : changedValues.moving_expense_type;
+
+  if (belongs_to_self === true) belongs_to_self = 'Service member pro-gear';
+  else if (belongs_to_self === false) belongs_to_self = 'Spouse pro-gear';
 
   // Check for shipment_type to use it as a header for the row
   const shipmentDisplay = createLineItemLabel(
     shipment_type,
-    shipment_id_display,
+    shipment_locator,
     service_item_name,
     moving_expense_type,
+    belongs_to_self,
   );
 
   const lineItems = filterInLineItemValues(changedValuesToUse, oldValues).map(([label, value]) => {

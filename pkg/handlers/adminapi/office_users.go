@@ -184,6 +184,7 @@ type CreateOfficeUserHandler struct {
 	services.OfficeUserCreator
 	services.NewQueryFilter
 	services.UserRoleAssociator
+	services.RoleAssociater
 	services.UserPrivilegeAssociator
 }
 
@@ -247,11 +248,30 @@ func (h CreateOfficeUserHandler) Handle(params officeuserop.CreateOfficeUserPara
 				return officeuserop.NewCreateOfficeUserInternalServerError(), err
 			}
 
-			_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *createdOfficeUser.UserID, updatedRoles)
+			_, verrs, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *createdOfficeUser.UserID, updatedRoles)
+			if verrs.HasAny() {
+				validationError := &adminmessages.ValidationError{
+					InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+				}
+
+				validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
+				validationError.Detail = handlers.FmtString("The information you provided is invalid.")
+				validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
+
+				return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+			}
 			if err != nil {
 				appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
 			}
+
+			roles, err := h.RoleAssociater.FetchRolesForUser(appCtx, *createdOfficeUser.UserID)
+			if err != nil {
+				appCtx.Logger().Error("Error fetching user roles", zap.Error(err))
+				return officeuserop.NewUpdateOfficeUserInternalServerError(), err
+			}
+
+			createdOfficeUser.User.Roles = roles
 
 			updatedPrivileges := privilegesPayloadToModel(payload.Privileges)
 			_, err = h.UserPrivilegeAssociator.UpdateUserPrivileges(appCtx, *createdOfficeUser.UserID, updatedPrivileges)
@@ -298,7 +318,18 @@ func (h UpdateOfficeUserHandler) Handle(params officeuserop.UpdateOfficeUserPara
 			}
 			if updatedOfficeUser.UserID != nil && payload.Roles != nil {
 				updatedRoles := rolesPayloadToModel(payload.Roles)
-				_, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
+				_, verrs, err = h.UserRoleAssociator.UpdateUserRoles(appCtx, *updatedOfficeUser.UserID, updatedRoles)
+				if verrs.HasAny() {
+					validationError := &adminmessages.ValidationError{
+						InvalidFields: handlers.NewValidationErrorsResponse(verrs).Errors,
+					}
+
+					validationError.Title = handlers.FmtString(handlers.ValidationErrMessage)
+					validationError.Detail = handlers.FmtString("The information you provided is invalid.")
+					validationError.Instance = handlers.FmtUUID(h.GetTraceIDFromRequest(params.HTTPRequest))
+
+					return officeuserop.NewCreateOfficeUserUnprocessableEntity().WithPayload(validationError), verrs
+				}
 				if err != nil {
 					appCtx.Logger().Error("Error updating user roles", zap.Error(err))
 					return officeuserop.NewUpdateOfficeUserInternalServerError(), err

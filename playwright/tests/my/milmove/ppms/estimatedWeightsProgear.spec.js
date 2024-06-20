@@ -10,7 +10,6 @@ import { expect, test } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
-  test.skip(true, 'This test fail due to navigateFromDateAndLocationPageToEstimatedWeightsPage()');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
@@ -108,16 +107,15 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
 
 test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights();
     await customerPpmPage.signInForPPMWithMove(move);
-    // await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
-    // await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
+    await customerPpmPage.navigateFromHomePageToExistingPPMDateAndLocationPage();
+    await customerPpmPage.navigateFromDateAndLocationPageToEstimatedWeightsPage();
   });
 
-  test.skip('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
+  test('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'Estimated weight' })).toBeVisible();
     await expect(page).toHaveURL(/\/estimated-weight/);
     await expect(page.locator('p[class="usa-alert__text"]')).toContainText(
@@ -196,11 +194,11 @@ test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear',
     await expect(errorMessage).not.toBeVisible();
   });
 
-  test.skip('can continue to next page', async ({ customerPpmPage }) => {
+  test('can continue to next page', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsEstimatedWeights();
   });
 
-  test.skip('can continue to next page with progear added', async ({ customerPpmPage }) => {
+  test('can continue to next page with progear added', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsEstimatedWeightsAndProGear();
   });
 });

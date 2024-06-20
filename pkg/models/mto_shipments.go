@@ -131,6 +131,7 @@ type MTOShipment struct {
 	ShipmentType                     MTOShipmentType        `db:"shipment_type"`
 	Status                           MTOShipmentStatus      `db:"status"`
 	Diversion                        bool                   `db:"diversion"`
+	DiversionReason                  *string                `db:"diversion_reason"`
 	DivertedFromShipmentID           *uuid.UUID             `db:"diverted_from_shipment_id"`
 	ActualProGearWeight              *unit.Pound            `db:"actual_pro_gear_weight"`
 	ActualSpouseProGearWeight        *unit.Pound            `db:"actual_spouse_pro_gear_weight"`
@@ -148,6 +149,9 @@ type MTOShipment struct {
 	CreatedAt                        time.Time              `db:"created_at"`
 	UpdatedAt                        time.Time              `db:"updated_at"`
 	DeletedAt                        *time.Time             `db:"deleted_at"`
+	ShipmentLocator                  *string                `db:"shipment_locator"`
+	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
+	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
 }
 
 // TableName overrides the table name used by Pop.

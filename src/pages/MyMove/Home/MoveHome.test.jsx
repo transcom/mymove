@@ -34,6 +34,11 @@ jest.mock('services/internalApi', () => ({
   downloadPPMAOAPacket: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const props = {
   serviceMember: {
     id: v4(),
@@ -285,6 +290,22 @@ const defaultPropsOrdersWithUnsubmittedShipments = {
               submittedAt: null,
               updatedAt: '2024-02-20T17:22:03.085Z',
               weightTickets: [],
+              pickupAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Pickup Test City',
+                state: 'NY',
+                postalCode: '10001',
+              },
+              destinationAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Destination Test City',
+                state: 'NY',
+                postalCode: '11111',
+              },
             },
             shipmentType: 'PPM',
             status: 'DRAFT',
@@ -488,6 +509,22 @@ const defaultPropsOrdersWithSubmittedShipments = {
               submittedAt: null,
               updatedAt: '2024-02-20T17:22:03.085Z',
               weightTickets: [],
+              pickupAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Pickup Test City',
+                state: 'NY',
+                postalCode: '10001',
+              },
+              destinationAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Destination Test City',
+                state: 'NY',
+                postalCode: '11111',
+              },
             },
             shipmentType: 'PPM',
             status: 'DRAFT',
@@ -661,6 +698,22 @@ const defaultPropsAmendedOrdersWithAdvanceRequested = {
               submittedAt: null,
               updatedAt: '2024-02-20T17:40:47.772Z',
               weightTickets: [],
+              pickupAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Pickup Test City',
+                state: 'NY',
+                postalCode: '10001',
+              },
+              destinationAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Destination Test City',
+                state: 'NY',
+                postalCode: '11111',
+              },
             },
             shipmentType: 'PPM',
             status: 'SUBMITTED',
@@ -853,6 +906,22 @@ const defaultPropsWithAdvanceAndPPMApproved = {
               submittedAt: null,
               updatedAt: '2024-02-20T18:01:14.760Z',
               weightTickets: [],
+              pickupAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Pickup Test City',
+                state: 'NY',
+                postalCode: '10001',
+              },
+              destinationAddress: {
+                streetAddress1: '1 Test Street',
+                streetAddress2: '2 Test Street',
+                streetAddress3: '3 Test Street',
+                city: 'Destination Test City',
+                state: 'NY',
+                postalCode: '11111',
+              },
             },
             shipmentType: 'PPM',
             status: 'APPROVED',
@@ -1281,7 +1350,7 @@ describe('Home component', () => {
       await wrapper.find(buttonId).simulate('click');
       await waitFor(() => {
         // scrape text from error modal
-        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork');
+        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
         expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
       });
     });

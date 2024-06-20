@@ -41,7 +41,7 @@ type ListPrimeMovesParams struct {
 	  In: query
 	*/
 	MoveCode *string
-	/*
+	/*order type
 	  In: query
 	*/
 	OrderType *string

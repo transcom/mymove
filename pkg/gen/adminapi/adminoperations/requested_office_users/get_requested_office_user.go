@@ -34,7 +34,7 @@ func NewGetRequestedOfficeUser(ctx *middleware.Context, handler GetRequestedOffi
 
 # Get a Requested Office User
 
-Retrieving a single office user in any status
+Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.
 */
 type GetRequestedOfficeUser struct {
 	Context *middleware.Context

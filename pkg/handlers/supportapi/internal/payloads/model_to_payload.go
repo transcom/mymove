@@ -205,6 +205,7 @@ func Address(address *models.Address) *supportmessages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -333,7 +334,8 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) supportmessages.MTOSe
 				Length: crate.Length.Int32Ptr(),
 				Width:  crate.Width.Int32Ptr(),
 			},
-			Description: mtoServiceItem.Description,
+			Description:     mtoServiceItem.Description,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
 		payload = &supportmessages.MTOServiceItemShuttle{

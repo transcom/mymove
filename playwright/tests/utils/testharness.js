@@ -325,11 +325,27 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move for QAE
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE() {
+    return this.buildDefault('HHGMoveWithServiceItemsandPaymentRequestReviewedForQAE');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval
    * @returns {Promise<Move>}
    */
   async buildHHGMoveNeedsSC() {
     return this.buildDefault('HHGMoveNeedsSC');
+  }
+
+  /**
+   * Use testharness to build hhg move as USMC needing SC approval
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveAsUSMCNeedsSC() {
+    return this.buildDefault('HHGMoveAsUSMCNeedsSC');
   }
 
   /**

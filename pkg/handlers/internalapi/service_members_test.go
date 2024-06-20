@@ -173,9 +173,10 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
+	newEmplid := "1234567"
 
 	origAffiliation := models.AffiliationAIRFORCE
-	newAffiliation := internalmessages.AffiliationARMY
+	newAffiliation := internalmessages.AffiliationCOASTGUARD
 
 	origFirstName := models.StringPointer("random string bla")
 	newFirstName := models.StringPointer("John")
@@ -208,6 +209,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		{
 			Model: models.ServiceMember{
 				Edipi:              &origEdipi,
+				Emplid:             nil,
 				Affiliation:        &origAffiliation,
 				FirstName:          origFirstName,
 				MiddleName:         origMiddleName,
@@ -239,6 +241,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
 		Edipi:                &newEdipi,
+		Emplid:               &newEmplid,
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
 		Affiliation:          &newAffiliation,
@@ -274,6 +277,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	serviceMemberPayload := okResponse.Payload
 
 	suite.Equal(newEdipi, *serviceMemberPayload.Edipi)
+	suite.Equal(newEmplid, *serviceMemberPayload.Emplid)
 	suite.Equal(newAffiliation, *serviceMemberPayload.Affiliation)
 	suite.Equal(*newFirstName, *serviceMemberPayload.FirstName)
 	suite.Equal(*newMiddleName, *serviceMemberPayload.MiddleName)
@@ -285,7 +289,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.Equal(*newPhoneIsPreferred, *serviceMemberPayload.PhoneIsPreferred)
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*resAddress.County, *serviceMemberPayload.ResidentialAddress.County)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
+	suite.Equal(*backupAddress.County, *serviceMemberPayload.BackupMailingAddress.County)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
@@ -453,7 +459,9 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerSubmittedMove() {
 	suite.Equal(*newEmailIsPreferred, *serviceMemberPayload.EmailIsPreferred)
 
 	suite.Equal(*resAddress.StreetAddress1, *serviceMemberPayload.ResidentialAddress.StreetAddress1)
+	suite.Equal(*resAddress.County, *serviceMemberPayload.ResidentialAddress.County)
 	suite.Equal(*backupAddress.StreetAddress1, *serviceMemberPayload.BackupMailingAddress.StreetAddress1)
+	suite.Equal(*backupAddress.County, *serviceMemberPayload.BackupMailingAddress.County)
 
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}

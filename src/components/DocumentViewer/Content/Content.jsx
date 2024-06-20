@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import FileViewer from '@trussworks/react-file-viewer';
+import FileViewer from '@transcom/react-file-viewer';
 import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -43,27 +43,3 @@ DocViewerContent.propTypes = {
 };
 
 export default DocViewerContent;
-
-/**
- * TODO
- *
- * - add className prop to file viewer
- * - add rotate left/right:
- *  <Button unstyled>
-        <RotateLeft />
-        Rotate left
-      </Button>
-      <Button unstyled>
-        <RotateRight />
-        Rotate right
-      </Button>
- * - implement pagination for multi-page PDFs & nav render prop:
- *  <div className={`${styles.docArrows}`}>
-      <Button unstyled className={`${styles.arrowButton}`}>
-        <ArrowLeft />
-      </Button>
-      <Button unstyled className={`${styles.arrowButton}`}>
-        <ArrowRight />
-      </Button>
-    </div>
-*/

@@ -28,9 +28,9 @@ import { permissionTypes } from 'constants/permissions';
  * @param {string} title
  * @returns {React.ReactElement}
  */
-const OpenModalButton = ({ permission, onClick, className, title }) => (
+const OpenModalButton = ({ permission, onClick, className, title, isMoveLocked }) => (
   <Restricted to={permission}>
-    <Button type="button" onClick={onClick} unstyled className={className}>
+    <Button type="button" onClick={onClick} unstyled className={className} disabled={isMoveLocked}>
       {title}
     </Button>
   </Restricted>
@@ -40,11 +40,12 @@ const ShipmentDetailsMain = ({
   className,
   shipment,
   dutyLocationAddresses,
-  handleDivertShipment,
+  handleShowDiversionModal,
   handleRequestReweighModal,
   handleReviewSITExtension,
   handleSubmitSITExtension,
   handleUpdateSITServiceItemCustomerExpense,
+  isMoveLocked,
 }) => {
   const {
     requestedPickupDate,
@@ -102,6 +103,7 @@ const ShipmentDetailsMain = ({
       permission={permissionTypes.createSITExtension}
       onClick={setIsReviewSITExtensionModalVisible}
       title="Review request"
+      isMoveLocked={isMoveLocked}
     />
   ) : (
     <OpenModalButton
@@ -109,6 +111,7 @@ const ShipmentDetailsMain = ({
       onClick={setIsSubmitITExtensionModalVisible}
       title="Edit"
       className={styles.submitSITEXtensionLink}
+      isMoveLocked={isMoveLocked}
     />
   );
 
@@ -120,6 +123,7 @@ const ShipmentDetailsMain = ({
       permission={permissionTypes.updateSITExtension}
       onClick={setIsConvertSITToCustomerExpenseModalVisible}
       title="Convert to customer expense"
+      isMoveLocked={isMoveLocked}
     />
   );
 
@@ -244,8 +248,10 @@ const ShipmentDetailsMain = ({
           eTag: shipment.eTag,
           status: shipment.status,
           shipmentType: shipment.shipmentType,
+          shipmentLocator: shipment.shipmentLocator,
         }}
-        handleDivertShipment={handleDivertShipment}
+        handleShowDiversionModal={handleShowDiversionModal}
+        isMoveLocked={isMoveLocked}
       />
       <ShipmentWeightDetails
         estimatedWeight={weightResult}
@@ -260,6 +266,7 @@ const ShipmentDetailsMain = ({
           shipmentActualSpouseProGearWeight: shipment.actualSpouseProGearWeight,
         }}
         handleRequestReweighModal={handleRequestReweighModal}
+        isMoveLocked={isMoveLocked}
       />
       {counselorRemarks && <ShipmentRemarks title="Counselor remarks" remarks={counselorRemarks} />}
       {customerRemarks && <ShipmentRemarks title="Customer remarks" remarks={customerRemarks} />}
@@ -274,7 +281,7 @@ ShipmentDetailsMain.propTypes = {
     originDutyLocationAddress: AddressShape,
     destinationDutyLocationAddress: AddressShape,
   }).isRequired,
-  handleDivertShipment: PropTypes.func.isRequired,
+  handleShowDiversionModal: PropTypes.func.isRequired,
   handleRequestReweighModal: PropTypes.func.isRequired,
   handleReviewSITExtension: PropTypes.func.isRequired,
   handleSubmitSITExtension: PropTypes.func.isRequired,

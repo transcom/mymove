@@ -36,6 +36,7 @@ import {
   selectHasCanceledMove,
 } from 'store/entities/selectors';
 import { generalRoutes, customerRoutes } from 'constants/routes';
+import { pageNames } from 'constants/signInPageNames';
 /** Pages */
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
@@ -52,6 +53,7 @@ import MoveHome from 'pages/MyMove/Home/MoveHome';
 import AddOrders from 'pages/MyMove/AddOrders';
 import UploadOrders from 'pages/MyMove/UploadOrders';
 import SmartCardRedirect from 'shared/SmartCardRedirect/SmartCardRedirect';
+import OktaErrorBanner from 'components/OktaErrorBanner/OktaErrorBanner';
 // Pages should be lazy-loaded (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
 const InvalidPermissions = lazy(() => import('pages/InvalidPermissions/InvalidPermissions'));
@@ -73,6 +75,7 @@ const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
 const ProGear = lazy(() => import('pages/MyMove/PPM/Closeout/ProGear/ProGear.jsx'));
 const Expenses = lazy(() => import('pages/MyMove/PPM/Closeout/Expenses/Expenses'));
 const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
+const PPMFeedback = lazy(() => import('pages/MyMove/PPM/Closeout/Feedback/Feedback'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -84,6 +87,8 @@ export class CustomerApp extends Component {
       info: undefined,
       multiMoveFeatureFlag: false,
       cacValidatedFeatureFlag: false,
+      validationCodeRequired: false,
+      oktaErrorBanner: false,
     };
   }
 
@@ -103,6 +108,21 @@ export class CustomerApp extends Component {
         cacValidatedFeatureFlag: enabled,
       });
     });
+    isBooleanFlagEnabled('validation_code_required').then((enabled) => {
+      this.setState({
+        validationCodeRequired: enabled,
+      });
+    });
+    // if the params "okta_error=true" are appended to the url, then we need to change state to display a banner
+    // this occurs when a user is trying to use an office user's email to access the customer application
+    // Okta config rules do not allow the same email to be used for both office & customer apps
+    const currentUrl = new URL(window.location.href);
+    const oktaErrorParam = currentUrl.searchParams.get('okta_error');
+    if (oktaErrorParam === 'true') {
+      this.setState({
+        oktaErrorBanner: true,
+      });
+    }
     document.title = generatePageTitle('Sign In');
   }
 
@@ -120,7 +140,7 @@ export class CustomerApp extends Component {
   render() {
     const { props } = this;
     const { userIsLoggedIn, loginIsLoading, cacValidated } = props;
-    const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag } = this.state;
+    const { hasError, multiMoveFeatureFlag, cacValidatedFeatureFlag, oktaErrorBanner } = this.state;
     const script = document.createElement('script');
 
     script.src = '//rum-static.pingdom.net/pa-6567b05deff3250012000426.js';
@@ -135,7 +155,7 @@ export class CustomerApp extends Component {
           <BypassBlock />
           <GovBanner />
 
-          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader />}
+          {userIsLoggedIn ? <CustomerLoggedInHeader /> : <LoggedOutHeader app={pageNames.MYMOVE} />}
 
           <main role="main" className="site__content my-move-container" id="main">
             <ConnectedLogoutOnInactivity />
@@ -153,6 +173,8 @@ export class CustomerApp extends Component {
                 </div>
               )}
             </div>
+
+            {oktaErrorBanner && <OktaErrorBanner />}
 
             {hasError && <SomethingWentWrong />}
 
@@ -253,6 +275,7 @@ export class CustomerApp extends Component {
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH} element={<PPMFeedback />} />
                     <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
                     <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
                     <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
@@ -346,6 +369,7 @@ export class CustomerApp extends Component {
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH} element={<PPMFeedback />} />
                     <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
                     <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
                     <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />

@@ -65,6 +65,15 @@ paths:
 
         It will provide information about the Customer and any associated
         MTOShipments, MTOServiceItems and PaymentRequests.
+
+
+        **NOTE**: New version in v3. Version will return PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
       operationId: getMoveTaskOrder
       tags:
         - moveTaskOrder
@@ -113,6 +122,15 @@ paths:
 
         the lowest weight possible in the chain to prevent overcharging as they
         are still separate shipments.
+
+
+        **NOTE**: New version in v3. Version will accept PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
 
 
         **WIP**: The Prime should be notified by a push notification whenever
@@ -233,6 +251,15 @@ paths:
         Note that some fields cannot be manually changed but will still be
         updated automatically, such as `primeEstimatedWeightRecordedDate` and
         `requiredDeliveryDate`.
+
+
+        **NOTE**: New version in v3. Version will accept PPM
+        addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+
+        secondaryDestinationAddress]. PPM postalCodes will be phased
+        out[pickupPostalCode, secondaryPickupPostalCode,
+
+        destinationPostalCode and secondaryDestinationPostalCode].
       operationId: updateMTOShipment
       tags:
         - mtoShipment
@@ -467,6 +494,9 @@ definitions:
               the service item.
             x-nullable: true
             x-omitempty: false
+          standaloneCrate:
+            type: boolean
+            x-nullable: true
         required:
           - reServiceCode
           - item
@@ -1428,6 +1458,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -1484,6 +1519,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -1547,13 +1585,17 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   Order:
     type: object
     required:
@@ -1748,6 +1790,9 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
+      - StandaloneCrateCap
+      - UncappedRequestTotal
   ServiceItemParamType:
     type: string
     enum:
@@ -2215,8 +2260,8 @@ definitions:
         * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
         * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
         * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
-        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
-        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+        * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -2224,8 +2269,8 @@ definitions:
       - SUBMITTED
       - WAITING_ON_CUSTOMER
       - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
+      - NEEDS_CLOSEOUT
+      - CLOSEOUT_COMPLETE
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -2566,8 +2611,8 @@ definitions:
         readOnly: true
       approvedDate:
         description: >-
-          The date when the Transportation Ordering Officer first approved this
-          shipment for the move.
+          The date when the Task Ordering Officer first approved this shipment
+          for the move.
         format: date
         type: string
         readOnly: true
@@ -2771,6 +2816,13 @@ definitions:
           diversion. If yes, the shipment can be either the starting or ending
           segment of the diversion.
         type: boolean
+      diversionReason:
+        description: >
+          The reason the TOO provided when requesting a diversion for this
+          shipment.
+        type: string
+        x-nullable: true
+        readOnly: true
       status:
         description: >
           The status of a shipment, indicating where it is in the TOO's approval
@@ -2809,6 +2861,16 @@ definitions:
           Email or ID of the person who will be contacted in the event of
           questions or concerns about this update. May be the person performing
           the update, or someone else working with the Prime contractor.
+      originSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for origin SIT.
+        x-nullable: true
+      destinationSitAuthEndDate:
+        format: date
+        type: string
+        description: The SIT authorized end date for destination SIT.
+        x-nullable: true
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

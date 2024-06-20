@@ -1,18 +1,19 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect, useState } from 'react';
 import { matchPath, Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
 import 'styles/office.scss';
-
 import { permissionTypes } from 'constants/permissions';
-import { qaeCSRRoutes, tioRoutes } from 'constants/routes';
+import { qaeCSRRoutes, tioRoutes, tooRoutes } from 'constants/routes';
 import TXOTabNav from 'components/Office/TXOTabNav/TXOTabNav';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -24,6 +25,7 @@ const EvaluationReports = lazy(() => import('pages/Office/EvaluationReports/Eval
 const EvaluationReport = lazy(() => import('pages/Office/EvaluationReport/EvaluationReport'));
 const EvaluationViolations = lazy(() => import('pages/Office/EvaluationViolations/EvaluationViolations'));
 const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
+const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
 
@@ -36,11 +38,28 @@ const TXOMoveInfo = () => {
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
 
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
   const { moveCode, reportId } = useParams();
   const { pathname } = useLocation();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { data } = useUserQueries();
+  const officeUserID = data?.office_user?.id;
+
+  // checking for the move_lock flag, if it's turned on we need to assess if the move should be locked to the user
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+      const now = new Date();
+      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+        setIsMoveLocked(true);
+      }
+    };
+    fetchData();
+  }, [move, officeUserID, moveLockFlag]);
 
   const hideNav =
     matchPath(
@@ -70,14 +89,40 @@ const TXOMoveInfo = () => {
         end: true,
       },
       pathname,
+    ) ||
+    matchPath(
+      {
+        path: tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH,
+        end: true,
+      },
+      pathname,
     );
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // this locked move banner will display if the current user is not the one who has it locked
+  // if the current user is the one who has it locked, it will not display
+  const renderLockedBanner = () => {
+    const now = new Date();
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+      if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
+        return (
+          <LockedMoveBanner data-testid="locked-move-banner">
+            This move is locked by {move.lockedByOfficeUser?.firstName} {move.lockedByOfficeUser?.lastName} at{' '}
+            {move.lockedByOfficeUser?.transportationOffice?.name}
+          </LockedMoveBanner>
+        );
+      }
+      return null;
+    }
+    return null;
+  };
+
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader move={move} order={order} customer={customerData} moveCode={moveCode} />
+      {renderLockedBanner()}
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
@@ -105,6 +150,13 @@ const TXOMoveInfo = () => {
       <Suspense fallback={<LoadingPlaceholder />}>
         <Routes>
           <Route
+            path="customer"
+            end
+            element={
+              <CustomerInfo ordersId={order.id} customer={customerData} isLoading={isLoading} isError={isError} />
+            }
+          />
+          <Route
             path="details"
             end
             element={
@@ -117,6 +169,7 @@ const TXOMoveInfo = () => {
                 }
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -132,6 +185,7 @@ const TXOMoveInfo = () => {
                 setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -144,11 +198,16 @@ const TXOMoveInfo = () => {
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
                 setPendingPaymentRequestCount={setPendingPaymentRequestCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
           <Route path="billable-weight" end element={<ReviewBillableWeight />} />
-          <Route path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH} end element={<CustomerSupportRemarks />} />
+          <Route
+            path={qaeCSRRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
+            end
+            element={<CustomerSupportRemarks isMoveLocked={isMoveLocked} />}
+          />
 
           {/* WARN: MB-15562 captured this as a potential bug. An error was reported */}
           {/* that `order` was returned from `useTXOMoveInfoQueries` as a null value and */}
@@ -164,6 +223,7 @@ const TXOMoveInfo = () => {
                   customerInfo={customerData}
                   grade={order.grade}
                   destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  isMoveLocked={isMoveLocked}
                 />
               }
             />
@@ -198,7 +258,6 @@ const TXOMoveInfo = () => {
               }
             />
           )}
-
           <Route path="history" end element={<MoveHistory moveCode={moveCode} />} />
           {/* TODO - clarify role/tab access */}
           <Route path="/" element={<Navigate to={`/moves/${moveCode}/details`} replace />} />

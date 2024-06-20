@@ -33,13 +33,15 @@ const testProps = {
     state: 'CA',
     postalCode: '92310',
   },
-  handleDivertShipment: jest.fn(),
+  handleShowDiversionModal: jest.fn(),
   shipmentInfo: {
     id: '456',
     eTag: 'abc123',
     status: 'APPROVED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
+  diversionReason: '',
 };
 
 const ppmShipment = {
@@ -94,17 +96,18 @@ const cancelledShipment = {
     state: 'CA',
     postalCode: '92310',
   },
-  handleDivertShipment: jest.fn(),
+  handleShowDiversionModal: jest.fn(),
   shipmentInfo: {
     id: '456',
     eTag: 'abc123',
     status: 'CANCELED',
     shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
   },
 };
 
 describe('ShipmentAddresses', () => {
-  it('calls props.handleDivertShipment on request diversion button click', async () => {
+  it('calls props.handleShowDiversionModal on request diversion button click', async () => {
     render(
       <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
         <ShipmentAddresses {...testProps} />
@@ -114,11 +117,8 @@ describe('ShipmentAddresses', () => {
 
     await userEvent.click(requestDiversionBtn);
     await waitFor(() => {
-      expect(testProps.handleDivertShipment).toHaveBeenCalled();
-      expect(testProps.handleDivertShipment).toHaveBeenCalledWith(
-        testProps.shipmentInfo.id,
-        testProps.shipmentInfo.eTag,
-      );
+      expect(testProps.handleShowDiversionModal).toHaveBeenCalled();
+      expect(testProps.handleShowDiversionModal).toHaveBeenCalledWith(testProps.shipmentInfo);
     });
   });
 
@@ -187,5 +187,26 @@ describe('ShipmentAddresses', () => {
 
     expect(screen.getByText("Customer's addresses")).toBeInTheDocument();
     expect(screen.getByText('Authorized addresses')).toBeInTheDocument();
+  });
+
+  it('does not show request diversion for PPM', () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses {...ppmShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByText('Request diversion')).not.toBeInTheDocument();
+  });
+
+  it('renders with disabled request diversion button', async () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses {...testProps} isMoveLocked={isMoveLocked} />
+      </MockProviders>,
+    );
+    const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
+    expect(requestDiversionBtn).toBeDisabled();
   });
 });

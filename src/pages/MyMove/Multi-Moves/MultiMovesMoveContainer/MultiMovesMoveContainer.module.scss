@@ -96,6 +96,7 @@
     @media (max-width: 700px) {
       @include u-margin-left(0);
     }
+
   }
 }
 
@@ -106,6 +107,10 @@
   h4 {
     font-weight: bold;
   }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+  }
 }
 
 .specialMoves {
@@ -113,4 +118,14 @@
   color: red;
   font-size: 1.67rem;
   font-weight: bold;
+}
+
+.ppmDropdownBtn {
+  margin-left: auto;
+  padding-left: 10px;
+
+  @media (max-width: 768px) {
+    margin: auto;
+    padding-left: 0;
+  }
 }

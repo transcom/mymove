@@ -19,4 +19,5 @@ export const permissionTypes = {
   createReportViolation: 'create.reportViolation',
   viewCloseoutOffice: 'view.closeoutOffice',
   updateMTOPage: 'update.MTOPage',
+  updateCustomer: 'update.customer',
 };

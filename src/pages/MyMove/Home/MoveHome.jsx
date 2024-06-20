@@ -3,7 +3,7 @@ import { node, string } from 'prop-types';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { Alert, Button } from '@trussworks/react-uswds';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 
 import styles from './Home.module.scss';
 import {
@@ -17,7 +17,7 @@ import {
 } from './HomeHelpers';
 
 import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
-import DownloadPacketErrorModal from 'shared/DownloadPacketErrorModal/DownloadPacketErrorModal';
+import ErrorModal from 'shared/ErrorModal/ErrorModal';
 import ConnectedDestructiveShipmentConfirmationModal from 'components/ConfirmationModals/DestructiveShipmentConfirmationModal';
 import Contact from 'components/Customer/Home/Contact';
 import DocsUploaded from 'components/Customer/Home/DocsUploaded';
@@ -76,12 +76,13 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // loading the moveId in params to select move details from serviceMemberMoves in state
   const { moveId } = useParams();
   const navigate = useNavigate();
-
+  let { state } = useLocation();
+  state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
-  const [showDownloadPPMPaperworkErrorAlert, setShowDownloadPPMPaperworkErrorAlert] = useState(false);
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   // fetching all move data on load since this component is dependent on that data
   // this will run each time the component is loaded/accessed
@@ -151,7 +152,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking if a PPM shipment is waiting on payment approval
   const hasSubmittedPPMCloseout = () => {
     const finishedCloseout = mtoShipments.filter(
-      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment?.ppmShipment?.status === ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     return !!finishedCloseout.length;
   };
@@ -191,6 +192,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // checking to see if prime is counseling this move, return true
   const isPrimeCounseled = () => {
     return !orders.providesServicesCounseling;
+  };
+
+  // checking to see if prime has completed counseling, return true
+  const isPrimeCounselingComplete = () => {
+    return move.primeCounselingCompletedAt?.indexOf('0001-01-01') < 0;
   };
 
   // logic that handles deleting a shipment
@@ -317,6 +323,15 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const handleNewPathClick = (path) => {
+    navigate(path, { state });
+  };
+
+  const handlePPMFeedbackClick = (shipmentId) => {
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+
     navigate(path);
   };
 
@@ -375,8 +390,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   const togglePPMPacketErrorModal = () => {
-    setShowDownloadPPMPaperworkErrorAlert(!showDownloadPPMPaperworkErrorAlert);
+    setShowErrorAlert(!showErrorAlert);
   };
+
+  const errorModalMessage =
+    "Something went wrong downloading PPM paperwork. Please try again later. If that doesn't fix it, contact the ";
 
   // early return if loading user/service member
   if (!serviceMember) {
@@ -400,7 +418,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       : generatePath(customerRoutes.SHIPMENT_MOVING_INFO_PATH, { moveId: move.id }));
 
   const confirmationPath = move?.id && generatePath(customerRoutes.MOVE_REVIEW_PATH, { moveId: move.id });
-  const profileEditPath = customerRoutes.PROFILE_PATH;
+  const profileEditPath = generatePath(customerRoutes.PROFILE_PATH);
   const ordersEditPath = `/move/${move.id}/review/edit-orders/${orders.id}`;
   const ordersAmendPath = `/orders/amend/${orders.id}`;
   const allSortedShipments = sortAllShipments(mtoShipments);
@@ -409,7 +427,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   // eslint-disable-next-line camelcase
   const currentLocation = current_location;
   const shipmentNumbersByType = {};
-
   return (
     <>
       <ConnectedDestructiveShipmentConfirmationModal
@@ -422,7 +439,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         submitText="Yes, Delete"
         closeText="No, Keep It"
       />
-      <DownloadPacketErrorModal isOpen={showDownloadPPMPaperworkErrorAlert} closeModal={togglePPMPacketErrorModal} />
+      <ErrorModal isOpen={showErrorAlert} closeModal={togglePPMPacketErrorModal} errorMessage={errorModalMessage} />
       <div className={styles.homeContainer}>
         <header data-testid="customer-header" className={styles['customer-header']}>
           <div className={`usa-prose grid-container ${styles['grid-container']}`}>
@@ -644,7 +661,46 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                           <br /> The amount you receive will be deducted from your PPM incentive payment. If your
                           incentive ends up being less than your advance, you will be required to pay back the
                           difference.
+                          <br />
+                          <br />
                         </Description>
+                      )}
+                      {isPrimeCounselingComplete() && (
+                        <>
+                          {ppmShipments.map((shipment) => {
+                            const { shipmentType } = shipment;
+                            if (shipmentNumbersByType[shipmentType]) {
+                              shipmentNumbersByType[shipmentType] += 1;
+                            } else {
+                              shipmentNumbersByType[shipmentType] = 1;
+                            }
+                            const shipmentNumber = shipmentNumbersByType[shipmentType];
+                            return (
+                              <>
+                                <strong>
+                                  {shipmentTypes[shipment.shipmentType]}
+                                  {` ${shipmentNumber} `}
+                                </strong>
+                                {shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <p className={styles.downloadLink}>
+                                    <AsyncPacketDownloadLink
+                                      id={shipment?.ppmShipment?.id}
+                                      label="Download AOA Paperwork (PDF)"
+                                      asyncRetrieval={downloadPPMAOAPacket}
+                                      onFailure={togglePPMPacketErrorModal}
+                                    />
+                                  </p>
+                                )}
+                                {!shipment?.ppmShipment?.hasRequestedAdvance && (
+                                  <>
+                                    <br />
+                                    <br />
+                                  </>
+                                )}
+                              </>
+                            );
+                          })}
+                        </>
                       )}
                     </SectionWrapper>
                   </Step>
@@ -659,6 +715,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       shipments={ppmShipments}
                       onUploadClick={handlePPMUploadClick}
                       onDownloadError={togglePPMPacketErrorModal}
+                      onFeedbackClick={handlePPMFeedbackClick}
                     />
                   </Step>
                 )}

@@ -169,7 +169,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		}{
 			"No associations": {
 				eagerPreloadAssociations: nil,
-				successAssertionFunc: func(expected *models.PPMShipment, actual *models.PPMShipment) {
+				successAssertionFunc: func(_ *models.PPMShipment, actual *models.PPMShipment) {
 					suite.True(actual.Shipment.ID.IsNil())
 					suite.Nil(actual.WeightTickets)
 					suite.Nil(actual.ProgearWeightTickets)
@@ -637,7 +637,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 		}
 
 		suite.Run("Excludes deleted uploads", func() {
-			ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApprovalWithAllDocTypes(
+			ppmShipment := factory.BuildPPMShipmentThatNeedsCloseoutWithAllDocTypes(
 				suite.DB(),
 				userUploader,
 			)

@@ -1,7 +1,11 @@
 package services
 
 import (
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -18,4 +22,11 @@ type RequestedOfficeUserListFetcher interface {
 //go:generate mockery --name RequestedOfficeUserFetcher
 type RequestedOfficeUserFetcher interface {
 	FetchRequestedOfficeUser(appCtx appcontext.AppContext, filters []QueryFilter) (models.OfficeUser, error)
+}
+
+// RequestedOfficeUserFetcher is the exported interface for updating a requested office user
+//
+//go:generate mockery --name RequestedOfficeUserUpdater
+type RequestedOfficeUserUpdater interface {
+	UpdateRequestedOfficeUser(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.RequestedOfficeUserUpdate) (*models.OfficeUser, *validate.Errors, error)
 }

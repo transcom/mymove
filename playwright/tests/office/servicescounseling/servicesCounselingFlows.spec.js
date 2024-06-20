@@ -96,6 +96,24 @@ test.describe('Services counselor user', () => {
 
       await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
     });
+    test('is able to view Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
+  });
+
+  test.describe('with HHG Move with Marine Corps as BOS', () => {
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveAsUSMCNeedsSC();
+      await scPage.navigateToMove(move.locator);
+    });
+
+    test('is able to view USMC as Origin GBLOC', async ({ page }) => {
+      // Check for Origin GBLOC label
+      await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
+      await expect(page.getByTestId('infoBlock')).toContainText('KKFA / USMC');
+    });
   });
 
   test.describe('with HHG Move with amended orders', () => {
@@ -323,6 +341,51 @@ test.describe('Services counselor user', () => {
 
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
+    await page.getByRole('button', { name: 'Confirm' }).click();
+    await scPage.waitForPage.moveDetails();
+
+    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+  });
+
+  test('is able to edit shipmentInfo and Incentives', async ({ page, scPage }) => {
+    const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
+    await scPage.navigateToCloseoutMove(move.locator);
+
+    // Navigate to the "Review documents" page
+    await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
+    await page.getByRole('button', { name: 'Review documents' }).click();
+
+    await scPage.waitForPage.reviewWeightTicket();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewProGear();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').dispatchEvent('click');
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewDocumentsConfirmation();
+    const parentShipmentInfoElement = page.locator('[data-testid="shipmentInfo"]');
+    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
+
+    await page.getByTestId('editTextButton').dispatchEvent('click');
+    await expect(page.getByText('Edit Shipment Info')).toBeVisible();
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
+    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
+
+    const parentIncentivesElement = page.locator('[data-testid="incentives"]');
+    await parentIncentivesElement.locator('[data-testid="incentives-showRequestDetailsButton"]').click();
+    await page.getByTestId('editTextButton').dispatchEvent('click');
+    await expect(page.getByText('Edit Incentives/Costs')).toBeVisible();
+    await page.getByRole('button', { name: 'Save' }).click();
+    await expect(page.getByText('Edit Incentives/Costs')).not.toBeVisible();
     await page.getByRole('button', { name: 'Confirm' }).click();
     await scPage.waitForPage.moveDetails();
 

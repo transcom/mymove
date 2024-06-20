@@ -29,6 +29,19 @@ const defaultProps = {
   editURL: '/',
 };
 
+const uscgProps = {
+  firstName: 'Jason',
+  lastName: 'Ash',
+  affiliation: 'Coast Guard',
+  payGrade: 'E-5',
+  edipi: '9999999999',
+  emplid: '1234567',
+  originDutyLocationName: 'Buckley AFB',
+  originTransportationOfficeName: 'Buckley AFB',
+  originTransportationOfficePhone: '555-555-5555',
+  editURL: '/',
+};
+
 export const Editable = () => (
   <div style={{ padding: 40 }}>
     <ServiceInfoDisplay {...defaultProps} />
@@ -44,5 +57,11 @@ export const NonEditableWithMessage = () => (
 export const NonEditableWithoutMessage = () => (
   <div style={{ padding: 40 }}>
     <ServiceInfoDisplay {...defaultProps} isEditable={false} />
+  </div>
+);
+
+export const CoastGuardCustomer = () => (
+  <div style={{ padding: 40 }}>
+    <ServiceInfoDisplay {...uscgProps} isEditable={false} />
   </div>
 );

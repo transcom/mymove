@@ -72,6 +72,10 @@ properties:
   diversion:
     type: boolean
     example: true
+  diversionReason:
+    type: string
+    example: MTO Shipment needs rerouted
+    x-nullable: true
   distance:
     type: integer
     x-nullable: true
@@ -177,3 +181,14 @@ properties:
     $ref: 'PPMShipment.yaml'
   deliveryAddressUpdate:
     $ref: 'ShipmentAddressUpdate.yaml'
+  shipmentLocator:
+    type: string
+    x-nullable: true
+    readOnly: true
+    example: '1K43AR-01'
+  originSitAuthEndDate:
+    format: date-time
+    type: string
+  destinationSitAuthEndDate:
+    format: date-time
+    type: string

@@ -25,7 +25,7 @@ type Address struct {
 	State          string    `json:"state" db:"state"`
 	PostalCode     string    `json:"postal_code" db:"postal_code"`
 	Country        *string   `json:"country" db:"country"`
-	County         *string   `json:"county" db:"county"`
+	County         string    `json:"county" db:"county"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -68,6 +68,7 @@ func (a *Address) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: a.City, Name: "City"},
 		&validators.StringIsPresent{Field: a.State, Name: "State"},
 		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
+		&validators.StringIsPresent{Field: a.County, Name: "County"},
 	), nil
 }
 

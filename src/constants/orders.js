@@ -3,7 +3,16 @@ export const ORDERS_TYPE = {
   LOCAL_MOVE: 'LOCAL_MOVE',
   RETIREMENT: 'RETIREMENT',
   SEPARATION: 'SEPARATION',
+};
+
+export const SPECIAL_ORDERS_TYPES = {
+  WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
+  SAFETY: 'Safety',
+};
+
+export const CHECK_SPECIAL_ORDERS_TYPES = (ordersType) => {
+  return ['BLUEBARK', 'WOUNDED_WARRIOR', 'SAFETY'].includes(ordersType);
 };
 
 export const ORDERS_TYPE_OPTIONS = {
@@ -11,6 +20,7 @@ export const ORDERS_TYPE_OPTIONS = {
   LOCAL_MOVE: 'Local Move',
   RETIREMENT: 'Retirement',
   SEPARATION: 'Separation',
+  WOUNDED_WARRIOR: 'Wounded Warrior',
   BLUEBARK: 'BLUEBARK',
 };
 

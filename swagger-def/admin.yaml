@@ -1,19 +1,17 @@
-schemes:
-  - https
 swagger: '2.0'
-host: admin.move.mil # OpenAPI 2.x only supports a single host, while OpenAPI 3.x supports multiple server stanzas.
 info:
+  contact:
+    email: milmove-developers@caci.com
   description:
     $ref: info/admin_description.md
-  version: 1.0.0
-  title: MilMove Admin API
   license:
     name: MIT
-    url: https://github.com/transcom/mymove/blob/main/LICENSE.md
-  contact: # Contact is set to Pagerduty
-    name: MilMove AppEng
-    email: support@movemil.pagerduty.com
+    url: 'https://opensource.org/licenses/MIT'
+  title: MilMove Admin API
+  version: 1.0.0
 basePath: /admin/v1
+schemes:
+  - https
 consumes:
   - application/json
 produces:
@@ -68,6 +66,21 @@ tags:
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
 definitions:
+  OktaAccountInfoResponse:
+    type: object
+    properties:
+      id:
+        type: string
+      status:
+        type: string
+      activated:
+        type: string
+      created:
+        type: string
+      profile:
+        type: object
+      credentials:
+        type: object
   Address:
     type: object
     properties:
@@ -208,6 +221,11 @@ definitions:
         x-nullable: true
         example: 'USA'
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - state
@@ -768,12 +786,12 @@ definitions:
     properties:
       name:
         type: string
-        example: 'Transportation Ordering Officer'
+        example: 'Task Ordering Officer'
         x-nullable: true
         title: name
       roleType:
         type: string
-        example: 'transportation_ordering_officer'
+        example: 'task_ordering_officer'
         x-nullable: true
         title: roleType
   OfficeUserPrivilege:
@@ -832,6 +850,51 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Organization'
+  RequestedOfficeUserUpdate:
+    type: object
+    properties:
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: true
+      middleInitials:
+        type: string
+        title: Middle Initials
+        example: Q.
+        x-nullable: true
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: true
+      email:
+        type: string
+        example: 'user@userdomain.com'
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: 'c56a4180-65aa-42ec-a945-5fd21dec0538'
+        x-nullable: true
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REJECTED
   Role:
     type: object
     properties:
@@ -844,7 +907,7 @@ definitions:
         example: customer
       roleName:
         type: string
-        example: Transportation Ordering Officer
+        example: Task Ordering Officer
       createdAt:
         type: string
         format: date-time
@@ -1198,7 +1261,7 @@ paths:
       produces:
         - application/json
       summary: Get a Requested Office User
-      description: Retrieving a single office user in any status
+      description: Retrieving a single office user in any status. This endpoint is used in the Admin UI that will allow the admin user to view the user's relevant data.
       operationId: getRequestedOfficeUser
       tags:
         - Requested office users
@@ -1215,6 +1278,40 @@ paths:
             $ref: '#/definitions/OfficeUser'
         '400':
           description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Office User not found
+        '500':
+          description: server error
+    patch:
+      produces:
+        - application/json
+      summary: Update a Requested Office User
+      description: Updates a requested office user to include profile data and status. This will be used in the Admin UI for approving/rejecting/updating a user.
+      operationId: updateRequestedOfficeUser
+      tags:
+        - Requested office users
+      parameters:
+        - in: path
+          name: officeUserId
+          type: string
+          format: uuid
+          required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestedOfficeUserUpdate'
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
         '401':
           description: request requires user authentication
         '404':

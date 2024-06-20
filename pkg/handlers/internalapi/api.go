@@ -36,6 +36,7 @@ import (
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
 	"github.com/transcom/mymove/pkg/services/upload"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
+	weightticketparser "github.com/transcom/mymove/pkg/services/weight_ticket_parser"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -68,6 +69,14 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	parserComputer := weightticketparser.NewWeightTicketComputer()
+	weightGenerator, err := weightticketparser.NewWeightTicketParserGenerator(pdfGenerator)
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
@@ -113,6 +122,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler{handlerConfig, closeoutOfficeUpdater}
 	internalAPI.MovesGetAllMovesHandler = GetAllMovesHandler{handlerConfig}
+
+	internalAPI.ApplicationParametersValidateHandler = ApplicationParametersValidateHandler{handlerConfig}
 
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler{handlerConfig}
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler{
@@ -161,11 +172,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		postalcodeservice.NewPostalCodeValidator(clock.New()),
 	}
 
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter)
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter,
 	)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator), shipmentRouter, moveTaskOrderUpdater)
@@ -193,6 +204,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 			move.NewMoveWeights(mtoshipment.NewShipmentReweighRequester()),
 			handlerConfig.NotificationSender(),
 			paymentRequestShipmentRecalculator,
+			addressUpdater,
+			addressCreator,
 		),
 		ppmShipmentUpdater,
 	)
@@ -209,7 +222,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	internalAPI.MtoShipmentDeleteShipmentHandler = DeleteShipmentHandler{
 		handlerConfig,
-		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater),
+		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
 
 	internalAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseCreator()}
@@ -226,7 +239,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.PpmUpdateProGearWeightTicketHandler = UpdateProGearWeightTicketHandler{handlerConfig, progear.NewCustomerProgearWeightTicketUpdater()}
 	internalAPI.PpmDeleteProGearWeightTicketHandler = DeleteProGearWeightTicketHandler{handlerConfig, progear.NewProgearWeightTicketDeleter()}
 
-	internalAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig}
+	internalAPI.PpmCreatePPMUploadHandler = CreatePPMUploadHandler{handlerConfig, weightGenerator, parserComputer, userUploader}
 
 	ppmShipmentNewSubmitter := ppmshipment.NewPPMShipmentNewSubmitter(ppmShipmentFetcher, signedCertificationCreator, ppmShipmentRouter)
 

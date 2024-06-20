@@ -1,3 +1,6 @@
+import { ADVANCE_STATUSES } from 'constants/ppms';
+import { ppmShipmentStatuses } from 'constants/shipments';
+
 export const mockMovesPCS = {
   currentMove: [
     {
@@ -1044,6 +1047,94 @@ export const mockMovesNoCurrentOrPreviousMoves = {
   previousMoves: [],
 };
 
+export const mockMovesPPMWithAdvanceOptions = {
+  currentMove: [
+    {
+      id: 'testMoveID1',
+      moveCode: 'MOVECO',
+      orderID: 'testOrderID1',
+      status: 'DRAFT',
+      orders: {
+        id: 'testOrder1',
+        new_duty_location: {
+          id: 'testDDL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        origin_duty_location: {
+          id: 'testODL1',
+          name: 'Fort Bragg North Station',
+          address: {
+            streetAddress1: '123 Main Ave',
+            streetAddress2: 'Apartment 9000',
+            streetAddress3: '',
+            city: 'Anytown',
+            state: 'AL',
+            postalCode: '90210',
+            country: 'USA',
+          },
+        },
+        rank: 'E_8',
+        reportByDate: '2024-01-25',
+        ordersType: 'PERMANENT_CHANGE_OF_STATION',
+        orderNumber: 'ORDER3',
+        date_issued: '2024-01-01',
+      },
+      mtoShipments: [
+        {
+          id: 'shipment1',
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          created_at: '2024-01-03 15:28:28.468 -0600',
+          ppmShipment: {
+            status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+            advanceStatus: ADVANCE_STATUSES.APPROVED.apiValue,
+          },
+        },
+        {
+          id: 'shipment2',
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+          ppmShipment: {
+            status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+            advanceStatus: ADVANCE_STATUSES.RECEIVED.apiValue,
+          },
+        },
+        {
+          id: 'shipment3',
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+          ppmShipment: {
+            status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
+            advanceStatus: ADVANCE_STATUSES.APPROVED.apiValue,
+          },
+        },
+        {
+          id: 'shipment4',
+          shipmentType: 'PPM',
+          status: 'APPROVED',
+          created_at: '2024-01-05 15:28:28.468 -0600',
+          ppmShipment: {
+            status: ppmShipmentStatuses.NEEDS_CLOSEOUT,
+            advanceStatus: ADVANCE_STATUSES.RECEIVED.apiValue,
+          },
+        },
+      ],
+    },
+  ],
+  previousMoves: [],
+};
+
 export default {
   mockMovesPCS,
   mockMovesRetirement,
@@ -1051,4 +1142,5 @@ export default {
   mockMovesNoPreviousMoves,
   mockMovesNoCurrentMoveWithPreviousMoves,
   mockMovesNoCurrentOrPreviousMoves,
+  mockMovesPPMWithAdvanceOptions,
 };

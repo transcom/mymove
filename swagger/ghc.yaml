@@ -38,6 +38,8 @@ tags:
   - name: ppm
   - name: tac
   - name: transportationOffice
+  - name: uploads
+  - name: paymentRequests
 paths:
   /customer:
     post:
@@ -78,6 +80,44 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /open/requested-office-users:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals
+        who do not have an office account to request the creation of an office
+        account.
+
+        Request the creation of an office user. An administrator will need to
+        approve them after creation. Note on requirements: An identification
+        method must be present. The following 2 fields have an "OR" requirement.
+        - edipi - other_unique_id One of these two fields MUST be present to
+        serve as identification for the office user being created. This logic is
+        handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -151,6 +191,70 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.customer
+  /customer/search:
+    post:
+      produces:
+        - application/json
+      consumes:
+        - application/json
+      summary: Search customers by DOD ID or customer name
+      description: >
+        Search customers by DOD ID or customer name. Used by services counselors
+        to locate profiles to update, find attached moves, and to create new
+        moves.
+      operationId: searchCustomers
+      tags:
+        - customer
+      parameters:
+        - in: body
+          name: body
+          schema:
+            properties:
+              page:
+                type: integer
+                description: requested page of results
+              perPage:
+                type: integer
+              dodID:
+                description: DOD ID
+                type: string
+                minLength: 10
+                maxLength: 10
+                x-nullable: true
+              branch:
+                description: Branch
+                type: string
+                minLength: 1
+              customerName:
+                description: Customer Name
+                type: string
+                minLength: 1
+                x-nullable: true
+              sort:
+                type: string
+                x-nullable: true
+                enum:
+                  - customerName
+                  - dodID
+                  - branch
+                  - personalEmail
+                  - telephone
+              order:
+                type: string
+                x-nullable: true
+                enum:
+                  - asc
+                  - desc
+          description: field that results should be sorted by
+      responses:
+        '200':
+          description: Successfully returned all customers matching the criteria
+          schema:
+            $ref: '#/definitions/SearchCustomersResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
   /move/{locator}:
     parameters:
       - description: Code used to identify a move in the system
@@ -336,6 +440,40 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /orders:
+    post:
+      summary: Creates an orders model for a logged-in user
+      description: >-
+        Creates an instance of orders tied to a service member, which allow for
+        creation of a move and an entitlement. Orders are required before the
+        creation of a move
+      operationId: createOrder
+      tags:
+        - order
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: createOrders
+          schema:
+            $ref: '#/definitions/CreateOrders'
+      responses:
+        '200':
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/Order'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '403':
+          description: user is not authorized
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          description: internal server error
   /orders/{orderID}:
     parameters:
       - description: ID of order to use
@@ -956,6 +1094,11 @@ paths:
           name: If-Match
           type: string
           required: true
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/RequestDiversion'
       responses:
         '200':
           description: Successfully requested the shipment diversion
@@ -3106,6 +3249,7 @@ paths:
         - in: query
           name: orderType
           type: string
+          description: order type
       responses:
         '200':
           description: >-
@@ -3196,8 +3340,8 @@ paths:
             type: string
             enum:
               - SUBMITTED
+              - SERVICE COUNSELING COMPLETED
               - APPROVALS REQUESTED
-              - APPROVED
         - in: query
           name: orderType
           type: string
@@ -3288,12 +3432,12 @@ paths:
           items:
             type: string
             enum:
-              - Payment requested
-              - Reviewed
-              - Rejected
-              - Paid
-              - Deprecated
-              - Error
+              - PENDING
+              - REVIEWED
+              - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+              - PAID
+              - DEPRECATED
+              - EDI_ERROR
         - in: query
           name: orderType
           type: string
@@ -3437,6 +3581,43 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /lines-of-accounting:
+    post:
+      summary: Fetch line of accounting
+      description: >-
+        Fetches a line of accounting based on provided service member
+        affiliation, order issue date, and Transportation Accounting Code (TAC).
+      operationId: requestLineOfAccounting
+      tags:
+        - linesOfAccounting
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Service member affiliation, order issue date, and TAC code.
+          required: true
+          schema:
+            $ref: '#/definitions/FetchLineOfAccountingPayload'
+      responses:
+        '200':
+          description: Successfully retrieved line of accounting
+          schema:
+            $ref: '#/definitions/LineOfAccounting'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /transportation-offices:
     get:
       produces:
@@ -3468,7 +3649,122 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /open/transportation-offices:
+    get:
+      produces:
+        - application/json
+      summary: Returns the transportation offices matching the search query
+      description: >-
+        This endpoint is publicly accessible as it is utilized to access
+        transportation office information without having an office
+        account.Returns the transportation offices matching the search query.
+      operationId: getTransportationOfficesOpen
+      tags:
+        - transportationOffice
+      parameters:
+        - in: query
+          name: search
+          type: string
+          required: true
+          minLength: 2
+          description: Search string for transportation offices
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /uploads:
+    post:
+      summary: Create a new upload
+      description: >-
+        Uploads represent a single digital file, such as a JPEG or PDF.
+        Currently, office application uploads are only for Services Counselors
+        to upload files for orders, but this may be expanded in the future.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
+  /application_parameters/{parameterName}:
+    get:
+      summary: Searches for an application parameter by name, returns nil if not found
+      description: Searches for an application parameter by name, returns nil if not found
+      operationId: getParam
+      tags:
+        - application_parameters
+      parameters:
+        - in: path
+          name: parameterName
+          type: string
+          format: string
+          required: true
+          description: Parameter Name
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '500':
+          description: server error
 definitions:
+  ApplicationParameters:
+    type: object
+    properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   ClientError:
     type: object
     properties:
@@ -3522,6 +3818,183 @@ definitions:
         type: string
       type:
         type: string
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      roleType:
+        type: string
+        example: customer
+      roleName:
+        type: string
+        example: Task Ordering Officer
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - roleType
+      - roleName
+      - createdAt
+      - updatedAt
+  OfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      userId:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+      middleInitials:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+        format: x-email
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+      active:
+        type: boolean
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/Role'
+      edipi:
+        type: string
+      otherUniqueId:
+        type: string
+      rejectionReason:
+        type: string
+      status:
+        type: string
+        enum:
+          - APPROVED
+          - REQUESTED
+          - REJECTED
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+    required:
+      - id
+      - firstName
+      - middleInitials
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - active
+      - roles
+      - edipi
+      - otherUniqueId
+      - rejectionReason
+      - status
+      - createdAt
+      - updatedAt
+  LockedOfficeUser:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+      transportationOfficeId:
+        type: string
+        format: uuid
+      transportationOffice:
+        $ref: '#/definitions/TransportationOffice'
+  OfficeUserCreate:
+    type: object
+    properties:
+      email:
+        type: string
+        example: user@userdomain.com
+        title: Email
+        x-nullable: false
+      edipi:
+        type: string
+        example: '1234567890'
+        maxLength: 10
+        title: EDIPI
+        x-nullable: true
+      otherUniqueId:
+        type: string
+        title: Office user identifier when EDIPI is not available
+        x-nullable: true
+      firstName:
+        type: string
+        title: First Name
+        x-nullable: false
+      middleInitials:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initials
+      lastName:
+        type: string
+        title: Last Name
+        x-nullable: false
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        example: 212-555-5555
+        x-nullable: false
+      transportationOfficeId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: false
+      roles:
+        type: array
+        items:
+          $ref: '#/definitions/OfficeUserRole'
+        x-nullable: false
+    required:
+      - firstName
+      - lastName
+      - email
+      - telephone
+      - transportationOfficeId
+      - roles
+  OfficeUserRole:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Task Ordering Officer
+        x-nullable: true
+        title: name
+      roleType:
+        type: string
+        example: task_ordering_officer
+        x-nullable: true
+        title: roleType
   Customer:
     type: object
     properties:
@@ -3575,10 +4048,13 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -3638,6 +4114,8 @@ definitions:
         x-nullable: true
       backupAddress:
         $ref: '#/definitions/Address'
+      cacValidated:
+        type: boolean
   UpdateCustomerPayload:
     type: object
     properties:
@@ -3677,11 +4155,13 @@ definitions:
       secondaryTelephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
         x-nullable: true
       backupAddress:
         allOf:
           - $ref: '#/definitions/Address'
+      cac_validated:
+        type: boolean
   CreateCustomerPayload:
     type: object
     properties:
@@ -3734,6 +4214,66 @@ definitions:
           - $ref: '#/definitions/Address'
       createOktaAccount:
         type: boolean
+      cacUser:
+        type: boolean
+  FetchLineOfAccountingPayload:
+    type: object
+    properties:
+      serviceMemberAffiliation:
+        $ref: '#/definitions/Affiliation'
+      ordersIssueDate:
+        type: string
+        format: date
+        example: '2023-01-01'
+      tacCode:
+        type: string
+        minLength: 4
+        maxLength: 4
+        example: F8J1
+  SearchCustomersResult:
+    type: object
+    properties:
+      page:
+        type: integer
+      perPage:
+        type: integer
+      totalCount:
+        type: integer
+      searchCustomers:
+        $ref: '#/definitions/SearchCustomers'
+  SearchCustomers:
+    type: array
+    items:
+      $ref: '#/definitions/SearchCustomer'
+  SearchCustomer:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+      firstName:
+        type: string
+        example: John
+        x-nullable: true
+      lastName:
+        type: string
+        example: Doe
+        x-nullable: true
+      dodID:
+        type: string
+        x-nullable: true
+      branch:
+        type: string
+      telephone:
+        type: string
+        format: telephone
+        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        x-nullable: true
+      personalEmail:
+        type: string
+        format: x-email
+        example: personalEmail@email.com
+        pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
   Entitlements:
     properties:
       id:
@@ -3749,6 +4289,9 @@ definitions:
         example: true
         type: boolean
         x-nullable: true
+      gunSafe:
+        type: boolean
+        example: false
       nonTemporaryStorage:
         example: false
         type: boolean
@@ -3955,6 +4498,19 @@ definitions:
         format: date-time
       eTag:
         type: string
+      shipmentGBLOC:
+        $ref: '#/definitions/GBLOC'
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   MoveHistory:
     properties:
       id:
@@ -4276,6 +4832,76 @@ definitions:
       eTag:
         type: string
     type: object
+  OrderBody:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+  CreateOrders:
+    type: object
+    properties:
+      serviceMemberId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issueDate:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        title: Orders date
+      reportByDate:
+        type: string
+        description: Report By Date
+        format: date
+        title: Report-by date
+      ordersType:
+        $ref: '#/definitions/OrdersType'
+      ordersTypeDetail:
+        $ref: '#/definitions/OrdersTypeDetail'
+      hasDependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      spouseHasProGear:
+        type: boolean
+        title: >-
+          Do you have a spouse who will need to move items related to their
+          occupation (also known as spouse pro-gear)?
+      newDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      ordersNumber:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: 030-00362
+      tac:
+        type: string
+        title: TAC
+        example: F8J1
+        x-nullable: true
+      sac:
+        type: string
+        title: SAC
+        example: N002214CSW32Y9
+        x-nullable: true
+      departmentIndicator:
+        $ref: '#/definitions/DeptIndicator'
+      grade:
+        $ref: '#/definitions/Grade'
+      originDutyLocationId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - serviceMemberId
+      - issueDate
+      - reportByDate
+      - ordersType
+      - hasDependents
+      - spouseHasProGear
+      - newDutyLocationId
   CounselingUpdateOrderPayload:
     type: object
     properties:
@@ -4452,6 +5078,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   UpdateBillableWeightPayload:
     type: object
     properties:
@@ -4523,6 +5155,12 @@ definitions:
           for a given shipment on their move
         type: integer
         minimum: 0
+      gunSafe:
+        description: >-
+          True if user is entitled to move a gun safe (up to 500 lbs) as part of
+          their move without it being charged against their weight allowance.
+        type: boolean
+        x-nullable: true
   MoveTaskOrder:
     description: The Move (MoveTaskOrder)
     properties:
@@ -4851,35 +5489,26 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -4922,9 +5551,20 @@ definitions:
           Indicates whether an advance has been requested for the PPM shipment.
         type: boolean
         x-nullable: true
+      hasReceivedAdvance:
+        description: |
+          Indicates whether an advance was received for the PPM shipment.
+        type: boolean
+        x-nullable: true
       advanceAmountRequested:
         description: |
           The amount request for an advance, or null if no advance is requested
+        type: integer
+        format: cents
+        x-nullable: true
+      advanceAmountReceived:
+        description: |
+          The amount received for an advance, or null if no advance is received
         type: integer
         format: cents
         x-nullable: true
@@ -4969,6 +5609,13 @@ definitions:
   UpdateMovingExpense:
     type: object
     properties:
+      movingExpenseType:
+        $ref: '#/definitions/OmittableMovingExpenseType'
+      description:
+        description: A brief description of the expense.
+        type: string
+        x-nullable: true
+        x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
         type: integer
@@ -4989,6 +5636,13 @@ definitions:
       reason:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -5122,33 +5776,26 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+      pickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
+        x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
         x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
       sitLocation:
@@ -5182,8 +5829,8 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
+      - pickupAddress
+      - destinationAddress
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -5194,6 +5841,13 @@ definitions:
         example: MTO Shipment not good enough
     required:
       - rejectionReason
+  RequestDiversion:
+    properties:
+      diversionReason:
+        type: string
+        example: Shipment route needs to change
+    required:
+      - diversionReason
   ApproveSITExtension:
     properties:
       approvedDays:
@@ -5379,6 +6033,17 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockedByOfficeUser:
+        $ref: '#/definitions/LockedOfficeUser'
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -5483,6 +6148,14 @@ definitions:
       orderType:
         type: string
         x-nullable: true
+      lockedByOfficeUserID:
+        type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   QueuePaymentRequests:
     type: array
     items:
@@ -5552,6 +6225,8 @@ definitions:
         type: string
         format: date
         x-nullable: true
+      orderType:
+        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -5560,8 +6235,14 @@ definitions:
         $ref: '#/definitions/GBLOC'
       destinationGBLOC:
         $ref: '#/definitions/GBLOC'
-      orderType:
+      lockedByOfficeUserID:
         type: string
+        format: uuid
+        x-nullable: true
+      lockExpiresAt:
+        type: string
+        format: date-time
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:
@@ -6040,44 +6721,16 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
       - state
       - postalCode
-  DutyLocation:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Fort Bragg North Station
-      address_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      address:
-        $ref: '#/definitions/Address'
-      eTag:
-        type: string
-  OrdersType:
-    type: string
-    title: Orders type
-    enum:
-      - PERMANENT_CHANGE_OF_STATION
-      - LOCAL_MOVE
-      - RETIREMENT
-      - SEPARATION
-      - BLUEBARK
-    x-display-value:
-      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
-      LOCAL_MOVE: Local Move
-      RETIREMENT: Retirement
-      SEPARATION: Separation
-      BLUEBARK: BLUEBARK
   TransportationOffice:
     type: object
     properties:
@@ -6121,6 +6774,43 @@ definitions:
       - address
       - created_at
       - updated_at
+  DutyLocation:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+      address_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      address:
+        $ref: '#/definitions/Address'
+      eTag:
+        type: string
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - PERMANENT_CHANGE_OF_STATION
+      - LOCAL_MOVE
+      - RETIREMENT
+      - SEPARATION
+      - WOUNDED_WARRIOR
+      - BLUEBARK
+      - SAFETY
+    x-display-value:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      LOCAL_MOVE: Local Move
+      RETIREMENT: Retirement
+      SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
+      BLUEBARK: BLUEBARK
+      SAFETY: Safety
   NullableString:
     type: string
     x-go-type:
@@ -6399,10 +7089,17 @@ definitions:
         x-nullable: true
       sitDestinationOriginalAddress:
         $ref: '#/definitions/Address'
+      sitOriginHHGOriginalAddress:
+        $ref: '#/definitions/Address'
+      sitOriginHHGActualAddress:
+        $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
       sitAddressUpdates:
         $ref: '#/definitions/SITAddressUpdates'
+      sitDeliveryMiles:
+        type: integer
+        x-nullable: true
       feeType:
         enum:
           - COUNSELING
@@ -6449,8 +7146,15 @@ definitions:
         type: string
         description: Reason for updating service item.
         x-nullable: true
+      standaloneCrate:
+        type: boolean
+        x-nullable: true
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
+      estimatedPrice:
+        type: integer
+        format: cents
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -6723,7 +7427,7 @@ definitions:
             type: string
             format: date
             x-nullable: true
-          sitAllowanceEndDate:
+          sitAuthorizedEndDate:
             type: string
             format: date
             x-nullable: true
@@ -6744,8 +7448,8 @@ definitions:
         * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
         * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
         * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
-        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
-        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+        * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -6753,8 +7457,8 @@ definitions:
       - SUBMITTED
       - WAITING_ON_CUSTOMER
       - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
+      - NEEDS_CLOSEOUT
+      - CLOSEOUT_COMPLETE
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
@@ -6844,6 +7548,12 @@ definitions:
         minimum: 0
         x-nullable: true
         x-omitempty: false
+      submittedEmptyWeight:
+        description: Customer submitted weight of the vehicle when empty.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       missingEmptyWeightTicket:
         description: >-
           Indicates if the customer is missing a weight ticket for the vehicle
@@ -6866,6 +7576,12 @@ definitions:
           - $ref: '#/definitions/Document'
       fullWeight:
         description: The weight of the vehicle when full.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedFullWeight:
+        description: Customer submitted weight of the vehicle when full.
         type: integer
         minimum: 0
         x-nullable: true
@@ -6896,7 +7612,19 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedOwnsTrailer:
+        description: Indicates if the customer used a trailer they own for the move.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       trailerMeetsCriteria:
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      submittedTrailerMeetsCriteria:
         description: >-
           Indicates if the trailer that the customer used meets all the criteria
           to be claimable.
@@ -6983,6 +7711,31 @@ definitions:
       WEIGHING_FEE: Weighing fee
     x-nullable: true
     x-omitempty: false
+  SubmittedMovingExpenseType:
+    type: string
+    description: Customer Submitted Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEE
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEE: Weighing fee
+    x-nullable: true
+    x-omitempty: false
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
@@ -7015,8 +7768,15 @@ definitions:
           - $ref: '#/definitions/Document'
       movingExpenseType:
         $ref: '#/definitions/OmittableMovingExpenseType'
+      submittedMovingExpenseType:
+        $ref: '#/definitions/SubmittedMovingExpenseType'
       description:
         description: A brief description of the expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      submittedDescription:
+        description: Customer submitted description of the expense
         type: string
         x-nullable: true
         x-omitempty: false
@@ -7029,6 +7789,13 @@ definitions:
         x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      submittedAmount:
+        description: >-
+          Customer submitted total amount of the expense as indicated on the
+          receipt
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -7052,10 +7819,28 @@ definitions:
         format: date
         x-nullable: true
         x-omitempty: false
+      submittedSitStartDate:
+        description: >-
+          Customer submitted date the shipment entered storage, applicable for
+          the `STORAGE` movingExpenseType only
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      submittedSitEndDate:
+        description: >-
+          Customer submitted date the shipment exited storage, applicable for
+          the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -7079,6 +7864,16 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt
@@ -7119,6 +7914,13 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedBelongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       description:
         description: Describes the pro-gear that was moved.
         type: string
@@ -7131,8 +7933,21 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedHasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       weight:
         description: Weight of the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedWeight:
+        description: Customer submitted weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true
@@ -7695,6 +8510,10 @@ definitions:
       diversion:
         type: boolean
         example: true
+      diversionReason:
+        type: string
+        example: MTO Shipment needs rerouted
+        x-nullable: true
       distance:
         type: integer
         x-nullable: true
@@ -7803,6 +8622,17 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
+      shipmentLocator:
+        type: string
+        x-nullable: true
+        readOnly: true
+        example: 1K43AR-01
+      originSitAuthEndDate:
+        format: date-time
+        type: string
+      destinationSitAuthEndDate:
+        format: date-time
+        type: string
   LOATypeNullable:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -7933,6 +8763,13 @@ definitions:
         description: The remaining reimbursement amount that is still owed to the customer.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      haulType:
+        description: >-
+          The type of haul calculation used for this shipment (shorthaul or
+          linehaul).
+        type: string
         x-nullable: true
         x-omitempty: false
       haulPrice:
@@ -8163,6 +9000,9 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
+      - StandaloneCrateCap
+      - UncappedRequestTotal
   ServiceItemParamType:
     type: string
     enum:
@@ -8259,6 +9099,272 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
+  LineOfAccounting:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 06254fc3-b763-484c-b555-42855d1ad5cd
+      loaSysId:
+        type: string
+        maxLength: 20
+        example: '10003'
+        x-nullable: true
+      loaDptID:
+        type: string
+        maxLength: 2
+        example: '1 '
+        x-nullable: true
+      loaTnsfrDptNm:
+        type: string
+        maxLength: 4
+        x-nullable: true
+      loaBafID:
+        type: string
+        maxLength: 4
+        example: '1234'
+        x-nullable: true
+      loaTrsySfxTx:
+        type: string
+        maxLength: 4
+        example: '0000'
+        x-nullable: true
+      loaMajClmNm:
+        type: string
+        maxLength: 4
+        x-nullable: true
+      loaOpAgncyID:
+        type: string
+        maxLength: 4
+        example: 1A
+        x-nullable: true
+      loaAlltSnID:
+        type: string
+        maxLength: 5
+        example: 123A
+        x-nullable: true
+      loaPgmElmntID:
+        type: string
+        maxLength: 12
+        example: '00000000'
+        x-nullable: true
+      loaTskBdgtSblnTx:
+        type: string
+        maxLength: 8
+        x-nullable: true
+      loaDfAgncyAlctnRcpntID:
+        type: string
+        maxLength: 4
+        x-nullable: true
+      loaJbOrdNm:
+        type: string
+        maxLength: 10
+        x-nullable: true
+      loaSbaltmtRcpntID:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaWkCntrRcpntNm:
+        type: string
+        maxLength: 6
+        x-nullable: true
+      loaMajRmbsmtSrcID:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaDtlRmbsmtSrcID:
+        type: string
+        maxLength: 3
+        x-nullable: true
+      loaCustNm:
+        type: string
+        maxLength: 6
+        x-nullable: true
+      loaObjClsID:
+        type: string
+        maxLength: 6
+        example: 22NL
+        x-nullable: true
+      loaSrvSrcID:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaSpclIntrID:
+        type: string
+        maxLength: 2
+        x-nullable: true
+      loaBdgtAcntClsNm:
+        type: string
+        maxLength: 8
+        example: '000000'
+        x-nullable: true
+      loaDocID:
+        type: string
+        maxLength: 15
+        example: HHG12345678900
+        x-nullable: true
+      loaClsRefID:
+        type: string
+        maxLength: 2
+        x-nullable: true
+      loaInstlAcntgActID:
+        type: string
+        maxLength: 6
+        example: '12345'
+        x-nullable: true
+      loaLclInstlID:
+        type: string
+        maxLength: 18
+        x-nullable: true
+      loaFmsTrnsactnID:
+        type: string
+        maxLength: 12
+        x-nullable: true
+      loaDscTx:
+        type: string
+        example: PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)
+        x-nullable: true
+      loaBgnDt:
+        type: string
+        format: date
+        example: '2005-10-01'
+        x-nullable: true
+      loaEndDt:
+        type: string
+        format: date
+        example: '2015-10-01'
+        x-nullable: true
+      loaFnctPrsNm:
+        type: string
+        maxLength: 255
+        x-nullable: true
+      loaStatCd:
+        type: string
+        maxLength: 1
+        example: U
+        x-nullable: true
+      loaHistStatCd:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaHsGdsCd:
+        type: string
+        maxLength: 2
+        example: HT
+        x-nullable: true
+      orgGrpDfasCd:
+        type: string
+        maxLength: 2
+        example: ZZ
+        x-nullable: true
+      loaUic:
+        type: string
+        maxLength: 6
+        x-nullable: true
+      loaTrnsnID:
+        type: string
+        maxLength: 3
+        example: B1
+        x-nullable: true
+      loaSubAcntID:
+        type: string
+        maxLength: 3
+        x-nullable: true
+      loaBetCd:
+        type: string
+        maxLength: 4
+        x-nullable: true
+      loaFndTyFgCd:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaBgtLnItmID:
+        type: string
+        maxLength: 8
+        x-nullable: true
+      loaScrtyCoopImplAgncCd:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaScrtyCoopDsgntrCd:
+        type: string
+        maxLength: 4
+        x-nullable: true
+      loaScrtyCoopLnItmID:
+        type: string
+        maxLength: 3
+        x-nullable: true
+      loaAgncDsbrCd:
+        type: string
+        maxLength: 6
+        x-nullable: true
+      loaAgncAcntngCd:
+        type: string
+        maxLength: 6
+        x-nullable: true
+      loaFndCntrID:
+        type: string
+        maxLength: 12
+        x-nullable: true
+      loaCstCntrID:
+        type: string
+        maxLength: 16
+        x-nullable: true
+      loaPrjID:
+        type: string
+        maxLength: 12
+        x-nullable: true
+      loaActvtyID:
+        type: string
+        maxLength: 11
+        x-nullable: true
+      loaCstCd:
+        type: string
+        maxLength: 16
+        x-nullable: true
+      loaWrkOrdID:
+        type: string
+        maxLength: 16
+        x-nullable: true
+      loaFnclArID:
+        type: string
+        maxLength: 6
+        x-nullable: true
+      loaScrtyCoopCustCd:
+        type: string
+        maxLength: 2
+        x-nullable: true
+      loaEndFyTx:
+        type: integer
+        example: 2016
+        x-nullable: true
+      loaBgFyTx:
+        type: integer
+        example: 2006
+        x-nullable: true
+      loaBgtRstrCd:
+        type: string
+        maxLength: 1
+        x-nullable: true
+      loaBgtSubActCd:
+        type: string
+        maxLength: 4
+        x-nullable: true
+      createdAt:
+        type: string
+        format: date-time
+        example: '2023-08-03T19:17:10.050Z'
+      updatedAt:
+        type: string
+        format: date-time
+        example: '2023-08-03T19:17:38.776Z'
+      validLoaForTac:
+        type: boolean
+        x-nullable: true
+      validHhgProgramCodeForLoa:
+        type: boolean
+        x-nullable: true
 responses:
   InvalidRequest:
     description: The request payload is invalid

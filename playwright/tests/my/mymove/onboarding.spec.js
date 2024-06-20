@@ -10,6 +10,9 @@ test.describe('Onboarding', () => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
 
+    // Input validation code
+    await customerPage.submitParameterValue();
+
     // CONUS/OCONUS section
     await customerPage.waitForPage.onboardingConus();
     await page.getByText('Starts and ends in the continental US').click();
@@ -70,6 +73,12 @@ test.describe('(MultiMove) Onboarding', () => {
     // Create new customer user
     await customerPage.signInAsNewCustomer();
 
+    // if the user needs to input a validation code
+    const validationCodeInput = page.locator('[name="code"]');
+    if (await validationCodeInput.isVisible()) {
+      await customerPage.submitParameterValue();
+    }
+
     // CONUS/OCONUS section
     await customerPage.waitForPage.onboardingConus();
     await page.getByText('Starts and ends in the continental US').click();
@@ -79,7 +88,6 @@ test.describe('(MultiMove) Onboarding', () => {
     await customerPage.waitForPage.onboardingDodId();
     await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Space Force' });
     await page.getByRole('combobox', { name: 'Branch of service' }).selectOption({ label: 'Army' });
-    await page.getByTestId('textInput').fill('1231231234');
     await customerPage.navigateForward();
 
     // Name secton
@@ -119,6 +127,6 @@ test.describe('(MultiMove) Onboarding', () => {
     await page.getByLabel('Phone').fill('2025553456');
     await customerPage.navigateForward();
 
-    await customerPage.waitForPage.home();
+    await customerPage.waitForPage.multiMoveDashboard();
   });
 });

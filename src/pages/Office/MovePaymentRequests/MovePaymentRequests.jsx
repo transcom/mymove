@@ -41,6 +41,7 @@ const MovePaymentRequests = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
   setPendingPaymentRequestCount,
+  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
@@ -138,8 +139,10 @@ const MovePaymentRequests = ({
     setPendingPaymentRequestCount(pendingCount);
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
-  const totalBillableWeight = useCalculatedTotalBillableWeight(mtoShipments);
-  const weightRequested = calculateWeightRequested(mtoShipments);
+  const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+
+  const totalBillableWeight = useCalculatedTotalBillableWeight(excludePPMShipments);
+  const weightRequested = calculateWeightRequested(excludePPMShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
   const billableWeightsReviewed = move?.billableWeightsReviewedAt;
 
@@ -263,6 +266,7 @@ const MovePaymentRequests = ({
               <FinancialReviewButton
                 onClick={handleShowFinancialReviewModal}
                 reviewRequested={move?.financialReviewFlag}
+                isMoveLocked={isMoveLocked}
               />
             </Restricted>
           </div>
@@ -284,6 +288,7 @@ const MovePaymentRequests = ({
               onReviewWeights={handleReviewWeightsClick}
               shipments={filteredShipments}
               secondaryReviewWeightsBtn={noBillableWeightIssues}
+              isMoveLocked={isMoveLocked}
             />
           </div>
           <h2>Payment requests</h2>
@@ -296,6 +301,7 @@ const MovePaymentRequests = ({
                   shipmentsInfo={shipmentsInfo}
                   key={paymentRequest.id}
                   onEditAccountingCodes={handleEditAccountingCodes}
+                  isMoveLocked={isMoveLocked}
                 />
               ))
             ) : (

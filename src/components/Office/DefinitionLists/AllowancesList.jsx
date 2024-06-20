@@ -22,7 +22,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Weight allowance</dt>
-          <dd data-testid="weightAllowance">{formatWeight(info.authorizedWeight)}</dd>
+          <dd data-testid="weightAllowance">{formatWeight(info.totalWeight)}</dd>
         </div>
         <div className={descriptionListStyles.row}>
           <dt>Storage in transit (SIT)</dt>
@@ -50,6 +50,10 @@ const AllowancesList = ({ info, showVisualCues }) => {
             {info.organizationalClothingAndIndividualEquipment ? 'Authorized' : 'Unauthorized'}
           </dd>
         </div>
+        <div className={visualCuesStyle}>
+          <dt>Gun Safe</dt>
+          <dd data-testid="gunSafe"> {info.gunSafe ? 'Authorized' : 'Unauthorized'} </dd>
+        </div>
       </dl>
     </div>
   );
@@ -59,8 +63,7 @@ AllowancesList.propTypes = {
   info: PropTypes.shape({
     branch: PropTypes.string,
     grade: PropTypes.string,
-    weightAllowance: PropTypes.number,
-    authorizedWeight: PropTypes.number,
+    totalWeight: PropTypes.string,
     progear: PropTypes.number,
     spouseProgear: PropTypes.number,
     storageInTransit: PropTypes.number,

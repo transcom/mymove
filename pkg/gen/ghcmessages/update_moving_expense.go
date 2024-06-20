@@ -22,6 +22,12 @@ type UpdateMovingExpense struct {
 	// The total amount of the expense as indicated on the receipt
 	Amount int64 `json:"amount,omitempty"`
 
+	// A brief description of the expense.
+	Description *string `json:"description"`
+
+	// moving expense type
+	MovingExpenseType *OmittableMovingExpenseType `json:"movingExpenseType"`
+
 	// The reason the services counselor has excluded or rejected the item.
 	Reason string `json:"reason,omitempty"`
 
@@ -29,19 +35,33 @@ type UpdateMovingExpense struct {
 	// Format: date
 	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
+	// sit location
+	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
+
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`
 
 	// status
 	Status PPMDocumentStatus `json:"status,omitempty"`
+
+	// The total weight stored in PPM SIT
+	WeightStored int64 `json:"weightStored,omitempty"`
 }
 
 // Validate validates this update moving expense
 func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateMovingExpenseType(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSitLocation(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -59,6 +79,25 @@ func (m *UpdateMovingExpense) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdateMovingExpense) validateMovingExpenseType(formats strfmt.Registry) error {
+	if swag.IsZero(m.MovingExpenseType) { // not required
+		return nil
+	}
+
+	if m.MovingExpenseType != nil {
+		if err := m.MovingExpenseType.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *UpdateMovingExpense) validateSitEndDate(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitEndDate) { // not required
 		return nil
@@ -66,6 +105,25 @@ func (m *UpdateMovingExpense) validateSitEndDate(formats strfmt.Registry) error 
 
 	if err := validate.FormatOf("sitEndDate", "body", "date", m.SitEndDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *UpdateMovingExpense) validateSitLocation(formats strfmt.Registry) error {
+	if swag.IsZero(m.SitLocation) { // not required
+		return nil
+	}
+
+	if m.SitLocation != nil {
+		if err := m.SitLocation.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -104,6 +162,14 @@ func (m *UpdateMovingExpense) validateStatus(formats strfmt.Registry) error {
 func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateMovingExpenseType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -111,6 +177,48 @@ func (m *UpdateMovingExpense) ContextValidate(ctx context.Context, formats strfm
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *UpdateMovingExpense) contextValidateMovingExpenseType(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MovingExpenseType != nil {
+
+		if swag.IsZero(m.MovingExpenseType) { // not required
+			return nil
+		}
+
+		if err := m.MovingExpenseType.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("movingExpenseType")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("movingExpenseType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateMovingExpense) contextValidateSitLocation(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SitLocation != nil {
+
+		if swag.IsZero(m.SitLocation) { // not required
+			return nil
+		}
+
+		if err := m.SitLocation.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("sitLocation")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("sitLocation")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

@@ -36,8 +36,20 @@ beforeEach(() => {
 const shipmentEntity = {
   id: 'shipment123',
   ppmShipment: {
-    pickupPostalCode: '10001',
-    destinationPostalCode: '10002',
+    pickupAddress: {
+      streetAddress1: '812 S 129th St',
+      streetAddress2: '#123',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '10001',
+    },
+    destinationAddress: {
+      streetAddress1: '813 S 129th St',
+      streetAddress2: '#124',
+      city: 'San Antonio',
+      state: 'TX',
+      postalCode: '10002',
+    },
     expectedDepartureDate: '2022-04-01',
     estimatedWeight: 4567,
     estimatedIncentive: 789000,

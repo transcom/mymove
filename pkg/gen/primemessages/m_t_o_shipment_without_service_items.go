@@ -39,7 +39,7 @@ type MTOShipmentWithoutServiceItems struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
-	// The date when the Transportation Ordering Officer first approved this shipment for the move.
+	// The date when the Task Ordering Officer first approved this shipment for the move.
 	// Read Only: true
 	// Format: date
 	ApprovedDate *strfmt.Date `json:"approvedDate"`
@@ -86,12 +86,21 @@ type MTOShipmentWithoutServiceItems struct {
 		Address
 	} `json:"destinationAddress,omitempty"`
 
+	// The SIT authorized end date for destination SIT.
+	// Format: date
+	DestinationSitAuthEndDate *strfmt.Date `json:"destinationSitAuthEndDate,omitempty"`
+
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
 	// This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.
 	//
 	Diversion bool `json:"diversion,omitempty"`
+
+	// The reason the TOO provided when requesting a diversion for this shipment.
+	//
+	// Read Only: true
+	DiversionReason *string `json:"diversionReason,omitempty"`
 
 	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
 	// Read Only: true
@@ -117,6 +126,10 @@ type MTOShipmentWithoutServiceItems struct {
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 4500
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
+
+	// The SIT authorized end date for origin SIT.
+	// Format: date
+	OriginSitAuthEndDate *strfmt.Date `json:"originSitAuthEndDate,omitempty"`
 
 	// The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.
 	//
@@ -238,6 +251,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
+	if err := m.validateDestinationSitAuthEndDate(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -251,6 +268,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateMoveTaskOrderID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginSitAuthEndDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -424,6 +445,18 @@ func (m *MTOShipmentWithoutServiceItems) validateDestinationAddress(formats strf
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) validateDestinationSitAuthEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationSitAuthEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("destinationSitAuthEndDate", "body", "date", m.DestinationSitAuthEndDate.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) validateDestinationType(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationType) { // not required
 		return nil
@@ -473,6 +506,18 @@ func (m *MTOShipmentWithoutServiceItems) validateMoveTaskOrderID(formats strfmt.
 	}
 
 	if err := validate.FormatOf("moveTaskOrderID", "body", "uuid", m.MoveTaskOrderID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateOriginSitAuthEndDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginSitAuthEndDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("originSitAuthEndDate", "body", "date", m.OriginSitAuthEndDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -792,6 +837,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDiversionReason(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateETag(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -958,6 +1007,15 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateDestinationType(ctx cont
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateDiversionReason(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "diversionReason", "body", m.DiversionReason); err != nil {
+		return err
 	}
 
 	return nil

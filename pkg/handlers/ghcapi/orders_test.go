@@ -19,16 +19,87 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	orderservice "github.com/transcom/mymove/pkg/services/order"
 	"github.com/transcom/mymove/pkg/services/query"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/uploader"
 )
+
+func (suite *HandlerSuite) TestCreateOrder() {
+	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
+
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				Name: "Not Yuma AFB",
+			},
+		},
+	}, nil)
+	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
+	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+
+	req := httptest.NewRequest("POST", "/orders", nil)
+	req = suite.AuthenticateRequest(req, sm)
+
+	hasDependents := true
+	spouseHasProGear := true
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := ghcmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	deptIndicator := ghcmessages.DeptIndicatorAIRANDSPACEFORCE
+	payload := &ghcmessages.CreateOrders{
+		HasDependents:        handlers.FmtBool(hasDependents),
+		SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
+		IssueDate:            handlers.FmtDate(issueDate),
+		ReportByDate:         handlers.FmtDate(reportByDate),
+		OrdersType:           ghcmessages.NewOrdersType(ordersType),
+		OriginDutyLocationID: *handlers.FmtUUIDPtr(&originDutyLocation.ID),
+		NewDutyLocationID:    handlers.FmtUUID(dutyLocation.ID),
+		ServiceMemberID:      handlers.FmtUUID(sm.ID),
+		OrdersNumber:         handlers.FmtString("123456"),
+		Tac:                  handlers.FmtString("E19A"),
+		Sac:                  handlers.FmtString("SacNumber"),
+		DepartmentIndicator:  ghcmessages.NewDeptIndicator(deptIndicator),
+		Grade:                ghcmessages.GradeE1.Pointer(),
+	}
+
+	params := orderop.CreateOrderParams{
+		HTTPRequest:  req,
+		CreateOrders: payload,
+	}
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	handlerConfig := suite.HandlerConfig()
+	handlerConfig.SetFileStorer(fakeS3)
+	createHandler := CreateOrderHandler{handlerConfig}
+
+	response := createHandler.Handle(params)
+
+	suite.Assertions.IsType(&orderop.CreateOrderOK{}, response)
+	okResponse := response.(*orderop.CreateOrderOK)
+	orderID := okResponse.Payload.ID.String()
+	createdOrder, _ := models.FetchOrder(suite.DB(), uuid.FromStringOrNil(orderID))
+
+	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.CustomerID.String())
+	suite.Assertions.Equal(ordersType, okResponse.Payload.OrderType)
+	suite.Assertions.Equal(handlers.FmtString("123456"), okResponse.Payload.OrderNumber)
+	suite.Assertions.Equal(handlers.FmtString("E19A"), okResponse.Payload.Tac)
+	suite.Assertions.Equal(handlers.FmtString("SacNumber"), okResponse.Payload.Sac)
+	suite.Assertions.Equal(&deptIndicator, okResponse.Payload.DepartmentIndicator)
+	suite.NotNil(&createdOrder.Entitlement)
+	suite.NotEmpty(createdOrder.SupplyAndServicesCostEstimate)
+	suite.NotEmpty(createdOrder.PackingAndShippingInstructions)
+	suite.NotEmpty(createdOrder.MethodOfPayment)
+	suite.NotEmpty(createdOrder.NAICS)
+}
 
 func (suite *HandlerSuite) TestGetOrderHandlerIntegration() {
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTOO})
@@ -247,7 +318,7 @@ func (suite *HandlerSuite) TestUpdateOrderHandlerWithAmendedUploads() {
 	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter,
 	)
 

@@ -12,7 +12,7 @@ export default {
 };
 
 export const DefaultState = (argTypes) => (
-  <DodInfoForm initialValues={{}} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <DodInfoForm initialValues={{ edipi: '9999999999' }} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
 );
 
 export const WithInitialValues = (argTypes) => (
@@ -21,6 +21,19 @@ export const WithInitialValues = (argTypes) => (
       affiliation: 'ARMY',
       edipi: '9999999999',
       grade: 'E_2',
+    }}
+    onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
+  />
+);
+
+export const CoastGuardCustomer = (argTypes) => (
+  <DodInfoForm
+    initialValues={{
+      affiliation: 'COAST_GUARD',
+      edipi: '9999999999',
+      grade: 'E_2',
+      emplid: '1263456',
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}

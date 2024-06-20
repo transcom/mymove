@@ -19,15 +19,18 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_requests"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/payment_service_item"
@@ -38,6 +41,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/tac"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/transportation_office"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/uploads"
 )
 
 // NewMymoveAPI creates a new Mymove instance
@@ -58,7 +62,8 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		APIKeyAuthenticator: security.APIKeyAuth,
 		BearerAuthenticator: security.BearerAuth,
 
-		JSONConsumer: runtime.JSONConsumer(),
+		JSONConsumer:          runtime.JSONConsumer(),
+		MultipartformConsumer: runtime.DiscardConsumer,
 
 		BinProducer:  runtime.ByteStreamProducer(),
 		JSONProducer: runtime.JSONProducer(),
@@ -98,6 +103,15 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoShipmentCreateMTOShipmentHandler: mto_shipment.CreateMTOShipmentHandlerFunc(func(params mto_shipment.CreateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.CreateMTOShipment has not yet been implemented")
+		}),
+		OrderCreateOrderHandler: order.CreateOrderHandlerFunc(func(params order.CreateOrderParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.CreateOrder has not yet been implemented")
+		}),
+		OfficeUsersCreateRequestedOfficeUserHandler: office_users.CreateRequestedOfficeUserHandlerFunc(func(params office_users.CreateRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation office_users.CreateRequestedOfficeUser has not yet been implemented")
+		}),
+		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
 		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
@@ -171,6 +185,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
+		ApplicationParametersGetParamHandler: application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
+			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
+		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		}),
@@ -195,6 +212,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TransportationOfficeGetTransportationOfficesHandler: transportation_office.GetTransportationOfficesHandlerFunc(func(params transportation_office.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOffices has not yet been implemented")
 		}),
+		TransportationOfficeGetTransportationOfficesOpenHandler: transportation_office.GetTransportationOfficesOpenHandlerFunc(func(params transportation_office.GetTransportationOfficesOpenParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
+		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		}),
@@ -206,6 +226,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
+		}),
+		LinesOfAccountingRequestLineOfAccountingHandler: lines_of_accounting.RequestLineOfAccountingHandlerFunc(func(params lines_of_accounting.RequestLineOfAccountingParams) middleware.Responder {
+			return middleware.NotImplemented("operation lines_of_accounting.RequestLineOfAccounting has not yet been implemented")
 		}),
 		ShipmentRequestShipmentCancellationHandler: shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
@@ -221,6 +244,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		EvaluationReportsSaveEvaluationReportHandler: evaluation_reports.SaveEvaluationReportHandlerFunc(func(params evaluation_reports.SaveEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.SaveEvaluationReport has not yet been implemented")
+		}),
+		CustomerSearchCustomersHandler: customer.SearchCustomersHandlerFunc(func(params customer.SearchCustomersParams) middleware.Responder {
+			return middleware.NotImplemented("operation customer.SearchCustomers has not yet been implemented")
 		}),
 		MoveSearchMovesHandler: move.SearchMovesHandlerFunc(func(params move.SearchMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation move.SearchMoves has not yet been implemented")
@@ -335,6 +361,9 @@ type MymoveAPI struct {
 	// JSONConsumer registers a consumer for the following mime types:
 	//   - application/json
 	JSONConsumer runtime.Consumer
+	// MultipartformConsumer registers a consumer for the following mime types:
+	//   - multipart/form-data
+	MultipartformConsumer runtime.Consumer
 
 	// BinProducer registers a producer for the following mime types:
 	//   - application/pdf
@@ -367,6 +396,12 @@ type MymoveAPI struct {
 	EvaluationReportsCreateEvaluationReportHandler evaluation_reports.CreateEvaluationReportHandler
 	// MtoShipmentCreateMTOShipmentHandler sets the operation handler for the create m t o shipment operation
 	MtoShipmentCreateMTOShipmentHandler mto_shipment.CreateMTOShipmentHandler
+	// OrderCreateOrderHandler sets the operation handler for the create order operation
+	OrderCreateOrderHandler order.CreateOrderHandler
+	// OfficeUsersCreateRequestedOfficeUserHandler sets the operation handler for the create requested office user operation
+	OfficeUsersCreateRequestedOfficeUserHandler office_users.CreateRequestedOfficeUserHandler
+	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
+	UploadsCreateUploadHandler uploads.CreateUploadHandler
 	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
@@ -415,6 +450,8 @@ type MymoveAPI struct {
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
+	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
+	ApplicationParametersGetParamHandler application_parameters.GetParamHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -431,6 +468,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetShipmentsPaymentSITBalanceHandler payment_requests.GetShipmentsPaymentSITBalanceHandler
 	// TransportationOfficeGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficeGetTransportationOfficesHandler transportation_office.GetTransportationOfficesHandler
+	// TransportationOfficeGetTransportationOfficesOpenHandler sets the operation handler for the get transportation offices open operation
+	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -439,6 +478,8 @@ type MymoveAPI struct {
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
+	LinesOfAccountingRequestLineOfAccountingHandler lines_of_accounting.RequestLineOfAccountingHandler
 	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
 	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
 	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
@@ -449,6 +490,8 @@ type MymoveAPI struct {
 	ShipmentReviewShipmentAddressUpdateHandler shipment.ReviewShipmentAddressUpdateHandler
 	// EvaluationReportsSaveEvaluationReportHandler sets the operation handler for the save evaluation report operation
 	EvaluationReportsSaveEvaluationReportHandler evaluation_reports.SaveEvaluationReportHandler
+	// CustomerSearchCustomersHandler sets the operation handler for the search customers operation
+	CustomerSearchCustomersHandler customer.SearchCustomersHandler
 	// MoveSearchMovesHandler sets the operation handler for the search moves operation
 	MoveSearchMovesHandler move.SearchMovesHandler
 	// MoveSetFinancialReviewFlagHandler sets the operation handler for the set financial review flag operation
@@ -573,6 +616,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.JSONConsumer == nil {
 		unregistered = append(unregistered, "JSONConsumer")
 	}
+	if o.MultipartformConsumer == nil {
+		unregistered = append(unregistered, "MultipartformConsumer")
+	}
 
 	if o.BinProducer == nil {
 		unregistered = append(unregistered, "BinProducer")
@@ -616,6 +662,15 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentCreateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.CreateMTOShipmentHandler")
+	}
+	if o.OrderCreateOrderHandler == nil {
+		unregistered = append(unregistered, "order.CreateOrderHandler")
+	}
+	if o.OfficeUsersCreateRequestedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "office_users.CreateRequestedOfficeUserHandler")
+	}
+	if o.UploadsCreateUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.CreateUploadHandler")
 	}
 	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
@@ -689,6 +744,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PwsViolationsGetPWSViolationsHandler == nil {
 		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
 	}
+	if o.ApplicationParametersGetParamHandler == nil {
+		unregistered = append(unregistered, "application_parameters.GetParamHandler")
+	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
 	}
@@ -713,6 +771,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.TransportationOfficeGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesHandler")
 	}
+	if o.TransportationOfficeGetTransportationOfficesOpenHandler == nil {
+		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesOpenHandler")
+	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
 	}
@@ -724,6 +785,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
+	}
+	if o.LinesOfAccountingRequestLineOfAccountingHandler == nil {
+		unregistered = append(unregistered, "lines_of_accounting.RequestLineOfAccountingHandler")
 	}
 	if o.ShipmentRequestShipmentCancellationHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentCancellationHandler")
@@ -739,6 +803,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.EvaluationReportsSaveEvaluationReportHandler == nil {
 		unregistered = append(unregistered, "evaluation_reports.SaveEvaluationReportHandler")
+	}
+	if o.CustomerSearchCustomersHandler == nil {
+		unregistered = append(unregistered, "customer.SearchCustomersHandler")
 	}
 	if o.MoveSearchMovesHandler == nil {
 		unregistered = append(unregistered, "move.SearchMovesHandler")
@@ -849,6 +916,8 @@ func (o *MymoveAPI) ConsumersFor(mediaTypes []string) map[string]runtime.Consume
 		switch mt {
 		case "application/json":
 			result["application/json"] = o.JSONConsumer
+		case "multipart/form-data":
+			result["multipart/form-data"] = o.MultipartformConsumer
 		}
 
 		if c, ok := o.customConsumers[mt]; ok {
@@ -956,6 +1025,18 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/mto-shipments"] = mto_shipment.NewCreateMTOShipment(o.context, o.MtoShipmentCreateMTOShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/orders"] = order.NewCreateOrder(o.context, o.OrderCreateOrderHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/open/requested-office-users"] = office_users.NewCreateRequestedOfficeUser(o.context, o.OfficeUsersCreateRequestedOfficeUserHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -1055,6 +1136,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/application_parameters/{parameterName}"] = application_parameters.NewGetParam(o.context, o.ApplicationParametersGetParamHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewGetPaymentRequest(o.context, o.PaymentRequestsGetPaymentRequestHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1087,6 +1172,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/open/transportation-offices"] = transportation_office.NewGetTransportationOfficesOpen(o.context, o.TransportationOfficeGetTransportationOfficesOpenHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1100,6 +1189,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/lines-of-accounting"] = lines_of_accounting.NewRequestLineOfAccounting(o.context, o.LinesOfAccountingRequestLineOfAccountingHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
@@ -1120,6 +1213,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PUT"] = make(map[string]http.Handler)
 	}
 	o.handlers["PUT"]["/evaluation-reports/{reportID}"] = evaluation_reports.NewSaveEvaluationReport(o.context, o.EvaluationReportsSaveEvaluationReportHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/customer/search"] = customer.NewSearchCustomers(o.context, o.CustomerSearchCustomersHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

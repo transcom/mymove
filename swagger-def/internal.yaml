@@ -36,7 +36,23 @@ tags:
   - name: mtoShipment
   - name: featureFlags
   - name: okta_profile
+  - name: application_parameters
 definitions:
+  ApplicationParameters:
+    type: object
+    properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   OktaUserProfileData:
     type: object
     properties:
@@ -70,6 +86,27 @@ definitions:
     properties:
       profile:
         $ref: "#/definitions/OktaUserProfileData"
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -102,6 +139,10 @@ definitions:
         type: array
         items:
           type: string
+      privileges:
+        type: array
+        items:
+          $ref: "#/definitions/Privilege"
     required:
       - id
   DutyLocationsPayload:
@@ -166,6 +207,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -410,13 +455,18 @@ definitions:
       sitStartDate:
         description: The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
         type: string
-        example: "2022-04-26"
         format: date
       sitEndDate:
         description: The date the shipment exited storage, applicable for the `STORAGE` movingExpenseType only
         type: string
-        example: "2018-05-26"
         format: date
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+      sitLocation:
+        allOf:
+          - $ref: 'definitions/SITLocationType.yaml'
+          - x-nullable: true
     required:
       - movingExpenseType
       - description
@@ -601,6 +651,14 @@ definitions:
         maxLength: 10
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       orders:
         type: array
         items:
@@ -779,6 +837,14 @@ definitions:
         example: "5789345789"
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: '^\d{7}$'
+        minLength: 7
+        maxLength: 7
+        example: "5789345"
+        x-nullable: true
+        title: USCG EMPLID
       affiliation:
         $ref: "definitions/Affiliation.yaml"
       first_name:
@@ -1765,6 +1831,11 @@ definitions:
         x-omitempty: false
       eTag:
         type: string
+      shipmentLocator:
+        type: string
+        x-nullable: true
+        readOnly: true
+        example: '1K43AR-01'
   MTOShipments:
     items:
       $ref: "#/definitions/MTOShipment"
@@ -2125,6 +2196,10 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
 paths:
   /feature-flags/user-boolean/{key}:
     post:
@@ -2235,6 +2310,30 @@ paths:
                 type: boolean
         "400":
           description: invalid request
+        "500":
+          description: server error
+  /application_parameters:
+    post:
+      summary: Searches for an application parameter by name and value, returns nil if not found
+      description: Searches for an application parameter by name and value, returns nil if not found
+      operationId: validate
+      tags:
+        - application_parameters
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: "#/definitions/ApplicationParameters"
+      responses:
+        "200":
+          description: Application Parameters
+          schema:
+            $ref: "#/definitions/ApplicationParameters"
+        "400":
+          description: invalid request
+        "401":
+          description: request requires user authentication
         "500":
           description: server error
   /orders:
@@ -2976,6 +3075,11 @@ paths:
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
+        - in: query
+          name: ppmId
+          type: string
+          format: uuid
+          description: Optional PPM shipment ID related to the upload
       responses:
         "204":
           description: deleted
@@ -3821,6 +3925,11 @@ paths:
           type: file
           description: The file to upload.
           required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
       responses:
         "201":
           description: created upload
@@ -3966,7 +4075,7 @@ paths:
   /addresses/{addressId}:
     get:
       summary: Returns an address
-      description: Returns an address
+      description: Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.
       operationId: showAddress
       tags:
         - addresses

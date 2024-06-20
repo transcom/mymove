@@ -9,7 +9,7 @@ import PropTypes from 'prop-types';
 import styles from './ShipmentQAEReportHeader.module.scss';
 
 import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { formatEvaluationReportShipmentAddress, formatShortIDWithPound } from 'utils/formatters';
+import { formatEvaluationReportShipmentAddress } from 'utils/formatters';
 import { ShipmentShape } from 'types/shipment';
 import { milmoveLogger } from 'utils/milmoveLog';
 import { createShipmentEvaluationReport } from 'services/ghcApi';
@@ -17,7 +17,7 @@ import { SHIPMENT_EVALUATION_REPORTS } from 'constants/queryKeys';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }) => {
+const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode, isMoveLocked }) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -86,16 +86,20 @@ const ShipmentQAEReportHeader = ({ shipment, destinationDutyLocationPostalCode }
     <>
       <div className={classnames(styles.shipmentAccent, shipmentAccentStyle)} />
       <div className={styles.shipmentInfoContainer}>
-        <div className={styles.shipmentInfo}>
+        <div data-testid="shipmentHeader" className={styles.shipmentInfo}>
           <h4>
-            {heading} Shipment ID {formatShortIDWithPound(shipment.id)}
+            {heading} Shipment ID: {shipment.shipmentLocator}
           </h4>
           <small>
             {pickupAddress} <FontAwesomeIcon icon="arrow-right" /> {destinationAddress}
           </small>
         </div>
         <Restricted to={permissionTypes.createEvaluationReport}>
-          <Button data-testid="shipmentEvaluationCreate" onClick={() => handleCreateClick(shipment.id)}>
+          <Button
+            data-testid="shipmentEvaluationCreate"
+            onClick={() => handleCreateClick(shipment.id)}
+            disabled={isMoveLocked}
+          >
             Create report
           </Button>
         </Restricted>

@@ -20,6 +20,6 @@ export default {
   action: a.UPDATE,
   eventName: o.submitMoveForApproval,
   tableName: t.mto_shipments,
-  getEventNameDisplay: () => 'Updated shipment',
+  getEventNameDisplay: () => 'Submitted Move for Approval',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };

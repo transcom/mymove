@@ -27,6 +27,9 @@ type UpdateCustomerPayload struct {
 	// backup contact
 	BackupContact *BackupContact `json:"backup_contact,omitempty"`
 
+	// cac validated
+	CacValidated bool `json:"cac_validated,omitempty"`
+
 	// current address
 	CurrentAddress struct {
 		Address
@@ -59,7 +62,7 @@ type UpdateCustomerPayload struct {
 	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
 
 	// secondary telephone
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
 	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`
 
 	// suffix
@@ -165,7 +168,7 @@ func (m *UpdateCustomerPayload) validateSecondaryTelephone(formats strfmt.Regist
 		return nil
 	}
 
-	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("secondaryTelephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$|^$`); err != nil {
 		return err
 	}
 

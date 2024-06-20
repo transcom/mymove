@@ -3,16 +3,20 @@ import { generatePath, useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import {
   createUploadForPPMDocument,
   createProGearWeightTicket,
   deleteUpload,
   patchProGearWeightTicket,
+  patchMTOShipment,
+  getMTOShipmentsForMove,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
@@ -22,11 +26,18 @@ import { updateMTOShipment } from 'store/entities/actions';
 const ProGear = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const { moveId, mtoShipmentId, proGearId } = useParams();
+
+  const [multiMove, setMultiMove] = useState(false);
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
   const [errorMessage, setErrorMessage] = useState(null);
-  const { moveId, mtoShipmentId, proGearId } = useParams();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
   const { proGearWeightTicket: currentProGearWeightTicket, index: currentIndex } = useSelector((state) =>
@@ -34,6 +45,9 @@ const ProGear = () => {
   );
 
   useEffect(() => {
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
     if (!proGearId) {
       createProGearWeightTicket(mtoShipment?.ppmShipment?.id)
         .then((resp) => {
@@ -63,7 +77,7 @@ const ProGear = () => {
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
 
-    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file)
+    createUploadForPPMDocument(mtoShipment.ppmShipment.id, documentId, file, false)
       .then((upload) => {
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.push(upload);
         dispatch(updateMTOShipment(mtoShipment));
@@ -82,7 +96,7 @@ const ProGear = () => {
   };
 
   const handleUploadDelete = (uploadId, fieldName, setFieldTouched, setFieldValue) => {
-    deleteUpload(uploadId)
+    deleteUpload(uploadId, null, mtoShipment?.ppmShipment?.id)
       .then(() => {
         const filteredUploads = mtoShipment.ppmShipment.proGearWeightTickets[currentIndex][fieldName].uploads.filter(
           (upload) => upload.id !== uploadId,
@@ -97,9 +111,39 @@ const ProGear = () => {
       });
   };
 
-  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
-    setErrorMessage(null);
-    setErrors({});
+  const updateMtoShipment = (values) => {
+    const belongsToSelf = values.belongsToSelf === 'true';
+    let proGear;
+    let spouseProGear;
+    if (belongsToSelf) {
+      proGear = values.weight;
+    }
+    if (!belongsToSelf) {
+      spouseProGear = values.weight;
+    }
+    const payload = {
+      belongsToSelf,
+      ppmShipment: {
+        id: mtoShipment.ppmShipment.id,
+      },
+      shipmentType: mtoShipment.shipmentType,
+      actualSpouseProGearWeight: parseInt(spouseProGear, 10),
+      actualProGearWeight: parseInt(proGear, 10),
+      shipmentLocator: values.shipmentLocator,
+      eTag: mtoShipment.eTag,
+    };
+
+    patchMTOShipment(mtoShipment.id, payload, payload.eTag)
+      .then((response) => {
+        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+        dispatch(updateMTOShipment(response));
+      })
+      .catch(() => {
+        setErrorMessage('Failed to update MTO shipment due to server error.');
+      });
+  };
+
+  const updateProGearWeightTicket = (values) => {
     const hasWeightTickets = !values.missingWeightTicket;
     const belongsToSelf = values.belongsToSelf === 'true';
     const payload = {
@@ -118,15 +162,28 @@ const ProGear = () => {
       currentProGearWeightTicket.eTag,
     )
       .then((resp) => {
-        setSubmitting(false);
         mtoShipment.ppmShipment.proGearWeightTickets[currentIndex] = resp;
-        navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
-        dispatch(updateMTOShipment(mtoShipment));
+        getMTOShipmentsForMove(moveId)
+          .then((response) => {
+            dispatch(updateMTOShipment(response.mtoShipments[mtoShipmentId]));
+            mtoShipment.eTag = response.mtoShipments[mtoShipmentId].eTag;
+            updateMtoShipment(values);
+            navigate(generatePath(customerRoutes.SHIPMENT_PPM_REVIEW_PATH, { moveId, mtoShipmentId }));
+          })
+          .catch(() => {
+            setErrorMessage('Failed to fetch shipment information');
+          });
       })
       .catch(() => {
-        setSubmitting(false);
         setErrorMessage('Failed to save updated trip record');
       });
+  };
+
+  const handleSubmit = async (values, { setSubmitting, setErrors }) => {
+    setErrorMessage(null);
+    setErrors({});
+    setSubmitting(false);
+    updateProGearWeightTicket(values);
   };
 
   const renderError = () => {

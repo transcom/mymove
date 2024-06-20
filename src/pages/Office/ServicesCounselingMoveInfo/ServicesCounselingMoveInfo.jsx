@@ -8,9 +8,12 @@ import ServicesCounselorTabNav from 'components/Office/ServicesCounselingTabNav/
 import CustomerHeader from 'components/CustomerHeader';
 import SystemError from 'components/SystemError';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { useTXOMoveInfoQueries } from 'hooks/queries';
+import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
+import { roleTypes } from 'constants/userRoles';
+import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingMoveDocumentWrapper = lazy(() =>
   import('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper'),
@@ -41,6 +44,8 @@ const ServicesCounselingMoveInfo = () => {
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
   const { hasRecentError, traceId } = useSelector((state) => state.interceptor);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
+  const [isMoveLocked, setIsMoveLocked] = useState(false);
   const onInfoSavedUpdate = (alertType) => {
     if (alertType === 'error') {
       setInfoSavedAlert({
@@ -57,23 +62,35 @@ const ServicesCounselingMoveInfo = () => {
 
   // Clear the alert when route changes
   const location = useLocation();
-  useEffect(() => {
-    if (
-      infoSavedAlert &&
-      !matchPath(
-        {
-          path: servicesCounselingRoutes.BASE_MOVE_VIEW_PATH,
-          end: true,
-        },
-        location.pathname,
-      )
-    ) {
-      setInfoSavedAlert(null);
-    }
-  }, [infoSavedAlert, location]);
-
   const { moveCode } = useParams();
-  const { order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
+  const { data } = useUserQueries();
+  const officeUserID = data?.office_user?.id;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (
+        infoSavedAlert &&
+        !matchPath(
+          {
+            path: servicesCounselingRoutes.BASE_MOVE_VIEW_PATH,
+            end: true,
+          },
+          location.pathname,
+        )
+      ) {
+        setInfoSavedAlert(null);
+      }
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+      const now = new Date();
+      if (officeUserID !== move?.lockedByOfficeUserID && now < new Date(move?.lockExpiresAt) && moveLockFlag) {
+        setIsMoveLocked(true);
+      }
+    };
+
+    fetchData();
+  }, [infoSavedAlert, location, move, officeUserID, moveLockFlag]);
 
   const { pathname } = useLocation();
   const hideNav =
@@ -123,9 +140,35 @@ const ServicesCounselingMoveInfo = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  // this locked move banner will display if the current user is not the one who has it locked
+  // if the current user is the one who has it locked, it will not display
+  const renderLockedBanner = () => {
+    const now = new Date();
+    if (move?.lockedByOfficeUserID && move?.lockExpiresAt && moveLockFlag) {
+      if (move?.lockedByOfficeUserID !== officeUserID && now < new Date(move?.lockExpiresAt)) {
+        return (
+          <LockedMoveBanner data-testid="locked-move-banner">
+            This move is locked by {move?.lockedByOfficeUser?.firstName} {move?.lockedByOfficeUser?.lastName} at{' '}
+            {move?.lockedByOfficeUser?.transportationOffice?.name}
+          </LockedMoveBanner>
+        );
+      }
+      return null;
+    }
+    return null;
+  };
+
   return (
     <>
-      <CustomerHeader order={order} customer={customerData} moveCode={moveCode} />
+      <CustomerHeader
+        move={move}
+        order={order}
+        customer={customerData}
+        moveCode={moveCode}
+        userRole={roleTypes.SERVICES_COUNSELOR}
+      />
+      {renderLockedBanner()}
+
       {hasRecentError && (
         <SystemError>
           Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
@@ -158,6 +201,7 @@ const ServicesCounselingMoveInfo = () => {
               <ServicesCounselingMoveDetails
                 infoSavedAlert={infoSavedAlert}
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />
@@ -170,7 +214,7 @@ const ServicesCounselingMoveInfo = () => {
           <Route
             path={servicesCounselingRoutes.CUSTOMER_SUPPORT_REMARKS_PATH}
             end
-            element={<CustomerSupportRemarks />}
+            element={<CustomerSupportRemarks isMoveLocked={isMoveLocked} />}
           />
           <Route
             path={servicesCounselingRoutes.MTO_PATH}
@@ -182,6 +226,7 @@ const ServicesCounselingMoveInfo = () => {
                 setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                isMoveLocked={isMoveLocked}
               />
             }
           />

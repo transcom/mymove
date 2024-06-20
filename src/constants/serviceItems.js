@@ -37,6 +37,7 @@ const SERVICE_ITEM_PARAM_KEYS = {
   SITScheduleOrigin: 'SITScheduleOrigin',
   SITServiceAreaDest: 'SITServiceAreaDest',
   SITServiceAreaOrigin: 'SITServiceAreaOrigin',
+  Total: 'TotalAmountRequested',
   WeightAdjusted: 'WeightAdjusted',
   WeightOriginal: 'WeightOriginal',
   WeightBilled: 'WeightBilled',
@@ -48,6 +49,9 @@ const SERVICE_ITEM_PARAM_KEYS = {
   ZipSITDestHHGOriginalAddress: 'ZipSITDestHHGOriginalAddress',
   ZipSITOriginHHGActualAddress: 'ZipSITOriginHHGActualAddress',
   ZipSITOriginHHGOriginalAddress: 'ZipSITOriginHHGOriginalAddress',
+  StandaloneCrate: 'StandaloneCrate',
+  StandaloneCrateCap: 'StandaloneCrateCap',
+  UncappedRequestTotal: 'UncappedRequestTotal',
 };
 
 const SERVICE_ITEM_CALCULATION_LABELS = {
@@ -55,7 +59,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.ContractYearName]: 'Base year',
   [SERVICE_ITEM_PARAM_KEYS.DestinationPrice]: 'Destination price',
   [SERVICE_ITEM_PARAM_KEYS.EIAFuelPrice]: 'EIA diesel',
-  [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'FRA',
+  [SERVICE_ITEM_PARAM_KEYS.FSCPriceDifferenceInCents]: 'Baseline rate difference',
   [SERVICE_ITEM_PARAM_KEYS.FSCWeightBasedDistanceMultiplier]: 'Weight-based distance multiplier',
   // Domestic non-peak or Domestic peak
   [SERVICE_ITEM_PARAM_KEYS.IsPeak]: 'Domestic',
@@ -70,6 +74,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   [SERVICE_ITEM_PARAM_KEYS.SITScheduleOrigin]: 'Origin SIT schedule',
   [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaDest]: 'SIT destination service area',
   [SERVICE_ITEM_PARAM_KEYS.SITServiceAreaOrigin]: 'SIT origin service area',
+  [SERVICE_ITEM_PARAM_KEYS.Total]: 'Total',
   [SERVICE_ITEM_PARAM_KEYS.WeightAdjusted]: 'Adjusted',
   [SERVICE_ITEM_PARAM_KEYS.WeightOriginal]: 'Original',
   [SERVICE_ITEM_PARAM_KEYS.WeightBilled]: 'Shipment weight',
@@ -92,7 +97,7 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   DestinationSchedule: 'Destination schedule',
   Dimensions: 'Dimensions',
   Domestic: 'Domestic',
-  FuelSurchargePrice: 'Fuel surcharge price (per mi)',
+  FuelSurchargePrice: 'Mileage factor',
   Mileage: 'Mileage',
   MileageIntoSIT: 'Mileage into SIT',
   MileageOutOfSIT: 'Mileage out of SIT',
@@ -105,11 +110,14 @@ const SERVICE_ITEM_CALCULATION_LABELS = {
   ServiceSchedule: 'Service schedule',
   ShuttleWeight: 'Shuttle weight',
   SITDeliveryPrice: 'SIT delivery price',
-  TotalAmountRequested: 'Total amount requested',
+  FuelRateAdjustment: 'Fuel rate adjustment',
   UnpackPrice: 'Unpack price',
   UncratingDate: 'Uncrating date',
   UncratingPrice: 'Uncrating price (per cu ft)',
-  SITFuelSurchargePrice: 'SIT fuel surcharge price (per mi)',
+  SITFuelSurchargePrice: 'SIT mileage factor',
+  StandaloneCrate: 'Standalone Crate Cap',
+  UncappedRequestTotal: 'Uncapped Request Total',
+  Total: 'Total',
 };
 
 const SERVICE_ITEM_CODES = {
@@ -155,6 +163,7 @@ const SERVICE_ITEMS_ALLOWED_WEIGHT_BILLED_PARAM = [
 
 const SIT_SERVICE_ITEMS_ALLOWED_UPDATE = [
   SERVICE_ITEM_CODES.DDDSIT,
+  SERVICE_ITEM_CODES.DDASIT,
   SERVICE_ITEM_CODES.DOASIT,
   SERVICE_ITEM_CODES.DOFSIT,
   SERVICE_ITEM_CODES.DOPSIT,

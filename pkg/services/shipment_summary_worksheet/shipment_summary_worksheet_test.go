@@ -92,11 +92,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	gradeWtgAllotment := models.GetWeightAllotment(grade)
 	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
-	// E_9 rank, no dependents, no spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	// E_9 rank, no dependents, with spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Require().Nil(err)
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
@@ -214,11 +214,11 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	gradeWtgAllotment := models.GetWeightAllotment(grade)
 	suite.Equal(unit.Pound(gradeWtgAllotment.TotalWeightSelf), ssd.WeightAllotment.Entitlement)
 	suite.Equal(unit.Pound(gradeWtgAllotment.ProGearWeight), ssd.WeightAllotment.ProGear)
-	suite.Equal(unit.Pound(0), ssd.WeightAllotment.SpouseProGear)
+	suite.Equal(unit.Pound(500), ssd.WeightAllotment.SpouseProGear)
 	suite.Require().NotNil(ssd.Order.Grade)
 	weightAllotment := models.GetWeightAllotment(*ssd.Order.Grade)
-	// E_9 rank, no dependents, no spouse pro-gear
-	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight
+	// E_9 rank, no dependents, with spouse pro-gear
+	totalWeight := weightAllotment.TotalWeightSelf + weightAllotment.ProGearWeight + weightAllotment.ProGearWeightSpouse
 	suite.Equal(unit.Pound(totalWeight), ssd.WeightAllotment.TotalWeight)
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
@@ -313,7 +313,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 
 	suite.Equal("01 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
-	suite.Equal("4,000 lbs - FINAL", sswPage1.ShipmentWeights)
+	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
@@ -474,13 +474,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNo
 	spouseHasProGear := false
 	hasDependants := false
 	allotment := models.GetWeightAllotment(models.ServiceMemberGradeE1)
-	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight
+	expectedTotalWeight := allotment.TotalWeightSelf + allotment.ProGearWeight + allotment.ProGearWeightSpouse
 	sswEntitlement := SSWGetEntitlement(models.ServiceMemberGradeE1, hasDependants, spouseHasProGear)
 
 	suite.Equal(unit.Pound(expectedTotalWeight), sswEntitlement.TotalWeight)
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
-	suite.Equal(unit.Pound(0), sswEntitlement.SpouseProGear)
+	suite.Equal(unit.Pound(500), sswEntitlement.SpouseProGear)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatLocation() {
@@ -574,7 +574,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
 	ppm := models.PPMShipment{EstimatedWeight: &pounds}
 	noWtg := models.PPMShipment{EstimatedWeight: nil}
 
-	suite.Equal("1,000 lbs - FINAL", FormatPPMWeight(ppm))
+	suite.Equal("1,000 lbs - Estimated", FormatPPMWeight(ppm))
 	suite.Equal("", FormatPPMWeight(noWtg))
 }
 
@@ -873,107 +873,5 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentShipment() {
 		suite.Equal(tt.expectedResult.EstimatedIncentive, result.EstimatedIncentive)
 		suite.Equal(tt.expectedResult.AdvanceAmountReceived, result.AdvanceAmountReceived)
 
-	}
-}
-
-type mockMTOAgent struct {
-	FirstName *string
-	LastName  *string
-	Email     *string
-	Phone     *string
-	UpdatedAt time.Time
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAgentInfo() {
-	exampleFirstName := "John"
-	exampleLastName := "Doe"
-	exampleEmail := "john.doe@example.com"
-	examplePhone := "123-456-7890"
-	tests := []struct {
-		name           string
-		agents         []mockMTOAgent
-		expectedResult Agent
-	}{
-		{
-			name:   "No agents specified",
-			agents: []mockMTOAgent{},
-			expectedResult: Agent{
-				Name:  "No agent specified",
-				Email: "No agent specified",
-				Phone: "No agent specified",
-				Date:  "No agent specified",
-			},
-		},
-		{
-			name: "Agent with first and last name specified",
-			agents: []mockMTOAgent{
-				{
-					FirstName: &exampleFirstName,
-					LastName:  &exampleLastName,
-					Email:     &exampleEmail,
-					Phone:     &examplePhone,
-					UpdatedAt: time.Now(),
-				},
-			},
-			expectedResult: Agent{
-				Name:  "Doe, John",
-				Email: "john.doe@example.com",
-				Phone: "123-456-7890",
-				Date:  time.Now().Format("20060102"),
-			},
-		},
-		{
-			name: "Agent with only first name specified",
-			agents: []mockMTOAgent{
-				{
-					FirstName: &exampleFirstName,
-					Email:     &exampleEmail,
-					Phone:     &examplePhone,
-					UpdatedAt: time.Now(),
-				},
-			},
-			expectedResult: Agent{
-				Name:  "First Name: John, No last name provided",
-				Email: "john.doe@example.com",
-				Phone: "123-456-7890",
-				Date:  time.Now().Format("20060102"),
-			},
-		},
-		{
-			name: "Agent with only last name specified",
-			agents: []mockMTOAgent{
-				{
-					LastName:  &exampleLastName,
-					Email:     &exampleEmail,
-					Phone:     &examplePhone,
-					UpdatedAt: time.Now(),
-				},
-			},
-			expectedResult: Agent{
-				Name:  "No first name provided, Last Name: Doe",
-				Email: "john.doe@example.com",
-				Phone: "123-456-7890",
-				Date:  time.Now().Format("20060102"),
-			},
-		},
-	}
-
-	for _, tt := range tests {
-		agents := make([]models.MTOAgent, len(tt.agents))
-		for i, mockAgent := range tt.agents {
-			agents[i] = models.MTOAgent{
-				FirstName: mockAgent.FirstName,
-				LastName:  mockAgent.LastName,
-				Email:     mockAgent.Email,
-				Phone:     mockAgent.Phone,
-				UpdatedAt: mockAgent.UpdatedAt,
-			}
-		}
-
-		result := FormatAgentInfo(agents)
-		suite.Equal(tt.expectedResult.Name, result.Name)
-		suite.Equal(tt.expectedResult.Email, result.Email)
-		suite.Equal(tt.expectedResult.Phone, result.Phone)
-		suite.Equal(tt.expectedResult.Date, result.Date)
 	}
 }

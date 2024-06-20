@@ -47,6 +47,7 @@ type ServiceMember struct {
 	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
 	User                   User                      `belongs_to:"user" fk_id:"user_id"`
 	Edipi                  *string                   `json:"edipi" db:"edipi"`
+	Emplid                 *string                   `json:"emplid" db:"emplid"`
 	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
 	FirstName              *string                   `json:"first_name" db:"first_name"`
 	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
@@ -146,6 +147,12 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		transactionError := errors.New("Rollback The transaction")
 
 		if serviceMember.ResidentialAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.ResidentialAddress.PostalCode)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.ResidentialAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -155,6 +162,12 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 		}
 
 		if serviceMember.BackupMailingAddress != nil {
+			county, err := FindCountyByZipCode(appCtx.DB(), serviceMember.BackupMailingAddress.PostalCode)
+			if err != nil {
+				responseError = err
+				return err
+			}
+			serviceMember.BackupMailingAddress.County = county
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -275,6 +288,22 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	}
 
 	return newOrders, responseVErrors, responseError
+}
+
+// UpdateServiceMemberDoDID is called if Safety Move order is created to clear out the DoDID
+func UpdateServiceMemberDoDID(db *pop.Connection, serviceMember *ServiceMember, dodid *string) error {
+
+	serviceMember.Edipi = dodid
+
+	verrs, err := db.ValidateAndUpdate(serviceMember)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update service member")
+		return err
+	}
+
+	return nil
 }
 
 // IsProfileComplete checks if the profile has been completely filled out

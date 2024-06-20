@@ -41,7 +41,7 @@ import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import { ReviewButton } from 'components/form/IconButtons';
 import { calculateWeightRequested } from 'hooks/custom';
 
-const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount }) => {
+const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCount, isMoveLocked }) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
   const [alertMessage, setAlertMessage] = useState(null);
@@ -140,14 +140,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   if (mtoShipments) {
     const submittedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
     const submittedShipmentsNonPPM = submittedShipments.filter(
-      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const ppmNeedsApprovalShipments = submittedShipments.filter(
-      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
     const onlyPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
-      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_PAYMENT_APPROVAL,
+      (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
@@ -279,7 +279,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
-    phone: `+1 ${customer.phone}`,
+    phone: customer.phone,
+    altPhone: customer.secondaryTelephone,
     email: customer.email,
     currentAddress: customer.current_address,
     backupAddress: customerData.backupAddress,
@@ -296,6 +297,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+    gunSafe: allowances.gunSafe,
   };
 
   const ordersInfo = {
@@ -465,28 +467,29 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 </Alert>
               </Grid>
             )}
-            <Grid col={6} className={scMoveDetailsStyles.pageTitle}>
+            <Grid col={12} className={scMoveDetailsStyles.pageTitle}>
               <h1>Move details</h1>
+              {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
+                <div>
+                  {(counselorCanEdit || counselorCanEditNonPPM) && (
+                    <Button
+                      disabled={
+                        !mtoShipments.length ||
+                        allShipmentsDeleted ||
+                        disableSubmit ||
+                        disableSubmitDueToMissingOrderInfo ||
+                        hasInvalidProGearAllowances ||
+                        isMoveLocked
+                      }
+                      type="button"
+                      onClick={handleShowCancellationModal}
+                    >
+                      Submit move details
+                    </Button>
+                  )}
+                </div>
+              )}
             </Grid>
-            {ppmShipmentsInfoNeedsApproval.length > 0 ? null : (
-              <Grid col={6} className={scMoveDetailsStyles.submitMoveDetailsContainer}>
-                {(counselorCanEdit || counselorCanEditNonPPM) && (
-                  <Button
-                    disabled={
-                      !mtoShipments.length ||
-                      allShipmentsDeleted ||
-                      disableSubmit ||
-                      disableSubmitDueToMissingOrderInfo ||
-                      hasInvalidProGearAllowances
-                    }
-                    type="button"
-                    onClick={handleShowCancellationModal}
-                  >
-                    Submit move details
-                  </Button>
-                )}
-              </Grid>
-            )}
           </Grid>
 
           {hasInvalidProGearAllowances ? (
@@ -499,7 +502,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               className={scMoveDetailsStyles.noPaddingBottom}
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                (counselorCanEdit || counselorCanEditNonPPM) &&
+                !isMoveLocked && (
                   <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
                     <option value="">Add a new shipment</option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
@@ -512,7 +516,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                 )
               }
               reviewButton={
-                counselorCanReview && (
+                counselorCanReview &&
+                !isMoveLocked && (
                   <ReviewButton
                     onClick={() => handleReviewWeightsButton(reviewWeightsURL)}
                     data-testid={reviewWeightsURL}
@@ -530,6 +535,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                   <FinancialReviewButton
                     onClick={handleShowFinancialReviewModal}
                     reviewRequested={move.financialReviewFlag}
+                    isMoveLocked={isMoveLocked}
                   />
                 </div>
               </Restricted>
@@ -548,6 +554,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                     errorIfMissing={errorIfMissing[shipment.shipmentType]}
                     showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
                     neverShow={neverShow[shipment.shipmentType]}
+                    isMoveLocked={isMoveLocked}
                   />
                 ))}
                 {ppmShipmentsInfoNeedsApproval.length > 0 &&
@@ -566,6 +573,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
                       errorIfMissing={errorIfMissing[shipment.shipmentType]}
                       showWhenCollapsed={showWhenCollapsed[shipment.shipmentType]}
                       neverShow={neverShow[shipment.shipmentType]}
+                      isMoveLocked={isMoveLocked}
                     />
                   ))}
               </div>
@@ -576,7 +584,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Orders"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                (counselorCanEdit || counselorCanEditNonPPM) &&
+                !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
@@ -594,7 +603,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Allowances"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
+                (counselorCanEdit || counselorCanEditNonPPM) &&
+                !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
                     data-testid="edit-allowances"
@@ -613,15 +623,17 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Customer info"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) && (
-                  <Link
-                    className="usa-button usa-button--secondary"
-                    data-testid="edit-customer-info"
-                    to={`../${servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}`}
-                  >
-                    Edit customer info
-                  </Link>
-                )
+                <Restricted to={permissionTypes.updateCustomer}>
+                  {!isMoveLocked && (
+                    <Link
+                      className="usa-button usa-button--secondary"
+                      data-testid="edit-customer-info"
+                      to={`../${servicesCounselingRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                    >
+                      Edit customer info
+                    </Link>
+                  )}
+                </Restricted>
               }
               ppmShipmentInfoNeedsApproval={ppmShipmentsInfoNeedsApproval}
             >

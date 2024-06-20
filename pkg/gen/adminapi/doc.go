@@ -8,11 +8,11 @@
 //
 //	Schemes:
 //	  https
-//	Host: admin.move.mil
+//	Host: localhost
 //	BasePath: /admin/v1
 //	Version: 1.0.0
-//	License: MIT https://github.com/transcom/mymove/blob/main/LICENSE.md
-//	Contact: MilMove AppEng<support@movemil.pagerduty.com>
+//	License: MIT https://opensource.org/licenses/MIT
+//	Contact: <milmove-developers@caci.com>
 //
 //	Consumes:
 //	  - application/json

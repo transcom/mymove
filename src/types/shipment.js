@@ -29,7 +29,8 @@ export const GCCFactorsShape = shape({
   originFactor: number,
   destinationServiceAreaFee: number,
   destinationFactor: number,
-  fullPackUnpackCharge: number,
+  packPrice: number,
+  unpackPrice: number,
   ppmFactor: number,
 });
 
@@ -42,6 +43,7 @@ export const incentivesShape = shape({
 export const PPMShipmentShape = shape({
   id: string,
   shipmentId: string,
+  shipmentLocator: string,
   createdAt: string,
   status: PPMShipmentStatusOneOf,
   expectedDepartureDate: string,
@@ -120,6 +122,7 @@ export const ShipmentAddressUpdateShape = shape({
 export const ShipmentShape = shape({
   moveTaskOrderID: string,
   id: string,
+  shipmentLocator: string,
   createdAt: string,
   updatedAt: string,
   deletedAt: string,
@@ -170,6 +173,8 @@ export const ShipmentShape = shape({
   }),
   ppmShipment: PPMShipmentShape,
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
+  actual_pro_gear_weight: number,
+  actual_spouse_pro_gear_weight: number,
 });
 
 const DocumentShape = shape({
@@ -212,6 +217,8 @@ export const ExpenseShape = shape({
   paidWithGtcc: bool,
   sitStartDate: string,
   sitEndDate: string,
+  sitLocation: string,
+  sitWeight: number,
 });
 
 export const StorageFacilityShape = shape({

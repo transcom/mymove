@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	// mocks, or objects that can be modified in subtests should instead be set up in makeCreateSubtestData.
 	testMTOShipmentObjects := suite.setUpMTOShipmentObjects()
 	addressCreator := address.NewAddressCreator()
-	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter)
+	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, testMTOShipmentObjects.moveRouter, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 
@@ -77,7 +77,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 	).Return(400, nil)
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		testMTOShipmentObjects.builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter),
+		mtoserviceitem.NewMTOServiceItemCreator(planner, testMTOShipmentObjects.builder, testMTOShipmentObjects.moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		testMTOShipmentObjects.moveRouter,
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
@@ -612,13 +612,12 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	recalculator := paymentrequest.NewPaymentRequestRecalculator(creator, statusUpdater)
 
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(recalculator)
-
-	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator)
+	addressUpdater := address.NewAddressUpdater()
+	addressCreator := address.NewAddressCreator()
+	mtoShipmentUpdater := mtoshipment.NewCustomerMTOShipmentUpdater(testMTOShipmentObjects.builder, testMTOShipmentObjects.fetcher, planner, testMTOShipmentObjects.moveRouter, moveWeights, suite.TestNotificationSender(), paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 
 	ppmEstimator := mocks.PPMEstimator{}
 
-	addressCreator := address.NewAddressCreator()
-	addressUpdater := address.NewAddressUpdater()
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater)
@@ -830,7 +829,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SitExpected:           handlers.FmtBool(false),
 				},
 				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, _ models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
 					// check all fields changed as expected
 					desiredShipment.ExpectedDepartureDate.Equal(*updatedShipment.PpmShipment.ExpectedDepartureDate)
 
@@ -872,7 +871,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					SecondaryDestinationPostalCode: nullable.NewNullString(),
 				},
 				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
+				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, _ internalmessages.UpdatePPMShipment) {
 					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
 
 					// check expected fields were updated

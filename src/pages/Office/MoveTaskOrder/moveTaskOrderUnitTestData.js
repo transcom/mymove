@@ -207,7 +207,19 @@ export const someShipmentsApprovedMTOQuery = {
     {
       id: '8',
       reServiceName: 'Move management',
+      status: SERVICE_ITEM_STATUS.SUBMITTED,
+      reServiceCode: 'MS',
+    },
+    {
+      id: '9',
+      reServiceName: 'Move management',
       status: SERVICE_ITEM_STATUS.APPROVED,
+      reServiceCode: 'MS',
+    },
+    {
+      id: '10',
+      reServiceName: 'Move management',
+      status: SERVICE_ITEM_STATUS.REJECTED,
       reServiceCode: 'MS',
     },
   ],
@@ -388,6 +400,18 @@ export const allApprovedMTOQuery = {
       sitExtensions: [],
       sitStatus: SITStatusOrigin,
     },
+    {
+      distance: 1993,
+      id: '1',
+      moveTaskOrderID: '2',
+      ppmShipment: {
+        estimatedWeight: 2000,
+      },
+      shipmentType: 'PPM',
+      sitDaysAllowance: 90,
+      status: 'APPROVED',
+      updatedAt: '2024-03-29T00:40:15.943Z',
+    },
   ],
   mtoServiceItems: [
     {
@@ -403,6 +427,62 @@ export const allApprovedMTOQuery = {
       reServiceName: "Domestic origin add'l SIT",
       status: SERVICE_ITEM_STATUS.SUBMITTED,
       reServiceCode: 'DOASIT',
+    },
+  ],
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+};
+
+export const actualPPMWeightQuery = {
+  orders: {
+    1: {
+      id: '1',
+      originDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Knox',
+          state: 'KY',
+          postalCode: '40121',
+        },
+      },
+      destinationDutyLocation: {
+        address: {
+          streetAddress1: '',
+          city: 'Fort Irwin',
+          state: 'CA',
+          postalCode: '92310',
+        },
+      },
+      entitlement: {
+        authorizedWeight: 8000,
+        totalWeight: 8500,
+      },
+    },
+  },
+  move: {
+    id: '2',
+    status: MOVE_STATUSES.APPROVALS_REQUESTED,
+    availableToPrimeAt: '2020-03-01T00:00:00.000Z',
+  },
+  mtoShipments: [
+    {
+      distance: 1993,
+      id: '1',
+      moveTaskOrderID: '2',
+      ppmShipment: {
+        estimatedWeight: 2000,
+        weightTickets: [
+          {
+            emptyWeight: 4000,
+            fullWeight: 6100,
+          },
+        ],
+      },
+      shipmentType: 'PPM',
+      sitDaysAllowance: 90,
+      status: 'APPROVED',
+      updatedAt: '2024-03-29T00:40:15.943Z',
     },
   ],
   isLoading: false,
@@ -1844,7 +1924,7 @@ export const reviewWeightsQuery = {
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 498,
-        status: 'NEEDS_PAYMENT_APPROVAL',
+        status: 'NEEDS_CLOSEOUT',
         submittedAt: null,
         updatedAt: '2023-02-28T18:02:59.869Z',
         w2Address: {
@@ -2298,7 +2378,7 @@ export const reviewWeightsNoProGearQuery = {
         sitEstimatedWeight: null,
         sitExpected: false,
         spouseProGearWeight: 498,
-        status: 'NEEDS_PAYMENT_APPROVAL',
+        status: 'NEEDS_CLOSEOUT',
         submittedAt: null,
         updatedAt: '2023-02-28T18:02:59.869Z',
         w2Address: {

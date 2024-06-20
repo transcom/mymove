@@ -54,6 +54,8 @@ export const ServiceItemDetailsShape = PropTypes.shape({
     crateDimensions: MTOServiceItemDimensionShape,
     customerContacts: PropTypes.arrayOf(MTOServiceItemCustomerContactShape),
     estimatedWeight: PropTypes.number,
+    status: PropTypes.string,
+    estimatedPrice: PropTypes.number,
   }),
   sitAddressUpdates: PropTypes.arrayOf(SitAddressUpdatesShape),
 });

@@ -11,10 +11,11 @@ describe('When given a completed services counseling for a move', () => {
     context: [
       {
         shipment_id_abbr: 'acf7b',
+        shipment_locator: 'RQ38D4-01',
         shipment_type: 'PPM',
       },
     ],
-    changedValues: { status: 'PAYMENT_APPROVED' },
+    changedValues: { status: 'CLOSEOUT_COMPLETE' },
   };
   it('correctly matches the update mto status services counseling completed event to the proper template', () => {
     const template = getTemplate(historyRecord);
@@ -25,7 +26,7 @@ describe('When given a completed services counseling for a move', () => {
     const template = getTemplate(historyRecord);
 
     render(template.getDetails(historyRecord));
-    expect(screen.getByText('PPM shipment #ACF7B')).toBeInTheDocument();
+    expect(screen.getByText('PPM shipment #RQ38D4-01')).toBeInTheDocument();
   });
 
   describe('When given a specific set of details for a cancelled shipment', () => {

@@ -43,6 +43,10 @@ If you create a new diverted shipment with the `diversion` and `divertedFromShip
 inherit the primeActualWeight of its `divertedFromShipmentId` parent. Payment requests created on a diverted shipment "chain" will utilize
 the lowest weight possible in the chain to prevent overcharging as they are still separate shipments.
 
+**NOTE**: New version in v3. Version will accept PPM addresses[pickupAddress, destinationAddress, secondaryPickupAddress
+secondaryDestinationAddress]. PPM postalCodes will be phased out[pickupPostalCode, secondaryPickupPostalCode,
+destinationPostalCode and secondaryDestinationPostalCode].
+
 **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
 one of their moves. Otherwise, the Prime can fetch the related move using the
 [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.

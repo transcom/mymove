@@ -1,13 +1,17 @@
 export const generalRoutes = {
   HOME_PATH: '/',
   SIGN_IN_PATH: '/sign-in',
+  REQUEST_ACCOUNT: '/request-account',
   PRIVACY_SECURITY_POLICY_PATH: '/privacy-and-security-policy',
   ACCESSIBILITY_PATH: '/accessibility',
+  QUEUE_SEARCH_PATH: 'Search',
+  BASE_QUEUE_SEARCH_PATH: '/Search',
 };
 
 export const customerRoutes = {
   MOVE_HOME_PAGE: '/move',
   MOVE_HOME_PATH: '/move/:moveId',
+  VALIDATION_CODE_PATH: '/service-member/validation-code',
   CONUS_OCONUS_PATH: '/service-member/conus-oconus',
   DOD_INFO_PATH: '/service-member/dod-info',
   NAME_PATH: '/service-member/name',
@@ -36,6 +40,7 @@ export const customerRoutes = {
   SHIPMENT_PPM_EXPENSES_PATH: '/moves/:moveId/shipments/:mtoShipmentId/expenses',
   SHIPMENT_PPM_EXPENSES_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/expenses/:expenseId',
   SHIPMENT_PPM_COMPLETE_PATH: '/moves/:moveId/shipments/:mtoShipmentId/complete',
+  SHIPMENT_PPM_FEEDBACK_PATH: '/moves/:moveId/shipments/:mtoShipmentId/feedback',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
@@ -46,6 +51,7 @@ export const customerRoutes = {
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';
+const BASE_COUNSELING_CUSTOMER_PATH = '/counseling/customers/:customerId';
 
 export const servicesCounselingRoutes = {
   BASE_QUEUE_VIEW_PATH: '/counseling/queue',
@@ -55,8 +61,8 @@ export const servicesCounselingRoutes = {
   BASE_QUEUE_COUNSELING_PATH: '/counseling',
   QUEUE_CLOSEOUT_PATH: 'PPM-closeout',
   BASE_QUEUE_CLOSEOUT_PATH: '/PPM-closeout',
-  QUEUE_SEARCH_PATH: 'Search',
-  BASE_QUEUE_SEARCH_PATH: '/Search',
+  CUSTOMER_SEARCH_PATH: 'customer-search',
+  BASE_CUSTOMER_SEARCH_PATH: '/customer-search',
   BASE_COUNSELING_MOVE_PATH,
   BASE_ALLOWANCES_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/allowances`,
   ALLOWANCES_EDIT_PATH: 'allowances',
@@ -64,6 +70,8 @@ export const servicesCounselingRoutes = {
   CUSTOMER_INFO_EDIT_PATH: 'customer',
   BASE_MOVE_VIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/details`,
   MOVE_VIEW_PATH: 'details',
+  BASE_CREATE_MOVE_EDIT_CUSTOMER_PATH: `${BASE_COUNSELING_MOVE_PATH}/edit-customer`,
+  CREATE_MOVE_EDIT_CUSTOMER_PATH: 'edit-customer',
   BASE_ORDERS_EDIT_PATH: `${BASE_COUNSELING_MOVE_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
   BASE_SHIPMENT_ADD_PATH: `${BASE_COUNSELING_MOVE_PATH}/new-shipment/:shipmentType`,
@@ -83,6 +91,11 @@ export const servicesCounselingRoutes = {
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
   CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
+  BASE_CUSTOMERS_CUSTOMER_INFO_PATH: `${BASE_COUNSELING_CUSTOMER_PATH}/customer-info`,
+  CUSTOMERS_CUSTOMER_INFO_PATH: 'customer-info',
+  BASE_CUSTOMERS_ORDERS_ADD_PATH: `${BASE_COUNSELING_CUSTOMER_PATH}/new-orders`,
+  CUSTOMERS_ORDERS_ADD_PATH: 'new-orders',
+  CREATE_MOVE_CUSTOMER_INFO_PATH: '/create-move/customer-info',
 };
 
 const BASE_MOVES_PATH = '/moves/:moveCode';
@@ -93,20 +106,27 @@ export const moveRoutes = {
 
 export const tioRoutes = {
   BASE_PAYMENT_REQUESTS_PATH: `${BASE_MOVES_PATH}/payment-requests`,
+  PAYMENT_REQUEST_QUEUE: 'payment-requests',
+  BASE_PAYMENT_REQUEST_QUEUE: '/payment-requests',
   PAYMENT_REQUESTS_PATH: 'payment-requests',
   BILLABLE_WEIGHT_PATH: 'billable-weight',
 };
 
 export const tooRoutes = {
   BASE_SHIPMENT_EDIT_PATH: `${BASE_MOVES_PATH}/shipments/:shipmentId`,
+  MOVE_QUEUE: `move-queue`,
+  BASE_MOVE_QUEUE: `/move-queue`,
   SHIPMENT_EDIT_PATH: 'shipments/:shipmentId',
   BASE_MOVE_VIEW_PATH: `${BASE_MOVES_PATH}/details`,
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
+  BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
+  CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
+// QAE and CSR share all routes, just different permission levels
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
   BASE_EVALUATION_REPORTS_PATH: `${BASE_MOVES_PATH}/evaluation-reports`,
@@ -136,4 +156,8 @@ export const primeSimulatorRoutes = {
   SHIPMENT_UPDATE_REWEIGH_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/reweigh/:reweighId/update`,
   CREATE_SIT_EXTENSION_REQUEST_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/sit-extension-requests/new`,
   SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH: `${BASE_PRIME_SIMULATOR_PATH}/shipments/:shipmentId/updateDestinationAddress`,
+};
+
+export const adminRoutes = {
+  HOME_PATH: '/',
 };

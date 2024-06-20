@@ -41,7 +41,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -115,6 +115,43 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -2261,6 +2298,13 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -3017,6 +3061,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional PPM shipment ID related to the upload",
+            "name": "ppmId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3123,6 +3174,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -3292,6 +3349,26 @@ func init() {
         "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
+    },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
     },
     "AvailableMoveDates": {
       "type": "object",
@@ -4078,6 +4155,11 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "status": {
           "type": "string",
           "readOnly": true
@@ -4136,6 +4218,12 @@ func init() {
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
           }
         },
         "roles": {
@@ -4291,6 +4379,12 @@ func init() {
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -4580,6 +4674,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "service_member_id": {
           "type": "string",
@@ -4882,6 +4981,19 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -4893,11 +5005,48 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -5306,14 +5455,18 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "BLUEBARK"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SAFETY": "Safety",
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -5695,15 +5848,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -5749,6 +5902,15 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",
@@ -5830,6 +5992,34 @@ func init() {
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -5905,6 +6095,24 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -6151,6 +6359,15 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",
@@ -6405,6 +6622,34 @@ func init() {
         }
       }
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -6499,14 +6744,26 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -7083,6 +7340,30 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean",
@@ -7276,6 +7557,9 @@ func init() {
     },
     {
       "name": "okta_profile"
+    },
+    {
+      "name": "application_parameters"
     }
   ]
 }`))
@@ -7303,7 +7587,7 @@ func init() {
   "paths": {
     "/addresses/{addressId}": {
       "get": {
-        "description": "Returns an address",
+        "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
         "tags": [
           "addresses"
         ],
@@ -7386,6 +7670,43 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/application_parameters": {
+      "post": {
+        "description": "Searches for an application parameter by name and value, returns nil if not found",
+        "tags": [
+          "application_parameters"
+        ],
+        "summary": "Searches for an application parameter by name and value, returns nil if not found",
+        "operationId": "validate",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application Parameters",
+            "schema": {
+              "$ref": "#/definitions/ApplicationParameters"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "500": {
+            "description": "server error"
           }
         }
       }
@@ -9853,6 +10174,13 @@ func init() {
             "name": "file",
             "in": "formData",
             "required": true
+          },
+          {
+            "type": "boolean",
+            "description": "If the upload is a Weight Receipt",
+            "name": "weightReceipt",
+            "in": "query",
+            "required": true
           }
         ],
         "responses": {
@@ -10720,6 +11048,13 @@ func init() {
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional PPM shipment ID related to the upload",
+            "name": "ppmId",
+            "in": "query"
           }
         ],
         "responses": {
@@ -10826,6 +11161,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -10995,6 +11336,26 @@ func init() {
         "SPACE_FORCE": "Space Force"
       },
       "x-nullable": true
+    },
+    "ApplicationParameters": {
+      "type": "object",
+      "properties": {
+        "parameterName": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "parameterValue": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        },
+        "validationCode": {
+          "type": "string",
+          "format": "string",
+          "x-nullable": true
+        }
+      }
     },
     "AvailableMoveDates": {
       "type": "object",
@@ -11783,6 +12144,11 @@ func init() {
         "orders": {
           "type": "object"
         },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
         "status": {
           "type": "string",
           "readOnly": true
@@ -11841,6 +12207,12 @@ func init() {
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "privileges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Privilege"
           }
         },
         "roles": {
@@ -11996,6 +12368,12 @@ func init() {
         },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "shipmentLocator": {
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true,
+          "example": "1K43AR-01"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -12287,6 +12665,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "service_member_id": {
           "type": "string",
@@ -12589,6 +12972,19 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -12600,11 +12996,48 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         }
       }
     },
@@ -13013,14 +13446,18 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "BLUEBARK"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SAFETY": "Safety",
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "OrdersTypeDetail": {
@@ -13402,15 +13839,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -13456,6 +13893,15 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",
@@ -13537,6 +13983,34 @@ func init() {
       "x-nullable": true,
       "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
     },
+    "Privilege": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4780-65aa-42ec-a945-5fd87dec0538"
+        },
+        "privilegeName": {
+          "type": "string",
+          "example": "Supervisor"
+        },
+        "privilegeType": {
+          "type": "string",
+          "example": "supervisor"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -13612,6 +14086,25 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "updatedAt": {
           "type": "string",
@@ -13859,6 +14352,15 @@ func init() {
           "type": "boolean",
           "title": "Email",
           "x-nullable": true
+        },
+        "emplid": {
+          "type": "string",
+          "title": "USCG EMPLID",
+          "maxLength": 7,
+          "minLength": 7,
+          "pattern": "^\\d{7}$",
+          "x-nullable": true,
+          "example": "5789345"
         },
         "first_name": {
           "type": "string",
@@ -14113,6 +14615,34 @@ func init() {
         }
       }
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -14207,14 +14737,26 @@ func init() {
         "sitEndDate": {
           "description": "The date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2018-05-26"
+          "format": "date"
+        },
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            }
+          ]
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
-          "format": "date",
-          "example": "2022-04-26"
+          "format": "date"
+        },
+        "weightStored": {
+          "description": "The total weight stored in PPM SIT",
+          "type": "integer"
         }
       }
     },
@@ -14803,6 +15345,32 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
           "type": "boolean",
@@ -14996,6 +15564,9 @@ func init() {
     },
     {
       "name": "okta_profile"
+    },
+    {
+      "name": "application_parameters"
     }
   ]
 }`))

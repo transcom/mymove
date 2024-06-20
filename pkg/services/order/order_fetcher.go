@@ -8,11 +8,13 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -36,6 +38,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	if err != nil {
 		return []models.Move{}, 0, err
+	}
+
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
 
 	officeUserGbloc := transportationOffice.Gbloc
@@ -116,14 +123,21 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
 			"Orders.Entitlement",
+			"Orders.OrdersType",
 			"MTOShipments.PPMShipment",
+			"LockedByOfficeUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
 			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", "SAFETY")
+		}
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
@@ -132,11 +146,13 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// See note further below about having to do this in a separate Load call due to a Pop issue.
 			// "Orders.OriginDutyLocation.TransportationOffice",
 			"Orders.Entitlement",
+			"Orders.OrdersType",
 			"MTOShipments",
 			"MTOServiceItems",
 			"ShipmentGBLOC",
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
+			"LockedByOfficeUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -147,18 +163,27 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// and we don't want it to get hidden from services counselors.
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", "SAFETY")
+		}
+
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsPaymentApproval, models.PPMShipmentStatusPaymentApproved)
+					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
 			}
 		} else {
+			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false')))")
+			}
 			// TODO  not sure we'll need this once we're in a situation where closeout param is always passed
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
 		}
@@ -294,7 +319,7 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
@@ -346,19 +371,7 @@ func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			var translatedStatuses []string
-			for _, status := range statuses {
-				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else {
-					translatedStatuses = append(translatedStatuses, status)
-				}
-			}
-			query.Where("moves.status IN (?)", translatedStatuses)
-		}
-		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
-		if len(statuses) <= 0 {
-			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
+			query.Where("moves.status IN (?)", statuses)
 		}
 	}
 }
@@ -463,11 +476,11 @@ func gblocFilterForPPMCloseoutForNavyMarineAndCG(gbloc *string) QueryOption {
 	return func(query *pop.Query) {
 		if gbloc != nil {
 			if *gbloc == navyGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsPaymentApproval)
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationNAVY, models.PPMShipmentStatusNeedsCloseout)
 			} else if *gbloc == tvcbGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsPaymentApproval)
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationMARINES, models.PPMShipmentStatusNeedsCloseout)
 			} else if *gbloc == uscgGbloc {
-				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsPaymentApproval)
+				query.Where("mto_shipments.shipment_type = ? AND service_members.affiliation = ? AND ppm_shipments.status = ?", models.MTOShipmentTypePPM, models.AffiliationCOASTGUARD, models.PPMShipmentStatusNeedsCloseout)
 			}
 		}
 	}

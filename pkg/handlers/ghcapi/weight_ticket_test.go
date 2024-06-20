@@ -31,10 +31,10 @@ func (suite *HandlerSuite) TestUpdateWeightTicketHandler() {
 		params       weightticketops.UpdateWeightTicketParams
 		handler      UpdateWeightTicketHandler
 	}
-	makeUpdateSubtestData := func(authenticateRequest bool) (subtestData weightTicketUpdateSubtestData) {
+	makeUpdateSubtestData := func(_ bool) (subtestData weightTicketUpdateSubtestData) {
 
 		// Use fake data:
-		subtestData.ppmShipment = factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, nil)
+		subtestData.ppmShipment = factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
 		subtestData.weightTicket = subtestData.ppmShipment.WeightTickets[0]
 		endpoint := fmt.Sprintf("/ppm-shipments/%s/weight-ticket/%s", subtestData.ppmShipment.ID.String(), subtestData.weightTicket.ID.String())
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)

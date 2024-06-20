@@ -11,6 +11,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	mtoserviceitemop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -19,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
+	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
@@ -93,6 +95,9 @@ func (h GetMTOServiceItemHandler) Handle(params mtoserviceitemop.GetMTOServiceIt
 type UpdateServiceItemSitEntryDateHandler struct {
 	handlers.HandlerConfig
 	sitEntryDateUpdater services.SitEntryDateUpdater
+	services.ShipmentSITStatus
+	services.MTOShipmentFetcher
+	services.ShipmentUpdater
 }
 
 func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.UpdateServiceItemSitEntryDateParams) middleware.Responder {
@@ -129,6 +134,35 @@ func (h UpdateServiceItemSitEntryDateHandler) Handle(params mtoserviceitemop.Upd
 				return mtoserviceitemop.NewUpdateServiceItemSitEntryDateUnprocessableEntity().WithPayload(payload), err
 			}
 
+			// on service item sit entry date update, update the shipment SIT auth end date
+			mtoshipmentID := *serviceItem.MTOShipmentID
+			if mtoshipmentID != uuid.Nil {
+				eagerAssociations := []string{"MTOServiceItems",
+					"MTOServiceItems.SITDepartureDate",
+					"MTOServiceItems.SITEntryDate",
+					"MTOServiceItems.ReService",
+					"SITDurationUpdates",
+				}
+				shipment, err := mtoshipment.FindShipment(appCtx, mtoshipmentID, eagerAssociations...)
+				if shipment != nil {
+					_, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+					if err != nil {
+						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", shipment.ID, err))
+					}
+
+					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+					if err != nil {
+						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
+					}
+
+				}
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Could not find a shipment for the service item with ID: %s: %s", mtoServiceItemID, err))
+				}
+			}
+
 			payload := payloads.MTOServiceItemSingleModel(serviceItem)
 
 			return mtoserviceitemop.NewUpdateServiceItemSitEntryDateOK().WithPayload(payload), nil
@@ -140,6 +174,9 @@ type UpdateMTOServiceItemStatusHandler struct {
 	handlers.HandlerConfig
 	services.MTOServiceItemUpdater
 	services.Fetcher
+	services.ShipmentSITStatus
+	services.MTOShipmentFetcher
+	services.ShipmentUpdater
 }
 
 // Handle handler that handles the handling for updating service item status
@@ -210,6 +247,35 @@ func (h UpdateMTOServiceItemStatusHandler) Handle(params mtoserviceitemop.Update
 				}
 			}
 
+			// on service item update, update the shipment SIT auth end date
+			mtoshipmentID := existingMTOServiceItem.MTOShipment.ID
+			if mtoshipmentID != uuid.Nil {
+				eagerAssociations := []string{"MTOServiceItems",
+					"MTOServiceItems.SITDepartureDate",
+					"MTOServiceItems.SITEntryDate",
+					"MTOServiceItems.ReService",
+					"SITDurationUpdates",
+				}
+				shipment, err := mtoshipment.FindShipment(appCtx, mtoshipmentID, eagerAssociations...)
+				if shipment != nil {
+					_, shipmentWithSITInfo, err := h.CalculateShipmentSITStatus(appCtx, *shipment)
+					if err != nil {
+						appCtx.Logger().Error(fmt.Sprintf("Could not calculate the shipment SIT status for shipment ID: %s: %s", shipment.ID, err))
+					}
+
+					existingETag := etag.GenerateEtag(shipment.UpdatedAt)
+
+					shipment, err = h.UpdateShipment(appCtx, &shipmentWithSITInfo, existingETag, "ghc")
+					if err != nil {
+						appCtx.Logger().Error(fmt.Sprintf("Could not update the shipment SIT auth end date for shipment ID: %s: %s", shipment.ID, err))
+					}
+
+				}
+				if err != nil {
+					appCtx.Logger().Error(fmt.Sprintf("Could not find a shipment for the service item with ID: %s: %s", mtoServiceItemID, err))
+				}
+			}
+
 			// trigger webhook event for Prime
 			_, err = event.TriggerEvent(event.Event{
 				EventKey:        event.MTOServiceItemUpdateEventKey,
@@ -264,7 +330,7 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 			if err != nil {
 				appCtx.Logger().Error(
 					"Error fetching move task order: ",
-					zap.Error(fmt.Errorf("Move Task Order ID: %s", moveTaskOrder.ID)),
+					zap.Error(fmt.Errorf("move Task Order ID: %s", moveTaskOrder.ID)),
 					zap.Error(err))
 
 				return mtoserviceitemop.NewListMTOServiceItemsNotFound(), err
@@ -279,6 +345,8 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 				query.NewQueryAssociation("Dimensions"),
 				query.NewQueryAssociation("SITDestinationOriginalAddress"),
 				query.NewQueryAssociation("SITDestinationFinalAddress"),
+				query.NewQueryAssociation("SITOriginHHGOriginalAddress"),
+				query.NewQueryAssociation("SITOriginHHGActualAddress"),
 			})
 
 			var serviceItems models.MTOServiceItems

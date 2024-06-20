@@ -8,19 +8,20 @@ import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import DodInfoForm from 'components/Customer/DodInfoForm/DodInfoForm';
 import { patchServiceMember, getResponseError } from 'services/internalApi';
 import { updateServiceMember as updateServiceMemberAction } from 'store/entities/actions';
-import { selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
+import { selectOktaUser, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import requireCustomerState from 'containers/requireCustomerState/requireCustomerState';
 import { profileStates } from 'constants/customerStates';
 import { customerRoutes } from 'constants/routes';
 import { ServiceMemberShape } from 'types/customerShapes';
 
-export const DodInfo = ({ updateServiceMember, serviceMember }) => {
+export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
     affiliation: serviceMember?.affiliation || '',
-    edipi: serviceMember?.edipi || '',
+    edipi: oktaUser?.cac_edipi || '',
+    emplid: serviceMember?.emplid || '',
   };
 
   const handleBack = () => {
@@ -36,6 +37,7 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       id: serviceMember.id,
       affiliation: values.affiliation,
       edipi: values.edipi,
+      emplid: values.affiliation === 'COAST_GUARD' ? values.emplid : null,
     };
 
     return patchServiceMember(payload)
@@ -44,7 +46,13 @@ export const DodInfo = ({ updateServiceMember, serviceMember }) => {
       .catch((e) => {
         // Error shape: https://github.com/swagger-api/swagger-js/blob/master/docs/usage/http-client.md#errors
         const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        let errorMessage;
+        if (e.response.body.message === 'Unhandled data error encountered') {
+          errorMessage = 'This EMPLID is already in use';
+        } else {
+          errorMessage = getResponseError(response, 'failed to update service member due to server error');
+        }
+
         setServerError(errorMessage);
       });
   };
@@ -83,6 +91,7 @@ const mapDispatchToProps = {
 
 const mapStateToProps = (state) => ({
   serviceMember: selectServiceMemberFromLoggedInUser(state),
+  oktaUser: selectOktaUser(state),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(requireCustomerState(DodInfo, profileStates.EMPTY_PROFILE));

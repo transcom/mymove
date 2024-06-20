@@ -11,7 +11,6 @@ import {
   formatPaymentRequestAddressString,
   formatCityStateAndPostalCode,
   getShipmentModificationType,
-  getMoveCodeLabel,
   retrieveSAC,
   retrieveTAC,
 } from './shipmentDisplay';
@@ -255,6 +254,7 @@ describe('shipmentDisplay utils', () => {
       const destinationLocation = {
         streetAddress1: '123 Any Street',
         streetAddress2: 'Apt 4',
+        streetAddress3: 'Some Person',
         city: 'Los Angeles',
         state: 'CA',
         postalCode: '111111',
@@ -262,9 +262,10 @@ describe('shipmentDisplay utils', () => {
       const wrapper = mount(formatCustomerDestination(destinationLocation));
       expect(wrapper.at(0).text()).toEqual(destinationLocation.streetAddress1);
       expect(wrapper.at(2).text()).toEqual(destinationLocation.streetAddress2);
-      expect(wrapper.at(4).text()).toEqual(destinationLocation.city);
-      expect(wrapper.at(6).text()).toEqual(destinationLocation.state);
-      expect(wrapper.at(8).text()).toEqual(destinationLocation.postalCode);
+      expect(wrapper.at(4).text()).toEqual(destinationLocation.streetAddress3);
+      expect(wrapper.at(6).text()).toEqual(destinationLocation.city);
+      expect(wrapper.at(8).text()).toEqual(destinationLocation.state);
+      expect(wrapper.at(10).text()).toEqual(destinationLocation.postalCode);
     });
 
     it('shows postalCode if address is not provided', () => {
@@ -345,13 +346,6 @@ describe('shipmentDisplay utils', () => {
     it('returns diversion when the shipment has been marked as a diversion', () => {
       const shipmentType = getShipmentModificationType(divertedShipment);
       expect(shipmentType).toEqual(shipmentModificationTypes.DIVERSION);
-    });
-  });
-
-  describe('getMoveCodeLabel', () => {
-    it('show expected move code for shipment id', () => {
-      const expectedMoveCodeLabel = getMoveCodeLabel('24e66b38-7832-4549-bd29-f9e325d3b99d');
-      expect(expectedMoveCodeLabel).toEqual('24E66B38');
     });
   });
 });

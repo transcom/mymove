@@ -145,6 +145,9 @@ export const ordersTypeReadable = (ordersType, missingText) => {
   if (!ordersType) {
     return missingText;
   }
+  if (ordersType === 'SAFETY') {
+    return 'Safety';
+  }
   return ORDERS_TYPE_OPTIONS[`${ordersType}`] || ordersType;
 };
 
@@ -169,8 +172,8 @@ export const formatAddressShort = (address) => {
 };
 
 export const formatPrimeAPIFullAddress = (address) => {
-  const { streetAddress1, streetAddress2, city, state, postalCode } = address;
-  return `${streetAddress1}, ${streetAddress2}, ${city}, ${state} ${postalCode}`;
+  const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = address;
+  return `${streetAddress1}, ${streetAddress2}, ${streetAddress3}, ${city}, ${state} ${postalCode}`;
 };
 
 export const formatEvaluationReportShipmentAddress = (address) => {
@@ -179,6 +182,41 @@ export const formatEvaluationReportShipmentAddress = (address) => {
     return postalCode;
   }
   return `${streetAddress1}, ${city}, ${state} ${postalCode}`;
+};
+
+export const formatCustomerContactFullAddress = (address) => {
+  let formattedAddress = '';
+  if (address.streetAddress1) {
+    formattedAddress += `${address.streetAddress1}`;
+  }
+
+  if (address.streetAddress2) {
+    formattedAddress += `, ${address.streetAddress2}`;
+  }
+
+  if (address.streetAddress3) {
+    formattedAddress += `, ${address.streetAddress3}`;
+  }
+
+  if (address.city) {
+    formattedAddress += `, ${address.city}`;
+  }
+
+  if (address.state) {
+    formattedAddress += `, ${address.state}`;
+  }
+
+  if (address.postalCode) {
+    formattedAddress += ` ${address.postalCode}`;
+  }
+
+  if (formattedAddress[0] === ',') {
+    formattedAddress = formattedAddress.substring(1);
+  }
+
+  formattedAddress = formattedAddress.trim();
+
+  return formattedAddress;
 };
 
 export const formatMoveHistoryFullAddress = (address) => {
@@ -278,15 +316,8 @@ export const formatAgeToDays = (age) => {
  * following format: `Dec 25 2023`.
  */
 export function formatReviewShipmentWeightsDate(date) {
-  /**
-   * @const INCOMING_DATE_FORMAT
-   * @description This is the format of the incoming `date` parameter. The
-   * reason this is passed into Moment is due to a quirk around browser
-   * support for parsing strings. Read more about *String + Format* here:
-   * <https://momentjs.com/docs/#/parsing/string/>
-   */
-  const INCOMING_DATE_FORMAT = 'DD-MMM-YY';
-  return moment(date, INCOMING_DATE_FORMAT).format('MMM DD YYYY');
+  if (!date) return DEFAULT_EMPTY_VALUE;
+  return moment(date).format('MMM DD YYYY');
 }
 // Format dates for customer app (ex. 25 Dec 2020)
 export function formatCustomerDate(date) {
@@ -316,6 +347,13 @@ export const formatYesNoInputValue = (value) => {
   return null;
 };
 
+// Translate boolean (true/false) into "true"/"false" string
+export const formatTrueFalseInputValue = (value) => {
+  if (value === true) return 'true';
+  if (value === false) return 'false';
+  return null;
+};
+
 // Translate "yes"/"no" string into boolean (true/false)
 export const formatYesNoAPIValue = (value) => {
   if (value === 'yes') return true;
@@ -329,8 +367,8 @@ export const formatWeightCWTFromLbs = (value) => {
 };
 
 // Translate currency from millicents to dollars
-export const formatDollarFromMillicents = (value) => {
-  return `$${(parseInt(value, 10) / 100000).toFixed(2)}`;
+export const formatDollarFromMillicents = (value, decimalPlaces = 2) => {
+  return `$${(parseInt(value, 10) / 100000).toFixed(decimalPlaces)}`;
 };
 
 // Takes an whole number of day value and pluralizes with unit label
@@ -464,9 +502,6 @@ export function formatQAReportID(uuid) {
   return `#QA-${getUUIDFirstFive(uuid)}`;
 }
 
-export function formatShortIDWithPound(uuid) {
-  return `#${getUUIDFirstFive(uuid)}`;
-}
 export function removeCommas(inputString) {
   // Use a regular expression to replace commas with an empty string
   return inputString.replace(/,/g, '');

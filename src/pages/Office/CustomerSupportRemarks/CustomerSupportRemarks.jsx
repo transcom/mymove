@@ -19,7 +19,7 @@ import { CUSTOMER_SUPPORT_REMARKS } from 'constants/queryKeys';
 import { deleteCustomerSupportRemark } from 'services/ghcApi';
 import Alert from 'shared/Alert';
 
-const CustomerSupportRemarks = () => {
+const CustomerSupportRemarks = ({ isMoveLocked }) => {
   const { moveCode } = useParams();
   const [showDeletionSuccess, setShowDeletionSuccess] = useState(false);
   const [customerSupportRemarkIDToDelete, setCustomerSupportRemarkIDToDelete] = useState(null);
@@ -66,7 +66,7 @@ const CustomerSupportRemarks = () => {
             >
               <h2>Remarks</h2>
 
-              <CustomerSupportRemarkForm />
+              <CustomerSupportRemarkForm isMoveLocked={isMoveLocked} />
 
               <h3>Past remarks</h3>
               {customerSupportRemarks.length === 0 && <p>No remarks yet.</p>}

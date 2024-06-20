@@ -39,7 +39,23 @@ tags:
   - name: mtoShipment
   - name: featureFlags
   - name: okta_profile
+  - name: application_parameters
 definitions:
+  ApplicationParameters:
+    type: object
+    properties:
+      validationCode:
+        type: string
+        format: string
+        x-nullable: true
+      parameterName:
+        type: string
+        format: string
+        x-nullable: true
+      parameterValue:
+        type: string
+        format: string
+        x-nullable: true
   OktaUserProfileData:
     type: object
     properties:
@@ -73,6 +89,27 @@ definitions:
     properties:
       profile:
         $ref: '#/definitions/OktaUserProfileData'
+  Privilege:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4780-65aa-42ec-a945-5fd87dec0538
+      privilegeType:
+        type: string
+        example: supervisor
+      privilegeName:
+        type: string
+        example: Supervisor
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
   LoggedInUserPayload:
     type: object
     properties:
@@ -103,6 +140,10 @@ definitions:
         type: array
         items:
           type: string
+      privileges:
+        type: array
+        items:
+          $ref: '#/definitions/Privilege'
     required:
       - id
   DutyLocationsPayload:
@@ -167,6 +208,10 @@ definitions:
         x-nullable: true
       eTag:
         type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
     required:
       - id
       - orders_id
@@ -421,15 +466,20 @@ definitions:
           The date the shipment entered storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2022-04-26'
         format: date
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
         type: string
-        example: '2018-05-26'
         format: date
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
     required:
       - movingExpenseType
       - description
@@ -622,6 +672,14 @@ definitions:
         maxLength: 10
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: ^\d{7}$
+        minLength: 7
+        maxLength: 7
+        example: '5789345'
+        x-nullable: true
+        title: USCG EMPLID
       orders:
         type: array
         items:
@@ -800,6 +858,14 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: DoD ID number
+      emplid:
+        type: string
+        pattern: ^\d{7}$
+        minLength: 7
+        maxLength: 7
+        example: '5789345'
+        x-nullable: true
+        title: USCG EMPLID
       affiliation:
         $ref: '#/definitions/Affiliation'
       first_name:
@@ -1792,6 +1858,11 @@ definitions:
         x-omitempty: false
       eTag:
         type: string
+      shipmentLocator:
+        type: string
+        x-nullable: true
+        readOnly: true
+        example: 1K43AR-01
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'
@@ -2158,6 +2229,10 @@ definitions:
       eTag:
         type: string
         readOnly: true
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
   FeatureFlagBoolean:
     description: A feature flag
     type: object
@@ -2212,13 +2287,17 @@ definitions:
       - LOCAL_MOVE
       - RETIREMENT
       - SEPARATION
+      - WOUNDED_WARRIOR
       - BLUEBARK
+      - SAFETY
     x-display-value:
       PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
       LOCAL_MOVE: Local Move
       RETIREMENT: Retirement
       SEPARATION: Separation
+      WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
+      SAFETY: Safety
   Address:
     description: A postal address
     type: object
@@ -2367,6 +2446,11 @@ definitions:
         x-nullable: true
         example: USA
         default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
     required:
       - streetAddress1
       - city
@@ -2551,8 +2635,8 @@ definitions:
         * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
         * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
         * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
-        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
-        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+        * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -2560,8 +2644,8 @@ definitions:
       - SUBMITTED
       - WAITING_ON_CUSTOMER
       - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
+      - NEEDS_CLOSEOUT
+      - CLOSEOUT_COMPLETE
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
@@ -2638,6 +2722,12 @@ definitions:
         minimum: 0
         x-nullable: true
         x-omitempty: false
+      submittedEmptyWeight:
+        description: Customer submitted weight of the vehicle when empty.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       missingEmptyWeightTicket:
         description: >-
           Indicates if the customer is missing a weight ticket for the vehicle
@@ -2660,6 +2750,12 @@ definitions:
           - $ref: '#/definitions/Document'
       fullWeight:
         description: The weight of the vehicle when full.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedFullWeight:
+        description: Customer submitted weight of the vehicle when full.
         type: integer
         minimum: 0
         x-nullable: true
@@ -2690,7 +2786,19 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedOwnsTrailer:
+        description: Indicates if the customer used a trailer they own for the move.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       trailerMeetsCriteria:
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      submittedTrailerMeetsCriteria:
         description: >-
           Indicates if the trailer that the customer used meets all the criteria
           to be claimable.
@@ -2777,6 +2885,31 @@ definitions:
       WEIGHING_FEE: Weighing fee
     x-nullable: true
     x-omitempty: false
+  SubmittedMovingExpenseType:
+    type: string
+    description: Customer Submitted Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEE
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEE: Weighing fee
+    x-nullable: true
+    x-omitempty: false
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
@@ -2809,8 +2942,15 @@ definitions:
           - $ref: '#/definitions/Document'
       movingExpenseType:
         $ref: '#/definitions/OmittableMovingExpenseType'
+      submittedMovingExpenseType:
+        $ref: '#/definitions/SubmittedMovingExpenseType'
       description:
         description: A brief description of the expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      submittedDescription:
+        description: Customer submitted description of the expense
         type: string
         x-nullable: true
         x-omitempty: false
@@ -2823,6 +2963,13 @@ definitions:
         x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      submittedAmount:
+        description: >-
+          Customer submitted total amount of the expense as indicated on the
+          receipt
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -2846,10 +2993,28 @@ definitions:
         format: date
         x-nullable: true
         x-omitempty: false
+      submittedSitStartDate:
+        description: >-
+          Customer submitted date the shipment entered storage, applicable for
+          the `STORAGE` movingExpenseType only
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      submittedSitEndDate:
+        description: >-
+          Customer submitted date the shipment exited storage, applicable for
+          the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -2873,6 +3038,16 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
+      weightStored:
+        description: The total weight stored in PPM SIT
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt
@@ -2913,6 +3088,13 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedBelongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       description:
         description: Describes the pro-gear that was moved.
         type: string
@@ -2925,8 +3107,21 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedHasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       weight:
         description: Weight of the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedWeight:
+        description: Customer submitted weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true
@@ -3490,6 +3685,34 @@ paths:
                 type: boolean
         '400':
           description: invalid request
+        '500':
+          description: server error
+  /application_parameters:
+    post:
+      summary: >-
+        Searches for an application parameter by name and value, returns nil if
+        not found
+      description: >-
+        Searches for an application parameter by name and value, returns nil if
+        not found
+      operationId: validate
+      tags:
+        - application_parameters
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+      responses:
+        '200':
+          description: Application Parameters
+          schema:
+            $ref: '#/definitions/ApplicationParameters'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
         '500':
           description: server error
   /orders:
@@ -4249,6 +4472,11 @@ paths:
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
+        - in: query
+          name: ppmId
+          type: string
+          format: uuid
+          description: Optional PPM shipment ID related to the upload
       responses:
         '204':
           description: deleted
@@ -5119,6 +5347,11 @@ paths:
           type: file
           description: The file to upload.
           required: true
+        - in: query
+          name: weightReceipt
+          type: boolean
+          description: If the upload is a Weight Receipt
+          required: true
       responses:
         '201':
           description: created upload
@@ -5272,7 +5505,9 @@ paths:
   /addresses/{addressId}:
     get:
       summary: Returns an address
-      description: Returns an address
+      description: >-
+        Find by API using address ID that returns an address json object
+        containing address 1, address 2, address 3, city and postal code.
       operationId: showAddress
       tags:
         - addresses

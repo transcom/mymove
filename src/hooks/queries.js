@@ -31,6 +31,7 @@ import {
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
   getPPMActualWeight,
+  searchCustomers,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -52,7 +53,7 @@ import {
   SHIPMENTS_PAYMENT_SIT_BALANCE,
   PRIME_SIMULATOR_MOVE,
   CUSTOMER_SUPPORT_REMARKS,
-  QAE_CSR_MOVE_SEARCH,
+  QAE_MOVE_SEARCH,
   SHIPMENT_EVALUATION_REPORTS,
   COUNSELING_EVALUATION_REPORTS,
   EVALUATION_REPORT,
@@ -63,6 +64,7 @@ import {
   PRIME_SIMULATOR_AVAILABLE_MOVES,
   PPMCLOSEOUT,
   PPMACTUALWEIGHT,
+  SC_CUSTOMER_SEARCH,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -145,6 +147,7 @@ export const useTXOMoveInfoQueries = (moveCode) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([moveQuery, orderQuery, customerQuery]);
 
   return {
+    move,
     order,
     customerData,
     isLoading,
@@ -248,9 +251,14 @@ export const useEditShipmentQueries = (moveCode) => {
 };
 
 export const usePPMShipmentDocsQueries = (shipmentId) => {
-  const { data: mtoShipment, ...mtoShipmentQuery } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) =>
-    getMTOShipmentByID(...queryKey),
-  );
+  const {
+    data: mtoShipment,
+    refetch: refetchMTOShipment,
+    ...mtoShipmentQuery
+  } = useQuery([MTO_SHIPMENT, shipmentId], ({ queryKey }) => getMTOShipmentByID(...queryKey), {
+    refetchOnMount: true,
+    staleTime: 0,
+  });
 
   const { data: documents, ...documentsQuery } = useQuery(
     [DOCUMENTS, shipmentId],
@@ -269,14 +277,20 @@ export const usePPMShipmentDocsQueries = (shipmentId) => {
     },
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([mtoShipmentQuery, documentsQuery, ppmActualWeightQuery]);
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([
+    mtoShipmentQuery,
+    documentsQuery,
+    ppmActualWeightQuery,
+  ]);
   return {
     mtoShipment,
     documents,
     ppmActualWeight,
+    refetchMTOShipment,
     isLoading,
     isError,
     isSuccess,
+    isFetching,
   };
 };
 
@@ -285,13 +299,14 @@ export const usePPMCloseoutQuery = (ppmShipmentId) => {
     getPPMCloseout(...queryKey),
   );
 
-  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmCloseoutQuery]);
+  const { isLoading, isError, isSuccess, isFetching } = getQueriesStatus([ppmCloseoutQuery]);
 
   return {
     ppmCloseout,
     isLoading,
     isError,
     isSuccess,
+    isFetching,
   };
 };
 
@@ -858,7 +873,7 @@ export const useMoveSearchQueries = ({
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
 }) => {
   const queryResult = useQuery(
-    [QAE_CSR_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    [QAE_MOVE_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
     ({ queryKey }) => searchMoves(...queryKey),
     {
       enabled: filters.length > 0,
@@ -869,6 +884,49 @@ export const useMoveSearchQueries = ({
   const searchMovesResult = data.searchMoves;
   return {
     searchResult: { data: searchMovesResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerSearchQueries = ({
+  sort,
+  order,
+  filters = [],
+  currentPage = PAGINATION_PAGE_DEFAULT,
+  currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+}) => {
+  const queryResult = useQuery(
+    [SC_CUSTOMER_SEARCH, { sort, order, filters, currentPage, currentPageSize }],
+    ({ queryKey }) => searchCustomers(...queryKey),
+    {
+      enabled: filters.length > 0,
+    },
+  );
+  const { data = {}, ...customerSearchQuery } = queryResult;
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerSearchQuery]);
+  const searchCustomersResult = data.searchCustomers;
+  return {
+    searchResult: { data: searchCustomersResult, page: data.page, perPage: data.perPage, totalCount: data.totalCount },
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useCustomerQuery = (customerId) => {
+  const { data: { customer } = {}, ...customerQuery } = useQuery(
+    [CUSTOMER, customerId],
+    ({ queryKey }) => getCustomer(...queryKey),
+    {
+      enabled: !!customerId,
+    },
+  );
+  const customerData = customer && Object.values(customer)[0];
+  const { isLoading, isError, isSuccess } = getQueriesStatus([customerQuery]);
+  return {
+    customerData,
     isLoading,
     isError,
     isSuccess,

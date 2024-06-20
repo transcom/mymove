@@ -207,6 +207,15 @@ func BuildMTOShipment(db *pop.Connection, customs []Customization, traits []Trai
 func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits []Trait) models.MTOShipment {
 	mtoShipment := BuildBaseMTOShipment(db, customs, traits)
 
+	// Get shipment_locator from DB that was generated from shipment INSERT.
+	if db != nil {
+		var dbMtoShipment models.MTOShipment
+		err := db.Find(&dbMtoShipment, mtoShipment.ID)
+		if err == nil {
+			mtoShipment.ShipmentLocator = dbMtoShipment.ShipmentLocator
+		}
+	}
+
 	customs = setupCustomizations(customs, traits)
 
 	// Find pickup address in case it was added to customizations list

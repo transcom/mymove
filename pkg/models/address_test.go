@@ -1,17 +1,18 @@
 package models_test
 
 import (
-	. "github.com/transcom/mymove/pkg/models"
+	m "github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
-	newAddress := &Address{
+	newAddress := &m.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: StringPointer("street 2"),
-		StreetAddress3: StringPointer("street 3"),
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
+		County:         "County",
 	}
 
 	verrs, err := newAddress.Validate(nil)
@@ -21,25 +22,27 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 }
 
 func (suite *ModelSuite) TestEmptyAddressInstantiation() {
-	newAddress := Address{}
+	newAddress := m.Address{}
 
 	expErrors := map[string][]string{
 		"street_address1": {"StreetAddress1 can not be blank."},
 		"city":            {"City can not be blank."},
 		"state":           {"State can not be blank."},
 		"postal_code":     {"PostalCode can not be blank."},
+		"county":          {"County can not be blank."},
 	}
 	suite.verifyValidationErrors(&newAddress, expErrors)
 }
 
 func (suite *ModelSuite) TestAddressCountryCode() {
-	noCountry := Address{
+	noCountry := m.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: StringPointer("street 2"),
-		StreetAddress3: StringPointer("street 3"),
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
+		County:         "county",
 	}
 
 	var expected *string
@@ -47,40 +50,42 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.NoError(err)
 	suite.Equal(expected, countryCode)
 
-	usaCountry := Address{
+	usaCountry := m.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: StringPointer("street 2"),
-		StreetAddress3: StringPointer("street 3"),
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        StringPointer("United States"),
+		Country:        m.StringPointer("United States"),
 	}
 	countryCode, err = usaCountry.CountryCode()
 	suite.NoError(err)
 	suite.Equal("USA", *countryCode)
 
-	usCountry := Address{
+	usCountry := m.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: StringPointer("street 2"),
-		StreetAddress3: StringPointer("street 3"),
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        StringPointer("US"),
+		Country:        m.StringPointer("US"),
+		County:         "county",
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)
 	suite.Equal("USA", *countryCode)
 
-	notUsaCountry := Address{
+	notUsaCountry := m.Address{
 		StreetAddress1: "street 1",
-		StreetAddress2: StringPointer("street 2"),
-		StreetAddress3: StringPointer("street 3"),
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        StringPointer("Ireland"),
+		County:         "county",
+		Country:        m.StringPointer("Ireland"),
 	}
 
 	countryCode, err = notUsaCountry.CountryCode()

@@ -163,7 +163,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 				servicesCounselorSession,
 				map[models.MTOShipmentStatus]bool{
 					models.MTOShipmentStatusSubmitted:             true,
-					models.MTOShipmentStatusApproved:              false,
+					models.MTOShipmentStatusApproved:              true,
 					models.MTOShipmentStatusCancellationRequested: false,
 					models.MTOShipmentStatusCanceled:              false,
 					models.MTOShipmentStatusDiversionRequested:    false,
@@ -199,7 +199,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 
 		for name, tc := range testCases {
 			for status, canUpdate := range tc.tests {
-				appCtx := suite.AppContextWithSessionForTest(&tc.session)
+				appCtx := suite.AppContextWithSessionForTest(&tc.session) //#nosec G601
 
 				suite.Run(fmt.Sprintf("User:%v Shipment Status:%v", name, status), func() {
 					checker := checkUpdateAllowed()
@@ -381,8 +381,8 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 			models.PPMShipmentStatusSubmitted:            true,
 			models.PPMShipmentStatusWaitingOnCustomer:    false,
 			models.PPMShipmentStatusNeedsAdvanceApproval: true,
-			models.PPMShipmentStatusNeedsPaymentApproval: true,
-			models.PPMShipmentStatusPaymentApproved:      true,
+			models.PPMShipmentStatusNeedsCloseout:        true,
+			models.PPMShipmentStatusCloseoutComplete:     true,
 		}
 
 		for status, allowed := range testCases {

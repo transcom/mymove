@@ -184,13 +184,54 @@ const ppmShipment = {
   ppmShipment: {
     expectedDepartureDate: '2022-06-28',
     actualMoveDate: '2022-05-11',
-    pickupPostalCode: '90210',
-    secondaryPickupPostalCode: '90002',
-    destinationPostalCode: '10108',
-    secondaryDestinationPostalCode: '79329',
+    hasSecondaryPickupAddress: true,
+    hasSecondaryDestinationAddress: true,
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42702',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
     sitExpected: false,
     estimatedWeight: 1111,
     hasProGear: false,
+  },
+};
+
+const ppmShipmentWithSIT = {
+  ...ppmShipment,
+  ppmShipment: {
+    ...ppmShipment.ppmShipment,
+    sitExpected: true,
+    sitEstimatedWeight: 999,
+    sitEstimatedDepartureDate: '2022-07-13',
+    sitEstimatedEntryDate: '2022-07-05',
   },
 };
 
@@ -311,24 +352,72 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       mtoShipments: [{ ...ppmShipment }],
     };
 
+    const ppmWithSITUseEditShipmentQueriesReturnValue = {
+      ...useEditShipmentQueriesReturnValue,
+      mtoShipments: [{ ...ppmShipmentWithSIT }],
+    };
+
     it('renders the first page of the edit ppm Shipment Form with prefilled values', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
       renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
-      expect(await screen.getByRole('textbox', { name: 'Planned departure date' })).toHaveValue('28 Jun 2022');
-      expect(await screen.findByRole('textbox', { name: 'Origin ZIP' })).toHaveValue(
-        ppmShipment.ppmShipment.pickupPostalCode,
+      expect(await screen.getByRole('textbox', { name: 'Planned Departure Date' })).toHaveValue('28 Jun 2022');
+
+      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+        ppmShipment.ppmShipment.pickupAddress.streetAddress1,
       );
-      expect(await screen.findByRole('textbox', { name: 'Second origin ZIP' })).toHaveValue(
-        ppmShipment.ppmShipment.secondaryPickupPostalCode,
+      expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
+        ppmShipment.ppmShipment.pickupAddress.streetAddress2,
       );
-      expect(await screen.findByRole('textbox', { name: 'Destination ZIP' })).toHaveValue(
-        ppmShipment.ppmShipment.destinationPostalCode,
+      expect(await screen.getAllByLabelText('City')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.city);
+      expect(await screen.getAllByLabelText('State')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.state);
+      expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(ppmShipment.ppmShipment.pickupAddress.postalCode);
+
+      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
-      expect(await screen.findByRole('textbox', { name: 'Second destination ZIP' })).toHaveValue(
-        ppmShipment.ppmShipment.secondaryDestinationPostalCode,
+      expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
       );
+      expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryPickupAddress.city,
+      );
+      expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryPickupAddress.state,
+      );
+      expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryPickupAddress.postalCode,
+      );
+
+      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+        ppmShipment.ppmShipment.destinationAddress.streetAddress1,
+      );
+      expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
+        ppmShipment.ppmShipment.destinationAddress.streetAddress2,
+      );
+      expect(await screen.getAllByLabelText('City')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.city);
+      expect(await screen.getAllByLabelText('State')[2]).toHaveValue(ppmShipment.ppmShipment.destinationAddress.state);
+      expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+        ppmShipment.ppmShipment.destinationAddress.postalCode,
+      );
+
+      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
+      );
+      expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
+      );
+      expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryDestinationAddress.city,
+      );
+      expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryDestinationAddress.state,
+      );
+      expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+        ppmShipment.ppmShipment.secondaryDestinationAddress.postalCode,
+      );
+
       expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
       expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
       expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
@@ -338,8 +427,84 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
     });
 
+    it('verify toggling from Yes to No to Yes restores PPM SIT prefilled values', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmWithSITUseEditShipmentQueriesReturnValue);
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
+      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+
+      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
+
+      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
+
+      await userEvent.tab();
+      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.click(await screen.findByText('Altus'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        // default state , now we verify validation is good for save to be enabled
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
+
+      // Input invalid date format will cause form to be invalid. save must be disabled.
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
+
+      // Schema validation is fail state thus Save button is disabled. click No to hide
+      // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
+      // schema failure is nolonger applicable.
+      const sitExpected = document.getElementById('sitExpectedNo').parentElement;
+      const sitExpectedNo = within(sitExpected).getByRole('radio', { name: 'No' });
+      await userEvent.click(sitExpectedNo);
+
+      // Verify No is really hiding SIT related inputs
+      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
+
+      // Verify clicking Yes again will restore persisted data for each SIT related control.
+      const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+
+      // Verify persisted values are restored to expected values.
+      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
+    });
+
     describe('Check SIT field validations', () => {
       it.each([
+        [
+          'sitEstimatedWeight',
+          {
+            sitEstimatedWeight: '-1',
+            sitEstimatedEntryDate: '15 Jun 2022',
+            sitEstimatedDepartureDate: '25 Jul 2022',
+          },
+          'Enter a weight greater than 0 lbs',
+        ],
+        [
+          'sitEstimatedWeight',
+          {
+            sitEstimatedWeight: '0',
+            sitEstimatedEntryDate: '15 Jun 2022',
+            sitEstimatedDepartureDate: '25 Jul 2022',
+          },
+          'Enter a weight greater than 0 lbs',
+        ],
         [
           'sitEstimatedWeight',
           {
@@ -403,6 +568,46 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
+    }, 10000);
+
+    it('Sit NO/YES toggle - Enables Save and Continue button when sit required fields are filled in', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+      searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
+      renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
+
+      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
+      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
+      await userEvent.tab();
+      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
+      await userEvent.click(await screen.findByText('Altus'));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+      });
+
+      /* Verify toggling back to NO selection when validation is failing for YES resets
+         schema validation back to NO. This tests component: ShipmentCustomerSIT.jsx */
+      // enter invalid date format to trigger validation failure to disable SAVE button
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
+      await waitFor(() => {
+        expect(screen.queryByRole('alert')).toBeInTheDocument();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
+
+      // Save button is disabled for now because validation error for YES select. We
+      // now want to select NO. The schema validator should reset itself and renable the
+      // Save button again for NO selection.
+      const sitExpected2 = document.getElementById('sitExpectedNo').parentElement;
+      const sitExpectedNo = within(sitExpected2).getByRole('radio', { name: 'No' });
+      await userEvent.click(sitExpectedNo);
+      await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
       });
     });

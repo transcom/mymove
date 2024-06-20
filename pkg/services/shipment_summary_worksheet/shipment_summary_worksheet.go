@@ -144,13 +144,6 @@ type SSWMaxWeightEntitlement struct {
 	TotalWeight   unit.Pound
 }
 
-type Agent struct {
-	Name  string
-	Email string
-	Date  string
-	Phone string
-}
-
 // adds a line item to shipment summary worksheet SSWMaxWeightEntitlement and increments total allotment
 func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 	r := reflect.ValueOf(wa).Elem()
@@ -167,14 +160,12 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	entitlements := models.GetWeightAllotment(grade)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
+	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
 		return services.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-	if spouseHasProGear {
-		sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
-	}
 	return services.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
@@ -198,6 +189,10 @@ func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Po
 
 const (
 	controlledUnclassifiedInformationText = "CONTROLLED UNCLASSIFIED INFORMATION"
+)
+
+const (
+	trustedAgentText = "Trusted Agent Requires POA \nor Letter of Authorization"
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
@@ -296,7 +291,6 @@ func FormatGrade(grade *internalmessages.OrderPayGrade) string {
 func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData) services.Page2Values {
 
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
-	agentInfo := FormatAgentInfo(data.MTOAgents)
 	formattedShipments := FormatAllShipments(data.PPMShipments)
 
 	page2 := services.Page2Values{}
@@ -327,10 +321,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TotalMemberPaidRepeated = page2.TotalMemberPaid
 	page2.TotalGTCCPaidRepeated = page2.TotalGTCCPaid
 	page2.ShipmentPickupDates = formattedShipments.PickUpDates
-	page2.TrustedAgentName = agentInfo.Name
-	page2.TrustedAgentDate = agentInfo.Date
-	page2.TrustedAgentEmail = agentInfo.Email
-	page2.TrustedAgentPhone = agentInfo.Phone
+	page2.TrustedAgentName = trustedAgentText
 	page2.ServiceMemberSignature = FormatSignature(data.ServiceMember)
 	page2.SignatureDate = FormatSignatureDate(data.SignedCertification.UpdatedAt)
 	return page2
@@ -344,36 +335,6 @@ func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 	maxAdvanceString := "No Incentive Found"
 	return maxAdvanceString
 
-}
-
-func FormatAgentInfo(agentArray []models.MTOAgent) Agent {
-	agentObject := Agent{}
-	if len(agentArray) == 0 {
-		agentObject.Name = "No agent specified"
-		agentObject.Email = "No agent specified"
-		agentObject.Date = "No agent specified"
-		agentObject.Phone = "No agent specified"
-		return agentObject
-	}
-
-	agent := agentArray[0]
-
-	switch {
-	case agent.FirstName != nil && agent.LastName != nil:
-		agentObject.Name = fmt.Sprintf("%s, %s", *agent.LastName, *agent.FirstName)
-	case agent.FirstName == nil && agent.LastName == nil:
-		agentObject.Name = "No name specified"
-	case agent.FirstName == nil:
-		agentObject.Name = fmt.Sprintf("No first name provided, Last Name: %s", *agent.LastName)
-	case agent.LastName == nil:
-		agentObject.Name = fmt.Sprintf("First Name: %s, No last name provided", *agent.FirstName)
-	}
-
-	agentObject.Email = getOrDefault(agent.Email, "No Email Specified")
-	agentObject.Phone = getOrDefault(agent.Phone, "No Phone Specified")
-	agentObject.Date = agent.UpdatedAt.Format("20060102")
-
-	return agentObject
 }
 
 func getOrDefault(value *string, defaultValue string) string {
@@ -536,6 +497,9 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 	totals := make(map[string]float64)
 
 	for _, expense := range expenseDocuments {
+		if expense.MovingExpenseType == nil || expense.Amount == nil {
+			continue
+		} // Added quick nil check to ensure SSW returns while weight tickets are being added still
 		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 
@@ -586,7 +550,7 @@ func FormatSITNumberAndType(i int) string {
 func FormatPPMWeight(ppm models.PPMShipment) string {
 	if ppm.EstimatedWeight != nil {
 		wtg := FormatWeights(unit.Pound(*ppm.EstimatedWeight))
-		return fmt.Sprintf("%s lbs - FINAL", wtg)
+		return fmt.Sprintf("%s lbs - Estimated", wtg)
 	}
 	return ""
 }
@@ -620,7 +584,7 @@ func FormatSITDaysInStorage(ppm models.PPMShipment) string {
 	firstDate := ppm.SITEstimatedDepartureDate
 	secondDate := *ppm.SITEstimatedEntryDate
 	difference := firstDate.Sub(secondDate)
-	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24))
+	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24)+1)
 	return formattedDifference
 }
 
@@ -710,7 +674,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
-		"Shipment.MTOAgents",
 		"W2Address",
 		"SignedCertification",
 		"MovingExpenses",
@@ -759,7 +722,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		PPMShipments:             ppmShipments,
 		W2Address:                ppmShipment.W2Address,
 		MovingExpenses:           ppmShipment.MovingExpenses,
-		MTOAgents:                ppmShipment.Shipment.MTOAgents,
 		SignedCertification:      *signedCertification,
 		PPMRemainingEntitlement:  ppmRemainingEntitlement,
 		MaxSITStorageEntitlement: maxSit,
@@ -832,8 +794,8 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
-		Version:  "pdfcpu v0.6.0 dev",
-		Creation: "2024-03-08 17:36:47 UTC",
+		Version:  "pdfcpu v0.8.0 dev",
+		Creation: "2024-06-04 17:34:35 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
@@ -867,7 +829,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		fmt.Println("Error marshaling JSON:", err)
 		return
 	}
-	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader)
+	SSWWorksheet, err := SSWPPMGenerator.generator.FillPDFForm(jsonData, SSWPPMGenerator.templateReader, "")
 	if err != nil {
 		return nil, nil, err
 	}

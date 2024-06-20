@@ -4,15 +4,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
+import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
+
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import { shipmentTypes } from 'constants/shipments';
 import AboutForm from 'components/Customer/PPM/Closeout/AboutForm/AboutForm';
-import { customerRoutes, generalRoutes } from 'constants/routes';
+import { customerRoutes } from 'constants/routes';
 import { selectMTOShipmentById } from 'store/entities/selectors';
-import { validatePostalCode } from 'utils/validation';
 import { formatDateForSwagger } from 'shared/dates';
 import { getResponseError, patchMTOShipment, getMTOShipmentsForMove } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
@@ -28,6 +29,7 @@ const About = () => {
   const dispatch = useDispatch();
 
   const mtoShipment = useSelector((state) => selectMTOShipmentById(state, mtoShipmentId));
+  const [multiMove, setMultiMove] = useState(false);
 
   useEffect(() => {
     getMTOShipmentsForMove(moveId)
@@ -40,6 +42,10 @@ const About = () => {
       .finally(() => {
         setIsLoading(false);
       });
+
+    isBooleanFlagEnabled('multi_move').then((enabled) => {
+      setMultiMove(enabled);
+    });
   }, [moveId, mtoShipmentId, dispatch]);
 
   if (!mtoShipment || isLoading) {
@@ -47,7 +53,11 @@ const About = () => {
   }
 
   const handleBack = () => {
-    navigate(generalRoutes.HOME_PATH);
+    if (multiMove) {
+      navigate(generatePath(customerRoutes.MOVE_HOME_PATH, { moveId }));
+    } else {
+      navigate(customerRoutes.MOVE_HOME_PAGE);
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -58,8 +68,15 @@ const About = () => {
       ppmShipment: {
         id: mtoShipment.ppmShipment.id,
         actualMoveDate: formatDateForSwagger(values.actualMoveDate),
-        actualPickupPostalCode: values.actualPickupPostalCode,
-        actualDestinationPostalCode: values.actualDestinationPostalCode,
+        pickupAddress: values.pickupAddress,
+        hasSecondaryPickupAddress: values.hasSecondaryPickupAddress === 'true',
+        secondaryPickupAddress: values.hasSecondaryPickupAddress === 'true' ? values.secondaryPickupAddress : null,
+        destinationAddress: values.destinationAddress,
+        hasSecondaryDestinationAddress: values.hasSecondaryDestinationAddress === 'true',
+        secondaryDestinationAddress:
+          values.hasSecondaryDestinationAddress === 'true' ? values.secondaryDestinationAddress : null,
+        actualPickupPostalCode: values.pickupAddress.postalCode,
+        actualDestinationPostalCode: values.destinationAddress.postalCode,
         hasReceivedAdvance,
         advanceAmountReceived: hasReceivedAdvance ? values.advanceAmountReceived * 100 : null,
         w2Address: values.w2Address,
@@ -140,12 +157,7 @@ const About = () => {
                 eligible operating expenses.)
               </p>
             </div>
-            <AboutForm
-              mtoShipment={mtoShipment}
-              onSubmit={handleSubmit}
-              onBack={handleBack}
-              postalCodeValidator={validatePostalCode}
-            />
+            <AboutForm mtoShipment={mtoShipment} onSubmit={handleSubmit} onBack={handleBack} />
           </Grid>
         </Grid>
       </GridContainer>

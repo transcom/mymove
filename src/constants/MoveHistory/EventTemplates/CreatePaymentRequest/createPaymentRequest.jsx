@@ -21,7 +21,7 @@ const getPaymentRequestServices = (context) => {
         shipmentServices[shipmentId] = {
           serviceItems: serviceItem.name,
           shipmentType: serviceItem.shipment_type,
-          shipmentIdAbbr: serviceItem.shipment_id_abbr.toUpperCase(),
+          shipmentIdAbbr: serviceItem.shipment_locator,
           shipmentId,
         };
       }

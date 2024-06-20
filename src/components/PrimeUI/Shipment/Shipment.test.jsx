@@ -187,6 +187,14 @@ describe('Shipment details component', () => {
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
 
+    field = screen.getByText('Diversion:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('no');
+
+    field = screen.getByText('Diversion Reason:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('—');
+
     field = screen.getByText('Counselor Remarks:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.counselorRemarks);
@@ -220,6 +228,30 @@ describe('Shipment details component fields and values are present', () => {
     render(mockedComponent);
     await expect(screen.getByText(shipmentField)).toBeVisible();
     await expect(screen.getByText(shipmentFieldValue)).toBeVisible();
+  });
+});
+
+const divertedShipment = {
+  ...approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0],
+  diversion: true,
+  diversionReason: 'Reasonable reason',
+};
+
+describe('Shipment has been diverted', () => {
+  it('renders the component with missing reweigh error', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={divertedShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    let field = screen.getByText('Diversion:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('yes');
+
+    field = screen.getByText('Diversion Reason:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(divertedShipment.diversionReason);
   });
 });
 
@@ -293,7 +325,6 @@ const ppmShipment = {
     advanceAmountRequested: 598700,
     approvedAt: '2022-07-03T14:20:21.620Z',
     createdAt: '2022-06-30T13:41:33.265Z',
-    destinationPostalCode: '30813',
     eTag: 'MjAyMi0wNy0wMVQxNDoyMzoxOS43ODA1Mlo=',
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
@@ -302,11 +333,8 @@ const ppmShipment = {
     hasReceivedAdvance: true,
     hasRequestedAdvance: true,
     id: 'd733fe2f-b08d-434a-ad8d-551f4d597b03',
-    pickupPostalCode: '90210',
     proGearWeight: 1987,
     reviewedAt: '2022-07-02T14:20:14.636Z',
-    secondaryDestinationPostalCode: '30814',
-    secondaryPickupPostalCode: '90211',
     shipmentId: '1b695b60-c3ed-401b-b2e3-808d095eb8cc',
     sitEstimatedCost: 123456,
     sitEstimatedDepartureDate: '2022-07-13',
@@ -318,6 +346,40 @@ const ppmShipment = {
     status: 'SUBMITTED',
     submittedAt: '2022-07-01T13:41:33.252Z',
     updatedAt: '2022-07-01T14:23:19.780Z',
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42702',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    hasSecondaryPickupAddress: 'true',
+    hasSecondaryDestinationAddress: 'true',
   },
   primeEstimatedWeightRecordedDate: null,
   requestedPickupDate: null,
@@ -379,10 +441,6 @@ describe('PPM shipments are handled', () => {
     ['PPM Submitted at:', formatDateFromIso(ppmShipmentFields.submittedAt, 'YYYY-MM-DD')],
     ['PPM Reviewed at:', formatDateFromIso(ppmShipmentFields.reviewedAt, 'YYYY-MM-DD')],
     ['PPM Approved at:', formatDateFromIso(ppmShipmentFields.approvedAt, 'YYYY-MM-DD')],
-    ['PPM Pickup Postal Code:', ppmShipmentFields.pickupPostalCode],
-    ['PPM Secondary Pickup Postal Code:', ppmShipmentFields.secondaryPickupPostalCode],
-    ['PPM Destination Postal Code:', ppmShipmentFields.destinationPostalCode],
-    ['PPM Secondary Destination Postal Code:', ppmShipmentFields.secondaryDestinationPostalCode],
     ['PPM SIT Expected:', formatYesNoInputValue(ppmShipmentFields.sitExpected)],
     ['PPM Estimated Weight:', ppmShipmentFields.estimatedWeight.toString()],
     ['PPM Has Pro Gear:', formatYesNoInputValue(ppmShipmentFields.hasProGear)],

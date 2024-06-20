@@ -147,6 +147,7 @@ func Entitlement(entitlement *models.Entitlement) *primev2messages.Entitlements 
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -189,6 +190,7 @@ func Address(address *models.Address) *primev2messages.Address {
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
+		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
 }
@@ -249,7 +251,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primev2messages.MTOAgents {
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primev2messages.ProofOfServiceDoc {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
 	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
-		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
+		for i, primeUpload := range proofOfServiceDoc.PrimeUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&primeUpload.Upload)
 		}
 	}
@@ -379,7 +381,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primev2messages.ServiceRequestDocument {
 	uploads := make([]*primev2messages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
 	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
-		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
+		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads { //#nosec G601 new in 1.22.2
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
 	}
@@ -461,11 +463,14 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
+		DiversionReason:                  mtoShipment.DiversionReason,
 		DeliveryAddressUpdate:            ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
+		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
+		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
 	}
 
 	// Set up address payloads
@@ -584,9 +589,10 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev2messages.MTOSe
 		item := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeItem)
 		crate := GetDimension(mtoServiceItem.Dimensions, models.DimensionTypeCrate)
 		cratingSI := primev2messages.MTOServiceItemDomesticCrating{
-			ReServiceCode: handlers.FmtString(string(mtoServiceItem.ReService.Code)),
-			Description:   mtoServiceItem.Description,
-			Reason:        mtoServiceItem.Reason,
+			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
+			Description:     mtoServiceItem.Description,
+			Reason:          mtoServiceItem.Reason,
+			StandaloneCrate: mtoServiceItem.StandaloneCrate,
 		}
 		cratingSI.Item.MTOServiceItemDimension = primev2messages.MTOServiceItemDimension{
 			ID:     strfmt.UUID(item.ID.String()),

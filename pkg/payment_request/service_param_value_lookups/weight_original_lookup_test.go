@@ -49,6 +49,8 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightOriginalLookupForShuttling
 		// Set the actual weight to nil
 		mtoServiceItem, paymentRequest, _ := suite.setupTestMTOServiceItemWithShuttleWeight(unit.Pound(1234), unit.Pound(1234), models.ReServiceCodeDDSHUT, models.MTOShipmentTypeHHG)
 		mtoServiceItem.ActualWeight = nil
+		mtoServiceItem.MTOShipment.PrimeActualWeight = nil
+		suite.MustSave(&mtoServiceItem.MTOShipment)
 		suite.MustSave(&mtoServiceItem)
 
 		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)

@@ -355,7 +355,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -1323,7 +1323,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Task Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -1462,6 +1462,12 @@ func init() {
           "default": "USA",
           "x-nullable": true,
           "example": "USA"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
         },
         "eTag": {
           "type": "string",
@@ -1605,6 +1611,24 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        }
+      }
+    },
+    "Amendments": {
+      "description": "Metadata outlining number of amendments for given order.\n",
+      "type": "object",
+      "required": [
+        "total",
+        "availableSince"
+      ],
+      "properties": {
+        "availableSince": {
+          "description": "The total count of amendments available since specified time.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "The total count of amendments.",
+          "type": "integer"
         }
       }
     },
@@ -1995,6 +2019,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -2105,6 +2133,9 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "amendments": {
+          "$ref": "#/definitions/Amendments"
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -2491,6 +2522,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -2705,7 +2740,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -2742,12 +2777,24 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -2781,6 +2828,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -3085,14 +3138,18 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "BLUEBARK"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SAFETY": "Safety",
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
@@ -3336,15 +3393,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -3847,7 +3904,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -4152,6 +4212,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DDDSIT",
+                "DDASIT",
                 "DOPSIT",
                 "DOASIT",
                 "DOFSIT"
@@ -4268,6 +4329,20 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
         },
         "counselorRemarks": {
           "type": "string",
@@ -5134,7 +5209,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
         "consumes": [
           "application/json"
         ],
@@ -6396,7 +6471,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/uploads": {
       "post": {
-        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Transportation Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
+        "description": "### Functionality\nThis endpoint **uploads** a Proof of Service document for a PaymentRequest.\n\nThe PaymentRequest should already exist.\n\nOptional key of **isWeightTicket** indicates if the document is a weight ticket or not.\nThis will be used for partial and full deliveries and makes it easier for the Task Invoicing Officers to locate and review service item documents.\nIf left empty, it will assume it is NOT a weight ticket.\n\nThe formdata in the body of the POST request that is sent should look like this if it IS a weight ticket being attached to an existing payment request:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": true\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  If the proof of service doc is NOT a weight ticket, it will look like this - or you can leave it empty:\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n    \"isWeightTicket\": false\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n  ` + "`" + `` + "`" + `` + "`" + `json\n  {\n    \"file\": \"filePath\",\n  }\n  ` + "`" + `` + "`" + `` + "`" + `\n\nPaymentRequests are created with the [createPaymentRequest](#operation/createPaymentRequest) endpoint.\n",
         "consumes": [
           "multipart/form-data"
         ],
@@ -6575,6 +6650,12 @@ func init() {
           "x-nullable": true,
           "example": "USA"
         },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -6717,6 +6798,24 @@ func init() {
           "title": "Address Line 3",
           "x-nullable": true,
           "example": "Montmârtre"
+        }
+      }
+    },
+    "Amendments": {
+      "description": "Metadata outlining number of amendments for given order.\n",
+      "type": "object",
+      "required": [
+        "total",
+        "availableSince"
+      ],
+      "properties": {
+        "availableSince": {
+          "description": "The total count of amendments available since specified time.",
+          "type": "integer"
+        },
+        "total": {
+          "description": "The total count of amendments.",
+          "type": "integer"
         }
       }
     },
@@ -7107,6 +7206,10 @@ func init() {
           "type": "string",
           "readOnly": true
         },
+        "gunSafe": {
+          "type": "boolean",
+          "example": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -7217,6 +7320,9 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "amendments": {
+          "$ref": "#/definitions/Amendments"
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -7603,6 +7709,10 @@ func init() {
               "x-nullable": true,
               "x-omitempty": false,
               "example": "Storage items need to be picked up"
+            },
+            "standaloneCrate": {
+              "type": "boolean",
+              "x-nullable": true
             }
           }
         }
@@ -7817,7 +7927,7 @@ func init() {
           "$ref": "#/definitions/MTOAgents"
         },
         "approvedDate": {
-          "description": "The date when the Transportation Ordering Officer first approved this shipment for the move.",
+          "description": "The date when the Task Ordering Officer first approved this shipment for the move.",
           "type": "string",
           "format": "date",
           "x-nullable": true,
@@ -7854,12 +7964,24 @@ func init() {
             }
           ]
         },
+        "destinationSitAuthEndDate": {
+          "description": "The SIT authorized end date for destination SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
         "diversion": {
           "description": "This value indicates whether or not this shipment is part of a diversion. If yes, the shipment can be either the starting or ending segment of the diversion.\n",
           "type": "boolean"
+        },
+        "diversionReason": {
+          "description": "The reason the TOO provided when requesting a diversion for this shipment.\n",
+          "type": "string",
+          "x-nullable": true,
+          "readOnly": true
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -7893,6 +8015,12 @@ func init() {
           "x-formatting": "weight",
           "x-nullable": true,
           "example": 4500
+        },
+        "originSitAuthEndDate": {
+          "description": "The SIT authorized end date for origin SIT.",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
         },
         "pickupAddress": {
           "description": "The address where the movers should pick up this shipment, entered by the customer during onboarding when they enter shipment details.\n",
@@ -8197,14 +8325,18 @@ func init() {
         "LOCAL_MOVE",
         "RETIREMENT",
         "SEPARATION",
-        "BLUEBARK"
+        "WOUNDED_WARRIOR",
+        "BLUEBARK",
+        "SAFETY"
       ],
       "x-display-value": {
         "BLUEBARK": "BLUEBARK",
         "LOCAL_MOVE": "Local Move",
         "PERMANENT_CHANGE_OF_STATION": "Permanent Change Of Station",
         "RETIREMENT": "Retirement",
-        "SEPARATION": "Separation"
+        "SAFETY": "Safety",
+        "SEPARATION": "Separation",
+        "WOUNDED_WARRIOR": "Wounded Warrior"
       }
     },
     "PPMShipment": {
@@ -8448,15 +8580,15 @@ func init() {
       "x-nullable": true
     },
     "PPMShipmentStatus": {
-      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
+      "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
       "enum": [
         "DRAFT",
         "SUBMITTED",
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
-        "NEEDS_PAYMENT_APPROVAL",
-        "PAYMENT_APPROVED"
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE"
       ],
       "readOnly": true
     },
@@ -8949,7 +9081,10 @@ func init() {
         "ZipSITDestHHGFinalAddress",
         "ZipSITDestHHGOriginalAddress",
         "ZipSITOriginHHGActualAddress",
-        "ZipSITOriginHHGOriginalAddress"
+        "ZipSITOriginHHGOriginalAddress",
+        "StandaloneCrate",
+        "StandaloneCrateCap",
+        "UncappedRequestTotal"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -9269,6 +9404,7 @@ func init() {
               "type": "string",
               "enum": [
                 "DDDSIT",
+                "DDASIT",
                 "DOPSIT",
                 "DOASIT",
                 "DOFSIT"
@@ -9385,6 +9521,20 @@ func init() {
           "format": "date",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any pro gear shipped during a move.",
+          "type": "integer",
+          "minimum": 1,
+          "x-nullable": true,
+          "example": 4500
         },
         "counselorRemarks": {
           "type": "string",

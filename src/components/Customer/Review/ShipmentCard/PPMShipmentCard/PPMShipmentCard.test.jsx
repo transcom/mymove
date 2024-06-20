@@ -16,10 +16,25 @@ const defaultProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
-      destinationPostalCode: '11111',
+      pickupAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
       sitExpected: false,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
     },
@@ -34,12 +49,41 @@ const completeProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
-      secondaryPickupPostalCode: '10002',
-      destinationPostalCode: '11111',
-      secondaryDestinationPostalCode: '22222',
+      pickupAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      secondaryPickupAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '10002',
+      },
+      destinationAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
+      secondaryDestinationAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '22222',
+      },
       sitExpected: true,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       estimatedWeight: 5999,
@@ -62,10 +106,25 @@ const incompleteProps = {
   shipment: {
     moveTaskOrderID: 'testMove123',
     id: '20fdbf58-879e-4692-b3a6-8a71f6dcfeaa',
+    shipmentLocator: 'testMove123-01',
     shipmentType: SHIPMENT_OPTIONS.PPM,
     ppmShipment: {
-      pickupPostalCode: '10001',
-      destinationPostalCode: '11111',
+      pickupAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '111 Test Street',
+        streetAddress2: '222 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
       sitExpected: false,
       expectedDepartureDate: new Date('01/01/2020').toISOString(),
       hasRequestedAdvance: null,
@@ -78,7 +137,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
@@ -89,10 +148,10 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin ZIP', '10001'],
-      ['Second origin ZIP', '10002'],
-      ['Destination ZIP', '11111'],
-      ['Second destination ZIP', '22222'],
+      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Second origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
+      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Second destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
       ['Pro-gear', 'Yes, 1,250 lbs'],
@@ -115,7 +174,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...defaultProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByRole('button', { name: 'Edit' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeInTheDocument();
@@ -126,8 +185,8 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin ZIP', '10001'],
-      ['Destination ZIP', '11111'],
+      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
       ['Storage expected? (SIT)', 'No'],
       ['Estimated weight', '0 lbs'],
       ['Pro-gear', 'No'],
@@ -176,10 +235,10 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin ZIP', '10001'],
-      ['Second origin ZIP', '10002'],
-      ['Destination ZIP', '11111'],
-      ['Second destination ZIP', '22222'],
+      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Second origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
+      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Second destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
       ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
@@ -210,10 +269,10 @@ describe('PPMShipmentCard component', () => {
 
     const expectedRows = [
       ['Expected departure', '01 Jan 2020'],
-      ['Origin ZIP', '10001'],
-      ['Second origin ZIP', '10002'],
-      ['Destination ZIP', '11111'],
-      ['Second destination ZIP', '22222'],
+      ['Origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10001'],
+      ['Second origin address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 10002'],
+      ['Destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 11111'],
+      ['Second destination address', '111 Test Street, 222 Test Street, Test Man, Test City, NY 22222'],
       ['Closeout office', move.closeoutOffice.name],
       ['Storage expected? (SIT)', 'Yes'],
       ['Estimated weight', '5,999 lbs'],
@@ -237,7 +296,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...completeProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.queryByText('Incomplete')).toBeNull();
   });
@@ -246,7 +305,7 @@ describe('PPMShipmentCard component', () => {
     render(<PPMShipmentCard {...incompleteProps} />);
 
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('PPM 1');
-    expect(screen.getByText(/^#20FDBF58$/, { selector: 'p' })).toBeInTheDocument();
+    expect(screen.getByText(/^#testMove123-01$/, { selector: 'p' })).toBeInTheDocument();
 
     expect(screen.getByText(/^Incomplete$/, { selector: 'span' })).toBeInTheDocument();
 
@@ -254,6 +313,6 @@ describe('PPMShipmentCard component', () => {
     await userEvent.click(screen.getByTitle('Help about incomplete shipment'));
 
     // verify onclick is getting json string as parameter
-    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', '20FDBF58', 'PPM');
+    expect(mockedOnIncompleteClickFunction).toHaveBeenCalledWith('PPM 1', 'testMove123-01', 'PPM');
   });
 });

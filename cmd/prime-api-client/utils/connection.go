@@ -16,6 +16,7 @@ import (
 )
 
 // CreatePrimeClientWithCACStoreParam creates the prime api client
+// #nosec G402
 func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (*primeClient.Mymove, *pksigner.Store, error) {
 
 	// Use command line inputs
@@ -53,9 +54,9 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: CAT III
-		// #nosec G402
 		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{*cert},
+			Certificates: []tls.Certificate{*cert},
+			//nolint:gosec // G402
 			InsecureSkipVerify: insecure,
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,
@@ -92,6 +93,7 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 }
 
 // CreatePrimeClient creates the prime api client
+// #nosec G402
 func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, error) {
 
 	// Use command line inputs
@@ -126,9 +128,9 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: CAT III
-		// #nosec G402
 		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{*cert},
+			Certificates: []tls.Certificate{*cert},
+			//nolint:gosec //G402
 			InsecureSkipVerify: insecure,
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,
@@ -199,9 +201,9 @@ func CreateSupportClient(v *viper.Viper) (*supportClient.Mymove, *pksigner.Store
 		//RA Developer Status: Mitigated
 		//RA Validator Status: Mitigated
 		//RA Modified Severity: CAT III
-		// #nosec G402
 		tlsConfig := &tls.Config{
-			Certificates:       []tls.Certificate{*cert},
+			Certificates: []tls.Certificate{*cert},
+			//nolint:gosec //G402
 			InsecureSkipVerify: insecure,
 			MinVersion:         tls.VersionTLS12,
 			MaxVersion:         tls.VersionTLS12,

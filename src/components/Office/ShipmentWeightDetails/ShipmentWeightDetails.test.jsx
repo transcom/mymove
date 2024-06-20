@@ -259,4 +259,21 @@ describe('ShipmentWeightDetails', () => {
 
     expect(wrapper.find('td').at(2).text()).toEqual('1,000 lbs');
   });
+
+  it('renders with request reweigh button disabled when move is locked', async () => {
+    const isMoveLocked = true;
+    render(
+      <MockProviders permissions={[permissionTypes.createReweighRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentWeightDetails
+          estimatedWeight={11000}
+          initialWeight={12000}
+          shipmentInfo={shipmentInfoNoReweigh}
+          handleRequestReweighModal={handleRequestReweighModal}
+          isMoveLocked={isMoveLocked}
+        />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Request reweigh')).toBeDisabled();
+  });
 });

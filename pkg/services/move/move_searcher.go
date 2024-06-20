@@ -8,11 +8,11 @@ import (
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -39,34 +39,40 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		return models.Moves{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+	}
+
 	// The SQL % operator filters out strings that are below this similarity threshold
 	// We have to set it here because other areas of the code that do a trigram search
 	// (eg Duty Location search) may set a different threshold.
 	// If the threshold is too high, we may filter out too many results and make searching harder.
 	// If it's too low, the query will get slower/more memory intensive.
-	err := appCtx.DB().RawQuery("SET pg_trgm.similarity_threshold = 0.1").Exec()
+	err = appCtx.DB().RawQuery("SET pg_trgm.similarity_threshold = 0.1").Exec()
 	if err != nil {
 		return nil, 0, err
 	}
 
-	var query *pop.Query
+	query := appCtx.DB().EagerPreload(
+		"MTOShipments",
+		"Orders.ServiceMember",
+		"Orders.NewDutyLocation.Address",
+		"Orders.OriginDutyLocation.Address",
+		"LockedByOfficeUser",
+	).
+		Join("orders", "orders.id = moves.orders_id").
+		Join("service_members", "service_members.id = orders.service_member_id").
+		LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
+		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
+		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
+		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
+		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
+		Where("show = TRUE")
 
-	if appCtx.Session().Roles.HasRole(roles.RoleTypeQaeCsr) || appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
-		query = appCtx.DB().EagerPreload(
-			"MTOShipments",
-			"Orders.ServiceMember",
-			"Orders.NewDutyLocation.Address",
-			"Orders.OriginDutyLocation.Address",
-		).
-			Join("orders", "orders.id = moves.orders_id").
-			Join("service_members", "service_members.id = orders.service_member_id").
-			LeftJoin("duty_locations as origin_duty_locations", "origin_duty_locations.id = orders.origin_duty_location_id").
-			Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
-			Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
-			Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-			LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
-			GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
-			Where("show = TRUE")
+	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		query.Where("orders.orders_type != (?)", "SAFETY")
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
@@ -129,7 +135,7 @@ func locatorFilter(locator *string) QueryOption {
 func branchFilter(branch *string) QueryOption {
 	return func(query *pop.Query) {
 		if branch != nil {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
@@ -150,16 +156,9 @@ func destinationPostalCodeFilter(postalCode *string) QueryOption {
 
 func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
+		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			var translatedStatuses []string
-			for _, status := range statuses {
-				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else {
-					translatedStatuses = append(translatedStatuses, status)
-				}
-			}
-			query.Where("moves.status in (?)", translatedStatuses)
+			query.Where("moves.status IN (?)", statuses)
 		}
 	}
 }

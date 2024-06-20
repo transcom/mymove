@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
+import { generatePath, useNavigate } from 'react-router';
 import PropTypes from 'prop-types';
+import { Button } from '@trussworks/react-uswds';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
@@ -10,14 +13,28 @@ import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, ROLE_TYPE_OPTIONS, SortShape } from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, SEARCH_QUEUE_STATUS_FILTER_OPTIONS, SortShape } from 'constants/queues';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { roleTypes } from 'constants/userRoles';
+import { servicesCounselingRoutes } from 'constants/routes';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const columns = (roleType) => [
+const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
+  createHeader(' ', (row) => {
+    const now = new Date();
+    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+      return (
+        <div data-testid="lock-icon">
+          <FontAwesomeIcon icon="lock" />
+        </div>
+      );
+    }
+    return null;
+  }),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: false,
@@ -26,12 +43,23 @@ const columns = (roleType) => [
     id: 'dodID',
     isFilterable: false,
   }),
+  createHeader('  ', (row) => {
+    return (
+      <div className={styles.editProfile} data-label="editProfile" data-testid="editProfileBtn">
+        <Button unstyled type="button" onClick={() => handleEditProfileClick(row.locator)}>
+          <FontAwesomeIcon icon={['far', 'user']} />
+        </Button>
+      </div>
+    );
+  }),
   createHeader(
     'Customer name',
     (row) => {
       return (
         <div>
-          {row.orderType === 'BLUEBARK' ? <span className={styles.specialMoves}>BLUEBARK</span> : null}
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
           {`${row.lastName}, ${row.firstName}`}
         </div>
       );
@@ -52,7 +80,7 @@ const columns = (roleType) => [
       Filter: (props) => {
         return (
           <MultiSelectCheckBoxFilter
-            options={ROLE_TYPE_OPTIONS[`${roleType}`]}
+            options={SEARCH_QUEUE_STATUS_FILTER_OPTIONS}
             // eslint-disable-next-line react/jsx-props-no-spreading
             {...props}
           />
@@ -82,7 +110,7 @@ const columns = (roleType) => [
     { id: 'shipmentsCount', isFilterable: true },
   ),
   createHeader(
-    'Pickup Date',
+    'Scheduled Pickup Date',
     (row) => {
       return formatDateFromIso(row.requestedPickupDate, DATE_FORMAT_STRING);
     },
@@ -115,7 +143,7 @@ const columns = (roleType) => [
     },
   ),
   createHeader(
-    'Delivery Date',
+    'Scheduled Delivery Date',
     (row) => {
       return formatDateFromIso(row.requestedDeliveryDate, DATE_FORMAT_STRING);
     },
@@ -149,6 +177,76 @@ const columns = (roleType) => [
   ),
 ];
 
+const customerSearchColumns = () => [
+  createHeader(
+    'Create Move',
+    (row) => {
+      return (
+        <Button
+          onClick={() =>
+            useNavigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: row.locator }))
+          }
+          type="button"
+          className={styles.createNewMove}
+          data-testid="searchCreateMoveButton"
+        >
+          Create New Move
+        </Button>
+      );
+    },
+    { isFilterable: false, disableSortBy: true },
+  ),
+  createHeader(
+    'id',
+    (row) => {
+      return row.id;
+    },
+    {
+      id: 'customerID',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return (
+        <div>
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.lastName}, ${row.firstName}`}
+        </div>
+      );
+    },
+    {
+      id: 'customerName',
+      isFilterable: false,
+    },
+  ),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.branch);
+    },
+    {
+      id: 'branch',
+      isFilterable: false,
+    },
+  ),
+  createHeader('DOD ID', 'dodID', {
+    id: 'dodID',
+    isFilterable: false,
+  }),
+  createHeader('Email', 'personalEmail', {
+    id: 'personalEmail',
+    isFilterable: false,
+  }),
+  createHeader('Phone', 'telephone', {
+    id: 'telephone',
+    isFilterable: false,
+  }),
+];
+
 // SearchResultsTable is a react-table that uses react-hooks to fetch, filter, sort and page data
 const SearchResultsTable = (props) => {
   const {
@@ -159,19 +257,21 @@ const SearchResultsTable = (props) => {
     defaultSortedColumns,
     defaultHiddenColumns,
     handleClick,
+    handleEditProfileClick,
     useQueries,
     showFilters,
     showPagination,
     dodID,
     moveCode,
     customerName,
-    roleType,
+    searchType,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [currentPageSize, setCurrentPageSize] = useState(20);
   const [pageCount, setPageCount] = useState(0);
+  const [moveLockFlag, setMoveLockFlag] = useState(false);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
@@ -200,8 +300,14 @@ const SearchResultsTable = (props) => {
     }),
     [],
   );
+
   const tableData = useMemo(() => data, [data]);
-  const tableColumns = useMemo(() => columns(roleType), [roleType]);
+  const tableColumns = useMemo(() => {
+    return searchType === 'customer'
+      ? customerSearchColumns()
+      : moveSearchColumns(moveLockFlag, handleEditProfileClick);
+  }, [searchType, moveLockFlag, handleEditProfileClick]);
+
   const {
     getTableProps,
     getTableBodyProps,
@@ -270,6 +376,16 @@ const SearchResultsTable = (props) => {
     setParamFilters(filtersToAdd.concat(filters));
   }, [filters, moveCode, dodID, customerName]);
 
+  // this useEffect handles the fetching of feature flags
+  useEffect(() => {
+    const fetchData = async () => {
+      const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
+      setMoveLockFlag(lockedMoveFlag);
+    };
+
+    fetchData();
+  }, []);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -331,7 +447,7 @@ SearchResultsTable.propTypes = {
   moveCode: PropTypes.string,
   // customerName is the customer name search text
   customerName: PropTypes.string,
-  roleType: PropTypes.string,
+  searchType: PropTypes.string,
 };
 
 SearchResultsTable.defaultProps = {
@@ -345,7 +461,7 @@ SearchResultsTable.defaultProps = {
   dodID: null,
   moveCode: null,
   customerName: null,
-  roleType: roleTypes.QAE_CSR,
+  searchType: 'move',
 };
 
 export default SearchResultsTable;

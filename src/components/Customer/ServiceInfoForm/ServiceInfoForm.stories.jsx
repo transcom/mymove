@@ -19,7 +19,7 @@ export const DefaultState = (argTypes) => (
       last_name: '',
       suffix: '',
       affiliation: '',
-      edipi: '',
+      edipi: '9999999999',
       grade: '',
       current_location: {},
     }}
@@ -37,6 +37,32 @@ export const WithInitialValues = (argTypes) => (
       suffix: 'Mr.',
       affiliation: 'ARMY',
       edipi: '9999999999',
+      grade: 'E_2',
+      current_location: {
+        address: {
+          city: 'Los Angeles',
+          state: 'CA',
+          postalCode: '90245',
+        },
+        name: 'Los Angeles AFB',
+        id: 'testId',
+      },
+    }}
+    onSubmit={argTypes.onSubmit}
+    onCancel={argTypes.onCancel}
+  />
+);
+
+export const CoastGuardCustomer = (argTypes) => (
+  <ServiceInfoForm
+    initialValues={{
+      first_name: 'Leo',
+      middle_name: 'Star',
+      last_name: 'Spaceman',
+      suffix: 'Mr.',
+      affiliation: 'COAST_GUARD',
+      edipi: '9999999999',
+      emplid: '7777777',
       grade: 'E_2',
       current_location: {
         address: {

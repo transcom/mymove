@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -38,11 +39,15 @@ type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
-
 	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
 	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
 	if gblocErr != nil {
 		return &models.PaymentRequests{}, 0, gblocErr
+	}
+
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
 
 	paymentRequests := models.PaymentRequests{}
@@ -62,6 +67,10 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		// and we don't want it to get hidden from services counselors.
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		Where("moves.show = ?", models.BoolPointer(true))
+
+	if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+		query.Where("orders.orders_type != (?)", "SAFETY")
+	}
 
 	branchQuery := branchFilter(params.Branch)
 	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
@@ -98,7 +107,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 		params.PerPage = models.Int64Pointer(20)
 	}
 
-	err := query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
+	err = query.GroupBy("payment_requests.id, service_members.id, moves.id, duty_locations.id, duty_locations.name").Paginate(int(*params.Page), int(*params.PerPage)).All(&paymentRequests)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -141,7 +150,8 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		"ProofOfServiceDocs.PrimeUploads.Upload",
 		"MoveTaskOrder.Contractor",
 		"MoveTaskOrder.Orders.ServiceMember",
-		"MoveTaskOrder.Orders.NewDutyLocation.Address").
+		"MoveTaskOrder.Orders.NewDutyLocation.Address",
+		"MoveTaskOrder.LockedByOfficeUser").
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
@@ -149,6 +159,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		InnerJoin("duty_locations", "duty_locations.id = orders.origin_duty_location_id").
 		// Need to use left join because some duty locations do not have transportation offices
 		LeftJoin("transportation_offices", "duty_locations.transportation_office_id = transportation_offices.id").
+		LeftJoin("office_users", "office_users.id = moves.locked_by").
 		// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
 		// and we don't want it to get hidden from services counselors.
 		Where("moves.show = ?", models.BoolPointer(true))
@@ -212,7 +223,7 @@ func branchFilter(branch *string) QueryOption {
 		if branch == nil {
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		} else {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
@@ -282,7 +293,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 		var translatedStatuses []string
 		if len(statuses) > 0 {
 			for _, status := range statuses {
-				if strings.EqualFold(status, "Payment requested") {
+				if strings.EqualFold(status, "Pending") || strings.EqualFold(status, "Payment Requested") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPending.String())
 
 				} else if strings.EqualFold(status, "Reviewed") {
@@ -290,14 +301,14 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
 						models.PaymentRequestStatusReceivedByGex.String())
-				} else if strings.EqualFold(status, "Rejected") {
+				} else if strings.EqualFold(status, "Rejected") || strings.EqualFold(status, "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewedAllRejected.String())
 				} else if strings.EqualFold(status, "Paid") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusPaid.String())
 				} else if strings.EqualFold(status, "Deprecated") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusDeprecated.String())
-				} else if strings.EqualFold(status, "Error") {
+				} else if strings.EqualFold(status, "Error") || strings.EqualFold(status, "EDI_ERROR") {
 					translatedStatuses = append(translatedStatuses, models.PaymentRequestStatusEDIError.String())
 				}
 			}

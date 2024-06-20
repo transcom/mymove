@@ -44,6 +44,7 @@ const UserSessionCookieName = "session_token"
 
 // This is a dumy private key that has no use and is not reflective of any real keys utilized. This key was generated
 // specifically for the purpose of testing.
+// #nosec G101 not real key- only used for testing
 const DummyRSAPrivateKey = `-----BEGIN RSA PRIVATE KEY-----
 MIICXQIBAAKBgQDQ62hDHRRAduSuUQDxixn61bbRLj9iBBmRG03rW3PNnkSzrcof
 9ytnKY2LX2DAPaSr/1Em7fvqiovzVg43ElfFHJBrCskJqWLphifv6qoGX1pwsPA/
@@ -255,7 +256,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	req.AddCookie(&cookie)
 
 	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 	sessionManager := scs.New()
@@ -297,7 +298,7 @@ func (suite *AuthSuite) TestCustomerAPIAuthMiddleware() {
 
 		api := internalapi.NewInternalAPI(handlerConfig)
 
-		handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+		handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 		customerAPIAuthMiddleware := CustomerAPIAuthMiddleware(suite.AppContextForTest(), api)
 
@@ -412,7 +413,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 	handlerConfig := suite.HandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
@@ -428,10 +429,10 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareAuthorized() {
 // Test permissions middleware with a user who will be DENIED POST access on the endpoint: ghc/v1/shipments/:shipmentID/approve
 // role must NOT have update.shipment permissions
 func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
-	// QAECSR users will be denied access as they lack the proper permissions for our test - update.shipment
-	qaeCsrOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQaeCsr})
+	// QAE users will be denied access as they lack the proper permissions for our test - update.shipment
+	qaeOfficeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeQae})
 
-	identity, err := models.FetchUserIdentity(suite.DB(), qaeCsrOfficeUser.User.OktaID)
+	identity, err := models.FetchUserIdentity(suite.DB(), qaeOfficeUser.User.OktaID)
 
 	suite.NoError(err)
 
@@ -441,7 +442,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 
 	// And: the context contains the auth values
 	handlerSession := auth.Session{
-		UserID:          qaeCsrOfficeUser.User.ID,
+		UserID:          qaeOfficeUser.User.ID,
 		IDToken:         "fake Token",
 		ApplicationName: "mil",
 	}
@@ -454,7 +455,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	handlerConfig := suite.HandlerConfig()
 	api := ghcapi.NewGhcAPIHandler(handlerConfig)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 
 	middleware := PermissionsMiddleware(suite.AppContextForTest(), api)
 
@@ -464,7 +465,7 @@ func (suite *AuthSuite) TestRequirePermissionsMiddlewareUnauthorized() {
 	middleware(handler).ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusUnauthorized, rr.Code, "handler returned wrong status code")
-	suite.Equal(handlerSession.UserID, qaeCsrOfficeUser.User.ID, "the authenticated user is different from expected")
+	suite.Equal(handlerSession.UserID, qaeOfficeUser.User.ID, "the authenticated user is different from expected")
 }
 
 func (suite *AuthSuite) TestIsLoggedInWhenNoUserLoggedIn() {
@@ -521,7 +522,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/moves", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	sessionManager := scs.New()
 	middleware := sessionManager.LoadAndSave(UserAuthMiddleware(suite.Logger())(handler))
 
@@ -552,7 +553,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddleware() {
 	req = req.WithContext(ctx)
 
 	var handlerSession *auth.Session
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
 
@@ -572,7 +573,7 @@ func (suite *AuthSuite) TestRequireAdminAuthMiddlewareUnauthorized() {
 	rr := httptest.NewRecorder()
 	req := httptest.NewRequest("GET", "/admin/v1/office-users", nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := AdminAuthMiddleware(suite.Logger())(handler)
 
 	middleware.ServeHTTP(rr, req)
@@ -882,7 +883,7 @@ func (suite *AuthSuite) TestCallbackThatRequiresOktaParamsRedirect() {
 	suite.Equal(http.StatusTemporaryRedirect, rr.Code)
 
 	// this should clear the user's okta sessions and redirect them back to MM
-	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_logged_out=false",
+	suite.Equal(suite.urlForHost(appnames.OfficeServername).String()+"sign-in"+"?okta_error=true",
 		rr.Result().Header.Get("Location"))
 }
 
@@ -1423,7 +1424,7 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 			Model:    user,
 			LinkOnly: true,
 		},
-	}, []roles.RoleType{roles.RoleTypeQaeCsr})
+	}, []roles.RoleType{roles.RoleTypeQae})
 
 	handlerConfig := suite.HandlerConfig()
 	appnames := handlerConfig.AppNames()
@@ -1459,13 +1460,13 @@ func (suite *AuthSuite) TestAuthorizeUnknownUserOfficeLogsInWithPermissions() {
 	suite.NotEqual("", foundUser.CurrentOfficeSessionID)
 	// Make sure session contains roles and permissions
 	suite.NotEmpty(session.Roles)
-	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQaeCsr)
+	userRole, hasRole := officeUser.User.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
-	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQaeCsr)
+	sessionRole, hasRole := session.Roles.GetRole(roles.RoleTypeQae)
 	suite.True(hasRole)
 	suite.Equal(userRole.ID, sessionRole.ID)
 	suite.NotEmpty(session.Permissions)
-	suite.ElementsMatch(QAECSR.Permissions, session.Permissions)
+	suite.ElementsMatch(QAE.Permissions, session.Permissions)
 }
 
 func (suite *AuthSuite) TestAuthorizeUnknownUserAdminDeactivated() {
@@ -1675,7 +1676,7 @@ func (suite *AuthSuite) TestAuthorizePrime() {
 	appnames := handlerConfig.AppNames()
 	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", appnames.PrimeServername), nil)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
 	middleware := PrimeAuthorizationMiddleware(suite.Logger())(handler)
 	rr := httptest.NewRecorder()
 

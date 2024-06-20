@@ -8,6 +8,6 @@ export default {
   action: a.UPDATE,
   eventName: o.submitMoveForApproval,
   tableName: t.moves,
-  getEventNameDisplay: () => 'Submitted move',
+  getEventNameDisplay: () => 'Customer Signature',
   getDetails: () => <> Received customer signature </>,
 };

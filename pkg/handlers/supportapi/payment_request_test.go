@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/db/sequence"
 	ediinvoice "github.com/transcom/mymove/pkg/edi/invoice"
 	"github.com/transcom/mymove/pkg/etag"
@@ -23,9 +26,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/invoice"
+	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 	"github.com/transcom/mymove/pkg/unit"
@@ -327,12 +332,15 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 		return paymentServiceItem.PaymentRequest
 	}
 
+	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
+	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
+
 	setupHandler := func() GetPaymentRequestEDIHandler {
 		icnSequencer := sequence.NewDatabaseSequencer(ediinvoice.ICNSequenceName)
 		return GetPaymentRequestEDIHandler{
 			HandlerConfig:                     suite.HandlerConfig(),
 			PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
-			GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock()),
+			GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(icnSequencer, clock.NewMock(), loaFetcher),
 		}
 	}
 
@@ -357,11 +365,29 @@ func (suite *HandlerSuite) TestGetPaymentRequestEDIHandler() {
 
 		suite.Equal(ediPayload.ID, strfmt.UUID(paymentRequest.ID.String()))
 
-		// Check to make sure EDI is there and starts with expected segment.
+		isProd := false
+		v := viper.New()
+		v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
+		v.AutomaticEnv()
+		envFlag := v.GetString(cli.EnvironmentFlag)
+		if envFlag == "production" || envFlag == "prod" || envFlag == "prd" {
+			isProd = true
+		}
+
 		edi := ediPayload.Edi
 		if suite.NotEmpty(edi) {
+			// Check to make sure EDI is there and starts with expected segment.
 			suite.Regexp("^ISA*", edi)
+
+			// Check to make sure invoice flag is P if ran in prod
+			if isProd {
+				suite.Equal("P", edi[102:103])
+			}
+			if !isProd {
+				suite.Equal("T", edi[102:103])
+			}
 		}
+
 	})
 
 	suite.Run("failure due to incorrectly formatted payment request ID", func() {

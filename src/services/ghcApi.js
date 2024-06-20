@@ -324,6 +324,11 @@ export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
 }
 
+export async function counselingCreateOrder({ body }) {
+  const operationPath = 'order.createOrder';
+  return makeGHCRequest(operationPath, { createOrders: body }, { normalize: true });
+}
+
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateAllowance';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
@@ -396,6 +401,7 @@ export function updateMoveStatusServiceCounselingCompleted({ moveTaskOrderID, if
 
 export function updateMTOShipmentStatus({
   shipmentID,
+  diversionReason,
   operationPath,
   ifMatchETag,
   normalize = true,
@@ -406,6 +412,9 @@ export function updateMTOShipmentStatus({
     {
       shipmentID,
       'If-Match': ifMatchETag,
+      body: {
+        diversionReason,
+      },
     },
     { schemaKey, normalize },
   );
@@ -661,6 +670,11 @@ export async function searchTransportationOffices(search) {
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
 
+export async function searchTransportationOfficesOpen(search) {
+  const operationPath = 'transportationOffice.getTransportationOfficesOpen';
+  return makeGHCRequest(operationPath, { search }, { normalize: false });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';
@@ -683,4 +697,41 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeGHCRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
+}
+
+export async function createOfficeAccountRequest({ body }) {
+  return makeGHCRequest('officeUsers.createRequestedOfficeUser', { officeUser: body }, { normalize: false });
+}
+
+export async function createUploadForDocument(file, documentId) {
+  return makeGHCRequest(
+    'uploads.createUpload',
+    {
+      documentId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function searchCustomers(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+  const paramFilters = {};
+  filters.forEach((filter) => {
+    paramFilters[`${filter.id}`] = filter.value;
+  });
+  return makeGHCRequest(
+    'customer.searchCustomers',
+    {
+      body: {
+        sort,
+        order,
+        page: currentPage,
+        perPage: currentPageSize,
+        ...paramFilters,
+      },
+    },
+    { schemaKey: 'searchMovesResult', normalize: false },
+  );
 }

@@ -13,7 +13,7 @@ properties:
     type: string
     readOnly: true
   approvedDate:
-    description: The date when the Transportation Ordering Officer first approved this shipment for the move.
+    description: The date when the Task Ordering Officer first approved this shipment for the move.
     format: date
     type: string
     readOnly: true
@@ -184,6 +184,12 @@ properties:
       This value indicates whether or not this shipment is part of a diversion.
       If yes, the shipment can be either the starting or ending segment of the diversion.
     type: boolean
+  diversionReason:
+    description: >
+      The reason the TOO provided when requesting a diversion for this shipment.
+    type: string
+    x-nullable: true
+    readOnly: true
   status:
     description: >
       The status of a shipment, indicating where it is in the TOO's approval process.
@@ -218,3 +224,13 @@ properties:
     description: >
       Email or ID of the person who will be contacted in the event of questions or concerns about this update.
       May be the person performing the update, or someone else working with the Prime contractor.
+  originSitAuthEndDate:
+    format: date
+    type: string
+    description: The SIT authorized end date for origin SIT.
+    x-nullable: true
+  destinationSitAuthEndDate:
+    format: date
+    type: string
+    description: The SIT authorized end date for destination SIT.
+    x-nullable: true

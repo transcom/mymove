@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
-import { useNavigate } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
 import * as Yup from 'yup';
 import { connect } from 'react-redux';
+
+import { statesList } from '../../../constants/states';
 
 import styles from './CreateCustomerForm.module.scss';
 
@@ -22,69 +24,30 @@ import { backupContactInfoSchema, requiredAddressSchema } from 'utils/validation
 import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-export const CreateCustomerForm = ({ setFlashMessage }) => {
+export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
-  const statesList = [
-    { value: 'AL', key: 'AL' },
-    { value: 'AK', key: 'AK' },
-    { value: 'AR', key: 'AR' },
-    { value: 'AZ', key: 'AZ' },
-    { value: 'CA', key: 'CA' },
-    { value: 'CO', key: 'CO' },
-    { value: 'CT', key: 'CT' },
-    { value: 'DC', key: 'DC' },
-    { value: 'DE', key: 'DE' },
-    { value: 'FL', key: 'FL' },
-    { value: 'GA', key: 'GA' },
-    { value: 'HI', key: 'HI' },
-    { value: 'IA', key: 'IA' },
-    { value: 'ID', key: 'ID' },
-    { value: 'IL', key: 'IL' },
-    { value: 'IN', key: 'IN' },
-    { value: 'KS', key: 'KS' },
-    { value: 'KY', key: 'KY' },
-    { value: 'LA', key: 'LA' },
-    { value: 'MA', key: 'MA' },
-    { value: 'MD', key: 'MD' },
-    { value: 'ME', key: 'ME' },
-    { value: 'MI', key: 'MI' },
-    { value: 'MN', key: 'MN' },
-    { value: 'MO', key: 'MO' },
-    { value: 'MS', key: 'MS' },
-    { value: 'MT', key: 'MT' },
-    { value: 'NC', key: 'NC' },
-    { value: 'ND', key: 'ND' },
-    { value: 'NE', key: 'NE' },
-    { value: 'NH', key: 'NH' },
-    { value: 'NJ', key: 'NJ' },
-    { value: 'NM', key: 'NM' },
-    { value: 'NV', key: 'NV' },
-    { value: 'NY', key: 'NY' },
-    { value: 'OH', key: 'OH' },
-    { value: 'OK', key: 'OK' },
-    { value: 'OR', key: 'OR' },
-    { value: 'PA', key: 'PA' },
-    { value: 'RI', key: 'RI' },
-    { value: 'SC', key: 'SC' },
-    { value: 'SD', key: 'SD' },
-    { value: 'TN', key: 'TN' },
-    { value: 'TX', key: 'TX' },
-    { value: 'UT', key: 'UT' },
-    { value: 'VA', key: 'VA' },
-    { value: 'VT', key: 'VT' },
-    { value: 'WA', key: 'WA' },
-    { value: 'WI', key: 'WI' },
-    { value: 'WV', key: 'WV' },
-    { value: 'WY', key: 'WY' },
-  ];
 
   const residentialAddressName = 'residential_address';
   const backupAddressName = 'backup_mailing_address';
   const backupContactName = 'backup_contact';
+
+  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('safety_move')?.then((enabled) => {
+      setSafetyMoveFF(enabled);
+    });
+  }, []);
+
+  const isSafetyPrivileged = isSafetyMoveFF
+    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
+    : false;
 
   const initialValues = {
     affiliation: '',
@@ -120,15 +83,19 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       email: '',
     },
     create_okta_account: '',
+    cac_user: '',
+    is_safety_move: false,
   };
 
   const handleBack = () => {
-    navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+    navigate(servicesCounselingRoutes.BASE_CUSTOMER_SEARCH_PATH);
   };
 
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
+    const isSafetyMove = values.is_safety_move === 'true';
     const createOktaAccount = values.create_okta_account === 'true';
+    const cacUser = values.cac_user === 'true';
 
     const body = {
       affiliation: values.affiliation,
@@ -150,12 +117,21 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
         phone: values[backupContactName].telephone,
       },
       createOktaAccount,
+      cacUser,
+      isSafetyMove,
     };
 
     return createCustomerWithOktaOption({ body })
-      .then(() => {
+      .then((res) => {
+        const customerId = Object.keys(res.createdCustomer)[0];
+        const isSafetyMoveSelected = values.is_safety_move === 'true';
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
-        navigate(servicesCounselingRoutes.BASE_QUEUE_SEARCH_PATH);
+        navigate(
+          generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
+            customerId,
+          }),
+          { state: { isSafetyMoveSelected } },
+        );
       })
       .catch((e) => {
         const { response } = e;
@@ -185,7 +161,15 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
     [residentialAddressName]: requiredAddressSchema.required(),
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
-    create_okta_account: Yup.boolean().required('Required'),
+    create_okta_account: Yup.boolean().when('is_safety_move', {
+      is: false,
+      then: (schema) => schema.required('Required'),
+    }),
+    cac_user: Yup.boolean().when('is_safety_move', {
+      is: false,
+      then: (schema) => schema.required('Required'),
+    }),
+    is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
   return (
@@ -205,12 +189,49 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
       <Grid className={styles.nameFormContainer}>
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-            {({ isValid, handleSubmit }) => {
+            {({ isValid, handleSubmit, setValues, values }) => {
+              const handleIsSafetyMove = (e) => {
+                const { checked } = e.target;
+                if (checked) {
+                  // clear out DoDID and OKTA fields
+                  setValues({
+                    ...values,
+                    edipi: '',
+                    create_okta_account: '',
+                    cac_user: 'true',
+                    is_safety_move: 'true',
+                  });
+                }
+              };
               return (
                 <Form className={formStyles.form}>
                   <h1 className={styles.header}>Create Customer Profile</h1>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Affiliation</h3>
+                    {isSafetyPrivileged && (
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Is this a Safety move?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="isSafetyMoveYes"
+                            label="Yes"
+                            name="is_safety_move"
+                            value="true"
+                            data-testid="is-safety-move-yes"
+                            onChange={handleIsSafetyMove}
+                          />
+                          <Field
+                            as={Radio}
+                            id="isSafetyMoveNo"
+                            label="No"
+                            name="is_safety_move"
+                            value="false"
+                            data-testid="is-safety-move-no"
+                          />
+                        </div>
+                      </Fieldset>
+                    )}
                     <DropdownInput
                       label="Branch of service"
                       name="affiliation"
@@ -218,7 +239,14 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                       required
                       options={branchOptions}
                     />
-                    <TextField label="DoD ID number" name="edipi" id="edipi" labelHint="Optional" maxLength="10" />
+                    <TextField
+                      label="DoD ID number"
+                      name="edipi"
+                      id="edipi"
+                      labelHint="Optional"
+                      maxLength="10"
+                      isDisabled={values.is_safety_move === 'true'}
+                    />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Name</h3>
@@ -363,28 +391,58 @@ export const CreateCustomerForm = ({ setFlashMessage }) => {
                       required
                     />
                   </SectionWrapper>
-                  <SectionWrapper className={formStyles.formSection}>
-                    <h3>Okta Account</h3>
-                    <Fieldset className={styles.trailerOwnershipFieldset}>
-                      <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
-                      <div className="grid-row grid-gap">
-                        <Field
-                          as={Radio}
-                          id="yesCreateOktaAccount"
-                          label="Yes"
-                          name="create_okta_account"
-                          value="true"
-                        />
-                        <Field
-                          as={Radio}
-                          id="noCreateOktaAccount"
-                          label="No"
-                          name="create_okta_account"
-                          value="false"
-                        />
-                      </div>
-                    </Fieldset>
-                  </SectionWrapper>
+                  {values.is_safety_move !== 'true' && (
+                    <SectionWrapper className={formStyles.formSection}>
+                      <h3>Okta Account</h3>
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Do you want to create an Okta account for this customer?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="yesCreateOktaAccount"
+                            label="Yes"
+                            name="create_okta_account"
+                            value="true"
+                            data-testid="create-okta-account-yes"
+                          />
+                          <Field
+                            as={Radio}
+                            id="noCreateOktaAccount"
+                            label="No"
+                            name="create_okta_account"
+                            value="false"
+                            data-testid="create-okta-account-no"
+                          />
+                        </div>
+                      </Fieldset>
+                    </SectionWrapper>
+                  )}
+                  {values.is_safety_move !== 'true' && (
+                    <SectionWrapper className={formStyles.formSection}>
+                      <h3>Non-CAC Users</h3>
+                      <Fieldset className={styles.trailerOwnershipFieldset}>
+                        <legend className="usa-label">Does the customer have a CAC?</legend>
+                        <div className="grid-row grid-gap">
+                          <Field
+                            as={Radio}
+                            id="yesCacUser"
+                            label="Yes"
+                            name="cac_user"
+                            value="true"
+                            data-testid="cac-user-yes"
+                          />
+                          <Field
+                            as={Radio}
+                            id="NonCacUser"
+                            label="No"
+                            name="cac_user"
+                            value="false"
+                            data-testid="cac-user-no"
+                          />
+                        </div>
+                      </Fieldset>
+                    </SectionWrapper>
+                  )}
                   <div className={formStyles.formActions}>
                     <WizardNavigation
                       editMode

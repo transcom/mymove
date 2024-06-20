@@ -29,15 +29,15 @@ test.describe('Final Closeout', () => {
 
 test.describe('(MultiMove) Final Closeout', () => {
   test.skip(multiMoveEnabled === 'false', 'Skip if MultiMove workflow is not enabled.');
-  test.fail(multiMoveEnabled === 'true');
 
   forEachViewport(async () => {
     test.beforeEach(async ({ customerPpmPage }) => {
       const move = await customerPpmPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
       await customerPpmPage.signInForPPMWithMove(move);
+      await customerPpmPage.clickOnGoToMoveButton();
     });
 
-    test.skip('can see final closeout page with final estimated incentive and shipment totals', async ({
+    test('can see final closeout page with final estimated incentive and shipment totals', async ({
       customerPpmPage,
     }) => {
       await customerPpmPage.navigateToFinalCloseoutPage();

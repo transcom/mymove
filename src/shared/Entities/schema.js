@@ -194,3 +194,5 @@ export const evaluationReports = new schema.Array(evaluationReport);
 export const searchMove = new schema.Entity('searchMoves');
 export const searchMoves = new schema.Array(searchMove);
 export const searchMovesResult = new schema.Entity('searchMovesResult');
+
+export const officeUser = new schema.Entity('officeUser');

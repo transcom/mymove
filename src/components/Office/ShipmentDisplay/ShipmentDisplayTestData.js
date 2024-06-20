@@ -29,6 +29,7 @@ export const hhgInfo = {
   requestedPickupDate: '26 Mar 2020',
   pickupAddress,
   destinationAddress,
+  shipmentLocator: 'EVLRPT-01',
 };
 
 export const ntsInfo = {
@@ -37,6 +38,7 @@ export const ntsInfo = {
   shipmentId: 'testShipmentId394',
   pickupAddress,
   destinationAddress,
+  shipmentLocator: 'EVLRPT-02',
 };
 
 export const ntsMissingInfo = {
@@ -53,6 +55,7 @@ export const ntsReleaseInfo = {
   shipmentStatus: shipmentStatuses.SUBMITTED,
   ntsRecordedWeight: 2000,
   isDiversion: false,
+  shipmentLocator: 'EVLRPT-04',
   storageFacility: {
     address: {
       city: 'Anytown',
@@ -137,6 +140,7 @@ export const cancelledInfo = {
 
 export const ppmInfo = {
   heading: 'PPM',
+  shipmentLocator: 'EVLRPT-03',
   ppmShipment: {
     actualMoveDate: null,
     advanceAmountRequested: 598700,
@@ -174,21 +178,51 @@ export const ppmInfoApprovedOrExcluded = {
     approvedAt: null,
     createdAt: '2022-04-29T21:48:21.581Z',
     deletedAt: null,
-    destinationPostalCode: '30813',
     eTag: 'MjAyMi0wNC0yOVQyMTo0ODoyMS41ODE0MzFa',
     estimatedIncentive: 1000000,
     estimatedWeight: 4000,
     expectedDepartureDate: '2020-03-15',
     hasProGear: true,
     id: 'b6ec215c-2cef-45fe-8d4a-35f445cd4768',
-    pickupPostalCode: '90210',
     proGearWeight: 1987,
     reviewedAt: null,
-    secondaryDestinationPostalCode: '30814',
-    secondaryPickupPostalCode: '90211',
+    hasSecondaryPickupAddress: true,
+    hasSecondaryDestinationAddress: true,
+    pickupAddress: {
+      streetAddress1: '111 Test Street',
+      streetAddress2: '222 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
+    secondaryPickupAddress: {
+      streetAddress1: '777 Test Street',
+      streetAddress2: '888 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42702',
+    },
+    destinationAddress: {
+      streetAddress1: '222 Test Street',
+      streetAddress2: '333 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42703',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '444 Test Street',
+      streetAddress2: '555 Test Street',
+      streetAddress3: 'Test Man',
+      city: 'Test City',
+      state: 'KY',
+      postalCode: '42701',
+    },
     shipmentId: 'b5c2d9a1-d1e6-485d-9678-8b62deb0d801',
     spouseProGearWeight: 498,
-    status: 'PAYMENT_APPROVED',
+    status: 'CLOSEOUT_COMPLETE',
     submittedAt: '2022-04-29T21:48:21.573Z',
     updatedAt: '2022-04-29T21:48:21.581Z',
   },

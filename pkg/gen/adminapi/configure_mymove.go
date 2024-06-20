@@ -194,6 +194,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation office_users.UpdateOfficeUser has not yet been implemented")
 		})
 	}
+	if api.RequestedOfficeUsersUpdateRequestedOfficeUserHandler == nil {
+		api.RequestedOfficeUsersUpdateRequestedOfficeUserHandler = requested_office_users.UpdateRequestedOfficeUserHandlerFunc(func(params requested_office_users.UpdateRequestedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation requested_office_users.UpdateRequestedOfficeUser has not yet been implemented")
+		})
+	}
 	if api.UsersUpdateUserHandler == nil {
 		api.UsersUpdateUserHandler = users.UpdateUserHandlerFunc(func(params users.UpdateUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.UpdateUser has not yet been implemented")

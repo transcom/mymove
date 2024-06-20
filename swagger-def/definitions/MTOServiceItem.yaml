@@ -74,10 +74,17 @@ properties:
     x-nullable: true
   sitDestinationOriginalAddress:
     $ref: 'Address.yaml'
+  sitOriginHHGOriginalAddress:
+    $ref: 'Address.yaml'
+  sitOriginHHGActualAddress:
+    $ref: 'Address.yaml'
   sitDestinationFinalAddress:
     $ref: 'Address.yaml'
   sitAddressUpdates:
     $ref: 'SITAddressUpdates.yaml'
+  sitDeliveryMiles:
+    type: integer
+    x-nullable: true
   feeType:
     enum:
       - COUNSELING
@@ -124,5 +131,12 @@ properties:
     type: string
     description: Reason for updating service item.
     x-nullable: true
+  standaloneCrate:
+    type: boolean
+    x-nullable: true
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'
+  estimatedPrice:
+    type: integer
+    format: cents
+    x-nullable: true

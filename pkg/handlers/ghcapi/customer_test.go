@@ -2,11 +2,13 @@ package ghcapi
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/jarcoal/httpmock"
 	"github.com/markbates/goth"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
@@ -14,7 +16,10 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/authentication/okta"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	customerservice "github.com/transcom/mymove/pkg/services/office_user/customer"
 )
 
@@ -138,14 +143,14 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		StreetAddress1: handlers.FmtString("123 New Street"),
 		City:           handlers.FmtString("Newcity"),
 		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("12345"),
+		PostalCode:     handlers.FmtString("02110"),
 	}
 
 	backupAddress := ghcmessages.Address{
 		StreetAddress1: handlers.FmtString("123 Backup Street"),
 		City:           handlers.FmtString("Backupcity"),
 		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("67890"),
+		PostalCode:     handlers.FmtString("02115"),
 	}
 
 	affiliation := ghcmessages.AffiliationARMY
@@ -173,6 +178,8 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Address: backupAddress,
 		},
 		CreateOktaAccount: true,
+		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
+		CacUser: false,
 	}
 
 	defer goth.ClearProviders()
@@ -206,6 +213,88 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 	suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
 	suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
 	suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
+	// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
+	suite.Equal(true, createdCustomerPayload.CacValidated)
+}
+
+func (suite *HandlerSuite) TestSearchCustomersHandler() {
+	var requestUser models.User
+	setupTestData := func() *http.Request {
+		requestUser = factory.BuildUser(nil, nil, nil)
+		req := httptest.NewRequest("GET", "/customer/#{customer.id}", nil)
+		req = suite.AuthenticateUserRequest(req, requestUser)
+		return req
+	}
+
+	suite.Run("Successful customer search by DOD ID", func() {
+		req := setupTestData()
+		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
+		customers := models.ServiceMembers{customer}
+
+		mockSearcher := mocks.CustomerSearcher{}
+
+		handler := SearchCustomersHandler{
+			HandlerConfig:    suite.HandlerConfig(),
+			CustomerSearcher: &mockSearcher,
+		}
+		mockSearcher.On("SearchCustomers",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchCustomersParams) bool {
+				return *params.DodID == *customer.Edipi &&
+					params.CustomerName == nil
+			}),
+		).Return(customers, 1, nil)
+
+		params := customerops.SearchCustomersParams{
+			HTTPRequest: req,
+			Body: customerops.SearchCustomersBody{
+				DodID: customer.Edipi,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&customerops.SearchCustomersOK{}, response)
+		payload := response.(*customerops.SearchCustomersOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(customer.ID.String(), (*payload).SearchCustomers[0].ID.String())
+	})
+
+	suite.Run("Successful customer search by name", func() {
+		req := setupTestData()
+		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
+		customers := models.ServiceMembers{customer}
+
+		mockSearcher := mocks.CustomerSearcher{}
+
+		handler := SearchCustomersHandler{
+			HandlerConfig:    suite.HandlerConfig(),
+			CustomerSearcher: &mockSearcher,
+		}
+		mockSearcher.On("SearchCustomers",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.MatchedBy(func(params *services.SearchCustomersParams) bool {
+				return *params.CustomerName == *customer.FirstName &&
+					params.DodID == nil
+			}),
+		).Return(customers, 1, nil)
+
+		params := customerops.SearchCustomersParams{
+			HTTPRequest: req,
+			Body: customerops.SearchCustomersBody{
+				CustomerName: customer.FirstName,
+			},
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+		response := handler.Handle(params)
+		suite.IsType(&customerops.SearchCustomersOK{}, response)
+		payload := response.(*customerops.SearchCustomersOK).Payload
+		suite.NoError(payload.Validate(strfmt.Default))
+
+		suite.Equal(customer.FirstName, (*payload).SearchCustomers[0].FirstName)
+	})
 }
 
 // Generate and activate Okta endpoints that will be using during the auth handlers.

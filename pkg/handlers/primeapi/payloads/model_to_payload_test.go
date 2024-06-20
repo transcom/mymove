@@ -290,6 +290,7 @@ func (suite *PayloadsSuite) TestSITAddressUpdate() {
 		suite.Equal(*payload.NewAddress.State, sitAddressUpdate.NewAddress.State)
 		suite.Equal(*payload.NewAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
 		suite.Equal(*payload.NewAddress.Country, *sitAddressUpdate.NewAddress.Country)
+		suite.Equal(*payload.NewAddress.County, sitAddressUpdate.NewAddress.County)
 		suite.Equal(*payload.NewAddress.StreetAddress1, sitAddressUpdate.NewAddress.StreetAddress1)
 		suite.Equal(payload.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
 		suite.Equal(payload.OfficeRemarks, sitAddressUpdate.OfficeRemarks)
@@ -676,11 +677,13 @@ func (suite *PayloadsSuite) TestMTOServiceItemDDSHUT() {
 	dateOfContact2 := time.Now().AddDate(0, 0, 5)
 	timeMilitary2 := "1300Z"
 	firstAvailableDeliveryDate2 := dateOfContact2.AddDate(0, 0, 10)
+	standaloneCrate := false
 
 	mtoServiceItemDDSHUT := &models.MTOServiceItem{
-		ID:        uuid.Must(uuid.NewV4()),
-		ReService: models.ReService{Code: reServiceCode},
-		Reason:    &reason,
+		ID:              uuid.Must(uuid.NewV4()),
+		ReService:       models.ReService{Code: reServiceCode},
+		Reason:          &reason,
+		StandaloneCrate: &standaloneCrate,
 		CustomerContacts: models.MTOServiceItemCustomerContacts{
 			models.MTOServiceItemCustomerContact{
 				DateOfContact:              dateOfContact1,

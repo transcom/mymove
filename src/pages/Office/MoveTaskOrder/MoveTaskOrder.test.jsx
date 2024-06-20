@@ -20,6 +20,7 @@ import {
   riskOfExcessWeightQueryExternalShipment,
   multiplePaymentRequests,
   moveHistoryTestData,
+  actualPPMWeightQuery,
 } from './moveTaskOrderUnitTestData';
 
 import { MoveTaskOrder } from 'pages/Office/MoveTaskOrder/MoveTaskOrder';
@@ -318,6 +319,37 @@ describe('MoveTaskOrder', () => {
       expect(riskOfExcessAlert).toBeInTheDocument();
     });
 
+    it('displays risk of excess alert with disabled buttons when move is locked', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(riskOfExcessWeightQuery);
+      const isMoveLocked = true;
+      render(
+        <MockProviders permissions={[permissionTypes.updateMTOPage, permissionTypes.updateBillableWeight]}>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            isMoveLocked={isMoveLocked}
+          />
+        </MockProviders>,
+      );
+
+      expect(setExcessWeightRiskCount).toHaveBeenCalledWith(1);
+
+      const riskOfExcessAlert = screen.getByText(/This move is at risk for excess weight./);
+      expect(riskOfExcessAlert).toBeInTheDocument();
+
+      const riskOfExcessAlertBtn = screen.getByTestId('excessWeightAlertButton');
+      expect(riskOfExcessAlertBtn).toBeInTheDocument();
+      expect(riskOfExcessAlertBtn).toBeDisabled();
+
+      const reviewBillableWeightBtn = screen.getByTestId('reviewBillableWeightBtn');
+      expect(reviewBillableWeightBtn).toBeInTheDocument();
+      expect(reviewBillableWeightBtn).toBeDisabled();
+    });
+
     it('displays the estimated total weight', async () => {
       useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
 
@@ -356,6 +388,50 @@ describe('MoveTaskOrder', () => {
 
       const moveWeightTotal = await screen.getByText(/350 lbs/);
       expect(moveWeightTotal).toBeInTheDocument();
+    });
+
+    it('displays the ppm estimated weight and no ppm actual weight', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(allApprovedMTOQuery);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightSummaries = await screen.findAllByTestId('weight-display');
+
+      expect(weightSummaries[4]).toHaveTextContent('2,000 lbs');
+      expect(weightSummaries[5]).toHaveTextContent('—');
+    });
+
+    it('displays the ppm actual weight (total)', async () => {
+      useMoveTaskOrderQueries.mockReturnValue(actualPPMWeightQuery);
+
+      render(
+        <MockProviders>
+          <MoveTaskOrder
+            {...requiredProps}
+            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
+            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
+            setExcessWeightRiskCount={setExcessWeightRiskCount}
+            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          />
+        </MockProviders>,
+      );
+
+      const weightSummaries = await screen.findAllByTestId('weight-display');
+
+      expect(weightSummaries[4]).toHaveTextContent('2,000 lbs');
+      expect(weightSummaries[5]).toHaveTextContent('2,100 lbs');
     });
 
     it('displays the move weight total using lower reweighs', async () => {
@@ -524,6 +600,7 @@ describe('MoveTaskOrder', () => {
     useMoveTaskOrderQueries.mockReturnValue(someShipmentsApprovedMTOQuery);
     useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
     useGHCGetMoveHistory.mockReturnValue(moveHistoryTestData);
+    const isMoveLocked = false;
     const wrapper = mount(
       <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
         <MoveTaskOrder
@@ -533,6 +610,7 @@ describe('MoveTaskOrder', () => {
           setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          isMoveLocked={isMoveLocked}
         />
       </MockProviders>,
     );
@@ -567,7 +645,7 @@ describe('MoveTaskOrder', () => {
     it('renders the ShipmentHeading', () => {
       expect(wrapper.find('ShipmentHeading').exists()).toBe(true);
       expect(wrapper.find('h2').at(0).text()).toEqual('Household goods');
-      expect(wrapper.find('[data-testid="button"]').exists()).toBe(true);
+      expect(wrapper.find('h4').at(0).text()).toEqual('#');
     });
 
     it('renders the ImportantShipmentDates', () => {
@@ -585,10 +663,14 @@ describe('MoveTaskOrder', () => {
     it('renders the RequestedServiceItemsTable for requested, approved, and rejected service items', () => {
       const requestedServiceItemsTable = wrapper.find('RequestedServiceItemsTable');
       // There should be 1 of each status table requested, approved, rejected service items
-      expect(requestedServiceItemsTable.length).toBe(3);
+      // Plus approved move-level service items separate from the shipment items
+      expect(requestedServiceItemsTable.length).toBe(6);
       expect(requestedServiceItemsTable.at(0).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.SUBMITTED);
       expect(requestedServiceItemsTable.at(1).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.APPROVED);
       expect(requestedServiceItemsTable.at(2).prop('statusForTableType')).toBe(SERVICE_ITEM_STATUS.REJECTED);
+      expect(requestedServiceItemsTable.at(3).prop('statusForTableType')).toBe('Move Task Order Requested');
+      expect(requestedServiceItemsTable.at(4).prop('statusForTableType')).toBe('Move Task Order Approved');
+      expect(requestedServiceItemsTable.at(5).prop('statusForTableType')).toBe('Move Task Order Rejected');
     });
 
     it('updates the unapproved shipments tag state', () => {
@@ -643,7 +725,7 @@ describe('MoveTaskOrder', () => {
     });
 
     it('renders the ShipmentContainer', () => {
-      expect(wrapper.find('ShipmentContainer').length).toBe(5);
+      expect(wrapper.find('ShipmentContainer').length).toBe(6);
     });
 
     it('renders the ShipmentHeading', () => {

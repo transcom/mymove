@@ -18,6 +18,50 @@ import { permissionTypes } from 'constants/permissions';
 import { selectDateFieldByStatus, selectDatePrefixByStatus } from 'utils/dates';
 import { useGHCGetMoveHistory, useMovePaymentRequestsQueries } from 'hooks/queries';
 import ToolTip from 'shared/ToolTip/ToolTip';
+import { ShipmentShape } from 'types';
+
+// Sorts service items in an order preferred by the customer
+// Currently only SIT & shorthaul/linehaul receives special sorting
+// this current listed order goes:
+// shorthaul & linehaul
+// other service items
+// origin SIT
+// destination SIT
+function sortServiceItems(items) {
+  // Prioritize service items with codes 'DSH' (shorthaul) and 'DLH' (linehaul) to be at the top of the list
+  const haulTypeServiceItemCodes = ['DSH', 'DLH'];
+  const haulTypeServiceItems = items.filter((item) => haulTypeServiceItemCodes.includes(item.code));
+  const sortedHaulTypeServiceItems = haulTypeServiceItems.sort(
+    (a, b) => haulTypeServiceItemCodes.indexOf(a.code) - haulTypeServiceItemCodes.indexOf(b.code),
+  );
+  // Filter and sort destination SIT. Code index is also the sort order
+  const destinationServiceItemCodes = ['DDFSIT', 'DDASIT', 'DDDSIT', 'DDSFSC'];
+  const destinationServiceItems = items.filter((item) => destinationServiceItemCodes.includes(item.code));
+  const sortedDestinationServiceItems = destinationServiceItems.sort(
+    (a, b) => destinationServiceItemCodes.indexOf(a.code) - destinationServiceItemCodes.indexOf(b.code),
+  );
+  // Filter origin SIT. Code index is also the sort order
+  const originServiceItemCodes = ['DOFSIT', 'DOASIT', 'DOPSIT', 'DOSFSC'];
+  const originServiceItems = items.filter((item) => originServiceItemCodes.includes(item.code));
+  const sortedOriginServiceItems = originServiceItems.sort(
+    (a, b) => originServiceItemCodes.indexOf(a.code) - originServiceItemCodes.indexOf(b.code),
+  );
+
+  // Filter all service items that are not specifically sorted
+  const remainingServiceItems = items.filter(
+    (item) =>
+      !haulTypeServiceItemCodes.includes(item.code) &&
+      !destinationServiceItemCodes.includes(item.code) &&
+      !originServiceItemCodes.includes(item.code),
+  );
+
+  return [
+    ...sortedHaulTypeServiceItems,
+    ...remainingServiceItems,
+    ...sortedOriginServiceItems,
+    ...sortedDestinationServiceItems,
+  ];
+}
 
 const ServiceItemsTable = ({
   serviceItems,
@@ -26,6 +70,8 @@ const ServiceItemsTable = ({
   handleShowRejectionDialog,
   handleShowEditSitAddressModal,
   handleShowEditSitEntryDateModal,
+  shipment,
+  isMoveLocked,
 }) => {
   const getServiceItemDisplayDate = (item) => {
     const prefix = selectDatePrefixByStatus(statusForTableType);
@@ -129,7 +175,8 @@ const ServiceItemsTable = ({
     return resubmittedServiceItemValues;
   };
 
-  const tableRows = serviceItems.map((serviceItem) => {
+  const sortedServiceItems = sortServiceItems(serviceItems);
+  const tableRows = sortedServiceItems.map((serviceItem) => {
     const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
     let hasPaymentRequestBeenMade;
     // if there are service items in the payment requests, we want to look to see if the service item is in there
@@ -154,7 +201,8 @@ const ServiceItemsTable = ({
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
-              {serviceItem.serviceItem}{' '}
+              {serviceItem.serviceItem}
+              {code === 'DCRT' && serviceItem.details.standaloneCrate && ' - Standalone'}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
                 <ToolTip
                   data-testid="toolTipResubmission"
@@ -181,6 +229,8 @@ const ServiceItemsTable = ({
               details={details}
               serviceRequestDocs={serviceRequestDocuments}
               serviceItem={serviceItem}
+              shipment={shipment}
+              sitStatus={shipment.sitStatus}
             />
           </td>
           <td>
@@ -193,6 +243,7 @@ const ServiceItemsTable = ({
                       className="usa-button--icon usa-button--small acceptButton"
                       data-testid="acceptButton"
                       onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="check" />
@@ -205,6 +256,7 @@ const ServiceItemsTable = ({
                       className="usa-button--small usa-button--icon margin-left-1 rejectButton"
                       data-testid="rejectButton"
                       onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="times" />
@@ -224,6 +276,7 @@ const ServiceItemsTable = ({
                       data-testid="rejectTextButton"
                       className="text-blue usa-button--unstyled margin-left-1"
                       onClick={() => handleShowRejectionDialog(id, mtoShipmentID)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="times" />
@@ -236,7 +289,7 @@ const ServiceItemsTable = ({
                           type="button"
                           data-testid="editTextButton"
                           className="text-blue usa-button--unstyled margin-left-1"
-                          disabled={hasPaymentRequestBeenMade}
+                          disabled={hasPaymentRequestBeenMade || isMoveLocked}
                           onClick={() => {
                             if (code === 'DDFSIT' || code === 'DOFSIT') {
                               handleShowEditSitEntryDateModal(id, mtoShipmentID);
@@ -265,6 +318,7 @@ const ServiceItemsTable = ({
                       data-testid="approveTextButton"
                       className="text-blue usa-button--unstyled"
                       onClick={() => handleUpdateMTOServiceItemStatus(id, mtoShipmentID, SERVICE_ITEM_STATUS.APPROVED)}
+                      disabled={isMoveLocked}
                     >
                       <span className="icon">
                         <FontAwesomeIcon icon="check" />
@@ -302,6 +356,11 @@ ServiceItemsTable.propTypes = {
   handleShowRejectionDialog: PropTypes.func.isRequired,
   statusForTableType: PropTypes.string.isRequired,
   serviceItems: PropTypes.arrayOf(ServiceItemDetailsShape).isRequired,
+  shipment: ShipmentShape,
+};
+
+ServiceItemsTable.defaultProps = {
+  shipment: {},
 };
 
 export default ServiceItemsTable;

@@ -32,6 +32,12 @@ properties:
     minimum: 0
     x-nullable: true
     x-omitempty: false
+  submittedEmptyWeight:
+    description: Customer submitted weight of the vehicle when empty.
+    type: integer
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
   missingEmptyWeightTicket:
     description: Indicates if the customer is missing a weight ticket for the vehicle weight when empty.
     type: boolean
@@ -48,6 +54,12 @@ properties:
       - $ref: 'Document.yaml'
   fullWeight:
     description: The weight of the vehicle when full.
+    type: integer
+    minimum: 0
+    x-nullable: true
+    x-omitempty: false
+  submittedFullWeight:
+    description: Customer submitted weight of the vehicle when full.
     type: integer
     minimum: 0
     x-nullable: true
@@ -72,7 +84,17 @@ properties:
     type: boolean
     x-nullable: true
     x-omitempty: false
+  submittedOwnsTrailer:
+    description: Indicates if the customer used a trailer they own for the move.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
   trailerMeetsCriteria:
+    description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
+    type: boolean
+    x-nullable: true
+    x-omitempty: false
+  submittedTrailerMeetsCriteria:
     description: Indicates if the trailer that the customer used meets all the criteria to be claimable.
     type: boolean
     x-nullable: true

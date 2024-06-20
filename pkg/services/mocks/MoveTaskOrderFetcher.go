@@ -160,6 +160,41 @@ func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrders(appCtx appcontext.AppCon
 	return r0, r1
 }
 
+// ListPrimeMoveTaskOrdersAmendments provides a mock function with given fields: appCtx, searchParams
+func (_m *MoveTaskOrderFetcher) ListPrimeMoveTaskOrdersAmendments(appCtx appcontext.AppContext, searchParams *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error) {
+	ret := _m.Called(appCtx, searchParams)
+
+	var r0 models.Moves
+	var r1 services.MoveOrderAmendmentAvailableSinceCounts
+	var r2 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, services.MoveOrderAmendmentAvailableSinceCounts, error)); ok {
+		return rf(appCtx, searchParams)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
+		r0 = rf(appCtx, searchParams)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.Moves)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) services.MoveOrderAmendmentAvailableSinceCounts); ok {
+		r1 = rf(appCtx, searchParams)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(services.MoveOrderAmendmentAvailableSinceCounts)
+		}
+	}
+
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
+		r2 = rf(appCtx, searchParams)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // NewMoveTaskOrderFetcher creates a new instance of MoveTaskOrderFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMoveTaskOrderFetcher(t interface {

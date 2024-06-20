@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/address"
 )
 
 func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
@@ -19,7 +20,9 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentAddress() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
-	mtoShipmentAddressUpdater := NewMTOShipmentAddressUpdater(planner)
+	addressCreator := address.NewAddressCreator()
+	addressUpdater := address.NewAddressUpdater()
+	mtoShipmentAddressUpdater := NewMTOShipmentAddressUpdater(planner, addressCreator, addressUpdater)
 
 	// TESTCASE SCENARIO
 	// Under test: UpdateMTOShipmentAddress

@@ -19,7 +19,8 @@ func fakeAddressPayload() *internalmessages.Address {
 		StreetAddress3: models.StringPointer("address line 3"),
 		City:           models.StringPointer("Happytown"),
 		State:          models.StringPointer("AL"),
-		PostalCode:     models.StringPointer("01234"),
+		PostalCode:     models.StringPointer("40356"),
+		County:         models.StringPointer("JESSAMINE"),
 	}
 }
 
@@ -31,6 +32,7 @@ func (suite *HandlerSuite) TestShowAddressHandler() {
 			City:           "city",
 			State:          "state",
 			PostalCode:     "12345",
+			County:         "JESSAMINE",
 		}
 		suite.MustSave(&address)
 

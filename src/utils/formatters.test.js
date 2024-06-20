@@ -13,6 +13,9 @@ describe('formatters', () => {
     it('should format signature date to YYYY-MM-DD', () => {
       expect(formatters.formatSignatureDate('2020-09-27T00:00:00Z')).toBe('2020-09-27');
     });
+    it('should format review weights date MMM DD YYYY', () => {
+      expect(formatters.formatReviewShipmentWeightsDate('2020-09-27T00:00:00Z')).toBe('Sep 27 2020');
+    });
   });
 
   describe('formatYesNoInputValue', () => {
@@ -290,6 +293,37 @@ describe('formatters', () => {
     it('should work', () => {
       const uuid = '7e37ec98-ffae-4c4a-9208-ac80002ac298';
       expect(formatQAReportID(uuid)).toEqual('#QA-7E37E');
+    });
+  });
+
+  describe('formatCustomerContactFullAddress', () => {
+    it('should conditionally include address lines 2 and 3', () => {
+      const addressWithoutLine2And3 = {
+        city: 'Beverly Hills',
+        country: 'US',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '54321 Any Street',
+        streetAddress2: '',
+        streetAddress3: '',
+      };
+
+      const addressWithLine2And3 = {
+        city: 'Beverly Hills',
+        country: 'US',
+        postalCode: '90210',
+        state: 'CA',
+        streetAddress1: '12345 Any Street',
+        streetAddress2: 'Apt 12B',
+        streetAddress3: 'c/o Leo Spaceman',
+      };
+
+      expect(formatters.formatCustomerContactFullAddress(addressWithoutLine2And3)).toEqual(
+        '54321 Any Street, Beverly Hills, CA 90210',
+      );
+      expect(formatters.formatCustomerContactFullAddress(addressWithLine2And3)).toEqual(
+        '12345 Any Street, Apt 12B, c/o Leo Spaceman, Beverly Hills, CA 90210',
+      );
     });
   });
 });

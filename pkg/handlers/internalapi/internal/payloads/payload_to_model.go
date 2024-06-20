@@ -16,6 +16,9 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	if address == nil {
 		return nil
 	}
+	if address.County == nil {
+		address.County = models.StringPointer("")
+	}
 	return &models.Address{
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress1: *address.StreetAddress1,
@@ -25,6 +28,7 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
 		Country:        address.Country,
+		County:         *address.County,
 	}
 }
 
@@ -269,6 +273,7 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 		Amount:            handlers.FmtInt64PtrToPopPtr(movingExpense.Amount),
 		SITStartDate:      handlers.FmtDatePtrToPopPtr(&movingExpense.SitStartDate),
 		SITEndDate:        handlers.FmtDatePtrToPopPtr(&movingExpense.SitEndDate),
+		WeightStored:      handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored),
 	}
 
 	if movingExpense.PaidWithGTCC != nil {
@@ -277,6 +282,10 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 
 	if movingExpense.MissingReceipt != nil {
 		model.MissingReceipt = handlers.FmtBool(*movingExpense.MissingReceipt)
+	}
+
+	if movingExpense.SitLocation != nil {
+		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
 	}
 
 	return model

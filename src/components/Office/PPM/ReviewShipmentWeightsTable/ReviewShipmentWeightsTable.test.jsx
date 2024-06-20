@@ -4,11 +4,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import { SHIPMENT_OPTIONS } from '../../../../shared/constants';
 
 import ReviewShipmentWeightsTable from './ReviewShipmentWeightsTable';
-import {
-  nonPPMReviewWeightsTableConfig,
-  PPMReviewWeightsTableConfig,
-  proGearReviewWeightsTableConfig,
-} from './helpers';
+import { nonPPMReviewWeightsTableConfig, PPMReviewWeightsTableConfig } from './helpers';
 
 import { MockProviders } from 'testUtils';
 
@@ -21,15 +17,12 @@ const PPMProps = {
     {
       shipmentType: 'PPM',
       ppmShipment: {
-        actualMoveDate: '02-Dec-22',
         actualPickupPostalCode: '90210',
         actualDestinationPostalCode: '94611',
         hasReceivedAdvance: true,
         advanceAmountReceived: 60000,
-        proGearWeight: 1000,
-        spouseProGearWeight: 500,
         estimatedWeight: 4000,
-        expectedDepartureDate: '01-Apr-23',
+        actualMoveDate: '2023-04-01',
         weightTickets: [
           {
             emptyWeight: 1000,
@@ -37,20 +30,11 @@ const PPMProps = {
           },
         ],
       },
+      actualProGearWeight: 1000,
+      actualSpouseProGearWeight: 500,
     },
   ],
   tableConfig: PPMReviewWeightsTableConfig,
-};
-const ProGearProps = {
-  tableData: [
-    {
-      entitlement: {
-        proGearWeight: 2000,
-        spouseProGearWeight: 500,
-      },
-    },
-  ],
-  tableConfig: proGearReviewWeightsTableConfig,
 };
 const NonPPMProps = {
   tableData: [
@@ -63,7 +47,7 @@ const NonPPMProps = {
         id: 'rw01',
         weight: 3200,
       },
-      actualDeliveryDate: '04-Apr-23',
+      actualDeliveryDate: '2023-04-23',
     },
   ],
   tableConfig: nonPPMReviewWeightsTableConfig,
@@ -82,27 +66,13 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('Review Documents')).toBeInTheDocument();
       expect(screen.getByText('Review Documents').tagName).toBe('A');
       expect(screen.getByText('Pro-gear (lbs)')).toBeInTheDocument();
-      expect(screen.getByText('1,000 lbs')).toBeInTheDocument();
+      expect(screen.getByText('4,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Spouse pro-gear')).toBeInTheDocument();
       expect(screen.getByText('500 lbs')).toBeInTheDocument();
       expect(screen.getByText('Net weight')).toBeInTheDocument();
       expect(screen.getByText('5,001 lbs')).toBeInTheDocument();
       expect(screen.getByText('Departure date')).toBeInTheDocument();
       expect(screen.getByText('Apr 01 2023')).toBeInTheDocument();
-    });
-  });
-  it('correctly renders Pro-gear table data', async () => {
-    render(
-      <MockProviders>
-        <ReviewShipmentWeightsTable {...ProGearProps} />
-      </MockProviders>,
-    );
-    await waitFor(async () => {
-      expect(screen.getByTestId('reviewShipmentWeightsTable')).toBeInTheDocument();
-      expect(screen.getByText('Pro-gear (lbs)')).toBeInTheDocument();
-      expect(screen.getByText('2,000 lbs')).toBeInTheDocument();
-      expect(screen.getByText('Spouse pro-gear (lbs)')).toBeInTheDocument();
-      expect(screen.getByText('500 lbs')).toBeInTheDocument();
     });
   });
   it('correctly renders non-PPM table data', async () => {
@@ -120,7 +90,7 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('Billable weight')).toBeInTheDocument();
       expect(screen.getByText('3,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Delivery date')).toBeInTheDocument();
-      expect(screen.getByText('Apr 04 2023')).toBeInTheDocument();
+      expect(screen.getByText('Apr 23 2023')).toBeInTheDocument();
     });
   });
 });

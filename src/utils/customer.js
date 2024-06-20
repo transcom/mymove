@@ -1,9 +1,12 @@
 /* eslint-disable import/prefer-default-export */
+
 import { profileStates } from 'constants/customerStates';
 import { generalRoutes, customerRoutes } from 'constants/routes';
 
 export const findNextServiceMemberStep = (profileState) => {
   switch (profileState) {
+    case profileStates.VALIDATION_REQUIRED:
+      return customerRoutes.VALIDATION_CODE_PATH;
     case profileStates.EMPTY_PROFILE:
       return customerRoutes.CONUS_OCONUS_PATH;
     case profileStates.DOD_INFO_COMPLETE:

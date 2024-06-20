@@ -10,6 +10,7 @@ import 'styles/office.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
+import { tooRoutes } from 'constants/routes';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
@@ -54,12 +55,14 @@ const MoveDetails = ({
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
+  isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+
   const navigate = useNavigate();
 
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
@@ -254,19 +257,21 @@ const MoveDetails = ({
   const allowancesInfo = {
     branch: customer.agency,
     grade: order.grade,
-    authorizedWeight: allowances.authorizedWeight,
+    totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
     dependents: allowances.dependentsAuthorized,
     requiredMedicalEquipmentWeight: allowances.requiredMedicalEquipmentWeight,
     organizationalClothingAndIndividualEquipment: allowances.organizationalClothingAndIndividualEquipment,
+    gunSafe: allowances.gunSafe,
   };
 
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
     dodId: customer.dodID,
-    phone: `+1 ${customer.phone}`,
+    phone: customer.phone,
+    altPhone: customer.secondaryTelephone,
     email: customer.email,
     currentAddress: customer.current_address,
     backupAddress: customerData.backupAddress,
@@ -336,6 +341,7 @@ const MoveDetails = ({
                 <FinancialReviewButton
                   onClick={handleShowFinancialReviewModal}
                   reviewRequested={move.financialReviewFlag}
+                  isMoveLocked={isMoveLocked}
                 />
               </div>
             </Restricted>
@@ -374,6 +380,7 @@ const MoveDetails = ({
                 errorIfMissing={errorIfMissing}
                 displayDestinationType={isRetirementOrSeparation}
                 mtoServiceItems={mtoServiceItems}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
@@ -386,6 +393,7 @@ const MoveDetails = ({
                 mtoServiceItems={mtoServiceItems}
                 moveCode={moveCode}
                 displayDestinationType={isRetirementOrSeparation}
+                isMoveLocked={isMoveLocked}
               />
             </div>
           )}
@@ -402,9 +410,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
-                    Edit orders
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-orders" to="../orders">
+                      Edit orders
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -424,9 +434,11 @@ const MoveDetails = ({
                     </Link>
                   }
                 >
-                  <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
-                    Edit allowances
-                  </Link>
+                  {!isMoveLocked && (
+                    <Link className="usa-button usa-button--secondary" data-testid="edit-allowances" to="../allowances">
+                      Edit allowances
+                    </Link>
+                  )}
                 </Restricted>
               }
               shipmentsInfoNonPpm={shipmentsInfoNonPPM}
@@ -435,7 +447,22 @@ const MoveDetails = ({
             </DetailsPanel>
           </div>
           <div className={styles.section} id="customer-info">
-            <DetailsPanel title="Customer info">
+            <DetailsPanel
+              title="Customer info"
+              editButton={
+                <Restricted to={permissionTypes.updateCustomer}>
+                  {!isMoveLocked && (
+                    <Link
+                      className="usa-button usa-button--secondary"
+                      data-testid="edit-customer-info"
+                      to={`../${tooRoutes.CUSTOMER_INFO_EDIT_PATH}`}
+                    >
+                      Edit customer info
+                    </Link>
+                  )}
+                </Restricted>
+              }
+            >
               <CustomerInfoList customerInfo={customerInfo} />
             </DetailsPanel>
           </div>

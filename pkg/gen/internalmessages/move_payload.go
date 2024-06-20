@@ -55,6 +55,11 @@ type MovePayload struct {
 	// Format: uuid
 	OrdersID *strfmt.UUID `json:"orders_id"`
 
+	// prime counseling completed at
+	// Read Only: true
+	// Format: date-time
+	PrimeCounselingCompletedAt strfmt.DateTime `json:"primeCounselingCompletedAt,omitempty"`
+
 	// service member id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
@@ -103,6 +108,10 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrdersID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePrimeCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -221,6 +230,18 @@ func (m *MovePayload) validateOrdersID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MovePayload) validatePrimeCounselingCompletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.PrimeCounselingCompletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("primeCounselingCompletedAt", "body", "date-time", m.PrimeCounselingCompletedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MovePayload) validateServiceMemberID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ServiceMemberID) { // not required
 		return nil
@@ -287,6 +308,10 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidatePrimeCounselingCompletedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateServiceMemberID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -330,6 +355,15 @@ func (m *MovePayload) contextValidateMtoShipments(ctx context.Context, formats s
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("mto_shipments")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidatePrimeCounselingCompletedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "primeCounselingCompletedAt", "body", strfmt.DateTime(m.PrimeCounselingCompletedAt)); err != nil {
 		return err
 	}
 
