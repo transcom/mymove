@@ -43,30 +43,13 @@ var TOO = RolePermissions{
 	},
 }
 
-// TODO: FOR NOW HQ WILL USE SAME PERMISSIONS AS TOO, B-20014 WILL CHANGE THESE TO READ ONLY
 var HQ = RolePermissions{
 	RoleType: roles.RoleTypeHQ,
 	Permissions: []string{
-		"create.serviceItem",
-		"create.shipmentDiversionRequest",
-		"create.reweighRequest",
-		"create.shipmentCancellation",
-		"create.SITExtension",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
 		"read.paymentServiceItemStatus",
-		"update.move",
-		"update.shipment",
-		"update.financialReviewFlag",
-		"update.orders",
-		"update.allowances",
-		"update.billableWeight",
-		"update.SITExtension",
-		"update.MTOServiceItem",
-		"update.excessWeightRisk",
-		"update.customer",
 		"view.closeoutOffice",
-		"update.MTOPage",
 	},
 }
 
