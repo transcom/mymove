@@ -76,8 +76,8 @@ const ShipmentForm = (props) => {
     move,
   } = props;
 
-  const [estimatedWeightValue, setEstimatedWeightValue] = useState(mtoShipment.ppmShipment.estimatedWeight);
-  const [maxEstimatedWeightForSIT, setMaxEstimatedWeightForSIT] = useState(estimatedWeightValue);
+  const [estimatedWeightValue, setEstimatedWeightValue] = useState(mtoShipment?.ppmShipment?.estimatedWeight || 0);
+  const [maxEstimatedWeightForSIT, setMaxEstimatedWeightForSIT] = useState(estimatedWeightValue || 0);
 
   const updateEstimatedWeightValue = ({ value }) => {
     setEstimatedWeightValue(value);
