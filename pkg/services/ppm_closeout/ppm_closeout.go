@@ -73,7 +73,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return &models.PPMCloseout{}, err
 	}
 	if ppmShipment.FinalIncentive != nil {
-		if *ppmShipment.HasReceivedAdvance && ppmShipment.AdvanceAmountReceived != nil {
+		if *ppmShipment.HasRequestedAdvance && ppmShipment.AdvanceAmountReceived != nil {
 			remainingIncentive = *ppmShipment.FinalIncentive - *ppmShipment.AdvanceAmountReceived
 		} else {
 			remainingIncentive = *ppmShipment.FinalIncentive
@@ -225,13 +225,9 @@ func (p *ppmCloseoutFetcher) GetPPMShipment(appCtx appcontext.AppContext, ppmShi
 			return nil, apperror.NewQueryError("PPMShipment", err, "while looking for PPMShipment")
 		}
 	}
-	var weightTicket models.WeightTicket
-	if len(ppmShipment.WeightTickets) >= 1 {
-		weightTicket = ppmShipment.WeightTickets[0]
-	}
 
-	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status or if weight ticket was reviewed already, if not, it's not ready for closeout
-	if weightTicket.Status == nil && ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
+	// Check if PPM shipment is in "NEEDS_CLOSEOUT" or "CLOSEOUT_COMPLETE" status, if not, it's not ready for closeout
+	if ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout && ppmShipment.Status != models.PPMShipmentStatusCloseoutComplete {
 		return nil, apperror.NewPPMNotReadyForCloseoutError(ppmShipmentID, "")
 	}
 
@@ -410,7 +406,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
 		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
 		// rather than optimizing I think.
-		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, ppmToMtoShipment, serviceItem)
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmToMtoShipment, contract.Code)

@@ -16,6 +16,7 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestPPMEstimator() {
+
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
 	ppmEstimator := NewEstimatePPM(mockedPlanner, mockedPaymentRequestHelper)

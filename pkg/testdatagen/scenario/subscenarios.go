@@ -683,10 +683,6 @@ func subScenarioPaymentRequestCalculations(
 	moveRouter services.MoveRouter,
 	shipmentFetcher services.MTOShipmentFetcher,
 ) func() {
-	if appCtx == nil || userUploader == nil || primeUploader == nil || moveRouter == nil || shipmentFetcher == nil {
-		panic("nil argument passed to subScenarioPaymentRequestCalculations")
-	}
-
 	return func() {
 		if appCtx == nil || userUploader == nil || primeUploader == nil || moveRouter == nil || shipmentFetcher == nil {
 			panic("nil argument passed to subScenarioPaymentRequestCalculations")
@@ -703,7 +699,6 @@ func subScenarioPaymentRequestCalculations(
 				Status: models.MTOShipmentStatusApproved,
 			},
 		)
-
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)

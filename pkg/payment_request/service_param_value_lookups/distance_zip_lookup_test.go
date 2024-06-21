@@ -88,7 +88,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.Equal(unit.Miles(defaultZipDistance), *ppmShipment.Shipment.Distance)
 	})
 
-	suite.Run("Call ZipTransitDistance on non-PPMs with shipments that have a distance", func() {
+	suite.Run("Call ZipTransitDistance on PPMs with shipments that have a distance", func() {
 		miles := unit.Miles(defaultZipDistance)
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
