@@ -218,8 +218,11 @@ export default function ReviewExpense({
 
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
-            setWeightStoredValue(weight);
-            refreshPage(event);
+            const maxWeight = parseInt(removeCommas(actualWeight), 10);
+            if (weight <= maxWeight && weight > 0) {
+              setWeightStoredValue(weight);
+              refreshPage(event);
+            }
           };
 
           const handleSitStartDateChange = (value) => {
@@ -327,7 +330,7 @@ export default function ReviewExpense({
                 <MaskedTextField
                   defaultValue="0"
                   name="amount"
-                  label="Amount"
+                  label="Amount Requested"
                   id="amount"
                   mask={Number}
                   scale={2} // digits after point, 0 for integers
@@ -362,6 +365,10 @@ export default function ReviewExpense({
                         handleWeightStoredChange(e);
                       }}
                     />
+                    <div>
+                      <legend className={classnames('usa-label', styles.label)}>Actual PPM Weight</legend>
+                      <div className={styles.displayValue}> {actualWeight} lbs</div>
+                    </div>
                     <DatePickerInput
                       name="sitStartDate"
                       label="Start date"

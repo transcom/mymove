@@ -253,6 +253,23 @@ const usePPMCloseoutQueryReturnValue = {
 
 const useGetPPMSITEstimatedCostQueryReturnValue = {
   estimatedCost: 5000,
+  isError: false,
+  isLoading: false,
+  isSuccess: true,
+};
+
+const useGetPPMSITEstimatedCostQueryLoading = {
+  ...useGetPPMSITEstimatedCostQueryReturnValue,
+  isError: false,
+  isLoading: true,
+  isSuccess: false,
+};
+
+const useGetPPMSITEstimatedCostQueryError = {
+  ...useGetPPMSITEstimatedCostQueryReturnValue,
+  isError: true,
+  isLoading: false,
+  isSuccess: false,
 };
 
 const defaultProps = {
@@ -292,7 +309,6 @@ const storageProps = {
     sitEndDate: '2022-12-25',
     weightStored: 2000,
     sitLocation: 'ORIGIN',
-    sitEstimatedCost: 5000,
   },
 };
 
@@ -424,7 +440,6 @@ describe('ReviewExpenseForm component', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -443,7 +458,7 @@ describe('ReviewExpenseForm component', () => {
 
       expect(screen.getByText('Expense Type')).toBeInTheDocument();
       expect(screen.getByText('Description')).toBeInTheDocument();
-      expect(screen.getByLabelText('Amount')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('Amount Requested')).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getByRole('heading', { level: 3, name: `Review Packing Materials #1` })).toBeInTheDocument();
 
@@ -459,7 +474,6 @@ describe('ReviewExpenseForm component', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}
@@ -477,7 +491,51 @@ describe('ReviewExpenseForm component', () => {
       });
       expect(screen.getByText('Packing materials')).toBeInTheDocument();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
-      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
+      expect(screen.getByLabelText('Amount Requested')).toHaveDisplayValue('1,234.56');
+    });
+
+    it('renders the $0 cost when the query is still loading', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryLoading);
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...storageProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+
+      const costAmount = screen.getByTestId('costAmount');
+      expect(costAmount).toHaveTextContent('$0.00');
+    });
+
+    it('renders $0 cost when the query errors', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryError);
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...storageProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+
+      const errorMessage = screen.getByTestId('costAmount');
+      expect(errorMessage).toHaveTextContent('$0.00');
     });
 
     it('shows SIT fields when expense type is Storage', async () => {
@@ -486,6 +544,7 @@ describe('ReviewExpenseForm component', () => {
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
+      
       render(
         <ReviewExpense
           {...defaultProps}
@@ -497,53 +556,21 @@ describe('ReviewExpenseForm component', () => {
           wrapper: MockProviders,
         },
       );
+
+      expect(screen.getByLabelText('Origin')).toBeChecked();
+      expect(screen.getByLabelText('Destination')).not.toBeChecked();
+      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('2,000');
+      const costAmount = screen.getByTestId('costAmount');
+      
+      await waitFor(() => {
+        expect(costAmount).toHaveTextContent('$50.00');
+      });
+
       await waitFor(() => {
         expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
       });
       expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Total days in SIT')).toBeInTheDocument();
-    });
-
-    it('populates edit form with existing storage values', async () => {
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
-      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
-      render(
-        <ReviewExpense
-          {...defaultProps}
-          {...storageProps}
-          {...documentSetsProps}
-          documentSetIndex={documentSetIndex}
-        />,
-        {
-          wrapper: MockProviders,
-        },
-      );
-      await waitFor(() => {
-        expect(screen.getByLabelText('Start date')).toHaveDisplayValue('15 Dec 2022');
-      });
-      expect(screen.getByLabelText('End date')).toHaveDisplayValue('25 Dec 2022');
-    });
-
-    it('correctly displays days in SIT', async () => {
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
-      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
-      render(
-        <ReviewExpense
-          {...defaultProps}
-          {...storageProps}
-          {...documentSetsProps}
-          documentSetIndex={documentSetIndex}
-        />,
-        {
-          wrapper: MockProviders,
-        },
-      );
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('11');
       });
@@ -583,7 +610,6 @@ describe('ReviewExpenseForm component', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
       render(
         <ReviewExpense
           {...defaultProps}

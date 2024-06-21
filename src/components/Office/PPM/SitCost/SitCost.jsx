@@ -15,10 +15,12 @@ export default function SitCost({ ppmShipmentInfo, ppmSITLocation, sitStartDate,
     weightStored,
   );
 
+  const costLabel = 'Government SIT Cost';
+
   if (isLoading || isError) {
     return (
-      <div>
-        <legend className={classnames('usa-label', styles.label)}>Cost</legend>
+      <div data-testid="costAmount">
+        <legend className={classnames('usa-label', styles.label)}>{costLabel}</legend>
         <div className={styles.displayValue}> {toDollarString(0)} </div>
       </div>
     );
@@ -26,8 +28,10 @@ export default function SitCost({ ppmShipmentInfo, ppmSITLocation, sitStartDate,
 
   return (
     <div>
-      <legend className={classnames('usa-label', styles.label)}>Cost</legend>
-      <div className={styles.displayValue}> {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))} </div>
+      <legend className={classnames('usa-label', styles.label)}>{costLabel}</legend>
+      <div className={styles.displayValue} data-testid="costAmount">
+        {toDollarString(formatCents(estimatedCost?.estimatedCost || 0))}
+      </div>
     </div>
   );
 }
