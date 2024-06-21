@@ -155,6 +155,7 @@ describe('Services Counseling Move Info Container', () => {
       ['Services Counseling Edit Shipment Details', 'shipments/SHIP123'],
       ['Services Counseling Edit Shipment Details', 'shipments/SHIP123/advance'],
       ['Review Documents', 'shipments/:shipmentId/document-review'],
+      ['Review Documents', 'shipments/:shipmentId/view-document'],
       ['Services Counseling Review Shipment Weights', 'review-shipment-weights'],
     ])(
       'should render the %s component when at the route: /counseling/moves/:moveCode/%s',
