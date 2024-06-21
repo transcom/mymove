@@ -65,10 +65,3 @@ export function selectServiceMemberForMove(state, moveId) {
   }
   return serviceMember;
 }
-
-export function selectBackupContactForServiceMember(state, serviceMemberId) {
-  const backupContact = Object.values(state.entities.backupContacts).find((backupContact) => {
-    return backupContact.service_member_id === serviceMemberId;
-  });
-  return backupContact || {};
-}
