@@ -396,6 +396,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 
 	// If service item is of a type we need for a specific calculation, get its price
 	for _, serviceItem := range serviceItemsToPrice {
+		siCopy := serviceItem
 		_, isValidCode := validCodes[serviceItem.ReService.Code]
 		if !isValidCode {
 			continue
@@ -410,7 +411,7 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
 		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
 		// rather than optimizing I think.
-		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(ppmToMtoShipment, serviceItem)
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(&ppmToMtoShipment, &siCopy)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(p.planner, serviceItemLookups, serviceItem, ppmToMtoShipment, contract.Code)
