@@ -50,7 +50,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 
 		err = validatePaymentRequest(appCtx, *paymentRequestArg, nil, checks...)
 		if err != nil {
-			return err
+			return apperror.NewContextError("When validating Payment Request")
 		}
 		// Gather information for logging
 		mtoMessageString := " MTO ID <" + paymentRequestArg.MoveTaskOrderID.String() + ">"

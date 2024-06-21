@@ -175,10 +175,6 @@ export const LocationSearchBoxComponent = ({
     }
   };
 
-  const handleFocus = () => {
-    onChange(null);
-  };
-
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
   return (
@@ -204,7 +200,6 @@ export const LocationSearchBoxComponent = ({
           placeholder={placeholder || 'Start typing a duty location...'}
           value={hasLocation ? value : null}
           noOptionsMessage={noOptionsMessage}
-          onFocus={handleFocus}
           styles={isDisabled ? disabledStyles : customStyles}
           isDisabled={isDisabled}
         />

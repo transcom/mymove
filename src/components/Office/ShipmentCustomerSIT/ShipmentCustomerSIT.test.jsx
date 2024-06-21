@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, act } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
 
@@ -26,9 +26,7 @@ describe('components/Office/ShipmentCustomerSIT', () => {
       </Formik>,
     );
 
-    await act(async () => {
-      await userEvent.click(screen.getByLabelText('Yes'));
-    });
+    await userEvent.click(screen.getByLabelText('Yes'));
 
     expect(await screen.findByLabelText('Destination')).toBeChecked();
   });
