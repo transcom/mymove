@@ -355,10 +355,21 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 				},
 			},
 		}, nil)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
 		ppmShipment = factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					DestinationPostalCode:     "30813",
 					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
 					SITExpected:               models.BoolPointer(true),
 					SITLocation:               &sitLocationDestination,
@@ -374,6 +385,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			},
 		}, nil)
 
+		ppmShipment.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813").Return(2294, nil)
@@ -493,7 +505,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			payload := response.(*ppmsitops.GetPPMSITEstimatedCostOK).Payload
 
 			suite.NoError(payload.Validate(strfmt.Default))
-			suite.NotEqual(payload.EstimatedCost, ppmShipment.SITEstimatedCost)
+			suite.NotEqual(payload.SitCost, ppmShipment.SITEstimatedCost)
 		}
 	})
 

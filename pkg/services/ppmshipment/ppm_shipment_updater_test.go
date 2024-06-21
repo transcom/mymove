@@ -1330,10 +1330,21 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				},
 			},
 		}, nil)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
 		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					DestinationPostalCode:     "30813",
 					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
 					SITExpected:               models.BoolPointer(true),
 					SITLocation:               &sitLocationDestination,
@@ -1349,6 +1360,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		}, nil)
 
+		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813").Return(2294, nil)
@@ -1367,6 +1379,18 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
 		sitLocationDestination := models.SITLocationTypeDestination
 		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -1377,7 +1401,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					DestinationPostalCode:     "30813",
 					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
 					SITExpected:               models.BoolPointer(true),
 					SITLocation:               &sitLocationDestination,
@@ -1393,6 +1416,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		}, nil)
 
+		originalPPM.DestinationAddress = destinationAddress
 		mockedPlanner := &routemocks.Planner{}
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"90210", "30813").Return(2294, nil)
@@ -1417,10 +1441,21 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				},
 			},
 		}, nil)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
 		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					DestinationPostalCode:     "30813",
 					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
 					SITExpected:               models.BoolPointer(true),
 					SITLocation:               &sitLocationDestination,
@@ -1436,6 +1471,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 			},
 		}, nil)
 
+		originalPPM.DestinationAddress = destinationAddress
 		originalPPM.ID = uuid.Nil
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
 
