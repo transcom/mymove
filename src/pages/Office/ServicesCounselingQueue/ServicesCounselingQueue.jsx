@@ -15,6 +15,8 @@ import {
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
+  SERVICE_COUNSELING_PPM_STATUS_OPTIONS,
+  SERVICE_COUNSELING_PPM_STATUS_LABELS,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
 import {
@@ -187,6 +189,20 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
         <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
+      ),
+    },
+  ),
+  createHeader(
+    'Status',
+    (row) => {
+      return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
+    },
+    {
+      id: 'ppmStatus',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
       ),
     },
   ),

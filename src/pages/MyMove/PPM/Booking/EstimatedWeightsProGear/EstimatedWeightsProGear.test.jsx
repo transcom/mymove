@@ -56,8 +56,6 @@ const mockMTOShipment = {
   shipmentType: SHIPMENT_OPTIONS.PPM,
   ppmShipment: {
     id: uuidv4(),
-    pickupPostalCode: '20002',
-    destinationPostalCode: '20004',
     sitExpected: false,
     expectedDepartureDate: '2022-12-31',
     eTag: window.btoa(new Date()),
