@@ -168,7 +168,7 @@ describe('AddShipment component', () => {
       useEditShipmentQueries.mockReturnValue(loadingReturnValue);
       renderWithMocks();
 
-      const h2 = await screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
+      const h2 = screen.getByRole('heading', { name: 'Loading, please wait...', level: 2 });
       expect(h2).toBeInTheDocument();
     });
 
@@ -177,7 +177,7 @@ describe('AddShipment component', () => {
 
       renderWithMocks();
 
-      const errorMessage = await screen.getByText(/Something went wrong./);
+      const errorMessage = screen.getByText(/Something went wrong./);
       expect(errorMessage).toBeInTheDocument();
     });
   });
