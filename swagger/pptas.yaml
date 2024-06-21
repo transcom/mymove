@@ -408,7 +408,8 @@ definitions:
         type: string
         x-nullable: true
       TravelAdvance:
-        type: string
+        type: number
+        format: double
         x-nullable: true
       MoveDate:
         type: string

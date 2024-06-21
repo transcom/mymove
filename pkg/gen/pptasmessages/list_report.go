@@ -225,7 +225,7 @@ type ListReport struct {
 	TransmitCD *string `json:"TransmitCD,omitempty"`
 
 	// travel advance
-	TravelAdvance *string `json:"TravelAdvance,omitempty"`
+	TravelAdvance *float64 `json:"TravelAdvance,omitempty"`
 
 	// travel class code
 	// Example: PCS

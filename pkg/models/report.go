@@ -9,6 +9,14 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+type TestReport struct {
+	Orders          Order
+	PaymentRequests PaymentRequests
+	MTOShipments    MTOShipments
+}
+
+type TestReports []TestReport
+
 type Report struct {
 	ID                          uuid.UUID
 	FirstName                   *string
@@ -30,7 +38,7 @@ type Report struct {
 	OriginGBLOC                 *string
 	DestinationGBLOC            *string
 	DepCD                       *string
-	TravelAdvance               *string
+	TravelAdvance               *unit.Cents
 	MoveDate                    *time.Time
 	TAC                         *string
 	FiscalYear                  *int

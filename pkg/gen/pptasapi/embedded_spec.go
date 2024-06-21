@@ -665,7 +665,8 @@ func init() {
           "x-nullable": true
         },
         "TravelAdvance": {
-          "type": "string",
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "TravelClassCode": {
@@ -1376,7 +1377,8 @@ func init() {
           "x-nullable": true
         },
         "TravelAdvance": {
-          "type": "string",
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "TravelClassCode": {
