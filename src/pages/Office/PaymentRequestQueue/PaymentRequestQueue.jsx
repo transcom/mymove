@@ -129,7 +129,7 @@ const columns = (moveLockFlag, showBranchFilter = true) => [
     id: 'originDutyLocation',
     isFilterable: true,
     exportValue: (row) => {
-      return row.originDutyLocation.name;
+      return row.originDutyLocation?.name;
     },
   }),
 ];
