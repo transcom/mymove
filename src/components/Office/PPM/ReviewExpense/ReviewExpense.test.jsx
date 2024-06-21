@@ -253,7 +253,7 @@ const usePPMCloseoutQueryReturnValue = {
 
 const useGetPPMSITEstimatedCostQueryReturnValue = {
   estimatedCost: {
-    sitCost: 5000
+    sitCost: 5000,
   },
   isError: false,
   isLoading: false,
@@ -502,25 +502,25 @@ describe('ReviewExpenseForm component', () => {
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
       await useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
-      
+
       render(
-          <ReviewExpense
-            {...defaultProps}
-            {...storageProps}
-            {...documentSetsProps}
-            documentSetIndex={documentSetIndex}
-          />,
-          {
-            wrapper: MockProviders,
-          },
+        <ReviewExpense
+          {...defaultProps}
+          {...storageProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+        />,
+        {
+          wrapper: MockProviders,
+        },
       );
 
       expect(screen.getByLabelText('Origin')).toBeChecked();
       expect(screen.getByLabelText('Destination')).not.toBeChecked();
       expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('2,000');
-      
+
       await waitFor(() => {
-        expect(screen.getByTestId('costAmountSuccess')).toBeInTheDocument();  
+        expect(screen.getByTestId('costAmountSuccess')).toBeInTheDocument();
       });
 
       expect(screen.getByTestId('costAmountSuccess')).toHaveTextContent('$50.00');

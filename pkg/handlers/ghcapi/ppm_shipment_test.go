@@ -493,7 +493,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 			payload := response.(*ppmsitops.GetPPMSITEstimatedCostOK).Payload
 
 			suite.NoError(payload.Validate(strfmt.Default))
-			suite.NotEqual(payload.EstimatedCost, ppmShipment.SITEstimatedCost)
+			suite.NotEqual(payload.SitCost, ppmShipment.SITEstimatedCost)
 		}
 	})
 
