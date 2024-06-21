@@ -9456,10 +9456,10 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "estimatedCost"
+        "sitCost"
       ],
       "properties": {
-        "estimatedCost": {
+        "sitCost": {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,
@@ -23349,10 +23349,10 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "estimatedCost"
+        "sitCost"
       ],
       "properties": {
-        "estimatedCost": {
+        "sitCost": {
           "type": "integer",
           "x-nullable": true,
           "x-omitempty": false,

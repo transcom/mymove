@@ -252,7 +252,9 @@ const usePPMCloseoutQueryReturnValue = {
 };
 
 const useGetPPMSITEstimatedCostQueryReturnValue = {
-  estimatedCost: 5000,
+  estimatedCost: {
+    sitCost: 5000
+  },
   isError: false,
   isLoading: false,
   isSuccess: true,
@@ -494,6 +496,44 @@ describe('ReviewExpenseForm component', () => {
       expect(screen.getByLabelText('Amount Requested')).toHaveDisplayValue('1,234.56');
     });
 
+    it('shows SIT fields when expense type is Storage', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      await useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
+      
+      render(
+          <ReviewExpense
+            {...defaultProps}
+            {...storageProps}
+            {...documentSetsProps}
+            documentSetIndex={documentSetIndex}
+          />,
+          {
+            wrapper: MockProviders,
+          },
+      );
+
+      expect(screen.getByLabelText('Origin')).toBeChecked();
+      expect(screen.getByLabelText('Destination')).not.toBeChecked();
+      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('2,000');
+      
+      await waitFor(() => {
+        expect(screen.getByTestId('costAmountSuccess')).toBeInTheDocument();  
+      });
+
+      expect(screen.getByTestId('costAmountSuccess')).toHaveTextContent('$50.00');
+      await waitFor(() => {
+        expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
+      });
+      expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByText('Total days in SIT')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('11');
+      });
+    });
+
     it('renders the $0 cost when the query is still loading', async () => {
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
@@ -536,44 +576,6 @@ describe('ReviewExpenseForm component', () => {
 
       const errorMessage = screen.getByTestId('costAmount');
       expect(errorMessage).toHaveTextContent('$0.00');
-    });
-
-    it('shows SIT fields when expense type is Storage', async () => {
-      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
-      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
-      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
-      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
-      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
-      
-      render(
-        <ReviewExpense
-          {...defaultProps}
-          {...storageProps}
-          {...documentSetsProps}
-          documentSetIndex={documentSetIndex}
-        />,
-        {
-          wrapper: MockProviders,
-        },
-      );
-
-      expect(screen.getByLabelText('Origin')).toBeChecked();
-      expect(screen.getByLabelText('Destination')).not.toBeChecked();
-      expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('2,000');
-      const costAmount = screen.getByTestId('costAmount');
-      
-      await waitFor(() => {
-        expect(costAmount).toHaveTextContent('$50.00');
-      });
-
-      await waitFor(() => {
-        expect(screen.getByLabelText('Start date')).toBeInstanceOf(HTMLInputElement);
-      });
-      expect(screen.getByLabelText('End date')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByText('Total days in SIT')).toBeInTheDocument();
-      await waitFor(() => {
-        expect(screen.getByTestId('days-in-sit')).toHaveTextContent('11');
-      });
     });
 
     it('correctly updates days in SIT', async () => {
@@ -648,7 +650,7 @@ describe('ReviewExpenseForm component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
       });
 
-      expect(screen.getByLabelText('Amount')).toBeDisabled();
+      expect(screen.getByLabelText('Amount Requested')).toBeDisabled();
 
       expect(screen.getByRole('heading', { level: 3, name: `Review Packing Materials #1` })).toBeInTheDocument();
 
@@ -678,8 +680,8 @@ describe('ReviewExpenseForm component', () => {
       });
       expect(screen.getByText('Packing materials')).toBeDisabled();
       expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
-      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
-      expect(screen.getByLabelText('Amount')).toBeDisabled();
+      expect(screen.getByLabelText('Amount Requested')).toHaveDisplayValue('1,234.56');
+      expect(screen.getByLabelText('Amount Requested')).toBeDisabled();
     });
 
     it('populates disabled edit form with existing storage values', async () => {

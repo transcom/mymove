@@ -1133,7 +1133,7 @@ func PPMSITEstimatedCost(ppmSITEstimatedCost *unit.Cents) *ghcmessages.PPMSITEst
 		return nil
 	}
 	payload := &ghcmessages.PPMSITEstimatedCost{
-		EstimatedCost: handlers.FmtCost(ppmSITEstimatedCost),
+		SitCost: handlers.FmtCost(ppmSITEstimatedCost),
 	}
 
 	return payload

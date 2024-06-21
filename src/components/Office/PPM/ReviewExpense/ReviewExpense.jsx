@@ -26,6 +26,7 @@ import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
+import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -276,7 +277,6 @@ export default function ReviewExpense({
                     setSelectedExpenseType(e.target.value);
                     refreshPage(e);
                   }}
-                  disabled={readOnly}
                 >
                   {ppmExpenseTypes.map((x) => (
                     <option key={x.key}>{x.value}</option>
@@ -329,6 +329,7 @@ export default function ReviewExpense({
                         sitStartDate={sitStartDateValue}
                         sitEndDate={sitEndDateValue}
                         weightStored={weightStoredValue}
+                        useQueries={useGetPPMSITEstimatedCostQuery}
                       />
                     )}
                   </>
