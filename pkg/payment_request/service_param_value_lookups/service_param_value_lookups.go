@@ -156,7 +156,7 @@ func ServiceParamLookupInitialize(
 		if mtoServiceItem.MTOShipmentID == nil {
 			return nil, apperror.NewNotFoundError(uuid.Nil, "the shipment service item is missing a MTOShipmentID")
 		}
-		err := appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
+		err := appCtx.DB().Eager("PickupAddress", "DestinationAddress", "StorageFacility", "PPMShipment").Find(&mtoShipment, mtoServiceItem.MTOShipmentID)
 		if err != nil {
 			switch err {
 			case sql.ErrNoRows:
