@@ -233,69 +233,104 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 		ProvidesGovernmentCounseling:      false,
 		OneSourceTransportationOfficeLink: OneSourceTransportationOfficeLink,
 	}
-	expectedHTMLContent := `<p>
-  *** DO NOT REPLY directly to this email ***
+	expectedHTMLContent := `
+	<p>*** DO NOT REPLY directly to this email ***</p>
+
+<p>
+  This is a confirmation that you have submitted the details for your move {{if .OriginDutyLocation}}from
+  {{.OriginDutyLocation}} {{ end }}to {{.DestinationDutyLocation}}.
 </p>
 
 <p>
-  This is a confirmation that you have submitted the details for your move to destDutyLocation.
+  <strong>We have assigned you a move code: {{.Locator}}.</strong> You can use this code when talking to any
+  representative about your move.
 </p>
 
 <p>
-  <strong>We have assigned you a move code: abc123.</strong> You can use this code when talking to any representative about your move.
+  {{- if .OriginDutyLocationPhoneLine }} To change any information about your move, or to add or cancel shipments, you
+  should contact {{.OriginDutyLocationPhoneLine}} or visit your
+  <a href="{{.OneSourceTransportationOfficeLink}}">local transportation office</a>. {{- end }} {{- if not
+  .OriginDutyLocationPhoneLine }} To change any information about your move, or to add or cancel shipments, you should
+  contact your nearest transportation office. You can find the contact information using the
+  <a href="{{.OneSourceTransportationOfficeLink}}">directory of PCS-related contacts</a>. {{- end }}
 </p>
 
 <p>
-  To change any information about your move, or to add or cancel shipments, you should contact your nearest transportation office. You can find the contact information using the <a href="` + OneSourceTransportationOfficeLink + `">directory of PCS-related contacts</a>.
+  <strong>Your weight allowance: {{.WeightAllowance}} pounds.</strong>
+  That is how much combined weight the government will pay for all movements between authorized locations under your
+  orders.
 </p>
 
 <p>
-  <strong>Your weight allowance: 7,999 pounds.</strong>
-  That is how much combined weight the government will pay for all movements between authorized locations under your orders.
+  If you move more than {{.WeightAllowance}} pounds or ship to/from an other than authorized location, you may owe the
+  government the difference in cost between what you are authorized and what you decide to move.
 </p>
 
 <p>
-  If you move more than 7,999 pounds or ship to/from an other than authorized location, you may owe the government the difference in cost between what you are authorized and what you decide to move.
+  If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe
+  Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified
+  if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the
+  weight moved, up to HomeSafe’s weight estimate plus 10%.
+</p>
+
+<h4>Next Steps for your Government-arranged Shipment(s):</h4>
+{{ if .ProvidesGovernmentCounseling }}
+<ul>
+  <li>Your move request will be reviewed and a counselor will be assigned to brief you on your move entitlements.</li>
+  <li>Your move counselor will get in touch with you soon.</li>
+</ul>
+<p>Your move counselor will, among other things:</p>
+<ul>
+  <li>Verify the information you entered and your entitlements</li>
+  <li>Give you moving-related advice</li>
+  <li>
+    Give you tips to avoid excess costs (i.e., going over your weight allowance) or advise you if you are in an excess
+    cost scenario
+  </li>
+</ul>
+<p>
+  Once your counseling is complete, your request will be reviewed by the responsible personal property shipping office,
+  and a move task order will be placed with HomeSafe Alliance. Once this order is placed, you will receive an invitation
+  to create an account in HomeSafe Connect. This is the system you will use to schedule your pre-move survey.
+</p>
+{{- end }} {{- if not .ProvidesGovernmentCounseling }}
+<p>
+  Your move request will be reviewed by the responsible personal property shipping office and a move task order for
+  services will be placed with HomeSafe Alliance.
+</p>
+<p>
+  Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system
+  you will use for your counseling session. You will also schedule your pre-move survey during this session.
+</p>
+{{- end }}
+
+<p>
+  HomeSafe is required to contact you within one Government Business Day. Once contact has been established, HomeSafe is
+  your primary point of contact. If any information about your move changes at any point during the move, immediately
+  notify your HomeSafe Customer Care Representative of the changes.
 </p>
 
 <p>
-  If you are doing a Household Goods (HHG) shipment: The company responsible for managing your shipment, HomeSafe Alliance, will estimate the total weight of your personal property during a pre-move survey, and you will be notified if it looks like you might exceed your weight allowance. But you are responsible for excess costs associated with the weight moved, up to HomeSafe’s weight estimate plus 10%.
+  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove.
+  You will receive an email when that is complete.
 </p>
 
-<h4>
-  Next Steps for your Government-arranged Shipment(s):
-</h4>
-
-<p>
-  Your move request will be reviewed by the responsible personal property shipping office and a move task order for services will be placed with HomeSafe Alliance.
-</p>
-<p>
-  Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
-</p>
+<h4>IMPORTANT: Take the Customer Satisfaction Survey</h4>
 
 <p>
-  HomeSafe is required to contact you within one Government Business Day. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
-</p>
-
-<p>
-  If you have requested a PPM, <strong>DO NOT</strong> start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
-</p>
-
-<h4>
-  IMPORTANT: Take the Customer Satisfaction Survey
-</h4>
-
-<p>
-  You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process. The first invitation will be sent shortly after counseling is complete.
+  You will receive an invitation to take a quick customer satisfaction survey (CSS) at key stages of your move process.
+  The first invitation will be sent shortly after counseling is complete.
 </p>
 <p>
-  Taking the survey at each stage provides transparency and increases accountability of those assisting you with your relocation.
+  Taking the survey at each stage provides transparency and increases accountability of those assisting you with your
+  relocation.
 </p>
 
-Thank you,<br>
+Thank you,<br />
 USTRANSCOM MilMove Team
 <p>
-  The information contained in this email may contain Privacy Act information and is therefore protected under the Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
+  The information contained in this email may contain Privacy Act information and is therefore protected under the
+  Privacy Act of 1974. Failure to protect Privacy Act information could result in a $5,000 fine.
 </p>
 `
 
