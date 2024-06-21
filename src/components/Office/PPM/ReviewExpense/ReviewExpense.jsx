@@ -219,8 +219,7 @@ export default function ReviewExpense({
 
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
-            const maxWeight = parseInt(removeCommas(actualWeight), 10);
-            if (weight <= maxWeight && weight > 0) {
+            if (weight <= actualWeight && weight > 0) {
               setWeightStoredValue(weight);
               refreshPage(event);
             }
