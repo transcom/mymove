@@ -52,7 +52,7 @@ const OpenModalButton = ({ onClick, isDisabled }) => (
 );
 
 // Returns the markup needed for a specific section
-const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName) => {
+const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly) => {
   const aoaRequestedValue = `$${formatCents(sectionInfo.advanceAmountRequested)}`;
   const aoaValue = `$${formatCents(sectionInfo.advanceAmountReceived)}`;
 
@@ -78,7 +78,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   {formatDate(sectionInfo.actualMoveDate, null, 'DD-MMM-YYYY')}
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
-                    isDisabled={isFetchingItems}
+                    isDisabled={isFetchingItems || readOnly}
                   />
                 </>
               )}
@@ -146,7 +146,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   {aoaValue}
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')}
-                    isDisabled={isFetchingItems}
+                    isDisabled={isFetchingItems || readOnly}
                   />
                 </>
               )}
@@ -219,7 +219,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
   }
 };
 
-export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName, setUpdatedItemName }) {
+export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName, setUpdatedItemName, readOnly }) {
   const requestDetailsButtonTestId = `${sectionInfo.type}-showRequestDetailsButton`;
   const { shipmentId, moveCode } = useParams();
   const { mtoShipment, refetchMTOShipment, isFetching: isFetchingMtoShipment } = usePPMShipmentDocsQueries(shipmentId);
@@ -331,7 +331,7 @@ export default function HeaderSection({ sectionInfo, dataTestId, updatedItemName
           </Button>
         )}
       </div>
-      {showDetails && getSectionMarkup(sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName)}
+      {showDetails && getSectionMarkup(sectionInfo, handleEditOnClick, isFetchingItems, updatedItemName, readOnly)}
       {isEditModalVisible && (
         <EditPPMHeaderSummaryModal
           onClose={handleEditOnClose}
