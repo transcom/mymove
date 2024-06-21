@@ -1,4 +1,3 @@
-import { isNull } from 'lodash';
 import { denormalize } from 'normalizr';
 
 import { moves } from '../schema';
@@ -6,8 +5,6 @@ import { ADD_ENTITIES } from '../actions';
 
 import { swaggerRequest } from 'shared/Swagger/request';
 import { getClient, getGHCClient } from 'shared/Swagger/api';
-import { selectEntitlements } from 'shared/entitlements.js';
-import { selectOrdersForMove } from 'shared/Entities/modules/orders';
 
 /** REMAINING EXPORTS ARE USED BY PPM OFFICE */
 
@@ -55,16 +52,6 @@ export function cancelMove(moveId, cancelReason, label = cancelMoveLabel) {
   const swaggerTag = 'office.cancelMove';
   const cancelMove = { cancel_reason: cancelReason };
   return swaggerRequest(getClient, swaggerTag, { moveId, cancelMove }, { label });
-}
-
-export function calculateEntitlementsForMove(state, moveId) {
-  const orders = selectOrdersForMove(state, moveId);
-  const hasDependents = orders.has_dependents;
-  const spouseHasProGear = orders.spouse_has_pro_gear;
-  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(orders.authorizedWeight)) {
-    return null;
-  }
-  return selectEntitlements(orders, hasDependents, spouseHasProGear);
 }
 
 // Selectors

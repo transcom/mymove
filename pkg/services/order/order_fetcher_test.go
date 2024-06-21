@@ -1902,7 +1902,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
+				Status: models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -1941,7 +1941,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
 	suite.FatalNoError(err)
 	suite.Equal(0, moveCount)
 	suite.Len(moves, 0)
