@@ -326,6 +326,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
 		}),
+		OrderUploadAmendedOrdersHandler: order.UploadAmendedOrdersHandlerFunc(func(params order.UploadAmendedOrdersParams) middleware.Responder {
+			return middleware.NotImplemented("operation order.UploadAmendedOrders has not yet been implemented")
+		}),
 	}
 }
 
@@ -544,6 +547,8 @@ type MymoveAPI struct {
 	MtoServiceItemUpdateServiceItemSitEntryDateHandler mto_service_item.UpdateServiceItemSitEntryDateHandler
 	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
 	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
+	// OrderUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
+	OrderUploadAmendedOrdersHandler order.UploadAmendedOrdersHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -884,6 +889,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmUpdateWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
+	}
+	if o.OrderUploadAmendedOrdersHandler == nil {
+		unregistered = append(unregistered, "order.UploadAmendedOrdersHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -1321,6 +1329,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/orders/{ordersId}/upload_amended_orders"] = order.NewUploadAmendedOrders(o.context, o.OrderUploadAmendedOrdersHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

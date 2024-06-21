@@ -623,5 +623,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.ApplicationParametersGetParamHandler = ApplicationParametersParamHandler{handlerConfig}
 
+	ghcAPI.OrderUploadAmendedOrdersHandler = UploadAmendedOrdersHandler{
+		handlerConfig,
+		order.NewOrderUpdater(moveRouter),
+	}
+
 	return ghcAPI
 }
