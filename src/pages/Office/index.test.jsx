@@ -20,6 +20,7 @@ mockPage('pages/Office/PaymentRequestQueue/PaymentRequestQueue');
 mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment');
 mockPage('pages/Office/ServicesCounselingQueue/ServicesCounselingQueue');
 mockPage('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo');
+mockPage('pages/Office/AddShipment/AddShipment');
 mockPage('pages/Office/EditShipmentDetails/EditShipmentDetails');
 mockPage('pages/PrimeUI/MoveTaskOrder/MoveDetails', 'Prime Simulator Move Details');
 mockPage('pages/PrimeUI/Shipment/PrimeUIShipmentCreate', 'Prime Simulator Shipment Create');
