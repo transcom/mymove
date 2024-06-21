@@ -127,4 +127,14 @@ describe('ReviewDocumentsSidePanel', () => {
     expect(listItems[1]).toHaveTextContent(/Reject/);
     expect(listItems[7]).toHaveTextContent(/Invalid storage/);
   });
+
+  it('renders read only view text', async () => {
+    render(
+      <MockProviders>
+        <ReviewDocumentsSidePanel ppmShipmentInfo={mockPPMShipment} readOnly />
+      </MockProviders>,
+    );
+    const h3 = await screen.getByRole('heading', { name: 'Sent to customer', level: 3 });
+    expect(h3).toBeInTheDocument();
+  });
 });

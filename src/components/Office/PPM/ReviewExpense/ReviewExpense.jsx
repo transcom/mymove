@@ -251,7 +251,12 @@ export default function ReviewExpense({
           return (
             <>
               <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
-                <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields={false} />
+                <PPMHeaderSummary
+                  ppmShipmentInfo={ppmShipmentInfo}
+                  ppmNumber={ppmNumber}
+                  showAllFields={false}
+                  readOnly={readOnly}
+                />
               </div>
               <Form className={classnames(formStyles.form, styles.ReviewExpense)}>
                 <hr />
@@ -271,6 +276,7 @@ export default function ReviewExpense({
                     setSelectedExpenseType(e.target.value);
                     refreshPage(e);
                   }}
+                  disabled={readOnly}
                 >
                   {ppmExpenseTypes.map((x) => (
                     <option key={x.key}>{x.value}</option>
