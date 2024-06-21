@@ -160,7 +160,7 @@ func (suite *ServiceParamValueLookupsSuite) setupTestMTOServiceItemWithEstimated
 		MoveTaskOrderID: mtoServiceItem.MoveTaskOrderID,
 	}
 
-	serviceItemLookups := InitializeLookups(&mtoShipment, &mtoServiceItem)
+	serviceItemLookups := InitializeLookups(suite.AppContextForTest(), mtoShipment, mtoServiceItem)
 	// i don't think this function gets called for PPMs, but need to verify
 	//paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 	//suite.FatalNoError(err)
@@ -472,8 +472,8 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 	suite.Run("DestinationAddress will not change from when SIT Destination service items were approved", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
-				StartDate: time.Now().Add(-48 * time.Hour),
-				EndDate:   time.Now().Add(-24 * time.Hour),
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
 			},
 		})
 		testData := []models.MTOServiceItem{

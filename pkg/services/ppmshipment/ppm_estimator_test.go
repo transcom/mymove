@@ -1403,7 +1403,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 			}, nil)
-			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
+			shipmentDestinationSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
 						DestinationPostalCode:     "30813",
@@ -1415,6 +1415,30 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 				{
+					Model: &models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 1234"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Des Moines",
+						State:          "IA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: &models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 12345"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Fort Eisenhower",
+						State:          "GA",
+						PostalCode:     "30813",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
+				},
+				{
 					Model:    mtoShipment,
 					LinkOnly: true,
 				},
@@ -1423,7 +1447,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "30813").Return(2294, nil)
 
-			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentOriginSIT)
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentDestinationSIT)
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
@@ -1453,6 +1477,30 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 						SITEstimatedEntryDate:     &entryDate,
 						SITEstimatedDepartureDate: &entryDate,
 					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 1234"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Des Moines",
+						State:          "IA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 12345"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Fort Eisenhower",
+						State:          "GA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
 				},
 				{
 					Model:    mtoShipment,
