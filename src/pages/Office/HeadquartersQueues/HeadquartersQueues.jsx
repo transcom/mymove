@@ -15,6 +15,12 @@ import {
   useUserQueries,
 } from 'hooks/queries';
 import {
+  getServicesCounselingQueue,
+  getServicesCounselingPPMQueue,
+  getPaymentRequestsQueue,
+  getMovesQueue,
+} from 'services/ghcApi';
+import {
   formatAgeToDays,
   formatDateFromIso,
   paymentRequestStatusReadable,
@@ -53,19 +59,25 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
 const tooQueueColumns = (moveLockFlag, showBranchFilter = true) => [
-  createHeader('ID', 'id'),
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
+  createHeader('ID', 'id', { id: 'id' }),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    {
+      id: 'lock',
+    },
+  ),
   createHeader(
     'Customer name',
     (row) => {
@@ -81,11 +93,17 @@ const tooQueueColumns = (moveLockFlag, showBranchFilter = true) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader(
     'Status',
@@ -145,24 +163,33 @@ const tooQueueColumns = (moveLockFlag, showBranchFilter = true) => [
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.originDutyLocation?.name;
+    },
   }),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
 
 const tioQueueColumns = (moveLockFlag, showBranchFilter = true) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    {
+      id: 'lock',
+    },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -178,11 +205,17 @@ const tioQueueColumns = (moveLockFlag, showBranchFilter = true) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader(
     'Status',
@@ -238,32 +271,33 @@ const tioQueueColumns = (moveLockFlag, showBranchFilter = true) => [
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
-  createHeader(
-    'Origin Duty Location',
-    (row) => {
-      return row.originDutyLocation.name;
+  createHeader('Origin Duty Location', 'originDutyLocation.name', {
+    id: 'originDutyLocation',
+    isFilterable: true,
+    exportValue: (row) => {
+      return row.originDutyLocation?.name;
     },
-    {
-      id: 'originDutyLocation',
-      isFilterable: true,
-    },
-  ),
+  }),
 ];
 
 const counselingColumns = (moveLockFlag) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -279,11 +313,17 @@ const counselingColumns = (moveLockFlag) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -347,23 +387,30 @@ const counselingColumns = (moveLockFlag) => [
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.originDutyLocation?.name;
+    },
   }),
 ];
 
 const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div id={row.id}>
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div id={row.id}>
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -379,11 +426,17 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -432,10 +485,16 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.originDutyLocation?.name;
+    },
   }),
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.destinationDutyLocation?.name;
+    },
   }),
   createHeader('PPM closeout location', 'closeoutLocation', {
     id: 'closeoutLocation',
@@ -644,6 +703,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
           key="TOO Queue"
+          showCSVExport
+          csvExportFileNamePrefix="Task-Order-Queue"
+          csvExportQueueFetcher={getMovesQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );
@@ -665,6 +728,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToPaymentRequests}
           useQueries={usePaymentRequestQueueQueries}
           key="TIO Queue"
+          showCSVExport
+          csvExportFileNamePrefix="Payment-Request-Queue"
+          csvExportQueueFetcher={getPaymentRequestsQueue}
+          csvExportQueueFetcherKey="queuePaymentRequests"
         />
       </div>
     );
@@ -686,6 +753,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueuePPMQueries}
           key="PPM Closeout Queue"
+          showCSVExport
+          csvExportFileNamePrefix="PPM-Closeout-Queue"
+          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );
@@ -708,6 +779,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueueQueries}
           key="Counseling Queue"
+          showCSVExport
+          csvExportFileNamePrefix="Services-Counseling-Queue"
+          csvExportQueueFetcher={getServicesCounselingQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );
