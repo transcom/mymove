@@ -122,6 +122,17 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			var ppmShipmentStatus models.PPMShipmentStatus
+
+			if params.PpmID != nil {
+				ppmShipmentId, _ := uuid.FromString(params.PpmID.String())
+				ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentId)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				ppmShipmentStatus = ppmShipment.Status
+			}
+
 			if params.OrderID != nil {
 				orderID, _ := uuid.FromString(params.OrderID.String())
 				move, e := models.FetchMoveByOrderID(appCtx.DB(), orderID)
@@ -179,8 +190,8 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				appCtx.Logger().Error("error retrieving move associated with this upload", zap.Error(err))
 			}
 
-			//If move status is not DRAFT, upload cannot be deleted
-			if *uploadInformation.MoveStatus != models.MoveStatusDRAFT {
+			//If move status is not DRAFT and customer is not uploading ppm docs, upload cannot be deleted
+			if (*uploadInformation.MoveStatus != models.MoveStatusDRAFT) && (ppmShipmentStatus != models.PPMShipmentStatusWaitingOnCustomer) {
 				return uploadop.NewDeleteUploadForbidden(), fmt.Errorf("deletion not permitted Move is not in 'DRAFT' status")
 			}
 

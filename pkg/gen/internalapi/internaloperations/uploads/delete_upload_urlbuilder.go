@@ -20,6 +20,7 @@ type DeleteUploadURL struct {
 
 	MoveID  *strfmt.UUID
 	OrderID *strfmt.UUID
+	PpmID   *strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -76,6 +77,14 @@ func (o *DeleteUploadURL) Build() (*url.URL, error) {
 	}
 	if orderIDQ != "" {
 		qs.Set("orderId", orderIDQ)
+	}
+
+	var ppmIDQ string
+	if o.PpmID != nil {
+		ppmIDQ = o.PpmID.String()
+	}
+	if ppmIDQ != "" {
+		qs.Set("ppmId", ppmIDQ)
 	}
 
 	_result.RawQuery = qs.Encode()

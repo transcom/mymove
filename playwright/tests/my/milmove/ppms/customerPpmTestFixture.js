@@ -68,7 +68,8 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async customerStartsAddingAPPMShipment() {
-    await this.page.getByRole('button', { name: 'Set up your shipments' }).click();
+    await this.page.getByTestId('goToMoveBtn').click();
+    await this.page.getByTestId('shipment-selection-btn').click();
     await this.navigateForward();
 
     await this.page.locator('label[for="PPM"]').click();
@@ -903,6 +904,9 @@ export class CustomerPpmPage extends CustomerPage {
     await expenseType.selectOption({ label: 'Storage' });
 
     await this.page.locator('input[name="description"]').type('Cloud storage');
+    await this.page.locator('label[for="sitLocationDestination"]').click();
+    await this.page.locator('input[name="sitWeight"]').type('100');
+    await this.page.locator('input[name="sitWeight"]').blur();
     await this.page.locator('label[for="yes-used-gtcc"]').click();
     await this.page.locator('input[name="amount"]').clear();
     await this.page.locator('input[name="amount"]').type(options?.amount || '675.99');

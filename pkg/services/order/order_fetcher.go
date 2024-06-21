@@ -8,6 +8,7 @@ import (
 
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gofrs/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -37,6 +38,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	if err != nil {
 		return []models.Move{}, 0, err
+	}
+
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
 
 	officeUserGbloc := transportationOffice.Gbloc
@@ -117,6 +123,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"Orders.NewDutyLocation.Address",
 			"Orders.OriginDutyLocation.Address",
 			"Orders.Entitlement",
+			"Orders.OrdersType",
 			"MTOShipments.PPMShipment",
 			"LockedByOfficeUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
@@ -127,6 +134,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", "SAFETY")
+		}
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
 			"Orders.ServiceMember",
@@ -135,6 +146,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			// See note further below about having to do this in a separate Load call due to a Pop issue.
 			// "Orders.OriginDutyLocation.TransportationOffice",
 			"Orders.Entitlement",
+			"Orders.OrdersType",
 			"MTOShipments",
 			"MTOServiceItems",
 			"ShipmentGBLOC",
@@ -153,6 +165,11 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			Where("show = ?", models.BoolPointer(true))
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", "SAFETY")
+		}
+
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -302,7 +319,7 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 			query.Where("service_members.affiliation != ?", models.AffiliationMARINES)
 		}
 		if branch != nil {
-			query.Where("service_members.affiliation = ?", *branch)
+			query.Where("service_members.affiliation ILIKE ?", *branch)
 		}
 	}
 }
@@ -354,19 +371,7 @@ func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
 		if len(statuses) > 0 {
-			var translatedStatuses []string
-			for _, status := range statuses {
-				if strings.EqualFold(status, string(models.MoveStatusSUBMITTED)) {
-					translatedStatuses = append(translatedStatuses, string(models.MoveStatusSUBMITTED), string(models.MoveStatusServiceCounselingCompleted))
-				} else {
-					translatedStatuses = append(translatedStatuses, status)
-				}
-			}
-			query.Where("moves.status IN (?)", translatedStatuses)
-		}
-		// The TOO should never see moves that are in the following statuses: Draft, Canceled, Needs Service Counseling
-		if len(statuses) <= 0 {
-			query.Where("moves.status NOT IN (?)", models.MoveStatusDRAFT, models.MoveStatusCANCELED, models.MoveStatusNeedsServiceCounseling)
+			query.Where("moves.status IN (?)", statuses)
 		}
 	}
 }

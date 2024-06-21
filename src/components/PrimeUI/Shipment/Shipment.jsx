@@ -216,8 +216,12 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Diversion Reason:</dt>
+        <dd>{shipment.diversionReason ? shipment.diversionReason : '—'}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Counselor Remarks:</dt>
-        <dd>{shipment.counselorRemarks}</dd>
+        <dd>{shipment.counselorRemarks ? shipment.counselorRemarks : '—'}</dd>
       </div>
       {shipment.ppmShipment && (
         <>

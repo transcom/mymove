@@ -6,8 +6,8 @@ import MOVE_STATUSES from 'constants/moves';
 
 export const MOVE_STATUS_OPTIONS = [
   { value: MOVE_STATUSES.SUBMITTED, label: 'New move' },
+  { value: MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED, label: 'Service Counseling Completed' },
   { value: MOVE_STATUSES.APPROVALS_REQUESTED, label: 'Approvals requested' },
-  { value: MOVE_STATUSES.APPROVED, label: 'Move approved' },
 ];
 
 // Both moves that progressed straight from customer submission to the TOO
@@ -35,17 +35,11 @@ export const SERVICE_COUNSELING_MOVE_STATUS_LABELS = {
   [MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED]: 'Service counseling completed',
 };
 
-export const PAYMENT_REQUEST_STATUS_OPTIONS = [
-  { value: 'PENDING', label: 'Payment requested' },
-  { value: 'REVIEWED', label: 'Reviewed' },
-  { value: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED', label: 'Rejected' },
-  { value: 'PAID', label: 'Paid' },
-  { value: 'DEPRECATED', label: 'Deprecated' },
-  { value: 'EDI_ERROR', label: 'Error' },
-];
+export const PAYMENT_REQUEST_STATUS_OPTIONS = [{ value: 'PENDING', label: 'Payment requested' }];
+
 export const ROLE_TYPE_OPTIONS = {
   [roleTypes.SERVICES_COUNSELOR]: SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
-  [roleTypes.QAE_CSR]: MOVE_STATUS_OPTIONS,
+  [roleTypes.QAE]: MOVE_STATUS_OPTIONS,
   [roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]: MOVE_STATUS_OPTIONS,
   [roleTypes.TOO]: MOVE_STATUS_OPTIONS,
   [roleTypes.TIO]: PAYMENT_REQUEST_STATUS_OPTIONS,

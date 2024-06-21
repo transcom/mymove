@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
 import { useField } from 'formik';
 
@@ -8,12 +9,49 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 
-const ShipmentCustomerSIT = () => {
+const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEstimatedDepartureDate }) => {
   const [sitExpectedInput, , sitExpectedHelper] = useField('sitExpected');
   const sitExpected = sitExpectedInput.value === true;
+  const [, , sitEstimatedWeightHelper] = useField('sitEstimatedWeight');
+  const [, , sitEstimatedEntryDateHelper] = useField('sitEstimatedEntryDate');
+  const [, , sitEstimatedDepartureDateHelper] = useField('sitEstimatedDepartureDate');
 
   const handleSITExpected = (event) => {
     sitExpectedHelper.setValue(event.target.value === 'yes');
+
+    // Handle yes/no select with respect to validation schema.
+    if (event.target.value === 'no') {
+      // Timeout callback handler to overcome racing condition
+      // between validator and onchange event. Doing this ensures
+      // schema validation behaves correctly when NO is selected.
+      // If not done, schema validation would still maintain schema state when
+      // YES is selected. For example, if schema validation fails
+      // in YES state, we want to reset form validation back to NO state.
+      setTimeout(() => {
+        if (!(sitEstimatedWeight === undefined || sitEstimatedWeight === null)) {
+          // restore to persisted/defaulted value
+          sitEstimatedWeightHelper.setValue(sitEstimatedWeight.toString());
+        } else {
+          // reset input to default empty value if something was typed in.
+          // this will clear out the control.
+          sitEstimatedWeightHelper.setValue('');
+        }
+        // restore to persisted/default values
+        sitEstimatedEntryDateHelper.setValue(sitEstimatedEntryDate);
+        sitEstimatedDepartureDateHelper.setValue(sitEstimatedDepartureDate);
+      }, 1);
+    } else {
+      // Timeout callback handler to overcome racing condition
+      // between validator and onchange event for YES state.
+      setTimeout(() => {
+        // Set touched to force required message to display if default values
+        // are null ensuring schema validition for YES state.
+        // This is for consistently purposes with NO/YES toggling.
+        sitEstimatedWeightHelper.setTouched(true);
+        sitEstimatedEntryDateHelper.setTouched(true);
+        sitEstimatedDepartureDateHelper.setTouched(true);
+      }, 1);
+    }
   };
 
   const [sitLocationInput, , sitLocationHelper] = useField('sitLocation');
@@ -100,6 +138,12 @@ const ShipmentCustomerSIT = () => {
       </Fieldset>
     </SectionWrapper>
   );
+};
+
+ShipmentCustomerSIT.propTypes = {
+  sitEstimatedWeight: PropTypes.number.isRequired,
+  sitEstimatedEntryDate: PropTypes.string.isRequired,
+  sitEstimatedDepartureDate: PropTypes.string.isRequired,
 };
 
 export default ShipmentCustomerSIT;
