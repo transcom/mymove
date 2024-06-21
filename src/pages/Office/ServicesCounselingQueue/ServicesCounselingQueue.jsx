@@ -10,7 +10,7 @@ import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
-  SERVICE_COUNSELING_BRANCH_OPTIONS,
+  BRANCH_OPTIONS_WITH_MARINE_CORPS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -125,7 +125,7 @@ const counselingColumns = (moveLockFlag) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
@@ -186,7 +186,7 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
