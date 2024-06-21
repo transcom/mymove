@@ -24,6 +24,7 @@
 }
 .ShipmentDetailsSidebar {
   flex-grow: 1;
+  min-width: 260px;
 
   > section {
     @include u-margin-bottom(1.5);
