@@ -269,7 +269,9 @@ const MoveDetails = ({
 
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
+    agency: customer.agency,
     dodId: customer.dodID,
+    emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
     email: customer.email,
