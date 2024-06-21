@@ -19,17 +19,17 @@ import (
 // swagger:model PPMSITEstimatedCost
 type PPMSITEstimatedCost struct {
 
-	// estimated cost
+	// sit cost
 	// Example: 2000
 	// Required: true
-	EstimatedCost *int64 `json:"estimatedCost"`
+	SitCost *int64 `json:"sitCost"`
 }
 
 // Validate validates this p p m s i t estimated cost
 func (m *PPMSITEstimatedCost) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateEstimatedCost(formats); err != nil {
+	if err := m.validateSitCost(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -39,9 +39,9 @@ func (m *PPMSITEstimatedCost) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPMSITEstimatedCost) validateEstimatedCost(formats strfmt.Registry) error {
+func (m *PPMSITEstimatedCost) validateSitCost(formats strfmt.Registry) error {
 
-	if err := validate.Required("estimatedCost", "body", m.EstimatedCost); err != nil {
+	if err := validate.Required("sitCost", "body", m.SitCost); err != nil {
 		return err
 	}
 

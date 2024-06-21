@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, dropdownInputOptions, removeCommas } from 'utils/formatters';
+import { formatCents, formatDate, formatWeight, dropdownInputOptions, removeCommas } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -26,6 +26,7 @@ import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
 import { LOCATION_TYPES } from 'types/sitStatusShape';
 import SitCost from 'components/Office/PPM/SitCost/SitCost';
+import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
 
 const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
 
@@ -59,7 +60,7 @@ const validationSchema = (maxWeight) => {
       then: (schema) =>
         schema
           .required('Required')
-          .max(maxWeight, `Weight must be less than total PPM weight of ${maxWeight} lbs`)
+          .max(maxWeight, `Weight must be less than total PPM weight of ${formatWeight(maxWeight)}`)
           .min(1, `Enter a weight greater than 0 lbs`),
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
@@ -101,7 +102,7 @@ export default function ReviewExpense({
   });
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
-  const actualWeight = ppmShipmentInfo?.actualWeight?.toString() || '';
+  const actualWeight = ppmShipmentInfo?.actualWeight || '';
   const [amountValue, setAmountValue] = React.useState(amount);
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
@@ -218,8 +219,11 @@ export default function ReviewExpense({
 
           const handleWeightStoredChange = (event) => {
             const weight = parseInt(removeCommas(event.target.value), 10);
-            setWeightStoredValue(weight);
-            refreshPage(event);
+            const maxWeight = parseInt(removeCommas(actualWeight), 10);
+            if (weight <= maxWeight && weight > 0) {
+              setWeightStoredValue(weight);
+              refreshPage(event);
+            }
           };
 
           const handleSitStartDateChange = (value) => {
@@ -325,6 +329,7 @@ export default function ReviewExpense({
                         sitStartDate={sitStartDateValue}
                         sitEndDate={sitEndDateValue}
                         weightStored={weightStoredValue}
+                        useQueries={useGetPPMSITEstimatedCostQuery}
                       />
                     )}
                   </>
@@ -332,7 +337,7 @@ export default function ReviewExpense({
                 <MaskedTextField
                   defaultValue="0"
                   name="amount"
-                  label="Amount"
+                  label="Amount Requested"
                   id="amount"
                   mask={Number}
                   scale={2} // digits after point, 0 for integers
@@ -367,6 +372,10 @@ export default function ReviewExpense({
                         handleWeightStoredChange(e);
                       }}
                     />
+                    <div>
+                      <legend className={classnames('usa-label', styles.label)}>Actual PPM Weight</legend>
+                      <div className={styles.displayValue}>{formatWeight(actualWeight)}</div>
+                    </div>
                     <DatePickerInput
                       name="sitStartDate"
                       label="Start date"
