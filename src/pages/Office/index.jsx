@@ -19,6 +19,8 @@ import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
 } from 'shared/Swagger/ducks';
+// Feature Flags
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // Shared layout components
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
@@ -51,6 +53,8 @@ const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 // TIO pages
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
+// HQ pages
+const HeadquartersQueues = lazy(() => import('pages/Office/HeadquartersQueues/HeadquartersQueues'));
 // Services Counselor pages
 const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
@@ -104,6 +108,7 @@ export class OfficeApp extends Component {
       info: undefined,
       oktaLoggedOut: undefined,
       oktaNeedsLoggedOut: undefined,
+      hqRoleFlag: !!props.hqRoleFlag,
     };
   }
 
@@ -118,18 +123,33 @@ export class OfficeApp extends Component {
     // while still logged into Okta which will force a redirect to logout
     const currentUrl = new URL(window.location.href);
     const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
+    // okta_error=true params are added when the user is still logged into Okta elsewhere and Okta denies access
+    // due to authentication method limitations
+    const oktaErrorParam = currentUrl.searchParams.get('okta_error');
 
-    // If the params "okta_logged_out=true" are in the url, we will change some state
-    // so a banner will display
+    // If the params "okta_logged_out=true" or "okta_error=true" are in the url, a banner will display
     if (oktaLoggedOutParam === 'true') {
       this.setState({
         oktaLoggedOut: true,
       });
-    } else if (oktaLoggedOutParam === 'false') {
+    } else if (oktaErrorParam === 'true') {
       this.setState({
         oktaNeedsLoggedOut: true,
       });
     }
+
+    // Feature Flag
+    const fetchFeatureFlags = async () => {
+      try {
+        const hqRoleFlagValue = await isBooleanFlagEnabled('headquarters_role');
+        this.setState({
+          hqRoleFlag: hqRoleFlagValue,
+        });
+      } catch (error) {
+        retryPageLoading(error);
+      }
+    };
+    fetchFeatureFlags();
   }
 
   componentDidCatch(error, info) {
@@ -144,7 +164,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -160,8 +180,6 @@ export class OfficeApp extends Component {
       traceId,
       userPrivileges,
     } = this.props;
-
-    // TODO - test login page?
 
     const displayChangeRole =
       userIsLoggedIn &&
@@ -234,8 +252,7 @@ export class OfficeApp extends Component {
                   // Auth Routes
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-
-                    {/* TXO */}
+                    {/* TOO */}
                     <Route
                       path="/moves/queue"
                       end
@@ -245,6 +262,7 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+                    {/* TIO */}
                     <Route
                       path="/invoicing/queue"
                       element={
@@ -253,7 +271,16 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-
+                    {/* HQ */}
+                    <Route
+                      path="/hq/queues"
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
+                          <HeadquartersQueues />
+                        </PrivateRoute>
+                      }
+                    />
                     {/* SERVICES_COUNSELOR */}
                     <Route
                       key="servicesCounselingAddShipment"
@@ -265,7 +292,6 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route
                         path="/:queueType/*"
@@ -311,6 +337,18 @@ export class OfficeApp extends Component {
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
                             <MoveQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                    )}
+
+                    {activeRole === roleTypes.HQ && (
+                      <Route
+                        path="/:queueType/*"
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
+                            <HeadquartersQueues />
                           </PrivateRoute>
                         }
                       />
@@ -361,6 +399,7 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+
                     {/* PRIME SIMULATOR */}
                     <Route
                       key="primeSimulatorMovePath"
@@ -494,6 +533,7 @@ export class OfficeApp extends Component {
                             roleTypes.TIO,
                             roleTypes.QAE,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                            hqRoleFlag ? roleTypes.HQ : undefined,
                           ]}
                         >
                           <TXOMoveInfo />
@@ -506,6 +546,10 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && !hqRoleFlag && (
+                      <Route end path="/*" element={<InvalidPermissions />} />
+                    )}
+                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}
