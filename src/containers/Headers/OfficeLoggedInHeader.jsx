@@ -14,6 +14,8 @@ import { roleTypes } from 'constants/userRoles';
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
+    // explicit clear session storage
+    window.sessionStorage.clear();
     logOut();
     LogoutUser().then((r) => {
       const redirectURL = r.body;

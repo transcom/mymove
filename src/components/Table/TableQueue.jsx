@@ -10,7 +10,19 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
-import { setTableQueueFilterSessionStorageValue, getTableQueueFilterSessionStorageValue } from 'components/Table/utils';
+import {
+  setTableQueueFilterSessionStorageValue,
+  getTableQueueFilterSessionStorageValue,
+  setTableQueuePageSizeSessionStorageValue,
+  getTableQueuePageSizeSessionStorageValue,
+  setTableQueuePageSessionStorageValue,
+  getTableQueuePageSessionStorageValue,
+  setTableQueueSortParamSessionStorageValue,
+  getTableQueueSortParamSessionStorageValue,
+} from 'components/Table/utils';
+
+const defaultPageSize = 20;
+const defaultPage = 1;
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
 const TableQueue = ({
@@ -29,22 +41,43 @@ const TableQueue = ({
   showPagination,
   sessionStorageKey,
 }) => {
-  const [paramSort, setParamSort] = useState(defaultSortedColumns);
+  const [paramSort, setParamSort] = useState(
+    getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
+  );
+  useEffect(() => {
+    setTableQueueSortParamSessionStorageValue(sessionStorageKey, paramSort);
+  }, [paramSort, sessionStorageKey]);
 
   const [paramFilters, setParamFilters] = useState(getTableQueueFilterSessionStorageValue(sessionStorageKey) || []);
-
   useEffect(() => {
     setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
   }, [paramFilters, sessionStorageKey]);
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageSize, setCurrentPageSize] = useState(20);
+  const [currentPage, setCurrentPage] = useState(
+    getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
+  );
+  useEffect(() => {
+    setTableQueuePageSessionStorageValue(sessionStorageKey, currentPage);
+  }, [currentPage, sessionStorageKey]);
+
+  const [currentPageSize, setCurrentPageSize] = useState(
+    getTableQueuePageSizeSessionStorageValue(sessionStorageKey) || defaultPageSize,
+  );
+  useEffect(() => {
+    setTableQueuePageSizeSessionStorageValue(sessionStorageKey, currentPageSize);
+  }, [currentPageSize, sessionStorageKey]);
+
   const [pageCount, setPageCount] = useState(0);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   const {
-    queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
+    queueResult: {
+      totalCount = 0,
+      data = [],
+      page = getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
+      perPage = getTableQueuePageSizeSessionStorageValue(sessionStorageKey) || defaultPageSize,
+    },
     isInitialLoading: isLoading,
     isError,
   } = useQueries({
@@ -88,7 +121,7 @@ const TableQueue = ({
         hiddenColumns: defaultHiddenColumns,
         pageSize: perPage,
         pageIndex: page - 1,
-        sortBy: defaultSortedColumns,
+        sortBy: getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
       },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters,
@@ -117,7 +150,6 @@ const TableQueue = ({
         });
       }
       setParamFilters(filters);
-
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));

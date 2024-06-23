@@ -14,46 +14,171 @@ export const createHeader = (header, accessor, options = {}) => {
   };
 };
 
-const OFFICE_TABLE_FILTER_CACHE_ID = 'office_table_queue_filters';
-
-/**
- * Helper method to store key:value pair to session storage.
- * This used to store queue filters for a given session.
- *
- * @param {string} key is session storage key
- * @param {json} value  is session storage value to cache
- */
-export const setTableQueueFilterSessionStorageValue = (key, value) => {
-  const cache = window.sessionStorage.getItem(OFFICE_TABLE_FILTER_CACHE_ID);
-  let json = null;
-  if (cache) {
-    json = JSON.parse(cache);
-    json[key] = value;
-  } else {
-    json = {};
-    json[key] = value;
-  }
-  window.sessionStorage.setItem(OFFICE_TABLE_FILTER_CACHE_ID, JSON.stringify(json));
+export const OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID = 'office_table_queue_filters';
+export const TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT = {
+  filters: [],
+  sortParam: null,
+  page: null,
+  pageSize: null,
 };
 
 /**
- * Helper method to retrieve value of key:pair stored in session storage.
- * This used to retrieve queue filters for a given session.
- *
+ * Method to store table queue filters for a given session.
+ * @param {string} key is session storage key
+ * @param {[object]} value  is session storage value to cache
+ */
+export const setTableQueueFilterSessionStorageValue = (key, value) => {
+  const cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  let json = null;
+  if (cache) {
+    json = JSON.parse(cache);
+    json[key].filters = value;
+  } else {
+    json = {};
+    json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    json[key].filters = value;
+  }
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+};
+
+/**
+ * Method to retrieve table queue filters for a given session.
  * @param {string} key is session storage key
  * @param {json} value  is session storage value to cache
- * @returns {[]}
+ * @returns {[object]}
  */
 export const getTableQueueFilterSessionStorageValue = (key) => {
-  let cache = window.sessionStorage.getItem(OFFICE_TABLE_FILTER_CACHE_ID);
+  let cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
   if (!cache) {
-    cache = '{}';
+    const newJson = {};
+    newJson[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    cache = JSON.stringify(newJson);
   }
   const json = JSON.parse(cache);
   if (key in json) {
-    return json[key];
+    return json[key].filters;
   }
-  json[key] = [];
-  window.sessionStorage.setItem(OFFICE_TABLE_FILTER_CACHE_ID, JSON.stringify(json));
-  return json[key];
+  json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+  return json[key].filters;
+};
+
+/**
+ * Method to cache page size of table queue by key.
+ * @param {string} key is session storage key
+ * @param {int} pageSize is page size to cache
+ */
+export const setTableQueuePageSizeSessionStorageValue = (key, pageSize) => {
+  const cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  let json = null;
+  if (cache) {
+    json = JSON.parse(cache);
+    json[key].pageSize = pageSize;
+  } else {
+    json = {};
+    json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    json[key].pageSize = pageSize;
+  }
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+};
+
+/**
+ * Method to retrieve cached page size of table queue by key.
+ * @param {string} key is session storage key
+ * @returns {int} null by default
+ */
+export const getTableQueuePageSizeSessionStorageValue = (key) => {
+  let cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  if (!cache) {
+    const newJson = {};
+    newJson[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    cache = JSON.stringify(newJson);
+  }
+  const json = JSON.parse(cache);
+  if (key in json) {
+    return json[key].pageSize;
+  }
+  json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+  return json[key].pageSize;
+};
+
+/**
+ * Method to cache current page of table queue by key.
+ * @param {string} key is session storage key
+ * @param {int} page is page to cache
+ */
+export const setTableQueuePageSessionStorageValue = (key, page) => {
+  const cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  let json = null;
+  if (cache) {
+    json = JSON.parse(cache);
+    json[key].page = page;
+  } else {
+    json = {};
+    json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    json[key].page = page;
+  }
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+};
+
+/**
+ * Method to retrieve cached page of table queue by key.
+ * @param {string} key is session storage key
+ * @returns {int} null by default
+ */
+export const getTableQueuePageSessionStorageValue = (key) => {
+  let cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  if (!cache) {
+    const newJson = {};
+    newJson[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    cache = JSON.stringify(newJson);
+  }
+  const json = JSON.parse(cache);
+  if (key in json) {
+    return json[key].page;
+  }
+  json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+  return json[key].page;
+};
+
+/**
+ * Method to cache sort parameters of table queue by key.
+ * @param {string} key is session storage key
+ * @param {[object]} sortParam is sortParam to cache
+ */
+export const setTableQueueSortParamSessionStorageValue = (key, sortParam) => {
+  const cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  let json = null;
+  if (cache) {
+    json = JSON.parse(cache);
+    json[key].sortParam = sortParam;
+  } else {
+    json = {};
+    json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    json[key].sortParam = sortParam;
+  }
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+};
+
+/**
+ * Method to retrieve cached sort parameters of table queue by key.
+ * @param {string} key is session storage key
+ * @returns {[object]} null by default
+ */
+export const getTableQueueSortParamSessionStorageValue = (key) => {
+  let cache = window.sessionStorage.getItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID);
+  if (!cache) {
+    const newJson = {};
+    newJson[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+    cache = JSON.stringify(newJson);
+  }
+  const json = JSON.parse(cache);
+  if (key in json && json[key].sortParam !== null) {
+    return json[key].sortParam;
+  }
+  json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
+  window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
+  return json[key].sortParam;
 };
