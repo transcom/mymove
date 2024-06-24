@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useEffect } from 'react';
 import { bool, string, shape, node, func, arrayOf } from 'prop-types';
 import Select, { components } from 'react-select';
 import { Checkbox } from '@trussworks/react-uswds';
@@ -68,6 +68,12 @@ const MultiSelectCheckBoxFilter = ({ options, column: { filterValue, setFilter }
       : [];
   }, [filterValue, options]);
 
+  const selectRef = useRef();
+
+  useEffect(() => {
+    selectRef?.current?.setValue(selectFilterValue);
+  }, [filterValue, selectFilterValue]);
+
   return (
     <div data-testid="MultiSelectCheckBoxFilter">
       <Select
@@ -96,7 +102,7 @@ const MultiSelectCheckBoxFilter = ({ options, column: { filterValue, setFilter }
         hideSelectedOptions={false}
         isClearable={false}
         components={{ DropdownIndicator, ValueContainer, MultiValueContainer, Option }}
-        value={selectFilterValue}
+        ref={selectRef}
       />
     </div>
   );
