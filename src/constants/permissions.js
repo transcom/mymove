@@ -20,4 +20,5 @@ export const permissionTypes = {
   viewCloseoutOffice: 'view.closeoutOffice',
   updateMTOPage: 'update.MTOPage',
   updateCustomer: 'update.customer',
+  createTxoShipment: 'create.TXOShipment',
 };

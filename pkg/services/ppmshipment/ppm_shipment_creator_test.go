@@ -70,9 +70,25 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		// Set required fields for PPMShipment
 		subtestData := createSubtestData(models.PPMShipment{
 			ExpectedDepartureDate: testdatagen.NextValidMoveDate,
-			PickupPostalCode:      "90909",
-			DestinationPostalCode: "90905",
 			SITExpected:           models.BoolPointer(false),
+			PickupAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 1234"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Des Moines",
+				State:          "IA",
+				PostalCode:     "50308",
+				Country:        models.StringPointer("US"),
+			},
+			DestinationAddress: &models.Address{
+				StreetAddress1: "987 Other Avenue",
+				StreetAddress2: models.StringPointer("P.O. Box 12345"),
+				StreetAddress3: models.StringPointer("c/o Another Person"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30183",
+				Country:        models.StringPointer("US"),
+			},
 		}, nil)
 
 		ppmEstimator.On(
@@ -160,8 +176,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		// Set required fields for PPMShipment
 		expectedDepartureDate := testdatagen.NextValidMoveDate
-		pickupPostalCode := "29212"
-		destinationPostalCode := "78234"
 		sitExpected := false
 		estimatedWeight := unit.Pound(2450)
 		hasProGear := false
@@ -198,8 +212,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 		subtestData := createSubtestData(models.PPMShipment{
 			Status:                      models.PPMShipmentStatusSubmitted,
 			ExpectedDepartureDate:       expectedDepartureDate,
-			PickupPostalCode:            pickupPostalCode,
-			DestinationPostalCode:       destinationPostalCode,
 			SITExpected:                 &sitExpected,
 			EstimatedWeight:             &estimatedWeight,
 			HasProGear:                  &hasProGear,
@@ -223,8 +235,6 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.NotZero(createdPPMShipment.ID)
 			suite.NotEqual(uuid.Nil.String(), createdPPMShipment.ID.String())
 			suite.Equal(expectedDepartureDate, createdPPMShipment.ExpectedDepartureDate)
-			suite.Equal(pickupPostalCode, createdPPMShipment.PickupPostalCode)
-			suite.Equal(destinationPostalCode, createdPPMShipment.DestinationPostalCode)
 			suite.Equal(&sitExpected, createdPPMShipment.SITExpected)
 			suite.Equal(&estimatedWeight, createdPPMShipment.EstimatedWeight)
 			suite.Equal(&hasProGear, createdPPMShipment.HasProGear)

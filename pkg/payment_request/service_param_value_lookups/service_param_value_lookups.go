@@ -193,7 +193,7 @@ func ServiceParamLookupInitialize(
 
 		pickupAddress, err = getPickupAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
-			return nil, fmt.Errorf("not found looking for pickup address")
+			return nil, fmt.Errorf("Not found looking for pickup address")
 		}
 
 		destinationAddress, err = getDestinationAddressForService(appCtx, mtoServiceItem.ReService.Code, mtoShipment)

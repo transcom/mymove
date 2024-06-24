@@ -71,10 +71,6 @@ MTOShipmentDatesAndLocation.args = {
     id: '123',
     ppmShipment: {
       id: '123',
-      pickupPostalCode: '12345',
-      secondaryPickupPostalCode: '34512',
-      destinationPostalCode: '94611',
-      secondaryDestinationPostalCode: '90210',
       sitExpected: 'true',
       expectedDepartureDate: '2022-09-23',
     },

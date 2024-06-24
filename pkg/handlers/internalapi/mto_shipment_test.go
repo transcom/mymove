@@ -32,7 +32,6 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/swagger/nullable"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -257,16 +256,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 
 		// pointers
 		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
-		pickupPostal := "11111"
-		destinationPostalCode := "41414"
 		sitExpected := false
 		// reset Body params to have PPM fields
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
 			PpmShipment: &internalmessages.CreatePPMShipment{
 				ExpectedDepartureDate: &expectedDepartureDate,
-				PickupPostalCode:      &pickupPostal,
-				DestinationPostalCode: &destinationPostalCode,
 				SitExpected:           &sitExpected,
 				PickupAddress: &internalmessages.Address{
 					City:           &pickupAddress.City,
@@ -311,10 +306,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(models.MTOShipmentStatusDraft, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
 		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
-		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
-		suite.Nil(createdShipment.PpmShipment.SecondaryPickupPostalCode)
-		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
-		suite.Nil(createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
 		suite.Equal(*params.Body.PpmShipment.PickupAddress.StreetAddress1, *createdShipment.PpmShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.PpmShipment.DestinationAddress.StreetAddress1, *createdShipment.PpmShipment.DestinationAddress.StreetAddress1)
@@ -327,8 +318,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
 		// pointers
 		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
-		pickupPostal := "11111"
-		destinationPostalCode := "41414"
 		sitExpected := false
 
 		// create  PPM addressed
@@ -341,12 +330,8 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		params.Body = &internalmessages.CreateShipment{
 			MoveTaskOrderID: handlers.FmtUUID(subtestData.mtoShipment.MoveTaskOrderID),
 			PpmShipment: &internalmessages.CreatePPMShipment{
-				ExpectedDepartureDate:          &expectedDepartureDate,
-				PickupPostalCode:               &pickupPostal,
-				SecondaryPickupPostalCode:      nullable.NewString("11112"),
-				DestinationPostalCode:          &destinationPostalCode,
-				SecondaryDestinationPostalCode: nullable.NewString("41415"),
-				SitExpected:                    &sitExpected,
+				ExpectedDepartureDate: &expectedDepartureDate,
+				SitExpected:           &sitExpected,
 				PickupAddress: &internalmessages.Address{
 					City:           &pickupAddress.City,
 					Country:        pickupAddress.Country,
@@ -408,10 +393,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(models.MTOShipmentStatusDraft, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.MoveTaskOrderID, createdShipment.MoveTaskOrderID)
 		suite.Equal(*params.Body.PpmShipment.ExpectedDepartureDate, *createdShipment.PpmShipment.ExpectedDepartureDate)
-		suite.Equal(*params.Body.PpmShipment.PickupPostalCode, *createdShipment.PpmShipment.PickupPostalCode)
-		suite.Equal(*params.Body.PpmShipment.SecondaryPickupPostalCode.Value, *createdShipment.PpmShipment.SecondaryPickupPostalCode)
-		suite.Equal(*params.Body.PpmShipment.DestinationPostalCode, *createdShipment.PpmShipment.DestinationPostalCode)
-		suite.Equal(*params.Body.PpmShipment.SecondaryDestinationPostalCode.Value, *createdShipment.PpmShipment.SecondaryDestinationPostalCode)
 		suite.Equal(*params.Body.PpmShipment.SitExpected, *createdShipment.PpmShipment.SitExpected)
 		suite.Equal(*params.Body.PpmShipment.PickupAddress.StreetAddress1, *createdShipment.PpmShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.PpmShipment.DestinationAddress.StreetAddress1, *createdShipment.PpmShipment.DestinationAddress.StreetAddress1)
@@ -558,8 +539,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		ppmShipmentType := internalmessages.MTOShipmentTypePPM
 
 		expectedDepartureDate := strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate)
-		pickupPostal := "11111"
-		destinationPostalCode := "41414"
 		sitExpected := false
 		badID, _ := uuid.NewV4()
 
@@ -568,8 +547,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 			MoveTaskOrderID: handlers.FmtUUID(badID),
 			PpmShipment: &internalmessages.CreatePPMShipment{
 				ExpectedDepartureDate: &expectedDepartureDate,
-				PickupPostalCode:      &pickupPostal,
-				DestinationPostalCode: &destinationPostalCode,
 				SitExpected:           &sitExpected,
 			},
 			ShipmentType: &ppmShipmentType,
@@ -802,8 +779,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// checkDatesAndLocationsDidntChange - ensures dates and locations fields didn't change
 		checkDatesAndLocationsDidntChange := func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment) {
 			suite.EqualDatePtr(&originalShipment.PPMShipment.ExpectedDepartureDate, updatedShipment.PpmShipment.ExpectedDepartureDate)
-			suite.Equal(originalShipment.PPMShipment.PickupPostalCode, *updatedShipment.PpmShipment.PickupPostalCode)
-			suite.Equal(originalShipment.PPMShipment.DestinationPostalCode, *updatedShipment.PpmShipment.DestinationPostalCode)
 			suite.Equal(originalShipment.PPMShipment.SITExpected, updatedShipment.PpmShipment.SitExpected)
 		}
 
@@ -842,8 +817,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 						{
 							Model: models.PPMShipment{
 								ExpectedDepartureDate: time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-								PickupPostalCode:      "90808",
-								DestinationPostalCode: "79912",
 								SITExpected:           models.BoolPointer(true),
 							},
 						},
@@ -851,8 +824,6 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				},
 				desiredShipment: internalmessages.UpdatePPMShipment{
 					ExpectedDepartureDate: handlers.FmtDate(time.Date(testdatagen.GHCTestYear, time.April, 27, 0, 0, 0, 0, time.UTC)),
-					PickupPostalCode:      handlers.FmtString("90900"),
-					DestinationPostalCode: handlers.FmtString("79916"),
 					SitExpected:           handlers.FmtBool(false),
 				},
 				estimatedIncentive: nil,
@@ -860,50 +831,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 					// check all fields changed as expected
 					desiredShipment.ExpectedDepartureDate.Equal(*updatedShipment.PpmShipment.ExpectedDepartureDate)
 
-					suite.Equal(desiredShipment.PickupPostalCode, updatedShipment.PpmShipment.PickupPostalCode)
-					suite.Equal(desiredShipment.DestinationPostalCode, updatedShipment.PpmShipment.DestinationPostalCode)
 					suite.Equal(desiredShipment.SitExpected, updatedShipment.PpmShipment.SitExpected)
-				},
-			},
-			"Edit estimated dates & locations - add secondary zips": {
-				setUpOriginalPPM: func() models.PPMShipment {
-					return factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
-				},
-				desiredShipment: internalmessages.UpdatePPMShipment{
-					SecondaryPickupPostalCode:      nullable.NewString("90900"),
-					SecondaryDestinationPostalCode: nullable.NewString("79916"),
-				},
-				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, desiredShipment internalmessages.UpdatePPMShipment) {
-					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
-
-					// check new fields were set
-					suite.Equal(desiredShipment.SecondaryPickupPostalCode, nullable.NewString(*updatedShipment.PpmShipment.SecondaryPickupPostalCode))
-					suite.Equal(desiredShipment.SecondaryDestinationPostalCode, nullable.NewString(*updatedShipment.PpmShipment.SecondaryDestinationPostalCode))
-				},
-			},
-			"Edit estimated dates & locations - remove secondary zips": {
-				setUpOriginalPPM: func() models.PPMShipment {
-					return factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-						{
-							Model: models.PPMShipment{
-								SecondaryPickupPostalCode:      models.StringPointer("90900"),
-								SecondaryDestinationPostalCode: models.StringPointer("79916"),
-							},
-						},
-					}, nil)
-				},
-				desiredShipment: internalmessages.UpdatePPMShipment{
-					SecondaryPickupPostalCode:      nullable.NewNullString(),
-					SecondaryDestinationPostalCode: nullable.NewNullString(),
-				},
-				estimatedIncentive: nil,
-				runChecks: func(updatedShipment *internalmessages.MTOShipment, originalShipment models.MTOShipment, _ internalmessages.UpdatePPMShipment) {
-					checkDatesAndLocationsDidntChange(updatedShipment, originalShipment)
-
-					// check expected fields were updated
-					suite.Nil(updatedShipment.PpmShipment.SecondaryPickupPostalCode)
-					suite.Nil(updatedShipment.PpmShipment.SecondaryDestinationPostalCode)
 				},
 			},
 			"Add estimated weights - no pro gear": {
@@ -1590,10 +1518,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				suite.EqualDateTimePtr(expectedShipment.PPMShipment.SubmittedAt, returnedShipment.PpmShipment.SubmittedAt)
 				suite.EqualDateTimePtr(expectedShipment.PPMShipment.ReviewedAt, returnedShipment.PpmShipment.ReviewedAt)
 				suite.EqualDateTimePtr(expectedShipment.PPMShipment.ApprovedAt, returnedShipment.PpmShipment.ApprovedAt)
-				suite.Equal(expectedShipment.PPMShipment.PickupPostalCode, *returnedShipment.PpmShipment.PickupPostalCode)
-				suite.Equal(expectedShipment.PPMShipment.SecondaryPickupPostalCode, returnedShipment.PpmShipment.SecondaryPickupPostalCode)
-				suite.Equal(expectedShipment.PPMShipment.DestinationPostalCode, *returnedShipment.PpmShipment.DestinationPostalCode)
-				suite.Equal(expectedShipment.PPMShipment.SecondaryDestinationPostalCode, returnedShipment.PpmShipment.SecondaryDestinationPostalCode)
 				suite.Equal(*expectedShipment.PPMShipment.SITExpected, *returnedShipment.PpmShipment.SitExpected)
 				suite.EqualPoundPointers(expectedShipment.PPMShipment.EstimatedWeight, returnedShipment.PpmShipment.EstimatedWeight)
 				suite.Equal(expectedShipment.PPMShipment.HasProGear, returnedShipment.PpmShipment.HasProGear)

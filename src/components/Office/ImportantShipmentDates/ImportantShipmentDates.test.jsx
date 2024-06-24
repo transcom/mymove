@@ -13,6 +13,66 @@ describe('ImportantShipmentDates', () => {
   const scheduledDeliveryDate = 'Tuesday, 1 Apr 2020';
   const actualDeliveryDate = 'Wednesday, 2 Apr 2020';
   const actualPickupDate = 'Thursday, 3 Apr 2020';
+  const shipmentInfo = {
+    id: '123456',
+    status: 'string',
+    shipmentType: 'string',
+    isDiversion: false,
+    diversionReason: '',
+  };
+  const shipmentInfoDiversionRequested = {
+    id: '123456',
+    status: 'DIVERSION_REQUESTED',
+    shipmentType: 'string',
+    isDiversion: false,
+    diversionReason: 'Flat tire!',
+  };
+
+  const shipmentInfoDiversionApproved = {
+    id: '123456',
+    status: 'string',
+    shipmentType: 'string',
+    isDiversion: true,
+    diversionReason: 'Broken windshield!',
+  };
+
+  it('should render the requested diversion reason', () => {
+    const wrapper = mount(
+      <ImportantShipmentDates
+        requestedPickupDate={requestedPickupDate}
+        requiredDeliveryDate={requiredDeliveryDate}
+        scheduledPickupDate={scheduledPickupDate}
+        plannedMoveDate={plannedMoveDate}
+        actualMoveDate={actualMoveDate}
+        actualPickupDate={actualPickupDate}
+        requestedDeliveryDate={requestedDeliveryDate}
+        scheduledDeliveryDate={scheduledDeliveryDate}
+        actualDeliveryDate={actualDeliveryDate}
+        isPPM={false}
+        shipmentInfo={shipmentInfoDiversionRequested}
+      />,
+    );
+    expect(wrapper.find('td').at(0).text()).toEqual('Flat tire!');
+  });
+
+  it('should render the approved diversion reason', () => {
+    const wrapper = mount(
+      <ImportantShipmentDates
+        requestedPickupDate={requestedPickupDate}
+        requiredDeliveryDate={requiredDeliveryDate}
+        scheduledPickupDate={scheduledPickupDate}
+        plannedMoveDate={plannedMoveDate}
+        actualMoveDate={actualMoveDate}
+        actualPickupDate={actualPickupDate}
+        requestedDeliveryDate={requestedDeliveryDate}
+        scheduledDeliveryDate={scheduledDeliveryDate}
+        actualDeliveryDate={actualDeliveryDate}
+        isPPM={false}
+        shipmentInfo={shipmentInfoDiversionApproved}
+      />,
+    );
+    expect(wrapper.find('td').at(0).text()).toEqual('Broken windshield!');
+  });
 
   it('should render the shipment dates we pass in', () => {
     const wrapper = mount(
@@ -27,6 +87,7 @@ describe('ImportantShipmentDates', () => {
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
         isPPM={false}
+        shipmentInfo={shipmentInfo}
       />,
     );
     expect(wrapper.find('td').at(0).text()).toEqual(requiredDeliveryDate);
@@ -40,7 +101,7 @@ describe('ImportantShipmentDates', () => {
 
   it('should render an em-dash when no date is provided', () => {
     const emDash = '\u2014';
-    const wrapper = mount(<ImportantShipmentDates />);
+    const wrapper = mount(<ImportantShipmentDates shipmentInfo={shipmentInfo} />);
     expect(wrapper.find('td').at(0).text()).toEqual(emDash);
     expect(wrapper.find('td').at(1).text()).toEqual(emDash);
     expect(wrapper.find('td').at(2).text()).toEqual(emDash);
@@ -61,6 +122,7 @@ describe('ImportantShipmentDates', () => {
         requestedDeliveryDate={requestedDeliveryDate}
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
+        shipmentInfo={shipmentInfo}
         isPPM
       />,
     );
@@ -78,6 +140,7 @@ describe('ImportantShipmentDates', () => {
         requestedDeliveryDate={requestedDeliveryDate}
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
+        shipmentInfo={shipmentInfo}
         isPPM
       />,
     );
@@ -103,6 +166,7 @@ describe('ImportantShipmentDates', () => {
         requestedDeliveryDate={requestedDeliveryDate}
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
+        shipmentInfo={shipmentInfo}
         isPPM
       />,
     );
@@ -120,6 +184,7 @@ describe('ImportantShipmentDates', () => {
         requestedDeliveryDate={requestedDeliveryDate}
         scheduledDeliveryDate={scheduledDeliveryDate}
         actualDeliveryDate={actualDeliveryDate}
+        shipmentInfo={shipmentInfo}
         isPPM
       />,
     );

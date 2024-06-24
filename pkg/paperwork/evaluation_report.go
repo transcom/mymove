@@ -329,8 +329,8 @@ func FormatValuesShipment(shipment models.MTOShipment) ShipmentValues {
 		ShipmentType: string(shipment.ShipmentType),
 	}
 	if shipment.PPMShipment != nil {
-		vals.PPMOriginZIP = shipment.PPMShipment.PickupPostalCode
-		vals.PPMDestinationZIP = shipment.PPMShipment.DestinationPostalCode
+		vals.PPMOriginZIP = shipment.PPMShipment.PickupAddress.PostalCode
+		vals.PPMDestinationZIP = shipment.PPMShipment.DestinationAddress.PostalCode
 		vals.PPMDepartureDate = shipment.PPMShipment.ExpectedDepartureDate.Format(dateFormat)
 	}
 	if shipment.StorageFacility != nil {

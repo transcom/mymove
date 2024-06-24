@@ -361,6 +361,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Under test: ListOrders
 		// Set up:           Make 2 moves, with different ppm types, and search for both types
 		// Expected outcome: search results should only include the move with the PPM type that was searched for
+		postalCode := "50309"
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
 		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
@@ -369,6 +370,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 					PPMType: models.StringPointer("FULL"),
 					Locator: "FULLLL",
 				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		})
 		fullPPMMove := ppmShipment.Shipment.MoveTaskOrder
@@ -390,6 +397,49 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
 		suite.Equal(fullPPMMove.Locator, moves[0].Locator)
+	})
+
+	suite.Run("returns moves filtered by ppm status", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves, with different ppm status, and search for both statues
+		// Expected outcome: search results should only include the move with the PPM status that was searched for
+		officeUser, partialPPMMove, session := setupTestData()
+		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
+		postalCode := "50309"
+
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		})
+		// Search for PARTIAL PPM moves
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(moves[0].MTOShipments[0].PPMShipment.Status, ppmShipmentNeedsCloseout.Shipment.PPMShipment.Status)
+
+		ppmShipmentWaiting := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		})
+		// Search for FULL PPM moves
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(moves[0].MTOShipments[0].PPMShipment.Status, ppmShipmentWaiting.Shipment.PPMShipment.Status)
 	})
 
 	suite.Run("returns moves filtered by closeout location", func() {
@@ -429,6 +479,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Set up:           Make 2 moves with PPM shipments ready for closeout, with different submitted_at times,
 		//                   and search for a specific move
 		// Expected outcome: Only the one move with the right date should be returned
+		postalCode := "50309"
 		officeUser, _, session := setupTestData()
 
 		// Create a PPM submitted on April 1st
@@ -438,6 +489,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
 				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		})
 
@@ -467,6 +524,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Set up:           Make one move with multiple ppm shipments with different closeout initiated times, and
 		//                   search for multiple different times
 		// Expected outcome: Only a search for the latest of the closeout dates should find the move
+		postalCode := "50309"
 		officeUser, _, session := setupTestData()
 
 		// Create a PPM submitted on April 1st
@@ -476,6 +534,12 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
 				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
 			},
 		})
 		// Add another PPM for the same move submitted on April 1st
@@ -1666,6 +1730,52 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 		suite.Equal(ppmShipmentFull.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 	})
+	suite.Run("Sort by PPM status", func() {
+		officeUser := setupTestData()
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Gbloc: "KKFA"},
+			},
+		}, nil)
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		})
+		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentWaitingOnCustomer(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		})
+
+		// Sort by PPM type (ascending)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Sort:             models.StringPointer("ppmStatus"),
+			Order:            models.StringPointer("asc"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+
+		// Sort by PPM type (descending)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Sort:             models.StringPointer("ppmStatus"),
+			Order:            models.StringPointer("desc"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+	})
 }
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOCSortFilter() {
@@ -1781,7 +1891,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
-	postalCode := "90210"
+	postalCode := "50309"
 	partialPPMType := models.MovePPMTypePARTIAL
 
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
@@ -1797,9 +1907,10 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 			},
 		},
 		{
-			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
+			Model: models.Address{
+				PostalCode: postalCode,
 			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	// Make a TOO user.
@@ -1813,7 +1924,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	}
 
 	// GBLOC for the below doesn't really matter, it just means the query for the moves passes the inner join in ListOrders
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupPostalCode, tooOfficeUser.TransportationOffice.Gbloc)
+	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), ppmShipment.PickupAddress.PostalCode, tooOfficeUser.TransportationOffice.Gbloc)
 
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
@@ -1823,7 +1934,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment() {
-	postalCode := "90210"
+	postalCode := "50309"
 	deletedAt := time.Now()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -1834,9 +1945,10 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}, nil)
 	ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 		{
-			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
+			Model: models.Address{
+				PostalCode: postalCode,
 			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{
@@ -1874,7 +1986,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 }
 
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmentButOtherExists() {
-	postalCode := "90210"
+	postalCode := "50309"
 	deletedAt := time.Now()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
@@ -1891,9 +2003,14 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		},
 		{
 			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
-				CreatedAt:        time.Now(),
+				CreatedAt: time.Now(),
 			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: postalCode,
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	// This shipment is created after the first one, but not deleted
@@ -1904,9 +2021,14 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 		},
 		{
 			Model: models.PPMShipment{
-				PickupPostalCode: postalCode,
-				CreatedAt:        time.Now().Add(time.Minute * time.Duration(1)),
+				CreatedAt: time.Now().Add(time.Minute * time.Duration(1)),
 			},
+		},
+		{
+			Model: models.Address{
+				PostalCode: postalCode,
+			},
+			Type: &factory.Addresses.PickupAddress,
 		},
 	}, nil)
 	factory.BuildMTOShipment(suite.DB(), []factory.Customization{

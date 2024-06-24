@@ -247,8 +247,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Check different address values for a postal code
 	if ppmShipment.ActualPickupPostalCode != nil {
 		pickupPostal = *ppmShipment.ActualPickupPostalCode
-	} else if ppmShipment.PickupPostalCode != "" {
-		pickupPostal = ppmShipment.PickupPostalCode
 	} else if ppmShipment.PickupAddress.PostalCode != "" {
 		pickupPostal = ppmShipment.PickupAddress.PostalCode
 	}
@@ -256,8 +254,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Same for destination
 	if ppmShipment.ActualDestinationPostalCode != nil {
 		destPostal = *ppmShipment.ActualDestinationPostalCode
-	} else if ppmShipment.DestinationPostalCode != "" {
-		destPostal = ppmShipment.DestinationPostalCode
 	} else if ppmShipment.DestinationAddress.PostalCode != "" {
 		destPostal = ppmShipment.DestinationAddress.PostalCode
 	}

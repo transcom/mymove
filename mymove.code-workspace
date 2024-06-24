@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"playwright.reuseBrowser": true
+		"playwright.reuseBrowser": true,
+    "jest.rootPath": ""
 	}
 }

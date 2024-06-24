@@ -189,7 +189,7 @@ const ShipmentDetailsSidebar = ({
           border
         >
           {tacType && tac && <div>TAC: {formatAccountingCode(tac, tacType)}</div>}
-          {sacType && sac && <div>SAC: {formatAccountingCode(sac, sacType)}</div>}
+          {sacType && sac && <div className={styles.accounting_code}>SAC: {formatAccountingCode(sac, sacType)}</div>}
         </SimpleSection>
       )}
 

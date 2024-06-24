@@ -124,6 +124,7 @@ export const tooRoutes = {
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
+  SHIPMENT_ADD_PATH: `${BASE_MOVES_PATH}/new-shipment/:shipmentType`,
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
   BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
   CUSTOMER_INFO_EDIT_PATH: 'customer',
@@ -140,6 +141,19 @@ export const qaeCSRRoutes = {
   EVALUATION_VIOLATIONS_PATH: '/evaluation-reports/:reportId/violations',
   BASE_CUSTOMER_SUPPORT_REMARKS_PATH: `${BASE_MOVES_PATH}/customer-support-remarks`,
   CUSTOMER_SUPPORT_REMARKS_PATH: 'customer-support-remarks',
+};
+
+export const hqRoutes = {
+  BASE_MOVE_QUEUE: `/move-queue`,
+  MOVE_QUEUE: `move-queue`,
+  BASE_PAYMENT_REQUEST_QUEUE: '/payment-requests',
+  PAYMENT_REQUEST_QUEUE: 'payment-requests',
+  BASE_COUNSELING_QUEUE: '/counseling',
+  COUNSELING_QUEUE: 'counseling',
+  BASE_CLOSEOUT_QUEUE: '/PPM-closeout',
+  CLOSEOUT_QUEUE: 'PPM-closeout',
+  BASE_CUSTOMER_SEARCH: '/customer-search',
+  CUSTOMER_SEARCH: 'customer-search',
 };
 
 // README: Prime API endpoints accept either a Move code or ID.

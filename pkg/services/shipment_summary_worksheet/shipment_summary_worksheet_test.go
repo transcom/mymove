@@ -147,6 +147,55 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Nil(emptySSD)
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLID() {
+	edipi := "12345567890"
+	affiliation := models.AffiliationCOASTGUARD
+	emplid := "9999999"
+	serviceMember := models.ServiceMember{
+		ID:          uuid.Must(uuid.NewV4()),
+		Edipi:       &edipi,
+		Affiliation: &affiliation,
+		Emplid:      &emplid,
+	}
+
+	result, err := formatEmplid(serviceMember)
+
+	suite.Equal("EMPLID: 9999999", *result)
+	suite.NoError(err)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNotCG() {
+	edipi := "12345567890"
+	affiliation := models.AffiliationARMY
+	emplid := "9999999"
+	serviceMember := models.ServiceMember{
+		ID:          uuid.Must(uuid.NewV4()),
+		Edipi:       &edipi,
+		Affiliation: &affiliation,
+		Emplid:      &emplid,
+	}
+
+	result, err := formatEmplid(serviceMember)
+
+	suite.Equal("12345567890", *result)
+	suite.NoError(err)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNull() {
+	edipi := "12345567890"
+	affiliation := models.AffiliationARMY
+	serviceMember := models.ServiceMember{
+		ID:          uuid.Must(uuid.NewV4()),
+		Edipi:       &edipi,
+		Affiliation: &affiliation,
+	}
+
+	result, err := formatEmplid(serviceMember)
+
+	suite.Equal("12345567890", *result)
+	suite.NoError(err)
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
 	serviceMemberID, _ := uuid.NewV4()
 

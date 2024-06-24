@@ -10,7 +10,6 @@ import { expect, test } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Add dates and location flow', () => {
-  // test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildSpouseProGearMove();
     await customerPpmPage.signInForPPMWithMove(move);

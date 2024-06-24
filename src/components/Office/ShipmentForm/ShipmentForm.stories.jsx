@@ -114,12 +114,22 @@ const mockPPMShipment = {
   id: '4774f99f-bc94-467a-9469-b6f81657b9ef',
   mtoShipmentId: mockMtoShipment.id,
   expectedDepartureDate: '2022-12-31',
-  pickupPostalCode: '90210',
-  destinationPostalCode: '30813',
   estimatedWeight: 2000,
   sitExpected: false,
   hasProGear: false,
   estimatedIncentive: 1000000,
+  pickupAddress: {
+    streetAddress1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  destinationAddress: {
+    streetAddress1: '441 SW Rio de la Plata Drive',
+    city: 'Tacoma',
+    state: 'WA',
+    postalCode: '98421',
+  },
 };
 
 const mockMtoShipmentTypePPM = {

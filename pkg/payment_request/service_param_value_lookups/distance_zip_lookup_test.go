@@ -67,8 +67,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		ppmShipment := factory.BuildPPMShipment(suite.DB(), nil, nil)
 
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -79,7 +79,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)
@@ -98,8 +98,8 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 			},
 		}, nil)
 		distanceZipLookup := DistanceZipLookup{
-			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupPostalCode},
-			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationPostalCode},
+			PickupAddress:      models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode},
+			DestinationAddress: models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode},
 		}
 
 		appContext := suite.AppContextForTest()
@@ -110,7 +110,7 @@ func (suite *ServiceParamValueLookupsSuite) TestDistanceLookup() {
 		suite.NoError(err)
 
 		planner := suite.planner.(*mocks.Planner)
-		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupPostalCode, ppmShipment.DestinationPostalCode)
+		planner.AssertCalled(suite.T(), "ZipTransitDistance", appContext, ppmShipment.PickupAddress.PostalCode, ppmShipment.DestinationAddress.PostalCode)
 
 		err = suite.DB().Reload(&ppmShipment.Shipment)
 		suite.NoError(err)

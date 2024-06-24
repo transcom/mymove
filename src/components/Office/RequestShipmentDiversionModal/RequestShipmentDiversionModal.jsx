@@ -14,6 +14,13 @@ const diversionReasonSchema = Yup.object().shape({
 });
 
 const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
+  let validDate = false;
+  const today = new Date();
+  const pickupDate = new Date(shipmentInfo.actualPickupDate);
+  if (today >= pickupDate) {
+    validDate = true;
+  }
+
   return (
     <div>
       <Overlay />
@@ -49,7 +56,7 @@ const RequestShipmentDiversionModal = ({ onClose, onSubmit, shipmentInfo }) => {
                     <Button secondary type="reset" onClick={() => onClose()} data-testid="modalBackButton">
                       Back
                     </Button>
-                    <Button type="submit" disabled={!isValid || !dirty} data-testid="modalSubmitButton">
+                    <Button type="submit" disabled={!isValid || !dirty || !validDate} data-testid="modalSubmitButton">
                       Request Diversion
                     </Button>
                   </ModalActions>

@@ -36,16 +36,7 @@ const sectionInfo = {
 };
 
 export const Basic = (args) => {
-  return <EditPPMHeaderSummaryModal {...args} />;
-};
-
-export const Default = Basic.bind({});
-Default.args = {
-  sectionType: 'shipmentInfo',
-  sectionInfo,
-  onClose: action('onClose'),
-  onSubmit: action('onSubmit'),
-  editItemName: 'actualMoveDate',
+  return <EditPPMHeaderSummaryModal sectionInfo={sectionInfo} {...args} />;
 };
 
 export const EditShipmentInfo = Basic.bind({});
@@ -58,7 +49,7 @@ EditShipmentInfo.args = {
 };
 
 export const EditPickupAddress = Basic.bind({});
-EditShipmentInfo.args = {
+EditPickupAddress.args = {
   sectionType: 'shipmentInfo',
   sectionInfo,
   onClose: action('onClose'),
@@ -67,7 +58,7 @@ EditShipmentInfo.args = {
 };
 
 export const EditDestinationAddress = Basic.bind({});
-EditShipmentInfo.args = {
+EditDestinationAddress.args = {
   sectionType: 'shipmentInfo',
   sectionInfo,
   onClose: action('onClose'),

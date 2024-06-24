@@ -92,7 +92,7 @@ export const EmptyValues = () => (
           setFieldValue={Formik.setFieldValue}
           payGrade={ORDERS_PAY_GRADE_OPTIONS.E_1}
           payGradeOptions={payGradeOptions}
-          longLineOfAccounting={longLineOfAccounting}
+          hhgLongLineOfAccounting={longLineOfAccounting}
         />
       </form>
     </Formik>
