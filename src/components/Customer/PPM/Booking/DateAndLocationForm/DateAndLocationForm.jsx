@@ -21,7 +21,9 @@ import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/valid
 import { requiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const validationShape = {
+let meta = '';
+
+let validationShape = {
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickupAddress: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
@@ -62,7 +64,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-    closeoutOffice: move?.closeoutOffice,
+    closeoutOffice: move?.closeoutOffice || {},
     tertiaryPickupAddress: {},
     tertiaryDestinationAddress: {},
     tertiaryPickupPostalCode: mtoShipment?.ppmShipment?.tertiaryPickupPostalCode,
@@ -112,13 +114,36 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   if (showCloseoutOffice) {
-    validationShape.closeoutOffice = Yup.object().required('Required');
+    validationShape = {
+      ...validationShape,
+      closeoutOffice: Yup.object().shape({
+        address: Yup.object().required('Required'),
+      }),
+    };
   } else {
     delete validationShape.closeoutOffice;
   }
 
+  const validate = (values) => {
+    if (!values.closeoutOffice) {
+      meta = 'Required';
+    }
+    if (values.closeoutOffice) {
+      meta = '';
+    }
+    return {};
+  };
+
   return (
-    <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={Yup.object().shape(validationShape)}
+      onSubmit={onSubmit}
+      validate={validate}
+      validateOnBlur
+      validateOnMount
+      validateOnChange
+    >
       {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -384,6 +409,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       label="Which closeout office should review your PPM?"
                       placeholder="Start typing a closeout office..."
                       searchLocations={searchTransportationOffices}
+                      metaOverride={meta}
                     />
                     <Hint className={ppmStyles.hint}>
                       If you have more than one PPM for this move, your closeout office will be the same for all your
