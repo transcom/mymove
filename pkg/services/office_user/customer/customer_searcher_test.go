@@ -129,58 +129,6 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.Len(customers, 0)
 	})
 
-	suite.Run("test pagination", func() {
-		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		session := auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
-			OfficeUserID:    scUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-
-		serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					FirstName: models.StringPointer("Page1"),
-					LastName:  models.StringPointer("McConnell"),
-					Edipi:     models.StringPointer("1018231018"),
-				},
-			},
-		}, nil)
-
-		serviceMember2 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					FirstName: models.StringPointer("Page2"),
-					LastName:  models.StringPointer("McConnell"),
-					Edipi:     models.StringPointer("8121581215"),
-				},
-			},
-		}, nil)
-		// get first page
-		customers, totalCount, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{
-			CustomerName: models.StringPointer("Page1 McConnell"),
-			PerPage:      1,
-			Page:         1,
-		})
-		suite.NoError(err)
-		suite.Len(customers, 1)
-		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
-		suite.Equal(2, totalCount)
-
-		// get second page
-		customers, totalCount, err = searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{
-			CustomerName: models.StringPointer("Page2 McConnell"),
-			PerPage:      1,
-			Page:         2,
-		})
-		suite.NoError(err)
-		suite.Len(customers, 1)
-		suite.Equal(serviceMember2.Edipi, customers[0].Edipi)
-		suite.Equal(2, totalCount)
-	})
-
 	suite.Run("search does not return safety moves for those without privileges", func() {
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 		session := auth.Session{

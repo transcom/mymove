@@ -25,13 +25,22 @@ func (r EIAFuelPriceLookup) lookup(appCtx appcontext.AppContext, _ *ServiceItemP
 		return "", fmt.Errorf("could not find actual pickup date for MTOShipment [%s]", r.MTOShipment.ID)
 	}
 
-	// Find the GHCDieselFuelPrice object with the closest prior PublicationDate to the ActualPickupDate of the MTOShipment in question
+	// Find the GHCDieselFuelPrice object effective before the shipment's ActualPickupDate and ends after the ActualPickupDate
 	var ghcDieselFuelPrice models.GHCDieselFuelPrice
-	err := db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
+	err := db.Where("? BETWEEN effective_date and end_date", actualPickupDate).Order("publication_date DESC").First(&ghcDieselFuelPrice) //only want the first published price per week
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
-			return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+			// If no published price is found, look for the first published price after the actual pickup date
+			err = db.Where("publication_date <= ?", actualPickupDate).Order("publication_date DESC").Last(&ghcDieselFuelPrice)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return "", apperror.NewNotFoundError(uuid.Nil, "Looking for GHCDieselFuelPrice")
+				default:
+					return "", apperror.NewQueryError("GHCDieselFuelPrice", err, "")
+				}
+			}
 		default:
 			return "", apperror.NewQueryError("GHCDieselFuelPrice", err, "")
 		}

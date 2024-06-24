@@ -316,7 +316,7 @@ test.describe('Services counselor user', () => {
     });
   });
 
-  test('can complete review of PPM shipment documents', async ({ page, scPage }) => {
+  test('can complete review of PPM shipment documents and view documents after', async ({ page, scPage }) => {
     const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
     await scPage.navigateToCloseoutMove(move.locator);
 
@@ -342,54 +342,122 @@ test.describe('Services counselor user', () => {
     await scPage.waitForPage.reviewDocumentsConfirmation();
 
     await page.getByRole('button', { name: 'Confirm' }).click();
+    await scPage.waitForPage.moveDetails();
+
+    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+
+    // Navigate to the "View documents" page
+    await expect(page.getByRole('button', { name: /View documents/i })).toBeVisible();
+    await page.getByRole('button', { name: 'View documents' }).click();
+
+    await scPage.waitForPage.reviewWeightTicket();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').isDisabled();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewProGear();
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').isDisabled();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+    await expect(page.getByLabel('Accept')).toBeVisible();
+    await page.getByLabel('Accept').isDisabled();
+    await page.getByRole('button', { name: 'Continue' }).click();
+
+    await expect(page.getByRole('heading', { name: 'Sent to customer', level: 3 })).toBeVisible();
+
+    await page.getByTestId('reviewDocumentsContinueButton').click();
     await scPage.waitForPage.moveDetails();
 
     await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
   });
 
-  test('is able to edit shipmentInfo and Incentives', async ({ page, scPage }) => {
-    const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
-    await scPage.navigateToCloseoutMove(move.locator);
+  test.describe('Edit shipment info and incentives', () => {
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
+      await scPage.navigateToCloseoutMove(move.locator);
+    });
 
-    // Navigate to the "Review documents" page
-    await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
-    await page.getByRole('button', { name: 'Review documents' }).click();
+    test('is able to edit/save actual move start date', async ({ page, scPage }) => {
+      // Navigate to the "Review documents" page
+      await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
+      await page.getByRole('button', { name: 'Review documents' }).click();
 
-    await scPage.waitForPage.reviewWeightTicket();
-    await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
-    await page.getByRole('button', { name: 'Continue' }).click();
+      await scPage.waitForPage.reviewWeightTicket();
+      // Edit Actual Move Start Date
+      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
+      await page.getByTestId('actualMoveDate').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Shipment Info"');
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
+      await expect(page.getByLabel('Accept')).toBeVisible();
+      await page.getByLabel('Accept').dispatchEvent('click');
+      await page.getByRole('button', { name: 'Continue' }).click();
+    });
 
-    await scPage.waitForPage.reviewProGear();
-    await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
-    await page.getByRole('button', { name: 'Continue' }).click();
+    test('is able to edit/save pickup address', async ({ page, scPage }) => {
+      // Navigate to the "Review documents" page
+      await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
+      await page.getByRole('button', { name: 'Review documents' }).click();
 
-    await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
-    await expect(page.getByLabel('Accept')).toBeVisible();
-    await page.getByLabel('Accept').dispatchEvent('click');
-    await page.getByRole('button', { name: 'Continue' }).click();
+      await scPage.waitForPage.reviewWeightTicket();
+      // Edit Starting Address
+      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
+      await page.getByTestId('pickupAddress').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Shipment Info"');
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
+      await expect(page.getByLabel('Accept')).toBeVisible();
+      await page.getByLabel('Accept').dispatchEvent('click');
+      await page.getByRole('button', { name: 'Continue' }).click();
+    });
 
-    await scPage.waitForPage.reviewDocumentsConfirmation();
-    const parentShipmentInfoElement = page.locator('[data-testid="shipmentInfo"]');
-    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
+    test('is able to edit/save destination address', async ({ page, scPage }) => {
+      // Navigate to the "Review documents" page
+      await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
+      await page.getByRole('button', { name: 'Review documents' }).click();
 
-    await page.getByTestId('editTextButton').dispatchEvent('click');
-    await expect(page.getByText('Edit Shipment Info')).toBeVisible();
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('Edit Shipment Info')).not.toBeVisible();
-    await parentShipmentInfoElement.locator('[data-testid="shipmentInfo-showRequestDetailsButton"]').click();
+      await scPage.waitForPage.reviewWeightTicket();
+      // Edit Ending Address
+      await page.getByTestId('shipmentInfo').getByTestId('shipmentInfo-showRequestDetailsButton').click();
+      await page.getByTestId('destinationAddress').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Shipment Info"');
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.waitForSelector('text="Edit Shipment Info"', { state: 'hidden' });
+      await expect(page.getByLabel('Accept')).toBeVisible();
+      await page.getByLabel('Accept').dispatchEvent('click');
+      await page.getByRole('button', { name: 'Continue' }).click();
+    });
 
-    const parentIncentivesElement = page.locator('[data-testid="incentives"]');
-    await parentIncentivesElement.locator('[data-testid="incentives-showRequestDetailsButton"]').click();
-    await page.getByTestId('editTextButton').dispatchEvent('click');
-    await expect(page.getByText('Edit Incentives/Costs')).toBeVisible();
-    await page.getByRole('button', { name: 'Save' }).click();
-    await expect(page.getByText('Edit Incentives/Costs')).not.toBeVisible();
-    await page.getByRole('button', { name: 'Confirm' }).click();
-    await scPage.waitForPage.moveDetails();
+    test('is able to edit/save advance received', async ({ page, scPage }) => {
+      // Navigate to the "Review documents" page
+      await expect(page.getByRole('button', { name: /Review documents/i })).toBeVisible();
+      await page.getByRole('button', { name: 'Review documents' }).click();
 
-    await expect(page.getByTestId('ShipmentContainer').getByTestId('tag')).toContainText('packet ready for download');
+      await scPage.waitForPage.reviewWeightTicket();
+      await expect(page.getByLabel('Accept')).toBeVisible();
+      await page.getByLabel('Accept').dispatchEvent('click');
+      await page.getByRole('button', { name: 'Continue' }).click();
+
+      await scPage.waitForPage.reviewProGear();
+      await expect(page.getByLabel('Accept')).toBeVisible();
+      await page.getByLabel('Accept').dispatchEvent('click');
+      await page.getByRole('button', { name: 'Continue' }).click();
+
+      await scPage.waitForPage.reviewExpenseTicket('Packing Materials', 1, 1);
+      await expect(page.getByLabel('Accept')).toBeVisible();
+      await page.getByLabel('Accept').dispatchEvent('click');
+      await page.getByRole('button', { name: 'Continue' }).click();
+
+      await scPage.waitForPage.reviewDocumentsConfirmation();
+      await page.waitForSelector('text="Loading, Please Wait..."', { state: 'hidden' });
+      await page.getByTestId('incentives').getByTestId('incentives-showRequestDetailsButton').click();
+      await page.getByTestId('advanceReceived').getByTestId('editTextButton').click();
+      await page.waitForSelector('text="Edit Incentives/Costs"');
+      await page.getByRole('button', { name: 'Save' }).click();
+      await page.waitForSelector('text="Edit Incentives/Costs"', { state: 'hidden' });
+    });
   });
 
   test.describe('Checking for Partial/Full PPM functionality', () => {
