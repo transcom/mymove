@@ -11,7 +11,14 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, formatWeight, dropdownInputOptions, removeCommas } from 'utils/formatters';
+import {
+  formatCents,
+  formatDate,
+  formatWeight,
+  dropdownInputOptions,
+  removeCommas,
+  toDollarString,
+} from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -110,6 +117,10 @@ export default function ReviewExpense({
   const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
   const displaySitCost =
     ppmSITLocation !== '' && sitStartDateValue !== '' && sitEndDateValue !== '' && weightStoredValue !== '';
+  const [estimatedCost, setEstimatedCost] = React.useState(0);
+  const [actualSITReimbursed, setActualSITReimbursed] = React.useState(
+    amountValue < estimatedCost ? amountValue : estimatedCost,
+  );
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
     description: descriptionString,
@@ -143,6 +154,12 @@ export default function ReviewExpense({
     [documentSetIndex, documentSets],
   );
 
+  const updateAmountReimbursed = () => {
+    if (displaySitCost) {
+      setActualSITReimbursed(amountValue < estimatedCost ? amountValue : estimatedCost);
+    }
+  };
+
   useEffect(() => {
     // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button
     if (!samePage) setSelectedExpenseType(getExpenseTypeValue(movingExpenseType));
@@ -156,6 +173,10 @@ export default function ReviewExpense({
   useEffect(() => {
     setSamePage(false);
   }, [documentSetIndex]);
+
+  useEffect(() => {
+    updateAmountReimbursed();
+  }, [estimatedCost, amountValue]);
 
   const handleSubmit = (values) => {
     if (readOnly) {
@@ -329,6 +350,7 @@ export default function ReviewExpense({
                         sitEndDate={sitEndDateValue}
                         weightStored={weightStoredValue}
                         useQueries={useGetPPMSITEstimatedCostQuery}
+                        setEstimatedCost={setEstimatedCost}
                       />
                     )}
                   </>
@@ -355,6 +377,10 @@ export default function ReviewExpense({
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
+                    <div>
+                      <legend className={classnames('usa-label', styles.label)}>Actual SIT Reimbursement</legend>
+                      <div className={styles.displayValue}>{toDollarString(formatCents(actualSITReimbursed))}</div>
+                    </div>
                     <MaskedTextField
                       defaultValue="0"
                       name="weightStored"
