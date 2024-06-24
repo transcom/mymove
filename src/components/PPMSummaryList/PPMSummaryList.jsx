@@ -107,7 +107,7 @@ const PPMSummaryStatus = (shipment, orderLabel, onButtonClick, onDownloadError, 
         [
           <div>
             <Button onClick={() => onFeedbackClick()}>View Closeout Feedback</Button>
-            <Button onClick={onButtonClick}>Upload PPM Documents</Button>;
+            <Button onClick={onButtonClick}>Upload PPM Documents</Button>
           </div>,
         ]
       ) : (
