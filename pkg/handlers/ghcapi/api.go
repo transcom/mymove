@@ -561,7 +561,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{
 		handlerConfig,
-		movingexpense.NewOfficeMovingExpenseUpdater(),
+		movingexpense.NewOfficeMovingExpenseUpdater(ppmEstimator),
 	}
 
 	ghcAPI.PwsViolationsGetPWSViolationsHandler = GetPWSViolationsHandler{
@@ -622,6 +622,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.ApplicationParametersGetParamHandler = ApplicationParametersParamHandler{handlerConfig}
+	ghcAPI.PpmUpdatePPMSITHandler = UpdatePPMSITHandler{handlerConfig, ppmShipmentUpdater, ppmShipmentFetcher}
+	ghcAPI.PpmGetPPMSITEstimatedCostHandler = GetPPMSITEstimatedCostHandler{handlerConfig, ppmEstimator, ppmShipmentFetcher}
 
 	return ghcAPI
 }

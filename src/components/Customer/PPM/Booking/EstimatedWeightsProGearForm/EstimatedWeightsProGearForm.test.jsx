@@ -22,8 +22,6 @@ const defaultProps = {
     id: '123',
     ppmShipment: {
       id: '123',
-      pickupPostalCode: '20002',
-      destinationPostalCode: '20004',
       sitExpected: false,
       expectedDepartureDate: '2022-12-31',
     },

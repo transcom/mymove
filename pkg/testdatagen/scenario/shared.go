@@ -806,8 +806,6 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -838,8 +836,6 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -869,8 +865,6 @@ func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -900,8 +894,6 @@ func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -1555,7 +1547,8 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 	}, nil)
 
 	storageType := models.MovingExpenseReceiptTypeStorage
-
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -1578,6 +1571,8 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
 				SITStartDate:      models.TimePointer(time.Now()),
 				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -2058,6 +2053,8 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -2073,6 +2070,8 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
 				SITStartDate:      models.TimePointer(time.Now()),
 				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
