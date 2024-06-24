@@ -326,6 +326,15 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     navigate(path, { state });
   };
 
+  const handlePPMFeedbackClick = (shipmentId) => {
+    const path = generatePath(customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH, {
+      moveId: move.id,
+      mtoShipmentId: shipmentId,
+    });
+
+    navigate(path);
+  };
+
   // if the move has amended orders that aren't approved, it will display an info box at the top of the page
   const renderAlert = () => {
     if (hasUnapprovedAmendedOrders()) {
@@ -706,6 +715,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                       shipments={ppmShipments}
                       onUploadClick={handlePPMUploadClick}
                       onDownloadError={togglePPMPacketErrorModal}
+                      onFeedbackClick={handlePPMFeedbackClick}
                     />
                   </Step>
                 )}

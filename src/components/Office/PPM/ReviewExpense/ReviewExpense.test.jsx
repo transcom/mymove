@@ -320,4 +320,100 @@ describe('ReviewExpenseForm component', () => {
       expect(screen.getByText('484 characters')).toBeInTheDocument();
     });
   });
+
+  describe('displays read only form', () => {
+    it('renders disabled blank form on load with defaults', async () => {
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...expenseRequiredProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+          readOnly
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 3, name: 'Receipt 1' })).toBeInTheDocument();
+      });
+
+      expect(screen.getByLabelText('Amount')).toBeDisabled();
+
+      expect(screen.getByRole('heading', { level: 3, name: `Review Packing Materials #1` })).toBeInTheDocument();
+
+      expect(screen.getByText(/Add a review for this/i)).toBeInTheDocument();
+
+      expect(screen.getByLabelText('Accept')).toBeDisabled();
+      expect(screen.getByLabelText('Exclude')).toBeDisabled();
+      expect(screen.getByLabelText('Reject')).toBeDisabled();
+    });
+
+    it('populates disabled edit form with existing expense values', async () => {
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...expenseRequiredProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+          readOnly
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Expense Type')).toBeInTheDocument();
+      });
+      expect(screen.getByText('Packing materials')).toBeDisabled();
+      expect(screen.getByDisplayValue('boxes, tape, bubble wrap'));
+      expect(screen.getByLabelText('Amount')).toHaveDisplayValue('1,234.56');
+      expect(screen.getByLabelText('Amount')).toBeDisabled();
+    });
+
+    it('populates disabled edit form with existing storage values', async () => {
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...storageProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+          readOnly
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Start date')).toHaveDisplayValue('15 Dec 2022');
+        expect(screen.getByLabelText('Start date')).toBeDisabled();
+      });
+      expect(screen.getByLabelText('End date')).toHaveDisplayValue('25 Dec 2022');
+      expect(screen.getByLabelText('End date')).toBeDisabled();
+    });
+
+    it('populates disabled edit form with existing status and reason', async () => {
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...rejectedProps}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+          readOnly
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Reject')).toBeChecked();
+        expect(screen.getByLabelText('Reject')).toBeDisabled();
+      });
+      expect(screen.getByText('Rejection reason')).toBeInTheDocument();
+      expect(screen.getByText('484 characters')).toBeInTheDocument();
+    });
+  });
 });
