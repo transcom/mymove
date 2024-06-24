@@ -52,6 +52,34 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		return "", apperror.NewInvalidInputError(*mtoShipmentID, fmt.Errorf(errorMsgForDestinationZip), nil, errorMsgForDestinationZip)
 	}
 
+	serviceCode := keyData.MTOServiceItem.ReService.Code
+	switch serviceCode {
+	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
+		err := appCtx.DB().EagerPreload("DeliveryAddressUpdate", "DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.NewAddress", "MTOServiceItems", "Distance").Find(&mtoShipment, mtoShipment.ID)
+		if err != nil {
+			return "", err
+		}
+
+		for _, si := range mtoShipment.MTOServiceItems {
+			siCopy := si
+			err := appCtx.DB().EagerPreload("ReService", "ApprovedAt").Find(&siCopy, siCopy.ID)
+			if err != nil {
+				return "", err
+			}
+
+			switch siCopy.ReService.Code {
+			case models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC:
+				if mtoShipment.DeliveryAddressUpdate != nil && mtoShipment.DeliveryAddressUpdate.Status == models.ShipmentAddressUpdateStatusApproved {
+					if mtoShipment.DeliveryAddressUpdate.UpdatedAt.After(*siCopy.ApprovedAt) {
+						destinationZip = mtoShipment.DeliveryAddressUpdate.OriginalAddress.PostalCode
+					} else {
+						destinationZip = mtoShipment.DeliveryAddressUpdate.NewAddress.PostalCode
+					}
+				}
+			}
+		}
+	}
+
 	if mtoShipment.Distance != nil && mtoShipment.ShipmentType != models.MTOShipmentTypePPM {
 		return strconv.Itoa(mtoShipment.Distance.Int()), nil
 	}
