@@ -259,4 +259,47 @@ describe('validates form fields and displays error messages', () => {
       ).toBeInTheDocument();
     });
   });
+  it('displays tertiary pickup Address input when hasTertiaryPickupAddress is true', async () => {
+    await act(async () => {
+      render(<DateAndLocationForm {...defaultProps} />);
+      const hasTertiaryPickupAddress = await screen.getAllByLabelText('Yes')[2];
+
+      await userEvent.click(hasTertiaryPickupAddress);
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+      const address2 = screen.getAllByLabelText('Address 2', { exact: false });
+      const state = screen.getAllByLabelText('State');
+      const city = screen.getAllByLabelText('City');
+      await waitFor(() => {
+        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+        expect(address2[1]).toBeInstanceOf(HTMLInputElement);
+        expect(city[1]).toBeInstanceOf(HTMLInputElement);
+        expect(state[1]).toBeInstanceOf(HTMLSelectElement);
+        expect(postalCodes[1]).toBeInstanceOf(HTMLInputElement);
+      });
+    });
+  });
+  it('displays tertiary destination Address input when hasTertiaryDestinationAddress is true', async () => {
+    await act(async () => {
+      render(<DateAndLocationForm {...defaultProps} />);
+      const hasTertiaryDestinationAddress = await screen.getAllByLabelText('Yes')[2];
+
+      await userEvent.click(hasTertiaryDestinationAddress);
+      const postalCodes = screen.getAllByLabelText('ZIP');
+      const address1 = screen.getAllByLabelText('Address 1', { exact: false });
+      const address2 = screen.getAllByLabelText('Address 2', { exact: false });
+      const address3 = screen.getAllByLabelText('Address 3', { exact: false });
+      const state = screen.getAllByLabelText('State');
+      const city = screen.getAllByLabelText('City');
+
+      await waitFor(() => {
+        expect(address1[1]).toBeInstanceOf(HTMLInputElement);
+        expect(address2[1]).toBeInstanceOf(HTMLInputElement);
+        expect(address3[1]).toBeInstanceOf(HTMLInputElement);
+        expect(state[1]).toBeInstanceOf(HTMLSelectElement);
+        expect(city[1]).toBeInstanceOf(HTMLInputElement);
+        expect(postalCodes[1]).toBeInstanceOf(HTMLInputElement);
+      });
+    });
+  });
 });
