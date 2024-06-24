@@ -377,7 +377,7 @@ type GetServicesCounselingOriginListHandler struct {
 	services.OrderFetcher
 }
 
-// Handle returns the paginated list of moves for the services counselor
+// Handle returns the list of origin list for the services counselor
 func (h GetServicesCounselingOriginListHandler) Handle(
 	params queues.GetServicesCounselingOriginListParams,
 ) middleware.Responder {

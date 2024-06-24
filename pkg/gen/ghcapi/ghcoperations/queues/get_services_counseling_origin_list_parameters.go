@@ -32,7 +32,7 @@ type GetServicesCounselingOriginListParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.
+	/*Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.
 	  In: query
 	*/
 	NeedsPPMCloseout *bool
