@@ -519,6 +519,9 @@ func getDestinationAddressForService(appCtx appcontext.AppContext, serviceCode m
 
 	// Determine if that address is valid based on which service we're pricing.
 	switch serviceCode {
+	case models.ReServiceCodeDPK, models.ReServiceCodeDNPK:
+		// Destination address isn't needed
+		return models.Address{}, nil
 	case models.ReServiceCodeDLH, models.ReServiceCodeDSH, models.ReServiceCodeFSC:
 		err := appCtx.DB().Eager("DeliveryAddressUpdate.OriginalAddress", "DeliveryAddressUpdate.Status", "MTOServiceItems").Find(&mtoShipment, mtoShipment.ID)
 		if err != nil {
