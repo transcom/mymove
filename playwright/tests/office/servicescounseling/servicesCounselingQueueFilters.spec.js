@@ -9,12 +9,15 @@ import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
   let moveLocator = '';
+  let moveWithNeedsCloseoutLocator = '';
 
   test.describe('with PPM shipment ready for closeout', () => {
     let dutyLocationName = '';
     test.beforeEach(async ({ scPage }) => {
       const move = await scPage.testHarness.buildMoveWithPPMShipmentReadyForFinalCloseout();
+      const moveWithNeedsCloseout = await scPage.testHarness.buildApprovedMoveWithPPMAllDocTypesOffice();
       moveLocator = move.locator;
+      moveWithNeedsCloseoutLocator = moveWithNeedsCloseout.locator;
       dutyLocationName = move.Orders.NewDutyLocation.name;
       await scPage.page.locator('[data-testid="closeout-tab-link"]').click();
     });
@@ -34,6 +37,21 @@ test.describe('Services counselor user', () => {
       // When we search for Full PPM moves, partial move should not come up
       await page.locator('th[data-testid="ppmType"] > div > select').selectOption({ label: 'Full' });
       await expect(page.locator('h1').getByText('Moves (0)')).toBeVisible();
+    });
+
+    test('is able to filter moves based on PPM status', async ({ page }) => {
+      // Check for Waiting on customer filter
+      await page.locator('th[data-testid="locator"] > div > input').type(moveLocator);
+      await page.locator('th[data-testid="locator"] > div > input').blur();
+      await page.locator('th[data-testid="ppmStatus"] > div > select').selectOption({ label: 'Waiting on customer' });
+      await expect(page.locator('td').getByText(moveLocator)).toBeVisible();
+
+      // Check for Needs closeout filter
+      await page.locator('th[data-testid="locator"] > div > input').clear();
+      await page.locator('th[data-testid="locator"] > div > input').type(moveWithNeedsCloseoutLocator);
+      await page.locator('th[data-testid="locator"] > div > input').blur();
+      await page.locator('th[data-testid="ppmStatus"] > div > select').selectOption({ label: 'Needs closeout' });
+      await expect(page.locator('td').getByText(moveWithNeedsCloseoutLocator)).toBeVisible();
     });
 
     test('is able to filter moves based on destination duty location', async ({ page }) => {
