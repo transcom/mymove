@@ -1837,10 +1837,14 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			closeoutLocation = move.CloseoutOffice.Name
 		}
 		var closeoutInitiated time.Time
+		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
-			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
-				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
-					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+			if shipment.PPMShipment != nil {
+				ppmStatus = shipment.PPMShipment.Status
+				if shipment.PPMShipment.SubmittedAt != nil {
+					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+					}
 				}
 			}
 		}
@@ -1865,6 +1869,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
+			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 		}
 	}
 	return &queueMoves

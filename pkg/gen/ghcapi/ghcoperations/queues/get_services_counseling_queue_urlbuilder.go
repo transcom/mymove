@@ -31,6 +31,7 @@ type GetServicesCounselingQueueURL struct {
 	OriginGBLOC             *string
 	Page                    *int64
 	PerPage                 *int64
+	PpmStatus               *string
 	PpmType                 *string
 	RequestedMoveDate       *string
 	Sort                    *string
@@ -189,6 +190,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if perPageQ != "" {
 		qs.Set("perPage", perPageQ)
+	}
+
+	var ppmStatusQ string
+	if o.PpmStatus != nil {
+		ppmStatusQ = *o.PpmStatus
+	}
+	if ppmStatusQ != "" {
+		qs.Set("ppmStatus", ppmStatusQ)
 	}
 
 	var ppmTypeQ string

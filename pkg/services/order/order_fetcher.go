@@ -113,9 +113,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutInitiatedQuery := closeoutInitiatedFilter(params.CloseoutInitiated)
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
+	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [16]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, sortOrderQuery}
+	options := [17]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -221,6 +222,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	if params.Sort != nil && *params.Sort == "closeoutLocation" && !ppmCloseoutGblocs {
 		groupByColumms = append(groupByColumms, "closeout_to.id")
+	}
+
+	if params.Sort != nil && *params.Sort == "ppmStatus" {
+		groupByColumms = append(groupByColumms, "ppm_shipments.id")
 	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
@@ -433,6 +438,14 @@ func ppmTypeFilter(ppmType *string) QueryOption {
 	}
 }
 
+func ppmStatusFilter(ppmStatus *string) QueryOption {
+	return func(query *pop.Query) {
+		if ppmStatus != nil {
+			query.Where("ppm_shipments.status = ?", *ppmStatus)
+		}
+	}
+}
+
 func closeoutLocationFilter(closeoutLocation *string, ppmCloseoutGblocs bool) QueryOption {
 	return func(query *pop.Query) {
 		// If the office user is in a closeout gbloc, every single result they're seeing will have
@@ -510,6 +523,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"requestedMoveDate":       "LEAST(COALESCE(MIN(mto_shipments.requested_pickup_date), 'infinity'), COALESCE(MIN(ppm_shipments.expected_departure_date), 'infinity'), COALESCE(MIN(mto_shipments.requested_delivery_date), 'infinity'))",
 		"originGBLOC":             "origin_to.gbloc",
 		"ppmType":                 "moves.ppm_type",
+		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
 	}
