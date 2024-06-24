@@ -867,7 +867,6 @@ commands:
             export FEATURE_FLAG_NTSR=true
             export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
-            export FEATURE_FLAG_COAST_GUARD_EMPLID=true
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
             export FEATURE_FLAG_HEADQUARTERS_ROLE=false
@@ -902,7 +901,6 @@ commands:
             FEATURE_FLAG_NTSR: 'true'
             FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
-            FEATURE_FLAG_COAST_GUARD_EMPLID: 'true'
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
             FEATURE_FLAG_HEADQUARTERS_ROLE: 'false'
