@@ -1496,6 +1496,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		suite.Len(payload.QueueMoves, 2)
 		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())
 		suite.Equal(*order.ServiceMember.Edipi, result1.Customer.DodID)
+		suite.Equal(*order.ServiceMember.Emplid, result1.Customer.Emplid)
 		suite.Equal(subtestData.needsCounselingMove.Locator, result1.Locator)
 		suite.EqualValues(subtestData.needsCounselingMove.Status, result1.Status)
 		suite.Equal(subtestData.needsCounselingEarliestShipment.RequestedPickupDate.Format(time.RFC3339Nano), (time.Time)(*result1.RequestedMoveDate).Format(time.RFC3339Nano))
