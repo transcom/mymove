@@ -67,8 +67,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     closeoutOffice: move?.closeoutOffice || {},
     tertiaryPickupAddress: {},
     tertiaryDestinationAddress: {},
-    tertiaryPickupPostalCode: mtoShipment?.ppmShipment?.tertiaryPickupPostalCode,
-    tertiaryDestinationPostalCode: mtoShipment?.ppmShipment?.tertiaryDestinationPostalCode,
   };
 
   if (mtoShipment?.ppmShipment?.pickupAddress) {

@@ -171,12 +171,10 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 
 		ppmShipment.TertiaryPickupAddressID = &tertiaryPickupAddress.ID
 		ppmShipment.TertiaryPickupAddress = &tertiaryPickupAddress
-		ppmShipment.TertiaryPickupPostalCode = &tertiaryPickupAddress.PostalCode
 		ppmShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
 
 		ppmShipment.TertiaryDestinationAddressID = &tertiaryDestinationAddress.ID
 		ppmShipment.TertiaryDestinationAddress = &tertiaryDestinationAddress
-		ppmShipment.TertiaryDestinationPostalCode = &tertiaryDestinationAddress.PostalCode
 		ppmShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 	}
 

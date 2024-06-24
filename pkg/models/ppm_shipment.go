@@ -177,7 +177,6 @@ type PPMShipment struct {
 	SecondaryPickupAddress         *Address             `belongs_to:"addresses" fk_id:"secondary_pickup_postal_address_id"`
 	SecondaryPickupAddressID       *uuid.UUID           `db:"secondary_pickup_postal_address_id"`
 	HasSecondaryPickupAddress      *bool                `db:"has_secondary_pickup_address"`
-	TertiaryPickupPostalCode       *string              `json:"tertiary_pickup_postal_code" db:"tertiary_pickup_postal_code"`
 	TertiaryPickupAddress          *Address             `belongs_to:"addresses" fk_id:"tertiary_pickup_postal_address_id"`
 	TertiaryPickupAddressID        *uuid.UUID           `db:"tertiary_pickup_postal_address_id"`
 	HasTertiaryPickupAddress       *bool                `db:"has_tertiary_pickup_address"`
@@ -189,7 +188,6 @@ type PPMShipment struct {
 	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
 	SecondaryDestinationAddressID  *uuid.UUID           `db:"secondary_destination_postal_address_id"`
 	HasSecondaryDestinationAddress *bool                `db:"has_secondary_destination_address"`
-	TertiaryDestinationPostalCode  *string              `json:"tertiary_destination_postal_code" db:"tertiary_destination_postal_code"`
 	TertiaryDestinationAddress     *Address             `belongs_to:"addresses" fk_id:"tertiary_destination_postal_address_id"`
 	TertiaryDestinationAddressID   *uuid.UUID           `db:"tertiary_destination_postal_address_id"`
 	HasTertiaryDestinationAddress  *bool                `db:"has_tertiary_destination_address"`

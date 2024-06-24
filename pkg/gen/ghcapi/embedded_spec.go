@@ -9660,15 +9660,6 @@ func init() {
             }
           ]
         },
-        "tertiaryDestinationPostalCode": {
-          "type": "string",
-          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "tertiaryPickupAddress": {
           "allOf": [
             {
@@ -9681,15 +9672,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "tertiaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
@@ -23437,15 +23419,6 @@ func init() {
             }
           ]
         },
-        "tertiaryDestinationPostalCode": {
-          "type": "string",
-          "format": "An optional tertiary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "tertiaryPickupAddress": {
           "allOf": [
             {
@@ -23458,15 +23431,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "tertiaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
