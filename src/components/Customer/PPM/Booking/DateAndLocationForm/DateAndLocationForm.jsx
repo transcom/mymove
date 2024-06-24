@@ -60,7 +60,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     secondaryDestinationAddress: {},
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-    closeoutOffice: move?.closeoutOffice,
+    closeoutOffice: move?.closeoutOffice || {},
     tertiaryPickupAddress: {},
     tertiaryDestinationAddress: {},
   };

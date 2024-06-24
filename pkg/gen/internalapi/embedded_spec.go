@@ -3566,6 +3566,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -3577,6 +3587,12 @@ func init() {
         },
         "sitExpected": {
           "type": "boolean"
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -3762,6 +3778,12 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -4408,6 +4430,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -4455,6 +4487,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -5077,6 +5115,37 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
         },
         "submittedAmount": {
           "description": "Customer submitted total amount of the expense as indicated on the receipt",
@@ -5734,6 +5803,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -5867,6 +5946,32 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "tertiaryDestinationAddress": {
           "allOf": [
@@ -6158,6 +6263,24 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "submittedBelongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
@@ -6717,6 +6840,34 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -6964,6 +7115,12 @@ func init() {
         "tertiaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "w2Address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -7068,6 +7225,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -7095,6 +7262,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -7407,6 +7580,30 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "submittedEmptyWeight": {
           "description": "Customer submitted weight of the vehicle when empty.",
@@ -11621,6 +11818,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -11632,6 +11839,12 @@ func init() {
         },
         "sitExpected": {
           "type": "boolean"
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
@@ -11817,6 +12030,12 @@ func init() {
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -12465,6 +12684,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -12512,6 +12741,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -13136,6 +13371,37 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
         },
         "submittedAmount": {
           "description": "Customer submitted total amount of the expense as indicated on the receipt",
@@ -13793,6 +14059,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -13926,6 +14202,32 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "tertiaryDestinationAddress": {
           "allOf": [
@@ -14217,6 +14519,25 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "submittedBelongsToSelf": {
           "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
@@ -14778,6 +15099,34 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TransportationOffice": {
       "type": "object",
       "required": [
@@ -15025,6 +15374,12 @@ func init() {
         "tertiaryPickupAddress": {
           "$ref": "#/definitions/Address"
         },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "w2Address": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
@@ -15130,6 +15485,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -15157,6 +15522,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "tertiaryDeliveryAddress": {
           "$ref": "#/definitions/Address"
@@ -15480,6 +15851,32 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "submittedEmptyWeight": {
           "description": "Customer submitted weight of the vehicle when empty.",

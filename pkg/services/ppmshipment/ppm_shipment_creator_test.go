@@ -195,6 +195,13 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			PostalCode:     "90210",
 		}
 
+		tertiaryPickupAddress := models.Address{
+			StreetAddress1: "123 Any Tertiary Pickup Street",
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+
 		destinationAddress := models.Address{
 			StreetAddress1: "123 Any Destination Street",
 			City:           "SomeCity",
@@ -204,6 +211,12 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		secondaryDestinationAddress := models.Address{
 			StreetAddress1: "123 Any Secondary Destination Street",
+			City:           "SomeCity",
+			State:          "CA",
+			PostalCode:     "90210",
+		}
+		tertiaryDestinationAddress := models.Address{
+			StreetAddress1: "123 Any Tertiary Destination Street",
 			City:           "SomeCity",
 			State:          "CA",
 			PostalCode:     "90210",
@@ -219,6 +232,8 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			DestinationAddress:          &destinationAddress,
 			SecondaryPickupAddress:      &secondaryPickupAddress,
 			SecondaryDestinationAddress: &secondaryDestinationAddress,
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			TertiaryDestinationAddress:  &tertiaryDestinationAddress,
 		}, nil)
 
 		ppmEstimator.On(
@@ -244,17 +259,25 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 			suite.NotZero(createdPPMShipment.UpdatedAt)
 			suite.Equal(pickupAddress.StreetAddress1, createdPPMShipment.PickupAddress.StreetAddress1)
 			suite.Equal(secondaryPickupAddress.StreetAddress1, createdPPMShipment.SecondaryPickupAddress.StreetAddress1)
+			suite.Equal(tertiaryPickupAddress.StreetAddress1, createdPPMShipment.TertiaryPickupAddress.StreetAddress1)
 			suite.Equal(destinationAddress.StreetAddress1, createdPPMShipment.DestinationAddress.StreetAddress1)
 			suite.Equal(secondaryDestinationAddress.StreetAddress1, createdPPMShipment.SecondaryDestinationAddress.StreetAddress1)
+			suite.Equal(tertiaryDestinationAddress.StreetAddress1, createdPPMShipment.TertiaryDestinationAddress.StreetAddress1)
 			suite.NotNil(createdPPMShipment.PickupAddressID)
 			suite.NotNil(createdPPMShipment.DestinationAddressID)
 			suite.NotNil(createdPPMShipment.SecondaryPickupAddressID)
 			suite.NotNil(createdPPMShipment.SecondaryDestinationAddressID)
+			suite.NotNil(createdPPMShipment.TertiaryPickupAddressID)
+			suite.NotNil(createdPPMShipment.TertiaryDestinationAddressID)
 			//ensure HasSecondaryPickupAddress/HasSecondaryDestinationAddress are set even if not initially provided
 			suite.True(createdPPMShipment.HasSecondaryPickupAddress != nil)
+			suite.True(createdPPMShipment.HasTertiaryPickupAddress != nil)
 			suite.Equal(models.BoolPointer(true), createdPPMShipment.HasSecondaryPickupAddress)
+			suite.Equal(models.BoolPointer(true), createdPPMShipment.HasTertiaryPickupAddress)
 			suite.True(createdPPMShipment.HasSecondaryDestinationAddress != nil)
+			suite.True(createdPPMShipment.HasTertiaryDestinationAddress != nil)
 			suite.Equal(models.BoolPointer(true), createdPPMShipment.HasSecondaryDestinationAddress)
+			suite.Equal(models.BoolPointer(true), createdPPMShipment.HasTertiaryDestinationAddress)
 		}
 	})
 }
