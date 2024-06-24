@@ -525,7 +525,7 @@ func (suite *ServiceParamValueLookupsSuite) TestServiceParamValueLookup() {
 			}
 		}
 	})
-	
+
 	suite.Run("DestinationAddress is not required for service items like domestic pack", func() {
 		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
 			ReContractYear: models.ReContractYear{
