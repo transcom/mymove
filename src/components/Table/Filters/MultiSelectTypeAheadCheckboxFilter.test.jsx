@@ -20,10 +20,13 @@ const optionsStrings = [
 describe('MutliSelectTypeAheadCheckboxFilter', () => {
   it('renders without crashing', () => {
     const wrapper = mount(
-      <MutliSelectTypeAheadCheckboxFilter options={[{ label: 'test', value: 'test' }]} column={{}} />,
+      <MutliSelectTypeAheadCheckboxFilter
+        options={[{ label: 'test', value: 'test' }]}
+        placeholder="Select..."
+        column={{}}
+      />,
     );
-    expect(wrapper.find('[data-testid="MutliSelectTypeAheadCheckboxFilter"]').length).toBe(1);
-    expect(wrapper.find('.MutliSelectTypeAheadCheckboxFilter__placeholder').at(1).text('Select...')).toBeTruthy();
+    expect(wrapper.find('[data-testid="MultiSelectTypeAheadCheckBoxFilter"]').length).toBe(1);
   });
 
   describe('It renders the expected placeholder text', () => {
