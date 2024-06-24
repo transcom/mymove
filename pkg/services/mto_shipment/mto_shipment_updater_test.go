@@ -229,7 +229,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.Run("Successfully remove a secondary pickup address", func() {
 		setupTestData()
-		fmt.Println("secondaryPickupAddress", secondaryPickupAddress)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -266,7 +265,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 	suite.Run("Successfully remove a secondary delivery address", func() {
 		setupTestData()
-		fmt.Println("secondaryDeliveryAddress", secondaryDeliveryAddress)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -304,7 +302,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.Run("Successfully remove a tertiary pickup address", func() {
 		setupTestData()
-		fmt.Println("secondaryPickupAddress", tertiaryPickupAddress)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -341,7 +338,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 	suite.Run("Successfully remove a tertiary delivery address", func() {
 		setupTestData()
-		fmt.Println("secondaryDeliveryAddress", tertiaryDeliveryAddress)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{

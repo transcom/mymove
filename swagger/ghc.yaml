@@ -8232,16 +8232,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       tertiaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -8298,16 +8288,6 @@ definitions:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
-      tertiaryDestinationPostalCode:
-        format: >-
-          An optional tertiary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false

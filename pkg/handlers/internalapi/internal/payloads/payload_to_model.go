@@ -131,10 +131,8 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	model := &models.PPMShipment{
 		PickupPostalCode:               *ppmShipment.PickupPostalCode,
 		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryPickupPostalCode),
-		TertiaryPickupPostalCode:       handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.TertiaryPickupPostalCode),
 		DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
 		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryDestinationPostalCode),
-		TertiaryDestinationPostalCode:  handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.TertiaryDestinationPostalCode),
 		SITExpected:                    ppmShipment.SitExpected,
 		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
@@ -178,10 +176,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.SecondaryPickupPostalCode),
-		TertiaryPickupPostalCode:       handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.TertiaryPickupPostalCode),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.SecondaryDestinationPostalCode),
-		TertiaryDestinationPostalCode:  handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.TertiaryDestinationPostalCode),
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),

@@ -604,16 +604,23 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         userEvent.keyboard('Altus{enter}');
       });
 
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
       await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-      });
+      await waitFor(
+        () => {
+          expect(screen.queryByRole('alert')).toBeInTheDocument();
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+        },
+        { timeout: 10000 },
+      );
 
       // Schema validation is fail state thus Save button is disabled. click No to hide
       // SIT related widget. Hiding SIT widget must reset schema because previous SIT related

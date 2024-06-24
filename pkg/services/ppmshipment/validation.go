@@ -74,10 +74,8 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 	}
 
 	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
-	ppmShipment.TertiaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.TertiaryPickupPostalCode, ppmShipment.TertiaryPickupPostalCode)
 	ppmShipment.ActualPickupPostalCode = services.SetOptionalStringField(newPPMShipment.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
 	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
-	ppmShipment.TertiaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.TertiaryDestinationPostalCode, ppmShipment.TertiaryDestinationPostalCode)
 	ppmShipment.ActualDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.ActualDestinationPostalCode, ppmShipment.ActualDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
@@ -138,7 +136,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.HasTertiaryPickupAddress = newPPMShipment.HasTertiaryPickupAddress
 		ppmShipment.TertiaryPickupAddress = nil
 		ppmShipment.TertiaryPickupAddressID = nil
-		ppmShipment.TertiaryPickupPostalCode = nil
 	} else if newPPMShipment.TertiaryPickupAddress != nil {
 		ppmShipment.TertiaryPickupAddress = newPPMShipment.TertiaryPickupAddress
 		ppmShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
@@ -171,7 +168,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.HasTertiaryDestinationAddress = newPPMShipment.HasTertiaryDestinationAddress
 		ppmShipment.TertiaryDestinationAddress = nil
 		ppmShipment.TertiaryDestinationAddressID = nil
-		ppmShipment.TertiaryDestinationPostalCode = nil
 	} else if newPPMShipment.TertiaryDestinationAddress != nil {
 		ppmShipment.TertiaryDestinationAddress = newPPMShipment.TertiaryDestinationAddress
 		ppmShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)

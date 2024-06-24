@@ -1945,20 +1945,8 @@ definitions:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
-      tertiaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       tertiaryPickupAddress:
         $ref: 'definitions/Address.yaml'
-      tertiaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       hasTertiaryPickupAddress:
         type: boolean
         x-nullable: true
@@ -2011,12 +1999,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       tertiaryPickupAddress:
         $ref: 'definitions/Address.yaml'
       hasTertiaryPickupAddress:
@@ -2053,12 +2035,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: "90210"
-        pattern: ^(\d{5})$
-        $ref: definitions/NullableString.yaml
       tertiaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasTertiaryDestinationAddress:

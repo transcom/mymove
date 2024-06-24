@@ -217,18 +217,8 @@ type PPMShipment struct {
 	// tertiary destination address
 	TertiaryDestinationAddress *Address `json:"tertiaryDestinationAddress,omitempty"`
 
-	// ZIP
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	TertiaryDestinationPostalCode *string `json:"tertiaryDestinationPostalCode"`
-
 	// tertiary pickup address
 	TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
-
-	// ZIP
-	// Example: 90210
-	// Pattern: ^(\d{5})$
-	TertiaryPickupPostalCode *string `json:"tertiaryPickupPostalCode"`
 
 	// Timestamp of when a property of this object was last updated (UTC)
 	// Read Only: true
@@ -362,15 +352,7 @@ func (m *PPMShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDestinationPostalCode(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateTertiaryPickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateTertiaryPickupPostalCode(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -830,18 +812,6 @@ func (m *PPMShipment) validateTertiaryDestinationAddress(formats strfmt.Registry
 	return nil
 }
 
-func (m *PPMShipment) validateTertiaryDestinationPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDestinationPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("tertiaryDestinationPostalCode", "body", *m.TertiaryDestinationPostalCode, `^(\d{5})$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func (m *PPMShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.TertiaryPickupAddress) { // not required
 		return nil
@@ -856,18 +826,6 @@ func (m *PPMShipment) validateTertiaryPickupAddress(formats strfmt.Registry) err
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *PPMShipment) validateTertiaryPickupPostalCode(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryPickupPostalCode) { // not required
-		return nil
-	}
-
-	if err := validate.Pattern("tertiaryPickupPostalCode", "body", *m.TertiaryPickupPostalCode, `^(\d{5})$`); err != nil {
-		return err
 	}
 
 	return nil

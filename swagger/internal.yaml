@@ -1974,20 +1974,8 @@ definitions:
         $ref: '#/definitions/Address'
       tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
-      tertiaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       tertiaryPickupAddress:
         $ref: '#/definitions/Address'
-      tertiaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       hasTertiaryPickupAddress:
         type: boolean
         x-nullable: true
@@ -2040,12 +2028,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       tertiaryPickupAddress:
         $ref: '#/definitions/Address'
       hasTertiaryPickupAddress:
@@ -2083,12 +2065,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasTertiaryDestinationAddress:
@@ -3418,16 +3394,6 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       tertiaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -3484,16 +3450,6 @@ definitions:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
-      tertiaryDestinationPostalCode:
-        format: >-
-          An optional tertiary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
