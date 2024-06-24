@@ -544,6 +544,43 @@ func init() {
         }
       ]
     },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/documents/{documentId}": {
       "get": {
         "description": "Returns a document and its uploads",
@@ -5306,6 +5343,94 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes a collection of uploads",
+        "operationId": "deleteUploads",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Array of UUIDs to be deleted",
+            "name": "uploadIds",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
       }
     }
   },
@@ -10057,6 +10182,16 @@ func init() {
         "$ref": "#/definitions/PaymentServiceItem"
       }
     },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
+      }
+    },
     "ProGearWeightTicket": {
       "description": "Pro-gear associated information and weight docs for a PPM shipment",
       "type": "object",
@@ -13128,6 +13263,46 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/documents/{documentId}": {
       "get": {
@@ -19113,6 +19288,94 @@ func init() {
             "description": "server error"
           }
         }
+      },
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes a collection of uploads",
+        "operationId": "deleteUploads",
+        "parameters": [
+          {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Array of UUIDs to be deleted",
+            "name": "uploadIds",
+            "in": "query",
+            "required": true
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadId}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
       }
     }
   },
@@ -23867,6 +24130,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {

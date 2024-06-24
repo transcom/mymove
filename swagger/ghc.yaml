@@ -3103,6 +3103,32 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /documents:
+    post:
+      summary: Create a new document
+      description: >-
+        Documents represent a physical artifact such as a scanned document or a
+        PDF file
+      operationId: createDocument
+      tags:
+        - ghcDocuments
+      parameters:
+        - in: body
+          name: documentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/PostDocumentPayload'
+      responses:
+        '201':
+          description: created document
+          schema:
+            $ref: '#/definitions/Document'
+        '400':
+          description: invalid request
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          description: server error
   /queues/counseling:
     get:
       produces:
@@ -3762,6 +3788,66 @@ paths:
           description: payload is too large
         '500':
           description: server error
+    delete:
+      summary: Deletes a collection of uploads
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUploads
+      tags:
+        - uploads
+      parameters:
+        - in: query
+          name: uploadIds
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: true
+          description: Array of UUIDs to be deleted
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -3803,6 +3889,20 @@ definitions:
         type: string
         format: string
         x-nullable: true
+  PostDocumentPayload:
+    type: object
+    properties:
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
   ClientError:
     type: object
     properties:
@@ -6676,13 +6776,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
-  InvalidRequestResponsePayload:
-    type: object
-    properties:
-      errors:
-        type: object
-        additionalProperties:
-          type: string
   Affiliation:
     type: string
     x-nullable: true

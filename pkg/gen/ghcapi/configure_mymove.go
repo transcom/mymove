@@ -117,6 +117,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation customer.CreateCustomerWithOktaOption has not yet been implemented")
 		})
 	}
+	if api.GhcDocumentsCreateDocumentHandler == nil {
+		api.GhcDocumentsCreateDocumentHandler = ghc_documents.CreateDocumentHandlerFunc(func(params ghc_documents.CreateDocumentParams) middleware.Responder {
+			return middleware.NotImplemented("operation ghc_documents.CreateDocument has not yet been implemented")
+		})
+	}
 	if api.EvaluationReportsCreateEvaluationReportHandler == nil {
 		api.EvaluationReportsCreateEvaluationReportHandler = evaluation_reports.CreateEvaluationReportHandlerFunc(func(params evaluation_reports.CreateEvaluationReportParams) middleware.Responder {
 			return middleware.NotImplemented("operation evaluation_reports.CreateEvaluationReport has not yet been implemented")
@@ -155,6 +160,16 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.ShipmentDeleteShipmentHandler == nil {
 		api.ShipmentDeleteShipmentHandler = shipment.DeleteShipmentHandlerFunc(func(params shipment.DeleteShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DeleteShipment has not yet been implemented")
+		})
+	}
+	if api.UploadsDeleteUploadHandler == nil {
+		api.UploadsDeleteUploadHandler = uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
+		})
+	}
+	if api.UploadsDeleteUploadsHandler == nil {
+		api.UploadsDeleteUploadsHandler = uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
 		})
 	}
 	if api.ShipmentDenySITExtensionHandler == nil {
