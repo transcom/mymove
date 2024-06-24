@@ -11,8 +11,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
   const [, , estimatedWeightHelper] = useField('estimatedWeight');
 
-  const handleEstimatedWeightChange = (event) => {
-    const { value } = event.target;
+  const handleEstimatedWeightChange = (value) => {
     onEstimatedWeightChange(value);
   };
 

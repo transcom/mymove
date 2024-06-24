@@ -237,7 +237,7 @@ const ShipmentForm = (props) => {
       hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
       showCloseoutOffice,
-      sitEstimatedWeightMax: maxEstimatedWeightForSIT,
+      sitEstimatedWeightMax: maxEstimatedWeightForSIT || 0,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
