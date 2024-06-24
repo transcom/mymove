@@ -334,6 +334,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                           <DropdownInput
                             label="Reason for edit"
                             name="requestReason"
+                            data-testid="reasonDropdown"
                             options={dropdownInputOptions(sitExtensionReasons)}
                           />
                         </div>
