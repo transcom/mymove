@@ -285,7 +285,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PPMShipments:            PPMShipments,
 	}
-	sswPage1 := FormatValuesShipmentSummaryWorksheetFormPage1(ssd)
+	sswPage1 := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 
 	suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
 
@@ -394,7 +394,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		MovingExpenses: movingExpenses,
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd)
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
 	suite.Equal("$200.00", sswPage2.TollsGTCCPaid)
 	suite.Equal("$200.00", sswPage2.TollsMemberPaid)
 	suite.Equal("$200.00", sswPage2.OilMemberPaid)
@@ -569,13 +569,19 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberAffili
 	suite.Equal("Marines", FormatServiceMemberAffiliation(&marines))
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeight() {
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightEstimated() {
 	pounds := unit.Pound(1000)
 	ppm := models.PPMShipment{EstimatedWeight: &pounds}
 	noWtg := models.PPMShipment{EstimatedWeight: nil}
 
-	suite.Equal("1,000 lbs - Estimated", FormatPPMWeight(ppm))
-	suite.Equal("", FormatPPMWeight(noWtg))
+	suite.Equal("1,000 lbs - Estimated", FormatPPMWeightEstimated(ppm))
+	suite.Equal("", FormatPPMWeightEstimated(noWtg))
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightFinal() {
+	pounds := unit.Pound(1000)
+
+	suite.Equal("1,000 lbs - Final", FormatPPMWeightFinal(pounds))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
@@ -755,7 +761,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
-	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd)
+	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
 	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
@@ -786,34 +792,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {
 		suite.Equal(tt.expectedResult, result)
 	}
 
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestGetOrDefault() {
-	testValue := "hello"
-	tests := []struct {
-		name           string
-		value          *string
-		defaultValue   string
-		expectedResult string
-	}{
-		{
-			name:           "Non-nil value provided",
-			value:          &testValue, // Example non-nil value
-			defaultValue:   "world",    // Example default value
-			expectedResult: "hello",
-		},
-		{
-			name:           "Nil value provided",
-			value:          nil,
-			defaultValue:   "world", // Example default value
-			expectedResult: "world",
-		},
-	}
-
-	for _, tt := range tests {
-		result := getOrDefault(tt.value, tt.defaultValue)
-		suite.Equal(tt.expectedResult, result)
-	}
 }
 
 type mockPPMShipment struct {
