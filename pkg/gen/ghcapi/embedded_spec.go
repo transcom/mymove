@@ -3728,19 +3728,19 @@ func init() {
     },
     "/queues/counseling/origin-list": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "queues"
         ],
-        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
         "operationId": "getServicesCounselingOriginList",
         "parameters": [
           {
             "type": "boolean",
-            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
             "in": "query"
           }
@@ -17127,19 +17127,19 @@ func init() {
     },
     "/queues/counseling/origin-list": {
       "get": {
-        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.\n",
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "queues"
         ],
-        "summary": "Gets queued list of all customer moves needing services counseling by GBLOC origin",
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
         "operationId": "getServicesCounselingOriginList",
         "parameters": [
           {
             "type": "boolean",
-            "description": "Only used for Services Counseling queue. If true, show PPM moves that are ready for closeout. Otherwise, show all other moves.",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
             "name": "needsPPMCloseout",
             "in": "query"
           }

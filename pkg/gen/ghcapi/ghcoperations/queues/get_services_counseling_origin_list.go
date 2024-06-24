@@ -32,9 +32,9 @@ func NewGetServicesCounselingOriginList(ctx *middleware.Context, handler GetServ
 /*
 	GetServicesCounselingOriginList swagger:route GET /queues/counseling/origin-list queues getServicesCounselingOriginList
 
-# Gets queued list of all customer moves needing services counseling by GBLOC origin
+# Gets queued list of all moves origin locations in the counselors queue
 
-An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the NEEDS SERVICE COUNSELING status after submission from a customer or created on a customer's behalf.
+An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.
 */
 type GetServicesCounselingOriginList struct {
 	Context *middleware.Context
