@@ -73,7 +73,7 @@ func (p *ppmCloseoutFetcher) GetPPMCloseout(appCtx appcontext.AppContext, ppmShi
 		return &models.PPMCloseout{}, err
 	}
 	if ppmShipment.FinalIncentive != nil {
-		if *ppmShipment.HasRequestedAdvance && ppmShipment.AdvanceAmountReceived != nil {
+		if *ppmShipment.HasReceivedAdvance && ppmShipment.AdvanceAmountReceived != nil {
 			remainingIncentive = *ppmShipment.FinalIncentive - *ppmShipment.AdvanceAmountReceived
 		} else {
 			remainingIncentive = *ppmShipment.FinalIncentive
