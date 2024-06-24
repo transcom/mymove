@@ -67,6 +67,9 @@ type QueueMove struct {
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
+	// ppm status
+	PpmStatus PPMStatus `json:"ppmStatus,omitempty"`
+
 	// ppm type
 	// Enum: [FULL PARTIAL]
 	PpmType *string `json:"ppmType,omitempty"`
@@ -131,6 +134,10 @@ func (m *QueueMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginGBLOC(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePpmStatus(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -328,6 +335,23 @@ func (m *QueueMove) validateOriginGBLOC(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *QueueMove) validatePpmStatus(formats strfmt.Registry) error {
+	if swag.IsZero(m.PpmStatus) { // not required
+		return nil
+	}
+
+	if err := m.PpmStatus.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmStatus")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmStatus")
+		}
+		return err
+	}
+
+	return nil
+}
+
 var queueMoveTypePpmTypePropEnum []interface{}
 
 func init() {
@@ -436,6 +460,10 @@ func (m *QueueMove) ContextValidate(ctx context.Context, formats strfmt.Registry
 	}
 
 	if err := m.contextValidateOriginGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidatePpmStatus(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -565,6 +593,24 @@ func (m *QueueMove) contextValidateOriginGBLOC(ctx context.Context, formats strf
 			return ve.ValidateName("originGBLOC")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("originGBLOC")
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *QueueMove) contextValidatePpmStatus(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.PpmStatus) { // not required
+		return nil
+	}
+
+	if err := m.PpmStatus.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("ppmStatus")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("ppmStatus")
 		}
 		return err
 	}
