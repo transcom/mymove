@@ -1,6 +1,8 @@
 package report
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -15,10 +17,6 @@ func NewReportListFetcher() services.ReportListFetcher {
 }
 
 func (f *reportListFetcher) FetchReportList(appCtx appcontext.AppContext, params *services.FetchPaymentRequestListParams) (models.Reports, error) {
-	testReportFetcher, err := f.testReportFetcher(appCtx)
-
-	print(testReportFetcher)
-
 	paymentRequests, err := f.FetchPaymentRequestListForReports(appCtx, params)
 	if err != nil {
 		return nil, err
@@ -28,38 +26,17 @@ func (f *reportListFetcher) FetchReportList(appCtx appcontext.AppContext, params
 	return reports, nil
 }
 
-func (f *reportListFetcher) testReportFetcher(appCtx appcontext.AppContext) (*models.TestReports, error) {
-	testReports := models.TestReports{}
-
-	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
-	query := appCtx.DB().EagerPreload("PaymentRequests", "Moves", "Orders", "Addresses").
-		InnerJoin("moves", "payment_request.moves_id = moves.id").
-		InnerJoin("orders", "orders.id = moves.orders_id").
-		Where("moves.show = ?", models.BoolPointer(true)).
-		Where("service_members.affiliation = ?", models.AffiliationNAVY).
-		Where("payment_requests.status in (?)", approvedStatuses)
-
-	err := query.All(&testReports)
-	if err != nil {
-		return nil, err
-	}
-
-	return &testReports, nil
-}
-
 // Fetch Payment Requests for Navy service members and ignore TIO and GBLOC rules
 func (f *reportListFetcher) FetchPaymentRequestListForReports(appCtx appcontext.AppContext, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, error) {
 	paymentRequests := models.PaymentRequests{}
 
 	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
-	query := appCtx.DB().EagerPreload(
-		"MoveTaskOrder", "MoveTaskOrder.MTOShipments", "MoveTaskOrder.Orders", "MoveTaskOrder.Orders.SAC", "MoveTaskOrder.Orders.Moves",
-		"MoveTaskOrder.Orders.Entitlement", "MoveTaskOrder.Orders.ServiceMember", "MoveTaskOrder.MTOShipments",
+	query := appCtx.DB().Q().EagerPreload(
+		"MoveTaskOrder", "MoveTaskOrder.MTOShipments", "MoveTaskOrder.Orders", "MoveTaskOrder.Orders.SAC",
 		// "MoveTaskOrder.Orders.TransportationAccountingCode" // "MoveTaskOrder.Orders.DutyLocations",
 	).
 		InnerJoin("moves", "payment_requests.move_id = moves.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
-		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		InnerJoin("transportation_accounting_codes", "orders.tac = transportation_accounting_codes.tac").
 		// InnerJoin("addresses", "addresses.id = mto_shipments.destination_address_id").
@@ -83,6 +60,23 @@ func (f *reportListFetcher) BuildReportListFromPaymentRequests(appCtx appcontext
 	if paymentRequests != nil {
 		for _, paymentRequest := range *paymentRequests {
 			var newReport models.Report
+
+			// pop doesn't support associations 3+ deep so there's data we need to load here in order to get the necessary data
+			loadErr := appCtx.DB().Load(paymentRequest.MoveTaskOrder.Orders, "ServiceMember")
+			if loadErr != nil {
+				fmt.Printf("Failed to load Entitlement table, %s", loadErr.Error())
+			}
+
+			loadErr = appCtx.DB().Load(paymentRequest.MoveTaskOrder.Orders, "Entitlement")
+			if loadErr != nil {
+				fmt.Printf("Failed to load Entitlement table, %s", loadErr.Error())
+			}
+
+			loadErr = appCtx.DB().Load(paymentRequest.MoveTaskOrder.Orders, "DutyLocations")
+			if loadErr != nil {
+				fmt.Printf("Failed to load Entitlement table, %s", loadErr.Error())
+			}
+
 			MoveTaskOrder := paymentRequest.MoveTaskOrder
 			Orders := MoveTaskOrder.Orders
 
@@ -177,7 +171,7 @@ func (f *reportListFetcher) BuildReportListFromPaymentRequests(appCtx appcontext
 			// newReport.TransmitCD
 			newReport.DD2278IssueDate = MoveTaskOrder.ServiceCounselingCompletedAt
 			// newReport.Miles
-			//  newReport.WeightAuthorized = (*unit.Pound)(paymentRequest.MoveTaskOrder.Orders.Entitlement.DBAuthorizedWeight) // entitlement table isn't loading
+			//  newReport.WeightAuthorized = (*unit.Pound)(Orders.Entitlement.DBAuthorizedWeight) // entitlement table isn't loading
 			newReport.ShipmentId = paymentRequest.MoveTaskOrderID
 			// newReport.SCAC =
 			if Orders.SAC != nil {
@@ -188,7 +182,7 @@ func (f *reportListFetcher) BuildReportListFromPaymentRequests(appCtx appcontext
 			}
 			// newReport.LOA
 			// newReport.ShipmentType =
-			// newReport.EntitlementWeight = (*unit.Pound)(paymentRequest.MoveTaskOrder.Orders.Entitlement // entitlement table isn't loading
+			// newReport.EntitlementWeight = (*unit.Pound)(Orders.Entitlement // entitlement table isn't loading
 			// newReport.NetWeight =
 			newReport.PBPAndE = &progear
 			newReport.PickupDate = MoveTaskOrder.MTOShipments[0].ActualPickupDate

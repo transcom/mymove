@@ -9,14 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type TestReport struct {
-	Orders          Order
-	PaymentRequests PaymentRequests
-	MTOShipments    MTOShipments
-}
-
-type TestReports []TestReport
-
 type Report struct {
 	ID                          uuid.UUID
 	FirstName                   *string
