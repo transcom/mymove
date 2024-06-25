@@ -48,6 +48,7 @@ export const customerRoutes = {
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
+  UPLOAD_ADDITIONAL_DOCUMENTS_PATH: '/move/:moveId/upload-additional-documents',
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';
@@ -88,6 +89,8 @@ export const servicesCounselingRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,
   SHIPMENT_REVIEW_PATH: 'shipments/:shipmentId/document-review',
+  BASE_SHIPMENT_VIEW_DOCUMENT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/view-document`,
+  SHIPMENT_VIEW_DOCUMENT_PATH: 'shipments/:shipmentId/view-document',
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
   CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
