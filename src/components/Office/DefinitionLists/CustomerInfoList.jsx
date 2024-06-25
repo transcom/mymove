@@ -24,7 +24,7 @@ const CustomerInfoList = ({ customerInfo }) => {
         {customerInfo.agency === departmentIndicators.COAST_GUARD && (
           <div className={descriptionListStyles.row}>
             <dt>EMPLID</dt>
-            <dd data-testid="dodId">{customerInfo.emplid}</dd>
+            <dd data-testid="emplid">{customerInfo.emplid}</dd>
           </div>
         )}
         <div className={descriptionListStyles.row}>
