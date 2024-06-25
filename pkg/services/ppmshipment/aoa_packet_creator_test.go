@@ -268,6 +268,11 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 
 				ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
 					{
+						Model: models.MTOShipment{
+							ID: uuid.Must(uuid.NewV4()),
+						},
+					},
+					{
 						Model: models.PPMShipment{
 							ID: uuid.Must(uuid.NewV4()),
 						},
