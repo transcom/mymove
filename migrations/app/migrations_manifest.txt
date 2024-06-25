@@ -957,3 +957,4 @@
 20240611185048_drop_unique_constraint_emplid.up.sql
 20240613050505_add_sit_cost_moving_expenses.up.sql
 20240613192433_move_valid_loa_for_tac_col_to_lines_of_accounting_table.up.sql
+20240624215947_add_sit_reimburseable_amount.up.sql

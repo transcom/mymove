@@ -480,6 +480,10 @@ definitions:
         allOf:
           - $ref: '#/definitions/SITLocationType'
           - x-nullable: true
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
+        x-nullable: true
     required:
       - movingExpenseType
       - description
@@ -3001,6 +3005,11 @@ definitions:
           separate from the estimated incentive.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
         x-nullable: true
         x-omitempty: false
     required:

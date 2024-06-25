@@ -196,6 +196,8 @@ export default function ReviewExpense({
       status: values.status,
       weightStored: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? weightStoredValue : undefined,
       sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
+      sitReimburseableAmount:
+        llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? actualSITReimbursed : undefined,
     };
 
     patchExpenseMutation({
