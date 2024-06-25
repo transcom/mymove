@@ -29,42 +29,6 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
-  '/customer':
-    post:
-      summary: Creates a customer with Okta option
-      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
-      operationId: createCustomerWithOktaOption
-      tags:
-        - customer
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/CreateCustomerPayload'
-      responses:
-        '200':
-          description: successfully created the customer
-          schema:
-            $ref: '#/definitions/CreatedCustomer'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /open/requested-office-users:
     post:
       consumes:
@@ -100,6 +64,42 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  '/customer':
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to create an Okta profile account
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -3262,9 +3262,6 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-      x-permissions:
-        - update.move
-        - create.serviceItem
   /queues/payment-requests:
     get:
       produces:
@@ -4145,6 +4142,7 @@ definitions:
         x-nullable: true
       dodID:
         type: string
+        example: 1234567890
         x-nullable: true
       branch:
         type: string
@@ -6072,12 +6070,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date

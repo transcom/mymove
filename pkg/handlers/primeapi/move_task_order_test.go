@@ -98,8 +98,8 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 
 			pm.Orders.UploadedAmendedOrders = &document
 			pm.Orders.UploadedAmendedOrdersID = &document.ID
-			// nolint:gosec //G601
-			suite.MustSave(&pm.Orders)
+
+			suite.MustSave(&pm.Orders) //#nosec G601
 			upload := models.Upload{
 				Filename:    "test.pdf",
 				Bytes:       1048576,
@@ -1699,8 +1699,34 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
+
+		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+			mockCreator := &mocks.SignedCertificationCreator{}
+
+			mockCreator.On(
+				"CreateSignedCertification",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.SignedCertification"),
+			).Return(returnValue...)
+
+			return mockCreator
+		}
+
+		setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+			mockUpdater := &mocks.SignedCertificationUpdater{}
+
+			mockUpdater.On(
+				"UpdateSignedCertification",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.SignedCertification"),
+				mock.AnythingOfType("string"),
+			).Return(returnValue...)
+
+			return mockUpdater
+		}
+
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
 		mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
 
 		handler := UpdateMTOPostCounselingInformationHandler{
@@ -1756,8 +1782,34 @@ func (suite *HandlerSuite) TestUpdateMTOPostCounselingInfo() {
 			mock.Anything,
 			mock.Anything,
 		).Return(400, nil)
+
+		setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+			mockCreator := &mocks.SignedCertificationCreator{}
+
+			mockCreator.On(
+				"CreateSignedCertification",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.SignedCertification"),
+			).Return(returnValue...)
+
+			return mockCreator
+		}
+
+		setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+			mockUpdater := &mocks.SignedCertificationUpdater{}
+
+			mockUpdater.On(
+				"UpdateSignedCertification",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("models.SignedCertification"),
+				mock.AnythingOfType("string"),
+			).Return(returnValue...)
+
+			return mockUpdater
+		}
+
 		siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter)
+		updater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, siCreator, moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
 		handler := UpdateMTOPostCounselingInformationHandler{
 			suite.HandlerConfig(),
 			fetcher,

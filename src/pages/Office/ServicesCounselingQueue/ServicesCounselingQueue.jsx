@@ -6,11 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
-  SERVICE_COUNSELING_BRANCH_OPTIONS,
+  BRANCH_OPTIONS_WITH_MARINE_CORPS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -36,12 +37,11 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
@@ -130,7 +130,7 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
@@ -210,7 +210,21 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
+      ),
+    },
+  ),
+  createHeader(
+    'Status',
+    (row) => {
+      return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
+    },
+    {
+      id: 'ppmStatus',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
       ),
     },
   ),
@@ -450,6 +464,7 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
       <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
     );
   }
+
   const navTabs = () => (isCounselorMoveCreateFFEnabled ? ffTabs : tabs);
 
   const renderNavBar = () => {

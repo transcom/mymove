@@ -60,6 +60,7 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 	// if the shipment has an estimated weight at time of approval
 	// recalculate the authorized weight to include the newly authorized shipment
+	// and check for excess weight
 	if shipment.PrimeEstimatedWeight != nil {
 		err = f.updateAuthorizedWeight(appCtx, shipment)
 		if err != nil {

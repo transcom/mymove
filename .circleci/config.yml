@@ -40,11 +40,12 @@ references:
 
   # In addition, it's common practice to disable acceptance tests and
   # ignore tests for dp3 deploys. See the branch settings below.
-  dp3-branch: &dp3-branch placeholder_branch_name
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env placeholder_env
-
+  dp3-branch: &dp3-branch integrationTesting
+  # MUST BE ONE OF: loadtest, demo, exp.
+  # These are used to pull in env vars so the spelling matters!
+  dp3-env: &dp3-env loadtest
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
@@ -53,17 +54,19 @@ references:
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
   # do want to run them
-  integration-mtls-ignore-branch: &integration-mtls-ignore-branch placeholder_branch_name
+
+  integration-mtls-ignore-branch: &integration-mtls-ignore-branch integrationTesting
 
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch placeholder_branch_name
+  client-ignore-branch: &client-ignore-branch integrationTesting
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch placeholder_branch_name
+
+  server-ignore-branch: &server-ignore-branch integrationTesting
 
 executors:
   base_small:
@@ -779,7 +782,6 @@ commands:
             OKTA_API_KEY: notrealapikey8675309
             OKTA_OFFICE_GROUP_ID: notrealgroupId
             OKTA_CUSTOMER_GROUP_ID: notrealcustomergroupId
-
   # run playwright tests without using setup_remote_docker
   # the remote docker resources are not configurable and thus are
   # SLOOOOOOW
@@ -849,7 +851,6 @@ commands:
             export OKTA_API_KEY=notrealapikey
             export OKTA_OFFICE_GROUP_ID=notrealgroupId
             export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
             export SERVE_API_PRIME=false
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
@@ -869,7 +870,9 @@ commands:
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
+            export FEATURE_FLAG_HEADQUARTERS_ROLE=false
             export FEATURE_FLAG_SAFETY_MOVE=false
+            export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
 
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
@@ -902,7 +905,9 @@ commands:
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
+            FEATURE_FLAG_HEADQUARTERS_ROLE: 'false'
             FEATURE_FLAG_SAFETY_MOVE: 'false'
+            FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \
@@ -976,7 +981,6 @@ commands:
             export OKTA_API_KEY=notrealapikey
             export OKTA_OFFICE_GROUP_ID=notrealgroupId
             export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
             export SERVE_API_SUPPORT=true
             export SERVE_PRIME_SIMULATOR=true
             export DEVLOCAL_CA=$PWD/config/tls/devlocal-ca.pem
@@ -1065,7 +1069,6 @@ commands:
             export OKTA_API_KEY=notrealapikey
             export OKTA_OFFICE_GROUP_ID=notrealgroupId
             export OKTA_CUSTOMER_GROUP_ID=notrealcustomergroupId
-
             export SERVE_API_SUPPORT=true
             export MUTUAL_TLS_ENABLED=true
             export SERVE_PRIME_SIMULATOR=true

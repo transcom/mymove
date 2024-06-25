@@ -106,7 +106,6 @@ const ShipmentDisplay = ({
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>
-
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         <ShipmentInfoListSelector
@@ -212,14 +211,10 @@ ShipmentDisplay.propTypes = {
       shipmentType: PropTypes.string,
       hasRequestedAdvance: PropTypes.bool,
       advanceAmountRequested: PropTypes.number,
-      destinationPostalCode: PropTypes.string,
       estimatedIncentive: PropTypes.number,
       estimatedWeight: PropTypes.string,
       expectedDepartureDate: PropTypes.string,
-      pickupPostalCode: PropTypes.string,
       proGearWeight: PropTypes.string,
-      secondaryDestinationPostalCode: PropTypes.string,
-      secondaryPickupPostalCode: PropTypes.string,
       spouseProGearWeight: PropTypes.string,
       customerRemarks: PropTypes.string,
       tacType: PropTypes.string,

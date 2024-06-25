@@ -838,15 +838,11 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -1997,7 +1993,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
-
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++

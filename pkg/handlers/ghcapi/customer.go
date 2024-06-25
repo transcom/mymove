@@ -89,7 +89,12 @@ func (h SearchCustomersHandler) Handle(params customercodeop.SearchCustomersPara
 
 			if err != nil {
 				appCtx.Logger().Error("Error searching for customer", zap.Error(err))
-				return customercodeop.NewSearchCustomersInternalServerError(), err
+				switch err.(type) {
+				case apperror.ForbiddenError:
+					return customercodeop.NewSearchCustomersForbidden(), err
+				default:
+					return customercodeop.NewSearchCustomersInternalServerError(), err
+				}
 			}
 
 			searchCustomers := payloads.SearchCustomers(customers)
@@ -182,14 +187,13 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				oktaSub = oktaUser.ID
 			}
 
-			// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
-			// to true so that the customer can log in without having to authenticate with a CAC
-			var cacValidated = false
-			if !payload.CacUser {
-				cacValidated = true
-			}
-
 			transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
+				// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
+				// to true so that the customer can log in without having to authenticate with a CAC
+				var cacValidated = false
+				if !payload.CacUser {
+					cacValidated = true
+				}
 				var verrs *validate.Errors
 				// creating a user and populating okta values (for now these can be null)
 				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, email)

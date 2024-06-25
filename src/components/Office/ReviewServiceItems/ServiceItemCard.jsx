@@ -133,7 +133,6 @@ const ServiceItemCard = ({
               {mtoServiceItemName}
               {mtoServiceItemStandaloneCrate && ' - Standalone'}
             </dd>
-
             <dt>Amount</dt>
             <dd data-testid="serviceItemAmount">{toDollarString(amount)}</dd>
           </dl>

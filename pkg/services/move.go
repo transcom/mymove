@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // MoveListFetcher is the exported interface for fetching multiple moves
@@ -71,6 +72,17 @@ type MoveExcessWeightUploader interface {
 	) (*models.Move, error)
 }
 
+type MoveAdditionalDocumentsUploader interface {
+	CreateAdditionalDocumentsUpload(
+		appCtx appcontext.AppContext,
+		userID uuid.UUID,
+		moveID uuid.UUID,
+		file io.ReadCloser,
+		uploadFilename string,
+		storer storage.FileStorer,
+	) (models.Upload, string, *validate.Errors, error)
+}
+
 // MoveFinancialReviewFlagSetter is the exported interface for flagging a move for financial review
 //
 //go:generate mockery --name MoveFinancialReviewFlagSetter
@@ -93,6 +105,7 @@ type SearchMovesParams struct {
 	Order                 *string
 	PickupDate            *time.Time
 	DeliveryDate          *time.Time
+	MoveCreatedDate       *time.Time
 }
 
 type MoveCloseoutOfficeUpdater interface {
