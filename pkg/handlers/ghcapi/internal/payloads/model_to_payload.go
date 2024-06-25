@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -1672,10 +1673,12 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -1743,10 +1746,12 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -2118,4 +2123,24 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 		}
 	}
 	return &searchCustomers
+}
+
+// ClientError describes errors in a standard structure to be returned in the payload
+func ClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
+	return &ghcmessages.ClientError{
+		Title:    handlers.FmtString(title),
+		Detail:   handlers.FmtString(detail),
+		Instance: handlers.FmtUUID(instance),
+	}
+}
+
+// ValidationError describes validation errors from the model or properties
+func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *ghcmessages.ValidationError {
+	payload := &ghcmessages.ValidationError{
+		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
+	}
+	if validationErrors != nil {
+		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
+	}
+	return payload
 }
