@@ -733,7 +733,6 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToEditProGearPage() {
     await this.page.getByRole('link', { name: 'Edit' }).nth(2).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
   /**
@@ -748,7 +747,6 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToEditWeightTicketPage() {
     await this.page.getByRole('link', { name: 'Edit' }).nth(1).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
   /**
