@@ -172,7 +172,7 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)
-		suite.Equal("Not found looking for pickup address", err.Error())
+		suite.Equal("not found looking for pickup address", err.Error())
 	})
 }
 func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidActualPickupDate() {
