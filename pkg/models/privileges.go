@@ -16,7 +16,7 @@ type PrivilegeType string
 type PrivilegeName string
 
 const (
-	// PrivilegeTypeSupervisor is the Transportation Ordering Officer Role
+	// PrivilegeTypeSupervisor is the Task Ordering Officer Role
 	PrivilegeTypeSupervisor PrivilegeType = "supervisor"
 	PrivilegeTypeSafety     PrivilegeType = "safety"
 )

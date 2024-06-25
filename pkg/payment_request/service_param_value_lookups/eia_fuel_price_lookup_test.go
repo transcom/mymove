@@ -28,6 +28,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		firstGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 06, 0, 0, 0, 0, time.UTC)
 		firstGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243699)
+		firstGHCDieselFuelPrice.EffectiveDate = firstGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 1)
+		firstGHCDieselFuelPrice.EndDate = firstGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 7)
 
 		var existingFuelPrice1 models.GHCDieselFuelPrice
 		err := suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", firstGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice1)
@@ -39,6 +41,8 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		secondGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 13, 0, 0, 0, 0, time.UTC)
 		secondGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243799)
+		secondGHCDieselFuelPrice.EffectiveDate = secondGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 1)
+		secondGHCDieselFuelPrice.EndDate = secondGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 7)
 
 		var existingFuelPrice2 models.GHCDieselFuelPrice
 		err = suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", secondGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice2)
@@ -50,6 +54,9 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		thirdGHCDieselFuelPrice.PublicationDate = time.Date(2020, time.July, 20, 0, 0, 0, 0, time.UTC)
 		thirdGHCDieselFuelPrice.FuelPriceInMillicents = unit.Millicents(243299)
+		thirdGHCDieselFuelPrice.EffectiveDate = thirdGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 1)
+		thirdGHCDieselFuelPrice.EndDate = thirdGHCDieselFuelPrice.PublicationDate.AddDate(0, 0, 7)
+
 		var existingFuelPrice3 models.GHCDieselFuelPrice
 		err = suite.DB().Where("ghc_diesel_fuel_prices.publication_date = ?", thirdGHCDieselFuelPrice.PublicationDate).First(&existingFuelPrice3)
 		if err == nil {
@@ -165,6 +172,88 @@ func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookup() {
 
 		_, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
 		suite.Error(err)
-		suite.Equal("Not found looking for pickup address", err.Error())
+		suite.Equal("not found looking for pickup address", err.Error())
+	})
+}
+func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithInvalidActualPickupDate() {
+	key := models.ServiceItemParamNameEIAFuelPrice
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+
+	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: nil,
+				},
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	suite.Run("lookup GHC diesel fuel price with nil actual pickup date", func() {
+		setupTestData()
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "EIAFuelPriceLookup with error Not found Looking for GHCDieselFuelPrice")
+	})
+}
+
+func (suite *ServiceParamValueLookupsSuite) TestEIAFuelPriceLookupWithNoGHCDieselFuelPriceData() {
+	key := models.ServiceItemParamNameEIAFuelPrice
+	var mtoServiceItem models.MTOServiceItem
+	var paymentRequest models.PaymentRequest
+	actualPickupDate := time.Date(2020, time.July, 15, 0, 0, 0, 0, time.UTC)
+
+	setupTestData := func() {
+		testdatagen.MakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				StartDate: time.Now().Add(-24 * time.Hour),
+				EndDate:   time.Now().Add(24 * time.Hour),
+			},
+		})
+		mtoServiceItem = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ActualPickupDate: &actualPickupDate,
+				},
+			},
+		}, []factory.Trait{
+			factory.GetTraitAvailableToPrimeMove,
+		})
+
+		paymentRequest = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model:    mtoServiceItem.MoveTaskOrder,
+				LinkOnly: true,
+			},
+		}, nil)
+	}
+
+	suite.Run("lookup GHC diesel fuel price with no data", func() {
+		setupTestData()
+
+		paramLookup, err := ServiceParamLookupInitialize(suite.AppContextForTest(), suite.planner, mtoServiceItem, paymentRequest.ID, paymentRequest.MoveTaskOrderID, nil)
+		suite.FatalNoError(err)
+		_, err = paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
+		suite.Error(err)
+		suite.Contains(err.Error(), "Looking for GHCDieselFuelPrice")
 	})
 }

@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/invoice"
+	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -22,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	internalmovetaskorder "github.com/transcom/mymove/pkg/services/support/move_task_order"
+	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 )
 
 // NewSupportAPIHandler returns a handler for the Prime API
@@ -50,7 +52,7 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 			moveRouter, signedCertificationCreator, signedCertificationUpdater,
 		),
 	}
@@ -83,16 +85,19 @@ func NewSupportAPIHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 		handlerConfig,
 		fetch.NewFetcher(queryBuilder),
 		mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter), handlerConfig.HHGPlanner()),
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()), handlerConfig.HHGPlanner()),
 	}
 
 	supportAPI.MtoServiceItemUpdateMTOServiceItemStatusHandler = UpdateMTOServiceItemStatusHandler{handlerConfig, mtoserviceitem.NewMTOServiceItemUpdater(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, shipmentFetcher, addressCreator)}
 	supportAPI.WebhookReceiveWebhookNotificationHandler = ReceiveWebhookNotificationHandler{handlerConfig}
 
+	// Create TAC and LOA services
+	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
+	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 	supportAPI.PaymentRequestGetPaymentRequestEDIHandler = GetPaymentRequestEDIHandler{
 		HandlerConfig:                     handlerConfig,
 		PaymentRequestFetcher:             paymentrequest.NewPaymentRequestFetcher(),
-		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(handlerConfig.ICNSequencer(), clock.New()),
+		GHCPaymentRequestInvoiceGenerator: invoice.NewGHCPaymentRequestInvoiceGenerator(handlerConfig.ICNSequencer(), clock.New(), loaFetcher),
 	}
 
 	supportAPI.PaymentRequestProcessReviewedPaymentRequestsHandler = ProcessReviewedPaymentRequestsHandler{
