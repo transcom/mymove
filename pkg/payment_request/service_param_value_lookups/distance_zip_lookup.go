@@ -97,10 +97,9 @@ func (r DistanceZipLookup) lookup(appCtx appcontext.AppContext, keyData *Service
 		distanceMiles = 1
 	} else {
 		distanceMiles, err = planner.ZipTransitDistance(appCtx, pickupZip, destinationZip)
-	}
-
-	if err != nil {
-		return "", err
+		if err != nil {
+			return "", err
+		}
 	}
 
 	miles := unit.Miles(distanceMiles)
