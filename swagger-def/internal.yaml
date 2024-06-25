@@ -3078,15 +3078,15 @@ paths:
           format: uuid
           description: ID of the order that the upload belongs to
         - in: query
-          name: ppmId
-          type: string
-          format: uuid
-          description: Optional PPM shipment ID related to the upload
-        - in: query
           name: moveId
           type: string
           format: uuid
           description: Optional ID of the move that the upload belongs to
+        - in: query
+          name: ppmId
+          type: string
+          format: uuid
+          description: Optional PPM shipment ID related to the upload
       responses:
         "204":
           description: deleted

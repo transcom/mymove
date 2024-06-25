@@ -3121,6 +3121,13 @@ func init() {
           {
             "type": "string",
             "format": "uuid",
+            "description": "Optional ID of the move that the upload belongs to",
+            "name": "moveId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
             "description": "Optional PPM shipment ID related to the upload",
             "name": "ppmId",
             "in": "query"
@@ -11171,6 +11178,13 @@ func init() {
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
             "name": "orderId",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "Optional ID of the move that the upload belongs to",
+            "name": "moveId",
             "in": "query"
           },
           {
