@@ -65,6 +65,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 				uploaderpkg.AllowedTypesServiceMember,
 				docID,
+				models.UploadTypeOFFICE,
 			)
 
 			if verrs.HasAny() || createErr != nil {

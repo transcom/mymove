@@ -85,6 +85,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 				uploaderpkg.AllowedTypesServiceMember,
 				docID,
+				models.UploadTypeUSER,
 			)
 
 			if verrs.HasAny() || createErr != nil {
@@ -333,6 +334,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 					uploaderpkg.AllowedTypesPPMDocuments,
 					&document.ID,
+					models.UploadTypeUSER,
 				)
 
 				if verrs.HasAny() || createErr != nil {

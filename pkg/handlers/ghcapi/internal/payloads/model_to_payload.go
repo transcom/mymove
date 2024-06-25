@@ -1676,10 +1676,12 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   strfmt.DateTime(*upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -1747,10 +1749,12 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   strfmt.DateTime(*upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {

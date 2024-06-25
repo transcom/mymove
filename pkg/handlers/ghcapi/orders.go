@@ -778,7 +778,7 @@ func (h UploadAmendedOrdersHandler) Handle(params orderop.UploadAmendedOrdersPar
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsCustomer(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+			upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsOffice(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
 
 			if verrs.HasAny() || err != nil {
 				switch err.(type) {
