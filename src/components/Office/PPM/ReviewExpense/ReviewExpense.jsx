@@ -110,7 +110,7 @@ export default function ReviewExpense({
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
   const actualWeight = ppmShipmentInfo?.actualWeight || '';
-  const [amountValue, setAmountValue] = React.useState(amount);
+  const [amountValue, setAmountValue] = React.useState(amount.toString());
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
   const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
@@ -156,7 +156,8 @@ export default function ReviewExpense({
 
   const updateAmountReimbursed = () => {
     if (displaySitCost) {
-      setActualSITReimbursed(amountValue < estimatedCost ? amountValue : estimatedCost);
+      const value = parseInt(removeCommas(amountValue), 10);
+      setActualSITReimbursed(value < estimatedCost ? value : estimatedCost);
     }
   };
 
