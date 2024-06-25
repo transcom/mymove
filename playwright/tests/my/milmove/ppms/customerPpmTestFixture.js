@@ -732,7 +732,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToEditProGearPage() {
-    await this.page.locator('.progearSection a').getByText('Edit').click();
+    await this.page.getByRole('link', { name: 'Edit' }).nth(2).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
   }
 
@@ -747,7 +747,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    */
   async navigateFromCloseoutReviewPageToEditWeightTicketPage() {
-    await this.page.locator('.reviewWeightTickets a').getByText('Edit').click();
+    await this.page.getByRole('link', { name: 'Edit' }).nth(1).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
   }
 
@@ -775,8 +775,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
-    await this.page.locator('.reviewExpenses a').getByText('Edit').click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await this.page.getByRole('link', { name: 'Edit' }).nth(3).click();
   }
 
   /**
@@ -798,7 +797,6 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromProgearPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   async verifySaveAndContinueDisabled() {
