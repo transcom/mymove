@@ -643,6 +643,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 					LastName:    models.StringPointer("Spacemen"),
 					FirstName:   models.StringPointer("Lena"),
 					Affiliation: &branchNavy,
+					Emplid:      models.StringPointer(""),
 				},
 			},
 			{
@@ -663,6 +664,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 					FirstName: models.StringPointer("Leo"),
 					LastName:  models.StringPointer("Spacemen"),
 					Edipi:     models.StringPointer("AZFG"),
+					Emplid:    models.StringPointer("1111111"),
 				},
 			},
 			{
