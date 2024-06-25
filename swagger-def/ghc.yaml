@@ -2996,6 +2996,7 @@ paths:
               ppmType,
               closeoutInitiated,
               closeoutLocation,
+              ppmStatus,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3074,6 +3075,13 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: ppmStatus
+          type: string
+          enum:
+            - WAITING_ON_CUSTOMER
+            - NEEDS_CLOSEOUT
+          description: filters the status of the PPM shipment
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4509,6 +4517,17 @@ definitions:
       - APPROVALS REQUESTED
       - APPROVED
       - CANCELED
+  PPMStatus:
+    type: string
+    enum:
+      - CANCELLED
+      - DRAFT
+      - SUBMITTED
+      - WAITING_ON_CUSTOMER
+      - NEEDS_ADVANCE_APPROVAL
+      - NEEDS_CLOSEOUT
+      - CLOSEOUT_COMPLETE
+      - COMPLETED
   DeptIndicator:
     type: string
     title: Dept. indicator
@@ -5293,12 +5312,30 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      actualPickupPostalCode:
+        description: >
+          The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      actualDestinationPostalCode:
+        description: >
+          The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
+        format: zip
+        type: string
+        title: ZIP
+        example: "90210"
+        pattern: ^(\d{5})$
+        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -5811,6 +5848,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      ppmStatus:
+        $ref: '#/definitions/PPMStatus'
         x-nullable: true
   QueueMovesResult:
     type: object
