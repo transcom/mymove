@@ -453,6 +453,8 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -579,6 +581,10 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 
 	if movingExpense.Description != nil {
 		model.Description = movingExpense.Description
+	}
+
+	if movingExpense.SitLocation != nil {
+		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
 	}
 
 	model.Amount = handlers.FmtInt64PtrToPopPtr(&movingExpense.Amount)

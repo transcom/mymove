@@ -61,16 +61,16 @@ export const OfficeAccountRequestFields = ({ render }) => {
           />
           <h4>Requested Role(s)</h4>
           <CheckboxField
-            id="transportationOrderingOfficerCheckBox"
-            data-testid="transportationOrderingOfficerCheckBox"
-            name="transportationOrderingOfficerCheckBox"
-            label="Transportation Ordering Officer"
+            id="taskOrderingOfficerCheckBox"
+            data-testid="taskOrderingOfficerCheckBox"
+            name="taskOrderingOfficerCheckBox"
+            label="Task Ordering Officer"
           />
           <CheckboxField
-            id="transportationInvoicingOfficerCheckBox"
-            data-testid="transportationInvoicingOfficerCheckBox"
-            name="transportationInvoicingOfficerCheckBox"
-            label="Transportation Invoicing Officer"
+            id="taskInvoicingOfficerCheckBox"
+            data-testid="taskInvoicingOfficerCheckBox"
+            name="taskInvoicingOfficerCheckBox"
+            label="Task Invoicing Officer"
           />
           <CheckboxField
             id="transportationContractingOfficerCheckBox"
@@ -85,10 +85,16 @@ export const OfficeAccountRequestFields = ({ render }) => {
             label="Services Counselor"
           />
           <CheckboxField
-            id="qualityAssuranceAndCustomerSupportCheckBox"
-            data-testid="qualityAssuranceAndCustomerSupportCheckBox"
-            name="qualityAssuranceAndCustomerSupportCheckBox"
-            label="Quality Assurance & Customer Support"
+            id="qualityAssuranceEvaluatorCheckBox"
+            data-testid="qualityAssuranceEvaluatorCheckBox"
+            name="qualityAssuranceEvaluatorCheckBox"
+            label="Quality Assurance Evaluator"
+          />
+          <CheckboxField
+            id="customerSupportRepresentativeCheckBox"
+            data-testid="customerSupportRepresentativeCheckBox"
+            name="customerSupportRepresentativeCheckBox"
+            label="Customer Support Representative"
           />
         </>,
       )}

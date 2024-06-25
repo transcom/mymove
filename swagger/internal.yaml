@@ -212,6 +212,8 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
     required:
       - id
       - orders_id
@@ -476,6 +478,10 @@ definitions:
       weightStored:
         description: The total weight stored in PPM SIT
         type: integer
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
     required:
       - movingExpenseType
       - description
@@ -2631,8 +2637,8 @@ definitions:
         * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
         * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
         * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
-        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
-        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+        * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -2640,8 +2646,8 @@ definitions:
       - SUBMITTED
       - WAITING_ON_CUSTOMER
       - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
+      - NEEDS_CLOSEOUT
+      - CLOSEOUT_COMPLETE
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
@@ -2718,6 +2724,12 @@ definitions:
         minimum: 0
         x-nullable: true
         x-omitempty: false
+      submittedEmptyWeight:
+        description: Customer submitted weight of the vehicle when empty.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
       missingEmptyWeightTicket:
         description: >-
           Indicates if the customer is missing a weight ticket for the vehicle
@@ -2740,6 +2752,12 @@ definitions:
           - $ref: '#/definitions/Document'
       fullWeight:
         description: The weight of the vehicle when full.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedFullWeight:
+        description: Customer submitted weight of the vehicle when full.
         type: integer
         minimum: 0
         x-nullable: true
@@ -2770,7 +2788,19 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedOwnsTrailer:
+        description: Indicates if the customer used a trailer they own for the move.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       trailerMeetsCriteria:
+        description: >-
+          Indicates if the trailer that the customer used meets all the criteria
+          to be claimable.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      submittedTrailerMeetsCriteria:
         description: >-
           Indicates if the trailer that the customer used meets all the criteria
           to be claimable.
@@ -2857,6 +2887,31 @@ definitions:
       WEIGHING_FEE: Weighing fee
     x-nullable: true
     x-omitempty: false
+  SubmittedMovingExpenseType:
+    type: string
+    description: Customer Submitted Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - GAS
+      - OIL
+      - OTHER
+      - PACKING_MATERIALS
+      - RENTAL_EQUIPMENT
+      - STORAGE
+      - TOLLS
+      - WEIGHING_FEE
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted expense
+      GAS: Gas
+      OIL: Oil
+      OTHER: Other
+      PACKING_MATERIALS: Packing materials
+      STORAGE: Storage
+      RENTAL_EQUIPMENT: Rental equipment
+      TOLLS: Tolls
+      WEIGHING_FEE: Weighing fee
+    x-nullable: true
+    x-omitempty: false
   MovingExpense:
     description: >-
       Expense information and receipts of costs incurred that can be reimbursed
@@ -2889,8 +2944,15 @@ definitions:
           - $ref: '#/definitions/Document'
       movingExpenseType:
         $ref: '#/definitions/OmittableMovingExpenseType'
+      submittedMovingExpenseType:
+        $ref: '#/definitions/SubmittedMovingExpenseType'
       description:
         description: A brief description of the expense
+        type: string
+        x-nullable: true
+        x-omitempty: false
+      submittedDescription:
+        description: Customer submitted description of the expense
         type: string
         x-nullable: true
         x-omitempty: false
@@ -2903,6 +2965,13 @@ definitions:
         x-omitempty: false
       amount:
         description: The total amount of the expense as indicated on the receipt
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      submittedAmount:
+        description: >-
+          Customer submitted total amount of the expense as indicated on the
+          receipt
         type: integer
         x-nullable: true
         x-omitempty: false
@@ -2926,10 +2995,28 @@ definitions:
         format: date
         x-nullable: true
         x-omitempty: false
+      submittedSitStartDate:
+        description: >-
+          Customer submitted date the shipment entered storage, applicable for
+          the `STORAGE` movingExpenseType only
+        type: string
+        example: '2022-04-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
       sitEndDate:
         description: >-
           The date the shipment exited storage, applicable for the `STORAGE`
           movingExpenseType only
+        type: string
+        example: '2018-05-26'
+        format: date
+        x-nullable: true
+        x-omitempty: false
+      submittedSitEndDate:
+        description: >-
+          Customer submitted date the shipment exited storage, applicable for
+          the `STORAGE` movingExpenseType only
         type: string
         example: '2018-05-26'
         format: date
@@ -2958,6 +3045,11 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      sitLocation:
+        allOf:
+          - $ref: '#/definitions/SITLocationType'
+          - x-nullable: true
+          - x-omitempty: false
     required:
       - id
       - createdAt
@@ -2998,6 +3090,13 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedBelongsToSelf:
+        description: >-
+          Indicates if this information is for the customer's own pro-gear,
+          otherwise, it's the spouse's.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       description:
         description: Describes the pro-gear that was moved.
         type: string
@@ -3010,8 +3109,21 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      submittedHasWeightTickets:
+        description: >-
+          Indicates if the user has a weight ticket for their pro-gear,
+          otherwise they have a constructed weight.
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       weight:
         description: Weight of the pro-gear.
+        type: integer
+        minimum: 0
+        x-nullable: true
+        x-omitempty: false
+      submittedWeight:
+        description: Customer submitted weight of the pro-gear.
         type: integer
         minimum: 0
         x-nullable: true
@@ -4362,6 +4474,16 @@ paths:
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
+        - in: query
+          name: moveId
+          type: string
+          format: uuid
+          description: Optional ID of the move that the upload belongs to
+        - in: query
+          name: ppmId
+          type: string
+          format: uuid
+          description: Optional PPM shipment ID related to the upload
       responses:
         '204':
           description: deleted
@@ -5000,6 +5122,47 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{moveId}/uploadAdditionalDocuments:
+    patch:
+      summary: Patch the additional documents for a given move
+      description: >-
+        Customers will on occaision need the ability to upload additional
+        supporting documents, for a variety of reasons. This does not include
+        amended order.
+      operationId: uploadAdditionalDocuments
+      tags:
+        - moves
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document

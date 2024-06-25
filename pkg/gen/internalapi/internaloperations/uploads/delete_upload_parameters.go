@@ -32,10 +32,18 @@ type DeleteUploadParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Optional ID of the move that the upload belongs to
+	  In: query
+	*/
+	MoveID *strfmt.UUID
 	/*ID of the order that the upload belongs to
 	  In: query
 	*/
 	OrderID *strfmt.UUID
+	/*Optional PPM shipment ID related to the upload
+	  In: query
+	*/
+	PpmID *strfmt.UUID
 	/*UUID of the upload to be deleted
 	  Required: true
 	  In: path
@@ -54,8 +62,18 @@ func (o *DeleteUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	qs := runtime.Values(r.URL.Query())
 
+	qMoveID, qhkMoveID, _ := qs.GetOK("moveId")
+	if err := o.bindMoveID(qMoveID, qhkMoveID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
 	qOrderID, qhkOrderID, _ := qs.GetOK("orderId")
 	if err := o.bindOrderID(qOrderID, qhkOrderID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPpmID, qhkPpmID, _ := qs.GetOK("ppmId")
+	if err := o.bindPpmID(qPpmID, qhkPpmID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -65,6 +83,43 @@ func (o *DeleteUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 	}
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+// bindMoveID binds and validates parameter MoveID from query.
+func (o *DeleteUploadParams) bindMoveID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("moveId", "query", "strfmt.UUID", raw)
+	}
+	o.MoveID = (value.(*strfmt.UUID))
+
+	if err := o.validateMoveID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateMoveID carries on validations for parameter MoveID
+func (o *DeleteUploadParams) validateMoveID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("moveId", "query", "uuid", o.MoveID.String(), formats); err != nil {
+		return err
 	}
 	return nil
 }
@@ -101,6 +156,43 @@ func (o *DeleteUploadParams) bindOrderID(rawData []string, hasKey bool, formats 
 func (o *DeleteUploadParams) validateOrderID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("orderId", "query", "uuid", o.OrderID.String(), formats); err != nil {
+		return err
+	}
+	return nil
+}
+
+// bindPpmID binds and validates parameter PpmID from query.
+func (o *DeleteUploadParams) bindPpmID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+
+	// Format: uuid
+	value, err := formats.Parse("uuid", raw)
+	if err != nil {
+		return errors.InvalidType("ppmId", "query", "strfmt.UUID", raw)
+	}
+	o.PpmID = (value.(*strfmt.UUID))
+
+	if err := o.validatePpmID(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validatePpmID carries on validations for parameter PpmID
+func (o *DeleteUploadParams) validatePpmID(formats strfmt.Registry) error {
+
+	if err := validate.FormatOf("ppmId", "query", "uuid", o.PpmID.String(), formats); err != nil {
 		return err
 	}
 	return nil
