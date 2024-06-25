@@ -320,11 +320,11 @@ func (suite *HandlerSuite) TestSearchMovesHandler() {
 		payloadMove := *(*payload).SearchMoves[0]
 		suite.Equal(move.ID.String(), payloadMove.ID.String())
 		suite.Equal(*move.Orders.ServiceMember.Edipi, *payloadMove.DodID)
-		suite.Equal(*move.Orders.ServiceMember.Emplid, *payloadMove.Emplid)
 		suite.Equal(move.Orders.NewDutyLocation.Address.PostalCode, payloadMove.DestinationDutyLocationPostalCode)
 		suite.Equal(move.Orders.OriginDutyLocation.Address.PostalCode, payloadMove.OriginDutyLocationPostalCode)
 		suite.Equal(ghcmessages.MoveStatusDRAFT, payloadMove.Status)
 		suite.Equal("ARMY", payloadMove.Branch)
+		suite.Equal((*string)(nil), payloadMove.Emplid)
 		suite.Equal(int64(0), payloadMove.ShipmentsCount)
 		suite.NotEmpty(payloadMove.FirstName)
 		suite.NotEmpty(payloadMove.LastName)
