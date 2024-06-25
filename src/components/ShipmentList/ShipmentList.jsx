@@ -50,10 +50,15 @@ export const ShipmentListItem = ({
       }`}
       data-testid="shipment-list-item-container"
     >
-      <strong>
-        {shipmentTypes[shipment.shipmentType]}
-        {showNumber && ` ${shipmentNumber}`}
-      </strong>{' '}
+      <div>
+        <strong>
+          {shipmentTypes[shipment.shipmentType]}
+          {showNumber && ` ${shipmentNumber}`}
+        </strong>{' '}
+        <br />
+        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) &&
+          formatWeight(shipment.primeEstimatedWeight * 1.1)}
+      </div>
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>
