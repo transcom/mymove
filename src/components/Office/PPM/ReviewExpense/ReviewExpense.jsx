@@ -154,13 +154,6 @@ export default function ReviewExpense({
     [documentSetIndex, documentSets],
   );
 
-  const updateAmountReimbursed = () => {
-    if (displaySitCost) {
-      const value = parseInt(removeCommas(amountValue), 10);
-      setActualSITReimbursed(value < estimatedCost ? value : estimatedCost);
-    }
-  };
-
   useEffect(() => {
     // Don't update from parent component if user just changed the dropdown field. I.e. this only fires on submit or back button
     if (!samePage) setSelectedExpenseType(getExpenseTypeValue(movingExpenseType));
@@ -176,8 +169,11 @@ export default function ReviewExpense({
   }, [documentSetIndex]);
 
   useEffect(() => {
-    updateAmountReimbursed();
-  }, [estimatedCost, amountValue]);
+    if (displaySitCost) {
+      const value = parseInt(removeCommas(amountValue), 10);
+      setActualSITReimbursed(value < estimatedCost ? value : estimatedCost);
+    }
+  }, [estimatedCost, amountValue, displaySitCost]);
 
   const handleSubmit = (values) => {
     if (readOnly) {
