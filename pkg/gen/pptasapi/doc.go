@@ -10,7 +10,7 @@
 //	Schemes:
 //	  http
 //	Host: primelocal
-//	BasePath: /prime/pptas
+//	BasePath: /pptas/v1
 //	Version: 0.0.1
 //	License: MIT https://opensource.org/licenses/MIT
 //	Contact: <milmove-developers@caci.com>
