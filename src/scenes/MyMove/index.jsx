@@ -75,8 +75,8 @@ const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
 const ProGear = lazy(() => import('pages/MyMove/PPM/Closeout/ProGear/ProGear.jsx'));
 const Expenses = lazy(() => import('pages/MyMove/PPM/Closeout/Expenses/Expenses'));
 const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
-const PPMFeedback = lazy(() => import('pages/MyMove/PPM/Closeout/Feedback/Feedback'));
 const AdditionalDocuments = lazy(() => import('pages/MyMove/AdditionalDocuments/AdditionalDocuments'));
+const PPMFeedback = lazy(() => import('pages/MyMove/PPM/Closeout/Feedback/Feedback'));
 
 export class CustomerApp extends Component {
   constructor(props) {
