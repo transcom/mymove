@@ -34,7 +34,7 @@ func NewListReports(ctx *middleware.Context, handler ListReportsHandler) *ListRe
 
 listReports
 
-Gets all reports that have been ??approved??
+Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.
 */
 type ListReports struct {
 	Context *middleware.Context

@@ -29,8 +29,9 @@ paths:
   /moves:
     get:
       summary: listReports
-      description: |
-        Gets all reports that have been ??approved??
+      description: >
+        Gets all reports that have been ??approved??. Based on payment requests,
+        includes data from Move, Shipments, Orders, and TAC/SAC.
       operationId: listReports
       tags:
         - moves
@@ -244,21 +245,21 @@ definitions:
       efficiently.
     type: object
     properties:
-      ID:
+      id:
         type: string
         format: uuid
-      FirstName:
+      firstName:
         example: Bob
         type: string
-      LastName:
+      lastName:
         example: Job
         type: string
-      MiddleInitial:
+      middleInitial:
         example: G
         type: string
-      Affiliation:
+      affiliation:
         $ref: '#/definitions/Affiliation'
-      PayGrade:
+      payGrade:
         type: string
         x-nullable: true
         title: grade
@@ -322,36 +323,33 @@ definitions:
           CIVILIAN_EMPLOYEE: Civilian Employee
           ACADEMY_CADET: Service Academy Cadet
           MIDSHIPMAN: Midshipman
-      Edipi:
-        example: 1234567890
+      edipi:
         type: string
-      PhonePrimary:
-        example: 9169876543
+      phonePrimary:
         type: string
-      PhoneSecondary:
-        example: 9169876543
+      phoneSecondary:
         type: string
         x-nullable: true
-      EmailPrimary:
+      emailPrimary:
         example: a@b.com
         type: string
-      EmailSecondary:
+      emailSecondary:
         type: string
         x-nullable: true
-      OrdersType:
+      ordersType:
         type: string
-      OrdersNumber:
+      ordersNumber:
         type: string
-      OrdersDate:
+      ordersDate:
         type: string
         format: date-time
-      Address:
+      address:
         $ref: '#/definitions/Address'
-      OriginAddress:
+      originAddress:
         $ref: '#/definitions/Address'
-      DestinationAddress:
+      destinationAddress:
         $ref: '#/definitions/Address'
-      OriginGbloc:
+      originGbloc:
         type: string
         enum:
           - AGFM
@@ -377,7 +375,7 @@ definitions:
           - MLNQ
           - XXXX
         x-nullable: true
-      DestinationGbloc:
+      destinationGbloc:
         type: string
         enum:
           - AGFM
@@ -403,161 +401,163 @@ definitions:
           - MLNQ
           - XXXX
         x-nullable: true
-      DepCD:
+      depCD:
         description: Department Code
         type: string
         x-nullable: true
-      TravelAdvance:
+      travelAdvance:
         type: number
         format: double
         x-nullable: true
-      MoveDate:
+      moveDate:
         type: string
         format: date
         x-nullable: true
-      TAC:
+      tac:
         description: Transportation Accounting Code
         type: string
         x-nullable: true
-      FiscalYear:
+      fiscalYear:
         type: integer
         x-nullable: true
-      Appro:
+      appro:
         description: Appropriation
         type: string
         x-nullable: true
-      Subhead:
+      subhead:
         type: string
         x-nullable: true
-      ObjClass:
+      objClass:
         type: string
         x-nullable: true
-      BCN:
+      bcn:
         type: string
         x-nullable: true
-      SubAllotCD:
+      subAllotCD:
         type: string
         x-nullable: true
-      AAA:
+      aaa:
         type: string
         x-nullable: true
-      TypeCD:
+      typeCD:
         type: string
         x-nullable: true
-      PAA:
+      paa:
         type: string
         x-nullable: true
-      CostCD:
+      costCD:
         type: string
         x-nullable: true
-      DDCD:
+      ddcd:
         type: string
         x-nullable: true
-      ShipmentNum:
+      shipmentNum:
         description: Number of shipments
         type: integer
-      WeightEstimate:
+      weightEstimate:
         description: Total weight estimate
         type: number
         format: double
-      TransmitCD:
+      transmitCD:
         description: Transmit Code
         type: string
         x-nullable: true
-      DD2278IssueDate:
+      dd2278IssueDate:
         description: Counseling Date
         type: string
         format: date
-      Miles:
+      miles:
         type: integer
-      WeightAuthorized:
+      weightAuthorized:
         type: number
         format: double
-      ShipmentId:
+      shipmentId:
         type: string
         format: uuid
-      SCAC:
+      scac:
         example: AGFM
         type: string
         x-nullable: true
-      OrderNumber:
+      orderNumber:
         description: not to be confused with Orders Number
         type: string
         example: 030-00362
-      LOA:
+      loa:
         type: string
         x-nullable: true
-      ShipmentType:
+      shipmentType:
         type: string
-      EntitlementWeight:
+      entitlementWeight:
         type: integer
-      NetWeight:
+      netWeight:
         type: integer
-      PBP&E:
+      pbpAnde:
         description: Pro Gear
         type: number
         format: double
-      PickupDate:
+      pickupDate:
         type: string
         format: date
-      SitInDate:
-        type: string
-        format: date
-        x-nullable: true
-      SitOutDate:
+      sitInDate:
         type: string
         format: date
         x-nullable: true
-      SitType:
+      sitOutDate:
+        type: string
+        format: date
+        x-nullable: true
+      sitType:
         example: Destination
         type: string
         x-nullable: true
-      Rate:
+      rate:
         type: number
         format: double
         x-nullable: true
-      PaidDate:
+      paidDate:
         type: string
         format: date
         x-nullable: true
-      LinehaulTotal:
+      linehaulTotal:
         type: number
         format: double
         x-nullable: true
-      SitTotal:
+      sitTotal:
         type: number
         format: double
         x-nullable: true
-      AccessorialTotal:
+      accessorialTotal:
         type: number
         format: double
         x-nullable: true
-      FuelTotal:
+      fuelTotal:
         type: number
         format: double
         x-nullable: true
-      OtherTotal:
+      otherTotal:
         type: number
         format: double
         x-nullable: true
-      InvoicePaidAmt:
+      invoicePaidAmt:
         type: number
         format: double
-      TravelType:
+      travelType:
         description: Travel Type
         example: Shipment of HHG Permitted
         type: string
-      TravelClassCode:
+      travelClassCode:
         example: PCS
         type: string
-      DeliveryDate:
+      deliveryDate:
         type: string
         format: date
-      ActualOriginNetWeight:
-        type: string
-      DestinationReweighNetWeight:
-        type: string
-      CounseledDate:
+      actualOriginNetWeight:
+        type: number
+        format: double
+      destinationReweighNetWeight:
+        type: number
+        format: double
+      counseledDate:
         type: string
         format: date
   ListReports:

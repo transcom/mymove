@@ -73,8 +73,8 @@ type Report struct {
 	TravelType                  *string
 	TravelClassCode             *string
 	DeliveryDate                *time.Time
-	ActualOriginNetWeight       *string
-	DestinationReweighNetWeight *string
+	ActualOriginNetWeight       *unit.Pound
+	DestinationReweighNetWeight *unit.Pound
 	CounseledDate               *time.Time
 }
 

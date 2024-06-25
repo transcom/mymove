@@ -24,7 +24,7 @@ paths:
     get:
       summary: listReports
       description: |
-        Gets all reports that have been ??approved??
+        Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.
       operationId: listReports
       tags:
         - moves

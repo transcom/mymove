@@ -20,229 +20,226 @@ import (
 // swagger:model ListReport
 type ListReport struct {
 
-	// a a a
-	AAA *string `json:"AAA,omitempty"`
+	// aaa
+	Aaa *string `json:"aaa,omitempty"`
 
 	// accessorial total
-	AccessorialTotal *float64 `json:"AccessorialTotal,omitempty"`
+	AccessorialTotal *float64 `json:"accessorialTotal,omitempty"`
 
 	// actual origin net weight
-	ActualOriginNetWeight string `json:"ActualOriginNetWeight,omitempty"`
+	ActualOriginNetWeight float64 `json:"actualOriginNetWeight,omitempty"`
 
 	// address
-	Address *Address `json:"Address,omitempty"`
+	Address *Address `json:"address,omitempty"`
 
 	// affiliation
-	Affiliation *Affiliation `json:"Affiliation,omitempty"`
+	Affiliation *Affiliation `json:"affiliation,omitempty"`
 
 	// Appropriation
-	Appro *string `json:"Appro,omitempty"`
+	Appro *string `json:"appro,omitempty"`
 
-	// b c n
-	BCN *string `json:"BCN,omitempty"`
+	// bcn
+	Bcn *string `json:"bcn,omitempty"`
 
 	// cost c d
-	CostCD *string `json:"CostCD,omitempty"`
+	CostCD *string `json:"costCD,omitempty"`
 
 	// counseled date
 	// Format: date
-	CounseledDate strfmt.Date `json:"CounseledDate,omitempty"`
+	CounseledDate strfmt.Date `json:"counseledDate,omitempty"`
 
 	// Counseling Date
 	// Format: date
-	DD2278IssueDate strfmt.Date `json:"DD2278IssueDate,omitempty"`
+	Dd2278IssueDate strfmt.Date `json:"dd2278IssueDate,omitempty"`
 
-	// d d c d
-	DDCD *string `json:"DDCD,omitempty"`
+	// ddcd
+	Ddcd *string `json:"ddcd,omitempty"`
 
 	// delivery date
 	// Format: date
-	DeliveryDate strfmt.Date `json:"DeliveryDate,omitempty"`
+	DeliveryDate strfmt.Date `json:"deliveryDate,omitempty"`
 
 	// Department Code
-	DepCD *string `json:"DepCD,omitempty"`
+	DepCD *string `json:"depCD,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"DestinationAddress,omitempty"`
+	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// destination gbloc
 	// Enum: [AGFM APAT BGAC BGNC BKAS CFMQ CLPK CNNQ DMAT GSAT HAFC HBAT JEAT JENQ KKFA LHNQ LKNQ MAPK MAPS MBFL MLNQ XXXX]
-	DestinationGbloc *string `json:"DestinationGbloc,omitempty"`
+	DestinationGbloc *string `json:"destinationGbloc,omitempty"`
 
 	// destination reweigh net weight
-	DestinationReweighNetWeight string `json:"DestinationReweighNetWeight,omitempty"`
+	DestinationReweighNetWeight float64 `json:"destinationReweighNetWeight,omitempty"`
 
 	// edipi
-	// Example: 1234567890
-	Edipi string `json:"Edipi,omitempty"`
+	Edipi string `json:"edipi,omitempty"`
 
 	// email primary
 	// Example: a@b.com
-	EmailPrimary string `json:"EmailPrimary,omitempty"`
+	EmailPrimary string `json:"emailPrimary,omitempty"`
 
 	// email secondary
-	EmailSecondary *string `json:"EmailSecondary,omitempty"`
+	EmailSecondary *string `json:"emailSecondary,omitempty"`
 
 	// entitlement weight
-	EntitlementWeight int64 `json:"EntitlementWeight,omitempty"`
+	EntitlementWeight int64 `json:"entitlementWeight,omitempty"`
 
 	// first name
 	// Example: Bob
-	FirstName string `json:"FirstName,omitempty"`
+	FirstName string `json:"firstName,omitempty"`
 
 	// fiscal year
-	FiscalYear *int64 `json:"FiscalYear,omitempty"`
+	FiscalYear *int64 `json:"fiscalYear,omitempty"`
 
 	// fuel total
-	FuelTotal *float64 `json:"FuelTotal,omitempty"`
+	FuelTotal *float64 `json:"fuelTotal,omitempty"`
 
-	// ID
+	// id
 	// Format: uuid
-	ID strfmt.UUID `json:"ID,omitempty"`
+	ID strfmt.UUID `json:"id,omitempty"`
 
 	// invoice paid amt
-	InvoicePaidAmt float64 `json:"InvoicePaidAmt,omitempty"`
-
-	// l o a
-	LOA *string `json:"LOA,omitempty"`
+	InvoicePaidAmt float64 `json:"invoicePaidAmt,omitempty"`
 
 	// last name
 	// Example: Job
-	LastName string `json:"LastName,omitempty"`
+	LastName string `json:"lastName,omitempty"`
 
 	// linehaul total
-	LinehaulTotal *float64 `json:"LinehaulTotal,omitempty"`
+	LinehaulTotal *float64 `json:"linehaulTotal,omitempty"`
+
+	// loa
+	Loa *string `json:"loa,omitempty"`
 
 	// middle initial
 	// Example: G
-	MiddleInitial string `json:"MiddleInitial,omitempty"`
+	MiddleInitial string `json:"middleInitial,omitempty"`
 
 	// miles
-	Miles int64 `json:"Miles,omitempty"`
+	Miles int64 `json:"miles,omitempty"`
 
 	// move date
 	// Format: date
-	MoveDate *strfmt.Date `json:"MoveDate,omitempty"`
+	MoveDate *strfmt.Date `json:"moveDate,omitempty"`
 
 	// net weight
-	NetWeight int64 `json:"NetWeight,omitempty"`
+	NetWeight int64 `json:"netWeight,omitempty"`
 
 	// obj class
-	ObjClass *string `json:"ObjClass,omitempty"`
+	ObjClass *string `json:"objClass,omitempty"`
 
 	// not to be confused with Orders Number
 	// Example: 030-00362
-	OrderNumber string `json:"OrderNumber,omitempty"`
+	OrderNumber string `json:"orderNumber,omitempty"`
 
 	// orders date
 	// Format: date-time
-	OrdersDate strfmt.DateTime `json:"OrdersDate,omitempty"`
+	OrdersDate strfmt.DateTime `json:"ordersDate,omitempty"`
 
 	// orders number
-	OrdersNumber string `json:"OrdersNumber,omitempty"`
+	OrdersNumber string `json:"ordersNumber,omitempty"`
 
 	// orders type
-	OrdersType string `json:"OrdersType,omitempty"`
+	OrdersType string `json:"ordersType,omitempty"`
 
 	// origin address
-	OriginAddress *Address `json:"OriginAddress,omitempty"`
+	OriginAddress *Address `json:"originAddress,omitempty"`
 
 	// origin gbloc
 	// Enum: [AGFM APAT BGAC BGNC BKAS CFMQ CLPK CNNQ DMAT GSAT HAFC HBAT JEAT JENQ KKFA LHNQ LKNQ MAPK MAPS MBFL MLNQ XXXX]
-	OriginGbloc *string `json:"OriginGbloc,omitempty"`
+	OriginGbloc *string `json:"originGbloc,omitempty"`
 
 	// other total
-	OtherTotal *float64 `json:"OtherTotal,omitempty"`
+	OtherTotal *float64 `json:"otherTotal,omitempty"`
 
-	// p a a
-	PAA *string `json:"PAA,omitempty"`
-
-	// Pro Gear
-	PBPAndE float64 `json:"PBP&E,omitempty"`
+	// paa
+	Paa *string `json:"paa,omitempty"`
 
 	// paid date
 	// Format: date
-	PaidDate *strfmt.Date `json:"PaidDate,omitempty"`
+	PaidDate *strfmt.Date `json:"paidDate,omitempty"`
 
 	// grade
 	// Enum: [E_1 E_2 E_3 E_4 E_5 E_6 E_7 E_8 E_9 E_9_SPECIAL_SENIOR_ENLISTED O_1_ACADEMY_GRADUATE O_2 O_3 O_4 O_5 O_6 O_7 O_8 O_9 O_10 W_1 W_2 W_3 W_4 W_5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
-	PayGrade *string `json:"PayGrade,omitempty"`
+	PayGrade *string `json:"payGrade,omitempty"`
+
+	// Pro Gear
+	PbpAnde float64 `json:"pbpAnde,omitempty"`
 
 	// phone primary
-	// Example: 9169876543
-	PhonePrimary string `json:"PhonePrimary,omitempty"`
+	PhonePrimary string `json:"phonePrimary,omitempty"`
 
 	// phone secondary
-	// Example: 9169876543
-	PhoneSecondary *string `json:"PhoneSecondary,omitempty"`
+	PhoneSecondary *string `json:"phoneSecondary,omitempty"`
 
 	// pickup date
 	// Format: date
-	PickupDate strfmt.Date `json:"PickupDate,omitempty"`
+	PickupDate strfmt.Date `json:"pickupDate,omitempty"`
 
 	// rate
-	Rate *float64 `json:"Rate,omitempty"`
+	Rate *float64 `json:"rate,omitempty"`
 
-	// s c a c
+	// scac
 	// Example: AGFM
-	SCAC *string `json:"SCAC,omitempty"`
+	Scac *string `json:"scac,omitempty"`
 
 	// shipment Id
 	// Format: uuid
-	ShipmentID strfmt.UUID `json:"ShipmentId,omitempty"`
+	ShipmentID strfmt.UUID `json:"shipmentId,omitempty"`
 
 	// Number of shipments
-	ShipmentNum int64 `json:"ShipmentNum,omitempty"`
+	ShipmentNum int64 `json:"shipmentNum,omitempty"`
 
 	// shipment type
-	ShipmentType string `json:"ShipmentType,omitempty"`
+	ShipmentType string `json:"shipmentType,omitempty"`
 
 	// sit in date
 	// Format: date
-	SitInDate *strfmt.Date `json:"SitInDate,omitempty"`
+	SitInDate *strfmt.Date `json:"sitInDate,omitempty"`
 
 	// sit out date
 	// Format: date
-	SitOutDate *strfmt.Date `json:"SitOutDate,omitempty"`
+	SitOutDate *strfmt.Date `json:"sitOutDate,omitempty"`
 
 	// sit total
-	SitTotal *float64 `json:"SitTotal,omitempty"`
+	SitTotal *float64 `json:"sitTotal,omitempty"`
 
 	// sit type
 	// Example: Destination
-	SitType *string `json:"SitType,omitempty"`
+	SitType *string `json:"sitType,omitempty"`
 
 	// sub allot c d
-	SubAllotCD *string `json:"SubAllotCD,omitempty"`
+	SubAllotCD *string `json:"subAllotCD,omitempty"`
 
 	// subhead
-	Subhead *string `json:"Subhead,omitempty"`
+	Subhead *string `json:"subhead,omitempty"`
 
 	// Transportation Accounting Code
-	TAC *string `json:"TAC,omitempty"`
+	Tac *string `json:"tac,omitempty"`
 
 	// Transmit Code
-	TransmitCD *string `json:"TransmitCD,omitempty"`
+	TransmitCD *string `json:"transmitCD,omitempty"`
 
 	// travel advance
-	TravelAdvance *float64 `json:"TravelAdvance,omitempty"`
+	TravelAdvance *float64 `json:"travelAdvance,omitempty"`
 
 	// travel class code
 	// Example: PCS
-	TravelClassCode string `json:"TravelClassCode,omitempty"`
+	TravelClassCode string `json:"travelClassCode,omitempty"`
 
 	// Travel Type
 	// Example: Shipment of HHG Permitted
-	TravelType string `json:"TravelType,omitempty"`
+	TravelType string `json:"travelType,omitempty"`
 
 	// type c d
-	TypeCD *string `json:"TypeCD,omitempty"`
+	TypeCD *string `json:"typeCD,omitempty"`
 
 	// weight authorized
-	WeightAuthorized float64 `json:"WeightAuthorized,omitempty"`
+	WeightAuthorized float64 `json:"weightAuthorized,omitempty"`
 
 	// Total weight estimate
-	WeightEstimate float64 `json:"WeightEstimate,omitempty"`
+	WeightEstimate float64 `json:"weightEstimate,omitempty"`
 }
 
 // Validate validates this list report
@@ -261,7 +258,7 @@ func (m *ListReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateDD2278IssueDate(formats); err != nil {
+	if err := m.validateDd2278IssueDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -335,9 +332,9 @@ func (m *ListReport) validateAddress(formats strfmt.Registry) error {
 	if m.Address != nil {
 		if err := m.Address.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("Address")
+				return ve.ValidateName("address")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("Address")
+				return ce.ValidateName("address")
 			}
 			return err
 		}
@@ -354,9 +351,9 @@ func (m *ListReport) validateAffiliation(formats strfmt.Registry) error {
 	if m.Affiliation != nil {
 		if err := m.Affiliation.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("Affiliation")
+				return ve.ValidateName("affiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("Affiliation")
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -370,19 +367,19 @@ func (m *ListReport) validateCounseledDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("CounseledDate", "body", "date", m.CounseledDate.String(), formats); err != nil {
+	if err := validate.FormatOf("counseledDate", "body", "date", m.CounseledDate.String(), formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *ListReport) validateDD2278IssueDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.DD2278IssueDate) { // not required
+func (m *ListReport) validateDd2278IssueDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.Dd2278IssueDate) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("DD2278IssueDate", "body", "date", m.DD2278IssueDate.String(), formats); err != nil {
+	if err := validate.FormatOf("dd2278IssueDate", "body", "date", m.Dd2278IssueDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -394,7 +391,7 @@ func (m *ListReport) validateDeliveryDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("DeliveryDate", "body", "date", m.DeliveryDate.String(), formats); err != nil {
+	if err := validate.FormatOf("deliveryDate", "body", "date", m.DeliveryDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -409,9 +406,9 @@ func (m *ListReport) validateDestinationAddress(formats strfmt.Registry) error {
 	if m.DestinationAddress != nil {
 		if err := m.DestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("DestinationAddress")
+				return ve.ValidateName("destinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("DestinationAddress")
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -515,7 +512,7 @@ func (m *ListReport) validateDestinationGbloc(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validateDestinationGblocEnum("DestinationGbloc", "body", *m.DestinationGbloc); err != nil {
+	if err := m.validateDestinationGblocEnum("destinationGbloc", "body", *m.DestinationGbloc); err != nil {
 		return err
 	}
 
@@ -527,7 +524,7 @@ func (m *ListReport) validateID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("ID", "body", "uuid", m.ID.String(), formats); err != nil {
+	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 
@@ -539,7 +536,7 @@ func (m *ListReport) validateMoveDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("MoveDate", "body", "date", m.MoveDate.String(), formats); err != nil {
+	if err := validate.FormatOf("moveDate", "body", "date", m.MoveDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -551,7 +548,7 @@ func (m *ListReport) validateOrdersDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("OrdersDate", "body", "date-time", m.OrdersDate.String(), formats); err != nil {
+	if err := validate.FormatOf("ordersDate", "body", "date-time", m.OrdersDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -566,9 +563,9 @@ func (m *ListReport) validateOriginAddress(formats strfmt.Registry) error {
 	if m.OriginAddress != nil {
 		if err := m.OriginAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("OriginAddress")
+				return ve.ValidateName("originAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("OriginAddress")
+				return ce.ValidateName("originAddress")
 			}
 			return err
 		}
@@ -672,7 +669,7 @@ func (m *ListReport) validateOriginGbloc(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validateOriginGblocEnum("OriginGbloc", "body", *m.OriginGbloc); err != nil {
+	if err := m.validateOriginGblocEnum("originGbloc", "body", *m.OriginGbloc); err != nil {
 		return err
 	}
 
@@ -684,7 +681,7 @@ func (m *ListReport) validatePaidDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("PaidDate", "body", "date", m.PaidDate.String(), formats); err != nil {
+	if err := validate.FormatOf("paidDate", "body", "date", m.PaidDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -807,7 +804,7 @@ func (m *ListReport) validatePayGrade(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validatePayGradeEnum("PayGrade", "body", *m.PayGrade); err != nil {
+	if err := m.validatePayGradeEnum("payGrade", "body", *m.PayGrade); err != nil {
 		return err
 	}
 
@@ -819,7 +816,7 @@ func (m *ListReport) validatePickupDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("PickupDate", "body", "date", m.PickupDate.String(), formats); err != nil {
+	if err := validate.FormatOf("pickupDate", "body", "date", m.PickupDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -831,7 +828,7 @@ func (m *ListReport) validateShipmentID(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("ShipmentId", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
+	if err := validate.FormatOf("shipmentId", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
 		return err
 	}
 
@@ -843,7 +840,7 @@ func (m *ListReport) validateSitInDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("SitInDate", "body", "date", m.SitInDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitInDate", "body", "date", m.SitInDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -855,7 +852,7 @@ func (m *ListReport) validateSitOutDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("SitOutDate", "body", "date", m.SitOutDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitOutDate", "body", "date", m.SitOutDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -898,9 +895,9 @@ func (m *ListReport) contextValidateAddress(ctx context.Context, formats strfmt.
 
 		if err := m.Address.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("Address")
+				return ve.ValidateName("address")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("Address")
+				return ce.ValidateName("address")
 			}
 			return err
 		}
@@ -919,9 +916,9 @@ func (m *ListReport) contextValidateAffiliation(ctx context.Context, formats str
 
 		if err := m.Affiliation.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("Affiliation")
+				return ve.ValidateName("affiliation")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("Affiliation")
+				return ce.ValidateName("affiliation")
 			}
 			return err
 		}
@@ -940,9 +937,9 @@ func (m *ListReport) contextValidateDestinationAddress(ctx context.Context, form
 
 		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("DestinationAddress")
+				return ve.ValidateName("destinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("DestinationAddress")
+				return ce.ValidateName("destinationAddress")
 			}
 			return err
 		}
@@ -961,9 +958,9 @@ func (m *ListReport) contextValidateOriginAddress(ctx context.Context, formats s
 
 		if err := m.OriginAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("OriginAddress")
+				return ve.ValidateName("originAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("OriginAddress")
+				return ce.ValidateName("originAddress")
 			}
 			return err
 		}

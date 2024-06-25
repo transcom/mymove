@@ -38,7 +38,7 @@ type ClientService interface {
 /*
 ListReports lists reports
 
-Gets all reports that have been ??approved??
+Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.
 */
 func (a *Client) ListReports(params *ListReportsParams, opts ...ClientOption) (*ListReportsOK, error) {
 	// TODO: Validate the params before sending

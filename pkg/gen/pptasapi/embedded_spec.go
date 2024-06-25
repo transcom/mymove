@@ -45,7 +45,7 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all reports that have been ??approved??\n",
+        "description": "Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
         "produces": [
           "application/json"
         ],
@@ -305,63 +305,64 @@ func init() {
       "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
       "type": "object",
       "properties": {
-        "AAA": {
+        "aaa": {
           "type": "string",
           "x-nullable": true
         },
-        "AccessorialTotal": {
+        "accessorialTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "ActualOriginNetWeight": {
-          "type": "string"
+        "actualOriginNetWeight": {
+          "type": "number",
+          "format": "double"
         },
-        "Address": {
+        "address": {
           "$ref": "#/definitions/Address"
         },
-        "Affiliation": {
+        "affiliation": {
           "$ref": "#/definitions/Affiliation"
         },
-        "Appro": {
+        "appro": {
           "description": "Appropriation",
           "type": "string",
           "x-nullable": true
         },
-        "BCN": {
+        "bcn": {
           "type": "string",
           "x-nullable": true
         },
-        "CostCD": {
+        "costCD": {
           "type": "string",
           "x-nullable": true
         },
-        "CounseledDate": {
+        "counseledDate": {
           "type": "string",
           "format": "date"
         },
-        "DD2278IssueDate": {
+        "dd2278IssueDate": {
           "description": "Counseling Date",
           "type": "string",
           "format": "date"
         },
-        "DDCD": {
+        "ddcd": {
           "type": "string",
           "x-nullable": true
         },
-        "DeliveryDate": {
+        "deliveryDate": {
           "type": "string",
           "format": "date"
         },
-        "DepCD": {
+        "depCD": {
           "description": "Department Code",
           "type": "string",
           "x-nullable": true
         },
-        "DestinationAddress": {
+        "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "DestinationGbloc": {
+        "destinationGbloc": {
           "type": "string",
           "enum": [
             "AGFM",
@@ -389,96 +390,96 @@ func init() {
           ],
           "x-nullable": true
         },
-        "DestinationReweighNetWeight": {
-          "type": "string"
-        },
-        "Edipi": {
-          "type": "string",
-          "example": 1234567890
-        },
-        "EmailPrimary": {
-          "type": "string",
-          "example": "a@b.com"
-        },
-        "EmailSecondary": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "EntitlementWeight": {
-          "type": "integer"
-        },
-        "FirstName": {
-          "type": "string",
-          "example": "Bob"
-        },
-        "FiscalYear": {
-          "type": "integer",
-          "x-nullable": true
-        },
-        "FuelTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "ID": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "InvoicePaidAmt": {
+        "destinationReweighNetWeight": {
           "type": "number",
           "format": "double"
         },
-        "LOA": {
+        "edipi": {
+          "type": "string"
+        },
+        "emailPrimary": {
+          "type": "string",
+          "example": "a@b.com"
+        },
+        "emailSecondary": {
           "type": "string",
           "x-nullable": true
         },
-        "LastName": {
-          "type": "string",
-          "example": "Job"
+        "entitlementWeight": {
+          "type": "integer"
         },
-        "LinehaulTotal": {
+        "firstName": {
+          "type": "string",
+          "example": "Bob"
+        },
+        "fiscalYear": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "fuelTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "MiddleInitial": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "invoicePaidAmt": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Job"
+        },
+        "linehaulTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "loa": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "middleInitial": {
           "type": "string",
           "example": "G"
         },
-        "Miles": {
+        "miles": {
           "type": "integer"
         },
-        "MoveDate": {
+        "moveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "NetWeight": {
+        "netWeight": {
           "type": "integer"
         },
-        "ObjClass": {
+        "objClass": {
           "type": "string",
           "x-nullable": true
         },
-        "OrderNumber": {
+        "orderNumber": {
           "description": "not to be confused with Orders Number",
           "type": "string",
           "example": "030-00362"
         },
-        "OrdersDate": {
+        "ordersDate": {
           "type": "string",
           "format": "date-time"
         },
-        "OrdersNumber": {
+        "ordersNumber": {
           "type": "string"
         },
-        "OrdersType": {
+        "ordersType": {
           "type": "string"
         },
-        "OriginAddress": {
+        "originAddress": {
           "$ref": "#/definitions/Address"
         },
-        "OriginGbloc": {
+        "originGbloc": {
           "type": "string",
           "enum": [
             "AGFM",
@@ -506,26 +507,21 @@ func init() {
           ],
           "x-nullable": true
         },
-        "OtherTotal": {
+        "otherTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "PAA": {
+        "paa": {
           "type": "string",
           "x-nullable": true
         },
-        "PBP\u0026E": {
-          "description": "Pro Gear",
-          "type": "number",
-          "format": "double"
-        },
-        "PaidDate": {
+        "paidDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "PayGrade": {
+        "payGrade": {
           "type": "string",
           "title": "grade",
           "enum": [
@@ -592,101 +588,104 @@ func init() {
           },
           "x-nullable": true
         },
-        "PhonePrimary": {
-          "type": "string",
-          "example": 9169876543
+        "pbpAnde": {
+          "description": "Pro Gear",
+          "type": "number",
+          "format": "double"
         },
-        "PhoneSecondary": {
-          "type": "string",
-          "x-nullable": true,
-          "example": 9169876543
+        "phonePrimary": {
+          "type": "string"
         },
-        "PickupDate": {
+        "phoneSecondary": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "pickupDate": {
           "type": "string",
           "format": "date"
         },
-        "Rate": {
+        "rate": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "SCAC": {
+        "scac": {
           "type": "string",
           "x-nullable": true,
           "example": "AGFM"
         },
-        "ShipmentId": {
+        "shipmentId": {
           "type": "string",
           "format": "uuid"
         },
-        "ShipmentNum": {
+        "shipmentNum": {
           "description": "Number of shipments",
           "type": "integer"
         },
-        "ShipmentType": {
+        "shipmentType": {
           "type": "string"
         },
-        "SitInDate": {
+        "sitInDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "SitOutDate": {
+        "sitOutDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "SitTotal": {
+        "sitTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "SitType": {
+        "sitType": {
           "type": "string",
           "x-nullable": true,
           "example": "Destination"
         },
-        "SubAllotCD": {
+        "subAllotCD": {
           "type": "string",
           "x-nullable": true
         },
-        "Subhead": {
+        "subhead": {
           "type": "string",
           "x-nullable": true
         },
-        "TAC": {
+        "tac": {
           "description": "Transportation Accounting Code",
           "type": "string",
           "x-nullable": true
         },
-        "TransmitCD": {
+        "transmitCD": {
           "description": "Transmit Code",
           "type": "string",
           "x-nullable": true
         },
-        "TravelAdvance": {
+        "travelAdvance": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "TravelClassCode": {
+        "travelClassCode": {
           "type": "string",
           "example": "PCS"
         },
-        "TravelType": {
+        "travelType": {
           "description": "Travel Type",
           "type": "string",
           "example": "Shipment of HHG Permitted"
         },
-        "TypeCD": {
+        "typeCD": {
           "type": "string",
           "x-nullable": true
         },
-        "WeightAuthorized": {
+        "weightAuthorized": {
           "type": "number",
           "format": "double"
         },
-        "WeightEstimate": {
+        "weightEstimate": {
           "description": "Total weight estimate",
           "type": "number",
           "format": "double"
@@ -748,7 +747,7 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all reports that have been ??approved??\n",
+        "description": "Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
         "produces": [
           "application/json"
         ],
@@ -1017,63 +1016,64 @@ func init() {
       "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
       "type": "object",
       "properties": {
-        "AAA": {
+        "aaa": {
           "type": "string",
           "x-nullable": true
         },
-        "AccessorialTotal": {
+        "accessorialTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "ActualOriginNetWeight": {
-          "type": "string"
+        "actualOriginNetWeight": {
+          "type": "number",
+          "format": "double"
         },
-        "Address": {
+        "address": {
           "$ref": "#/definitions/Address"
         },
-        "Affiliation": {
+        "affiliation": {
           "$ref": "#/definitions/Affiliation"
         },
-        "Appro": {
+        "appro": {
           "description": "Appropriation",
           "type": "string",
           "x-nullable": true
         },
-        "BCN": {
+        "bcn": {
           "type": "string",
           "x-nullable": true
         },
-        "CostCD": {
+        "costCD": {
           "type": "string",
           "x-nullable": true
         },
-        "CounseledDate": {
+        "counseledDate": {
           "type": "string",
           "format": "date"
         },
-        "DD2278IssueDate": {
+        "dd2278IssueDate": {
           "description": "Counseling Date",
           "type": "string",
           "format": "date"
         },
-        "DDCD": {
+        "ddcd": {
           "type": "string",
           "x-nullable": true
         },
-        "DeliveryDate": {
+        "deliveryDate": {
           "type": "string",
           "format": "date"
         },
-        "DepCD": {
+        "depCD": {
           "description": "Department Code",
           "type": "string",
           "x-nullable": true
         },
-        "DestinationAddress": {
+        "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "DestinationGbloc": {
+        "destinationGbloc": {
           "type": "string",
           "enum": [
             "AGFM",
@@ -1101,96 +1101,96 @@ func init() {
           ],
           "x-nullable": true
         },
-        "DestinationReweighNetWeight": {
-          "type": "string"
-        },
-        "Edipi": {
-          "type": "string",
-          "example": 1234567890
-        },
-        "EmailPrimary": {
-          "type": "string",
-          "example": "a@b.com"
-        },
-        "EmailSecondary": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "EntitlementWeight": {
-          "type": "integer"
-        },
-        "FirstName": {
-          "type": "string",
-          "example": "Bob"
-        },
-        "FiscalYear": {
-          "type": "integer",
-          "x-nullable": true
-        },
-        "FuelTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "ID": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "InvoicePaidAmt": {
+        "destinationReweighNetWeight": {
           "type": "number",
           "format": "double"
         },
-        "LOA": {
+        "edipi": {
+          "type": "string"
+        },
+        "emailPrimary": {
+          "type": "string",
+          "example": "a@b.com"
+        },
+        "emailSecondary": {
           "type": "string",
           "x-nullable": true
         },
-        "LastName": {
-          "type": "string",
-          "example": "Job"
+        "entitlementWeight": {
+          "type": "integer"
         },
-        "LinehaulTotal": {
+        "firstName": {
+          "type": "string",
+          "example": "Bob"
+        },
+        "fiscalYear": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "fuelTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "MiddleInitial": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "invoicePaidAmt": {
+          "type": "number",
+          "format": "double"
+        },
+        "lastName": {
+          "type": "string",
+          "example": "Job"
+        },
+        "linehaulTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "loa": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "middleInitial": {
           "type": "string",
           "example": "G"
         },
-        "Miles": {
+        "miles": {
           "type": "integer"
         },
-        "MoveDate": {
+        "moveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "NetWeight": {
+        "netWeight": {
           "type": "integer"
         },
-        "ObjClass": {
+        "objClass": {
           "type": "string",
           "x-nullable": true
         },
-        "OrderNumber": {
+        "orderNumber": {
           "description": "not to be confused with Orders Number",
           "type": "string",
           "example": "030-00362"
         },
-        "OrdersDate": {
+        "ordersDate": {
           "type": "string",
           "format": "date-time"
         },
-        "OrdersNumber": {
+        "ordersNumber": {
           "type": "string"
         },
-        "OrdersType": {
+        "ordersType": {
           "type": "string"
         },
-        "OriginAddress": {
+        "originAddress": {
           "$ref": "#/definitions/Address"
         },
-        "OriginGbloc": {
+        "originGbloc": {
           "type": "string",
           "enum": [
             "AGFM",
@@ -1218,26 +1218,21 @@ func init() {
           ],
           "x-nullable": true
         },
-        "OtherTotal": {
+        "otherTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "PAA": {
+        "paa": {
           "type": "string",
           "x-nullable": true
         },
-        "PBP\u0026E": {
-          "description": "Pro Gear",
-          "type": "number",
-          "format": "double"
-        },
-        "PaidDate": {
+        "paidDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "PayGrade": {
+        "payGrade": {
           "type": "string",
           "title": "grade",
           "enum": [
@@ -1304,101 +1299,104 @@ func init() {
           },
           "x-nullable": true
         },
-        "PhonePrimary": {
-          "type": "string",
-          "example": 9169876543
+        "pbpAnde": {
+          "description": "Pro Gear",
+          "type": "number",
+          "format": "double"
         },
-        "PhoneSecondary": {
-          "type": "string",
-          "x-nullable": true,
-          "example": 9169876543
+        "phonePrimary": {
+          "type": "string"
         },
-        "PickupDate": {
+        "phoneSecondary": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "pickupDate": {
           "type": "string",
           "format": "date"
         },
-        "Rate": {
+        "rate": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "SCAC": {
+        "scac": {
           "type": "string",
           "x-nullable": true,
           "example": "AGFM"
         },
-        "ShipmentId": {
+        "shipmentId": {
           "type": "string",
           "format": "uuid"
         },
-        "ShipmentNum": {
+        "shipmentNum": {
           "description": "Number of shipments",
           "type": "integer"
         },
-        "ShipmentType": {
+        "shipmentType": {
           "type": "string"
         },
-        "SitInDate": {
+        "sitInDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "SitOutDate": {
+        "sitOutDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
-        "SitTotal": {
+        "sitTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "SitType": {
+        "sitType": {
           "type": "string",
           "x-nullable": true,
           "example": "Destination"
         },
-        "SubAllotCD": {
+        "subAllotCD": {
           "type": "string",
           "x-nullable": true
         },
-        "Subhead": {
+        "subhead": {
           "type": "string",
           "x-nullable": true
         },
-        "TAC": {
+        "tac": {
           "description": "Transportation Accounting Code",
           "type": "string",
           "x-nullable": true
         },
-        "TransmitCD": {
+        "transmitCD": {
           "description": "Transmit Code",
           "type": "string",
           "x-nullable": true
         },
-        "TravelAdvance": {
+        "travelAdvance": {
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
-        "TravelClassCode": {
+        "travelClassCode": {
           "type": "string",
           "example": "PCS"
         },
-        "TravelType": {
+        "travelType": {
           "description": "Travel Type",
           "type": "string",
           "example": "Shipment of HHG Permitted"
         },
-        "TypeCD": {
+        "typeCD": {
           "type": "string",
           "x-nullable": true
         },
-        "WeightAuthorized": {
+        "weightAuthorized": {
           "type": "number",
           "format": "double"
         },
-        "WeightEstimate": {
+        "weightEstimate": {
           "description": "Total weight estimate",
           "type": "number",
           "format": "double"
