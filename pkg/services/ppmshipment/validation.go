@@ -73,9 +73,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.ActualMoveDate = services.SetOptionalDateTimeField(newPPMShipment.ActualMoveDate, ppmShipment.ActualMoveDate)
 	}
 
-	ppmShipment.SecondaryPickupPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryPickupPostalCode, ppmShipment.SecondaryPickupPostalCode)
 	ppmShipment.ActualPickupPostalCode = services.SetOptionalStringField(newPPMShipment.ActualPickupPostalCode, ppmShipment.ActualPickupPostalCode)
-	ppmShipment.SecondaryDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.SecondaryDestinationPostalCode, ppmShipment.SecondaryDestinationPostalCode)
 	ppmShipment.ActualDestinationPostalCode = services.SetOptionalStringField(newPPMShipment.ActualDestinationPostalCode, ppmShipment.ActualDestinationPostalCode)
 	ppmShipment.HasProGear = services.SetNoNilOptionalBoolField(newPPMShipment.HasProGear, ppmShipment.HasProGear)
 	ppmShipment.EstimatedWeight = services.SetNoNilOptionalPoundField(newPPMShipment.EstimatedWeight, ppmShipment.EstimatedWeight)
@@ -125,7 +123,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.HasSecondaryPickupAddress = newPPMShipment.HasSecondaryPickupAddress
 		ppmShipment.SecondaryPickupAddress = nil
 		ppmShipment.SecondaryPickupAddressID = nil
-		ppmShipment.SecondaryPickupPostalCode = nil
 	} else if newPPMShipment.SecondaryPickupAddress != nil {
 		ppmShipment.SecondaryPickupAddress = newPPMShipment.SecondaryPickupAddress
 		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
@@ -156,7 +153,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.HasSecondaryDestinationAddress = newPPMShipment.HasSecondaryDestinationAddress
 		ppmShipment.SecondaryDestinationAddress = nil
 		ppmShipment.SecondaryDestinationAddressID = nil
-		ppmShipment.SecondaryDestinationPostalCode = nil
 	} else if newPPMShipment.SecondaryDestinationAddress != nil {
 		ppmShipment.SecondaryDestinationAddress = newPPMShipment.SecondaryDestinationAddress
 		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
@@ -196,13 +192,6 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 
 	if !newPPMShipment.ExpectedDepartureDate.IsZero() {
 		ppmShipment.ExpectedDepartureDate = newPPMShipment.ExpectedDepartureDate
-	}
-
-	if newPPMShipment.PickupPostalCode != "" {
-		ppmShipment.PickupPostalCode = newPPMShipment.PickupPostalCode
-	}
-	if newPPMShipment.DestinationPostalCode != "" {
-		ppmShipment.DestinationPostalCode = newPPMShipment.DestinationPostalCode
 	}
 
 	if newPPMShipment.WeightTickets != nil && len(newPPMShipment.WeightTickets) >= 1 {

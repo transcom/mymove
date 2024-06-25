@@ -3360,9 +3360,6 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-      x-permissions:
-        - update.move
-        - create.serviceItem
   /queues/payment-requests:
     get:
       produces:
@@ -8202,27 +8199,8 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -8252,28 +8230,8 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -8446,8 +8404,6 @@ definitions:
       - createdAt
       - status
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - eTag
   ShipmentAddressUpdateStatus:

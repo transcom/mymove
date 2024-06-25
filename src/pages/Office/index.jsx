@@ -19,6 +19,8 @@ import {
   loadInternalSchema as loadInternalSchemaAction,
   loadPublicSchema as loadPublicSchemaAction,
 } from 'shared/Swagger/ducks';
+// Feature Flags
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 // Shared layout components
 import ConnectedLogoutOnInactivity from 'layout/LogoutOnInactivity';
 import PrivateRoute from 'containers/PrivateRoute';
@@ -51,6 +53,8 @@ const TXOMoveInfo = lazy(() => import('pages/Office/TXOMoveInfo/TXOMoveInfo'));
 const MoveQueue = lazy(() => import('pages/Office/MoveQueue/MoveQueue'));
 // TIO pages
 const PaymentRequestQueue = lazy(() => import('pages/Office/PaymentRequestQueue/PaymentRequestQueue'));
+// HQ pages
+const HeadquartersQueues = lazy(() => import('pages/Office/HeadquartersQueues/HeadquartersQueues'));
 // Services Counselor pages
 const ServicesCounselingMoveInfo = lazy(() =>
   import('pages/Office/ServicesCounselingMoveInfo/ServicesCounselingMoveInfo'),
@@ -59,6 +63,7 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
+const AddShipment = lazy(() => import('pages/Office/AddShipment/AddShipment'));
 const EditShipmentDetails = lazy(() => import('pages/Office/EditShipmentDetails/EditShipmentDetails'));
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
 const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder/MoveDetails'));
@@ -104,6 +109,7 @@ export class OfficeApp extends Component {
       info: undefined,
       oktaLoggedOut: undefined,
       oktaNeedsLoggedOut: undefined,
+      hqRoleFlag: !!props.hqRoleFlag,
     };
   }
 
@@ -132,6 +138,19 @@ export class OfficeApp extends Component {
         oktaNeedsLoggedOut: true,
       });
     }
+
+    // Feature Flag
+    const fetchFeatureFlags = async () => {
+      try {
+        const hqRoleFlagValue = await isBooleanFlagEnabled('headquarters_role');
+        this.setState({
+          hqRoleFlag: hqRoleFlagValue,
+        });
+      } catch (error) {
+        retryPageLoading(error);
+      }
+    };
+    fetchFeatureFlags();
   }
 
   componentDidCatch(error, info) {
@@ -146,7 +165,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -234,16 +253,17 @@ export class OfficeApp extends Component {
                   // Auth Routes
                   <Routes>
                     <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-                    {/* TXO, HQ */}
+                    {/* TOO */}
                     <Route
                       path="/moves/queue"
                       end
                       element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO, roleTypes.HQ]}>
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
                           <MoveQueue />
                         </PrivateRoute>
                       }
                     />
+                    {/* TIO */}
                     <Route
                       path="/invoicing/queue"
                       element={
@@ -252,7 +272,16 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-
+                    {/* HQ */}
+                    <Route
+                      path="/hq/queues"
+                      end
+                      element={
+                        <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
+                          <HeadquartersQueues />
+                        </PrivateRoute>
+                      }
+                    />
                     {/* SERVICES_COUNSELOR */}
                     <Route
                       key="servicesCounselingAddShipment"
@@ -264,7 +293,6 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
-
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route
                         path="/:queueType/*"
@@ -322,13 +350,14 @@ export class OfficeApp extends Component {
                         }
                       />
                     )}
+
                     {activeRole === roleTypes.HQ && (
                       <Route
                         path="/:queueType/*"
                         end
                         element={
-                          <PrivateRoute requiredRoles={[roleTypes.HQ]}>
-                            <MoveQueue />
+                          <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
+                            <HeadquartersQueues />
                           </PrivateRoute>
                         }
                       />
@@ -353,6 +382,16 @@ export class OfficeApp extends Component {
                       }
                     />
                     <Route
+                      key="tooAddShipmentRoute"
+                      end
+                      path={tooRoutes.SHIPMENT_ADD_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <AddShipment />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
                       key="tooEditShipmentDetailsRoute"
                       end
                       path={tooRoutes.BASE_SHIPMENT_EDIT_PATH}
@@ -371,6 +410,7 @@ export class OfficeApp extends Component {
                         </PrivateRoute>
                       }
                     />
+
                     {/* PRIME SIMULATOR */}
                     <Route
                       key="primeSimulatorMovePath"
@@ -504,6 +544,7 @@ export class OfficeApp extends Component {
                             roleTypes.TIO,
                             roleTypes.QAE,
                             roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                            hqRoleFlag ? roleTypes.HQ : undefined,
                           ]}
                         >
                           <TXOMoveInfo />
@@ -516,7 +557,10 @@ export class OfficeApp extends Component {
                     {/* ROOT */}
                     {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
                     {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
-                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<MoveQueue />} />}
+                    {activeRole === roleTypes.HQ && !hqRoleFlag && (
+                      <Route end path="/*" element={<InvalidPermissions />} />
+                    )}
+                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
                     {activeRole === roleTypes.SERVICES_COUNSELOR && (
                       <Route end path="/*" element={<ServicesCounselingQueue />} />
                     )}
