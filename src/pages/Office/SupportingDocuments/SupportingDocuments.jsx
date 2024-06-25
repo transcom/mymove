@@ -1,13 +1,12 @@
 import React from 'react';
 
-const SupportingDocuments = ({ moveCode }) => {
-  return (
-    <div>
-      {moveCode}
-      &nbsp;
-      <span>I did a thing.</span>
-    </div>
-  );
+import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
+
+const SupportingDocuments = ({ uploads }) => {
+  if (!uploads || uploads?.length <= 0) {
+    return <h2>No supporting documents have been uploaded.</h2>;
+  }
+  return <DocumentViewer files={uploads} allowDownload />;
 };
 
 export default SupportingDocuments;
