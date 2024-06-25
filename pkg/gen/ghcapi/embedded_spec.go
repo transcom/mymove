@@ -2382,6 +2382,62 @@ func init() {
         }
       ]
     },
+    "/moves/{moveId}/uploadAdditionalDocuments": {
+      "patch": {
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Patch the additional documents for a given move",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -12256,6 +12312,7 @@ func init() {
         "deletedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "filename": {
@@ -15645,6 +15702,62 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves/{moveId}/uploadAdditionalDocuments": {
+      "patch": {
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Patch the additional documents for a given move",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/mto-shipments": {
       "post": {
@@ -26312,6 +26425,7 @@ func init() {
         "deletedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "filename": {

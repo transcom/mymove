@@ -65,6 +65,8 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// uploads.CreateUploadMaxParseMemory = 32 << 20
 	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
+	// move.UploadAdditionalDocumentsMaxParseMemory = 32 << 20
+	// You may change here the memory limit for this multipart form parser. Below is the default (32 MB).
 	// order.UploadAmendedOrdersMaxParseMemory = 32 << 20
 
 	if api.OrderAcknowledgeExcessWeightRiskHandler == nil {
@@ -510,6 +512,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.PpmUpdateWeightTicketHandler == nil {
 		api.PpmUpdateWeightTicketHandler = ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
+		})
+	}
+	if api.MoveUploadAdditionalDocumentsHandler == nil {
+		api.MoveUploadAdditionalDocumentsHandler = move.UploadAdditionalDocumentsHandlerFunc(func(params move.UploadAdditionalDocumentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UploadAdditionalDocuments has not yet been implemented")
 		})
 	}
 	if api.OrderUploadAmendedOrdersHandler == nil {

@@ -7178,6 +7178,7 @@ func init() {
         "deletedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "filename": {
@@ -15257,6 +15258,7 @@ func init() {
         "deletedAt": {
           "type": "string",
           "format": "date-time",
+          "x-nullable": true,
           "readOnly": true
         },
         "filename": {

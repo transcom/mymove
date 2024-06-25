@@ -77,8 +77,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 
-			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().IsOfficeApp() {
+			if !appCtx.Session().IsOfficeApp() {
 				return documentop.NewCreateDocumentForbidden(), apperror.NewForbiddenError("is not an Office User")
 			}
 

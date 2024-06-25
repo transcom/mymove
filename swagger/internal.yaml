@@ -2604,6 +2604,7 @@ definitions:
       deletedAt:
         type: string
         format: date-time
+        x-nullable: true
         readOnly: true
       isWeightTicket:
         type: boolean

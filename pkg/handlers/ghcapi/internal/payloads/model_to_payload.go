@@ -1681,7 +1681,7 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
-		DeletedAt:   strfmt.DateTime(*upload.DeletedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -1754,7 +1754,7 @@ func PayloadForUploadModel(
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
-		DeletedAt:   strfmt.DateTime(*upload.DeletedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {

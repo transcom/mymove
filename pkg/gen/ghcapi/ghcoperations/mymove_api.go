@@ -335,6 +335,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
 		}),
+		MoveUploadAdditionalDocumentsHandler: move.UploadAdditionalDocumentsHandlerFunc(func(params move.UploadAdditionalDocumentsParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UploadAdditionalDocuments has not yet been implemented")
+		}),
 		OrderUploadAmendedOrdersHandler: order.UploadAmendedOrdersHandlerFunc(func(params order.UploadAmendedOrdersParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UploadAmendedOrders has not yet been implemented")
 		}),
@@ -562,6 +565,8 @@ type MymoveAPI struct {
 	MtoServiceItemUpdateServiceItemSitEntryDateHandler mto_service_item.UpdateServiceItemSitEntryDateHandler
 	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
 	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
+	// MoveUploadAdditionalDocumentsHandler sets the operation handler for the upload additional documents operation
+	MoveUploadAdditionalDocumentsHandler move.UploadAdditionalDocumentsHandler
 	// OrderUploadAmendedOrdersHandler sets the operation handler for the upload amended orders operation
 	OrderUploadAmendedOrdersHandler order.UploadAmendedOrdersHandler
 
@@ -913,6 +918,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.PpmUpdateWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
+	}
+	if o.MoveUploadAdditionalDocumentsHandler == nil {
+		unregistered = append(unregistered, "move.UploadAdditionalDocumentsHandler")
 	}
 	if o.OrderUploadAmendedOrdersHandler == nil {
 		unregistered = append(unregistered, "order.UploadAmendedOrdersHandler")
@@ -1365,6 +1373,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/weight-ticket/{weightTicketId}"] = ppm.NewUpdateWeightTicket(o.context, o.PpmUpdateWeightTicketHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{moveId}/uploadAdditionalDocuments"] = move.NewUploadAdditionalDocuments(o.context, o.MoveUploadAdditionalDocumentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

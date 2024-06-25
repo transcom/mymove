@@ -40,7 +40,7 @@ type Upload struct {
 	// deleted at
 	// Read Only: true
 	// Format: date-time
-	DeletedAt strfmt.DateTime `json:"deletedAt,omitempty"`
+	DeletedAt *strfmt.DateTime `json:"deletedAt,omitempty"`
 
 	// filename
 	// Example: filename.pdf
@@ -393,7 +393,7 @@ func (m *Upload) contextValidateCreatedAt(ctx context.Context, formats strfmt.Re
 
 func (m *Upload) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "deletedAt", "body", strfmt.DateTime(m.DeletedAt)); err != nil {
+	if err := validate.ReadOnly(ctx, "deletedAt", "body", m.DeletedAt); err != nil {
 		return err
 	}
 

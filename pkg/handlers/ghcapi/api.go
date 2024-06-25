@@ -75,6 +75,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		moveRouter,
 	)
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -175,6 +176,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MtoServiceItemGetMTOServiceItemHandler = GetMTOServiceItemHandler{
 		HandlerConfig:         handlerConfig,
 		mtoServiceItemFetcher: mtoserviceitem.NewMTOServiceItemFetcher(),
+	}
+
+	ghcAPI.MoveUploadAdditionalDocumentsHandler = UploadAdditionalDocumentsHandler{
+		HandlerConfig: handlerConfig,
+		uploader:      move.NewMoveAdditionalDocumentsUploader(uploadCreator),
 	}
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
