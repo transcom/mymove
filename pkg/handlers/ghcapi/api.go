@@ -223,6 +223,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		fetch.NewFetcher(queryBuilder),
+		ghcrateengine.NewCounselingServicesPricer(),
+		ghcrateengine.NewManagementServicesPricer(),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
