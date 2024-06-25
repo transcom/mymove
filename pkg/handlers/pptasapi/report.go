@@ -21,19 +21,19 @@ type ListReportsHandler struct {
 func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			var searchParams services.FetchPaymentRequestListParams
+			var searchParams services.MoveFetcherParams
 			// if params.Since != nil {
 			// 	since := handlers.FmtDateTimePtrToPop(params.Since)
 			// 	searchParams.Since = &since
 			// }
 
-			reports, err := h.FetchReportList(appCtx, &searchParams)
+			movesForReport, err := h.FetchMovesForReports(appCtx, searchParams)
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching reports:", zap.Error(err))
 				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListReports(&reports)
+			payload := payloads.ListReports(&movesForReport)
 
 			return pptasop.NewListReportsOK().WithPayload(payload), nil
 		})
