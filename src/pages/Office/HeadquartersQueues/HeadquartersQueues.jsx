@@ -34,7 +34,7 @@ import {
   GBLOC,
   MOVE_STATUS_LABELS,
   PAYMENT_REQUEST_STATUS_OPTIONS,
-  SERVICE_COUNSELING_BRANCH_OPTIONS,
+  BRANCH_OPTIONS_WITH_MARINE_CORPS,
   SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
@@ -377,7 +377,7 @@ const counselingColumns = (moveLockFlag) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
@@ -452,7 +452,7 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
