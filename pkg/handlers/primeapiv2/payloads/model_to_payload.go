@@ -50,6 +50,11 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
 	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
 	payload.SetMtoServiceItems(*mtoServiceItems)
 
+	// update originDutyLocationGBLOC to match TOO's gbloc and not service counselors's gbloc
+	if len(moveTaskOrder.ShipmentGBLOC) > 0 && moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
+		payload.Order.OriginDutyLocationGBLOC = swag.StringValue(moveTaskOrder.ShipmentGBLOC[0].GBLOC)
+	}
+
 	return payload
 }
 
