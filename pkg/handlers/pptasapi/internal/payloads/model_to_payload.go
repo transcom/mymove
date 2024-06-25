@@ -58,15 +58,15 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		PhonePrimary:       *Orders.ServiceMember.Telephone,
 		PhoneSecondary:     Orders.ServiceMember.SecondaryTelephone,
 		EmailPrimary:       *Orders.ServiceMember.PersonalEmail,
-		EmailSecondary:     nil,
+		EmailSecondary:     &Orders.ServiceMember.BackupContacts[0].Email,
 		OrdersType:         string(Orders.OrdersType),
 		OrdersNumber:       *Orders.OrdersNumber,
 		OrdersDate:         strfmt.DateTime(Orders.IssueDate),
-		Address:            nil,
+		Address:            Address(Orders.ServiceMember.ResidentialAddress),
 		OriginAddress:      Address(move.MTOShipments[0].PickupAddress),
 		DestinationAddress: Address(move.MTOShipments[0].DestinationAddress),
-		OriginGbloc:        nil,
-		DestinationGbloc:   nil,
+		OriginGbloc:        Orders.OriginDutyLocationGBLOC,
+		DestinationGbloc:   nil, // &move.CloseoutOffice.Gbloc,
 		DepCD:              nil,
 		TravelAdvance:      models.Float64Pointer(travelAdvance.Float64()), // report.TravelAdvance,
 		MoveDate:           (*strfmt.Date)(moveDate),
@@ -86,20 +86,15 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		WeightEstimate:     calculateTotalWeightEstimate(move.MTOShipments).Float64(),
 		TransmitCD:         nil, // report.TransmitCd,
 		Dd2278IssueDate:    strfmt.Date(*move.ServiceCounselingCompletedAt),
-		Miles:              0,   // int64(*report.Miles),
+		Miles:              int64(*move.MTOShipments[0].Distance),
 		WeightAuthorized:   0.0, // float64(Orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents), // WeightAlloted isn't returning any value
 		ShipmentID:         strfmt.UUID(move.ID.String()),
-		// Scac:                        report.SCAC,
-		// OrderNumber:                 *report.OrderNumber,
+		Scac:               nil, // I don't know what gbloc to use // hsfr
 		// Loa:                         nil, // report.LOA,
 		// ShipmentType:                "",  // *report.ShipmentType,
-		// EntitlementWeight:           0,   // report.EntitlementWeight.Int64(),
-		// NetWeight:                   0,   // report.NetWeight.Int64(),
-		// PbpAnde:                     0.0, // report.PBPAndE.Float64(),
-		// PickupDate:                  strfmt.Date(*report.PickupDate),
-		// SitInDate:                   (*strfmt.Date)(report.SitInDate),
-		// SitOutDate:                  (*strfmt.Date)(report.SitOutDate),
-		// SitType:                     report.SitType,
+		EntitlementWeight: int64(*Orders.Entitlement.DBAuthorizedWeight),
+		NetWeight:         int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
+		PickupDate:        strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
 		// Rate:                        nil, // report.Rate,
 		// PaidDate:                    (*strfmt.Date)(report.PaidDate),
 		// LinehaulTotal:               nil, // report.LinehaulTotal,
@@ -108,12 +103,12 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		// FuelTotal:                   nil, // report.FuelTotal,
 		// OtherTotal:                  nil, // report.OtherTotal,
 		// InvoicePaidAmt:              0.0, // report.InvoicePaidAmt.Float64(),
-		// TravelType:                  *report.TravelType,
-		// TravelClassCode:             *report.TravelClassCode,
-		// DeliveryDate:                strfmt.Date(*report.DeliveryDate),
+		TravelType:      string(*Orders.OrdersTypeDetail),
+		TravelClassCode: string(Orders.OrdersType),
+		DeliveryDate:    strfmt.Date(*moveDate),
 		// ActualOriginNetWeight:       0, // *report.ActualOriginNetWeight,
 		// DestinationReweighNetWeight: 0, // report.DestinationReweighNetWeight.Float64(),
-		// CounseledDate:               strfmt.Date(*report.CounseledDate),
+		CounseledDate: strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
 
 	// sharing this for loop for all MTOShipment calculations
@@ -138,6 +133,15 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 				// newreport.SitType = // Example data is destination.. ??
 			}
 		}
+	}
+
+	payload.PbpAnde = progear.Float64()
+
+	// SAC is currently optional, is it acceptable to have an empty return here?
+	if Orders.SAC != nil {
+		payload.OrdersNumber = *Orders.SAC
+	} else {
+		payload.OrderNumber = ""
 	}
 
 	return payload

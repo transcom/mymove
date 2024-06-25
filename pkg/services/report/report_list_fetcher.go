@@ -15,7 +15,7 @@ func NewReportListFetcher() services.ReportListFetcher {
 }
 
 // Fetch Moves with an approved Payment Request for Navy service members and ignore TIO and GBLOC rules
-func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params services.MoveFetcherParams) (models.Moves, error) {
+func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
 	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
@@ -32,16 +32,19 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
+		"Orders.ServiceMember.BackupContacts",
 		"Orders.Entitlement",
 		"Orders.Entitlement.WeightAllotted",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address",
 		"LockedByOfficeUser",
+		"CloseoutOfficeID",
 	).
 		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
+		LeftJoin("transportation_offices", "moves.closeout_office_id = transportation_offices.id").
 		Where("payment_requests.status in (?)", approvedStatuses).
 		Where("service_members.affiliation = ?", models.AffiliationNAVY)
 

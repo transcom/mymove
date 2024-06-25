@@ -27,7 +27,7 @@ func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.
 			// 	searchParams.Since = &since
 			// }
 
-			movesForReport, err := h.FetchMovesForReports(appCtx, searchParams)
+			movesForReport, err := h.FetchMovesForReports(appCtx, &searchParams)
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching reports:", zap.Error(err))
 				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
