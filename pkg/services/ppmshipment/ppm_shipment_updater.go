@@ -37,7 +37,7 @@ func NewPPMShipmentUpdater(ppmEstimator services.PPMEstimator, addressCreator se
 
 func (f *ppmShipmentUpdater) UpdatePPMShipmentSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMShipment, error) {
 	if ppmShipment == nil {
-		return nil, nil
+		return nil, apperror.NewInternalServerError("No ppmShipment supplied")
 	}
 
 	oldPPMShipment, err := FindPPMShipment(appCtx, ppmShipment.ID)
