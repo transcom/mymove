@@ -89,7 +89,6 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Make a postal code and GBLOC → AGFM
 		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), agfmPostalCode, "AGFM")
-
 		return officeUser, move, session
 	}
 	orderFetcher := NewOrderFetcher()
@@ -364,7 +363,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: search results should only include the move with the PPM type that was searched for
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					PPMType: models.StringPointer("FULL"),
@@ -393,6 +392,34 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(fullPPMMove.Locator, moves[0].Locator)
 	})
 
+	suite.Run("returns moves filtered by ppm status", func() {
+		// Under test: ListOrders
+		// Set up:           Make 2 moves, with different ppm status, and search for both statues
+		// Expected outcome: search results should only include the move with the PPM status that was searched for
+		officeUser, partialPPMMove, session := setupTestData()
+		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
+
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		// Search for PARTIAL PPM moves
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(moves[0].MTOShipments[0].PPMShipment.Status, ppmShipmentNeedsCloseout.Shipment.PPMShipment.Status)
+
+		ppmShipmentWaiting := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
+		// Search for FULL PPM moves
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(moves[0].MTOShipments[0].PPMShipment.Status, ppmShipmentWaiting.Shipment.PPMShipment.Status)
+	})
+
 	suite.Run("returns moves filtered by closeout location", func() {
 		// Under test: ListOrders
 		// Set up:           Make a move with a closeout office. Search for that closeout office.
@@ -406,7 +433,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				},
 			},
 		}, nil)
-		ppmShipment := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					CloseoutOfficeID: &ftBragg.ID,
@@ -434,7 +461,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdPPM := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		createdPPM := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
@@ -444,7 +471,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 2nd
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		createdPPM2 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		createdPPM2 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
@@ -472,7 +499,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 		// Create a PPM submitted on April 1st
 		closeoutInitiatedDate := time.Date(2022, 04, 01, 0, 0, 0, 0, time.UTC)
-		createdPPM := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		createdPPM := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate,
@@ -486,7 +513,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
-					Status:      models.PPMShipmentStatusNeedsPaymentApproval,
+					Status:      models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -574,8 +601,19 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	orderFetcher := NewOrderFetcher()
 	showMove := true
 
+	var session auth.Session
+
 	suite.Run("office user in normal GBLOC should only see non-Navy/Marines/CoastGuard moves that need closeout in closeout tab", func() {
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		army := models.AffiliationARMY
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -593,7 +631,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -646,7 +684,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -656,7 +694,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		}, nil)
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -665,6 +703,15 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 	suite.Run("office user in normal GBLOC should not see moves that require closeout in counseling tab", func() {
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session = auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		// PPM moves that need closeout should not show up in counseling queue
 		army := models.AffiliationARMY
 		closeoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
@@ -683,7 +730,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -719,7 +766,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		}, nil)
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -751,7 +798,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -777,7 +824,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -792,8 +839,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -821,7 +877,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -846,7 +902,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -861,8 +917,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -890,7 +955,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -915,7 +980,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsPaymentApproval,
+					Status: models.PPMShipmentStatusNeedsCloseout,
 				},
 			},
 			{
@@ -930,8 +995,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
@@ -957,7 +1031,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusPaymentApproved,
+					Status: models.PPMShipmentStatusCloseoutComplete,
 				},
 			},
 			{
@@ -972,8 +1046,9 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		var session auth.Session
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -1014,8 +1089,17 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 				},
 			},
 		}, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUserSC.User.Roles,
+			OfficeUserID:    officeUserSC.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(2), Page: models.Int64Pointer(1)}
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUserSC.ID, &params)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
 
 		suite.FatalNoError(err)
 		suite.Equal(0, len(moves))
@@ -1101,6 +1185,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
 	}
+
 	orderFetcher := NewOrderFetcher()
 	moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{PerPage: models.Int64Pointer(1), Page: models.Int64Pointer(1)})
 
@@ -1360,6 +1445,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	}
 	orderFetcher := NewOrderFetcher()
 
+	var session auth.Session
+
 	suite.Run("Sort by PPM closeout initiated", func() {
 		officeUser := setupTestData()
 		// Create a PPM submitted on April 1st
@@ -1370,7 +1457,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 
-		ppm1 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppm1 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate1,
@@ -1385,7 +1472,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 
 		// Create a PPM submitted on April 2nd
 		closeoutInitiatedDate2 := time.Date(2022, 04, 02, 0, 0, 0, 0, time.UTC)
-		ppm2 := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppm2 := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.PPMShipment{
 					SubmittedAt: &closeoutInitiatedDate2,
@@ -1399,7 +1486,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by closeout initiated date (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutInitiated"),
 			Order:            models.StringPointer("asc"),
@@ -1411,7 +1498,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppm2.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by closeout initiated date (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutInitiated"),
 			Order:            models.StringPointer("desc"),
@@ -1432,7 +1519,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 					Name: "A",
 				},
 			}}, nil)
-		ppmShipmentA := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentA := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    locationA,
 				LinkOnly: true,
@@ -1445,7 +1532,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 					Name: "B",
 				},
 			}}, nil)
-		ppmShipmentB := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentB := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    locationB,
 				LinkOnly: true,
@@ -1454,7 +1541,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by closeout location (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutLocation"),
 			Order:            models.StringPointer("asc"),
@@ -1466,7 +1553,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by closeout location (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("closeoutLocation"),
 			Order:            models.StringPointer("desc"),
@@ -1494,7 +1581,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 
-		ppmShipmentA := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentA := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    dutyLocationA,
 				LinkOnly: true,
@@ -1513,7 +1600,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				},
 			},
 		}, nil)
-		ppmShipmentB := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentB := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    dutyLocationB,
 				LinkOnly: true,
@@ -1527,7 +1614,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by destination duty location (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("destinationDutyLocation"),
 			Order:            models.StringPointer("asc"),
@@ -1539,7 +1626,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentB.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by destination duty location (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("destinationDutyLocation"),
 			Order:            models.StringPointer("desc"),
@@ -1558,7 +1645,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Model: models.TransportationOffice{Gbloc: "KKFA"},
 			},
 		}, nil)
-		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentPartial := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					PPMType: models.StringPointer("Partial"),
@@ -1570,7 +1657,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Type:     &factory.TransportationOffices.CloseoutOffice,
 			},
 		})
-		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsPaymentApproval(suite.DB(), nil, []factory.Customization{
+		ppmShipmentFull := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 			{
 				Model: models.Move{
 					PPMType: models.StringPointer("FULL"),
@@ -1584,7 +1671,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		// Sort by PPM type (ascending)
-		moves, _, err := orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmType"),
 			Order:            models.StringPointer("asc"),
@@ -1596,7 +1683,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
 
 		// Sort by PPM type (descending)
-		moves, _, err = orderFetcher.ListOrders(suite.AppContextForTest(), officeUser.ID, &services.ListOrderParams{
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			NeedsPPMCloseout: models.BoolPointer(true),
 			Sort:             models.StringPointer("ppmType"),
 			Order:            models.StringPointer("desc"),
@@ -1606,6 +1693,52 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		suite.Equal(2, len(moves))
 		suite.Equal(ppmShipmentPartial.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 		suite.Equal(ppmShipmentFull.Shipment.MoveTaskOrder.Locator, moves[1].Locator)
+	})
+	suite.Run("Sort by PPM status", func() {
+		officeUser := setupTestData()
+		closeoutOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{Gbloc: "KKFA"},
+			},
+		}, nil)
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		})
+		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentWaitingOnCustomer(suite.DB(), nil, []factory.Customization{
+			{
+				Model:    closeoutOffice,
+				LinkOnly: true,
+				Type:     &factory.TransportationOffices.CloseoutOffice,
+			},
+		})
+
+		// Sort by PPM type (ascending)
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Sort:             models.StringPointer("ppmStatus"),
+			Order:            models.StringPointer("asc"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+
+		// Sort by PPM type (descending)
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
+			NeedsPPMCloseout: models.BoolPointer(true),
+			Sort:             models.StringPointer("ppmStatus"),
+			Order:            models.StringPointer("desc"),
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[1].MTOShipments[0].PPMShipment.Status)
 	})
 }
 
@@ -1769,7 +1902,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
+				Status: models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -1808,7 +1941,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
 	suite.FatalNoError(err)
 	suite.Equal(0, moveCount)
 	suite.Len(moves, 0)

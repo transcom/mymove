@@ -58,6 +58,11 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				OrderType:               params.OrderType,
 			}
 
+			// When no status filter applied, TOO should only see moves with status of New Move, Service Counseling Completed, or Approvals Requested
+			if params.Status == nil {
+				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
+			}
+
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
@@ -201,6 +206,8 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				OrderType:               params.OrderType,
 			}
 
+			listPaymentRequestParams.Status = []string{string(models.QueuePaymentRequestPaymentRequested)}
+
 			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
 			// for perPage.
 			if params.Page == nil {
@@ -297,6 +304,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				CloseoutInitiated:       handlers.FmtDateTimePtrToPopPtr(params.CloseoutInitiated),
 				CloseoutLocation:        params.CloseoutLocation,
 				OrderType:               params.OrderType,
+				PPMStatus:               params.PpmStatus,
 			}
 
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
