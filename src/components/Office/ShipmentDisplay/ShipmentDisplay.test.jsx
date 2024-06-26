@@ -241,6 +241,25 @@ describe('Shipment Container', () => {
       );
       expect(screen.getByTestId('aoaPacketDownload')).toBeInTheDocument();
     });
+    it('renders the view documents button successfully', () => {
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <ShipmentDisplay
+            displayInfo={ppmInfo}
+            ordersLOA={ordersLOA}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            isSubmitted
+            allowApproval={false}
+            warnIfMissing={['counselorRemarks']}
+            viewURL="/"
+          />
+        </MockProviders>,
+      );
+
+      expect(screen.queryByRole('button', { name: 'View documents' })).toBeVisible();
+      expect(screen.getByTestId('shipment-display')).toHaveTextContent('PPM');
+      expect(screen.getByTestId('ShipmentContainer')).toHaveTextContent(ppmInfo.shipmentLocator);
+    });
     describe("renders the 'packet ready for download' tag when", () => {
       it('approved', () => {
         render(

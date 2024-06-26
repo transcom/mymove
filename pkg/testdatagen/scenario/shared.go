@@ -28,6 +28,7 @@ import (
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/query"
+	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -4207,7 +4208,9 @@ func createHHGWithOriginSITServiceItems(
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
+	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	if approveErr != nil {
@@ -4469,7 +4472,10 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
+	//////////////////////////////////////////////////
+	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -4872,7 +4878,10 @@ func createHHGWithPaymentServiceItems(
 
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter)
+	//////////////////////////////////////////////////
+	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
+	mtoUpdater := movetaskorder.NewMoveTaskOrderUpdater(queryBuilder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater)
 	_, approveErr := mtoUpdater.MakeAvailableToPrime(appCtx, move.ID, etag.GenerateEtag(move.UpdatedAt), true, true)
 
 	// AvailableToPrimeAt is set to the current time when a move is approved, we need to update it to fall within the
@@ -8583,9 +8592,9 @@ func createServicesCounselor(appCtx appcontext.AppContext) {
 	}, nil)
 }
 
-func createQaeCsr(appCtx appcontext.AppContext) {
+func createQae(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
-	email := "qae_csr_role@office.mil"
+	email := "qae_role@office.mil"
 	officeUser := models.OfficeUser{}
 	officeUserExists, err := db.Where("email = $1", email).Exists(&officeUser)
 	if err != nil {
@@ -8597,22 +8606,22 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 	}
 
 	/* A user with tio role */
-	qaeCsrRole := roles.Role{}
-	err = db.Where("role_type = $1", roles.RoleTypeQaeCsr).First(&qaeCsrRole)
+	qaeRole := roles.Role{}
+	err = db.Where("role_type = $1", roles.RoleTypeQae).First(&qaeRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeQaeCsr in the DB: %w", err))
+		log.Panic(fmt.Errorf("Failed to find RoleTypeQae in the DB: %w", err))
 	}
 
-	qaeCsrUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
+	qaeUUID := uuid.Must(uuid.FromString("8dbf1648-7527-4a92-b4eb-524edb703982"))
 	oktaID := uuid.Must(uuid.NewV4())
 	factory.BuildUser(db, []factory.Customization{
 		{
 			Model: models.User{
-				ID:        qaeCsrUUID,
+				ID:        qaeUUID,
 				OktaID:    oktaID.String(),
 				OktaEmail: email,
 				Active:    true,
-				Roles:     []roles.Role{qaeCsrRole},
+				Roles:     []roles.Role{qaeRole},
 			}},
 	}, nil)
 	factory.BuildOfficeUser(db, []factory.Customization{
@@ -8621,7 +8630,7 @@ func createQaeCsr(appCtx appcontext.AppContext) {
 				ID:     uuid.FromStringOrNil("ef4f6d1f-4ac3-4159-a364-5403e7d958ff"),
 				Email:  email,
 				Active: true,
-				UserID: &qaeCsrUUID,
+				UserID: &qaeUUID,
 			},
 		},
 	}, nil)
@@ -10409,7 +10418,7 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 		{
 			Model: models.ServiceMember{
 				Edipi:        models.StringPointer(dodID),
-				FirstName:    models.StringPointer("QAECSRTestFirst"),
+				FirstName:    models.StringPointer("QAETestFirst"),
 				CacValidated: true,
 			},
 		},

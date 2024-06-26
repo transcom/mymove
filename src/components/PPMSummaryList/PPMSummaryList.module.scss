@@ -26,6 +26,13 @@
       @include u-margin(0);
       width: auto;
     }
+
+    div {
+      width: 30em;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
   }
 
   .ppm-shipment__content {
@@ -34,6 +41,15 @@
 
   .dateSummary {
     @include u-margin-bottom(2);
+  }
+
+  .addressDisplay {
+    @include u-margin-top(2);
+    @include u-margin-bottom(2);
+  }
+
+  .bold {
+    font-weight: bold;
   }
 
   &:last-of-type {

@@ -977,7 +977,11 @@ const ShipmentForm = (props) => {
                         />
                       </SectionWrapper>
                     )}
-                    <ShipmentCustomerSIT />
+                    <ShipmentCustomerSIT
+                      sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
+                      sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
+                      sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
+                    />
                     <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
                   </>
                 )}

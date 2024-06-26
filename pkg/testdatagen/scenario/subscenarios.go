@@ -316,9 +316,9 @@ func subScenarioCustomerSupportRemarks(appCtx appcontext.AppContext) func() {
 
 func subScenarioEvaluationReport(appCtx appcontext.AppContext) func() {
 	return func() {
-		createQaeCsr(appCtx)
+		createQae(appCtx)
 		officeUser := models.OfficeUser{}
-		email := "qae_csr_role@office.mil"
+		email := "qae_role@office.mil"
 		err := appCtx.DB().Where("email = ?", email).First(&officeUser)
 		if err != nil {
 			appCtx.Logger().Panic(fmt.Errorf("failed to query OfficeUser in the DB: %w", err).Error())
@@ -571,7 +571,7 @@ func subScenarioTXOQueues(appCtx appcontext.AppContext, userUploader *uploader.U
 		createServicesCounselor(appCtx)
 		createTXOServicesCounselor(appCtx)
 		createTXOServicesUSMCCounselor(appCtx)
-		createQaeCsr(appCtx)
+		createQae(appCtx)
 		createCustomerServiceRepresentative(appCtx)
 
 		// TXO Queues
@@ -683,11 +683,18 @@ func subScenarioPaymentRequestCalculations(
 	moveRouter services.MoveRouter,
 	shipmentFetcher services.MTOShipmentFetcher,
 ) func() {
+	if appCtx == nil || userUploader == nil || primeUploader == nil || moveRouter == nil || shipmentFetcher == nil {
+		panic("nil argument passed to subScenarioPaymentRequestCalculations")
+	}
+
 	return func() {
+		if appCtx == nil || userUploader == nil || primeUploader == nil || moveRouter == nil || shipmentFetcher == nil {
+			panic("nil argument passed to subScenarioPaymentRequestCalculations")
+		}
+
 		createTXO(appCtx)
 		createTXOUSMC(appCtx)
 
-		// For displaying the Domestic Line Haul calculations displayed on the Payment Requests and Service Item review page
 		createHHGMoveWithPaymentRequest(appCtx, userUploader, models.AffiliationAIRFORCE,
 			models.Move{
 				Locator: "SidDLH",
@@ -696,11 +703,9 @@ func subScenarioPaymentRequestCalculations(
 				Status: models.MTOShipmentStatusApproved,
 			},
 		)
-		// Locator PARAMS
+
 		createHHGWithPaymentServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
-		// Locator ORGSIT
 		createHHGWithOriginSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
-		// Locator DSTSIT
 		createHHGWithDestinationSITServiceItems(appCtx, primeUploader, moveRouter, shipmentFetcher)
 	}
 }

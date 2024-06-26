@@ -26,6 +26,22 @@ const shipments = [
       status: ppmShipmentStatuses.SUBMITTED,
       hasRequestedAdvance: true,
       advanceAmountRequested: 10000,
+      pickupAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Pickup Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Destination Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
     },
   },
   {
@@ -37,6 +53,22 @@ const shipments = [
       approvedAt: '2022-04-15T15:38:07.103Z',
       hasRequestedAdvance: true,
       advanceAmountRequested: 10000,
+      pickupAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Pickup Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Destination Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
     },
   },
   {
@@ -49,6 +81,22 @@ const shipments = [
       submittedAt: '2022-04-19T15:38:07.103Z',
       hasRequestedAdvance: true,
       advanceAmountRequested: 10000,
+      pickupAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Pickup Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Destination Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
     },
   },
   {
@@ -62,6 +110,22 @@ const shipments = [
       reviewedAt: '2022-04-23T15:38:07.103Z',
       hasRequestedAdvance: true,
       advanceAmountRequested: 10000,
+      pickupAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Pickup Test City',
+        state: 'NY',
+        postalCode: '10001',
+      },
+      destinationAddress: {
+        streetAddress1: '1 Test Street',
+        streetAddress2: '2 Test Street',
+        streetAddress3: '3 Test Street',
+        city: 'Destination Test City',
+        state: 'NY',
+        postalCode: '11111',
+      },
     },
   },
 ];
@@ -89,10 +153,16 @@ describe('PPMSummaryList component', () => {
       await userEvent.click(uploadButton);
       expect(onUploadClick).toHaveBeenCalledWith(props.shipments[0].id); // called with mtoShipmentId
       expect(onUploadClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText(/Pickup Test City, NY 10001/, { selector: 'p' })).toBeInTheDocument();
+      expect(screen.getByText(/To:/, { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText(/Destination Test City, NY 11111/, { selector: 'p' })).toBeInTheDocument();
     });
     it('should contain approved date', () => {
       render(<PPMSummaryList {...props} />);
       expect(screen.queryByText(`PPM approved: 15 Apr 2022.`)).toBeInTheDocument();
+
+      expect(screen.queryByText(`PPM`)).toBeInTheDocument();
     });
   });
 
@@ -100,6 +170,11 @@ describe('PPMSummaryList component', () => {
     it('should display submitted date and disabled button with copy', () => {
       render(<PPMSummaryList shipments={[shipments[2]]} />);
       expect(screen.getByRole('button', { name: 'Download Payment Packet' })).toBeDisabled();
+
+      expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText(/Pickup Test City, NY 10001/, { selector: 'p' })).toBeInTheDocument();
+      expect(screen.getByText(/To:/, { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText(/Destination Test City, NY 11111/, { selector: 'p' })).toBeInTheDocument();
 
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
@@ -120,6 +195,11 @@ describe('PPMSummaryList component', () => {
       expect(screen.queryByText(`PPM approved: 15 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`PPM documentation submitted: 19 Apr 2022`)).toBeInTheDocument();
       expect(screen.queryByText(`Documentation accepted and verified: 23 Apr 2022`)).toBeInTheDocument();
+
+      expect(screen.getByText(/From:/, { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText(/Pickup Test City, NY 10001/, { selector: 'p' })).toBeInTheDocument();
+      expect(screen.getByText(/To:/, { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText(/Destination Test City, NY 11111/, { selector: 'p' })).toBeInTheDocument();
 
       expect(
         screen.queryByText(
@@ -178,7 +258,27 @@ describe('PPMSummaryList component', () => {
       response: { body: { title: 'Error title', detail: 'Error detail' } },
     });
 
-    const shipment = { ppmShipment: { status: ppmShipmentStatuses.CLOSEOUT_COMPLETE } };
+    const shipment = {
+      ppmShipment: {
+        status: ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+        pickupAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Pickup Test City',
+          state: 'NY',
+          postalCode: '10001',
+        },
+        destinationAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Destination Test City',
+          state: 'NY',
+          postalCode: '11111',
+        },
+      },
+    };
     const onErrorHandler = jest.fn();
 
     render(
