@@ -68,7 +68,7 @@ export default function BillableWeightCard({
           <h5>Actual billable weight</h5>
           <h4>{formatWeight(actualBillableWeight)}</h4>
           <div className={styles.shipmentList}>
-            <ShipmentList shipments={shipments} showNTSRecordedWeight showShipmentWeight moveSubmitted />
+            <ShipmentList shipments={shipments} showShipmentWeight moveSubmitted />
           </div>
         </div>
       </div>

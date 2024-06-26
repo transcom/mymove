@@ -25,7 +25,7 @@ import {
   calculateWeightRequested,
   calculateEstimatedWeight,
 } from 'hooks/custom';
-import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import { shipmentIsOverweight, getDisplayWeight } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -274,7 +274,7 @@ export default function ReviewBillableWeight() {
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
-                  billableWeight={selectedShipment.calculatedBillableWeight}
+                  billableWeight={getDisplayWeight(selectedShipment, 1.1)}
                   editEntity={editEntity}
                   billableWeightJustification={selectedShipment.billableWeightJustification}
                   dateReweighRequested={selectedShipment?.reweigh?.requestedAt}

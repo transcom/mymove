@@ -52,6 +52,11 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 		calculatedWeight = shipment.PrimeActualWeight
 	}
 
+	adjustedEstimatedWeight := unit.Pound(shipment.PrimeEstimatedWeight.Float64() * float64(1.1))
+	if adjustedEstimatedWeight < *shipment.PrimeActualWeight {
+		calculatedWeight = &adjustedEstimatedWeight
+	}
+
 	if shipment.BillableWeightCap != nil {
 		calculatedWeight = shipment.BillableWeightCap
 	}

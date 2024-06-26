@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { capitalize } from 'lodash';
 
-import { isAdminSite, isMilmoveSite, isOfficeSite } from '../shared/constants';
+import { SHIPMENT_OPTIONS, isAdminSite, isMilmoveSite, isOfficeSite } from '../shared/constants';
 
 import { ADMIN_BASE_PAGE_TITLE, MILMOVE_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE } from 'constants/titles';
 import { shipmentStatuses } from 'constants/shipments';
@@ -124,10 +124,12 @@ export const useCalculatedTotalBillableWeight = (mtoShipments, weightAdjustment 
 
       // Sum non-diverted eligible billable weights
       const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, current) => {
-        const currentWeight =
+        let currentWeight =
           current.calculatedBillableWeight < current.primeEstimatedWeight * weightAdjustment
             ? current.calculatedBillableWeight
             : current.primeEstimatedWeight * weightAdjustment;
+        currentWeight =
+          current.shipmentType === SHIPMENT_OPTIONS.NTSR ? current.ntsRecordedWeight * weightAdjustment : currentWeight;
         return total + currentWeight;
       }, 0);
 
