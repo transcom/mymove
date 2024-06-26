@@ -123,7 +123,6 @@ export const MoveTaskOrder = (props) => {
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
-
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
   }, []);
