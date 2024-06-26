@@ -255,6 +255,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
 		})
 	}
+	if api.PpmGetPPMSITEstimatedCostHandler == nil {
+		api.PpmGetPPMSITEstimatedCostHandler = ppm.GetPPMSITEstimatedCostHandlerFunc(func(params ppm.GetPPMSITEstimatedCostParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMSITEstimatedCost has not yet been implemented")
+		})
+	}
 	if api.PwsViolationsGetPWSViolationsHandler == nil {
 		api.PwsViolationsGetPWSViolationsHandler = pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
@@ -463,6 +468,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.OrderUpdateOrderHandler == nil {
 		api.OrderUpdateOrderHandler = order.UpdateOrderHandlerFunc(func(params order.UpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateOrder has not yet been implemented")
+		})
+	}
+	if api.PpmUpdatePPMSITHandler == nil {
+		api.PpmUpdatePPMSITHandler = ppm.UpdatePPMSITHandlerFunc(func(params ppm.UpdatePPMSITParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdatePPMSIT has not yet been implemented")
 		})
 	}
 	if api.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
