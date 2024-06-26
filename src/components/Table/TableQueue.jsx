@@ -43,6 +43,14 @@ const TableQueue = ({
   sessionStorageKey,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
+  useEffect(() => {
+    // Component is mounted. Set flag to tell component
+    // subsequent effects are post mount.
+    setTimeout(() => {
+      setIsPageReload(false);
+    }, 1000);
+  }, []);
+
   const [paramSort, setParamSort] = useState(
     getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
   );
@@ -147,13 +155,12 @@ const TableQueue = ({
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
-      if (filters.length === 0 && isPageReload) {
+      if (filters.length === 0 && paramFilters.length > 0 && isPageReload) {
         // on page reload
-        getTableQueueFilterSessionStorageValue(sessionStorageKey).forEach((item) => {
+        paramFilters.forEach((item) => {
           // add cached filters to current prop filters var
           filters.push(item);
         });
-        setIsPageReload(false);
       }
       setParamFilters(filters);
       setCurrentPage(pageIndex + 1);
@@ -175,7 +182,6 @@ const TableQueue = ({
     } else {
       paramFilters.splice(index, 1);
     }
-    setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
     setAllFilters(paramFilters);
   };
 
@@ -191,7 +197,6 @@ const TableQueue = ({
       }
       paramFilters[index].value = filterValues.join(multiSelectValueDelimiter);
     }
-    setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
     setAllFilters(paramFilters);
   };
 
