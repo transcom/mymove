@@ -59,7 +59,7 @@ export const ShipmentListItem = ({
         <br />
         {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) && (
           <>
-            `${formatWeight(shipment.primeEstimatedWeight * 1.1)} `
+            <span>{formatWeight(shipment.primeEstimatedWeight * 1.1)} </span>
             <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
           </>
         )}
