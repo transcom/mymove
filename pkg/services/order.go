@@ -46,6 +46,7 @@ type ListOrderParams struct {
 	Branch                  *string
 	Locator                 *string
 	DodID                   *string
+	Emplid                  *string
 	LastName                *string
 	DestinationDutyLocation *string
 	OriginDutyLocation      *string

@@ -218,6 +218,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -233,6 +239,7 @@ paths:
                 enum:
                   - customerName
                   - dodID
+                  - emplid
                   - branch
                   - personalEmail
                   - telephone
@@ -3093,6 +3100,7 @@ paths:
           enum:
             - lastName
             - dodID
+            - emplid
             - branch
             - locator
             - status
@@ -3129,6 +3137,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3295,6 +3307,7 @@ paths:
           enum:
             - lastName
             - dodID
+            - emplid
             - branch
             - locator
             - status
@@ -3321,6 +3334,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3383,6 +3399,7 @@ paths:
             - branch
             - status
             - dodID
+            - emplid
             - age
             - originDutyLocation
           description: field that results should be sorted by
@@ -3419,6 +3436,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: destinationDutyLocation
@@ -3488,6 +3508,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               customerName:
                 description: Customer Name
                 type: string
@@ -3532,6 +3558,7 @@ paths:
                 enum:
                   - customerName
                   - dodID
+                  - emplid
                   - branch
                   - locator
                   - status
@@ -4039,6 +4066,7 @@ definitions:
         type: string
       emplid:
         type: string
+        x-nullable: true
       userID:
         type: string
         format: uuid
@@ -4266,6 +4294,9 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
       branch:
         type: string
@@ -6281,6 +6312,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   SearchMovesResult:
     type: object
