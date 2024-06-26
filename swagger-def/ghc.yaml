@@ -1742,6 +1742,45 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
+  /ppm-shipments/{ppmShipmentId}/ppm-sit:
+    patch:
+      summary: Updates a PPM shipment's SIT values
+      description: |
+        Updates a PPM shipment's SIT values
+      operationId: updatePPMSIT
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          schema:
+            $ref: "definitions/PPMShipmentSIT.yaml"
+      responses:
+        '200':
+          description: Successfully finished PPM SIT update
+          schema:
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/closeout:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1786,6 +1825,60 @@ paths:
           description: Returns actual weight for the specified PPM shipment.
           schema:
             $ref: 'definitions/PPMActualWeight.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - in: path
+        format: string
+        description: location of sit
+        name: sitLocation
+        required: true
+        type: string
+        enum:
+          - ORIGIN
+          - DESTINATION
+      - in: query
+        format: date-time
+        description: Date entered into SIT
+        name: sitEntryDate
+        required: true
+        type: string
+      - in: query
+        format: date-time
+        description: Date departed SIT
+        name: sitDepartureDate
+        required: true
+        type: string
+      - in: query
+        description: Weight stored in SIT
+        name: weightStored
+        required: true
+        type: integer
+        minimum: 0
+    get:
+      summary: Get the SIT estimated cost for a PPM shipment
+      description: |
+        Calculates and returns the SIT estimated cost for the specified PPM shipment.
+      operationId: getPPMSITEstimatedCost
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Calculates and returns the SIT estimated cost for the specified PPM shipment.
+          schema:
+            $ref: 'definitions/PPMSITEstimatedCost.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -5521,6 +5614,12 @@ definitions:
         allOf:
           - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
+      sitEstimatedCost:
+        description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
   UpdateProGearWeightTicket:
     type: object
     properties:
