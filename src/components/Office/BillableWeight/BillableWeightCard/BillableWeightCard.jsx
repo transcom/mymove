@@ -55,7 +55,7 @@ export default function BillableWeightCard({
           <h5>Maximum billable weight</h5>
           <h4>{formatWeight(maxBillableWeight)}</h4>
           <h6>
-            Actual Weight<strong>{formatWeight(weightRequested)}</strong>
+            Actual weight<strong>{formatWeight(weightRequested)}</strong>
           </h6>
           <h6>
             Weight allowance<strong>{formatWeight(weightAllowance)}</strong>
