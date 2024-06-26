@@ -220,6 +220,19 @@ export async function createUploadForAmendedOrdersDocument(file, ordersId) {
   );
 }
 
+export async function createUploadForAdditionalDocuments(file, moveId) {
+  return makeInternalRequest(
+    'moves.uploadAdditionalDocuments',
+    {
+      moveId,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function createUploadForDocument(file, documentId) {
   return makeInternalRequest(
     'uploads.createUpload',
@@ -255,6 +268,19 @@ export async function deleteUpload(uploadId, orderId, ppmId) {
       uploadId,
       orderId,
       ppmId,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteAdditionalDocumentUpload(uploadId, moveId) {
+  return makeInternalRequest(
+    'uploads.deleteUpload',
+    {
+      uploadId,
+      moveId,
     },
     {
       normalize: false,
