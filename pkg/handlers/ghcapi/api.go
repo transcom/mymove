@@ -615,7 +615,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
-	ghcAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler{handlerConfig}
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
 		HandlerConfig:    handlerConfig,
