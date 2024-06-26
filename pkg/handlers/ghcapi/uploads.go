@@ -124,36 +124,3 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 
 		})
 }
-
-// DeleteUploadsHandler deletes a collection of uploads
-type DeleteUploadsHandler struct {
-	handlers.HandlerConfig
-}
-
-// Handle deletes uploads
-func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
-	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
-		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			userUploader, err := uploaderpkg.NewUserUploader(
-				h.FileStorer(),
-				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
-			)
-			if err != nil {
-				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
-			}
-
-			for _, uploadID := range params.UploadIds {
-				uploadUUID, _ := uuid.FromString(uploadID.String())
-				userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadUUID)
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-
-				if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
-			}
-
-			return uploadop.NewDeleteUploadsNoContent(), nil
-		})
-}

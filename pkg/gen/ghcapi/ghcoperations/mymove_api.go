@@ -128,9 +128,6 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadsDeleteUploadHandler: uploads.DeleteUploadHandlerFunc(func(params uploads.DeleteUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.DeleteUpload has not yet been implemented")
 		}),
-		UploadsDeleteUploadsHandler: uploads.DeleteUploadsHandlerFunc(func(params uploads.DeleteUploadsParams) middleware.Responder {
-			return middleware.NotImplemented("operation uploads.DeleteUploads has not yet been implemented")
-		}),
 		ShipmentDenySITExtensionHandler: shipment.DenySITExtensionHandlerFunc(func(params shipment.DenySITExtensionParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.DenySITExtension has not yet been implemented")
 		}),
@@ -427,8 +424,6 @@ type MymoveAPI struct {
 	ShipmentDeleteShipmentHandler shipment.DeleteShipmentHandler
 	// UploadsDeleteUploadHandler sets the operation handler for the delete upload operation
 	UploadsDeleteUploadHandler uploads.DeleteUploadHandler
-	// UploadsDeleteUploadsHandler sets the operation handler for the delete uploads operation
-	UploadsDeleteUploadsHandler uploads.DeleteUploadsHandler
 	// ShipmentDenySITExtensionHandler sets the operation handler for the deny s i t extension operation
 	ShipmentDenySITExtensionHandler shipment.DenySITExtensionHandler
 	// EvaluationReportsDownloadEvaluationReportHandler sets the operation handler for the download evaluation report operation
@@ -711,9 +706,6 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsDeleteUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.DeleteUploadHandler")
-	}
-	if o.UploadsDeleteUploadsHandler == nil {
-		unregistered = append(unregistered, "uploads.DeleteUploadsHandler")
 	}
 	if o.ShipmentDenySITExtensionHandler == nil {
 		unregistered = append(unregistered, "shipment.DenySITExtensionHandler")
@@ -1097,10 +1089,6 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
 	o.handlers["DELETE"]["/uploads/{uploadId}"] = uploads.NewDeleteUpload(o.context, o.UploadsDeleteUploadHandler)
-	if o.handlers["DELETE"] == nil {
-		o.handlers["DELETE"] = make(map[string]http.Handler)
-	}
-	o.handlers["DELETE"]["/uploads"] = uploads.NewDeleteUploads(o.context, o.UploadsDeleteUploadsHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
