@@ -176,7 +176,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.HasSecondaryPickupAddress = requestedUpdatedShipment.HasSecondaryPickupAddress
 		dbShipment.SecondaryPickupAddress = nil
 		dbShipment.SecondaryPickupAddressID = nil
-		*requestedUpdatedShipment.HasTertiaryPickupAddress = *models.BoolPointer(false)
+		requestedUpdatedShipment.HasTertiaryPickupAddress = models.BoolPointer(false)
 	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 		dbShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
@@ -188,7 +188,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.HasSecondaryDeliveryAddress = requestedUpdatedShipment.HasSecondaryDeliveryAddress
 		dbShipment.SecondaryDeliveryAddress = nil
 		dbShipment.SecondaryDeliveryAddressID = nil
-		*requestedUpdatedShipment.HasTertiaryDeliveryAddress = *models.BoolPointer(false)
+		requestedUpdatedShipment.HasTertiaryDeliveryAddress = models.BoolPointer(false)
 	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 		dbShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
