@@ -19,14 +19,16 @@ import (
 
 type moveTaskOrderUpdater struct {
 	moveTaskOrderFetcher
-	builder            UpdateMoveTaskOrderQueryBuilder
-	serviceItemCreator services.MTOServiceItemCreator
-	moveRouter         services.MoveRouter
+	builder                    UpdateMoveTaskOrderQueryBuilder
+	serviceItemCreator         services.MTOServiceItemCreator
+	moveRouter                 services.MoveRouter
+	signedCertificationCreator services.SignedCertificationCreator
+	signedCertificationUpdater services.SignedCertificationUpdater
 }
 
 // NewMoveTaskOrderUpdater creates a new struct with the service dependencies
-func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter) services.MoveTaskOrderUpdater {
-	return &moveTaskOrderUpdater{moveTaskOrderFetcher{}, builder, serviceItemCreator, moveRouter}
+func NewMoveTaskOrderUpdater(builder UpdateMoveTaskOrderQueryBuilder, serviceItemCreator services.MTOServiceItemCreator, moveRouter services.MoveRouter, signedCertificationCreator services.SignedCertificationCreator, signedCertificationUpdater services.SignedCertificationUpdater) services.MoveTaskOrderUpdater {
+	return &moveTaskOrderUpdater{moveTaskOrderFetcher{}, builder, serviceItemCreator, moveRouter, signedCertificationCreator, signedCertificationUpdater}
 }
 
 // UpdateStatusServiceCounselingCompleted updates the status on the move (move task order) to service counseling completed
@@ -72,6 +74,7 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 		if move.HasPPM() {
 			// Note: Avoiding the copy of the element in the range so we can preserve the changes to the
 			// statuses when we return the entire move tree.
+
 			for i := range move.MTOShipments { // We should only change for PPM shipments.
 				if move.MTOShipments[i].PPMShipment != nil {
 					move.MTOShipments[i].Status = models.MTOShipmentStatusApproved
@@ -92,6 +95,11 @@ func (o moveTaskOrderUpdater) UpdateStatusServiceCounselingCompleted(appCtx appc
 					if verrs != nil && verrs.HasAny() {
 						return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, nil, verrs, "")
 					}
+					if err != nil {
+						return err
+					}
+
+					err = o.signCertificationPPMCounselingCompleted(appCtx, move.ID, move.MTOShipments[i].PPMShipment.ID)
 					if err != nil {
 						return err
 					}
@@ -430,4 +438,45 @@ func (o moveTaskOrderUpdater) UpdatePPMType(appCtx appcontext.AppContext, moveTa
 	}
 
 	return updatedMove, nil
+}
+
+func (o moveTaskOrderUpdater) signCertificationPPMCounselingCompleted(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error {
+	// Retrieve if PPM has certificate
+	signedCertifications, err := models.FetchSignedCertificationPPMByType(appCtx.DB(), appCtx.Session(), moveID, ppmShipmentID, models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT)
+	if err != nil {
+		return err
+	}
+
+	signatureText := fmt.Sprintf("%s %s", appCtx.Session().FirstName, appCtx.Session().LastName)
+
+	if len(signedCertifications) == 0 {
+		// Add new certificate
+		now := time.Now()
+		certificateType := models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT
+		signedCertification := models.SignedCertification{
+			SubmittingUserID:  appCtx.Session().UserID,
+			MoveID:            moveID,
+			PpmID:             models.UUIDPointer(ppmShipmentID),
+			CertificationType: &certificateType,
+			CertificationText: "Confirmed: Reviewed Waiting On Customer ",
+			Signature:         signatureText,
+			Date:              now,
+		}
+		_, err := o.signedCertificationCreator.CreateSignedCertification(appCtx, signedCertification)
+		if err != nil {
+			return err
+		}
+	} else {
+		// Update existing certificate. Ensure only one
+		eTag := etag.GenerateEtag(signedCertifications[0].UpdatedAt)
+		// Update with current counselor information
+		signedCertifications[0].SubmittingUserID = appCtx.Session().UserID
+		signedCertifications[0].Signature = signatureText
+		_, err := o.signedCertificationUpdater.UpdateSignedCertification(appCtx, *signedCertifications[0], eTag)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
