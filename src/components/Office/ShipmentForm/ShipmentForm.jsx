@@ -79,9 +79,9 @@ const ShipmentForm = (props) => {
   const [estimatedWeightValue, setEstimatedWeightValue] = useState(mtoShipment?.ppmShipment?.estimatedWeight || 0);
   const [maxEstimatedWeightForSIT, setMaxEstimatedWeightForSIT] = useState(estimatedWeightValue || 0);
 
-  const updateEstimatedWeightValue = ({ value }) => {
-    setEstimatedWeightValue(value);
-    setMaxEstimatedWeightForSIT(value);
+  const updateEstimatedWeightValue = (value) => {
+    setEstimatedWeightValue(Number(value.replace(/,/g, ''))); // Replace commas so that we can parse into a number.
+    setMaxEstimatedWeightForSIT(Number(value.replace(/,/g, '')));
   };
 
   const handleParentFormEstimatedWeightChange = () => {
@@ -998,7 +998,9 @@ const ShipmentForm = (props) => {
                     />
                     <ShipmentWeight
                       authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()}
-                      onEstimatedWeightChange={updateEstimatedWeightValue}
+                      onEstimatedWeightChange={(e) => {
+                        updateEstimatedWeightValue(e);
+                      }}
                     />
                   </>
                 )}

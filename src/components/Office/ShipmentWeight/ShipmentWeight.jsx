@@ -16,7 +16,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   };
 
   const handleEstimatedWeight = (event) => {
-    estimatedWeightHelper.setValue(event.target.value);
+    estimatedWeightHelper.setValue(event.target.value.replace(/,/g, ''));
     estimatedWeightHelper.setTouched(true);
     handleEstimatedWeightChange(event.target.value);
   };
@@ -44,7 +44,9 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               thousandsSeparator=","
               lazy={false} // immediate masking evaluation
               suffix="lbs"
-              onChange={handleEstimatedWeight}
+              onBlur={(e) => {
+                handleEstimatedWeight(e);
+              }}
             />
             <Label className={styles.Label}>Pro-gear?</Label>
             <FormGroup>
