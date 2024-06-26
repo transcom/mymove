@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
@@ -2127,24 +2126,4 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 		}
 	}
 	return &searchCustomers
-}
-
-// ClientError describes errors in a standard structure to be returned in the payload
-func ClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
-	return &ghcmessages.ClientError{
-		Title:    handlers.FmtString(title),
-		Detail:   handlers.FmtString(detail),
-		Instance: handlers.FmtUUID(instance),
-	}
-}
-
-// ValidationError describes validation errors from the model or properties
-func ValidationError(detail string, instance uuid.UUID, validationErrors *validate.Errors) *ghcmessages.ValidationError {
-	payload := &ghcmessages.ValidationError{
-		ClientError: *ClientError(handlers.ValidationErrMessage, detail, instance),
-	}
-	if validationErrors != nil {
-		payload.InvalidFields = handlers.NewValidationErrorsResponse(validationErrors).Errors
-	}
-	return payload
 }

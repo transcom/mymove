@@ -5410,47 +5410,6 @@ func init() {
             "description": "server error"
           }
         }
-      },
-      "delete": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Deletes a collection of uploads",
-        "operationId": "deleteUploads",
-        "parameters": [
-          {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "Array of UUIDs to be deleted",
-            "name": "uploadIds",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
       }
     },
     "/uploads/{uploadId}": {
@@ -9316,73 +9275,6 @@ func init() {
           "format": "uuid"
         }
       }
-    },
-    "OrderPayGrade": {
-      "type": "string",
-      "title": "Grade",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "OrdersType": {
       "type": "string",
@@ -19455,47 +19347,6 @@ func init() {
             "description": "server error"
           }
         }
-      },
-      "delete": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Deletes a collection of uploads",
-        "operationId": "deleteUploads",
-        "parameters": [
-          {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "uuid"
-            },
-            "description": "Array of UUIDs to be deleted",
-            "name": "uploadIds",
-            "in": "query",
-            "required": true
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "deleted"
-          },
-          "400": {
-            "description": "invalid request",
-            "schema": {
-              "$ref": "#/definitions/InvalidRequestResponsePayload"
-            }
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
       }
     },
     "/uploads/{uploadId}": {
@@ -23365,73 +23216,6 @@ func init() {
           "format": "uuid"
         }
       }
-    },
-    "OrderPayGrade": {
-      "type": "string",
-      "title": "Grade",
-      "enum": [
-        "E_1",
-        "E_2",
-        "E_3",
-        "E_4",
-        "E_5",
-        "E_6",
-        "E_7",
-        "E_8",
-        "E_9",
-        "E_9_SPECIAL_SENIOR_ENLISTED",
-        "O_1_ACADEMY_GRADUATE",
-        "O_2",
-        "O_3",
-        "O_4",
-        "O_5",
-        "O_6",
-        "O_7",
-        "O_8",
-        "O_9",
-        "O_10",
-        "W_1",
-        "W_2",
-        "W_3",
-        "W_4",
-        "W_5",
-        "AVIATION_CADET",
-        "CIVILIAN_EMPLOYEE",
-        "ACADEMY_CADET",
-        "MIDSHIPMAN"
-      ],
-      "x-display-value": {
-        "ACADEMY_CADET": "Service Academy Cadet",
-        "AVIATION_CADET": "Aviation Cadet",
-        "CIVILIAN_EMPLOYEE": "Civilian Employee",
-        "E_1": "E-1",
-        "E_2": "E-2",
-        "E_3": "E-3",
-        "E_4": "E-4",
-        "E_5": "E-5",
-        "E_6": "E-6",
-        "E_7": "E-7",
-        "E_8": "E-8",
-        "E_9": "E-9",
-        "E_9_SPECIAL_SENIOR_ENLISTED": "E-9 (Special Senior Enlisted)",
-        "MIDSHIPMAN": "Midshipman",
-        "O_10": "O-10",
-        "O_1_ACADEMY_GRADUATE": "O-1 or Service Academy Graduate",
-        "O_2": "O-2",
-        "O_3": "O-3",
-        "O_4": "O-4",
-        "O_5": "O-5",
-        "O_6": "O-6",
-        "O_7": "O-7",
-        "O_8": "O-8",
-        "O_9": "O-9",
-        "W_1": "W-1",
-        "W_2": "W-2",
-        "W_3": "W-3",
-        "W_4": "W-4",
-        "W_5": "W-5"
-      },
-      "x-nullable": true
     },
     "OrdersType": {
       "type": "string",
