@@ -8,11 +8,11 @@ export function shipmentIsOverweight(estimatedWeight, weightCap) {
   return weightCap > estimatedWeight * 1.1;
 }
 
-export const getShipmentEstimatedWeight = (shipment) => {
+export const getShipmentEstimatedWeight = (shipment, weightAdjustment = 1.0) => {
   if (shipment.ppmShipment) {
     return shipment.ppmShipment.estimatedWeight ?? 0;
   }
-  return shipment.primeEstimatedWeight ?? 0;
+  return shipment.primeEstimatedWeight * weightAdjustment ?? 0;
 };
 
 export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {

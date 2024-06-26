@@ -7,6 +7,7 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
+import { WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import { updateMTOShipment, updateMaxBillableWeightAsTIO, updateTIORemarks } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
@@ -22,6 +23,7 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedEstimatedWeight,
   calculateWeightRequested,
+  calculateEstimatedWeight,
 } from 'hooks/custom';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -73,11 +75,11 @@ export default function ReviewBillableWeight() {
   );
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
-  const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
+  const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments, WEIGHT_ADJUSTMENT);
   const weightRequested = calculateWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
-  const maxBillableWeight = order?.entitlement?.authorizedWeight;
+  const maxBillableWeight = calculateEstimatedWeight(filteredShipments, undefined, WEIGHT_ADJUSTMENT);
   const weightAllowance = order?.entitlement?.totalWeight;
 
   const shipmentsMissingInformation = filteredShipments?.filter((shipment) => {

@@ -6,7 +6,7 @@ import styles from './WeightSummary.module.scss';
 
 import { formatWeight } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 
 const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, totalBillableWeight, shipments }) => {
   const formatShipments = shipments.slice();
@@ -29,16 +29,20 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
   };
 
   const displayShipments = formatShipments?.map((shipment) => {
+    const displayWeight =
+      shipment.calculatedBillableWeight < shipment.primeEstimatedWeight * 1.1
+        ? shipment.calculatedBillableWeight
+        : shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT;
     return (
       <div className={styles.weight} key={shipment.id} data-testid="billableWeightCap">
-        {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight) ||
+        {shipmentIsOverweight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT, shipment.calculatedBillableWeight) ||
         !shipment.primeEstimatedWeight ||
         (shipment.reweigh?.dateReweighRequested && !shipment.reweigh?.weight) ? (
           <FontAwesomeIcon icon="exclamation-triangle" data-testid="shipmentHasFlag" className={styles.warningFlag} />
         ) : (
           <div className={styles.noEdit} />
         )}
-        {formatWeight(shipment.calculatedBillableWeight)} {formatShipmentType(shipment)}
+        {formatWeight(displayWeight)} {formatShipmentType(shipment)}
       </div>
     );
   });
@@ -60,7 +64,7 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
       <div>
         <h4 className={styles.weightSummaryHeading}>Actual billable weight</h4>
         <div data-testid="totalBillableWeight" className={styles.weight}>
-          {totalBillableWeight > maxBillableWeight ? (
+          {weightRequested > totalBillableWeight ? (
             <FontAwesomeIcon
               icon="exclamation-circle"
               data-testid="totalBillableWeightFlag"

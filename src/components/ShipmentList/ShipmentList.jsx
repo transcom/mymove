@@ -25,6 +25,7 @@ export const ShipmentListItem = ({
   showShipmentWeight,
   isOverweight,
   isMissingWeight,
+  showNTSRecordedWeight,
 }) => {
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-release`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
@@ -59,8 +60,14 @@ export const ShipmentListItem = ({
         <br />
         {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) && (
           <>
-            `${formatWeight(shipment.primeEstimatedWeight * 1.1)} `
+            ${formatWeight(shipment.primeEstimatedWeight * 1.1)}{' '}
             <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
+          </>
+        )}
+        {showNTSRecordedWeight && shipment.shipmentType === 'HHG_OUTOF_NTS_DOMESTIC' && (
+          <>
+            ${formatWeight(shipment.ntsRecordedWeight * 1.1)}{' '}
+            <ToolTip text="110% Previously Recorded Weight" icon="circle-question" closeOnLeave />
           </>
         )}
       </div>
@@ -128,6 +135,7 @@ ShipmentListItem.propTypes = {
   showNumber: bool,
   showIncomplete: bool,
   showShipmentWeight: bool,
+  showNTSRecordedWeight: bool,
   isOverweight: bool,
   isMissingWeight: bool,
 };
@@ -140,9 +148,17 @@ ShipmentListItem.defaultProps = {
   isMissingWeight: false,
   onShipmentClick: null,
   onDeleteClick: null,
+  showNTSRecordedWeight: false,
 };
 
-const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted, showShipmentWeight }) => {
+const ShipmentList = ({
+  shipments,
+  onShipmentClick,
+  onDeleteClick,
+  moveSubmitted,
+  showShipmentWeight,
+  showNTSRecordedWeight,
+}) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
@@ -193,6 +209,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             shipmentNumber={shipmentNumber}
             showNumber={showNumber}
             showShipmentWeight={showShipmentWeight}
+            showNTSRecordedWeight={showNTSRecordedWeight}
             canEditOrDelete={canEditOrDelete}
             isOverweight={isOverweight}
             showIncomplete={ppmIsIncomplete}
@@ -213,10 +230,12 @@ ShipmentList.propTypes = {
   onDeleteClick: func,
   moveSubmitted: bool.isRequired,
   showShipmentWeight: bool,
+  showNTSRecordedWeight: bool,
 };
 
 ShipmentList.defaultProps = {
   showShipmentWeight: false,
+  showNTSRecordedWeight: true,
   onShipmentClick: null,
   onDeleteClick: null,
 };
