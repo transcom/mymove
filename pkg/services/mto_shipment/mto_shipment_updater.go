@@ -170,23 +170,25 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationType = requestedUpdatedShipment.DestinationType
 	}
 
-	// If HasSecondaryPickupAddress is false, we want to remove the address
+	// If HasSecondaryPickupAddress is false, we want to remove the secondary address as well as the tertiary address
 	// Otherwise, if a non-nil address is in the payload, we should save it
 	if requestedUpdatedShipment.HasSecondaryPickupAddress != nil && !*requestedUpdatedShipment.HasSecondaryPickupAddress {
 		dbShipment.HasSecondaryPickupAddress = requestedUpdatedShipment.HasSecondaryPickupAddress
 		dbShipment.SecondaryPickupAddress = nil
 		dbShipment.SecondaryPickupAddressID = nil
+		*requestedUpdatedShipment.HasTertiaryPickupAddress = *models.BoolPointer(false)
 	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 		dbShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
 
-	// If HasSecondaryDeliveryAddress is false, we want to remove the address
+	// If HasSecondaryDeliveryAddress is false, we want to remove the secondary address as well as the tertiary address
 	// Otherwise, if a non-nil address is in the payload, we should save it
 	if requestedUpdatedShipment.HasSecondaryDeliveryAddress != nil && !*requestedUpdatedShipment.HasSecondaryDeliveryAddress {
 		dbShipment.HasSecondaryDeliveryAddress = requestedUpdatedShipment.HasSecondaryDeliveryAddress
 		dbShipment.SecondaryDeliveryAddress = nil
 		dbShipment.SecondaryDeliveryAddressID = nil
+		*requestedUpdatedShipment.HasTertiaryDeliveryAddress = *models.BoolPointer(false)
 	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 		dbShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)

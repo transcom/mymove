@@ -3131,13 +3131,6 @@ func init() {
             "description": "Optional PPM shipment ID related to the upload",
             "name": "ppmId",
             "in": "query"
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "Optional ID of the move that the upload belongs to",
-            "name": "moveId",
-            "in": "query"
           }
         ],
         "responses": {
@@ -11192,13 +11185,6 @@ func init() {
             "format": "uuid",
             "description": "Optional PPM shipment ID related to the upload",
             "name": "ppmId",
-            "in": "query"
-          },
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "Optional ID of the move that the upload belongs to",
-            "name": "moveId",
             "in": "query"
           }
         ],
