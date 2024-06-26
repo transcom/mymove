@@ -416,7 +416,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Type: &factory.Addresses.PickupAddress,
 			},
 		})
-    
+
 		// Search for PARTIAL PPM moves
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
@@ -434,7 +434,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Type: &factory.Addresses.PickupAddress,
 			},
 		})
-    
+
 		// Search for FULL PPM moves
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
