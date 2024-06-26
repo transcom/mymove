@@ -11,6 +11,7 @@ import {
   useReviewShipmentWeightsQuery,
   usePPMCloseoutQuery,
   useEditShipmentQueries,
+  useGetPPMSITEstimatedCostQuery,
 } from 'hooks/queries';
 import { renderWithProviders } from 'testUtils';
 import {
@@ -57,6 +58,7 @@ jest.mock('hooks/queries', () => ({
   usePPMCloseoutQuery: jest.fn(),
   useReviewShipmentWeightsQuery: jest.fn(),
   useEditShipmentQueries: jest.fn(),
+  useGetPPMSITEstimatedCostQuery: jest.fn(),
 }));
 
 const useEditShipmentQueriesReturnValue = {
@@ -278,6 +280,10 @@ const usePPMCloseoutQueryReturnValue = {
   isError: false,
   isLoading: false,
   isSuccess: true,
+};
+
+const useGetPPMSITEstimatedCostQueryReturnValue = {
+  estimatedCost: 5000,
 };
 
 const mockRoutingOptions = {
@@ -722,6 +728,7 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueAllDocs);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
 
@@ -792,6 +799,7 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
       await userEvent.click(screen.getByLabelText('Reject'));
@@ -814,6 +822,7 @@ describe('ReviewDocuments', () => {
       usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueExpensesOnly);
       usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
       useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
 
       renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
       await userEvent.click(screen.getByLabelText('Exclude'));

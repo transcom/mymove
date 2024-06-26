@@ -16,6 +16,32 @@ type PPMShipmentUpdater struct {
 	mock.Mock
 }
 
+// UpdatePPMShipmentSITEstimatedCost provides a mock function with given fields: appCtx, ppmshipment
+func (_m *PPMShipmentUpdater) UpdatePPMShipmentSITEstimatedCost(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error) {
+	ret := _m.Called(appCtx, ppmshipment)
+
+	var r0 *models.PPMShipment
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*models.PPMShipment, error)); ok {
+		return rf(appCtx, ppmshipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) *models.PPMShipment); ok {
+		r0 = rf(appCtx, ppmshipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.PPMShipment)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r1 = rf(appCtx, ppmshipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdatePPMShipmentWithDefaultCheck provides a mock function with given fields: appCtx, ppmshipment, mtoShipmentID
 func (_m *PPMShipmentUpdater) UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmshipment, mtoShipmentID)
