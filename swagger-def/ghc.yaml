@@ -679,6 +679,44 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.maxBillableWeight
+  /orders/{ordersId}/upload_amended_orders:
+    post:
+      summary: Create an amended order for a given order
+      description: Create an amended order for a given order
+      operationId: uploadAmendedOrders
+      tags:
+        - order
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   '/counseling/orders/{orderID}/allowances':
     parameters:
       - description: ID of order to use
@@ -2846,6 +2884,44 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.financialReviewFlag
+  /moves/{moveId}/uploadAdditionalDocuments:
+    patch:
+      summary: Patch the additional documents for a given move
+      description: Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.
+      operationId: uploadAdditionalDocuments
+      tags:
+        - move
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
       - description: payment request ID of the payment request with SIT service items being reviewed
@@ -2959,6 +3035,30 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /documents:
+    post:
+      summary: Create a new document
+      description: Documents represent a physical artifact such as a scanned document or a PDF file
+      operationId: createDocument
+      tags:
+        - ghcDocuments
+      parameters:
+        - in: body
+          name: documentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/PostDocumentPayload'
+      responses:
+        '201':
+          description: created document
+          schema:
+            $ref: 'definitions/Document.yaml'
+        '400':
+          description: invalid request
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          description: server error
   /queues/counseling:
     get:
       produces:
@@ -3443,25 +3543,25 @@ paths:
           $ref: '#/responses/ServerError'
   /lines-of-accounting:
     post:
-      summary: "Fetch line of accounting"
-      description: "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC)."
+      summary: 'Fetch line of accounting'
+      description: 'Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).'
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
       consumes:
-        - "application/json"
+        - 'application/json'
       produces:
-        - "application/json"
+        - 'application/json'
       parameters:
-        - in: "body"
-          name: "body"
-          description: "Service member affiliation, order issue date, and TAC code."
+        - in: 'body'
+          name: 'body'
+          description: 'Service member affiliation, order issue date, and TAC code.'
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
       responses:
         '200':
-          description: "Successfully retrieved line of accounting"
+          description: 'Successfully retrieved line of accounting'
           schema:
             $ref: 'definitions/LineOfAccounting.yaml'
         '400':
@@ -3576,6 +3676,38 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+        - in: query
+          name: orderId
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -3617,6 +3749,20 @@ definitions:
         type: string
         format: string
         x-nullable: true
+  PostDocumentPayload:
+    type: object
+    properties:
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
   ClientError:
     type: object
     properties:
@@ -4076,7 +4222,7 @@ definitions:
       ordersIssueDate:
         type: string
         format: date
-        example: "2023-01-01"
+        example: '2023-01-01'
       tacCode:
         type: string
         minLength: 4
@@ -4672,6 +4818,8 @@ definitions:
         type: string
       naics:
         type: string
+      orders_type:
+        $ref: 'definitions/OrdersType.yaml'
       eTag:
         type: string
     type: object
@@ -5316,7 +5464,7 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryPickupAddress:
@@ -5331,7 +5479,7 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryDestinationAddress:
