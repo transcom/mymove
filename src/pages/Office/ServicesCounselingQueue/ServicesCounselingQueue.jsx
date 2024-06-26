@@ -27,7 +27,11 @@ import {
   useMoveSearchQueries,
   useCustomerSearchQueries,
 } from 'hooks/queries';
-import { getServicesCounselingOriginLocations } from 'services/ghcApi';
+import {
+  getServicesCounselingQueue,
+  getServicesCounselingPPMQueue,
+  getServicesCounselingOriginLocations,
+} from 'services/ghcApi';
 import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -46,19 +50,23 @@ import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
 const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -74,11 +82,17 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -162,19 +176,23 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
       }),
 ];
 const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div id={row.id}>
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div id={row.id}>
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -190,11 +208,17 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -294,6 +318,9 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.destinationDutyLocation?.name;
+    },
   }),
   createHeader('PPM closeout location', 'closeoutLocation', {
     id: 'closeoutLocation',
@@ -518,6 +545,10 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
+          showCSVExport
+          csvExportFileNamePrefix="PPM-Closeout-Queue"
+          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );
@@ -539,6 +570,10 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
+          showCSVExport
+          csvExportFileNamePrefix="Services-Counseling-Queue"
+          csvExportQueueFetcher={getServicesCounselingQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );

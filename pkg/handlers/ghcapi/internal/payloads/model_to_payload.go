@@ -469,6 +469,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		Agency:             swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress:     Address(customer.ResidentialAddress),
 		DodID:              swag.StringValue(customer.Edipi),
+		Emplid:             swag.StringValue(customer.Emplid),
 		Email:              customer.PersonalEmail,
 		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
