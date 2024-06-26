@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -84,6 +85,323 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		subtestData.ppmShipmentUpdater = NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 
 		return subtestData
+	}
+	setupPricerData := func() {
+		testdatagen.FetchOrMakeGHCDieselFuelPrice(suite.DB(), testdatagen.Assertions{
+			GHCDieselFuelPrice: models.GHCDieselFuelPrice{
+				FuelPriceInMillicents: unit.Millicents(281400),
+				PublicationDate:       time.Date(2020, time.March, 9, 0, 0, 0, 0, time.UTC),
+			},
+		})
+
+		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:      "056",
+				ServicesSchedule: 3,
+				SITPDSchedule:    3,
+			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
+		})
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             originDomesticServiceArea.Contract,
+				ContractID:           originDomesticServiceArea.ContractID,
+				StartDate:            time.Date(2019, time.June, 1, 0, 0, 0, 0, time.UTC),
+				EndDate:              time.Date(2020, time.May, 31, 0, 0, 0, 0, time.UTC),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            originDomesticServiceArea.Contract,
+				ContractID:          originDomesticServiceArea.ContractID,
+				DomesticServiceArea: originDomesticServiceArea,
+				Zip3:                "902",
+			},
+		})
+
+		destDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				Contract:    originDomesticServiceArea.Contract,
+				ContractID:  originDomesticServiceArea.ContractID,
+				ServiceArea: "208",
+			},
+		})
+
+		testdatagen.FetchOrMakeReZip3(suite.DB(), testdatagen.Assertions{
+			ReZip3: models.ReZip3{
+				Contract:            destDomesticServiceArea.Contract,
+				ContractID:          destDomesticServiceArea.ContractID,
+				DomesticServiceArea: destDomesticServiceArea,
+				Zip3:                "308",
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(500),
+				WeightUpper:           unit.Pound(4999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				PriceMillicents:       unit.Millicents(412400),
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(500),
+				WeightUpper:           unit.Pound(4999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				IsPeakPeriod:          true,
+				PriceMillicents:       unit.Millicents(437600),
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticLinehaulPrice: models.ReDomesticLinehaulPrice{
+				Contract:              originDomesticServiceArea.Contract,
+				ContractID:            originDomesticServiceArea.ContractID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				WeightLower:           unit.Pound(5000),
+				WeightUpper:           unit.Pound(9999),
+				MilesLower:            2001,
+				MilesUpper:            2500,
+				PriceMillicents:       unit.Millicents(606800),
+			},
+		})
+
+		dopService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOP)
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dopService.ID,
+				Service:               dopService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            unit.Cents(404),
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dopService.ID,
+				Service:               dopService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            unit.Cents(465),
+			},
+		})
+
+		ddpService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDP)
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddpService.ID,
+				Service:               ddpService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            unit.Cents(832),
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddpService.ID,
+				Service:               ddpService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            unit.Cents(957),
+			},
+		})
+
+		dpkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDPK)
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   originDomesticServiceArea.ContractID,
+				Contract:     originDomesticServiceArea.Contract,
+				ServiceID:    dpkService.ID,
+				Service:      dpkService,
+				IsPeakPeriod: false,
+				Schedule:     3,
+				PriceCents:   7395,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   originDomesticServiceArea.ContractID,
+				Contract:     originDomesticServiceArea.Contract,
+				ServiceID:    dpkService.ID,
+				Service:      dpkService,
+				IsPeakPeriod: true,
+				Schedule:     3,
+				PriceCents:   8000,
+			},
+		})
+
+		dupkService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDUPK)
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   destDomesticServiceArea.ContractID,
+				Contract:     destDomesticServiceArea.Contract,
+				ServiceID:    dupkService.ID,
+				Service:      dupkService,
+				IsPeakPeriod: false,
+				Schedule:     2,
+				PriceCents:   597,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticOtherPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticOtherPrice: models.ReDomesticOtherPrice{
+				ContractID:   destDomesticServiceArea.ContractID,
+				Contract:     destDomesticServiceArea.Contract,
+				ServiceID:    dupkService.ID,
+				Service:      dupkService,
+				IsPeakPeriod: true,
+				Schedule:     2,
+				PriceCents:   650,
+			},
+		})
+
+		dofsitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOFSIT)
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dofsitService.ID,
+				Service:               dofsitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            1153,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             dofsitService.ID,
+				Service:               dofsitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            1326,
+			},
+		})
+
+		doasitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDOASIT)
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             doasitService.ID,
+				Service:               doasitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            46,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            originDomesticServiceArea.ContractID,
+				Contract:              originDomesticServiceArea.Contract,
+				ServiceID:             doasitService.ID,
+				Service:               doasitService,
+				DomesticServiceAreaID: originDomesticServiceArea.ID,
+				DomesticServiceArea:   originDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            53,
+			},
+		})
+
+		ddfsitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDFSIT)
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddfsitService.ID,
+				Service:               ddfsitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            1612,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddfsitService.ID,
+				Service:               ddfsitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            1854,
+			},
+		})
+
+		ddasitService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDDASIT)
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddasitService.ID,
+				Service:               ddasitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          false,
+				PriceCents:            55,
+			},
+		})
+
+		testdatagen.FetchOrMakeReDomesticServiceAreaPrice(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceAreaPrice: models.ReDomesticServiceAreaPrice{
+				ContractID:            destDomesticServiceArea.ContractID,
+				Contract:              destDomesticServiceArea.Contract,
+				ServiceID:             ddasitService.ID,
+				Service:               ddasitService,
+				DomesticServiceAreaID: destDomesticServiceArea.ID,
+				DomesticServiceArea:   destDomesticServiceArea,
+				IsPeakPeriod:          true,
+				PriceCents:            63,
+			},
+		})
 	}
 
 	suite.Run("Can successfully update a PPMShipment - edit estimated dates & locations", func() {
@@ -995,5 +1313,169 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(city, updatedPPM.SecondaryDestinationAddress.City)
 		suite.Equal(state, updatedPPM.SecondaryDestinationAddress.State)
 		suite.Equal(postalCode, updatedPPM.SecondaryDestinationAddress.PostalCode)
+	})
+	suite.Run("Can successfully update a PPM Shipment SIT estimated cost", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		setupPricerData()
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+		newFakeSITEstimatedCost := models.CentPointer(unit.Cents(62500))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
+		sitLocationDestination := models.SITLocationTypeDestination
+		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &sitLocationDestination,
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					SITEstimatedWeight:        models.PoundPointer(1000),
+					SITEstimatedCost:          newFakeSITEstimatedCost,
+				},
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		originalPPM.DestinationAddress = destinationAddress
+		mockedPlanner := &routemocks.Planner{}
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"90210", "30813").Return(2294, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
+
+		suite.NilOrNoVerrs(err)
+		suite.NotEqual(*updatedPPM.SITEstimatedCost, newFakeSITEstimatedCost)
+	})
+	suite.Run("Can't find contract for PPM SIT Estimated Cost calculation", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+		newFakeSITEstimatedCost := models.CentPointer(unit.Cents(62500))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
+		sitLocationDestination := models.SITLocationTypeDestination
+		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &sitLocationDestination,
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					SITEstimatedWeight:        models.PoundPointer(1000),
+					SITEstimatedCost:          newFakeSITEstimatedCost,
+				},
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		originalPPM.DestinationAddress = destinationAddress
+		mockedPlanner := &routemocks.Planner{}
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"90210", "30813").Return(2294, nil)
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
+
+		suite.Error(err)
+		suite.Nil(updatedPPM)
+	})
+	suite.Run("Can't successfully find the PPM Shipment to update SIT estimated cost", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+		newFakeEstimatedIncentive := models.CentPointer(unit.Cents(2000000))
+		newFakeSITEstimatedCost := models.CentPointer(unit.Cents(62500))
+
+		subtestData := setUpForTests(newFakeEstimatedIncentive, newFakeSITEstimatedCost, nil)
+		sitLocationDestination := models.SITLocationTypeDestination
+		entryDate := time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypePPM,
+				},
+			},
+		}, nil)
+		streetAddress1 := "10642 N Second Ave"
+		streetAddress2 := "Apt. 308"
+		city := "Atco"
+		state := "NJ"
+		postalCode := "30813"
+		destinationAddress := &models.Address{
+			StreetAddress1: streetAddress1,
+			StreetAddress2: &streetAddress2,
+			City:           city,
+			State:          state,
+			PostalCode:     postalCode,
+		}
+		originalPPM := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					ExpectedDepartureDate:     entryDate.Add(time.Hour * 24 * 30),
+					SITExpected:               models.BoolPointer(true),
+					SITLocation:               &sitLocationDestination,
+					SITEstimatedEntryDate:     &entryDate,
+					SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
+					SITEstimatedWeight:        models.PoundPointer(1000),
+					SITEstimatedCost:          newFakeSITEstimatedCost,
+				},
+			},
+			{
+				Model:    mtoShipment,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		originalPPM.DestinationAddress = destinationAddress
+		originalPPM.ID = uuid.Nil
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, &originalPPM)
+
+		suite.Error(err)
+		suite.Nil(updatedPPM)
 	})
 }
