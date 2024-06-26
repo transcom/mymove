@@ -10,14 +10,13 @@ import { expect, test } from './customerPpmTestFixture';
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 
 test.describe('PPM Onboarding - Add dates and location flow', () => {
-  test.skip(multiMoveEnabled === 'true', 'Skip if MultiMove workflow is enabled.');
   test.beforeEach(async ({ customerPpmPage }) => {
     const move = await customerPpmPage.testHarness.buildSpouseProGearMove();
     await customerPpmPage.signInForPPMWithMove(move);
     await customerPpmPage.customerStartsAddingAPPMShipment();
   });
 
-  test.skip('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
+  test('doesn’t allow SM to progress if form is in an invalid state', async ({ page }) => {
     await expect(page.getByText('PPM date & location')).toBeVisible();
     expect(page.url()).toContain('/new-shipment');
 
@@ -65,9 +64,10 @@ test.describe('PPM Onboarding - Add dates and location flow', () => {
     await page.locator('input[name="secondaryDestinationAddress.address.postalCode"]').type('90210');
     await page.locator('input[name="secondaryDestinationAddress.address.postalCode"]').blur();
     await expect(errorMessage).not.toBeVisible();
+    await expect(page.getByText('Save & Continue')).toBeDisabled();
   });
 
-  test.skip('can continue to next page', async ({ customerPpmPage }) => {
+  test('can continue to next page', async ({ customerPpmPage }) => {
     await customerPpmPage.submitsDateAndLocation();
   });
 });

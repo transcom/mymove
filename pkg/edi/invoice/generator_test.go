@@ -132,7 +132,7 @@ func MakeValidEdi() Invoice858C {
 			ReferenceIdentificationQualifier: "3L",
 			ReferenceIdentification:          "ARMY",
 		},
-		ServiceMemberDodID: edisegment.N9{
+		ServiceMemberID: edisegment.N9{
 			ReferenceIdentificationQualifier: "4A",
 			ReferenceIdentification:          "7562672421",
 		},
