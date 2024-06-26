@@ -19,6 +19,7 @@ import {
   getTableQueuePageSessionStorageValue,
   setTableQueueSortParamSessionStorageValue,
   getTableQueueSortParamSessionStorageValue,
+  getSelectionOptionLabel,
 } from 'components/Table/utils';
 
 const defaultPageSize = 20;
@@ -41,6 +42,7 @@ const TableQueue = ({
   showPagination,
   sessionStorageKey,
 }) => {
+  const [isPageReload, setIsPageReload] = useState(true);
   const [paramSort, setParamSort] = useState(
     getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
   );
@@ -70,6 +72,8 @@ const TableQueue = ({
   const [pageCount, setPageCount] = useState(0);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
+
+  const multiSelectValueDelimiter = ',';
 
   const {
     queueResult: {
@@ -112,6 +116,7 @@ const TableQueue = ({
     nextPage,
     previousPage,
     setPageSize,
+    setAllFilters,
     state: { filters, pageIndex, pageSize, sortBy },
   } = useTable(
     {
@@ -142,26 +147,178 @@ const TableQueue = ({
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
-      if (filters.length === 0) {
+      if (filters.length === 0 && isPageReload) {
         // on page reload
         getTableQueueFilterSessionStorageValue(sessionStorageKey).forEach((item) => {
           // add cached filters to current prop filters var
           filters.push(item);
         });
+        setIsPageReload(false);
       }
       setParamFilters(filters);
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, sessionStorageKey]);
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const isDateFilterParam = (filterParam) => {
+    return !Number.isNaN(Date.parse(filterParam.value));
+  };
+
+  const handleRemoveFilterClick = (index) => {
+    if (index === null) {
+      paramFilters.length = 0;
+    } else {
+      paramFilters.splice(index, 1);
+    }
+    setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
+    setAllFilters(paramFilters);
+  };
+
+  const handleRemoveMultiSelectFilterClick = (index, valueToDelete) => {
+    const filter = paramFilters[index];
+    const filterValues = filter.value.split(multiSelectValueDelimiter);
+    if (filterValues.length === 1) {
+      paramFilters.splice(index, 1);
+    } else {
+      const indexToDelete = filterValues.indexOf(valueToDelete);
+      if (indexToDelete !== -1) {
+        filterValues.splice(indexToDelete, 1);
+      }
+      paramFilters[index].value = filterValues.join(multiSelectValueDelimiter);
+    }
+    setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
+    setAllFilters(paramFilters);
+  };
+
+  const renderFilterPillBtn = (index, value, useMultiSelectHandler, titleAttributeText, label, dataTestId) => {
+    if (useMultiSelectHandler) {
+      return (
+        <button
+          type="button"
+          title={titleAttributeText}
+          data-testid={dataTestId}
+          className={styles.pillButton}
+          onClick={() => handleRemoveMultiSelectFilterClick(index, value)}
+        >
+          {label} <span aria-hidden="true">&times;</span>
+        </button>
+      );
+    }
+
+    return (
+      <button
+        type="button"
+        title={titleAttributeText}
+        data-testid={dataTestId}
+        className={styles.pillButton}
+        onClick={() => handleRemoveFilterClick(index)}
+      >
+        {label} <span aria-hidden="true">&times;</span>
+      </button>
+    );
+  };
+
+  const renderRemoveAllPillBtn = () => {
+    let isVisible = paramFilters?.length > 1;
+    if (paramFilters?.length === 1) {
+      if (!isDateFilterParam(paramFilters[0])) {
+        isVisible = paramFilters[0].value.split(multiSelectValueDelimiter).length > 1;
+      }
+    }
+    if (isVisible) {
+      return renderFilterPillBtn(null, null, false, 'Remove all filters', 'All', 'remove-filters-all');
+    }
+    return null;
+  };
+
+  const renderFilterPillBtnList = () => {
+    if (paramFilters?.length > 0) {
+      const filterPillBtns = [];
+      const removeAllPill = renderRemoveAllPillBtn();
+      if (removeAllPill !== null) {
+        filterPillBtns.push(removeAllPill);
+      }
+      // index, value, useMultiSelectHandler, titleAttributeText, label, dataTestId
+      paramFilters.forEach(function callback(filter, index) {
+        columns.forEach((col) => {
+          if (col.id === filter.id) {
+            if ('Filter' in col) {
+              // MultiSelect filter column  can will contain Filter property.
+              if (!isDateFilterParam(filter)) {
+                const valueArray = filter.value.split(multiSelectValueDelimiter);
+                if (valueArray.length > 1) {
+                  // Multiselect filter type containing multiple filter values. Render
+                  // pill button for each filter value item ..ex: Status (Approved request).
+                  valueArray.forEach((val) => {
+                    filterPillBtns.push(
+                      renderFilterPillBtn(
+                        index,
+                        val,
+                        true,
+                        'Remove filter',
+                        `${col.Header} (${getSelectionOptionLabel(val)})`,
+                        `remove-filters-${filter.id}-${val}`,
+                      ),
+                    );
+                  });
+                } else {
+                  // Multiselect filter type containing one value.
+                  // In this case just display generic label using
+                  // column header text.
+                  filterPillBtns.push(
+                    renderFilterPillBtn(
+                      index,
+                      null,
+                      false,
+                      'Remove filter',
+                      `${col.Header}`,
+                      `remove-filters-${filter.id}`,
+                    ),
+                  );
+                }
+              } else {
+                // It's a datePicker filter.
+                filterPillBtns.push(
+                  renderFilterPillBtn(
+                    index,
+                    null,
+                    false,
+                    'Remove filter',
+                    `${col.Header}`,
+                    `remove-filters-${filter.id}`,
+                  ),
+                );
+              }
+            } else {
+              // For filters column using default filter control.
+              filterPillBtns.push(
+                renderFilterPillBtn(
+                  index,
+                  null,
+                  false,
+                  'Remove filter',
+                  `${col.Header}`,
+                  `remove-filters-${filter.id}`,
+                ),
+              );
+            }
+          }
+        });
+      });
+      return <div className={styles.pillButtonRow}>Filters: {filterPillBtns}</div>;
+    }
+    return '';
+  };
+
   return (
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
       <h1>{`${title} (${totalCount})`}</h1>
+      {renderFilterPillBtnList()}
       <div className={styles.tableContainer}>
         <Table
           showFilters={showFilters}

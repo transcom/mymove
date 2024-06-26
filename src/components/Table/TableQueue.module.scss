@@ -35,3 +35,19 @@
     }
   }
 }
+
+.pillButton {
+  border: 1px solid #252f3e;
+  color: #000000;
+  padding: 6px 6px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 5px 5px;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+.pillButtonRow {
+  padding-left: 8px;
+}

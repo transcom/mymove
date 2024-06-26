@@ -1,3 +1,6 @@
+import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
+
 /**
  * Helper function that creates the header object to pass into a react-table.
  * @param {string} header is the table header name
@@ -181,4 +184,28 @@ export const getTableQueueSortParamSessionStorageValue = (key) => {
   json[key] = TEMPLATE_OFFICE_TABLE_QUEUE_FILTER_CACHE_OBJECT;
   window.sessionStorage.setItem(OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID, JSON.stringify(json));
   return json[key].sortParam;
+};
+
+/**
+ * Get display label for given id.
+ * @param {string} value is option id
+ * @returns {string} display label
+ */
+export const getSelectionOptionLabel = (value) => {
+  // Loop though known options and attempt to retrieve display.
+  let label = BRANCH_OPTIONS.filter((option) => value === option.value).map((option) => option.label);
+  if (label.length > 0) {
+    return label;
+  }
+  label = MOVE_STATUS_OPTIONS.filter((option) => value === option.value).map((option) => option.label);
+  if (label.length > 0) {
+    return label;
+  }
+
+  if (value in PAYMENT_REQUEST_STATUS_LABELS) {
+    return PAYMENT_REQUEST_STATUS_LABELS[value];
+  }
+
+  // Nothing was found for value. Determine if missing known options.
+  return 'N/A';
 };
