@@ -335,6 +335,18 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	return page2
 }
 
+func formatEmplid(serviceMember models.ServiceMember) (*string, error) {
+	const prefix = "EMPLID:"
+	const separator = " "
+	if *serviceMember.Affiliation == models.AffiliationCOASTGUARD && serviceMember.Emplid != nil {
+		slice := []string{prefix, *serviceMember.Emplid}
+		formattedReturn := strings.Join(slice, separator)
+		return &formattedReturn, nil
+	} else {
+		return serviceMember.Edipi, nil
+	}
+}
+
 func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 	if estimatedIncentive != nil {
 		maxAdvance := float64(*estimatedIncentive) * 0.6
@@ -730,6 +742,11 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
+	if err != nil {
+		return nil, err
+	}
+
+	serviceMember.Edipi, err = formatEmplid(serviceMember)
 	if err != nil {
 		return nil, err
 	}
