@@ -48,6 +48,7 @@ export const customerRoutes = {
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
+  UPLOAD_ADDITIONAL_DOCUMENTS_PATH: '/move/:moveId/upload-additional-documents',
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';
@@ -123,6 +124,7 @@ export const tooRoutes = {
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
+  SHIPMENT_ADD_PATH: `${BASE_MOVES_PATH}/new-shipment/:shipmentType`,
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
   BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
   CUSTOMER_INFO_EDIT_PATH: 'customer',

@@ -481,7 +481,32 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 
 	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
 
-	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter)
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
+	reviewer := ppmshipment.NewPPMShipmentReviewDocuments(ppmShipmentRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil))
 
 	setUpParamsAndHandler := func(ppmShipment models.PPMShipment, officeUser models.OfficeUser) (ppmdocumentops.FinishDocumentReviewParams, FinishDocumentReviewHandler) {
 		endpoint := fmt.Sprintf(

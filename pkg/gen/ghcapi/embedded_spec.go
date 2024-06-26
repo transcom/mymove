@@ -3583,7 +3583,8 @@ func init() {
               "destinationDutyLocation",
               "ppmType",
               "closeoutInitiated",
-              "closeoutLocation"
+              "closeoutLocation",
+              "ppmStatus"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3702,6 +3703,16 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
             "in": "query"
           }
         ],
@@ -9642,6 +9653,19 @@ func init() {
       ],
       "readOnly": true
     },
+    "PPMStatus": {
+      "type": "string",
+      "enum": [
+        "CANCELLED",
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE",
+        "COMPLETED"
+      ]
+    },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
       "type": "object",
@@ -10110,6 +10134,10 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMStatus"
         },
         "ppmType": {
           "type": "string",
@@ -11106,11 +11134,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -16908,7 +16938,8 @@ func init() {
               "destinationDutyLocation",
               "ppmType",
               "closeoutInitiated",
-              "closeoutLocation"
+              "closeoutLocation",
+              "ppmStatus"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -17027,6 +17058,16 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "enum": [
+              "WAITING_ON_CUSTOMER",
+              "NEEDS_CLOSEOUT"
+            ],
+            "type": "string",
+            "description": "filters the status of the PPM shipment",
+            "name": "ppmStatus",
             "in": "query"
           }
         ],
@@ -23317,6 +23358,19 @@ func init() {
       ],
       "readOnly": true
     },
+    "PPMStatus": {
+      "type": "string",
+      "enum": [
+        "CANCELLED",
+        "DRAFT",
+        "SUBMITTED",
+        "WAITING_ON_CUSTOMER",
+        "NEEDS_ADVANCE_APPROVAL",
+        "NEEDS_CLOSEOUT",
+        "CLOSEOUT_COMPLETE",
+        "COMPLETED"
+      ]
+    },
     "PWSViolation": {
       "description": "A PWS violation for an evaluation report",
       "type": "object",
@@ -23787,6 +23841,10 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "ppmStatus": {
+          "x-nullable": true,
+          "$ref": "#/definitions/PPMStatus"
         },
         "ppmType": {
           "type": "string",
@@ -24835,11 +24893,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },

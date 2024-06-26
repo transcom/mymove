@@ -27,6 +27,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 	excessWeightUploadID := uuid.Must(uuid.NewV4())
 	ordersType := primev3messages.OrdersTypeRETIREMENT
 	originDutyGBLOC := "KKFA"
+	shipmentGBLOC := "AGFM"
 	packingInstructions := models.InstructionsBeforeContractNumber + factory.DefaultContractNumber + models.InstructionsAfterContractNumber
 
 	basicMove := models.Move{
@@ -57,6 +58,9 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		Contractor: &models.Contractor{
 			ContractNumber: factory.DefaultContractNumber,
 		},
+		ShipmentGBLOC: models.MoveToGBLOCs{
+			models.MoveToGBLOC{GBLOC: &shipmentGBLOC},
+		},
 	}
 
 	suite.Run("Success - Returns a basic move payload with no payment requests, service items or shipments", func() {
@@ -69,7 +73,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
 		suite.Equal(ordersType, returnedModel.Order.OrdersType)
-		suite.Equal(originDutyGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)
+		suite.Equal(shipmentGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)
 		suite.Equal(referenceID, returnedModel.ReferenceID)
 		suite.Equal(strfmt.DateTime(basicMove.UpdatedAt), returnedModel.UpdatedAt)
 		suite.NotEmpty(returnedModel.ETag)
