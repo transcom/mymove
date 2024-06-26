@@ -6,12 +6,12 @@ const SelectFilter = ({ options, column: { filterValue, setFilter } }) => {
   return (
     <Dropdown
       data-testid="SelectFilter"
-      defaultValue={filterValue}
+      defaultValue={filterValue || ''}
       onChange={(e) => {
         setFilter(e.target.value);
       }}
       style={{ width: 'auto' }}
-      value={filterValue}
+      value={filterValue || ''}
     >
       {options.map(({ value, label }) => (
         <option value={value} key={`filterOption_${value}`}>
