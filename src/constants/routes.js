@@ -40,6 +40,7 @@ export const customerRoutes = {
   SHIPMENT_PPM_EXPENSES_PATH: '/moves/:moveId/shipments/:mtoShipmentId/expenses',
   SHIPMENT_PPM_EXPENSES_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/expenses/:expenseId',
   SHIPMENT_PPM_COMPLETE_PATH: '/moves/:moveId/shipments/:mtoShipmentId/complete',
+  SHIPMENT_PPM_FEEDBACK_PATH: '/moves/:moveId/shipments/:mtoShipmentId/feedback',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
   EDIT_PROFILE_PATH: '/moves/review/edit-profile',
@@ -47,6 +48,7 @@ export const customerRoutes = {
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
   CONTACT_INFO_EDIT_PATH: '/moves/review/edit-contact-info',
+  UPLOAD_ADDITIONAL_DOCUMENTS_PATH: '/move/:moveId/upload-additional-documents',
 };
 
 const BASE_COUNSELING_MOVE_PATH = '/counseling/moves/:moveCode';
@@ -87,6 +89,8 @@ export const servicesCounselingRoutes = {
   CUSTOMER_SUPPORT_REMARKS_PATH: '/customer-support-remarks',
   BASE_SHIPMENT_REVIEW_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/document-review`,
   SHIPMENT_REVIEW_PATH: 'shipments/:shipmentId/document-review',
+  BASE_SHIPMENT_VIEW_DOCUMENT_PATH: `${BASE_COUNSELING_MOVE_PATH}/shipments/:shipmentId/view-document`,
+  SHIPMENT_VIEW_DOCUMENT_PATH: 'shipments/:shipmentId/view-document',
   BASE_REVIEW_SHIPMENT_WEIGHTS_PATH: `${BASE_COUNSELING_MOVE_PATH}/review-shipment-weights`,
   REVIEW_SHIPMENT_WEIGHTS_PATH: 'review-shipment-weights',
   CREATE_CUSTOMER_PATH: '/onboarding/create-customer',
@@ -120,6 +124,7 @@ export const tooRoutes = {
   MOVE_VIEW_PATH: 'details',
   BASE_ORDERS_EDIT_PATH: `${BASE_MOVES_PATH}/orders`,
   ORDERS_EDIT_PATH: 'orders',
+  SHIPMENT_ADD_PATH: `${BASE_MOVES_PATH}/new-shipment/:shipmentType`,
   BASE_SHIPMENT_ADVANCE_PATH_TOO: `${BASE_MOVES_PATH}/shipments/:shipmentId/advance`,
   BASE_CUSTOMER_INFO_EDIT_PATH: `${BASE_MOVES_PATH}/customer`,
   CUSTOMER_INFO_EDIT_PATH: 'customer',

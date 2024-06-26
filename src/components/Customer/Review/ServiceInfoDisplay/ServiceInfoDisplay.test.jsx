@@ -4,12 +4,6 @@ import { screen } from '@testing-library/react';
 import ServiceInfoDisplay from './ServiceInfoDisplay';
 
 import { renderWithRouter } from 'testUtils';
-import { isBooleanFlagEnabled } from 'utils/featureFlags';
-
-jest.mock('utils/featureFlags', () => ({
-  ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
-}));
 
 describe('ServiceInfoDisplay component', () => {
   const testProps = {
@@ -20,7 +14,6 @@ describe('ServiceInfoDisplay component', () => {
     emplid: '1234567',
     originTransportationOfficeName: 'Buckley AFB',
     originTransportationOfficePhone: '555-555-5555',
-    isEmplidEnabled: true,
   };
 
   it('renders the data', async () => {
@@ -78,7 +71,6 @@ describe('ServiceInfoDisplay component', () => {
   });
 
   it('Coast Guard Customers', async () => {
-    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     testProps.affiliation = 'Coast Guard';
     renderWithRouter(<ServiceInfoDisplay {...testProps} />);
 

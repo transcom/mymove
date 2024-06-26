@@ -188,7 +188,7 @@ const ShipmentForm = (props) => {
   const isTOO = userRole === roleTypes.TOO;
   const isServiceCounselor = userRole === roleTypes.SERVICES_COUNSELOR;
   const showCloseoutOffice =
-    isServiceCounselor &&
+    (isServiceCounselor || isTOO) &&
     isPPM &&
     (serviceMember.agency === SERVICE_MEMBER_AGENCIES.ARMY ||
       serviceMember.agency === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
@@ -267,10 +267,16 @@ const ShipmentForm = (props) => {
           { body, normalize: false },
           {
             onSuccess: (newMTOShipment) => {
-              const currentPath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, {
-                moveCode,
-                shipmentId: newMTOShipment.id,
-              });
+              const moveViewPath = generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode });
+              const currentPath = isTOO
+                ? generatePath(tooRoutes.BASE_SHIPMENT_EDIT_PATH, {
+                    moveCode,
+                    shipmentId: newMTOShipment.id,
+                  })
+                : generatePath(servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, {
+                    moveCode,
+                    shipmentId: newMTOShipment.id,
+                  });
               const advancePath = generatePath(servicesCounselingRoutes.BASE_SHIPMENT_ADVANCE_PATH, {
                 moveCode,
                 shipmentId: newMTOShipment.id,
@@ -286,7 +292,11 @@ const ShipmentForm = (props) => {
                     onSuccess: () => {
                       actions.setSubmitting(false);
                       navigate(currentPath, { replace: true });
-                      navigate(advancePath);
+                      if (isTOO) {
+                        navigate(moveViewPath);
+                      } else {
+                        navigate(advancePath);
+                      }
                       setErrorMessage(null);
                       onUpdate('success');
                     },
@@ -298,7 +308,11 @@ const ShipmentForm = (props) => {
                 );
               } else {
                 navigate(currentPath, { replace: true });
-                navigate(advancePath);
+                if (isTOO) {
+                  navigate(moveViewPath);
+                } else {
+                  navigate(advancePath);
+                }
               }
             },
             onError: () => {
@@ -443,7 +457,7 @@ const ShipmentForm = (props) => {
       body: pendingMtoShipment,
     };
 
-    // Add a MTO Shipment (only a Service Counselor can add a shipment)
+    // Add a MTO Shipment
     if (isCreatePage) {
       const body = { ...pendingMtoShipment, moveTaskOrderID };
       submitHandler(
@@ -963,7 +977,11 @@ const ShipmentForm = (props) => {
                         />
                       </SectionWrapper>
                     )}
-                    <ShipmentCustomerSIT />
+                    <ShipmentCustomerSIT
+                      sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
+                      sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
+                      sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
+                    />
                     <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
                   </>
                 )}
