@@ -89,7 +89,7 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		Miles:              int64(*move.MTOShipments[0].Distance),
 		WeightAuthorized:   0.0, // float64(Orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents), // WeightAlloted isn't returning any value
 		ShipmentID:         strfmt.UUID(move.ID.String()),
-		Scac:               nil, // I don't know what gbloc to use // hsfr
+		Scac:               nil, // I don't know what gbloc to use // HSFR
 		// Loa:                         nil, // report.LOA,
 		// ShipmentType:                "",  // *report.ShipmentType,
 		EntitlementWeight: int64(*Orders.Entitlement.DBAuthorizedWeight),
