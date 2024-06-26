@@ -253,20 +253,6 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
     },
   ),
   createHeader(
-    'Status',
-    (row) => {
-      return SERVICE_COUNSELING_PPM_STATUS_LABELS[`${row.ppmStatus}`];
-    },
-    {
-      id: 'ppmStatus',
-      isFilterable: true,
-      Filter: (props) => (
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_PPM_STATUS_OPTIONS} {...props} />
-      ),
-    },
-  ),
-  createHeader(
     'Closeout initiated',
     (row) => {
       return formatDateFromIso(row.closeoutInitiated, DATE_FORMAT_STRING);
