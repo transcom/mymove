@@ -446,3 +446,12 @@ describe('ServiceItemDetails Estimated Price for DLH, DSH, FSC, DOP, DDP, DPK, D
     },
   );
 });
+
+describe('ServiceItemDetails Price for MS, CS', () => {
+  it.each([['MS'], ['CS']])('renders the formatted price field for the service items', (code) => {
+    render(<ServiceItemDetails id="1" code={code} details={details} />);
+
+    expect(screen.getByText('Price:')).toBeInTheDocument();
+    expect(screen.getByText('$28.00')).toBeInTheDocument();
+  });
+});
