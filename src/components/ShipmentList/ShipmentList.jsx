@@ -57,9 +57,12 @@ export const ShipmentListItem = ({
           {showNumber && ` ${shipmentNumber}`}
         </strong>{' '}
         <br />
-        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) &&
-          `${formatWeight(shipment.primeEstimatedWeight * 1.1)} `}
-        <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
+        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) && (
+          <>
+            `${formatWeight(shipment.primeEstimatedWeight * 1.1)} `
+            <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
+          </>
+        )}
       </div>
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
