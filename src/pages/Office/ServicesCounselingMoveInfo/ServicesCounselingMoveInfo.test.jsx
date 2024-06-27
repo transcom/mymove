@@ -12,7 +12,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const testMoveCode = '1A5PM3';
