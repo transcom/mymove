@@ -16,6 +16,7 @@ describe('RequestShipmentDiversionModal', () => {
     shipmentID: '123456',
     ifMatchEtag: 'string',
     shipmentLocator: '123456-01',
+    actualPickupDate: new Date('3 / 16 / 2020'),
   };
 
   it('renders the component', () => {
@@ -69,6 +70,30 @@ describe('RequestShipmentDiversionModal', () => {
     expect(onSubmit).not.toHaveBeenCalled();
   });
 
+  it('does not call the submit function when submit button is clicked and the current date is before the actual pickup date', async () => {
+    const shipmentInfoWithDate = {
+      shipmentID: '123456',
+      ifMatchEtag: 'string',
+      shipmentLocator: '123456-01',
+      actualPickupDate: new Date('6 / 11 / 3024'),
+    };
+
+    const wrapper = mount(
+      <RequestShipmentDiversionModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfoWithDate} />,
+    );
+    await act(async () => {
+      wrapper
+        .find('[data-testid="textInput"]')
+        .simulate('change', { target: { name: 'diversionReason', value: 'reasonable reason' } });
+    });
+
+    wrapper.update();
+
+    wrapper.find('button[data-testid="modalSubmitButton"]').simulate('click');
+
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
   it('shows validation error on text input blur event', async () => {
     const wrapper = mount(
       <RequestShipmentDiversionModal onSubmit={onSubmit} onClose={onClose} shipmentInfo={shipmentInfo} />,
@@ -98,7 +123,6 @@ describe('RequestShipmentDiversionModal', () => {
 
     expect(wrapper.find('[data-testid="errorMessage"]').exists()).toBe(false);
     expect(wrapper.find('button[data-testid="modalSubmitButton"]').prop('disabled')).toBe(false);
-
     await act(async () => {
       wrapper.find('form').simulate('submit');
     });

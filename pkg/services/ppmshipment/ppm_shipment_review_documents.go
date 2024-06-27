@@ -1,11 +1,15 @@
 package ppmshipment
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/gofrs/uuid"
 	"github.com/jinzhu/copier"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -13,14 +17,20 @@ import (
 // ppmShipmentReviewDocuments implements the services.PPMShipmentReviewDocuments interface
 type ppmShipmentReviewDocuments struct {
 	services.PPMShipmentRouter
+	services.SignedCertificationCreator
+	services.SignedCertificationUpdater
 }
 
 // NewPPMShipmentReviewDocuments creates a new ppmShipmentReviewDocuments
 func NewPPMShipmentReviewDocuments(
 	ppmShipmentRouter services.PPMShipmentRouter,
+	signedCertificationCreator services.SignedCertificationCreator,
+	signedCertificationUpdater services.SignedCertificationUpdater,
 ) services.PPMShipmentReviewDocuments {
 	return &ppmShipmentReviewDocuments{
-		PPMShipmentRouter: ppmShipmentRouter,
+		PPMShipmentRouter:          ppmShipmentRouter,
+		SignedCertificationCreator: signedCertificationCreator,
+		SignedCertificationUpdater: signedCertificationUpdater,
 	}
 }
 
@@ -64,6 +74,12 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 			return apperror.NewQueryError("PPMShipment", err, "unable to update PPMShipment")
 		}
 
+		err = p.signCertificationPPMCloseout(appCtx, updatedPPMShipment.Shipment.MoveTaskOrderID, updatedPPMShipment.ID)
+
+		if err != nil {
+			return err
+		}
+
 		return nil
 	})
 
@@ -72,4 +88,45 @@ func (p *ppmShipmentReviewDocuments) SubmitReviewedDocuments(appCtx appcontext.A
 	}
 
 	return &updatedPPMShipment, nil
+}
+
+func (p *ppmShipmentReviewDocuments) signCertificationPPMCloseout(appCtx appcontext.AppContext, moveID uuid.UUID, ppmShipmentID uuid.UUID) error {
+	// Retrieve if PPM has certificate
+	signedCertifications, err := models.FetchSignedCertificationPPMByType(appCtx.DB(), appCtx.Session(), moveID, ppmShipmentID, models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT)
+	if err != nil {
+		return err
+	}
+
+	signatureText := fmt.Sprintf("%s %s", appCtx.Session().FirstName, appCtx.Session().LastName)
+
+	if len(signedCertifications) == 0 {
+		// Add new certificate
+		certType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+		now := time.Now()
+		signedCertification := models.SignedCertification{
+			SubmittingUserID:  appCtx.Session().UserID,
+			MoveID:            moveID,
+			PpmID:             models.UUIDPointer(ppmShipmentID),
+			CertificationType: &certType,
+			CertificationText: "Confirmed: Reviewed Closeout PPM PAYMENT ",
+			Signature:         signatureText,
+			Date:              now,
+		}
+		_, err := p.SignedCertificationCreator.CreateSignedCertification(appCtx, signedCertification)
+		if err != nil {
+			return err
+		}
+	} else {
+		// Update existing certificate. Note, reviews can occur N times.
+		eTag := etag.GenerateEtag(signedCertifications[0].UpdatedAt)
+		// Update with current counselor information
+		signedCertifications[0].SubmittingUserID = appCtx.Session().UserID
+		signedCertifications[0].Signature = signatureText
+		_, err := p.SignedCertificationUpdater.UpdateSignedCertification(appCtx, *signedCertifications[0], eTag)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

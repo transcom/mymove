@@ -75,6 +75,8 @@ const PPMReview = lazy(() => import('pages/MyMove/PPM/Closeout/Review/Review'));
 const ProGear = lazy(() => import('pages/MyMove/PPM/Closeout/ProGear/ProGear.jsx'));
 const Expenses = lazy(() => import('pages/MyMove/PPM/Closeout/Expenses/Expenses'));
 const PPMFinalCloseout = lazy(() => import('pages/MyMove/PPM/Closeout/FinalCloseout/FinalCloseout'));
+const AdditionalDocuments = lazy(() => import('pages/MyMove/AdditionalDocuments/AdditionalDocuments'));
+const PPMFeedback = lazy(() => import('pages/MyMove/PPM/Closeout/Feedback/Feedback'));
 
 export class CustomerApp extends Component {
   constructor(props) {
@@ -274,10 +276,16 @@ export class CustomerApp extends Component {
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH} element={<PPMFeedback />} />
                     <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
                     <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
                     <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
                     <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
+                    <Route
+                      end
+                      path={customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH}
+                      element={<AdditionalDocuments />}
+                    />
                     <Route end path="/infected-upload" element={<InfectedUpload />} />
                     <Route end path="/processing-upload" element={<ProcessingUpload />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />
@@ -367,10 +375,16 @@ export class CustomerApp extends Component {
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_EXPENSES_EDIT_PATH} element={<Expenses />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_COMPLETE_PATH} element={<PPMFinalCloseout />} />
+                    <Route end path={customerRoutes.SHIPMENT_PPM_FEEDBACK_PATH} element={<PPMFeedback />} />
                     <Route path={customerRoutes.ORDERS_ADD_PATH} element={<AddOrders />} />
                     <Route path={customerRoutes.ORDERS_EDIT_PATH} element={<EditOrders />} />
                     <Route path={customerRoutes.ORDERS_UPLOAD_PATH} element={<UploadOrders />} />
                     <Route path={customerRoutes.ORDERS_AMEND_PATH} element={<AmendOrders />} />
+                    <Route
+                      end
+                      path={customerRoutes.UPLOAD_ADDITIONAL_DOCUMENTS_PATH}
+                      element={<AdditionalDocuments />}
+                    />
                     <Route end path="/infected-upload" element={<InfectedUpload />} />
                     <Route end path="/processing-upload" element={<ProcessingUpload />} />
                     <Route end path={customerRoutes.SHIPMENT_PPM_PRO_GEAR_PATH} element={<ProGear />} />

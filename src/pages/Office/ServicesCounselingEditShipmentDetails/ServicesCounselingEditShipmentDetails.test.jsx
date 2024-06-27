@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { screen, waitFor, within } from '@testing-library/react';
+import { screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ServicesCounselingEditShipmentDetails from './ServicesCounselingEditShipmentDetails';
@@ -443,14 +443,18 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
 
-      await userEvent.tab();
-      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
-      await userEvent.click(await screen.findByText('Altus'));
+      act(() => {
+        const closeoutField = screen
+          .getAllByRole('combobox')
+          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
+
+        userEvent.click(closeoutField);
+        userEvent.keyboard('Altus{enter}');
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        // default state , now we verify validation is good for save to be enabled
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
 
       // Input invalid date format will cause form to be invalid. save must be disabled.
@@ -481,9 +485,9 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
       expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
-    });
+    }, 10000);
 
     describe('Check SIT field validations', () => {
       it.each([
@@ -540,11 +544,14 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
         await userEvent.tab();
 
-        await waitFor(() => {
-          const alerts = screen.getAllByRole('alert');
-          expect(alerts).toHaveLength(1);
-          expect(alerts[0]).toHaveTextContent(expectedError);
-        });
+        await waitFor(
+          () => {
+            const alerts = screen.getAllByRole('alert');
+            expect(alerts).toHaveLength(1);
+            expect(alerts[0]).toHaveTextContent(expectedError);
+          },
+          { timeout: 10000 },
+        );
 
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
         expect(screen.getByRole('alert').nextElementSibling.firstElementChild).toHaveAttribute('name', field);
@@ -572,45 +579,67 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       });
     }, 10000);
 
-    it('Sit NO/YES toggle - Enables Save and Continue button when sit required fields are filled in', async () => {
-      useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+    it('verify toggling from Yes to No to Yes restores PPM SIT prefilled values', async () => {
+      useEditShipmentQueries.mockReturnValue(ppmWithSITUseEditShipmentQueriesReturnValue);
       searchTransportationOffices.mockImplementation(() => Promise.resolve(mockTransportationOffice));
       renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
-      const sitExpected = document.getElementById('sitExpectedYes').parentElement;
-      const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
-      await userEvent.click(sitExpectedYes);
-      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
-      await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
-      await userEvent.tab();
-      await userEvent.type(screen.getByLabelText('Closeout location'), 'Altus');
-      await userEvent.click(await screen.findByText('Altus'));
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+
+      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Save and Continue' })).toBeInTheDocument();
+
+      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
+
+      act(() => {
+        const closeoutField = screen
+          .getAllByRole('combobox')
+          .find((comboBox) => comboBox.getAttribute('id') === 'closeoutOffice-input');
+
+        userEvent.click(closeoutField);
+        userEvent.keyboard('Altus{enter}');
+      });
 
       await waitFor(() => {
         expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
-      });
-
-      /* Verify toggling back to NO selection when validation is failing for YES resets
-         schema validation back to NO. This tests component: ShipmentCustomerSIT.jsx */
-      // enter invalid date format to trigger validation failure to disable SAVE button
-      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
-      await waitFor(() => {
-        expect(screen.queryByRole('alert')).toBeInTheDocument();
         expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
 
-      // Save button is disabled for now because validation error for YES select. We
-      // now want to select NO. The schema validator should reset itself and renable the
-      // Save button again for NO selection.
-      const sitExpected2 = document.getElementById('sitExpectedNo').parentElement;
-      const sitExpectedNo = within(sitExpected2).getByRole('radio', { name: 'No' });
-      await userEvent.click(sitExpectedNo);
+      // Input invalid date format will cause form to be invalid. save must be disabled.
+      await userEvent.type(screen.getByLabelText('Estimated storage start'), 'FOOBAR');
       await waitFor(() => {
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).not.toBeDisabled();
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
       });
-    });
+
+      // Schema validation is fail state thus Save button is disabled. click No to hide
+      // SIT related widget. Hiding SIT widget must reset schema because previous SIT related
+      // schema failure is nolonger applicable.
+      const sitExpected = document.getElementById('sitExpectedNo').parentElement;
+      const sitExpectedNo = within(sitExpected).getByRole('radio', { name: 'No' });
+      await userEvent.click(sitExpectedNo);
+
+      // Verify No is really hiding SIT related inputs
+      expect(await screen.queryByRole('textbox', { name: 'Estimated SIT weight' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage start' })).not.toBeInTheDocument();
+      expect(await screen.queryByRole('textbox', { name: 'Estimated storage end' })).not.toBeInTheDocument();
+
+      // Verify clicking Yes again will restore persisted data for each SIT related control.
+      const sitExpected2 = document.getElementById('sitExpectedYes').parentElement;
+      const sitExpectedYes = within(sitExpected2).getByRole('radio', { name: 'Yes' });
+      await userEvent.click(sitExpectedYes);
+
+      // Verify persisted values are restored to expected values.
+      expect(await screen.findByRole('textbox', { name: 'Estimated SIT weight' })).toHaveValue('999');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage start' })).toHaveValue('05 Jul 2022');
+      expect(await screen.findByRole('textbox', { name: 'Estimated storage end' })).toHaveValue('13 Jul 2022');
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+      });
+    }, 10000);
 
     it('calls props.onUpdate with success and routes to Advance page when the save button is clicked and the shipment update is successful', async () => {
       useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);

@@ -31,6 +31,7 @@ const ShipmentDisplay = ({
   allowApproval,
   editURL,
   reviewURL,
+  viewURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
@@ -146,6 +147,18 @@ const ShipmentDisplay = ({
             />
           )}
         </Restricted>
+        {viewURL && (
+          <ReviewButton
+            onClick={() => {
+              navigate(viewURL);
+            }}
+            className={styles.editButton}
+            data-testid={viewURL}
+            label="View documents"
+            secondary
+            disabled={isMoveLocked}
+          />
+        )}
       </ShipmentContainer>
     </div>
   );
