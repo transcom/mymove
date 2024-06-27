@@ -18,7 +18,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
+import { WEIGHT_ADJUSTMENT, mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
@@ -45,7 +45,7 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -121,8 +121,13 @@ export const MoveTaskOrder = (props) => {
   const [externalVendorShipmentCount, setExternalVendorShipmentCount] = useState(0);
   /* ------------------ Miscellaneous ------------------------- */
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
+  const [estimatedHHGWeightTotal, setEstimatedHHGWeightTotal] = useState(null);
+  const [estimatedNTSWeightTotal, setEstimatedNTSWeightTotal] = useState(null);
+  const [estimatedNTSReleaseWeightTotal, setEstimatedNTSReleaseWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
+  const [breakdownVisible, setBreakdownVisible] = useState(false);
+
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
   }, []);
@@ -733,6 +738,10 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
+  const calculateMaxBillableWeight = () => {
+    return WEIGHT_ADJUSTMENT * (estimatedHHGWeightTotal + estimatedNTSWeightTotal + estimatedNTSReleaseWeightTotal);
+  };
+
   /**
    * @typedef AddressShape
    * @prop {string} city
@@ -826,6 +835,9 @@ export const MoveTaskOrder = (props) => {
 
   useEffect(() => {
     setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
+    setEstimatedHHGWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.HHG));
+    setEstimatedNTSWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTS));
+    setEstimatedNTSReleaseWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTSR));
     setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;
@@ -847,6 +859,9 @@ export const MoveTaskOrder = (props) => {
     onlyPPMShipments,
     order?.entitlement.totalWeight,
     setEstimatedWeightTotal,
+    setEstimatedHHGWeightTotal,
+    setEstimatedNTSWeightTotal,
+    setEstimatedNTSReleaseWeightTotal,
     setExcessWeightRiskCount,
   ]);
 
@@ -891,7 +906,7 @@ export const MoveTaskOrder = (props) => {
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
   const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
-  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? order?.entitlement?.authorizedWeight : '-';
+  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? calculateMaxBillableWeight() : '-';
 
   /**
    * @function getSitAddressInitialValues
@@ -906,12 +921,48 @@ export const MoveTaskOrder = (props) => {
   */
   // this should always be 110% of estimated weight regardless of allowance
   // or max billable weight
+
+  const estimateWeightBreakdown = (
+    <div>
+      <div>110% Estimated HHG</div>
+      <div className={moveTaskOrderStyles.subValue}>
+        {Number.isFinite(estimatedHHGWeightTotal) ? formatWeight(Math.round(estimatedHHGWeightTotal * 1.1)) : '—'}
+      </div>
+      <div>110% Estimated NTS</div>
+      <div className={moveTaskOrderStyles.subValue}>
+        {Number.isFinite(estimatedNTSWeightTotal) ? formatWeight(Math.round(estimatedNTSWeightTotal * 1.1)) : '—'}
+      </div>
+      <div>110% Estimated NTSR</div>
+      <div className={moveTaskOrderStyles.subValue}>
+        {Number.isFinite(estimatedNTSReleaseWeightTotal)
+          ? formatWeight(Math.round(estimatedNTSReleaseWeightTotal * 1.1))
+          : '—'}
+      </div>
+    </div>
+  );
+
   const estimateWeight110 = (
     <div className={moveTaskOrderStyles.childHeader}>
-      <div>110% of estimated weight</div>
+      <div>110% of estimated weight (TOTAL)</div>
       <div className={moveTaskOrderStyles.value}>
         {Number.isFinite(estimatedWeightTotal) ? formatWeight(Math.round(estimatedWeightTotal * 1.1)) : '—'}
       </div>
+      <Button
+        className={styles.toggleBreakdown}
+        type="button"
+        data-testid="toggleBreakdown"
+        aria-expanded={breakdownVisible}
+        unstyled
+        onClick={() => {
+          setBreakdownVisible((isVisible) => {
+            return !isVisible;
+          });
+        }}
+      >
+        {breakdownVisible ? 'Hide Breakdown' : 'Show Breakdown'}
+      </Button>
+      &nbsp;
+      {breakdownVisible && estimateWeightBreakdown}
     </div>
   );
 
@@ -1060,7 +1111,7 @@ export const MoveTaskOrder = (props) => {
           <ConnectedEditMaxBillableWeightModal
             isOpen={isWeightModalVisible}
             defaultWeight={order.entitlement.totalWeight}
-            maxBillableWeight={order.entitlement.authorizedWeight}
+            maxBillableWeight={calculateMaxBillableWeight}
             onSubmit={handleUpdateBillableWeight}
             onClose={setIsWeightModalVisible}
           />
