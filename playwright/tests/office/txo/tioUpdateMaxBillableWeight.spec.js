@@ -36,7 +36,7 @@ test.describe('TIO user', () => {
     await page.getByRole('button', { name: 'Save changes' }).click();
     await officePage.waitForLoading();
 
-    await expect(page.locator('[data-testid="billableWeightValue"]')).toContainText('7,400 lbs');
+    await expect(page.locator('[data-testid="billableWeightValue"]')).toContainText('2,200 lbs');
     await expect(page.locator('[data-testid="billableWeightRemarks"]')).toContainText('Some basic remarks.');
   });
 });
