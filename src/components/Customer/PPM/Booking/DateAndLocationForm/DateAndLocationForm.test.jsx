@@ -223,6 +223,7 @@ describe('DateAndLocationForm component', () => {
 describe('validates form fields and displays error messages', () => {
   it('marks required inputs when left empty', async () => {
     render(<DateAndLocationForm {...defaultProps} />);
+
     await act(async () => {
       await userEvent.click(screen.getByLabelText('Which closeout office should review your PPM?'));
       await userEvent.keyboard('{backspace}');
