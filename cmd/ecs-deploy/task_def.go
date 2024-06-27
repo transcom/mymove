@@ -376,7 +376,7 @@ func buildContainerEnvironment(environmentName string, dbHost string, variablesF
 	// These variables should always be preferred over env vars
 	if len(variablesFile) > 0 {
 		if _, err := os.Stat(variablesFile); os.IsNotExist(err) {
-			log.Fatal(fmt.Errorf("File %q does not exist: %w", variablesFile, err))
+			log.Fatal(fmt.Errorf("file %q does not exist: %w", variablesFile, err))
 		}
 		// Read contents of variables file into vars
 		vars, readFileErr := os.ReadFile(filepath.Clean(variablesFile))

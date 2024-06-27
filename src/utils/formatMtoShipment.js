@@ -102,6 +102,15 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     hasSecondaryPickup: ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
     hasSecondaryDestination: ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
 
+    tertiaryPickup: {
+      address: { ...emptyAddressShape },
+    },
+    tertiaryDestination: {
+      address: { ...emptyAddressShape },
+    },
+    hasTertiaryPickup: ppmShipment.hasTertiaryPickup ? 'true' : 'false',
+    hasTertiaryDestination: ppmShipment.hasTertiaryDestination ? 'true' : 'false',
+
     sitExpected: !!ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation ?? LOCATION_TYPES.DESTINATION,
     sitEstimatedWeight: (ppmShipment.sitEstimatedWeight || '').toString(),
@@ -129,6 +138,14 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     displayValues.secondaryDestination.address = { ...emptyAddressShape, ...ppmShipment.secondaryDestinationAddress };
   }
 
+  if (ppmShipment.hasTertiaryPickup) {
+    displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...ppmShipment.tertiaryPickup };
+  }
+
+  if (ppmShipment.hasTertiaryDestination) {
+    displayValues.tertiaryDestination.address = { ...emptyAddressShape, ...ppmShipment.tertiaryDestination };
+  }
+
   return displayValues;
 }
 
@@ -148,6 +165,8 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  tertiaryPickupAddress,
+  tertiaryDeliveryAddress,
   ntsRecordedWeight,
   tacType,
   sacType,
@@ -178,9 +197,17 @@ export function formatMtoShipmentForDisplay({
     secondaryDelivery: {
       address: { ...emptyAddressShape },
     },
+    tertiaryPickup: {
+      address: { ...emptyAddressShape },
+    },
+    tertiaryDelivery: {
+      address: { ...emptyAddressShape },
+    },
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    hasTertiaryPickup: 'no',
+    hasTertiaryDelivery: 'no',
     ntsRecordedWeight,
     tacType,
     sacType,
@@ -218,6 +245,10 @@ export function formatMtoShipmentForDisplay({
     displayValues.secondaryPickup.address = { ...emptyAddressShape, ...secondaryPickupAddress };
     displayValues.hasSecondaryPickup = 'yes';
   }
+  if (tertiaryPickupAddress) {
+    displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...tertiaryPickupAddress };
+    displayValues.hasTertiaryPickup = 'yes';
+  }
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
@@ -231,6 +262,10 @@ export function formatMtoShipmentForDisplay({
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     displayValues.hasSecondaryDelivery = 'yes';
+  }
+  if (tertiaryDeliveryAddress) {
+    displayValues.tertiaryDelivery.address = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
+    displayValues.hasTertiaryDelivery = 'yes';
   }
 
   if (requestedDeliveryDate) {
@@ -332,8 +367,12 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   hasSecondaryPickup,
   secondaryPickup,
+  hasTertiaryPickup,
+  tertiaryPickup,
   hasSecondaryDelivery,
   secondaryDelivery,
+  hasTertiaryDelivery,
+  tertiaryDelivery,
   ntsRecordedWeight,
   tacType,
   sacType,
@@ -392,6 +431,16 @@ export function formatMtoShipmentForAPI({
   formattedMtoShipment.hasSecondaryDeliveryAddress = hasSecondaryDelivery;
   if (hasSecondaryDelivery && secondaryDelivery?.address) {
     formattedMtoShipment.secondaryDeliveryAddress = formatAddressForAPI(secondaryDelivery.address);
+  }
+
+  formattedMtoShipment.hasTertiaryPickupAddress = hasTertiaryPickup;
+  if (hasTertiaryPickup && tertiaryPickup?.address) {
+    formattedMtoShipment.tertiaryPickupAddress = formatAddressForAPI(tertiaryPickup.address);
+  }
+
+  formattedMtoShipment.hasTertiaryDeliveryAddress = hasTertiaryDelivery;
+  if (hasTertiaryDelivery && tertiaryDelivery?.address) {
+    formattedMtoShipment.tertiaryDeliveryAddress = formatAddressForAPI(tertiaryDelivery.address);
   }
 
   if (!formattedMtoShipment.agents?.length) {

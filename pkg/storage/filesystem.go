@@ -77,7 +77,7 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, _ string, _ *string)
 
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			log.Fatalln(fmt.Errorf("Could not close file"))
+			log.Fatalln(fmt.Errorf("could not close file"))
 		}
 	}()
 

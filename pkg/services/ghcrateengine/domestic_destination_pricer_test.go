@@ -210,7 +210,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticDestination() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
+		suite.Equal("could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
 	})
 
 	suite.Run("failure if move date is outside of contract year", func() {

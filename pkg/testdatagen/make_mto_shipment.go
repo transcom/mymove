@@ -60,7 +60,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 	}
 
-	var destinationAddress, secondaryDeliveryAddress models.Address
+	var destinationAddress, secondaryDeliveryAddress, tertiaryDeliveryAddress models.Address
 	if shipmentHasDeliveryDetails {
 		// Make destination address if it was not provided
 		destinationAddress = assertions.DestinationAddress
@@ -71,6 +71,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 
 		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
+		tertiaryDeliveryAddress = assertions.TertiaryDeliveryAddress
 	}
 
 	// mock weights
@@ -161,6 +162,12 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
 			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
 			MTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+		}
+
+		if !isZeroUUID(tertiaryDeliveryAddress.ID) {
+			MTOShipment.TertiaryDeliveryAddress = &tertiaryDeliveryAddress
+			MTOShipment.TertiaryDeliveryAddressID = &tertiaryDeliveryAddress.ID
+			MTOShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
 		}
 	}
 

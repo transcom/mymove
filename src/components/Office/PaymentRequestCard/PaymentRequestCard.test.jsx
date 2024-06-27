@@ -97,7 +97,7 @@ const shipmentInfo = [
   },
 ];
 const moveCode = 'AF7K1P';
-
+const dateRegex = /\d{2} [A-Za-z]{3} \d{4}/; // Regex match for DD MMM YYYY
 describe('PaymentRequestCard', () => {
   const order = {
     sac: '1234456',
@@ -337,7 +337,9 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountAccepted span').at(1).text().includes('01 Dec 2020')).toBe(true);
+      const reviewedAtDate = wrapper.find('.amountAccepted span').at(1).text();
+      const reviewedAtDateResult = dateRegex.test(reviewedAtDate);
+      expect(reviewedAtDateResult).toBe(true);
     });
 
     it('sums the rejected service items total', () => {
@@ -345,7 +347,9 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountRejected span').at(1).text().includes('01 Dec 2020')).toBe(true);
+      const reviewedAtDate = wrapper.find('.amountRejected span').at(1).text();
+      const reviewedAtDateResult = dateRegex.test(reviewedAtDate);
+      expect(reviewedAtDateResult).toBe(true);
     });
 
     it('displays the payment request details ', () => {

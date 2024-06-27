@@ -18,11 +18,13 @@ const HHGShipmentCard = ({
   destinationLocation,
   destinationZIP,
   secondaryDeliveryAddress,
+  tertiaryDeliveryAddress,
   moveId,
   onEditClick,
   onDeleteClick,
   pickupLocation,
   secondaryPickupAddress,
+  tertiaryPickupAddress,
   receivingAgent,
   releasingAgent,
   remarks,
@@ -80,6 +82,7 @@ const HHGShipmentCard = ({
             requestedPickupDate={requestedPickupDate}
             pickupLocation={pickupLocation}
             secondaryPickupAddress={secondaryPickupAddress}
+            tertiaryPickupAddress={tertiaryPickupAddress}
             releasingAgent={releasingAgent}
           />
           <DeliveryDisplay
@@ -88,6 +91,7 @@ const HHGShipmentCard = ({
             requestedDeliveryDate={requestedDeliveryDate}
             destinationLocation={destinationLocation}
             secondaryDeliveryAddress={secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={tertiaryDeliveryAddress}
             destinationZIP={destinationZIP}
             receivingAgent={receivingAgent}
           />

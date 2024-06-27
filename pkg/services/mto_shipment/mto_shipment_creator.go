@@ -219,6 +219,20 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.SecondaryPickupAddress.County = county
 		}
 
+		if shipment.TertiaryPickupAddress != nil {
+			tertiaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryPickupAddress)
+			if errAddress != nil {
+				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
+			}
+			shipment.TertiaryPickupAddress = tertiaryPickupAddress
+			shipment.TertiaryPickupAddressID = &shipment.TertiaryPickupAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.TertiaryPickupAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.TertiaryPickupAddress.County = county
+		}
+
 		if shipment.DestinationAddress != nil {
 			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
 			if errAddress != nil {
@@ -245,6 +259,20 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return errCounty
 			}
 			shipment.SecondaryDeliveryAddress.County = county
+		}
+
+		if shipment.TertiaryDeliveryAddress != nil {
+			tertiaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryDeliveryAddress)
+			if errAddress != nil {
+				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
+			}
+			shipment.TertiaryDeliveryAddress = tertiaryDeliveryAddress
+			shipment.TertiaryDeliveryAddressID = &shipment.TertiaryDeliveryAddress.ID
+			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.TertiaryDeliveryAddress.PostalCode)
+			if errCounty != nil {
+				return errCounty
+			}
+			shipment.TertiaryDeliveryAddress.County = county
 		}
 
 		if shipment.StorageFacility != nil {
