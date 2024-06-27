@@ -268,15 +268,27 @@ properties:
     example: Destination
     type: string
     x-nullable: true
-  rate:
-    type: number
-    format: double
-    x-nullable: true
   paidDate:
     type: string
     format: date
     x-nullable: true
   linehaulTotal:
+    type: number
+    format: double
+    x-nullable: true
+  originPrice:
+    type: number
+    format: double
+    x-nullable: true
+  destinationPrice:
+    type: number
+    format: double
+    x-nullable: true
+  packingPrice:
+    type: number
+    format: double
+    x-nullable: true
+  unpackingPrice:
     type: number
     format: double
     x-nullable: true

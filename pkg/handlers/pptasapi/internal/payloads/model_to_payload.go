@@ -35,9 +35,11 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 	}
 
 	Orders := move.Orders
+	PaymentRequests := move.PaymentRequests
 
 	progear := unit.Pound(0)
 	sitTotal := unit.Pound(0)
+	originActualWeight := unit.Pound(0)
 	travelAdvance := unit.Cents(0)
 
 	var moveDate *time.Time
@@ -66,22 +68,22 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		OriginAddress:      Address(move.MTOShipments[0].PickupAddress),
 		DestinationAddress: Address(move.MTOShipments[0].DestinationAddress),
 		OriginGbloc:        Orders.OriginDutyLocationGBLOC,
-		DestinationGbloc:   nil, // &move.CloseoutOffice.Gbloc,
-		DepCD:              nil,
-		TravelAdvance:      models.Float64Pointer(travelAdvance.Float64()), // report.TravelAdvance,
+		DestinationGbloc:   &Orders.NewDutyLocation.TransportationOffice.Gbloc,
+		DepCD:              nil, // same as Department Indicator?
+		TravelAdvance:      models.Float64Pointer(travelAdvance.Float64()),
 		MoveDate:           (*strfmt.Date)(moveDate),
 		Tac:                Orders.TAC,
 		FiscalYear:         nil,
-		Appro:              nil, // report.Appro,
-		Subhead:            nil, // report.Subhead,
-		ObjClass:           nil, // report.ObjClass,
-		Bcn:                nil, // report.BCN,
-		SubAllotCD:         nil, // report.SubAllotCD,
-		Aaa:                nil, // report.AAA,
-		TypeCD:             nil, // report.TypeCD,
-		Paa:                nil, // report.PAA,
-		CostCD:             nil, // report.CostCD,
-		Ddcd:               nil, // report.DDCD,
+		Appro:              nil,
+		Subhead:            nil,
+		ObjClass:           nil,
+		Bcn:                nil,
+		SubAllotCD:         nil,
+		Aaa:                nil,
+		TypeCD:             nil,
+		Paa:                nil,
+		CostCD:             nil,
+		Ddcd:               nil,
 		ShipmentNum:        int64(len(move.MTOShipments)),
 		WeightEstimate:     calculateTotalWeightEstimate(move.MTOShipments).Float64(),
 		TransmitCD:         nil, // report.TransmitCd,
@@ -90,14 +92,17 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		WeightAuthorized:   0.0, // float64(Orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents), // WeightAlloted isn't returning any value
 		ShipmentID:         strfmt.UUID(move.ID.String()),
 		Scac:               nil, // I don't know what gbloc to use // HSFR
-		// Loa:                         nil, // report.LOA,
-		// ShipmentType:                "",  // *report.ShipmentType,
-		EntitlementWeight: int64(*Orders.Entitlement.DBAuthorizedWeight),
-		NetWeight:         int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
-		PickupDate:        strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
-		// Rate:                        nil, // report.Rate,
-		// PaidDate:                    (*strfmt.Date)(report.PaidDate),
+		Loa:                nil, // what format should this be in? the format in the example looks nothing like our table
+		ShipmentType:       "",
+		EntitlementWeight:  int64(*Orders.Entitlement.DBAuthorizedWeight),
+		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
+		PickupDate:         strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
+		PaidDate:           (*strfmt.Date)(PaymentRequests[0].ReviewedAt),
 		// LinehaulTotal:               nil, // report.LinehaulTotal,
+		// OriginPrice
+		// DestinationPrice
+		// Packing
+		// Unpacking
 		// SitTotal:                    nil, // report.SitTotal,
 		// AccessorialTotal:            nil, // report.AccessorialTotal,
 		// FuelTotal:                   nil, // report.FuelTotal,
@@ -106,7 +111,6 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		TravelType:      string(*Orders.OrdersTypeDetail),
 		TravelClassCode: string(Orders.OrdersType),
 		DeliveryDate:    strfmt.Date(*moveDate),
-		// ActualOriginNetWeight:       0, // *report.ActualOriginNetWeight,
 		// DestinationReweighNetWeight: 0, // report.DestinationReweighNetWeight.Float64(),
 		CounseledDate: strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
@@ -130,11 +134,17 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 				// SIT Fields
 				payload.SitInDate = (*strfmt.Date)(shipment.PPMShipment.SITEstimatedEntryDate)
 				payload.SitOutDate = (*strfmt.Date)(shipment.PPMShipment.SITEstimatedDepartureDate)
+				// SitDuration = shipment.PPMShipment.SITEstimatedDepartureDate.Sub(*shipment.PPMShipment.SITEstimatedEntryDate)
 				// newreport.SitType = // Example data is destination.. ??
 			}
 		}
+
+		if shipment.PrimeActualWeight != nil {
+			originActualWeight += *shipment.PrimeActualWeight
+		}
 	}
 
+	payload.ActualOriginNetWeight = float64(originActualWeight) // is Prime_Actual_Weight what they want?
 	payload.PbpAnde = progear.Float64()
 
 	// SAC is currently optional, is it acceptable to have an empty return here?

@@ -76,6 +76,7 @@ type Order struct {
 	MethodOfPayment                string                             `json:"method_of_payment" db:"method_of_payment"`
 	NAICS                          string                             `json:"naics" db:"naics"`
 	ProvidesServicesCounseling     *bool                              `belongs_to:"duty_locations" fk_id:"origin_duty_location_id"`
+	TransportationAccountingCode   *TransportationAccountingCode      `belongs_to:"transportation_accounting_code" tac:"tac"`
 }
 
 // TableName overrides the table name used by Pop.

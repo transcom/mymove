@@ -390,6 +390,11 @@ func init() {
           ],
           "x-nullable": true
         },
+        "destinationPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "destinationReweighNetWeight": {
           "type": "number",
           "format": "double"
@@ -507,6 +512,11 @@ func init() {
           ],
           "x-nullable": true
         },
+        "originPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "otherTotal": {
           "type": "number",
           "format": "double",
@@ -514,6 +524,11 @@ func init() {
         },
         "paa": {
           "type": "string",
+          "x-nullable": true
+        },
+        "packingPrice": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "paidDate": {
@@ -604,11 +619,6 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "rate": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "scac": {
           "type": "string",
           "x-nullable": true,
@@ -679,6 +689,11 @@ func init() {
         },
         "typeCD": {
           "type": "string",
+          "x-nullable": true
+        },
+        "unpackingPrice": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "weightAuthorized": {
@@ -1101,6 +1116,11 @@ func init() {
           ],
           "x-nullable": true
         },
+        "destinationPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "destinationReweighNetWeight": {
           "type": "number",
           "format": "double"
@@ -1218,6 +1238,11 @@ func init() {
           ],
           "x-nullable": true
         },
+        "originPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "otherTotal": {
           "type": "number",
           "format": "double",
@@ -1225,6 +1250,11 @@ func init() {
         },
         "paa": {
           "type": "string",
+          "x-nullable": true
+        },
+        "packingPrice": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "paidDate": {
@@ -1315,11 +1345,6 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "rate": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "scac": {
           "type": "string",
           "x-nullable": true,
@@ -1390,6 +1415,11 @@ func init() {
         },
         "typeCD": {
           "type": "string",
+          "x-nullable": true
+        },
+        "unpackingPrice": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "weightAuthorized": {

@@ -69,6 +69,9 @@ type ListReport struct {
 	// Enum: [AGFM APAT BGAC BGNC BKAS CFMQ CLPK CNNQ DMAT GSAT HAFC HBAT JEAT JENQ KKFA LHNQ LKNQ MAPK MAPS MBFL MLNQ XXXX]
 	DestinationGbloc *string `json:"destinationGbloc,omitempty"`
 
+	// destination price
+	DestinationPrice *float64 `json:"destinationPrice,omitempty"`
+
 	// destination reweigh net weight
 	DestinationReweighNetWeight float64 `json:"destinationReweighNetWeight,omitempty"`
 
@@ -150,11 +153,17 @@ type ListReport struct {
 	// Enum: [AGFM APAT BGAC BGNC BKAS CFMQ CLPK CNNQ DMAT GSAT HAFC HBAT JEAT JENQ KKFA LHNQ LKNQ MAPK MAPS MBFL MLNQ XXXX]
 	OriginGbloc *string `json:"originGbloc,omitempty"`
 
+	// origin price
+	OriginPrice *float64 `json:"originPrice,omitempty"`
+
 	// other total
 	OtherTotal *float64 `json:"otherTotal,omitempty"`
 
 	// paa
 	Paa *string `json:"paa,omitempty"`
+
+	// packing price
+	PackingPrice *float64 `json:"packingPrice,omitempty"`
 
 	// paid date
 	// Format: date
@@ -176,9 +185,6 @@ type ListReport struct {
 	// pickup date
 	// Format: date
 	PickupDate strfmt.Date `json:"pickupDate,omitempty"`
-
-	// rate
-	Rate *float64 `json:"rate,omitempty"`
 
 	// scac
 	// Example: AGFM
@@ -234,6 +240,9 @@ type ListReport struct {
 
 	// type c d
 	TypeCD *string `json:"typeCD,omitempty"`
+
+	// unpacking price
+	UnpackingPrice *float64 `json:"unpackingPrice,omitempty"`
 
 	// weight authorized
 	WeightAuthorized float64 `json:"weightAuthorized,omitempty"`

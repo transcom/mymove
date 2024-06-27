@@ -35,15 +35,18 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 		"Orders.Entitlement",
 		"Orders.Entitlement.WeightAllotted",
 		"Orders.NewDutyLocation.Address",
+		"Orders.NewDutyLocation.TransportationOffice.Gbloc",
 		"Orders.OriginDutyLocation.Address",
+		"Orders.TAC",
+		// "Orders.TransportationAccountingCode",
 		"LockedByOfficeUser",
-		"CloseoutOfficeID",
 	).
 		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		LeftJoin("transportation_offices", "moves.closeout_office_id = transportation_offices.id").
+		InnerJoin("transportation_accounting_codes", "orders.tac = transportation_accounting_codes.tac").
+		InnerJoin("lines_of_accounting", "transportation_accounting_codes.loa_id = lines_of_accounting.id").
 		Where("payment_requests.status in (?)", approvedStatuses).
 		Where("service_members.affiliation = ?", models.AffiliationNAVY)
 
