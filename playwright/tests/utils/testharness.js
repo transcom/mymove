@@ -253,6 +253,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move for TOO with actualPickupDate in the past
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveForTOOAfterActualPickupDate() {
+    return this.buildDefault('HHGMoveForTOOAfterActualPickupDate');
+  }
+
+  /**
    * Use testharness to build retiree hhg move for TOO
    * @returns {Promise<Move>}
    */
