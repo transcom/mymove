@@ -16,9 +16,10 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   };
 
   const handleEstimatedWeight = (event) => {
-    estimatedWeightHelper.setValue(event.target.value.replace(/,/g, ''));
+    const value = event.target.value.replace(/,/g, ''); // removing comma to avoid NaN issue.
+    estimatedWeightHelper.setValue(value);
     estimatedWeightHelper.setTouched(true);
-    handleEstimatedWeightChange(event.target.value);
+    handleEstimatedWeightChange(value);
   };
 
   const hasProGear = proGearInput.value === true;
@@ -44,9 +45,7 @@ const ShipmentWeight = ({ onEstimatedWeightChange }) => {
               thousandsSeparator=","
               lazy={false} // immediate masking evaluation
               suffix="lbs"
-              onBlur={(e) => {
-                handleEstimatedWeight(e);
-              }}
+              onInput={handleEstimatedWeight}
             />
             <Label className={styles.Label}>Pro-gear?</Label>
             <FormGroup>

@@ -9,26 +9,16 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { DatePickerInput } from 'components/form/fields';
 
-const ShipmentCustomerSIT = ({
-  sitEstimatedWeight,
-  sitEstimatedEntryDate,
-  sitEstimatedDepartureDate,
-  onSITEstimatedWeightChange,
-}) => {
+const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEstimatedDepartureDate }) => {
   const [sitExpectedInput, , sitExpectedHelper] = useField('sitExpected');
   const sitExpected = sitExpectedInput.value === true;
   const [, , sitEstimatedWeightHelper] = useField('sitEstimatedWeight');
   const [, , sitEstimatedEntryDateHelper] = useField('sitEstimatedEntryDate');
   const [, , sitEstimatedDepartureDateHelper] = useField('sitEstimatedDepartureDate');
 
-  const handleSITEstimatedWeightChange = () => {
-    onSITEstimatedWeightChange();
-  };
-
   const handleSITEstimatedWeight = (event) => {
     sitEstimatedWeightHelper.setValue(event.target.value.replace(/,/g, ''));
     sitEstimatedWeightHelper.setTouched(true);
-    handleSITEstimatedWeightChange();
   };
 
   const handleSITExpected = (event) => {

@@ -49,7 +49,9 @@ const ppmShipmentSchema = ({
       .min(1, 'Enter a weight greater than 0 lbs')
       .max(
         sitEstimatedWeightMax,
-        `Enter a weight no greater than the shipment's estimated weight (${sitEstimatedWeightMax.toLocaleString()}).`,
+        `Enter a weight no greater than the shipment's estimated weight (${Number(
+          sitEstimatedWeightMax,
+        ).toLocaleString()}).`,
       )
       .when('sitExpected', {
         is: true,

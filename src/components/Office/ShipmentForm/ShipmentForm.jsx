@@ -77,15 +77,9 @@ const ShipmentForm = (props) => {
   } = props;
 
   const [estimatedWeightValue, setEstimatedWeightValue] = useState(mtoShipment?.ppmShipment?.estimatedWeight || 0);
-  const [maxEstimatedWeightForSIT, setMaxEstimatedWeightForSIT] = useState(estimatedWeightValue || 0);
 
   const updateEstimatedWeightValue = (value) => {
-    setEstimatedWeightValue(Number(value.replace(/,/g, ''))); // Replace commas so that we can parse into a number.
-    setMaxEstimatedWeightForSIT(Number(value.replace(/,/g, '')));
-  };
-
-  const handleParentFormEstimatedWeightChange = () => {
-    setMaxEstimatedWeightForSIT(estimatedWeightValue);
+    setEstimatedWeightValue(value);
   };
 
   const { moveCode } = useParams();
@@ -237,7 +231,7 @@ const ShipmentForm = (props) => {
       hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
       showCloseoutOffice,
-      sitEstimatedWeightMax: maxEstimatedWeightForSIT || 0,
+      sitEstimatedWeightMax: estimatedWeightValue || 0,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -994,13 +988,10 @@ const ShipmentForm = (props) => {
                       sitEstimatedWeight={mtoShipment.ppmShipment?.sitEstimatedWeight}
                       sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
                       sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
-                      onSITEstimatedWeightChange={handleParentFormEstimatedWeightChange}
                     />
                     <ShipmentWeight
                       authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()}
-                      onEstimatedWeightChange={(e) => {
-                        updateEstimatedWeightValue(e);
-                      }}
+                      onEstimatedWeightChange={updateEstimatedWeightValue}
                     />
                   </>
                 )}
