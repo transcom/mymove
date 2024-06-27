@@ -15,9 +15,10 @@ export const getShipmentEstimatedWeight = (shipment, weightAdjustment = 1.0) => 
     return shipment.ppmShipment.estimatedWeight ?? 0;
   }
   if (shipment.shipmentType === SHIPMENT_OPTIONS.NTSR) {
-    return shipment.ntsRecordedWeight * weightAdjustment ?? 0;
+    return shipment.ntsRecordedWeight ? shipment.ntsRecordedWeight * weightAdjustment : 0;
   }
-  return shipment.primeEstimatedWeight * weightAdjustment ?? 0;
+
+  return shipment.primeEstimatedWeight ? shipment.primeEstimatedWeight * weightAdjustment : 0;
 };
 
 export const getDisplayWeight = (shipment, weightAdjustment = 1.0) => {

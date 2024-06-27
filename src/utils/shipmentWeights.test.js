@@ -345,6 +345,7 @@ describe('Calculating shipment estimated weights', () => {
       primeEstimatedWeight: 1000,
     },
     {
+      shipmentType: 'HHG',
       reweigh: {
         weight: 3000,
       },
