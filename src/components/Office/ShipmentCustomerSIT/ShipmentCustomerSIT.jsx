@@ -17,7 +17,7 @@ const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEst
   const [, , sitEstimatedDepartureDateHelper] = useField('sitEstimatedDepartureDate');
 
   const handleSITEstimatedWeight = (event) => {
-    sitEstimatedWeightHelper.setValue(event.target.value.replace(/,/g, ''));
+    sitEstimatedWeightHelper.setValue(event.target.value);
     sitEstimatedWeightHelper.setTouched(true);
   };
 
@@ -131,7 +131,7 @@ const ShipmentCustomerSIT = ({ sitEstimatedWeight, sitEstimatedEntryDate, sitEst
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   suffix="lbs"
-                  onBlur={handleSITEstimatedWeight}
+                  onChange={handleSITEstimatedWeight}
                 />
 
                 <DatePickerInput name="sitEstimatedEntryDate" label="Estimated storage start" />
