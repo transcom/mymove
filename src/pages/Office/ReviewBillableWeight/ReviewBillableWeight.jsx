@@ -192,7 +192,7 @@ export default function ReviewBillableWeight() {
     if (selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR) {
       return selectedShipment.ntsRecordedWeight;
     }
-    return selectedShipment.primeEstimatedWeight;
+    return selectedShipment.primeActualWeight;
   };
 
   if (isLoading) return <LoadingPlaceholder />;
