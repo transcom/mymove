@@ -48,13 +48,28 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 			// if there is no reweigh weight, use the prime actual weight if it is not nil.
 			calculatedWeight = shipment.PrimeActualWeight
 		}
+
 	} else if shipment.BillableWeightCap == nil {
 		calculatedWeight = shipment.PrimeActualWeight
 	}
 
-	adjustedEstimatedWeight := unit.Pound(shipment.PrimeEstimatedWeight.Float64() * float64(1.1))
-	if adjustedEstimatedWeight < *shipment.PrimeActualWeight {
-		calculatedWeight = &adjustedEstimatedWeight
+	//Take the lowest between 110% prime estimated and the actual weight, unless shipment is NTSR in which case
+	//it should take lowest between 100% prime estimated weight and ntsRecordedWeight
+	if shipment.PrimeEstimatedWeight != nil && shipment.PrimeActualWeight != nil {
+		adjustedEstimatedWeight := unit.Pound(shipment.PrimeEstimatedWeight.Float64() * float64(1.1))
+		if shipment.ShipmentType != "HHG_OUTOF_NTS_DOMESTIC" {
+			if adjustedEstimatedWeight < *shipment.PrimeActualWeight {
+				calculatedWeight = &adjustedEstimatedWeight
+			}
+		} else {
+			if shipment.NTSRecordedWeight != nil {
+				if adjustedEstimatedWeight < *shipment.NTSRecordedWeight {
+					calculatedWeight = &adjustedEstimatedWeight
+				} else {
+					calculatedWeight = shipment.NTSRecordedWeight
+				}
+			}
+		}
 	}
 
 	if shipment.BillableWeightCap != nil {
