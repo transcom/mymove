@@ -58,7 +58,7 @@ describe('BillableWeightCard', () => {
 
     // labels
     expect(screen.getByText('Maximum billable weight')).toBeInTheDocument();
-    expect(screen.getByText('Actual Weight')).toBeInTheDocument();
+    expect(screen.getByText('Actual weight')).toBeInTheDocument();
     expect(screen.getByText('Weight allowance')).toBeInTheDocument();
     expect(screen.getByText('Actual billable weight')).toBeInTheDocument();
 
