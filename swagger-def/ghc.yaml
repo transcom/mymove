@@ -4150,7 +4150,6 @@ definitions:
         type: string
       emplid:
         type: string
-        x-nullable: true
       userID:
         type: string
         format: uuid

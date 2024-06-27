@@ -6631,8 +6631,7 @@ func init() {
           "type": "boolean"
         },
         "emplid": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "first_name": {
           "type": "string",
@@ -20817,8 +20816,7 @@ func init() {
           "type": "boolean"
         },
         "emplid": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "first_name": {
           "type": "string",
