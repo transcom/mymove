@@ -18,6 +18,10 @@ jest.mock('utils/featureFlags', () => ({
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 mockPage('pages/Office/MoveDetails/MoveDetails');
 mockPage('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper');
 mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
@@ -261,7 +265,6 @@ describe('TXO Move Info Container', () => {
       ['Move Task Order', 'mto'],
       ['Payment Request Review', 'payment-requests/REQ123'],
       ['Move Payment Requests', 'payment-requests'],
-      ['Supporting Documents', 'supporting-documents'],
       ['Review Billable Weight', 'billable-weight'],
       ['Customer Support Remarks', 'customer-support-remarks'],
       ['Evaluation Reports', 'evaluation-reports'],
@@ -300,12 +303,14 @@ describe('TXO Move Info Container', () => {
       const componentName = 'Supporting Documents';
       const nestedPath = 'supporting-documents';
 
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
       renderTXOMoveInfo(nestedPath);
 
       // Wait for loading to finish
       await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
-      // Assert that the mock component is rendered
+      // Assert that the mock component has not been rendered
       await waitFor(() => {
         expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
       });

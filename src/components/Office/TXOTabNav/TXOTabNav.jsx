@@ -102,7 +102,7 @@ const TXOTabNav = ({
       <NavLink
         end
         className={({ isActive }) => (isActive ? 'usa-current' : '')}
-        to={`/moves/${moveCode}/supporting-documents`}
+        to="supporting-documents"
         data-testid="SupportingDocuments-Tab"
       >
         <span className="tab-title">Supporting Documents</span>

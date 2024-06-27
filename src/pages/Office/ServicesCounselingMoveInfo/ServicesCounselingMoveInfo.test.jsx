@@ -219,7 +219,7 @@ describe('Services Counseling Move Info Container', () => {
     // Wait for loading to finish
     await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
 
-    // Assert that the mock component is rendered
+    // Assert that the mock component has not been rendered
     await waitFor(() => {
       expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
     });
