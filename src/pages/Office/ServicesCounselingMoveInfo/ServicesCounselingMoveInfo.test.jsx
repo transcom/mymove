@@ -68,6 +68,7 @@ mockPage('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipme
 mockPage('pages/Office/CustomerSupportRemarks/CustomerSupportRemarks');
 mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
 mockPage('pages/Office/MoveHistory/MoveHistory');
+mockPage('pages/Office/SupportingDocuments/SupportingDocuments');
 mockPage('pages/Office/ServicesCounselingMoveDocumentWrapper/ServicesCounselingMoveDocumentWrapper');
 mockPage('pages/Office/CustomerInfo/CustomerInfo');
 mockPage('pages/Office/ServicesCounselingEditShipmentDetails/ServicesCounselingEditShipmentDetails');
@@ -189,6 +190,38 @@ describe('Services Counseling Move Info Container', () => {
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('locked-move-banner');
       expect(lockIcon).not.toBeInTheDocument();
+    });
+  });
+
+  it('should render the Supporting Documents component if the feature flag is enabled', async () => {
+    const componentName = 'Supporting Documents';
+    const nestedPath = 'supporting-documents';
+
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    renderSCMoveInfo(nestedPath);
+
+    // Wait for loading to finish
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // Assert that the mock component is rendered
+    await waitFor(() => {
+      expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
+    });
+  });
+
+  it('should not render the Supporting Documents component if the feature flag is turned off', async () => {
+    const componentName = 'Supporting Documents';
+    const nestedPath = 'counseling/supporting-documents';
+
+    renderSCMoveInfo(nestedPath);
+
+    // Wait for loading to finish
+    await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+    // Assert that the mock component is rendered
+    await waitFor(() => {
+      expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
     });
   });
 });
