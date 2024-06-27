@@ -3198,6 +3198,15 @@ paths:
             - WAITING_ON_CUSTOMER
             - NEEDS_CLOSEOUT
           description: filters the status of the PPM shipment
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role.
+
+            The parameter is ignored if the requesting user does not have the
+            necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3354,6 +3363,15 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role.
+
+            The parameter is ignored if the requesting user does not have the
+            necessary role..
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3447,6 +3465,15 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role.
+
+            The parameter is ignored if the requesting user does not have the
+            necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
