@@ -95,6 +95,6 @@ export const LineOfAccountingDfasElementOrder = [
   'loaClsRefID', // K6
   'loaInstlAcntgActID', // L1
   'loaLclInstlID', // M1
-  'loaFmsTrnsactnID', // N1
-  'loaDscTx', // P5
+  'loaTrnsnID', // N1
+  'loaFmsTrnsactnID', // P5
 ];
