@@ -18,7 +18,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
+import { WEIGHT_ADJUSTMENT, mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
@@ -45,7 +45,7 @@ import {
   updateServiceItemSITEntryDate,
   updateSITServiceItemCustomerExpense,
 } from 'services/ghcApi';
-import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS } from 'shared/constants';
+import { MOVE_STATUSES, MTO_SERVICE_ITEM_STATUS, SHIPMENT_OPTIONS } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { setFlashMessage } from 'store/flash/actions';
@@ -739,7 +739,7 @@ export const MoveTaskOrder = (props) => {
   };
 
   const calculateMaxBillableWeight = () => {
-    return 1.1 * (estimatedHHGWeightTotal + estimatedNTSWeightTotal + estimatedNTSReleaseWeightTotal);
+    return WEIGHT_ADJUSTMENT * (estimatedHHGWeightTotal + estimatedNTSWeightTotal + estimatedNTSReleaseWeightTotal);
   };
 
   /**
@@ -835,9 +835,9 @@ export const MoveTaskOrder = (props) => {
 
   useEffect(() => {
     setEstimatedWeightTotal(calculateEstimatedWeight(nonPPMShipments));
-    setEstimatedHHGWeightTotal(calculateEstimatedWeight(nonPPMShipments, 'HHG'));
-    setEstimatedNTSWeightTotal(calculateEstimatedWeight(nonPPMShipments, 'HHG_INTO_NTS_DOMESTIC'));
-    setEstimatedNTSReleaseWeightTotal(calculateEstimatedWeight(nonPPMShipments, 'HHG_OUTOF_NTS_DOMESTIC'));
+    setEstimatedHHGWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.HHG));
+    setEstimatedNTSWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTS));
+    setEstimatedNTSReleaseWeightTotal(calculateEstimatedWeight(nonPPMShipments, SHIPMENT_OPTIONS.NTSR));
     setEstimatedPPMWeightTotal(calculateEstimatedWeight(onlyPPMShipments));
     let excessBillableWeightCount = 0;
     const riskOfExcessAcknowledged = !!move?.excess_weight_acknowledged_at;

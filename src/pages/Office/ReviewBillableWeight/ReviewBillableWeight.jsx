@@ -274,7 +274,7 @@ export default function ReviewBillableWeight() {
               </div>
               <div className={reviewBillableWeightStyles.contentContainer}>
                 <ShipmentCard
-                  billableWeight={getDisplayWeight(selectedShipment, 1.1)}
+                  billableWeight={getDisplayWeight(selectedShipment, WEIGHT_ADJUSTMENT)}
                   editEntity={editEntity}
                   billableWeightJustification={selectedShipment.billableWeightJustification}
                   dateReweighRequested={selectedShipment?.reweigh?.requestedAt}

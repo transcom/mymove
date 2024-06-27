@@ -72,10 +72,10 @@ const groupDivertedShipmentsByAddress = (shipments) => {
   return chains;
 };
 
-const getEstimatedLowestShipmentWeight = (shipments) => {
+const getEstimatedLowestShipmentWeight = (shipments, weightAdjusted = 1.0) => {
   return shipments.reduce((lowest, shipment) => {
     const estimatedWeight = getShipmentEstimatedWeight(shipment);
-    return estimatedWeight < lowest ? estimatedWeight : lowest;
+    return estimatedWeight < lowest ? estimatedWeight * weightAdjusted : lowest;
   }, Number.MAX_SAFE_INTEGER);
 };
 
@@ -210,7 +210,7 @@ export const calculateEstimatedWeight = (mtoShipments, shipmentType, weightAdjus
     // their correct "chains". Please see comments for groupDivertedShipments for more details.
     const chains = groupDivertedShipmentsByAddress(divertedEligibleShipments);
     // Grab the lowest weight from each chain
-    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain));
+    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain, weightAdjustment));
     // Now that we have the lowest weight from each chain, get the sum
     const sumChainWeights = chainWeights.reduce((total, weight) => total + weight, 0);
 
