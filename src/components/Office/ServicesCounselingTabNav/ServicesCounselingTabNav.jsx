@@ -2,6 +2,9 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Tag } from '@trussworks/react-uswds';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
+
+import styles from './ServicesCounselingTabNav.module.scss';
 
 import 'styles/office.scss';
 import TabNav from 'components/TabNav';
@@ -65,7 +68,11 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, moveCode }) => 
 
   return (
     <header className="nav-header">
-      <div className="grid-container-desktop-lg">
+      <div
+        className={
+          supportingDocsFF ? classnames('grid-container-desktop-lg', styles.TabNav) : 'grid-container-desktop-lg'
+        }
+      >
         <TabNav items={items} />
       </div>
     </header>
