@@ -213,3 +213,41 @@ func (suite *ModelSuite) TestFetchSignedCertifications() {
 	suite.NoError(err)
 	suite.ElementsMatch(ids, []uuid.UUID{hhgSignedCertification.ID, ppmSignedCertification.ID, ppmPaymentsignedCertification.ID})
 }
+
+func (suite *ModelSuite) TestFetchSignedCertificationsByType() {
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	sm := move.Orders.ServiceMember
+
+	session := &auth.Session{
+		UserID:          sm.UserID,
+		ServiceMemberID: sm.ID,
+		ApplicationName: auth.MilApp,
+	}
+
+	ppmPayment := models.SignedCertificationTypePPMPAYMENT
+	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SignedCertification{
+				CertificationType: &ppmPayment,
+				CertificationText: "LEGAL",
+				Signature:         "ACCEPT",
+				Date:              testdatagen.NextValidMoveDate,
+				PpmID:             models.UUIDPointer(move.MTOShipments[0].PPMShipment.ID),
+			},
+		},
+	}, nil)
+
+	scs, err := models.FetchSignedCertificationPPMByType(suite.DB(), session, move.ID, move.MTOShipments[0].PPMShipment.ID, models.SignedCertificationTypePPMPAYMENT)
+	var ids []uuid.UUID
+	for _, sc := range scs {
+		ids = append(ids, sc.ID)
+	}
+
+	suite.Len(scs, 1)
+	suite.NoError(err)
+	suite.ElementsMatch(ids, []uuid.UUID{ppmPaymentsignedCertification.ID})
+}
