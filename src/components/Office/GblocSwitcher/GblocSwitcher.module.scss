@@ -1,0 +1,22 @@
+@import 'shared/styles/colors';
+
+div.switchGblocButton {
+  display: flex;
+  align-items: center;
+
+  select {
+    font-weight: bold;
+    margin: 0;
+    background-color: $mm-blue;
+    border-color: transparent;
+    line-height: 1;
+  }
+
+  select:hover, select:focus {
+    background-color: $mm-blue;
+  }
+
+  span {
+    top: 12px !important;
+  }
+}
