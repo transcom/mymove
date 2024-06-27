@@ -21,12 +21,13 @@ export const getShipmentEstimatedWeight = (shipment, weightAdjustment = 1.0) => 
 };
 
 export const getDisplayWeight = (shipment, weightAdjustment = 1.0) => {
-  let displayWeight =
-    shipment.calculatedBillableWeight < shipment.primeEstimatedWeight * weightAdjustment
+  const recordedWeight =
+    shipment.shipmentType === SHIPMENT_OPTIONS.NTSR ? shipment.ntsRecordedWeight : shipment.primeEstimatedWeight;
+
+  const displayWeight =
+    shipment.calculatedBillableWeight < recordedWeight * weightAdjustment
       ? shipment.calculatedBillableWeight
-      : shipment.primeEstimatedWeight * weightAdjustment;
-  displayWeight =
-    shipment.shipmentType === SHIPMENT_OPTIONS.NTSR ? shipment.ntsRecordedWeight * weightAdjustment : displayWeight;
+      : recordedWeight * weightAdjustment;
 
   return displayWeight;
 };
