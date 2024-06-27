@@ -55,7 +55,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 
 	//Take the lowest between 110% prime estimated and the actual weight, unless shipment is NTSR in which case
 	//it should take lowest between 100% prime estimated weight and ntsRecordedWeight
-	if shipment.PrimeEstimatedWeight != nil && shipment.PrimeActualWeight != nil {
+	if shipment.PrimeEstimatedWeight != nil && shipment.PrimeActualWeight != nil && calculatedWeight != nil {
 		adjustedEstimatedWeight := unit.Pound(shipment.PrimeEstimatedWeight.Float64() * float64(1.1))
 		if shipment.ShipmentType != "HHG_OUTOF_NTS_DOMESTIC" {
 			if adjustedEstimatedWeight < *calculatedWeight {
