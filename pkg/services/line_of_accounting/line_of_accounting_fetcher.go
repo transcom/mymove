@@ -94,6 +94,15 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		if loa.LoaTnsfrDptNm == nil { // Transfer from Department (A2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaTnsfrDptNm")
 		}
+		if loa.LoaBgFyTx == nil || loa.LoaEndFyTx == nil { // Ending Fiscal Year Indicator (A3)
+			// A3 is a concatenation of both LoaBgFyTx and LoaEndFyTx
+			if loa.LoaBgFyTx == nil {
+				missingLoaFields = append(missingLoaFields, "loa.LoaBgFyTx")
+			}
+			if loa.LoaEndFyTx == nil {
+				missingLoaFields = append(missingLoaFields, "loa.LoaEndFyTx")
+			}
+		}
 		if loa.LoaBafID == nil { // Basic Symbol Number (A4)
 			missingLoaFields = append(missingLoaFields, "loa.LoaBafID")
 		}
@@ -108,6 +117,9 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		}
 		if loa.LoaAlltSnID == nil { // Allotment Serial Number (B2)
 			missingLoaFields = append(missingLoaFields, "loa.LoaAlltSnID")
+		}
+		if loa.LoaUic == nil { // Activity Address Code/UIC (B3)
+			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
 		}
 		if loa.LoaPgmElmntID == nil { // Program Element (C1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaPgmElmntID")
@@ -160,23 +172,11 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 		if loa.LoaLclInstlID == nil { // Local Installation Data (M1)
 			missingLoaFields = append(missingLoaFields, "loa.LoaLclInstlID")
 		}
-		if loa.LoaFmsTrnsactnID == nil { // Transaction Type (N1)
+		if loa.LoaTrnsnID == nil { // Transaction ID (N1)
+			missingLoaFields = append(missingLoaFields, "loa.LoaTrnsnID")
+		}
+		if loa.LoaFmsTrnsactnID == nil { // Transaction Type (P5)
 			missingLoaFields = append(missingLoaFields, "loa.LoaFmsTrnsactnID")
-		}
-		if loa.LoaDscTx == nil { // Foreign Military Sales (FMS) Line Item Number (P5)
-			missingLoaFields = append(missingLoaFields, "loa.LoaDscTx")
-		}
-		if loa.LoaUic == nil { // Activity Address Code/UIC (B3)
-			missingLoaFields = append(missingLoaFields, "loa.LoaUic")
-		}
-		if loa.LoaBgFyTx == nil || loa.LoaEndFyTx == nil { // Ending Fiscal Year Indicator (A3)
-			// A3 is a concatenation of both LoaBgFyTx and LoaEndFyTx
-			if loa.LoaBgFyTx == nil {
-				missingLoaFields = append(missingLoaFields, "loa.LoaBgFyTx")
-			}
-			if loa.LoaEndFyTx == nil {
-				missingLoaFields = append(missingLoaFields, "loa.LoaEndFyTx")
-			}
 		}
 
 		if missingLoaFields != nil {
