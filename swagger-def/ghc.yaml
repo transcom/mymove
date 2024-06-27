@@ -1801,7 +1801,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "definitions/PPMShipmentSIT.yaml"
+            $ref: 'definitions/PPMShipmentSIT.yaml'
       responses:
         '200':
           description: Successfully finished PPM SIT update
@@ -4592,6 +4592,8 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        $ref: 'definitions/Document.yaml'
   MoveHistory:
     properties:
       id:
@@ -6599,6 +6601,60 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
+  MovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice'
+      cancel_reason:
+        type: string
+        example: Change of orders
+        x-nullable: true
+      eTag:
+        type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      additionalDocuments:
+        $ref: 'definitions/Document.yaml'
+    required:
+      - id
+      - orders_id
+      - locator
+      - created_at
+      - updated_at
+      - eTag
 responses:
   InvalidRequest:
     description: The request payload is invalid
