@@ -254,11 +254,6 @@ const ServicesCounselingMoveInfo = () => {
             />
           )}
           <Route
-            path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
-            end
-            element={<SupportingDocuments moveCode={moveCode} />}
-          />
-          <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end
             element={<ServicesCounselingMoveDocumentWrapper />}
