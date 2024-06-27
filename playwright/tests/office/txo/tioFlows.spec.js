@@ -661,11 +661,11 @@ test.describe('TIO user', () => {
       const weightSection = '#billable-weights';
       await expect(page.locator(weightSection)).toContainText('Billable weights');
 
-      // Verify Total Billable Weight info
-      const actualBillableWeightParent = page
+      // Verify Actual Billable Weight info
+      const totalBillableWeightParent = page
         .getByRole('heading', { name: 'Actual billable weight', exact: true })
         .locator('..');
-      await expect(actualBillableWeightParent.getByRole('heading', { name: '2,000 lbs', exact: true })).toBeVisible();
+      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,000 lbs', exact: true })).toBeVisible();
 
       // Verify Maximum billable weight info
       const maximumBillableWeightParent = page
