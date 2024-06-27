@@ -111,7 +111,11 @@ const TXOTabNav = ({
 
   return (
     <header className="nav-header">
-      <div className={classnames('grid-container-desktop-lg', styles.TabNav)}>
+      <div
+        className={
+          supportingDocsFF ? classnames('grid-container-desktop-lg', styles.TabNav) : 'grid-container-desktop-lg'
+        }
+      >
         <TabNav items={items} />
       </div>
     </header>
