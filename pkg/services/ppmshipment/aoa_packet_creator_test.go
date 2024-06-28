@@ -168,7 +168,6 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 
 	downloadMoveUploadGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(generator)
 	suite.FatalNoError(err)
-	appCtx := suite.AppContextForTest()
 	order := factory.BuildOrder(suite.DB(), nil, nil)
 
 	_, _, err = userUploader.CreateUserUploadForDocument(suite.AppContextForTest(), &document.ID, document.ServiceMember.UserID, uploader.File{File: file}, uploader.AllowedTypesAny)
@@ -214,6 +213,9 @@ func (suite *PPMShipmentSuite) TestCreateAOAPacketFull() {
 
 	ppmShipmentID := ppmShipment.ID
 	suite.MustSave(&ppmShipment)
+	appCtx := suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMember.UserID,
+	})
 
 	// Create an instance of aoaPacketCreator with mock dependencies
 	a := &aoaPacketCreator{
@@ -267,6 +269,11 @@ func (suite *PPMShipmentSuite) TestSaveAOAPacket() {
 				appCtx := suite.AppContextForTest()
 
 				ppmShipment := factory.BuildPPMShipment(nil, []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							ID: uuid.Must(uuid.NewV4()),
+						},
+					},
 					{
 						Model: models.PPMShipment{
 							ID: uuid.Must(uuid.NewV4()),

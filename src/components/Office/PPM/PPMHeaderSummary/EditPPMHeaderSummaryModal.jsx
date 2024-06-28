@@ -12,9 +12,11 @@ import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal'
 import { DatePickerInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
+import { AddressFields } from 'components/form/AddressFields/AddressFields';
+import { requiredAddressSchema } from 'utils/validation';
 
 const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName }) => {
-  const { actualMoveDate, advanceAmountReceived } = sectionInfo;
+  const { actualMoveDate, advanceAmountReceived, pickupAddressObj, destinationAddressObj } = sectionInfo;
   let title = 'Edit';
   if (sectionType === 'shipmentInfo') {
     title = 'Edit Shipment Info';
@@ -25,6 +27,8 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     editItemName,
     actualMoveDate: actualMoveDate || '',
     advanceAmountReceived: formatCentsTruncateWhole(advanceAmountReceived).replace(/,/g, ''),
+    pickupAddress: pickupAddressObj,
+    destinationAddress: destinationAddressObj,
   };
 
   const validationSchema = Yup.object().shape({
@@ -38,6 +42,16 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
       is: 'advanceAmountReceived',
       then: (schema) => schema.required('Required'),
     }),
+    pickupAddress: Yup.object().when('editItemName', {
+      is: 'pickupAddress',
+      then: () => requiredAddressSchema,
+      otherwise: (schema) => schema,
+    }),
+    destinationAddress: Yup.object().when('editItemName', {
+      is: 'destinationAddress',
+      then: () => requiredAddressSchema,
+      otherwise: (schema) => schema,
+    }),
   });
 
   return (
@@ -50,7 +64,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
             <h3>{title}</h3>
           </ModalTitle>
           <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
-            {({ isValid }) => {
+            {({ isValid, handleChange, setFieldTouched }) => {
               return (
                 <Form>
                   <div>
@@ -74,6 +88,22 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         thousandsSeparator=","
                         lazy={false} // immediate masking evaluation
                         prefix="$"
+                      />
+                    )}
+                    {editItemName === 'pickupAddress' && (
+                      <AddressFields
+                        name="pickupAddress"
+                        legend="Pickup Address"
+                        className={styles.AddressFieldSet}
+                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                      />
+                    )}
+                    {editItemName === 'destinationAddress' && (
+                      <AddressFields
+                        name="destinationAddress"
+                        legend="Destination Address"
+                        className={styles.AddressFieldSet}
+                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                       />
                     )}
                   </div>
@@ -102,20 +132,9 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
 };
 
 EditPPMHeaderSummaryModal.propTypes = {
-  sectionType: PropTypes.string.isRequired,
-  sectionInfo: PropTypes.shape({
-    actualMoveDate: PropTypes.string,
-    advanceAmountReceived: PropTypes.number,
-  }),
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
   editItemName: PropTypes.string.isRequired,
 };
 
-EditPPMHeaderSummaryModal.defaultProps = {
-  sectionInfo: {
-    actualMoveDate: '',
-    advanceAmountReceived: 0,
-  },
-};
 export default EditPPMHeaderSummaryModal;

@@ -156,10 +156,14 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		queryBuilder := query.NewQueryBuilder()
 		listFetcher := fetch.NewListFetcher(queryBuilder)
 		fetcher := fetch.NewFetcher(queryBuilder)
+		counselingPricer := ghcrateengine.NewCounselingServicesPricer()
+		moveManagementPricer := ghcrateengine.NewManagementServicesPricer()
 		handler := ListMTOServiceItemsHandler{
 			suite.createS3HandlerConfig(),
 			listFetcher,
 			fetcher,
+			counselingPricer,
+			moveManagementPricer,
 		}
 
 		// Validate incoming payload: no body to validate
@@ -215,10 +219,14 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		}
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
+		mockCounselingPricer := mocks.CounselingServicesPricer{}
+		mockMoveManagementPricer := mocks.ManagementServicesPricer{}
 		handler := ListMTOServiceItemsHandler{
 			suite.HandlerConfig(),
 			&mockListFetcher,
 			&mockFetcher,
+			&mockCounselingPricer,
+			&mockMoveManagementPricer,
 		}
 
 		internalServerErr := errors.New("ServerError")
@@ -260,10 +268,14 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 
 		mockListFetcher := mocks.ListFetcher{}
 		mockFetcher := mocks.Fetcher{}
+		mockCounselingPricer := mocks.CounselingServicesPricer{}
+		mockMoveManagementPricer := mocks.ManagementServicesPricer{}
 		handler := ListMTOServiceItemsHandler{
 			suite.HandlerConfig(),
 			&mockListFetcher,
 			&mockFetcher,
+			&mockCounselingPricer,
+			&mockMoveManagementPricer,
 		}
 
 		notfound := errors.New("Not found error")

@@ -15,13 +15,14 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
   const incentives = {
     isAdvanceRequested: ppmShipmentInfo.hasRequestedAdvance,
     isAdvanceReceived: ppmShipmentInfo.hasReceivedAdvance,
     advanceAmountRequested: ppmShipmentInfo.advanceAmountRequested,
     advanceAmountReceived: ppmShipmentInfo.advanceAmountReceived,
     grossIncentive: ppmCloseout.grossIncentive + ppmCloseout.SITReimbursement,
-    gcc: ppmCloseout.gcc + ppmCloseout.SITReimbursement,
+    gcc: ppmCloseout.gcc,
     remainingIncentive: ppmCloseout.remainingIncentive + ppmCloseout.SITReimbursement,
   };
 
@@ -72,6 +73,8 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
     destinationAddress: ppmShipmentInfo.destinationAddress
       ? formatCustomerContactFullAddress(ppmShipmentInfo.destinationAddress)
       : '—',
+    pickupAddressObj: ppmShipmentInfo.pickupAddress,
+    destinationAddressObj: ppmShipmentInfo.destinationAddress,
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,

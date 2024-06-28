@@ -95,6 +95,7 @@ type Page2Values struct {
 	TrustedAgentName            string
 	FormattedMovingExpenses
 	ServiceMemberSignature string
+	PPPOPPSORepresentative string
 	SignatureDate          string
 	FormattedOtherExpenses
 }
@@ -148,7 +149,7 @@ type ShipmentSummaryFormData struct {
 	Obligations              Obligations
 	MovingExpenses           models.MovingExpenses
 	PPMRemainingEntitlement  unit.Pound
-	SignedCertification      models.SignedCertification
+	SignedCertifications     []*models.SignedCertification
 	MaxSITStorageEntitlement int
 }
 

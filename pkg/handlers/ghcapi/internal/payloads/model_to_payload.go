@@ -838,15 +838,11 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -1836,10 +1832,14 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			closeoutLocation = move.CloseoutOffice.Name
 		}
 		var closeoutInitiated time.Time
+		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
-			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
-				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
-					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+			if shipment.PPMShipment != nil {
+				ppmStatus = shipment.PPMShipment.Status
+				if shipment.PPMShipment.SubmittedAt != nil {
+					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+					}
 				}
 			}
 		}
@@ -1864,6 +1864,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
+			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 		}
 	}
 	return &queueMoves
