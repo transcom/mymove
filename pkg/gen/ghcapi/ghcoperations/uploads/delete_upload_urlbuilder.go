@@ -44,11 +44,11 @@ func (o *DeleteUploadURL) SetBasePath(bp string) {
 func (o *DeleteUploadURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/uploads/{uploadId}"
+	var _path = "/uploads/{uploadID}"
 
 	uploadID := o.UploadID.String()
 	if uploadID != "" {
-		_path = strings.Replace(_path, "{uploadId}", uploadID, -1)
+		_path = strings.Replace(_path, "{uploadID}", uploadID, -1)
 	} else {
 		return nil, errors.New("uploadId is required on DeleteUploadURL")
 	}
@@ -66,7 +66,7 @@ func (o *DeleteUploadURL) Build() (*url.URL, error) {
 		orderIDQ = o.OrderID.String()
 	}
 	if orderIDQ != "" {
-		qs.Set("orderId", orderIDQ)
+		qs.Set("orderID", orderIDQ)
 	}
 
 	_result.RawQuery = qs.Encode()
