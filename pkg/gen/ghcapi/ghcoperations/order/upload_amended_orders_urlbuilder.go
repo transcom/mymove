@@ -16,7 +16,7 @@ import (
 
 // UploadAmendedOrdersURL generates an URL for the upload amended orders operation
 type UploadAmendedOrdersURL struct {
-	OrdersID strfmt.UUID
+	OrderID strfmt.UUID
 
 	_basePath string
 	// avoid unkeyed usage
@@ -42,13 +42,13 @@ func (o *UploadAmendedOrdersURL) SetBasePath(bp string) {
 func (o *UploadAmendedOrdersURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/orders/{ordersId}/upload_amended_orders"
+	var _path = "/orders/{orderID}/upload_amended_orders"
 
-	ordersID := o.OrdersID.String()
-	if ordersID != "" {
-		_path = strings.Replace(_path, "{ordersId}", ordersID, -1)
+	orderID := o.OrderID.String()
+	if orderID != "" {
+		_path = strings.Replace(_path, "{orderID}", orderID, -1)
 	} else {
-		return nil, errors.New("ordersId is required on UploadAmendedOrdersURL")
+		return nil, errors.New("orderId is required on UploadAmendedOrdersURL")
 	}
 
 	_basePath := o._basePath
