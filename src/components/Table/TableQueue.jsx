@@ -58,10 +58,8 @@ const TableQueue = ({
     setTableQueueSortParamSessionStorageValue(sessionStorageKey, paramSort);
   }, [paramSort, sessionStorageKey]);
 
-  const [paramFilters, setParamFilters] = useState(getTableQueueFilterSessionStorageValue(sessionStorageKey) || []);
-  useEffect(() => {
-    setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
-  }, [paramFilters, sessionStorageKey]);
+  // Pull table filters directly from cache. Updates are done in general table useEffect below.
+  let paramFilters = getTableQueueFilterSessionStorageValue(sessionStorageKey) || [];
 
   const [currentPage, setCurrentPage] = useState(
     getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
@@ -155,19 +153,27 @@ const TableQueue = ({
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
+
       if (filters.length === 0 && paramFilters.length > 0 && isPageReload) {
-        // on page reload
+        // This is executed once. This is to ensure paramFilters
+        // is set with cached values during page reload use case.
         paramFilters.forEach((item) => {
           // add cached filters to current prop filters var
           filters.push(item);
         });
       }
-      setParamFilters(filters);
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      paramFilters = filters;
+
+      // Save to cache.
+      setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
+
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
