@@ -421,7 +421,7 @@ func PPTASAuthorizationMiddleware(_ *zap.Logger) func(next http.Handler) http.Ha
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
-			if !clientCert.AllowPrime {
+			if !clientCert.AllowPPTAS {
 				logger.Error("forbidden user for PPTAS")
 				http.Error(w, http.StatusText(403), http.StatusForbidden)
 				return

@@ -99,6 +99,13 @@ const ClientCertEdit = (props) => (
           { id: false, name: 'No' },
         ]}
       />
+      <SelectInput
+        source="allowPPTAS"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
     </SimpleForm>
