@@ -808,8 +808,6 @@ func createUnSubmittedMoveWithFullPPMShipment2(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -840,8 +838,6 @@ func createUnSubmittedMoveWithFullPPMShipment3(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -871,8 +867,6 @@ func createUnSubmittedMoveWithFullPPMShipment4(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -902,8 +896,6 @@ func createUnSubmittedMoveWithFullPPMShipment5(appCtx appcontext.AppContext, use
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
