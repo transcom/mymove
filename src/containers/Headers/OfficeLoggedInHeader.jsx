@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import classnames from 'classnames';
 
-import GBLOCSwitcher from 'components/Office/GblocSwitcher/GblocSwitcher';
+import GblocSwitcher from 'components/Office/GblocSwitcher/GblocSwitcher';
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import OfficeUserInfo from 'components/MilMoveHeader/OfficeUserInfo';
 import { LogoutUser } from 'utils/api';
@@ -44,7 +44,7 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
         <ul className="usa-nav__primary">
           <li className={classnames('usa-nav__primary-item')}>
             {activeRole === roleTypes.HQ ? (
-              <GBLOCSwitcher officeUsersDefaultGbloc={officeUser.transportation_office.gbloc} />
+              <GblocSwitcher officeUsersDefaultGbloc={officeUser.transportation_office.gbloc} />
             ) : (
               <Link to="/">
                 {officeUser.transportation_office.gbloc} {queueText}
