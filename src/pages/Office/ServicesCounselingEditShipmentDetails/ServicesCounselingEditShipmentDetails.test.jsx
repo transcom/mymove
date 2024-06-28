@@ -520,12 +520,12 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ],
         [
           'sitEstimatedEntryDate',
-          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: 'asdf', sitEstimatedDepartureDate: '25 Jul 2022' },
+          { sitEstimatedWeight: '1050', sitEstimatedEntryDate: 'asdf', sitEstimatedDepartureDate: '25 Jul 2022' },
           'Enter a complete date in DD MMM YYYY format (day, month, year).',
         ],
         [
           'sitEstimatedDepartureDate',
-          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: 'asdf' },
+          { sitEstimatedWeight: '1025', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: 'asdf' },
           'Enter a complete date in DD MMM YYYY format (day, month, year).',
         ],
       ])('Verify invalid %s field shows validation error', async (field, data, expectedError) => {
@@ -566,7 +566,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       const sitExpected = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
       await userEvent.click(sitExpectedYes);
-      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1050');
       await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
       await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
       await userEvent.tab();
