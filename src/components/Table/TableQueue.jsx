@@ -36,7 +36,8 @@ const TableQueue = ({
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
-  const { selectedGbloc } = useContext(SelectedGblocContext);
+  const gblocContext = useContext(SelectedGblocContext);
+  const { selectedGbloc } = gblocContext || { selectedGbloc: undefined };
 
   const {
     queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
