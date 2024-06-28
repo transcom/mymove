@@ -1,13 +1,20 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import ServicesCounselingTabNav from './ServicesCounselingTabNav';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const basicNavProps = {
   unapprovedShipmentCount: 0,
   moveCode: 'TESTCO',
 };
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 describe('Move details tag rendering', () => {
   it('should render the move details tab container without a tag', () => {
@@ -35,6 +42,27 @@ describe('MTO tag rendering', () => {
 
     const moveTaskOrderTab = screen.getByTestId('MoveTaskOrder-Tab');
     expect(within(moveTaskOrderTab).queryByTestId('tag')).not.toBeInTheDocument();
+  });
+});
+
+describe('Supporting Documents tag rendering', () => {
+  it('should render the Supporting Documents tab container without a tag IF the feature flag is turned on', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      const supportingDocumentsTab = screen.getByTestId('SupportingDocuments-Tab');
+      expect(within(supportingDocumentsTab).queryByTestId('tag')).not.toBeInTheDocument();
+    });
+  });
+
+  it('should not render the Supporting Documents tab if the feature flag is turned off', async () => {
+    render(<ServicesCounselingTabNav {...basicNavProps} />, { wrapper: MemoryRouter });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('SupportingDocuments-Tab')).not.toBeInTheDocument();
+    });
   });
 });
 

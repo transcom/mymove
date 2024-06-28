@@ -5,9 +5,12 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	documentop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
+	"github.com/transcom/mymove/pkg/gen/ghcmessages"
+	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -64,5 +67,48 @@ func (suite *HandlerSuite) TestGetDocumentHandler() {
 	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&signed=test", userUpload.Upload.StorageKey, uploader.FileTypePDF)
 	if (uploadPayload.URL).String() != expectedURL {
 		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
+	}
+}
+
+func (suite *HandlerSuite) TestCreateDocumentsHandler() {
+	t := suite.T()
+
+	serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
+	officeUser := factory.BuildOfficeUser(nil, nil, nil)
+
+	params := documentop.NewCreateDocumentParams()
+	params.DocumentPayload = &ghcmessages.PostDocumentPayload{
+		ServiceMemberID: *handlers.FmtUUID(serviceMember.ID),
+	}
+
+	req := &http.Request{}
+	req = suite.AuthenticateOfficeRequest(req, officeUser)
+	params.HTTPRequest = req
+
+	handler := CreateDocumentHandler{HandlerConfig: suite.HandlerConfig()}
+	response := handler.Handle(params)
+
+	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+	documentPayload := createdResponse.Payload
+
+	if uuid.Must(uuid.FromString(documentPayload.ID.String())) == uuid.Nil {
+		t.Errorf("got empty document uuid")
+	}
+
+	if uuid.Must(uuid.FromString(documentPayload.ServiceMemberID.String())) == uuid.Nil {
+		t.Errorf("got empty serviceMember uuid")
+	}
+
+	if len(documentPayload.Uploads) != 0 {
+		t.Errorf("wrong number of uploads, expected 0, got %d", len(documentPayload.Uploads))
+	}
+
+	document := models.Document{}
+	err := suite.DB().Find(&document, documentPayload.ID)
+	if err != nil {
+		t.Errorf("Couldn't find expected document.")
 	}
 }
