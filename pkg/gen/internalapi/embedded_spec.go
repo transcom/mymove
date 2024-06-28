@@ -7184,6 +7184,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -7211,6 +7217,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",
@@ -15257,6 +15273,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -15284,6 +15306,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",

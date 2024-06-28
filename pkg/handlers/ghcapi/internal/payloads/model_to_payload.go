@@ -52,9 +52,9 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 // Move payload
-func Move(move *models.Move) *ghcmessages.Move {
+func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
-		return nil
+		return nil, nil
 	}
 	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
 	var gbloc ghcmessages.GBLOC
@@ -62,6 +62,15 @@ func Move(move *models.Move) *ghcmessages.Move {
 		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 	} else if move.Orders.OriginDutyLocationGBLOC != nil {
 		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
+
+	var additionalDocumentsPayload *ghcmessages.Document
+	var err error
+	if move.AdditionalDocuments != nil {
+		additionalDocumentsPayload, err = PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	payload := &ghcmessages.Move{
@@ -92,9 +101,10 @@ func Move(move *models.Move) *ghcmessages.Move {
 		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:          additionalDocumentsPayload,
 	}
 
-	return payload
+	return payload, nil
 }
 
 // ListMove payload
@@ -1423,11 +1433,16 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		}
 	}
 
+	move, err := Move(&pr.MoveTaskOrder, storer)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                              *handlers.FmtUUID(pr.ID),
 		IsFinal:                         &pr.IsFinal,
 		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		MoveTaskOrder:                   move,
 		PaymentRequestNumber:            pr.PaymentRequestNumber,
 		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
 		RejectionReason:                 pr.RejectionReason,
@@ -1684,10 +1699,12 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -1755,10 +1772,12 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
