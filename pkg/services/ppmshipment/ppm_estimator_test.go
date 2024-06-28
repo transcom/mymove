@@ -16,7 +16,6 @@ import (
 )
 
 func (suite *PPMShipmentSuite) TestPPMEstimator() {
-
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
 	ppmEstimator := NewEstimatePPM(mockedPlanner, mockedPaymentRequestHelper)
@@ -777,7 +776,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualPickupPostalCode:      models.StringPointer("50309"),
 						ActualDestinationPostalCode: models.StringPointer("30813"),
 						ActualMoveDate:              models.TimePointer(moveDate),
 						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
@@ -816,13 +815,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813").Return(2294, nil)
+				"50309", "30813").Return(2294, nil)
 
 			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
 
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813")
+				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
@@ -840,7 +839,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualPickupPostalCode:      models.StringPointer("50309"),
 						ActualDestinationPostalCode: models.StringPointer("30813"),
 						ActualMoveDate:              models.TimePointer(moveDate),
 						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
@@ -886,13 +885,13 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813").Return(2294, nil)
+				"50309", "30813").Return(2294, nil)
 
 			ppmFinal, err := ppmEstimator.FinalIncentiveWithDefaultChecks(suite.AppContextForTest(), oldPPMShipment, &newPPM)
 			suite.NilOrNoVerrs(err)
 
 			mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
-				"90210", "30813")
+				"50309", "30813")
 			mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
 			originalWeight, newWeight := SumWeightTickets(oldPPMShipment, newPPM)
@@ -909,7 +908,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			oldPPMShipment := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						ActualPickupPostalCode:      models.StringPointer("90210"),
+						ActualPickupPostalCode:      models.StringPointer("50309"),
 						ActualDestinationPostalCode: models.StringPointer("30813"),
 						ActualMoveDate:              models.TimePointer(moveDate),
 						FinalIncentive:              models.CentPointer(unit.Cents(500000)),
@@ -1367,7 +1366,6 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &originLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
@@ -1403,16 +1401,39 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 					},
 				},
 			}, nil)
-			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
+			shipmentDestinationSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
 						SITEstimatedEntryDate:     &entryDate,
 						SITEstimatedDepartureDate: models.TimePointer(entryDate.Add(time.Hour * 24 * 30)),
 					},
+				},
+				{
+					Model: &models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 1234"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Des Moines",
+						State:          "IA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: &models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 12345"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Fort Eisenhower",
+						State:          "GA",
+						PostalCode:     "30813",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
 				},
 				{
 					Model:    mtoShipment,
@@ -1423,7 +1444,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 				"50309", "30813").Return(2294, nil)
 
-			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentOriginSIT)
+			_, estimatedSITCost, err := ppmEstimator.EstimateIncentiveWithDefaultChecks(suite.AppContextForTest(), models.PPMShipment{}, &shipmentDestinationSIT)
 
 			suite.NoError(err)
 			suite.NotNil(estimatedSITCost)
@@ -1446,13 +1467,36 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			shipmentOriginSIT := factory.BuildPPMShipment(nil, []factory.Customization{
 				{
 					Model: models.PPMShipment{
-						DestinationPostalCode:     "30813",
 						SITExpected:               models.BoolPointer(true),
 						SITLocation:               &destinationLocation,
 						SITEstimatedWeight:        models.PoundPointer(unit.Pound(2000)),
 						SITEstimatedEntryDate:     &entryDate,
 						SITEstimatedDepartureDate: &entryDate,
 					},
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 1234"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Des Moines",
+						State:          "IA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.PickupAddress,
+				},
+				{
+					Model: models.Address{
+						StreetAddress1: "987 Other Avenue",
+						StreetAddress2: models.StringPointer("P.O. Box 12345"),
+						StreetAddress3: models.StringPointer("c/o Another Person"),
+						City:           "Fort Eisenhower",
+						State:          "GA",
+						PostalCode:     "50309",
+						Country:        models.StringPointer("US"),
+					},
+					Type: &factory.Addresses.DeliveryAddress,
 				},
 				{
 					Model:    mtoShipment,
