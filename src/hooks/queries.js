@@ -30,6 +30,7 @@ import {
   getServicesCounselingPPMQueue,
   getPrimeSimulatorAvailableMoves,
   getPPMCloseout,
+  getPPMSITEstimatedCost,
   getPPMActualWeight,
   searchCustomers,
 } from 'services/ghcApi';
@@ -65,6 +66,7 @@ import {
   PPMCLOSEOUT,
   PPMACTUALWEIGHT,
   SC_CUSTOMER_SEARCH,
+  PPMSIT_ESTIMATED_COST,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -310,6 +312,28 @@ export const usePPMCloseoutQuery = (ppmShipmentId) => {
   };
 };
 
+export const useGetPPMSITEstimatedCostQuery = (
+  ppmShipmentId,
+  sitLocation,
+  sitEntryDate,
+  sitDepartureDate,
+  weightStored,
+) => {
+  const { data: estimatedCost, ...ppmSITEstimatedCostQuery } = useQuery(
+    [PPMSIT_ESTIMATED_COST, ppmShipmentId, sitLocation, sitEntryDate, sitDepartureDate, weightStored],
+    ({ queryKey }) => getPPMSITEstimatedCost(...queryKey),
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([ppmSITEstimatedCostQuery]);
+
+  return {
+    estimatedCost,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useReviewShipmentWeightsQuery = (moveCode) => {
   const { data: move, ...moveQuery } = useQuery({
     queryKey: [MOVES, moveCode],
@@ -403,6 +427,31 @@ export const useMoveTaskOrderQueries = (moveCode) => {
     move,
     mtoShipments,
     mtoServiceItems,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useGetDocumentQuery = (documentId) => {
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
+  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+    [ORDERS_DOCUMENTS, documentId],
+    ({ queryKey }) => getDocument(...queryKey),
+    {
+      enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([documentsQuery]);
+
+  return {
+    documents,
+    uploads,
     isLoading,
     isError,
     isSuccess,

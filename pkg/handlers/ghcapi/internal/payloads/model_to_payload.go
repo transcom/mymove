@@ -52,9 +52,9 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 // Move payload
-func Move(move *models.Move) *ghcmessages.Move {
+func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
-		return nil
+		return nil, nil
 	}
 	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
 	var gbloc ghcmessages.GBLOC
@@ -62,6 +62,15 @@ func Move(move *models.Move) *ghcmessages.Move {
 		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 	} else if move.Orders.OriginDutyLocationGBLOC != nil {
 		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
+
+	var additionalDocumentsPayload *ghcmessages.Document
+	var err error
+	if move.AdditionalDocuments != nil {
+		additionalDocumentsPayload, err = PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	payload := &ghcmessages.Move{
@@ -92,9 +101,10 @@ func Move(move *models.Move) *ghcmessages.Move {
 		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:          additionalDocumentsPayload,
 	}
 
-	return payload
+	return payload, nil
 }
 
 // ListMove payload
@@ -469,6 +479,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		Agency:             swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress:     Address(customer.ResidentialAddress),
 		DodID:              swag.StringValue(customer.Edipi),
+		Emplid:             swag.StringValue(customer.Emplid),
 		Email:              customer.PersonalEmail,
 		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
@@ -942,17 +953,18 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &ghcmessages.MovingExpense{
-		ID:             *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
-		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
-		Document:       document,
-		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
-		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
-		Description:    movingExpense.Description,
-		PaidWithGtcc:   movingExpense.PaidWithGTCC,
-		Amount:         handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt: movingExpense.MissingReceipt,
-		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+		ID:               *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:    *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:       *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:         document,
+		CreatedAt:        strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:      movingExpense.Description,
+		PaidWithGtcc:     movingExpense.PaidWithGTCC,
+		Amount:           handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt:   movingExpense.MissingReceipt,
+		ETag:             etag.GenerateEtag(movingExpense.UpdatedAt),
+		SitEstimatedCost: handlers.FmtCost(movingExpense.SITEstimatedCost),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := ghcmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
@@ -1118,6 +1130,17 @@ func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
 	}
 	payload := &ghcmessages.PPMActualWeight{
 		ActualWeight: handlers.FmtPoundPtr(ppmActualWeight),
+	}
+
+	return payload
+}
+
+func PPMSITEstimatedCost(ppmSITEstimatedCost *unit.Cents) *ghcmessages.PPMSITEstimatedCost {
+	if ppmSITEstimatedCost == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMSITEstimatedCost{
+		SitCost: handlers.FmtCost(ppmSITEstimatedCost),
 	}
 
 	return payload
@@ -1410,11 +1433,16 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		}
 	}
 
+	move, err := Move(&pr.MoveTaskOrder, storer)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                              *handlers.FmtUUID(pr.ID),
 		IsFinal:                         &pr.IsFinal,
 		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		MoveTaskOrder:                   move,
 		PaymentRequestNumber:            pr.PaymentRequestNumber,
 		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
 		RejectionReason:                 pr.RejectionReason,
@@ -1671,10 +1699,12 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
@@ -1742,10 +1772,12 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
