@@ -1548,7 +1548,8 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 	}, nil)
 
 	storageType := models.MovingExpenseReceiptTypeStorage
-
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -1571,6 +1572,8 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
 				SITStartDate:      models.TimePointer(time.Now()),
 				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -2051,6 +2054,8 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -2066,6 +2071,8 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
 				SITStartDate:      models.TimePointer(time.Now()),
 				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)

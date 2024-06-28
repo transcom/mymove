@@ -12,6 +12,7 @@ import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 export const ShipmentListItem = ({
   shipment,
@@ -50,10 +51,19 @@ export const ShipmentListItem = ({
       }`}
       data-testid="shipment-list-item-container"
     >
-      <strong>
-        {shipmentTypes[shipment.shipmentType]}
-        {showNumber && ` ${shipmentNumber}`}
-      </strong>{' '}
+      <div>
+        <strong>
+          {shipmentTypes[shipment.shipmentType]}
+          {showNumber && ` ${shipmentNumber}`}
+        </strong>{' '}
+        <br />
+        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) && (
+          <>
+            <span>{formatWeight(shipment.primeEstimatedWeight * 1.1)} </span>
+            <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
+          </>
+        )}
+      </div>
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>

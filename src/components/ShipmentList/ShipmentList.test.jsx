@@ -92,7 +92,7 @@ describe('ShipmentList component', () => {
 });
 
 describe('Shipment List being used for billable weight', () => {
-  it('renders maximum billable weight, total billable weight, weight requested and weight allowance with no flags', () => {
+  it('renders maximum billable weight, actual billable weight, actual weight and weight allowance with no flags', () => {
     const shipments = [
       {
         id: '0001',

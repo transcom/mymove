@@ -44,6 +44,32 @@ func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UU
 	return r0, r1
 }
 
+// ListAllOrderLocations provides a mock function with given fields: appCtx, officeUserID, params
+func (_m *OrderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
+	ret := _m.Called(appCtx, officeUserID, params)
+
+	var r0 []models.Move
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) ([]models.Move, error)); ok {
+		return rf(appCtx, officeUserID, params)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) []models.Move); ok {
+		r0 = rf(appCtx, officeUserID, params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.Move)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
+		r1 = rf(appCtx, officeUserID, params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ListOrders provides a mock function with given fields: appCtx, officeUserID, params
 func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	ret := _m.Called(appCtx, officeUserID, params)

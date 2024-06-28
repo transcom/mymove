@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
@@ -28,14 +29,14 @@ type GetMovesQueueHandler struct {
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the TOO or HQ user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TOO office role",
+					"user is not authenticated with TOO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetMovesQueueForbidden(), forbiddenErr
@@ -182,9 +183,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
+					"user is not authenticated with TIO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetPaymentRequestsQueueForbidden(), forbiddenErr
@@ -277,9 +279,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with an office role",
+					"user is not authenticated with Services Counselor or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
@@ -367,5 +369,60 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil
+		})
+}
+
+// GetServicesCounselingOriginListHandler returns the origin list for the Service Counselor user via GET /queues/counselor/origin-list
+type GetServicesCounselingOriginListHandler struct {
+	handlers.HandlerConfig
+	services.OrderFetcher
+}
+
+// Handle returns the list of origin list for the services counselor
+func (h GetServicesCounselingOriginListHandler) Handle(
+	params queues.GetServicesCounselingOriginListParams,
+) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() ||
+				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				forbiddenErr := apperror.NewForbiddenError(
+					"user is not authenticated with an office role",
+				)
+				appCtx.Logger().Error(forbiddenErr.Error())
+				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
+			}
+
+			ListOrderParams := services.ListOrderParams{
+				NeedsPPMCloseout: params.NeedsPPMCloseout,
+			}
+
+			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
+			} else {
+				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
+			}
+
+			moves, err := h.OrderFetcher.ListAllOrderLocations(
+				appCtx,
+				appCtx.Session().OfficeUserID,
+				&ListOrderParams,
+			)
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			var originLocationList []*ghcmessages.Location
+			for _, value := range moves {
+				locationString := value.Orders.OriginDutyLocation.Name
+				location := ghcmessages.Location{Label: &locationString, Value: &locationString}
+				if !slices.Contains(originLocationList, &location) {
+					originLocationList = append(originLocationList, &location)
+				}
+			}
+
+			return queues.NewGetServicesCounselingOriginListOK().WithPayload(originLocationList), nil
 		})
 }

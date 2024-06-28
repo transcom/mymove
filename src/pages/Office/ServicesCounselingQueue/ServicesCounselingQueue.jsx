@@ -6,11 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
 import {
-  SERVICE_COUNSELING_BRANCH_OPTIONS,
+  BRANCH_OPTIONS_WITH_MARINE_CORPS,
   SERVICE_COUNSELING_MOVE_STATUS_LABELS,
   SERVICE_COUNSELING_PPM_TYPE_OPTIONS,
   SERVICE_COUNSELING_PPM_TYPE_LABELS,
@@ -18,6 +19,7 @@ import {
   SERVICE_COUNSELING_PPM_STATUS_LABELS,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import {
   useServicesCounselingQueueQueries,
   useServicesCounselingQueuePPMQueries,
@@ -25,6 +27,11 @@ import {
   useMoveSearchQueries,
   useCustomerSearchQueries,
 } from 'hooks/queries';
+import {
+  getServicesCounselingQueue,
+  getServicesCounselingPPMQueue,
+  getServicesCounselingOriginLocations,
+} from 'services/ghcApi';
 import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -34,28 +41,32 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
+import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-const counselingColumns = (moveLockFlag) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -71,11 +82,17 @@ const counselingColumns = (moveLockFlag) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -127,32 +144,55 @@ const counselingColumns = (moveLockFlag) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', {
     disableSortBy: true,
   }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
-  createHeader('Origin duty location', 'originDutyLocation.name', {
-    id: 'originDutyLocation',
-    isFilterable: true,
-  }),
+  supervisor
+    ? createHeader(
+        'Origin duty location',
+        (row) => {
+          return `${row.originDutyLocation.name}`;
+        },
+        {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          Filter: (props) => (
+            <MultiSelectTypeAheadCheckBoxFilter
+              options={originLocationList}
+              placeholder="Start typing a duty location..."
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...props}
+            />
+          ),
+        },
+      )
+    : createHeader('Origin duty location', 'originDutyLocation.name', {
+        id: 'originDutyLocation',
+        isFilterable: true,
+      }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div id={row.id}>
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div id={row.id}>
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -168,11 +208,17 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -188,7 +234,7 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={SERVICE_COUNSELING_BRANCH_OPTIONS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
       ),
     },
   ),
@@ -232,13 +278,35 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
       ),
     },
   ),
-  createHeader('Origin duty location', 'originDutyLocation.name', {
-    id: 'originDutyLocation',
-    isFilterable: true,
-  }),
+  supervisor
+    ? createHeader(
+        'Origin duty location',
+        (row) => {
+          return `${row.originDutyLocation.name}`;
+        },
+        {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          Filter: (props) => (
+            <MultiSelectTypeAheadCheckBoxFilter
+              options={ppmCloseoutOriginLocationList}
+              placeholder="Start typing a duty location..."
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...props}
+            />
+          ),
+        },
+      )
+    : createHeader('Origin duty location', 'originDutyLocation.name', {
+        id: 'originDutyLocation',
+        isFilterable: true,
+      }),
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.destinationDutyLocation?.name;
+    },
   }),
   createHeader('PPM closeout location', 'closeoutLocation', {
     id: 'closeoutLocation',
@@ -248,7 +316,7 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
   }),
 ];
 
-const ServicesCounselingQueue = () => {
+const ServicesCounselingQueue = ({ userPrivileges }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -257,9 +325,29 @@ const ServicesCounselingQueue = () => {
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+  const [originLocationList, setOriginLocationList] = useState([]);
+  const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
+  const supervisor = userPrivileges
+    ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
+    : false;
 
   // Feature Flag
   useEffect(() => {
+    const getOriginLocationList = (needsPPMCloseout) => {
+      if (supervisor) {
+        getServicesCounselingOriginLocations(needsPPMCloseout).then((response) => {
+          if (needsPPMCloseout) {
+            setPpmCloseoutOriginLocationList(response);
+          } else {
+            setOriginLocationList(response);
+          }
+        });
+      }
+    };
+
+    getOriginLocationList(true);
+    getOriginLocationList(false);
+
     const fetchData = async () => {
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
@@ -278,7 +366,7 @@ const ServicesCounselingQueue = () => {
       }
     };
     fetchData();
-  }, [setErrorState]);
+  }, [setErrorState, supervisor]);
 
   const handleEditProfileClick = (locator) => {
     navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
@@ -389,6 +477,7 @@ const ServicesCounselingQueue = () => {
       <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
     );
   }
+
   const navTabs = () => (isCounselorMoveCreateFFEnabled ? ffTabs : tabs);
 
   const renderNavBar = () => {
@@ -438,10 +527,14 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
+          showCSVExport
+          csvExportFileNamePrefix="PPM-Closeout-Queue"
+          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );
@@ -459,10 +552,14 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag)}
+          columns={counselingColumns(moveLockFlag, originLocationList, supervisor)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
+          showCSVExport
+          csvExportFileNamePrefix="Services-Counseling-Queue"
+          csvExportQueueFetcher={getServicesCounselingQueue}
+          csvExportQueueFetcherKey="queueMoves"
         />
       </div>
     );

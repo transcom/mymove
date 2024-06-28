@@ -117,7 +117,6 @@ const ServicesCounselingMoveAllowances = () => {
     gunSafe,
     storageInTransit,
   } = entitlement;
-
   const initialValues = {
     grade,
     agency,

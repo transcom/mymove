@@ -39,6 +39,40 @@ func NewEstimatePPM(planner route.Planner, paymentRequestHelper paymentrequesthe
 	}
 }
 
+func (f *estimatePPM) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
+	if ppmShipment == nil {
+		return nil, nil
+	}
+
+	oldPPMShipment, err := FindPPMShipment(appCtx, ppmShipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedPPMShipment, err := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, f.checks...)
+	if err != nil {
+		return nil, err
+	}
+
+	contractDate := ppmShipment.ExpectedDepartureDate
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return nil, err
+	}
+
+	estimatedSITCost, err := CalculateSITCost(appCtx, updatedPPMShipment, contract)
+	if err != nil {
+		return nil, err
+	}
+
+	return estimatedSITCost, nil
+}
+
 // EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from the service)
 func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)

@@ -520,42 +520,46 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ],
         [
           'sitEstimatedEntryDate',
-          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: 'asdf', sitEstimatedDepartureDate: '25 Jul 2022' },
+          { sitEstimatedWeight: '1050', sitEstimatedEntryDate: 'asdf', sitEstimatedDepartureDate: '25 Jul 2022' },
           'Enter a complete date in DD MMM YYYY format (day, month, year).',
         ],
         [
           'sitEstimatedDepartureDate',
-          { sitEstimatedWeight: '1234', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: 'asdf' },
+          { sitEstimatedWeight: '1025', sitEstimatedEntryDate: '15 Jun 2022', sitEstimatedDepartureDate: 'asdf' },
           'Enter a complete date in DD MMM YYYY format (day, month, year).',
         ],
-      ])('Verify invalid %s field shows validation error', async (field, data, expectedError) => {
-        useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
-        renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
+      ])(
+        'Verify invalid %s field shows validation error',
+        async (field, data, expectedError) => {
+          useEditShipmentQueries.mockReturnValue(ppmUseEditShipmentQueriesReturnValue);
+          renderWithProviders(<ServicesCounselingEditShipmentDetails {...props} />, mockRoutingConfig);
 
-        const sitExpected = document.getElementById('sitExpectedYes').parentElement;
-        const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
-        await userEvent.click(sitExpectedYes);
+          const sitExpected = document.getElementById('sitExpectedYes').parentElement;
+          const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
+          await userEvent.click(sitExpectedYes);
 
-        // The test is dependent on the ordering of these three lines, and I'm not sure why.
-        // If either of the estimated storage dates is entered last, the test that puts an invalid value
-        // in that field will fail. But if the estimated SIT weight comes last, everything works fine.
-        await userEvent.type(screen.getByLabelText('Estimated storage start'), data.sitEstimatedEntryDate);
-        await userEvent.type(screen.getByLabelText('Estimated storage end'), data.sitEstimatedDepartureDate);
-        await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
-        await userEvent.tab();
+          // The test is dependent on the ordering of these three lines, and I'm not sure why.
+          // If either of the estimated storage dates is entered last, the test that puts an invalid value
+          // in that field will fail. But if the estimated SIT weight comes last, everything works fine.
+          await userEvent.type(screen.getByLabelText('Estimated storage start'), data.sitEstimatedEntryDate);
+          await userEvent.type(screen.getByLabelText('Estimated storage end'), data.sitEstimatedDepartureDate);
+          await userEvent.type(screen.getByLabelText('Estimated SIT weight'), data.sitEstimatedWeight);
+          await userEvent.tab();
 
-        await waitFor(
-          () => {
-            const alerts = screen.getAllByRole('alert');
-            expect(alerts).toHaveLength(1);
-            expect(alerts[0]).toHaveTextContent(expectedError);
-          },
-          { timeout: 10000 },
-        );
+          await waitFor(
+            () => {
+              const alerts = screen.getAllByRole('alert');
+              expect(alerts).toHaveLength(1);
+              expect(alerts[0]).toHaveTextContent(expectedError);
+            },
+            { timeout: 10000 },
+          );
 
-        expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
-        expect(screen.getByRole('alert').nextElementSibling.firstElementChild).toHaveAttribute('name', field);
-      });
+          expect(screen.getByRole('button', { name: 'Save and Continue' })).toBeDisabled();
+          expect(screen.getByRole('alert').nextElementSibling.firstElementChild).toHaveAttribute('name', field);
+        },
+        20000,
+      );
     });
 
     it('Enables Save and Continue button when sit required fields are filled in', async () => {
@@ -566,7 +570,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       const sitExpected = document.getElementById('sitExpectedYes').parentElement;
       const sitExpectedYes = within(sitExpected).getByRole('radio', { name: 'Yes' });
       await userEvent.click(sitExpectedYes);
-      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1234');
+      await userEvent.type(screen.getByLabelText('Estimated SIT weight'), '1050');
       await userEvent.type(screen.getByLabelText('Estimated storage start'), '15 Jun 2022');
       await userEvent.type(screen.getByLabelText('Estimated storage end'), '25 Jun 2022');
       await userEvent.tab();

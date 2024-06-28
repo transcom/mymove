@@ -97,6 +97,11 @@ const shipments = [
         state: 'NY',
         postalCode: '11111',
       },
+      movingExpenses: [
+        {
+          status: 'APPROVED',
+        },
+      ],
     },
   },
   {
@@ -126,6 +131,11 @@ const shipments = [
         state: 'NY',
         postalCode: '11111',
       },
+      movingExpenses: [
+        {
+          status: 'REJECTED',
+        },
+      ],
     },
   },
 ];
@@ -206,6 +216,17 @@ describe('PPMSummaryList component', () => {
           'You can now download your incentive packet and submit it to Finance to request payment. You will also need to include a completed DD-1351-2, and any other paperwork required by your service.',
         ),
       ).toBeInTheDocument();
+    });
+
+    it('should display button for feedback if any document is not approved', () => {
+      render(<PPMSummaryList shipments={[shipments[3]]} />);
+
+      expect(screen.getByRole('button', { name: 'View Closeout Feedback' })).toBeEnabled();
+    });
+    it('should not display button for feedback if all documents are approved', () => {
+      render(<PPMSummaryList shipments={[shipments[2]]} />);
+
+      expect(screen.queryByRole('button', { name: 'View Closeout Feedback' })).not.toBeInTheDocument();
     });
   });
 

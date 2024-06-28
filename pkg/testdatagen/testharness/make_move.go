@@ -4161,7 +4161,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-
+	storageStart := time.Now()
+	storageEnd := storageStart.Add(7 * time.Hour * 24)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -4181,10 +4182,48 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITEstimatedEntryDate:       &storageStart,
+			SITEstimatedDepartureDate:   &storageEnd,
+			SITExpected:                 models.BoolPointer(true),
 		},
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4209,6 +4248,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -4222,8 +4263,10 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			Model: models.MovingExpense{
 				MovingExpenseType: &storageExpenseType,
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
-				SITStartDate:      models.TimePointer(time.Now()),
-				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITStartDate:      &storageStart,
+				SITEndDate:        &storageEnd,
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -4260,7 +4303,8 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-
+	storageStart := time.Now()
+	storageEnd := storageStart.Add(7 * time.Hour * 24)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -4280,10 +4324,48 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITEstimatedEntryDate:       &storageStart,
+			SITEstimatedDepartureDate:   &storageEnd,
+			SITExpected:                 models.BoolPointer(true),
 		},
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4307,6 +4389,8 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -4320,8 +4404,10 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 			Model: models.MovingExpense{
 				MovingExpenseType: &storageExpenseType,
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
-				SITStartDate:      models.TimePointer(time.Now()),
-				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITStartDate:      &storageStart,
+				SITEndDate:        &storageEnd,
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)

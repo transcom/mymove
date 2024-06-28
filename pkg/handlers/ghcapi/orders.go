@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -21,6 +23,8 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/event"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // GetOrdersHandler fetches the information of a specific order
@@ -579,7 +583,10 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(
 
 			h.triggerAcknowledgeExcessWeightRiskEvent(appCtx, updatedMove.ID, params)
 
-			movePayload := payloads.Move(updatedMove)
+			movePayload, err := payloads.Move(updatedMove, h.FileStorer())
+			if err != nil {
+				return orderop.NewAcknowledgeExcessWeightRiskInternalServerError(), err
+			}
 
 			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload), nil
 		})
@@ -739,4 +746,81 @@ func PayloadForOrdersModel(order models.Order) (*ghcmessages.OrderBody, error) {
 	}
 
 	return payload, nil
+}
+
+// UploadAmendedOrdersHandler uploads amended orders to an order via POST /orders/{orderId}/upload_amended_orders
+type UploadAmendedOrdersHandler struct {
+	handlers.HandlerConfig
+	services.OrderUpdater
+}
+
+// Handle updates an order to attach amended orders from a request payload
+func (h UploadAmendedOrdersHandler) Handle(params orderop.UploadAmendedOrdersParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			file, ok := params.File.(*runtime.File)
+			if !ok {
+				errMsg := "This should always be a runtime.File, something has changed in go-swagger."
+
+				appCtx.Logger().Error(errMsg)
+
+				return orderop.NewUploadAmendedOrdersInternalServerError(), nil
+			}
+
+			appCtx.Logger().Info(
+				"File uploader and size",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
+				zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
+				zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+				zap.Int64("size", file.Header.Size),
+			)
+
+			orderID, err := uuid.FromString(params.OrdersID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			upload, url, verrs, err := h.OrderUpdater.UploadAmendedOrdersAsOffice(appCtx, appCtx.Session().UserID, orderID, file.Data, file.Header.Filename, h.FileStorer())
+
+			if verrs.HasAny() || err != nil {
+				switch err.(type) {
+				case uploader.ErrTooLarge:
+					return orderop.NewUploadAmendedOrdersRequestEntityTooLarge(), err
+				case uploader.ErrFile:
+					return orderop.NewUploadAmendedOrdersInternalServerError(), err
+				case uploader.ErrFailedToInitUploader:
+					return orderop.NewUploadAmendedOrdersInternalServerError(), err
+				case apperror.NotFoundError:
+					return orderop.NewUploadAmendedOrdersNotFound(), err
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
+				}
+			}
+
+			uploadPayload, err := payloadForUploadModelFromAmendedOrdersUpload(h.FileStorer(), upload, url)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			return orderop.NewUploadAmendedOrdersCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+func payloadForUploadModelFromAmendedOrdersUpload(storer storage.FileStorer, upload models.Upload, url string) (*ghcmessages.Upload, error) {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
 }

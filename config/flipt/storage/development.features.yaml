@@ -1,6 +1,14 @@
 version: "1.2"
 namespace: development
 flags:
+- key: headquarters_role
+  name: Headquarters Role feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: safety_move
   name: Safety Move feature flag
   type: BOOLEAN_FLAG_TYPE
@@ -35,6 +43,22 @@ flags:
       value: false
 - key: cac_validated_login
   name: CAC validated feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
   type: BOOLEAN_FLAG_TYPE
   enabled: true
   rollouts:

@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { func, number, object } from 'prop-types';
-import { Formik } from 'formik';
+import { Formik, Field } from 'formik';
 import classnames from 'classnames';
 import { FormGroup, Label, Radio, Textarea } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -11,7 +11,7 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate } from 'utils/formatters';
+import { formatCents, formatDate, formatWeight, dropdownInputOptions, removeCommas } from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -24,32 +24,51 @@ import { ErrorMessage, Form } from 'components/form';
 import { patchExpense } from 'services/ghcApi';
 import { convertDollarsToCents } from 'shared/utils';
 import TextField from 'components/form/fields/TextField/TextField';
+import { LOCATION_TYPES } from 'types/sitStatusShape';
+import SitCost from 'components/Office/PPM/SitCost/SitCost';
+import { useGetPPMSITEstimatedCostQuery } from 'hooks/queries';
 
-const validationSchema = Yup.object().shape({
-  amount: Yup.string()
-    .required('Enter the expense amount')
-    .notOneOf(['0', '0.00'], 'Enter an expense amount greater than $0.00'),
-  sitStartDate: Yup.date().when('movingExpenseType', {
-    is: expenseTypes.STORAGE,
-    then: (schema) =>
-      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-  }),
-  sitEndDate: Yup.date().when('movingExpenseType', {
-    is: expenseTypes.STORAGE,
-    then: (schema) =>
-      schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
-  }),
-  reason: Yup.string()
-    .when('status', {
-      is: ppmDocumentStatus.REJECTED,
-      then: (schema) => schema.required('Add a reason why this receipt is rejected'),
-    })
-    .when('status', {
-      is: ppmDocumentStatus.EXCLUDED,
-      then: (schema) => schema.required('Add a reason why this receipt is excluded'),
+const sitLocationOptions = dropdownInputOptions(LOCATION_TYPES);
+
+const validationSchema = (maxWeight) => {
+  return Yup.object().shape({
+    amount: Yup.string()
+      .required('Enter the expense amount')
+      .notOneOf(['0', '0.00'], 'Enter an expense amount greater than $0.00'),
+    sitStartDate: Yup.date().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
     }),
-  status: Yup.string().required('Reviewing this receipt is required'),
-});
+    sitEndDate: Yup.date().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema.typeError('Enter a complete date in DD MMM YYYY format (day, month, year).').required('Required'),
+    }),
+    reason: Yup.string()
+      .when('status', {
+        is: ppmDocumentStatus.REJECTED,
+        then: (schema) => schema.required('Add a reason why this receipt is rejected'),
+      })
+      .when('status', {
+        is: ppmDocumentStatus.EXCLUDED,
+        then: (schema) => schema.required('Add a reason why this receipt is excluded'),
+      }),
+    status: Yup.string().required('Reviewing this receipt is required'),
+    weightStored: Yup.number().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) =>
+        schema
+          .required('Required')
+          .max(maxWeight, `Weight must be less than total PPM weight of ${formatWeight(maxWeight)}`)
+          .min(1, `Enter a weight greater than 0 lbs`),
+    }),
+    sitLocation: Yup.mixed().when('movingExpenseType', {
+      is: expenseTypes.STORAGE,
+      then: (schema) => schema.required('Required').oneOf(sitLocationOptions.map((i) => i.key)),
+    }),
+  });
+};
 
 export default function ReviewExpense({
   ppmShipmentInfo,
@@ -64,29 +83,49 @@ export default function ReviewExpense({
   formRef,
   readOnly,
 }) {
-  const { movingExpenseType, description, amount, paidWithGtcc, sitStartDate, sitEndDate, status, reason } =
-    expense || {};
+  const {
+    movingExpenseType,
+    description,
+    amount,
+    paidWithGtcc,
+    sitStartDate,
+    sitEndDate,
+    status,
+    reason,
+    weightStored,
+    sitLocation,
+  } = expense || {};
 
   const { mutate: patchExpenseMutation } = useMutation(patchExpense, {
     onSuccess,
     onError,
   });
 
+  const [descriptionString, setDescriptionString] = React.useState(description || '');
+  const actualWeight = ppmShipmentInfo?.actualWeight || '';
+  const [amountValue, setAmountValue] = React.useState(amount);
+  const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
+  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
+  const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
+  const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
+  const displaySitCost =
+    ppmSITLocation !== '' && sitStartDateValue !== '' && sitEndDateValue !== '' && weightStoredValue !== '';
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
-    description: description || '',
-    amount: amount ? `${formatCents(amount)}` : '',
+    description: descriptionString,
+    amount: amountValue ? `${formatCents(amountValue)}` : '',
     paidWithGtcc: paidWithGtcc ? 'true' : 'false',
-    sitStartDate: sitStartDate ? formatDate(sitStartDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
-    sitEndDate: sitEndDate ? formatDate(sitEndDate, 'YYYY-MM-DD', 'DD MMM YYYY') : '',
+    sitStartDate: sitStartDateValue,
+    sitEndDate: sitEndDateValue,
     status: status || '',
     reason: reason || '',
+    weightStored: weightStoredValue?.toString() || '',
+    sitLocation: ppmSITLocation,
   };
 
   const [selectedExpenseType, setSelectedExpenseType] = React.useState(getExpenseTypeValue(movingExpenseType)); // Set initial expense type via value received from backend
   const [currentCategoryIndex, setCurrentCategoryIndex] = React.useState(categoryIndex);
   const [samePage, setSamePage] = React.useState(false); // Helps track if back button was used or not
-
   /**
    * Gets the current index for the receipt type, i.e. if we've already reviewed two "Oil" expense receipts, and user chooses "Oil" for expense type,
    * then this will display "Oil #3" at bottom of page.
@@ -130,10 +169,12 @@ export default function ReviewExpense({
       description: values.description,
       amount: convertDollarsToCents(values.amount),
       paidWithGtcc: values.paidWithGtcc,
-      sitStartDate: formatDate(values.sitStartDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
-      sitEndDate: formatDate(values.sitEndDate, 'DD MMM YYYY', 'YYYY-MM-DD'),
+      sitStartDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitStartDateValue : undefined,
+      sitEndDate: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? sitEndDateValue : undefined,
       reason: values.status === ppmDocumentStatus.APPROVED ? null : values.reason,
       status: values.status,
+      weightStored: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? weightStoredValue : undefined,
+      sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
     };
 
     patchExpenseMutation({
@@ -146,11 +187,12 @@ export default function ReviewExpense({
 
   const titleCase = (input) => input.charAt(0).toUpperCase() + input.slice(1);
   const allCase = (input) => input?.split(' ').map(titleCase).join(' ') ?? '';
+
   return (
     <div className={classnames(styles.container, 'container--accent--ppm')}>
       <Formik
         initialValues={initialValues}
-        validationSchema={validationSchema}
+        validationSchema={() => validationSchema(actualWeight)}
         innerRef={formRef}
         onSubmit={handleSubmit}
         enableReinitialize
@@ -164,11 +206,46 @@ export default function ReviewExpense({
             setFieldError('reason', null);
           };
 
+          const refreshPage = (event) => {
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(event.target.value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
+          const handleSITLocationChange = (event) => {
+            setSITLocation(event.target.value);
+            refreshPage(event);
+          };
+
+          const handleWeightStoredChange = (event) => {
+            const weight = parseInt(removeCommas(event.target.value), 10);
+            if (weight <= actualWeight && weight > 0) {
+              setWeightStoredValue(weight);
+              refreshPage(event);
+            }
+          };
+
+          const handleSitStartDateChange = (value) => {
+            const date = formatDate(value, 'DD MMM YYYY', 'YYYY-MM-DD');
+            setSitStartDateValue(date);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
+          const handleSitEndDateChange = (value) => {
+            const date = formatDate(value, 'DD MMM YYYY', 'YYYY-MM-DD');
+            setSitEndDateValue(date);
+            setSamePage(true);
+            const count = computeCurrentCategoryIndex(value);
+            setCurrentCategoryIndex(count + 1);
+          };
+
           const daysInSIT =
-            values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate
-              ? moment(values.sitEndDate, 'DD MMM YYYY')
+            sitStartDateValue && sitEndDateValue
+              ? moment(sitEndDateValue, 'YYYY-MM-DD')
                   .add(1, 'days')
-                  .diff(moment(values.sitStartDate, 'DD MMM YYYY'), 'days')
+                  .diff(moment(sitStartDateValue, 'YYYY-MM-DD'), 'days')
               : '##';
 
           return (
@@ -194,13 +271,11 @@ export default function ReviewExpense({
                   required
                   className={classnames('usa-select')}
                   value={selectedExpenseType}
+                  disabled={readOnly}
                   onChange={(e) => {
                     setSelectedExpenseType(e.target.value);
-                    setSamePage(true);
-                    const count = computeCurrentCategoryIndex(e.target.value);
-                    setCurrentCategoryIndex(count + 1);
+                    refreshPage(e);
                   }}
-                  disabled={readOnly}
                 >
                   {ppmExpenseTypes.map((x) => (
                     <option key={x.key}>{x.value}</option>
@@ -213,11 +288,55 @@ export default function ReviewExpense({
                   id="description"
                   className={styles.displayValue}
                   disabled={readOnly}
+                  onBlur={(e) => {
+                    setDescriptionString(e.target.value);
+                  }}
                 />
+                {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
+                  <>
+                    <div className="labelWrapper">
+                      <Label htmlFor="sitLocationInput">SIT Location</Label>
+                    </div>
+                    <Field
+                      as={Radio}
+                      id="sitLocationOrigin"
+                      label="Origin"
+                      name="sitLocation"
+                      value="ORIGIN"
+                      checked={values.sitLocation === 'ORIGIN'}
+                      disabled={readOnly}
+                      onChange={(e) => {
+                        handleSITLocationChange(e);
+                      }}
+                    />
+                    <Field
+                      as={Radio}
+                      id="sitLocationDestination"
+                      label="Destination"
+                      name="sitLocation"
+                      value="DESTINATION"
+                      checked={values.sitLocation === 'DESTINATION'}
+                      disabled={readOnly}
+                      onChange={(e) => {
+                        handleSITLocationChange(e);
+                      }}
+                    />
+                    {displaySitCost && (
+                      <SitCost
+                        ppmShipmentInfo={ppmShipmentInfo}
+                        ppmSITLocation={ppmSITLocation}
+                        sitStartDate={sitStartDateValue}
+                        sitEndDate={sitEndDateValue}
+                        weightStored={weightStoredValue}
+                        useQueries={useGetPPMSITEstimatedCostQuery}
+                      />
+                    )}
+                  </>
+                )}
                 <MaskedTextField
                   defaultValue="0"
                   name="amount"
-                  label="Amount"
+                  label="Amount Requested"
                   id="amount"
                   mask={Number}
                   scale={2} // digits after point, 0 for integers
@@ -228,12 +347,52 @@ export default function ReviewExpense({
                   thousandsSeparator=","
                   lazy={false} // immediate masking evaluation
                   prefix="$"
-                  disabled={readOnly}
+                  isDisabled={readOnly}
+                  onBlur={(e) => {
+                    const newAmount = e.target.value.replace(/[,.]/g, '');
+                    setAmountValue(newAmount);
+                  }}
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
-                    <DatePickerInput name="sitStartDate" label="Start date" disabled={readOnly} />
-                    <DatePickerInput name="sitEndDate" label="End date" disabled={readOnly} />
+                    <MaskedTextField
+                      defaultValue="0"
+                      name="weightStored"
+                      label="Weight Stored"
+                      id="weightStored"
+                      mask={Number}
+                      scale={0} // digits after point, 0 for integers
+                      signed={false} // disallow negative
+                      thousandsSeparator=","
+                      lazy={false} // immediate masking evaluation
+                      suffix="lbs"
+                      isDisabled={readOnly}
+                      onBlur={(e) => {
+                        handleWeightStoredChange(e);
+                      }}
+                    />
+                    <div>
+                      <legend className={classnames('usa-label', styles.label)}>Actual PPM Weight</legend>
+                      <div className={styles.displayValue}>{formatWeight(actualWeight)}</div>
+                    </div>
+                    <DatePickerInput
+                      name="sitStartDate"
+                      label="Start date"
+                      required
+                      disabled={readOnly}
+                      onChange={(value) => {
+                        handleSitStartDateChange(value);
+                      }}
+                    />
+                    <DatePickerInput
+                      name="sitEndDate"
+                      label="End date"
+                      required
+                      disabled={readOnly}
+                      onChange={(value) => {
+                        handleSitEndDateChange(value);
+                      }}
+                    />
                     <legend className={classnames('usa-label', styles.label)}>Total days in SIT</legend>
                     <div className={styles.displayValue} data-testid="days-in-sit">
                       {daysInSIT}
@@ -277,7 +436,6 @@ export default function ReviewExpense({
                       data-testid="excludeRadio"
                       disabled={readOnly}
                     />
-
                     {values.status === ppmDocumentStatus.EXCLUDED && (
                       <FormGroup className={styles.reason}>
                         <Label htmlFor={`excludeReason-${expense?.id}`}>Reason</Label>

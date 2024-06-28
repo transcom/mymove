@@ -5,7 +5,9 @@ import CustomerInfoList from './CustomerInfoList';
 
 const info = {
   name: 'Smith, Kerry',
+  agency: 'COAST_GUARD',
   dodId: '9999999999',
+  emplid: '7777777',
   phone: '999-999-9999',
   altPhone: '888-888-8888',
   email: 'ksmith@email.com',
@@ -33,7 +35,7 @@ describe('CustomerInfoList', () => {
   it('renders customer info', () => {
     render(<CustomerInfoList customerInfo={info} />);
     Object.keys(info)
-      .filter((k) => k !== 'currentAddress' && k !== 'backupAddress' && k !== 'backupContact')
+      .filter((k) => k !== 'currentAddress' && k !== 'backupAddress' && k !== 'backupContact' && k !== 'agency')
       .forEach((key) => {
         if (key === 'phone' || key === 'altPhone') {
           screen.getByText(`+1 ${info[key]}`);

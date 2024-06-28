@@ -4,6 +4,7 @@ import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
 import styles from './TableQueue.module.scss';
+import TableCSVExportButton from './TableCSVExportButton';
 
 import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -26,6 +27,11 @@ const TableQueue = ({
   useQueries,
   showFilters,
   showPagination,
+  showCSVExport,
+  csvExportFileNamePrefix,
+  csvExportHiddenColumns,
+  csvExportQueueFetcher,
+  csvExportQueueFetcherKey,
 }) => {
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
   const [paramFilters, setParamFilters] = useState([]);
@@ -48,7 +54,6 @@ const TableQueue = ({
   });
 
   // react-table setup below
-
   const defaultColumn = useMemo(
     () => ({
       // Let's set up our default Filter UI
@@ -113,7 +118,22 @@ const TableQueue = ({
 
   return (
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
-      <h1>{`${title} (${totalCount})`}</h1>
+      <div className={styles.queueHeader}>
+        <h1>{`${title} (${totalCount})`}</h1>
+        {showCSVExport && (
+          <TableCSVExportButton
+            className={styles.csvDownloadLink}
+            tableColumns={columns}
+            hiddenColumns={csvExportHiddenColumns}
+            filePrefix={csvExportFileNamePrefix}
+            queueFetcher={csvExportQueueFetcher}
+            queueFetcherKey={csvExportQueueFetcherKey}
+            totalCount={totalCount}
+            paramSort={paramSort}
+            paramFilters={paramFilters}
+          />
+        )}
+      </div>
       <div className={styles.tableContainer}>
         <Table
           showFilters={showFilters}
@@ -167,6 +187,16 @@ TableQueue.propTypes = {
   defaultSortedColumns: SortShape,
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
+  // showCSVExport shows the CSV export button
+  showCSVExport: PropTypes.bool,
+  // csvExportFileNamePrefix is the prefix used when this queue is exported to a CSV
+  csvExportFileNamePrefix: PropTypes.string,
+  // csvExportHiddenColumns is a array of the column ids to not use in a CSV export of the queue
+  csvExportHiddenColumns: PropTypes.arrayOf(PropTypes.string),
+  // csvExportQueueFetcher is the function to handle refetching non-paginated queue data
+  csvExportQueueFetcher: PropTypes.func,
+  // csvExportQueueFetcherKey is the key the queue data is stored under in the retrun value of csvExportQueueFetcher
+  csvExportQueueFetcherKey: PropTypes.string,
 };
 
 TableQueue.defaultProps = {
@@ -179,5 +209,10 @@ TableQueue.defaultProps = {
   disableSortBy: true,
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
+  showCSVExport: false,
+  csvExportFileNamePrefix: 'Moves',
+  csvExportHiddenColumns: ['id', 'lock'],
+  csvExportQueueFetcher: null,
+  csvExportQueueFetcherKey: null,
 };
 export default TableQueue;

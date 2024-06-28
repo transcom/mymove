@@ -129,7 +129,6 @@ const MoveAllowances = () => {
     gunSafe,
     storageInTransit,
   } = entitlement;
-
   const initialValues = {
     grade,
     agency,

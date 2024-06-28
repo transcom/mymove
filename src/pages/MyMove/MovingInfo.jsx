@@ -63,6 +63,10 @@ export class MovingInfo extends Component {
     } = this.props;
 
     let multiMove = false;
+    if (this.state) {
+      const { multiMoveFeatureFlag } = this.state;
+      multiMove = multiMoveFeatureFlag;
+    }
     let enablePPM = true;
     if (this.state) {
       const { multiMoveFeatureFlag, ppmFeatureFlag } = this.state;

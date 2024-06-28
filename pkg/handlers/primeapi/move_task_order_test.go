@@ -98,8 +98,8 @@ func (suite *HandlerSuite) TestListMovesHandler() {
 
 			pm.Orders.UploadedAmendedOrders = &document
 			pm.Orders.UploadedAmendedOrdersID = &document.ID
-			// nolint:gosec //G601
-			suite.MustSave(&pm.Orders)
+
+			suite.MustSave(&pm.Orders) //#nosec G601
 			upload := models.Upload{
 				Filename:    "test.pdf",
 				Bytes:       1048576,

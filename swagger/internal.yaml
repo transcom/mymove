@@ -2418,6 +2418,8 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -2549,8 +2551,21 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+      deletedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+        readOnly: true
       isWeightTicket:
         type: boolean
+      uploadType:
+        type: string
+        example: OFFICE
+        enum:
+          - USER
+          - PRIME
+          - OFFICE
+        readOnly: true
     required:
       - id
       - url
@@ -2998,6 +3013,15 @@ definitions:
           - $ref: '#/definitions/SITLocationType'
           - x-nullable: true
           - x-omitempty: false
+      sitEstimatedCost:
+        description: >-
+          The estimated amount that the government will pay the service member
+          to put their goods into storage. This estimated storage cost is
+          separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
     required:
       - id
       - createdAt
@@ -4381,15 +4405,15 @@ paths:
           format: uuid
           description: ID of the order that the upload belongs to
         - in: query
-          name: moveId
-          type: string
-          format: uuid
-          description: Optional ID of the move that the upload belongs to
-        - in: query
           name: ppmId
           type: string
           format: uuid
           description: Optional PPM shipment ID related to the upload
+        - in: query
+          name: moveId
+          type: string
+          format: uuid
+          description: Optional ID of the move that the upload belongs to
       responses:
         '204':
           description: deleted

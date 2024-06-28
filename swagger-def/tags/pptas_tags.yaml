@@ -1,0 +1,4 @@
+- name: test
+  description: tag to describe test endpoints
+- name: moves
+  description: describes all endpoints relating to moves

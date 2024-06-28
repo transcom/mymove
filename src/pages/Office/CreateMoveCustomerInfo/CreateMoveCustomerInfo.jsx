@@ -17,13 +17,13 @@ const CreateMoveCustomerInfo = () => {
   const { customerId } = useParams();
   const { customerData, isLoading, isError } = useCustomerQuery(customerId);
   const navigate = useNavigate();
-
   const handleBack = () => {
     navigate('/');
   };
   const handleClose = () => {
     navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, { customerId }));
   };
+
   const queryClient = useQueryClient();
   const { mutate: mutateCustomerInfo } = useMutation(updateCustomerInfo, {
     onSuccess: (data, variables) => {

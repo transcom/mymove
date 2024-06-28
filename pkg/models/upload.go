@@ -20,6 +20,8 @@ const (
 	UploadTypeUSER UploadType = "USER"
 	// UploadTypePRIME string PRIME
 	UploadTypePRIME UploadType = "PRIME"
+	// UploadTypePRIME string OFFICE
+	UploadTypeOFFICE UploadType = "OFFICE"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -49,6 +51,7 @@ func (u *Upload) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	vs = append(vs, &validators.StringInclusion{Field: string(u.UploadType), Name: "UploadType", List: []string{
 		string(UploadTypeUSER),
 		string(UploadTypePRIME),
+		string(UploadTypeOFFICE),
 	}})
 	vs = append(vs,
 		&validators.StringIsPresent{Field: u.Filename, Name: "Filename"},
@@ -97,6 +100,7 @@ func (ut UploadType) Valid() bool {
 	for _, value := range []string{
 		string(UploadTypeUSER),
 		string(UploadTypePRIME),
+		string(UploadTypeOFFICE),
 	} {
 		if string(ut) == value {
 			return true

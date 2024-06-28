@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movingexpenseservice "github.com/transcom/mymove/pkg/services/moving_expense"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -312,9 +313,18 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 	}
 
 	setUpHandler := func() UpdateMovingExpenseHandler {
+		sitEstimatedCost := models.CentPointer(unit.Cents(62500))
+		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"CalculatePPMSITEstimatedCost",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(sitEstimatedCost, nil)
 		return UpdateMovingExpenseHandler{
 			suite.createS3HandlerConfig(),
-			movingexpenseservice.NewOfficeMovingExpenseUpdater(),
+			movingexpenseservice.NewOfficeMovingExpenseUpdater(&ppmEstimator),
 		}
 	}
 
@@ -452,6 +462,8 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 			ppmShipment.MovingExpenses = append(ppmShipment.MovingExpenses, storageMovingExpense)
 
 			params := setUpRequestAndParams(storageMovingExpense)
+			sitLocation := ghcmessages.SITLocationTypeORIGIN
+			weightStored := 2000
 
 			newAmount := movingExpense.Amount.AddCents(1000)
 			newSitStartDate := testdatagen.NextValidMoveDate
@@ -460,6 +472,8 @@ func (suite *HandlerSuite) TestUpdateMovingExpenseHandlerIntegration() {
 			params.UpdateMovingExpense.Amount = newAmount.Int64()
 			params.UpdateMovingExpense.SitStartDate = strfmt.Date(newSitStartDate)
 			params.UpdateMovingExpense.SitEndDate = strfmt.Date(newSitEndDate)
+			params.UpdateMovingExpense.WeightStored = int64(weightStored)
+			params.UpdateMovingExpense.SitLocation = &sitLocation
 
 			handler := setUpHandler()
 

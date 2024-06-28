@@ -35,7 +35,7 @@ func (f *shipmentDiversionApprover) ApproveShipmentDiversion(appCtx appcontext.A
 		return &models.MTOShipment{}, apperror.NewPreconditionFailedError(shipmentID, query.StaleIdentifierError{StaleIdentifier: eTag})
 	}
 
-	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
+	transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
 		err = f.router.ApproveDiversion(appCtx, shipment)
 		if err != nil {
 			return err

@@ -52,7 +52,7 @@ const AllowancesList = ({ info, showVisualCues }) => {
         </div>
         <div className={visualCuesStyle}>
           <dt>Gun Safe</dt>
-          <dd data-testid="gunSafe"> {info.gunSafe ? 'Authorized' : 'Unauthorized'} </dd>
+          <dd data-testid="gunSafe">{info.gunSafe ? 'Authorized' : 'Unauthorized'}</dd>
         </div>
       </dl>
     </div>

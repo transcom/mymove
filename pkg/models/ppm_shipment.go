@@ -46,6 +46,10 @@ type PPMActualWeight struct {
 	ActualWeight *unit.Pound
 }
 
+type PPMSITEstimatedCost struct {
+	PPMSITEstimatedCost *unit.Pound
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 
@@ -261,17 +265,6 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 
 }
-func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
-	totalNetWeight := unit.Pound(0)
-	for _, weightTicket := range ppm.WeightTickets {
-		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
-			totalNetWeight += *weightTicket.AdjustedNetWeight
-		} else {
-			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
-		}
-	}
-	return totalNetWeight
-}
 
 // FetchPPMShipmentByPPMShipmentID returns a PPM Shipment for a given id
 func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
@@ -285,4 +278,15 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, weightTicket := range ppm.WeightTickets {
+		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
+			totalNetWeight += *weightTicket.AdjustedNetWeight
+		} else {
+			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
+		}
+	}
+	return totalNetWeight
 }

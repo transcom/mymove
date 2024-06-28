@@ -16,6 +16,32 @@ type PPMEstimator struct {
 	mock.Mock
 }
 
+// CalculatePPMSITEstimatedCost provides a mock function with given fields: appCtx, ppmShipment
+func (_m *PPMEstimator) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error) {
+	ret := _m.Called(appCtx, ppmShipment)
+
+	var r0 *unit.Cents
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*unit.Cents, error)); ok {
+		return rf(appCtx, ppmShipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) *unit.Cents); ok {
+		r0 = rf(appCtx, ppmShipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*unit.Cents)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r1 = rf(appCtx, ppmShipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // EstimateIncentiveWithDefaultChecks provides a mock function with given fields: appCtx, oldPPMShipment, newPPMShipment
 func (_m *PPMEstimator) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	ret := _m.Called(appCtx, oldPPMShipment, newPPMShipment)
