@@ -234,7 +234,7 @@ func (suite *LineOfAccountingServiceSuite) TestFetchOrderLineOfAccountings() {
 					LoaInstlAcntgActID:     models.StringPointer("1"),
 					LoaLclInstlID:          models.StringPointer("1"),
 					LoaFmsTrnsactnID:       models.StringPointer("1"),
-					LoaDscTx:               models.StringPointer("1"),
+					LoaTrnsnID:             models.StringPointer("1"),
 					LoaUic:                 models.StringPointer("1"),
 					LoaBgFyTx:              &loaFY,
 					LoaEndFyTx:             &loaFY,
