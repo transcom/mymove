@@ -19,6 +19,9 @@ import (
 //     ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
 //     information is correct.
 //   - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+//   - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to
+//     service-counseling-completed "Submit move details" by service counselor.
+//   - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.
 //
 // swagger:model SignedCertificationType
 type SignedCertificationType string
@@ -39,6 +42,12 @@ const (
 
 	// SignedCertificationTypeSHIPMENT captures enum value "SHIPMENT"
 	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
+
+	// SignedCertificationTypePRECLOSEOUTREVIEWEDPPMPAYMENT captures enum value "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT"
+	SignedCertificationTypePRECLOSEOUTREVIEWEDPPMPAYMENT SignedCertificationType = "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT"
+
+	// SignedCertificationTypeCLOSEOUTREVIEWEDPPMPAYMENT captures enum value "CLOSEOUT_REVIEWED_PPM_PAYMENT"
+	SignedCertificationTypeCLOSEOUTREVIEWEDPPMPAYMENT SignedCertificationType = "CLOSEOUT_REVIEWED_PPM_PAYMENT"
 )
 
 // for schema
@@ -46,7 +55,7 @@ var signedCertificationTypeEnum []interface{}
 
 func init() {
 	var res []SignedCertificationType
-	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PPM_PAYMENT","SHIPMENT","PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT","CLOSEOUT_REVIEWED_PPM_PAYMENT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -209,6 +209,7 @@ const SubmitSITExtensionModal = ({ shipment, sitStatus, onClose, onSubmit }) => 
                     <DropdownInput
                       label="Reason for edit"
                       name="requestReason"
+                      data-testid="reasonDropdown"
                       options={dropdownInputOptions(sitExtensionReasons)}
                     />
                   </div>

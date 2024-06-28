@@ -316,7 +316,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 	})
 
 	suite.Run("Does not set the SubmittedAt time if it is already set", func() {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil, nil)
 
 		suite.FatalNotNil(ppmShipment.SubmittedAt)
 		originalSubmittedAt := *ppmShipment.SubmittedAt
