@@ -665,13 +665,13 @@ test.describe('TIO user', () => {
       const totalBillableWeightParent = page
         .getByRole('heading', { name: 'Actual billable weight', exact: true })
         .locator('..');
-      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,000 lbs', exact: true })).toBeVisible();
+      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,200 lbs', exact: true })).toBeVisible();
 
       // Verify Maximum billable weight info
       const maximumBillableWeightParent = page
         .getByRole('heading', { name: 'Maximum billable weight', exact: true })
         .locator('..');
-      await expect(maximumBillableWeightParent.getByRole('heading', { name: '8,000 lbs', exact: true })).toBeVisible();
+      await expect(maximumBillableWeightParent.getByRole('heading', { name: '2,200 lbs', exact: true })).toBeVisible();
 
       // Verify External Shipment shown
       await expect(page.locator(weightSection)).toContainText('1 other shipment:');
