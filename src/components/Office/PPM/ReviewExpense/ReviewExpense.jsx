@@ -11,7 +11,14 @@ import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
 
 import styles from './ReviewExpense.module.scss';
 
-import { formatCents, formatDate, formatWeight, dropdownInputOptions, removeCommas } from 'utils/formatters';
+import {
+  formatCents,
+  formatDate,
+  formatWeight,
+  dropdownInputOptions,
+  removeCommas,
+  toDollarString,
+} from 'utils/formatters';
 import { ExpenseShape } from 'types/shipment';
 import Fieldset from 'shared/Fieldset';
 import { DatePickerInput } from 'components/form/fields';
@@ -103,13 +110,17 @@ export default function ReviewExpense({
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
   const actualWeight = ppmShipmentInfo?.actualWeight || '';
-  const [amountValue, setAmountValue] = React.useState(amount);
+  const [amountValue, setAmountValue] = React.useState(amount.toString());
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
   const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
   const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
   const displaySitCost =
     ppmSITLocation !== '' && sitStartDateValue !== '' && sitEndDateValue !== '' && weightStoredValue !== '';
+  const [estimatedCost, setEstimatedCost] = React.useState(0);
+  const [actualSITReimbursed, setActualSITReimbursed] = React.useState(
+    amountValue < estimatedCost ? amountValue : estimatedCost,
+  );
   const initialValues = {
     movingExpenseType: movingExpenseType || '',
     description: descriptionString,
@@ -157,6 +168,13 @@ export default function ReviewExpense({
     setSamePage(false);
   }, [documentSetIndex]);
 
+  useEffect(() => {
+    if (displaySitCost) {
+      const value = parseInt(removeCommas(amountValue), 10);
+      setActualSITReimbursed(value < estimatedCost ? value : estimatedCost);
+    }
+  }, [estimatedCost, amountValue, displaySitCost]);
+
   const handleSubmit = (values) => {
     if (readOnly) {
       onSuccess();
@@ -175,6 +193,8 @@ export default function ReviewExpense({
       status: values.status,
       weightStored: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? weightStoredValue : undefined,
       sitLocation: llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? ppmSITLocation : undefined,
+      sitReimburseableAmount:
+        llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE ? actualSITReimbursed : undefined,
     };
 
     patchExpenseMutation({
@@ -329,6 +349,7 @@ export default function ReviewExpense({
                         sitEndDate={sitEndDateValue}
                         weightStored={weightStoredValue}
                         useQueries={useGetPPMSITEstimatedCostQuery}
+                        setEstimatedCost={setEstimatedCost}
                       />
                     )}
                   </>
@@ -355,6 +376,10 @@ export default function ReviewExpense({
                 />
                 {llvmExpenseTypes[selectedExpenseType] === expenseTypes.STORAGE && (
                   <>
+                    <div>
+                      <legend className={classnames('usa-label', styles.label)}>Actual SIT Reimbursement</legend>
+                      <div className={styles.displayValue}>{toDollarString(formatCents(actualSITReimbursed))}</div>
+                    </div>
                     <MaskedTextField
                       defaultValue="0"
                       name="weightStored"
