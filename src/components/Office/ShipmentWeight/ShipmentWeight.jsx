@@ -9,7 +9,6 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 
 const ShipmentWeight = ({ onEstimatedWeightChange }) => {
   const [proGearInput, , hasProGearHelper] = useField('hasProGear');
-
   const [, , estimatedWeightHelper] = useField('estimatedWeight');
 
   const handleEstimatedWeightChange = (value) => {
