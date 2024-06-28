@@ -30,7 +30,7 @@ func NewUploadAmendedOrders(ctx *middleware.Context, handler UploadAmendedOrders
 }
 
 /*
-	UploadAmendedOrders swagger:route POST /orders/{ordersId}/upload_amended_orders order uploadAmendedOrders
+	UploadAmendedOrders swagger:route POST /orders/{orderID}/upload_amended_orders order uploadAmendedOrders
 
 # Create an amended order for a given order
 
