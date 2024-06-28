@@ -65,4 +65,5 @@ type ListOrderParams struct {
 	CloseoutLocation        *string
 	OrderType               *string
 	PPMStatus               *string
+	ViewAsGBLOC             *string
 }

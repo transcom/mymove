@@ -3999,6 +3999,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4130,6 +4136,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role..\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4257,6 +4269,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -17866,6 +17884,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -18003,6 +18027,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role..\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -18136,6 +18166,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],

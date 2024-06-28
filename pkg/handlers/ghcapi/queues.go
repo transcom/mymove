@@ -63,14 +63,17 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
 			}
 
-			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-			// for perPage.
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20 for perPage.
 			if params.Page == nil {
 				ListOrderParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(
@@ -219,6 +222,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				listPaymentRequestParams.PerPage = models.Int64Pointer(20)
 			}
 
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
 			paymentRequests, count, err := h.FetchPaymentRequestList(
 				appCtx,
 				appCtx.Session().OfficeUserID,
@@ -324,6 +331,10 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			// Same for perPage
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(
