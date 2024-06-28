@@ -405,6 +405,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: search results should only include the move with the PPM status that was searched for
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
+
 		postalCode := "50309"
 
 		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
@@ -415,6 +416,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Type: &factory.Addresses.PickupAddress,
 			},
 		})
+
 		// Search for PARTIAL PPM moves
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
@@ -432,6 +434,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 				Type: &factory.Addresses.PickupAddress,
 			},
 		})
+
 		// Search for FULL PPM moves
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
@@ -2063,4 +2066,24 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
 	suite.Len(moves, 1)
+}
+
+func (suite *OrderServiceSuite) TestListAllOrderLocations() {
+	suite.Run("returns a list of all order locations in the current users queue", func() {
+		orderFetcher := NewOrderFetcher()
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		params := services.ListOrderParams{}
+		moves, err := orderFetcher.ListAllOrderLocations(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
+	})
 }
