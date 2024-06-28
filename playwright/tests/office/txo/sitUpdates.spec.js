@@ -46,7 +46,7 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('100');
-      await page.getByTestId('dropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
+      await page.getByTestId('reasonDropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
       await page.getByTestId('officeRemarks').fill('residence under construction');
       await expect(page.getByTestId('form').getByTestId('button')).toBeEnabled();
       await page.getByTestId('form').getByTestId('button').click();
@@ -65,7 +65,7 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('80');
-      await page.getByTestId('dropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
+      await page.getByTestId('reasonDropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
       await page.getByTestId('officeRemarks').fill('residence under construction');
       await page.getByTestId('form').getByTestId('button').click();
 
@@ -116,7 +116,7 @@ test.describe('TOO user', () => {
       await expect(page.getByRole('heading', { name: 'Edit SIT authorization' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('1');
-      await page.getByTestId('dropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
+      await page.getByTestId('reasonDropdown').selectOption('AWAITING_COMPLETION_OF_RESIDENCE');
       await page.getByTestId('officeRemarks').fill('residence under construction');
 
       // assert that save button is disabled and error messages are present
@@ -181,7 +181,7 @@ test.describe('TOO user', () => {
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('100');
       await page.getByText('Yes', { exact: true }).click();
-      await page.getByTestId('dropdown').selectOption('OTHER');
+      await page.getByTestId('reasonDropdown').selectOption('OTHER');
       await page.getByTestId('officeRemarks').fill('allowance increased by 20 days instead of the requested 45 days');
       await page.getByTestId('form').getByTestId('button').click();
 

@@ -467,40 +467,6 @@ test.describe('TOO user', () => {
       await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
     });
 
-    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
-      await tooFlowPage.approveAllShipments();
-
-      await page.getByTestId('MoveTaskOrder-Tab').click();
-      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
-
-      // Move Task Order page
-      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
-
-      await page.locator('button').getByText('Request diversion').click();
-
-      // Check modal title includes shipment locator
-      const modalTitleText = await page.locator('div[data-testid="modal"] h3').textContent();
-      const modalTitlePattern = /^Request Shipment Diversion for #([A-Za-z0-9]{6}-\d{2})$/;
-      const hasValidModalTitle = modalTitlePattern.test(modalTitleText);
-      expect(hasValidModalTitle).toBeTruthy();
-
-      // Submit the diversion request
-      await page.locator('input[name="diversionReason"]').type('reasonable reason');
-      await page.locator('button[data-testid="modalSubmitButton"]').click();
-      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
-
-      // Check the alert message with shipment locator
-      const alertText = await page.locator('[data-testid="alert"]').textContent();
-      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
-      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
-      expect(hasValidShipmentNumber).toBeTruthy();
-
-      // Alert should disappear if focus changes
-      await page.locator('[data-testid="rejectTextButton"]').first().click();
-      await page.locator('[data-testid="closeRejectServiceItem"]').click();
-      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
-    });
-
     /**
      * This test is being temporarily skipped until flakiness issues
      * can be resolved. It was skipped in cypress and is not part of
@@ -608,6 +574,49 @@ test.describe('TOO user', () => {
       // Check for Origin GBLOC label
       await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
       await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
+  });
+
+  test.describe('with HHG Moves after actual pickup date', () => {
+    test.beforeEach(async ({ officePage }) => {
+      const move = await officePage.testHarness.buildHHGMoveForTOOAfterActualPickupDate();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await officePage.tooNavigateToMove(move.locator);
+    });
+
+    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.approveAllShipments();
+
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
+
+      // Move Task Order page
+      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
+
+      await page.locator('button').getByText('Request diversion').click();
+
+      // Check modal title includes shipment locator
+      const modalTitleText = await page.locator('div[data-testid="modal"] h3').textContent();
+      const modalTitlePattern = /^Request Shipment Diversion for #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidModalTitle = modalTitlePattern.test(modalTitleText);
+      expect(hasValidModalTitle).toBeTruthy();
+
+      // Submit the diversion request
+      await page.locator('input[name="diversionReason"]').type('reasonable reason');
+      await page.locator('button[data-testid="modalSubmitButton"]').click();
+      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
+
+      // Check the alert message with shipment locator
+      const alertText = await page.locator('[data-testid="alert"]').textContent();
+      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
+      expect(hasValidShipmentNumber).toBeTruthy();
+
+      // Alert should disappear if focus changes
+      await page.locator('[data-testid="rejectTextButton"]').first().click();
+      await page.locator('[data-testid="closeRejectServiceItem"]').click();
+      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
     });
   });
 
