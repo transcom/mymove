@@ -433,6 +433,31 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   };
 };
 
+export const useGetDocumentQuery = (documentId) => {
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
+  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+    [ORDERS_DOCUMENTS, documentId],
+    ({ queryKey }) => getDocument(...queryKey),
+    {
+      enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([documentsQuery]);
+
+  return {
+    documents,
+    uploads,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));

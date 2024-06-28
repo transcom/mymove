@@ -72,7 +72,8 @@ func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
 			order.Moves[0].ID,
 			file.Data,
 			file.Header.Filename,
-			fakeS3)
+			fakeS3,
+			models.UploadTypeUSER)
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 
@@ -121,7 +122,8 @@ func (suite *MoveServiceSuite) TestAdditionalDocumentUploader() {
 			order.Moves[0].ID,
 			file.Data,
 			file.Header.Filename,
-			fakeS3)
+			fakeS3,
+			models.UploadTypeUSER)
 		suite.NoError(err)
 		suite.NoVerrs(verrs)
 		suite.NoError(err)
