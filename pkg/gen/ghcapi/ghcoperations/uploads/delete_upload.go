@@ -30,7 +30,7 @@ func NewDeleteUpload(ctx *middleware.Context, handler DeleteUploadHandler) *Dele
 }
 
 /*
-	DeleteUpload swagger:route DELETE /uploads/{uploadId} uploads deleteUpload
+	DeleteUpload swagger:route DELETE /uploads/{uploadID} uploads deleteUpload
 
 # Deletes an upload
 

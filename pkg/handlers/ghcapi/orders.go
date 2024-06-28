@@ -774,7 +774,7 @@ func (h UploadAmendedOrdersHandler) Handle(params orderop.UploadAmendedOrdersPar
 				zap.Int64("size", file.Header.Size),
 			)
 
-			orderID, err := uuid.FromString(params.OrdersID.String())
+			orderID, err := uuid.FromString(params.OrderID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
