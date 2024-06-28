@@ -834,6 +834,59 @@ func init() {
         }
       ]
     },
+    "/lines-of-accounting": {
+      "post": {
+        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "linesOfAccounting"
+        ],
+        "summary": "Fetch line of accounting",
+        "operationId": "requestLineOfAccounting",
+        "parameters": [
+          {
+            "description": "Service member affiliation, order issue date, and TAC code.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FetchLineOfAccountingPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved line of accounting",
+            "schema": {
+              "$ref": "#/definitions/LineOfAccounting"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
         "description": "Gets a move",
@@ -3591,7 +3644,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -3657,6 +3715,41 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
             }
           },
           "403": {
@@ -3740,7 +3833,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -3767,8 +3865,8 @@ func init() {
             "items": {
               "enum": [
                 "SUBMITTED",
-                "APPROVALS REQUESTED",
-                "APPROVED"
+                "SERVICE COUNSELING COMPLETED",
+                "APPROVALS REQUESTED"
               ],
               "type": "string"
             },
@@ -6716,6 +6814,25 @@ func init() {
         "COUNSELING"
       ]
     },
+    "FetchLineOfAccountingPayload": {
+      "type": "object",
+      "properties": {
+        "ordersIssueDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2023-01-01"
+        },
+        "serviceMemberAffiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "tacCode": {
+          "type": "string",
+          "maxLength": 4,
+          "minLength": 4,
+          "example": "F8J1"
+        }
+      }
+    },
     "GBLOC": {
       "type": "string",
       "enum": [
@@ -6834,6 +6951,336 @@ func init() {
       },
       "example": "HHG"
     },
+    "LineOfAccounting": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2023-08-03T19:17:10.050Z"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "06254fc3-b763-484c-b555-42855d1ad5cd"
+        },
+        "loaActvtyID": {
+          "type": "string",
+          "maxLength": 11,
+          "x-nullable": true
+        },
+        "loaAgncAcntngCd": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaAgncDsbrCd": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaAlltSnID": {
+          "type": "string",
+          "maxLength": 5,
+          "x-nullable": true,
+          "example": "123A"
+        },
+        "loaBafID": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1234"
+        },
+        "loaBdgtAcntClsNm": {
+          "type": "string",
+          "maxLength": 8,
+          "x-nullable": true,
+          "example": "000000"
+        },
+        "loaBetCd": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaBgFyTx": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2006
+        },
+        "loaBgnDt": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2005-10-01"
+        },
+        "loaBgtLnItmID": {
+          "type": "string",
+          "maxLength": 8,
+          "x-nullable": true
+        },
+        "loaBgtRstrCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaBgtSubActCd": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaClsRefID": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true
+        },
+        "loaCstCd": {
+          "type": "string",
+          "maxLength": 16,
+          "x-nullable": true
+        },
+        "loaCstCntrID": {
+          "type": "string",
+          "maxLength": 16,
+          "x-nullable": true
+        },
+        "loaCustNm": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaDfAgncyAlctnRcpntID": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaDocID": {
+          "type": "string",
+          "maxLength": 15,
+          "x-nullable": true,
+          "example": "HHG12345678900"
+        },
+        "loaDptID": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "1 "
+        },
+        "loaDscTx": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)"
+        },
+        "loaDtlRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true
+        },
+        "loaEndDt": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2015-10-01"
+        },
+        "loaEndFyTx": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2016
+        },
+        "loaFmsTrnsactnID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true
+        },
+        "loaFnclArID": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaFnctPrsNm": {
+          "type": "string",
+          "maxLength": 255,
+          "x-nullable": true
+        },
+        "loaFndCntrID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true
+        },
+        "loaFndTyFgCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaHistStatCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaHsGdsCd": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "HT"
+        },
+        "loaInstlAcntgActID": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "12345"
+        },
+        "loaJbOrdNm": {
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": true
+        },
+        "loaLclInstlID": {
+          "type": "string",
+          "maxLength": 18,
+          "x-nullable": true
+        },
+        "loaMajClmNm": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaMajRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaObjClsID": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "22NL"
+        },
+        "loaOpAgncyID": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1A"
+        },
+        "loaPgmElmntID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true,
+          "example": "00000000"
+        },
+        "loaPrjID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true
+        },
+        "loaSbaltmtRcpntID": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaScrtyCoopCustCd": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true
+        },
+        "loaScrtyCoopDsgntrCd": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaScrtyCoopImplAgncCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaScrtyCoopLnItmID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true
+        },
+        "loaSpclIntrID": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true
+        },
+        "loaSrvSrcID": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaStatCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true,
+          "example": "U"
+        },
+        "loaSubAcntID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true
+        },
+        "loaSysId": {
+          "type": "string",
+          "maxLength": 20,
+          "x-nullable": true,
+          "example": "10003"
+        },
+        "loaTnsfrDptNm": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaTrnsnID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true,
+          "example": "B1"
+        },
+        "loaTrsySfxTx": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "0000"
+        },
+        "loaTskBdgtSblnTx": {
+          "type": "string",
+          "maxLength": 8,
+          "x-nullable": true
+        },
+        "loaUic": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaWkCntrRcpntNm": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaWrkOrdID": {
+          "type": "string",
+          "maxLength": 16,
+          "x-nullable": true
+        },
+        "orgGrpDfasCd": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "ZZ"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2023-08-03T19:17:38.776Z"
+        },
+        "validHhgProgramCodeForLoa": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "validLoaForTac": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
     "ListPrimeMove": {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
@@ -6910,6 +7357,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {
@@ -8215,6 +8685,37 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
@@ -8413,13 +8914,13 @@ func init() {
           "type": "string",
           "title": "name",
           "x-nullable": true,
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transportation_ordering_officer"
+          "example": "task_ordering_officer"
         }
       }
     },
@@ -9563,6 +10064,24 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -9921,7 +10440,7 @@ func init() {
         },
         "roleName": {
           "type": "string",
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -10700,6 +11219,34 @@ func init() {
         }
       }
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -11079,10 +11626,28 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received\n",
@@ -11655,6 +12220,30 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
@@ -12856,6 +13445,77 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/lines-of-accounting": {
+      "post": {
+        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "linesOfAccounting"
+        ],
+        "summary": "Fetch line of accounting",
+        "operationId": "requestLineOfAccounting",
+        "parameters": [
+          {
+            "description": "Service member affiliation, order issue date, and TAC code.",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FetchLineOfAccountingPayload"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved line of accounting",
+            "schema": {
+              "$ref": "#/definitions/LineOfAccounting"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     },
     "/move-task-orders/{moveTaskOrderID}": {
       "get": {
@@ -16377,7 +17037,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -16443,6 +17108,47 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
             }
           },
           "403": {
@@ -16532,7 +17238,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -16559,8 +17270,8 @@ func init() {
             "items": {
               "enum": [
                 "SUBMITTED",
-                "APPROVALS REQUESTED",
-                "APPROVED"
+                "SERVICE COUNSELING COMPLETED",
+                "APPROVALS REQUESTED"
               ],
               "type": "string"
             },
@@ -19851,6 +20562,25 @@ func init() {
         "COUNSELING"
       ]
     },
+    "FetchLineOfAccountingPayload": {
+      "type": "object",
+      "properties": {
+        "ordersIssueDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2023-01-01"
+        },
+        "serviceMemberAffiliation": {
+          "$ref": "#/definitions/Affiliation"
+        },
+        "tacCode": {
+          "type": "string",
+          "maxLength": 4,
+          "minLength": 4,
+          "example": "F8J1"
+        }
+      }
+    },
     "GBLOC": {
       "type": "string",
       "enum": [
@@ -19969,6 +20699,336 @@ func init() {
       },
       "example": "HHG"
     },
+    "LineOfAccounting": {
+      "type": "object",
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2023-08-03T19:17:10.050Z"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "06254fc3-b763-484c-b555-42855d1ad5cd"
+        },
+        "loaActvtyID": {
+          "type": "string",
+          "maxLength": 11,
+          "x-nullable": true
+        },
+        "loaAgncAcntngCd": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaAgncDsbrCd": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaAlltSnID": {
+          "type": "string",
+          "maxLength": 5,
+          "x-nullable": true,
+          "example": "123A"
+        },
+        "loaBafID": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1234"
+        },
+        "loaBdgtAcntClsNm": {
+          "type": "string",
+          "maxLength": 8,
+          "x-nullable": true,
+          "example": "000000"
+        },
+        "loaBetCd": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaBgFyTx": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2006
+        },
+        "loaBgnDt": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2005-10-01"
+        },
+        "loaBgtLnItmID": {
+          "type": "string",
+          "maxLength": 8,
+          "x-nullable": true
+        },
+        "loaBgtRstrCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaBgtSubActCd": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaClsRefID": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true
+        },
+        "loaCstCd": {
+          "type": "string",
+          "maxLength": 16,
+          "x-nullable": true
+        },
+        "loaCstCntrID": {
+          "type": "string",
+          "maxLength": 16,
+          "x-nullable": true
+        },
+        "loaCustNm": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaDfAgncyAlctnRcpntID": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaDocID": {
+          "type": "string",
+          "maxLength": 15,
+          "x-nullable": true,
+          "example": "HHG12345678900"
+        },
+        "loaDptID": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "1 "
+        },
+        "loaDscTx": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)"
+        },
+        "loaDtlRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true
+        },
+        "loaEndDt": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "example": "2015-10-01"
+        },
+        "loaEndFyTx": {
+          "type": "integer",
+          "x-nullable": true,
+          "example": 2016
+        },
+        "loaFmsTrnsactnID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true
+        },
+        "loaFnclArID": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaFnctPrsNm": {
+          "type": "string",
+          "maxLength": 255,
+          "x-nullable": true
+        },
+        "loaFndCntrID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true
+        },
+        "loaFndTyFgCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaHistStatCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaHsGdsCd": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "HT"
+        },
+        "loaInstlAcntgActID": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "12345"
+        },
+        "loaJbOrdNm": {
+          "type": "string",
+          "maxLength": 10,
+          "x-nullable": true
+        },
+        "loaLclInstlID": {
+          "type": "string",
+          "maxLength": 18,
+          "x-nullable": true
+        },
+        "loaMajClmNm": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaMajRmbsmtSrcID": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaObjClsID": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true,
+          "example": "22NL"
+        },
+        "loaOpAgncyID": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "1A"
+        },
+        "loaPgmElmntID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true,
+          "example": "00000000"
+        },
+        "loaPrjID": {
+          "type": "string",
+          "maxLength": 12,
+          "x-nullable": true
+        },
+        "loaSbaltmtRcpntID": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaScrtyCoopCustCd": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true
+        },
+        "loaScrtyCoopDsgntrCd": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaScrtyCoopImplAgncCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaScrtyCoopLnItmID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true
+        },
+        "loaSpclIntrID": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true
+        },
+        "loaSrvSrcID": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true
+        },
+        "loaStatCd": {
+          "type": "string",
+          "maxLength": 1,
+          "x-nullable": true,
+          "example": "U"
+        },
+        "loaSubAcntID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true
+        },
+        "loaSysId": {
+          "type": "string",
+          "maxLength": 20,
+          "x-nullable": true,
+          "example": "10003"
+        },
+        "loaTnsfrDptNm": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true
+        },
+        "loaTrnsnID": {
+          "type": "string",
+          "maxLength": 3,
+          "x-nullable": true,
+          "example": "B1"
+        },
+        "loaTrsySfxTx": {
+          "type": "string",
+          "maxLength": 4,
+          "x-nullable": true,
+          "example": "0000"
+        },
+        "loaTskBdgtSblnTx": {
+          "type": "string",
+          "maxLength": 8,
+          "x-nullable": true
+        },
+        "loaUic": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaWkCntrRcpntNm": {
+          "type": "string",
+          "maxLength": 6,
+          "x-nullable": true
+        },
+        "loaWrkOrdID": {
+          "type": "string",
+          "maxLength": 16,
+          "x-nullable": true
+        },
+        "orgGrpDfasCd": {
+          "type": "string",
+          "maxLength": 2,
+          "x-nullable": true,
+          "example": "ZZ"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "example": "2023-08-03T19:17:38.776Z"
+        },
+        "validHhgProgramCodeForLoa": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "validLoaForTac": {
+          "type": "boolean",
+          "x-nullable": true
+        }
+      }
+    },
     "ListPrimeMove": {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
@@ -20045,6 +21105,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {
@@ -21350,6 +22433,37 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedAmount": {
+          "description": "Customer submitted total amount of the expense as indicated on the receipt",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedDescription": {
+          "description": "Customer submitted description of the expense",
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedMovingExpenseType": {
+          "$ref": "#/definitions/SubmittedMovingExpenseType"
+        },
+        "submittedSitEndDate": {
+          "description": "Customer submitted date the shipment exited storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2018-05-26"
+        },
+        "submittedSitStartDate": {
+          "description": "Customer submitted date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
+          "type": "string",
+          "format": "date",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": "2022-04-26"
+        },
         "updatedAt": {
           "description": "Timestamp when a property of this moving expense object was last modified (UTC)",
           "type": "string",
@@ -21548,13 +22662,13 @@ func init() {
           "type": "string",
           "title": "name",
           "x-nullable": true,
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
           "title": "roleType",
           "x-nullable": true,
-          "example": "transportation_ordering_officer"
+          "example": "task_ordering_officer"
         }
       }
     },
@@ -22699,6 +23813,25 @@ func init() {
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
         },
+        "submittedBelongsToSelf": {
+          "description": "Indicates if this information is for the customer's own pro-gear, otherwise, it's the spouse's.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedHasWeightTickets": {
+          "description": "Indicates if the user has a weight ticket for their pro-gear, otherwise they have a constructed weight.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedWeight": {
+          "description": "Customer submitted weight of the pro-gear.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -23058,7 +24191,7 @@ func init() {
         },
         "roleName": {
           "type": "string",
-          "example": "Transportation Ordering Officer"
+          "example": "Task Ordering Officer"
         },
         "roleType": {
           "type": "string",
@@ -23889,6 +25022,34 @@ func init() {
         }
       }
     },
+    "SubmittedMovingExpenseType": {
+      "description": "Customer Submitted Moving Expense Type",
+      "type": "string",
+      "enum": [
+        "CONTRACTED_EXPENSE",
+        "GAS",
+        "OIL",
+        "OTHER",
+        "PACKING_MATERIALS",
+        "RENTAL_EQUIPMENT",
+        "STORAGE",
+        "TOLLS",
+        "WEIGHING_FEE"
+      ],
+      "x-display-value": {
+        "CONTRACTED_EXPENSE": "Contracted expense",
+        "GAS": "Gas",
+        "OIL": "Oil",
+        "OTHER": "Other",
+        "PACKING_MATERIALS": "Packing materials",
+        "RENTAL_EQUIPMENT": "Rental equipment",
+        "STORAGE": "Storage",
+        "TOLLS": "Tolls",
+        "WEIGHING_FEE": "Weighing fee"
+      },
+      "x-nullable": true,
+      "x-omitempty": false
+    },
     "TacValid": {
       "type": "object",
       "required": [
@@ -24272,10 +25433,28 @@ func init() {
     "UpdatePPMShipment": {
       "type": "object",
       "properties": {
+        "actualDestinationPostalCode": {
+          "description": "The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
+        },
         "actualMoveDate": {
           "type": "string",
           "format": "date",
           "x-nullable": true
+        },
+        "actualPickupPostalCode": {
+          "description": "The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.\n",
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5})$",
+          "x-nullable": true,
+          "example": "90210"
         },
         "advanceAmountReceived": {
           "description": "The amount received for an advance, or null if no advance is received\n",
@@ -24860,6 +26039,32 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/OmittablePPMDocumentStatus"
+        },
+        "submittedEmptyWeight": {
+          "description": "Customer submitted weight of the vehicle when empty.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedFullWeight": {
+          "description": "Customer submitted weight of the vehicle when full.",
+          "type": "integer",
+          "minimum": 0,
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedOwnsTrailer": {
+          "description": "Indicates if the customer used a trailer they own for the move.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "submittedTrailerMeetsCriteria": {
+          "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "trailerMeetsCriteria": {
           "description": "Indicates if the trailer that the customer used meets all the criteria to be claimable.",

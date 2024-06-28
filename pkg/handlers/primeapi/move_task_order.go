@@ -198,7 +198,7 @@ func (h UpdateMTOPostCounselingInformationHandler) Handle(params movetaskorderop
 			mtoPayload := payloads.MoveTaskOrder(mto)
 
 			/* Don't send prime related emails on BLUEBARK moves */
-			if mto.Orders.OrdersType != "BLUEBARK" {
+			if mto.Orders.CanSendEmailWithOrdersType() {
 				err = h.NotificationSender().SendNotification(appCtx,
 					notifications.NewPrimeCounselingComplete(*mtoPayload),
 				)

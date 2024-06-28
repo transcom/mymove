@@ -10,7 +10,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { usePPMCloseoutQuery } from 'hooks/queries';
 import { formatCustomerContactFullAddress } from 'utils/formatters';
 
-const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemName }) => {
+const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemName, readOnly }) => {
   const { ppmCloseout, isLoading, isError } = usePPMCloseoutQuery(ppmShipmentInfo.id);
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -47,6 +47,7 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
         dataTestId="incentives"
         updatedItemName={updatedItemName}
         setUpdatedItemName={setUpdatedItemName}
+        readOnly={readOnly}
       />
       <hr />
       <HeaderSection
@@ -54,11 +55,12 @@ const GCCAndIncentiveInfo = ({ ppmShipmentInfo, updatedItemName, setUpdatedItemN
         dataTestId="incentiveFactors"
         updatedItemName={updatedItemName}
         setUpdatedItemName={setUpdatedItemName}
+        readOnly={readOnly}
       />
     </>
   );
 };
-export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields }) {
+export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFields, readOnly }) {
   const [updatedItemName, setUpdatedItemName] = useState('');
 
   const shipmentInfo = {
@@ -70,6 +72,8 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
     destinationAddress: ppmShipmentInfo.destinationAddress
       ? formatCustomerContactFullAddress(ppmShipmentInfo.destinationAddress)
       : '—',
+    pickupAddressObj: ppmShipmentInfo.pickupAddress,
+    destinationAddressObj: ppmShipmentInfo.destinationAddress,
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
@@ -89,6 +93,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
             dataTestId="shipmentInfo"
             updatedItemName={updatedItemName}
             setUpdatedItemName={setUpdatedItemName}
+            readOnly={readOnly}
           />
         </section>
         {showAllFields && (
@@ -96,6 +101,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
             ppmShipmentInfo={ppmShipmentInfo}
             updatedItemName={updatedItemName}
             setUpdatedItemName={setUpdatedItemName}
+            readOnly={readOnly}
           />
         )}
       </div>

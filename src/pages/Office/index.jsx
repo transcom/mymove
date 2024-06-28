@@ -118,14 +118,16 @@ export class OfficeApp extends Component {
     // while still logged into Okta which will force a redirect to logout
     const currentUrl = new URL(window.location.href);
     const oktaLoggedOutParam = currentUrl.searchParams.get('okta_logged_out');
+    // okta_error=true params are added when the user is still logged into Okta elsewhere and Okta denies access
+    // due to authentication method limitations
+    const oktaErrorParam = currentUrl.searchParams.get('okta_error');
 
-    // If the params "okta_logged_out=true" are in the url, we will change some state
-    // so a banner will display
+    // If the params "okta_logged_out=true" or "okta_error=true" are in the url, a banner will display
     if (oktaLoggedOutParam === 'true') {
       this.setState({
         oktaLoggedOut: true,
       });
-    } else if (oktaLoggedOutParam === 'false') {
+    } else if (oktaErrorParam === 'true') {
       this.setState({
         oktaNeedsLoggedOut: true,
       });
@@ -160,8 +162,6 @@ export class OfficeApp extends Component {
       traceId,
       userPrivileges,
     } = this.props;
-
-    // TODO - test login page?
 
     const displayChangeRole =
       userIsLoggedIn &&
@@ -272,7 +272,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                            <ServicesCounselingQueue />
+                            <ServicesCounselingQueue userPrivileges={userPrivileges} />
                           </PrivateRoute>
                         }
                       />

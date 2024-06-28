@@ -1828,7 +1828,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	move := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
 			Model: models.Move{
-				Status: models.MoveStatusAPPROVED,
+				Status: models.MoveStatusSUBMITTED,
 			},
 		},
 	}, nil)
@@ -1867,7 +1867,7 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment()
 	}
 
 	orderFetcher := NewOrderFetcher()
-	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
+	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{Status: []string{string(models.MoveStatusSUBMITTED)}})
 	suite.FatalNoError(err)
 	suite.Equal(0, moveCount)
 	suite.Len(moves, 0)
@@ -1941,4 +1941,24 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	suite.FatalNoError(err)
 	suite.Equal(1, moveCount)
 	suite.Len(moves, 1)
+}
+
+func (suite *OrderServiceSuite) TestListAllOrderLocations() {
+	suite.Run("returns a list of all order locations in the current users queue", func() {
+		orderFetcher := NewOrderFetcher()
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		params := services.ListOrderParams{}
+		moves, err := orderFetcher.ListAllOrderLocations(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
+	})
 }

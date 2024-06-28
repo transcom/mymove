@@ -67,9 +67,11 @@ type GetMovesQueueParams struct {
 	*/
 	OrderType *string
 	/*
+	  Unique: true
 	  In: query
+	  Collection Format: multi
 	*/
-	OriginDutyLocation *string
+	OriginDutyLocation []string
 	/*requested page of results
 	  In: query
 	*/
@@ -356,21 +358,38 @@ func (o *GetMovesQueueParams) bindOrderType(rawData []string, hasKey bool, forma
 	return nil
 }
 
-// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+// bindOriginDutyLocation binds and validates array parameter OriginDutyLocation from query.
+//
+// Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
 func (o *GetMovesQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
+	// CollectionFormat: multi
+	originDutyLocationIC := rawData
+	if len(originDutyLocationIC) == 0 {
 		return nil
 	}
-	o.OriginDutyLocation = &raw
 
+	var originDutyLocationIR []string
+	for _, originDutyLocationIV := range originDutyLocationIC {
+		originDutyLocationI := originDutyLocationIV
+
+		originDutyLocationIR = append(originDutyLocationIR, originDutyLocationI)
+	}
+
+	o.OriginDutyLocation = originDutyLocationIR
+	if err := o.validateOriginDutyLocation(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateOriginDutyLocation carries on validations for parameter OriginDutyLocation
+func (o *GetMovesQueueParams) validateOriginDutyLocation(formats strfmt.Registry) error {
+
+	// uniqueItems: true
+	if err := validate.UniqueItems("originDutyLocation", "query", o.OriginDutyLocation); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -489,7 +508,7 @@ func (o *GetMovesQueueParams) bindStatus(rawData []string, hasKey bool, formats 
 	for i, statusIV := range statusIC {
 		statusI := statusIV
 
-		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "APPROVALS REQUESTED", "APPROVED"}, true); err != nil {
+		if err := validate.EnumCase(fmt.Sprintf("%s.%v", "status", i), "query", statusI, []interface{}{"SUBMITTED", "SERVICE COUNSELING COMPLETED", "APPROVALS REQUESTED"}, true); err != nil {
 			return err
 		}
 
