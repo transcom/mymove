@@ -304,6 +304,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
 		})
 	}
+	if api.QueuesGetServicesCounselingOriginListHandler == nil {
+		api.QueuesGetServicesCounselingOriginListHandler = queues.GetServicesCounselingOriginListHandlerFunc(func(params queues.GetServicesCounselingOriginListParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetServicesCounselingOriginList has not yet been implemented")
+		})
+	}
 	if api.QueuesGetServicesCounselingQueueHandler == nil {
 		api.QueuesGetServicesCounselingQueueHandler = queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")

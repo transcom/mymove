@@ -3347,7 +3347,11 @@ paths:
           description: filters the GBLOC of the service member's origin duty location
         - in: query
           name: originDutyLocation
-          type: string
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
           description: filters the name of the origin duty location on the orders
         - in: query
           name: destinationDutyLocation
@@ -3401,6 +3405,36 @@ paths:
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /queues/counseling/origin-list:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all moves origin locations in the counselors queue
+      description: >
+        An office services counselor user will be assigned a transportation
+        office that will determine which moves are displayed in their queue
+        based on the origin duty location. This pulls the availalble origin duty
+        locations.
+      operationId: getServicesCounselingOriginList
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: needsPPMCloseout
+          type: boolean
+          description: >-
+            Only used for Services Counseling queue. If true, show PPM moves
+            origin locations that are ready for closeout. Otherwise, show all
+            other moves origin locations.
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/Locations'
         '403':
           $ref: '#/responses/PermissionDenied'
         '500':
@@ -3525,7 +3559,11 @@ paths:
           type: string
         - in: query
           name: originDutyLocation
-          type: string
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
         - in: query
           name: destinationDutyLocation
           type: string
@@ -4763,6 +4801,8 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
   MoveHistory:
     properties:
       id:
@@ -5097,6 +5137,22 @@ definitions:
       eTag:
         type: string
     type: object
+  Location:
+    type: object
+    properties:
+      label:
+        type: string
+        example: Label for display
+      value:
+        type: string
+        example: Value for location
+    required:
+      - label
+      - value
+  Locations:
+    type: array
+    items:
+      $ref: '#/definitions/Location'
   OrderBody:
     type: object
     properties:
@@ -6849,6 +6905,60 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  MovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice'
+      cancel_reason:
+        type: string
+        example: Change of orders
+        x-nullable: true
+      eTag:
+        type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
+    required:
+      - id
+      - orders_id
+      - locator
+      - created_at
+      - updated_at
+      - eTag
   Address:
     description: A postal address
     type: object
@@ -7108,12 +7218,6 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
-  NullableString:
-    type: string
-    x-go-type:
-      import:
-        package: github.com/transcom/mymove/pkg/swagger/nullable
-      type: String
   Upload:
     description: An uploaded file.
     type: object
@@ -7178,6 +7282,31 @@ definitions:
       - bytes
       - createdAt
       - updatedAt
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - service_member_id
+      - uploads
+  NullableString:
+    type: string
+    x-go-type:
+      import:
+        package: github.com/transcom/mymove/pkg/swagger/nullable
+      type: String
   CustomerContactType:
     description: >-
       Describes a customer contact type for a MTOServiceItem of type domestic
@@ -7782,25 +7911,6 @@ definitions:
       - EDITED
       - RECEIVED
       - NOT_RECEIVED
-  Document:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
   OmittablePPMDocumentStatus:
     description: Status of the PPM document.
     type: string

@@ -848,9 +848,11 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	})
 
 	suite.Run("returns results matching OriginDutyLocation name search term", func() {
+		var originDutyLocations []string
+		originDutyLocations = append(originDutyLocations, dutyLocation1.Name)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:        request,
-			OriginDutyLocation: &dutyLocation1.Name,
+			OriginDutyLocation: originDutyLocations,
 		}
 
 		// Validate incoming payload: no body to validate
@@ -869,12 +871,14 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 	})
 
 	suite.Run("returns results with multiple filters applied", func() {
+		var originDutyLocations []string
+		originDutyLocations = append(originDutyLocations, dutyLocation1.Name)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:        request,
 			LastName:           models.StringPointer("Dar"),
 			DodID:              serviceMember1.Edipi,
 			Locator:            &move1.Locator,
-			OriginDutyLocation: &dutyLocation1.Name,
+			OriginDutyLocation: originDutyLocations,
 		}
 
 		// Validate incoming payload: no body to validate
