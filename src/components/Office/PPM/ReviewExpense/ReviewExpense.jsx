@@ -378,7 +378,9 @@ export default function ReviewExpense({
                   <>
                     <div>
                       <legend className={classnames('usa-label', styles.label)}>Actual SIT Reimbursement</legend>
-                      <div className={styles.displayValue}>{toDollarString(formatCents(actualSITReimbursed))}</div>
+                      <div className={styles.displayValue} data-testid="actual-sit-reimbursement">
+                        {toDollarString(formatCents(actualSITReimbursed))}
+                      </div>
                     </div>
                     <MaskedTextField
                       defaultValue="0"
