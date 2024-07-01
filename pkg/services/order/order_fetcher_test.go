@@ -766,7 +766,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
+					Status: models.PPMShipmentStatusCloseoutComplete,
 				},
 			},
 			{
