@@ -27,8 +27,6 @@ describe('shipments utils', () => {
         ppmShipment: {
           id: '2',
           expectedDepartureDate: '2022-04-01',
-          pickupPostalCode: '90210',
-          destinationPostalCode: '90211',
           sitExpected: false,
           estimatedWeight: 7999,
           hasProGear: false,
@@ -47,8 +45,6 @@ describe('shipments utils', () => {
         ppmShipment: {
           id: '2',
           expectedDepartureDate: '2022-04-01',
-          pickupPostalCode: '90210',
-          destinationPostalCode: '90211',
           sitExpected: false,
           estimatedWeight: 7999,
           hasProGear: false,
@@ -66,8 +62,6 @@ describe('shipments utils', () => {
         ppmShipment: {
           id: '2',
           expectedDepartureDate: '2022-04-01',
-          pickupPostalCode: '90210',
-          destinationPostalCode: '90211',
           sitExpected: false,
           estimatedWeight: 7999,
           hasProGear: false,
@@ -84,8 +78,6 @@ describe('shipments utils', () => {
         ppmShipment: {
           id: '2',
           expectedDepartureDate: '2022-04-01',
-          pickupPostalCode: '90210',
-          destinationPostalCode: '90211',
           sitExpected: false,
           estimatedWeight: 7999,
           hasProGear: false,
@@ -108,8 +100,6 @@ describe('shipments utils', () => {
       shipmentId: v4(),
       status: ppmShipmentStatuses.WAITING_ON_CUSTOMER,
       expectedDepartureDate: '2022-08-08',
-      pickupPostalCode: '90210',
-      destinationPostalCode: '30813',
       sitExpected: false,
       estimatedWeight: 4000,
       hasProGear: false,
