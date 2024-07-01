@@ -42,6 +42,7 @@ import PrimeBanner from 'pages/PrimeUI/PrimeBanner/PrimeBanner';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
 import withRouter from 'utils/routing';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
+import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -210,138 +211,54 @@ export class OfficeApp extends Component {
     document.body.appendChild(script);
     return (
       <PermissionProvider permissions={userPermissions} currentUserId={officeUserId}>
-        <div id="app-root">
-          <div className={siteClasses}>
-            <BypassBlock />
-            <CUIHeader />
-            {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
-            {displayChangeRole && <Link to="/select-application">Change user role</Link>}
-            {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
-            <main id="main" role="main" className="site__content site-office__content">
-              <ConnectedLogoutOnInactivity />
-              {hasRecentError && location.pathname === '/' && (
-                <SystemError>
-                  Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
-                  <br />
-                  If that doesn&apos;t fix it, contact the{' '}
-                  <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
-                    Technical Help Desk
-                  </a>{' '}
-                  (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil) and give them this code: <strong>{traceId}</strong>
-                </SystemError>
-              )}
-              {oktaLoggedOut && <OktaLoggedOutBanner />}
-              {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
-              {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
-
-              <Suspense fallback={<LoadingPlaceholder />}>
-                {!userIsLoggedIn && (
-                  // No Auth Routes
-                  <Routes>
-                    <Route path="/sign-in" element={<SignIn />} />
-                    <Route path="/request-account" element={<RequestAccount />} />
-                    <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-
-                    {/* 404 */}
-                    <Route
-                      path="*"
-                      element={(loginIsLoading && <LoadingPlaceholder />) || <Navigate to="/sign-in" replace />}
-                    />
-                  </Routes>
+        <SelectedGblocProvider>
+          <div id="app-root">
+            <div className={siteClasses}>
+              <BypassBlock />
+              <CUIHeader />
+              {userIsLoggedIn && activeRole === roleTypes.PRIME_SIMULATOR && <PrimeBanner />}
+              {displayChangeRole && <Link to="/select-application">Change user role</Link>}
+              {userIsLoggedIn ? <OfficeLoggedInHeader /> : <LoggedOutHeader app={pageNames.OFFICE} />}
+              <main id="main" role="main" className="site__content site-office__content">
+                <ConnectedLogoutOnInactivity />
+                {hasRecentError && location.pathname === '/' && (
+                  <SystemError>
+                    Something isn&apos;t working, but we&apos;re not sure what. Wait a minute and try again.
+                    <br />
+                    If that doesn&apos;t fix it, contact the{' '}
+                    <a className={styles.link} href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil">
+                      Technical Help Desk
+                    </a>{' '}
+                    (usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil)and give them this code:
+                    <strong>{traceId}</strong>
+                  </SystemError>
                 )}
-                {!hasError && userIsLoggedIn && (
-                  // Auth Routes
-                  <Routes>
-                    <Route path="/invalid-permissions" element={<InvalidPermissions />} />
-                    {/* TOO */}
-                    <Route
-                      path="/moves/queue"
-                      end
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <MoveQueue />
-                        </PrivateRoute>
-                      }
-                    />
-                    {/* TIO */}
-                    <Route
-                      path="/invoicing/queue"
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                          <PaymentRequestQueue />
-                        </PrivateRoute>
-                      }
-                    />
-                    {/* HQ */}
-                    <Route
-                      path="/hq/queues"
-                      end
-                      element={
-                        <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
-                          <HeadquartersQueues />
-                        </PrivateRoute>
-                      }
-                    />
-                    {/* SERVICES_COUNSELOR */}
-                    <Route
-                      key="servicesCounselingAddShipment"
-                      end
-                      path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingAddShipment />
-                        </PrivateRoute>
-                      }
-                    />
-                    {activeRole === roleTypes.SERVICES_COUNSELOR && (
+                {oktaLoggedOut && <OktaLoggedOutBanner />}
+                {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
+                {hasError && <SomethingWentWrong error={error} info={info} hasError={hasError} />}
+
+                <Suspense fallback={<LoadingPlaceholder />}>
+                  {!userIsLoggedIn && (
+                    // No Auth Routes
+                    <Routes>
+                      <Route path="/sign-in" element={<SignIn />} />
+                      <Route path="/request-account" element={<RequestAccount />} />
+                      <Route path="/invalid-permissions" element={<InvalidPermissions />} />
+
+                      {/* 404 */}
                       <Route
-                        path="/:queueType/*"
-                        end
-                        element={
-                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                            <ServicesCounselingQueue userPrivileges={userPrivileges} />
-                          </PrivateRoute>
-                        }
+                        path="*"
+                        element={(loginIsLoading && <LoadingPlaceholder />) || <Navigate to="/sign-in" replace />}
                       />
-                    )}
-                    <Route
-                      path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateCustomerForm userPrivileges={userPrivileges} />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <CreateMoveCustomerInfo />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingAddOrders userPrivileges={userPrivileges} />
-                        </PrivateRoute>
-                      }
-                    />
-                    {activeRole === roleTypes.TIO && (
+                    </Routes>
+                  )}
+                  {!hasError && userIsLoggedIn && (
+                    // Auth Routes
+                    <Routes>
+                      <Route path="/invalid-permissions" element={<InvalidPermissions />} />
+                      {/* TOO */}
                       <Route
-                        path="/:queueType/*"
-                        end
-                        element={
-                          <PrivateRoute requiredRoles={[roleTypes.TIO]}>
-                            <PaymentRequestQueue />
-                          </PrivateRoute>
-                        }
-                      />
-                    )}
-                    {activeRole === roleTypes.TOO && (
-                      <Route
-                        path="/:queueType/*"
+                        path="/moves/queue"
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
@@ -349,11 +266,18 @@ export class OfficeApp extends Component {
                           </PrivateRoute>
                         }
                       />
-                    )}
-
-                    {activeRole === roleTypes.HQ && (
+                      {/* TIO */}
                       <Route
-                        path="/:queueType/*"
+                        path="/invoicing/queue"
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                            <PaymentRequestQueue />
+                          </PrivateRoute>
+                        }
+                      />
+                      {/* HQ */}
+                      <Route
+                        path="/hq/queues"
                         end
                         element={
                           <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
@@ -361,225 +285,305 @@ export class OfficeApp extends Component {
                           </PrivateRoute>
                         }
                       />
-                    )}
-                    <Route
-                      key="servicesCounselingMoveInfoRoute"
-                      path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                          <ServicesCounselingMoveInfo />
-                        </PrivateRoute>
-                      }
-                    />
+                      {/* SERVICES_COUNSELOR */}
+                      <Route
+                        key="servicesCounselingAddShipment"
+                        end
+                        path={servicesCounselingRoutes.SHIPMENT_ADD_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <ServicesCounselingAddShipment />
+                          </PrivateRoute>
+                        }
+                      />
+                      {activeRole === roleTypes.SERVICES_COUNSELOR && (
+                        <Route
+                          path="/:queueType/*"
+                          end
+                          element={
+                            <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                              <ServicesCounselingQueue userPrivileges={userPrivileges} />
+                            </PrivateRoute>
+                          }
+                        />
+                      )}
+                      <Route
+                        path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <CreateCustomerForm userPrivileges={userPrivileges} />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <CreateMoveCustomerInfo />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        path={`${servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH}/*`}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <ServicesCounselingAddOrders userPrivileges={userPrivileges} />
+                          </PrivateRoute>
+                        }
+                      />
+                      {activeRole === roleTypes.TIO && (
+                        <Route
+                          path="/:queueType/*"
+                          end
+                          element={
+                            <PrivateRoute requiredRoles={[roleTypes.TIO]}>
+                              <PaymentRequestQueue />
+                            </PrivateRoute>
+                          }
+                        />
+                      )}
+                      {activeRole === roleTypes.TOO && (
+                        <Route
+                          path="/:queueType/*"
+                          end
+                          element={
+                            <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                              <MoveQueue />
+                            </PrivateRoute>
+                          }
+                        />
+                      )}
 
-                    {/* TOO */}
-                    <Route
-                      path={`${tooRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}`}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <CustomerInfo />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="tooAddShipmentRoute"
-                      end
-                      path={tooRoutes.SHIPMENT_ADD_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <AddShipment />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="tooEditShipmentDetailsRoute"
-                      end
-                      path={tooRoutes.BASE_SHIPMENT_EDIT_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <EditShipmentDetails />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="tooCounselingMoveInfoRoute"
-                      path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                          <ServicesCounselingMoveInfo />
-                        </PrivateRoute>
-                      }
-                    />
+                      {activeRole === roleTypes.HQ && (
+                        <Route
+                          path="/:queueType/*"
+                          end
+                          element={
+                            <PrivateRoute requiredRoles={hqRoleFlag ? [roleTypes.HQ] : [undefined]}>
+                              <HeadquartersQueues />
+                            </PrivateRoute>
+                          }
+                        />
+                      )}
+                      <Route
+                        key="servicesCounselingMoveInfoRoute"
+                        path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <ServicesCounselingMoveInfo />
+                          </PrivateRoute>
+                        }
+                      />
 
-                    {/* PRIME SIMULATOR */}
-                    <Route
-                      key="primeSimulatorMovePath"
-                      path={primeSimulatorRoutes.VIEW_MOVE_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorMoveDetails />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorCreateShipmentPath"
-                      path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIShipmentCreateForm />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorShipmentUpdateAddressPath"
-                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIShipmentUpdateAddress />
-                        </PrivateRoute>
-                      }
-                      end
-                    />
-                    <Route
-                      key="primeSimulatorUpdateShipmentPath"
-                      path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
-                      end
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIShipmentForm />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorCreatePaymentRequestsPath"
-                      path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorCreatePaymentRequest />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorUploadPaymentRequestDocumentsPath"
-                      path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorUploadPaymentRequestDocuments />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorUploadServiceRequestDocumentsPath"
-                      path={primeSimulatorRoutes.UPLOAD_SERVICE_REQUEST_DOCUMENTS_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorUploadServiceRequestDocuments />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorCreateServiceItem"
-                      path={primeSimulatorRoutes.CREATE_SERVICE_ITEM_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorCreateServiceItem />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorUpdateSitServiceItems"
-                      path={primeSimulatorRoutes.UPDATE_SIT_SERVICE_ITEM_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorUpdateSitServiceItem />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorUpdateReweighPath"
-                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_REWEIGH_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIShipmentUpdateReweigh />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorCreateSITExtensionRequestsPath"
-                      path={primeSimulatorRoutes.CREATE_SIT_EXTENSION_REQUEST_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeSimulatorCreateSITExtensionRequest />
-                        </PrivateRoute>
-                      }
-                    />
-                    <Route
-                      key="primeSimulatorUpdateDestinationAddressPath"
-                      path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
-                          <PrimeUIShipmentUpdateDestinationAddress />
-                        </PrivateRoute>
-                      }
-                    />
+                      {/* TOO */}
+                      <Route
+                        path={`${tooRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}`}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <CustomerInfo />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="tooAddShipmentRoute"
+                        end
+                        path={tooRoutes.SHIPMENT_ADD_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <AddShipment />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="tooEditShipmentDetailsRoute"
+                        end
+                        path={tooRoutes.BASE_SHIPMENT_EDIT_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <EditShipmentDetails />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="tooCounselingMoveInfoRoute"
+                        path={`${tooRoutes.BASE_SHIPMENT_ADVANCE_PATH_TOO}/*`}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                            <ServicesCounselingMoveInfo />
+                          </PrivateRoute>
+                        }
+                      />
 
-                    {/* QAE/CSR */}
-                    <Route
-                      key="qaeCSRMoveSearchPath"
-                      path={qaeCSRRoutes.MOVE_SEARCH_PATH}
-                      element={
-                        <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
-                          <QAECSRMoveSearch />
-                        </PrivateRoute>
-                      }
-                    />
+                      {/* PRIME SIMULATOR */}
+                      <Route
+                        key="primeSimulatorMovePath"
+                        path={primeSimulatorRoutes.VIEW_MOVE_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorMoveDetails />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorCreateShipmentPath"
+                        path={primeSimulatorRoutes.CREATE_SHIPMENT_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeUIShipmentCreateForm />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorShipmentUpdateAddressPath"
+                        path={primeSimulatorRoutes.SHIPMENT_UPDATE_ADDRESS_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeUIShipmentUpdateAddress />
+                          </PrivateRoute>
+                        }
+                        end
+                      />
+                      <Route
+                        key="primeSimulatorUpdateShipmentPath"
+                        path={primeSimulatorRoutes.UPDATE_SHIPMENT_PATH}
+                        end
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeUIShipmentForm />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorCreatePaymentRequestsPath"
+                        path={primeSimulatorRoutes.CREATE_PAYMENT_REQUEST_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorCreatePaymentRequest />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorUploadPaymentRequestDocumentsPath"
+                        path={primeSimulatorRoutes.UPLOAD_DOCUMENTS_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorUploadPaymentRequestDocuments />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorUploadServiceRequestDocumentsPath"
+                        path={primeSimulatorRoutes.UPLOAD_SERVICE_REQUEST_DOCUMENTS_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorUploadServiceRequestDocuments />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorCreateServiceItem"
+                        path={primeSimulatorRoutes.CREATE_SERVICE_ITEM_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorCreateServiceItem />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorUpdateSitServiceItems"
+                        path={primeSimulatorRoutes.UPDATE_SIT_SERVICE_ITEM_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorUpdateSitServiceItem />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorUpdateReweighPath"
+                        path={primeSimulatorRoutes.SHIPMENT_UPDATE_REWEIGH_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeUIShipmentUpdateReweigh />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorCreateSITExtensionRequestsPath"
+                        path={primeSimulatorRoutes.CREATE_SIT_EXTENSION_REQUEST_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeSimulatorCreateSITExtensionRequest />
+                          </PrivateRoute>
+                        }
+                      />
+                      <Route
+                        key="primeSimulatorUpdateDestinationAddressPath"
+                        path={primeSimulatorRoutes.SHIPMENT_UPDATE_DESTINATION_ADDRESS_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.PRIME_SIMULATOR]}>
+                            <PrimeUIShipmentUpdateDestinationAddress />
+                          </PrivateRoute>
+                        }
+                      />
 
-                    <Route
-                      key="txoMoveInfoRoute"
-                      path="/moves/:moveCode/*"
-                      element={
-                        <PrivateRoute
-                          requiredRoles={[
-                            roleTypes.TOO,
-                            roleTypes.TIO,
-                            roleTypes.QAE,
-                            roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
-                            hqRoleFlag ? roleTypes.HQ : undefined,
-                          ]}
-                        >
-                          <TXOMoveInfo />
-                        </PrivateRoute>
-                      }
-                    />
+                      {/* QAE/CSR */}
+                      <Route
+                        key="qaeCSRMoveSearchPath"
+                        path={qaeCSRRoutes.MOVE_SEARCH_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
+                            <QAECSRMoveSearch />
+                          </PrivateRoute>
+                        }
+                      />
 
-                    <Route end path="/select-application" element={<ConnectedSelectApplication />} />
+                      <Route
+                        key="txoMoveInfoRoute"
+                        path="/moves/:moveCode/*"
+                        element={
+                          <PrivateRoute
+                            requiredRoles={[
+                              roleTypes.TOO,
+                              roleTypes.TIO,
+                              roleTypes.QAE,
+                              roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                              hqRoleFlag ? roleTypes.HQ : undefined,
+                            ]}
+                          >
+                            <TXOMoveInfo />
+                          </PrivateRoute>
+                        }
+                      />
 
-                    {/* ROOT */}
-                    {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
-                    {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
-                    {activeRole === roleTypes.HQ && !hqRoleFlag && (
-                      <Route end path="/*" element={<InvalidPermissions />} />
-                    )}
-                    {activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
-                    {activeRole === roleTypes.SERVICES_COUNSELOR && (
-                      <Route end path="/*" element={<ServicesCounselingQueue />} />
-                    )}
-                    {activeRole === roleTypes.PRIME_SIMULATOR && (
-                      <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
-                    )}
-                    {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
-                      <Route end path="/" element={<QAECSRMoveSearch />} />
-                    )}
+                      <Route end path="/select-application" element={<ConnectedSelectApplication />} />
 
-                    {/* 404 */}
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                )}
-              </Suspense>
-            </main>
+                      {/* ROOT */}
+                      {activeRole === roleTypes.TIO && <Route end path="/*" element={<PaymentRequestQueue />} />}
+                      {activeRole === roleTypes.TOO && <Route end path="/*" element={<MoveQueue />} />}
+                      {activeRole === roleTypes.HQ && !hqRoleFlag && (
+                        <Route end path="/*" element={<InvalidPermissions />} />
+                      )}
+                      {activeRole === roleTypes.HQ && <Route end path="/*" element={<HeadquartersQueues />} />}
+                      {activeRole === roleTypes.SERVICES_COUNSELOR && (
+                        <Route end path="/*" element={<ServicesCounselingQueue />} />
+                      )}
+                      {activeRole === roleTypes.PRIME_SIMULATOR && (
+                        <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
+                      )}
+                      {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                        <Route end path="/" element={<QAECSRMoveSearch />} />
+                      )}
+
+                      {/* 404 */}
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  )}
+                </Suspense>
+              </main>
+            </div>
           </div>
-        </div>
-        <div id="modal-root" />
+          <div id="modal-root" />
+        </SelectedGblocProvider>
       </PermissionProvider>
     );
   }

@@ -10,6 +10,7 @@ import { MockProviders } from 'testUtils';
 import { MOVE_STATUS_OPTIONS } from 'constants/queues';
 import { generalRoutes, hqRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'), // this line preserves the non-hook exports
@@ -267,7 +268,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.getByTestId('task-order-queue-tab-link')).toBeInTheDocument();
@@ -289,7 +292,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.queryByTestId('table-queue')).not.toBeInTheDocument();
@@ -301,7 +306,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.COUNSELING_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
@@ -312,7 +319,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.CLOSEOUT_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
@@ -324,7 +333,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.PAYMENT_REQUEST_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
@@ -335,7 +346,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
@@ -345,7 +358,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
@@ -355,7 +370,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     MOVE_STATUS_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
@@ -365,7 +382,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
@@ -377,7 +396,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     await waitFor(() => {
@@ -391,7 +412,9 @@ describe('HeadquartersQueue', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: hqRoutes.MOVE_QUEUE });
     render(
       <reactRouterDom.BrowserRouter>
-        <HeadquartersQueue />
+        <SelectedGblocProvider>
+          <HeadquartersQueue />
+        </SelectedGblocProvider>
       </reactRouterDom.BrowserRouter>,
     );
     await await waitFor(() => {

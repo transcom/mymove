@@ -39,10 +39,16 @@ type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-	if gblocErr != nil {
-		return &models.PaymentRequests{}, 0, gblocErr
+	var gbloc string
+	if params.ViewAsGBLOC != nil {
+		gbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		gbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return &models.PaymentRequests{}, 0, gblocErr
+		}
 	}
 
 	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)

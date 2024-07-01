@@ -93,6 +93,27 @@ export const SERVICE_COUNSELING_PPM_TYPE_LABELS = {
 };
 
 export const GBLOC = {
+  AGFM: 'AGFM',
+  APAT: 'APAT',
+  BGAC: 'BGAC',
+  BGNC: 'BGNC',
+  BKAS: 'BKAS',
+  CFMQ: 'CFMQ',
+  CLPK: 'CLPK',
+  CNNQ: 'CNNQ',
+  DMAT: 'DMAT',
+  GSAT: 'GSAT',
+  HAFC: 'HAFC',
+  HBAT: 'HBAT',
+  JEAT: 'JEAT',
+  JENQ: 'JENQ',
+  KKFA: 'KKFA',
+  LHNQ: 'LHNQ',
+  LKNQ: 'LKNQ',
+  MAPK: 'MAPK',
+  MAPS: 'MAPS',
+  MBFL: 'MBFL',
+  MLNQ: 'MLNQ',
   USMC: 'USMC',
 };
 
