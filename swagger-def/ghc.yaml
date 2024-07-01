@@ -679,7 +679,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.maxBillableWeight
-  /orders/{ordersId}/upload_amended_orders:
+  /orders/{orderID}/upload_amended_orders:
     post:
       summary: Create an amended order for a given order
       description: Create an amended order for a given order
@@ -690,7 +690,7 @@ paths:
         - multipart/form-data
       parameters:
         - in: path
-          name: ordersId
+          name: orderID
           type: string
           format: uuid
           required: true
@@ -2977,7 +2977,7 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.financialReviewFlag
-  /moves/{moveId}/uploadAdditionalDocuments:
+  /moves/{moveID}/uploadAdditionalDocuments:
     patch:
       summary: Patch the additional documents for a given move
       description: Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.
@@ -2988,7 +2988,7 @@ paths:
         - multipart/form-data
       parameters:
         - in: path
-          name: moveId
+          name: moveID
           type: string
           format: uuid
           required: true
@@ -3228,7 +3228,11 @@ paths:
           description: filters the GBLOC of the service member's origin duty location
         - in: query
           name: originDutyLocation
-          type: string
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
           description: filters the name of the origin duty location on the orders
         - in: query
           name: destinationDutyLocation
@@ -3280,6 +3284,30 @@ paths:
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /queues/counseling/origin-list:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all moves origin locations in the counselors queue
+      description: >
+        An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.
+      operationId: getServicesCounselingOriginList
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: needsPPMCloseout
+          type: boolean
+          description: Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/Locations'
         '403':
           $ref: '#/responses/PermissionDenied'
         '500':
@@ -3387,7 +3415,11 @@ paths:
           type: string
         - in: query
           name: originDutyLocation
-          type: string
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
         - in: query
           name: destinationDutyLocation
           type: string
@@ -3766,7 +3798,7 @@ paths:
           description: payload is too large
         '500':
           description: server error
-  /uploads/{uploadId}:
+  /uploads/{uploadID}:
     delete:
       summary: Deletes an upload
       description: Uploads represent a single digital file, such as a JPEG or PDF.
@@ -3775,13 +3807,13 @@ paths:
         - uploads
       parameters:
         - in: path
-          name: uploadId
+          name: uploadID
           type: string
           format: uuid
           required: true
           description: UUID of the upload to be deleted
         - in: query
-          name: orderId
+          name: orderID
           type: string
           format: uuid
           description: ID of the order that the upload belongs to
@@ -4918,6 +4950,22 @@ definitions:
       eTag:
         type: string
     type: object
+  Location:
+    type: object
+    properties:
+      label:
+        type: string
+        example: Label for display
+      value:
+        type: string
+        example: Value for location
+    required:
+      - label
+      - value
+  Locations:
+    type: array
+    items:
+      $ref: '#/definitions/Location'
   OrderBody:
     type: object
     properties:
