@@ -2382,7 +2382,7 @@ func init() {
         }
       ]
     },
-    "/moves/{moveId}/uploadAdditionalDocuments": {
+    "/moves/{moveID}/uploadAdditionalDocuments": {
       "patch": {
         "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
@@ -2398,7 +2398,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "moveId",
+            "name": "moveID",
             "in": "path",
             "required": true
           },
@@ -2989,7 +2989,7 @@ func init() {
         }
       ]
     },
-    "/orders/{ordersId}/upload_amended_orders": {
+    "/orders/{orderID}/upload_amended_orders": {
       "post": {
         "description": "Create an amended order for a given order",
         "consumes": [
@@ -3005,7 +3005,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "ordersId",
+            "name": "orderID",
             "in": "path",
             "required": true
           },
@@ -3930,7 +3930,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -4017,6 +4022,41 @@ func init() {
         }
       }
     },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -4089,7 +4129,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -5544,7 +5589,7 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}": {
+    "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
         "tags": [
@@ -5557,7 +5602,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the upload to be deleted",
-            "name": "uploadId",
+            "name": "uploadID",
             "in": "path",
             "required": true
           },
@@ -5565,7 +5610,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
+            "name": "orderID",
             "in": "query"
           }
         ],
@@ -5777,6 +5822,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -7689,6 +7736,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {
@@ -15910,7 +15980,7 @@ func init() {
         }
       ]
     },
-    "/moves/{moveId}/uploadAdditionalDocuments": {
+    "/moves/{moveID}/uploadAdditionalDocuments": {
       "patch": {
         "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
@@ -15926,7 +15996,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "moveId",
+            "name": "moveID",
             "in": "path",
             "required": true
           },
@@ -16647,7 +16717,7 @@ func init() {
         }
       ]
     },
-    "/orders/{ordersId}/upload_amended_orders": {
+    "/orders/{orderID}/upload_amended_orders": {
       "post": {
         "description": "Create an amended order for a given order",
         "consumes": [
@@ -16663,7 +16733,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "ordersId",
+            "name": "orderID",
             "in": "path",
             "required": true
           },
@@ -17881,7 +17951,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -17974,6 +18049,47 @@ func init() {
         }
       }
     },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -18046,7 +18162,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -19840,7 +19961,7 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}": {
+    "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
         "tags": [
@@ -19853,7 +19974,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the upload to be deleted",
-            "name": "uploadId",
+            "name": "uploadID",
             "in": "path",
             "required": true
           },
@@ -19861,7 +19982,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
+            "name": "orderID",
             "in": "query"
           }
         ],
@@ -20073,6 +20194,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -21989,6 +22112,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {

@@ -54,12 +54,12 @@ func (o *DeleteUploadParams) BindRequest(r *http.Request, route *middleware.Matc
 
 	qs := runtime.Values(r.URL.Query())
 
-	qOrderID, qhkOrderID, _ := qs.GetOK("orderId")
+	qOrderID, qhkOrderID, _ := qs.GetOK("orderID")
 	if err := o.bindOrderID(qOrderID, qhkOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
-	rUploadID, rhkUploadID, _ := route.Params.GetOK("uploadId")
+	rUploadID, rhkUploadID, _ := route.Params.GetOK("uploadID")
 	if err := o.bindUploadID(rUploadID, rhkUploadID, route.Formats); err != nil {
 		res = append(res, err)
 	}
@@ -86,7 +86,7 @@ func (o *DeleteUploadParams) bindOrderID(rawData []string, hasKey bool, formats 
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("orderId", "query", "strfmt.UUID", raw)
+		return errors.InvalidType("orderID", "query", "strfmt.UUID", raw)
 	}
 	o.OrderID = (value.(*strfmt.UUID))
 
@@ -100,7 +100,7 @@ func (o *DeleteUploadParams) bindOrderID(rawData []string, hasKey bool, formats 
 // validateOrderID carries on validations for parameter OrderID
 func (o *DeleteUploadParams) validateOrderID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("orderId", "query", "uuid", o.OrderID.String(), formats); err != nil {
+	if err := validate.FormatOf("orderID", "query", "uuid", o.OrderID.String(), formats); err != nil {
 		return err
 	}
 	return nil
@@ -119,7 +119,7 @@ func (o *DeleteUploadParams) bindUploadID(rawData []string, hasKey bool, formats
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("uploadId", "path", "strfmt.UUID", raw)
+		return errors.InvalidType("uploadID", "path", "strfmt.UUID", raw)
 	}
 	o.UploadID = *(value.(*strfmt.UUID))
 
@@ -133,7 +133,7 @@ func (o *DeleteUploadParams) bindUploadID(rawData []string, hasKey bool, formats
 // validateUploadID carries on validations for parameter UploadID
 func (o *DeleteUploadParams) validateUploadID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("uploadId", "path", "uuid", o.UploadID.String(), formats); err != nil {
+	if err := validate.FormatOf("uploadID", "path", "uuid", o.UploadID.String(), formats); err != nil {
 		return err
 	}
 	return nil

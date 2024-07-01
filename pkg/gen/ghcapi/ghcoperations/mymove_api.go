@@ -209,6 +209,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ReportViolationsGetReportViolationsByReportIDHandler: report_violations.GetReportViolationsByReportIDHandlerFunc(func(params report_violations.GetReportViolationsByReportIDParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.GetReportViolationsByReportID has not yet been implemented")
 		}),
+		QueuesGetServicesCounselingOriginListHandler: queues.GetServicesCounselingOriginListHandlerFunc(func(params queues.GetServicesCounselingOriginListParams) middleware.Responder {
+			return middleware.NotImplemented("operation queues.GetServicesCounselingOriginList has not yet been implemented")
+		}),
 		QueuesGetServicesCounselingQueueHandler: queues.GetServicesCounselingQueueHandlerFunc(func(params queues.GetServicesCounselingQueueParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.GetServicesCounselingQueue has not yet been implemented")
 		}),
@@ -484,6 +487,8 @@ type MymoveAPI struct {
 	QueuesGetPaymentRequestsQueueHandler queues.GetPaymentRequestsQueueHandler
 	// ReportViolationsGetReportViolationsByReportIDHandler sets the operation handler for the get report violations by report ID operation
 	ReportViolationsGetReportViolationsByReportIDHandler report_violations.GetReportViolationsByReportIDHandler
+	// QueuesGetServicesCounselingOriginListHandler sets the operation handler for the get services counseling origin list operation
+	QueuesGetServicesCounselingOriginListHandler queues.GetServicesCounselingOriginListHandler
 	// QueuesGetServicesCounselingQueueHandler sets the operation handler for the get services counseling queue operation
 	QueuesGetServicesCounselingQueueHandler queues.GetServicesCounselingQueueHandler
 	// MtoShipmentGetShipmentHandler sets the operation handler for the get shipment operation
@@ -798,6 +803,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ReportViolationsGetReportViolationsByReportIDHandler == nil {
 		unregistered = append(unregistered, "report_violations.GetReportViolationsByReportIDHandler")
 	}
+	if o.QueuesGetServicesCounselingOriginListHandler == nil {
+		unregistered = append(unregistered, "queues.GetServicesCounselingOriginListHandler")
+	}
 	if o.QueuesGetServicesCounselingQueueHandler == nil {
 		unregistered = append(unregistered, "queues.GetServicesCounselingQueueHandler")
 	}
@@ -1104,7 +1112,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/uploads/{uploadId}"] = uploads.NewDeleteUpload(o.context, o.UploadsDeleteUploadHandler)
+	o.handlers["DELETE"]["/uploads/{uploadID}"] = uploads.NewDeleteUpload(o.context, o.UploadsDeleteUploadHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1213,6 +1221,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/report-violations/{reportID}"] = report_violations.NewGetReportViolationsByReportID(o.context, o.ReportViolationsGetReportViolationsByReportIDHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/queues/counseling/origin-list"] = queues.NewGetServicesCounselingOriginList(o.context, o.QueuesGetServicesCounselingOriginListHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1388,11 +1400,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/moves/{moveId}/uploadAdditionalDocuments"] = move.NewUploadAdditionalDocuments(o.context, o.MoveUploadAdditionalDocumentsHandler)
+	o.handlers["PATCH"]["/moves/{moveID}/uploadAdditionalDocuments"] = move.NewUploadAdditionalDocuments(o.context, o.MoveUploadAdditionalDocumentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/orders/{ordersId}/upload_amended_orders"] = order.NewUploadAmendedOrders(o.context, o.OrderUploadAmendedOrdersHandler)
+	o.handlers["POST"]["/orders/{orderID}/upload_amended_orders"] = order.NewUploadAmendedOrders(o.context, o.OrderUploadAmendedOrdersHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP
