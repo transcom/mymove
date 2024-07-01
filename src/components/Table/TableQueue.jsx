@@ -208,26 +208,13 @@ const TableQueue = ({
   };
 
   const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
-    if (value) {
-      return (
-        <button
-          type="button"
-          title={buttonTitle}
-          data-testid={dataTestId}
-          className={styles.pillButton}
-          onClick={() => handleRemoveMultiSelectFilterClick(index, value)}
-        >
-          {label} <span aria-hidden="true">&times;</span>
-        </button>
-      );
-    }
     return (
       <button
         type="button"
-        title={title}
+        title={buttonTitle}
         data-testid={dataTestId}
         className={styles.pillButton}
-        onClick={() => handleRemoveFilterClick(index)}
+        onClick={() => (value ? handleRemoveMultiSelectFilterClick(index, value) : handleRemoveFilterClick(index))}
       >
         {label} <span aria-hidden="true">&times;</span>
       </button>
@@ -257,20 +244,21 @@ const TableQueue = ({
         filterPillButtons.push(removeAllPillButton);
       }
       const buttonTitle = 'Remove filter';
+      const prefixDataTestId = 'remove-filters-';
       paramFilters.forEach(function callback(filter, index) {
         columns.forEach((col) => {
           if (col.id === filter.id) {
             if ('Filter' in col) {
               if (isDateFilterValue(filter.value)) {
                 filterPillButtons.push(
-                  renderFilterPillButton(index, null, buttonTitle, col.Header, `remove-filters-${filter.id}`),
+                  renderFilterPillButton(index, null, buttonTitle, col.Header, `${prefixDataTestId}${filter.id}`),
                 );
               } else if (Array.isArray(filter.value)) {
                 // value as real array
                 filter.value.forEach((val) => {
                   const label = filter.value.length > 1 ? `${col.Header} (${val})` : col.Header;
                   filterPillButtons.push(
-                    renderFilterPillButton(index, val, buttonTitle, label, `remove-filters-${filter.id}-${val}`),
+                    renderFilterPillButton(index, val, buttonTitle, label, `${prefixDataTestId}${filter.id}-${val}`),
                   );
                 });
               } else {
@@ -279,14 +267,14 @@ const TableQueue = ({
                 values.forEach((val) => {
                   const label = values.length > 1 ? `${col.Header} (${getSelectionOptionLabel(val)})` : col.Header;
                   filterPillButtons.push(
-                    renderFilterPillButton(index, val, buttonTitle, label, `remove-filters-${filter.id}-${val}`),
+                    renderFilterPillButton(index, val, buttonTitle, label, `${prefixDataTestId}${filter.id}-${val}`),
                   );
                 });
               }
             } else {
               // default filter TextInput
               filterPillButtons.push(
-                renderFilterPillButton(index, null, buttonTitle, col.Header, `remove-filters-${filter.id}`),
+                renderFilterPillButton(index, null, buttonTitle, col.Header, `${prefixDataTestId}${filter.id}`),
               );
             }
           }
