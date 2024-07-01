@@ -105,7 +105,7 @@ const AdditionalDocuments = ({ moves, updateMove }) => {
             <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
             <>
               <br />
-              <UploadsTable uploads={uploads} onDelete={handleDelete} />
+              <UploadsTable uploads={uploads} onDelete={handleDelete} showDownloadLink />
             </>
             <div className="uploader-box">
               <FileUpload
