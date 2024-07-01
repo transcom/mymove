@@ -1,4 +1,4 @@
-import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
+import { SERVICE_COUNSELING_BRANCH_OPTIONS, MOVE_STATUS_OPTIONS } from 'constants/queues';
 import { PAYMENT_REQUEST_STATUS_LABELS } from 'constants/paymentRequestStatus';
 
 /**
@@ -193,7 +193,9 @@ export const getTableQueueSortParamSessionStorageValue = (key) => {
  */
 export const getSelectionOptionLabel = (value) => {
   // Loop though known options and attempt to retrieve display.
-  let label = BRANCH_OPTIONS.filter((option) => value === option.value).map((option) => option.label);
+  let label = SERVICE_COUNSELING_BRANCH_OPTIONS.filter((option) => value === option.value).map(
+    (option) => option.label,
+  );
   if (label.length > 0) {
     return label;
   }

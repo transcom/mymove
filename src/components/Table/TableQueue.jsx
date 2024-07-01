@@ -48,7 +48,7 @@ const TableQueue = ({
     // subsequent effects are post mount.
     setTimeout(() => {
       setIsPageReload(false);
-    }, 1000);
+    }, 500);
   }, []);
 
   const [paramSort, setParamSort] = useState(
@@ -178,8 +178,8 @@ const TableQueue = ({
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const isDateFilterParam = (filterParam) => {
-    return !Number.isNaN(Date.parse(filterParam.value));
+  const isDateFilterValue = (value) => {
+    return !Number.isNaN(Date.parse(value));
   };
 
   const handleRemoveFilterClick = (index) => {
@@ -193,7 +193,8 @@ const TableQueue = ({
 
   const handleRemoveMultiSelectFilterClick = (index, valueToDelete) => {
     const filter = paramFilters[index];
-    const filterValues = filter.value.split(multiSelectValueDelimiter);
+    const isObjectBasedArrayItem = Array.isArray(filter.value);
+    const filterValues = !isObjectBasedArrayItem ? filter.value.split(multiSelectValueDelimiter) : filter.value;
     if (filterValues.length === 1) {
       paramFilters.splice(index, 1);
     } else {
@@ -201,17 +202,17 @@ const TableQueue = ({
       if (indexToDelete !== -1) {
         filterValues.splice(indexToDelete, 1);
       }
-      paramFilters[index].value = filterValues.join(multiSelectValueDelimiter);
+      paramFilters[index].value = isObjectBasedArrayItem ? filterValues : filterValues.join(multiSelectValueDelimiter);
     }
     setAllFilters(paramFilters);
   };
 
-  const renderFilterPillBtn = (index, value, useMultiSelectHandler, titleAttributeText, label, dataTestId) => {
-    if (useMultiSelectHandler) {
+  const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
+    if (value) {
       return (
         <button
           type="button"
-          title={titleAttributeText}
+          title={buttonTitle}
           data-testid={dataTestId}
           className={styles.pillButton}
           onClick={() => handleRemoveMultiSelectFilterClick(index, value)}
@@ -220,11 +221,10 @@ const TableQueue = ({
         </button>
       );
     }
-
     return (
       <button
         type="button"
-        title={titleAttributeText}
+        title={title}
         data-testid={dataTestId}
         className={styles.pillButton}
         onClick={() => handleRemoveFilterClick(index)}
@@ -234,94 +234,65 @@ const TableQueue = ({
     );
   };
 
-  const renderRemoveAllPillBtn = () => {
+  const renderRemoveAllPillButton = () => {
     let isVisible = paramFilters?.length > 1;
     if (paramFilters?.length === 1) {
-      if (!isDateFilterParam(paramFilters[0])) {
-        isVisible = paramFilters[0].value.split(multiSelectValueDelimiter).length > 1;
+      if (!isDateFilterValue(paramFilters[0].value)) {
+        isVisible = Array.isArray(paramFilters[0].value)
+          ? paramFilters[0].value.length > 1
+          : paramFilters[0].value.split(multiSelectValueDelimiter).length > 1;
       }
     }
     if (isVisible) {
-      return renderFilterPillBtn(null, null, false, 'Remove all filters', 'All', 'remove-filters-all');
+      return renderFilterPillButton(null, null, 'Remove all filters', 'All', 'remove-filters-all');
     }
     return null;
   };
 
-  const renderFilterPillBtnList = () => {
+  const renderFilterPillButtonList = () => {
     if (paramFilters?.length > 0) {
-      const filterPillBtns = [];
-      const removeAllPill = renderRemoveAllPillBtn();
-      if (removeAllPill !== null) {
-        filterPillBtns.push(removeAllPill);
+      const filterPillButtons = [];
+      const removeAllPillButton = renderRemoveAllPillButton();
+      if (removeAllPillButton !== null) {
+        filterPillButtons.push(removeAllPillButton);
       }
-      // index, value, useMultiSelectHandler, titleAttributeText, label, dataTestId
+      const buttonTitle = 'Remove filter';
       paramFilters.forEach(function callback(filter, index) {
         columns.forEach((col) => {
           if (col.id === filter.id) {
             if ('Filter' in col) {
-              // MultiSelect filter column  can will contain Filter property.
-              if (!isDateFilterParam(filter)) {
-                const valueArray = filter.value.split(multiSelectValueDelimiter);
-                if (valueArray.length > 1) {
-                  // Multiselect filter type containing multiple filter values. Render
-                  // pill button for each filter value item ..ex: Status (Approved request).
-                  valueArray.forEach((val) => {
-                    filterPillBtns.push(
-                      renderFilterPillBtn(
-                        index,
-                        val,
-                        true,
-                        'Remove filter',
-                        `${col.Header} (${getSelectionOptionLabel(val)})`,
-                        `remove-filters-${filter.id}-${val}`,
-                      ),
-                    );
-                  });
-                } else {
-                  // Multiselect filter type containing one value.
-                  // In this case just display generic label using
-                  // column header text.
-                  filterPillBtns.push(
-                    renderFilterPillBtn(
-                      index,
-                      null,
-                      false,
-                      'Remove filter',
-                      `${col.Header}`,
-                      `remove-filters-${filter.id}`,
-                    ),
-                  );
-                }
-              } else {
-                // It's a datePicker filter.
-                filterPillBtns.push(
-                  renderFilterPillBtn(
-                    index,
-                    null,
-                    false,
-                    'Remove filter',
-                    `${col.Header}`,
-                    `remove-filters-${filter.id}`,
-                  ),
+              if (isDateFilterValue(filter.value)) {
+                filterPillButtons.push(
+                  renderFilterPillButton(index, null, buttonTitle, col.Header, `remove-filters-${filter.id}`),
                 );
+              } else if (Array.isArray(filter.value)) {
+                // value as real array
+                filter.value.forEach((val) => {
+                  const label = filter.value.length > 1 ? `${col.Header} (${val})` : col.Header;
+                  filterPillButtons.push(
+                    renderFilterPillButton(index, val, buttonTitle, label, `remove-filters-${filter.id}-${val}`),
+                  );
+                });
+              } else {
+                // value as string representing array using comma delimiter
+                const values = filter.value.split(multiSelectValueDelimiter);
+                values.forEach((val) => {
+                  const label = values.length > 1 ? `${col.Header} (${getSelectionOptionLabel(val)})` : col.Header;
+                  filterPillButtons.push(
+                    renderFilterPillButton(index, val, buttonTitle, label, `remove-filters-${filter.id}-${val}`),
+                  );
+                });
               }
             } else {
-              // For filters column using default filter control.
-              filterPillBtns.push(
-                renderFilterPillBtn(
-                  index,
-                  null,
-                  false,
-                  'Remove filter',
-                  `${col.Header}`,
-                  `remove-filters-${filter.id}`,
-                ),
+              // default filter TextInput
+              filterPillButtons.push(
+                renderFilterPillButton(index, null, buttonTitle, col.Header, `remove-filters-${filter.id}`),
               );
             }
           }
         });
       });
-      return <div className={styles.pillButtonRow}>Filters: {filterPillBtns}</div>;
+      return <div className={styles.pillButtonRow}>Filters: {filterPillButtons}</div>;
     }
     return '';
   };
@@ -329,7 +300,7 @@ const TableQueue = ({
   return (
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
       <h1>{`${title} (${totalCount})`}</h1>
-      {renderFilterPillBtnList()}
+      {renderFilterPillButtonList()}
       <div className={styles.tableContainer}>
         <Table
           showFilters={showFilters}
