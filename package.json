@@ -129,7 +129,7 @@
   "version": "0.1.0",
   "devDependencies": {
     "@babel/core": "~7.22.8",
-    "@babel/helper-builder-react-jsx": "^7.22.5",
+    "@babel/helper-builder-react-jsx": "^7.24.7",
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
