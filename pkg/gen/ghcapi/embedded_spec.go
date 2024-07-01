@@ -2382,7 +2382,7 @@ func init() {
         }
       ]
     },
-    "/moves/{moveId}/uploadAdditionalDocuments": {
+    "/moves/{moveID}/uploadAdditionalDocuments": {
       "patch": {
         "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
@@ -2398,7 +2398,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "moveId",
+            "name": "moveID",
             "in": "path",
             "required": true
           },
@@ -2989,7 +2989,7 @@ func init() {
         }
       ]
     },
-    "/orders/{ordersId}/upload_amended_orders": {
+    "/orders/{orderID}/upload_amended_orders": {
       "post": {
         "description": "Create an amended order for a given order",
         "consumes": [
@@ -3005,7 +3005,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "ordersId",
+            "name": "orderID",
             "in": "path",
             "required": true
           },
@@ -5607,7 +5607,7 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}": {
+    "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
         "tags": [
@@ -5620,7 +5620,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the upload to be deleted",
-            "name": "uploadId",
+            "name": "uploadID",
             "in": "path",
             "required": true
           },
@@ -5628,7 +5628,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
+            "name": "orderID",
             "in": "query"
           }
         ],
@@ -5840,6 +5840,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -15912,7 +15914,7 @@ func init() {
         }
       ]
     },
-    "/moves/{moveId}/uploadAdditionalDocuments": {
+    "/moves/{moveID}/uploadAdditionalDocuments": {
       "patch": {
         "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
@@ -15928,7 +15930,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "moveId",
+            "name": "moveID",
             "in": "path",
             "required": true
           },
@@ -16649,7 +16651,7 @@ func init() {
         }
       ]
     },
-    "/orders/{ordersId}/upload_amended_orders": {
+    "/orders/{orderID}/upload_amended_orders": {
       "post": {
         "description": "Create an amended order for a given order",
         "consumes": [
@@ -16665,7 +16667,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "ordersId",
+            "name": "orderID",
             "in": "path",
             "required": true
           },
@@ -19911,7 +19913,7 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}": {
+    "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
         "tags": [
@@ -19924,7 +19926,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the upload to be deleted",
-            "name": "uploadId",
+            "name": "uploadID",
             "in": "path",
             "required": true
           },
@@ -19932,7 +19934,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
+            "name": "orderID",
             "in": "query"
           }
         ],
@@ -20144,6 +20146,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {

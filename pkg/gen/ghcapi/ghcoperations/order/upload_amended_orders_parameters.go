@@ -50,7 +50,7 @@ type UploadAmendedOrdersParams struct {
 	  Required: true
 	  In: path
 	*/
-	OrdersID strfmt.UUID
+	OrderID strfmt.UUID
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -80,8 +80,8 @@ func (o *UploadAmendedOrdersParams) BindRequest(r *http.Request, route *middlewa
 		o.File = &runtime.File{Data: file, Header: fileHeader}
 	}
 
-	rOrdersID, rhkOrdersID, _ := route.Params.GetOK("ordersId")
-	if err := o.bindOrdersID(rOrdersID, rhkOrdersID, route.Formats); err != nil {
+	rOrderID, rhkOrderID, _ := route.Params.GetOK("orderID")
+	if err := o.bindOrderID(rOrderID, rhkOrderID, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -97,8 +97,8 @@ func (o *UploadAmendedOrdersParams) bindFile(file multipart.File, header *multip
 	return nil
 }
 
-// bindOrdersID binds and validates parameter OrdersID from path.
-func (o *UploadAmendedOrdersParams) bindOrdersID(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindOrderID binds and validates parameter OrderID from path.
+func (o *UploadAmendedOrdersParams) bindOrderID(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -110,21 +110,21 @@ func (o *UploadAmendedOrdersParams) bindOrdersID(rawData []string, hasKey bool, 
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("ordersId", "path", "strfmt.UUID", raw)
+		return errors.InvalidType("orderID", "path", "strfmt.UUID", raw)
 	}
-	o.OrdersID = *(value.(*strfmt.UUID))
+	o.OrderID = *(value.(*strfmt.UUID))
 
-	if err := o.validateOrdersID(formats); err != nil {
+	if err := o.validateOrderID(formats); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// validateOrdersID carries on validations for parameter OrdersID
-func (o *UploadAmendedOrdersParams) validateOrdersID(formats strfmt.Registry) error {
+// validateOrderID carries on validations for parameter OrderID
+func (o *UploadAmendedOrdersParams) validateOrderID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("ordersId", "path", "uuid", o.OrdersID.String(), formats); err != nil {
+	if err := validate.FormatOf("orderID", "path", "uuid", o.OrderID.String(), formats); err != nil {
 		return err
 	}
 	return nil

@@ -2177,7 +2177,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 		params := orderop.UploadAmendedOrdersParams{
 			HTTPRequest: req,
 			File:        suite.Fixture("filled-out-orders.pdf"),
-			OrdersID:    *handlers.FmtUUID(orders.ID),
+			OrderID:     *handlers.FmtUUID(orders.ID),
 		}
 
 		return &params
@@ -2229,7 +2229,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerUnit() {
 
 		badUUID := "badUUID"
 		params.HTTPRequest.URL.Path = fmt.Sprintf("/orders/%s/upload_amended_orders", badUUID)
-		params.OrdersID = strfmt.UUID(badUUID)
+		params.OrderID = strfmt.UUID(badUUID)
 
 		mockOrderUpdater := setUpOrOrderUpdater(models.Upload{}, "", nil, nil)
 
@@ -2372,7 +2372,7 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 		params := orderop.UploadAmendedOrdersParams{
 			HTTPRequest: req,
 			File:        suite.Fixture("filled-out-orders.pdf"),
-			OrdersID:    *handlers.FmtUUID(orders.ID),
+			OrderID:     *handlers.FmtUUID(orders.ID),
 		}
 
 		return &params
