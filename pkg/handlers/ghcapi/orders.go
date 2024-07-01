@@ -583,7 +583,10 @@ func (h AcknowledgeExcessWeightRiskHandler) Handle(
 
 			h.triggerAcknowledgeExcessWeightRiskEvent(appCtx, updatedMove.ID, params)
 
-			movePayload := payloads.Move(updatedMove)
+			movePayload, err := payloads.Move(updatedMove, h.FileStorer())
+			if err != nil {
+				return orderop.NewAcknowledgeExcessWeightRiskInternalServerError(), err
+			}
 
 			return orderop.NewAcknowledgeExcessWeightRiskOK().WithPayload(movePayload), nil
 		})
@@ -774,7 +777,7 @@ func (h UploadAmendedOrdersHandler) Handle(params orderop.UploadAmendedOrdersPar
 				zap.Int64("size", file.Header.Size),
 			)
 
-			orderID, err := uuid.FromString(params.OrdersID.String())
+			orderID, err := uuid.FromString(params.OrderID.String())
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}

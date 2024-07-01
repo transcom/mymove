@@ -2398,7 +2398,7 @@ func init() {
         }
       ]
     },
-    "/moves/{moveId}/uploadAdditionalDocuments": {
+    "/moves/{moveID}/uploadAdditionalDocuments": {
       "patch": {
         "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
@@ -2414,7 +2414,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "moveId",
+            "name": "moveID",
             "in": "path",
             "required": true
           },
@@ -3005,7 +3005,7 @@ func init() {
         }
       ]
     },
-    "/orders/{ordersId}/upload_amended_orders": {
+    "/orders/{orderID}/upload_amended_orders": {
       "post": {
         "description": "Create an amended order for a given order",
         "consumes": [
@@ -3021,7 +3021,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "ordersId",
+            "name": "orderID",
             "in": "path",
             "required": true
           },
@@ -3953,7 +3953,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -4029,6 +4034,41 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
             }
           },
           "403": {
@@ -4118,7 +4158,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -5579,7 +5624,7 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}": {
+    "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
         "tags": [
@@ -5592,7 +5637,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the upload to be deleted",
-            "name": "uploadId",
+            "name": "uploadID",
             "in": "path",
             "required": true
           },
@@ -5600,7 +5645,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
+            "name": "orderID",
             "in": "query"
           }
         ],
@@ -5812,6 +5857,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -7702,6 +7749,29 @@ func init() {
         }
       }
     },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
+      }
+    },
     "LockedOfficeUser": {
       "type": "object",
       "properties": {
@@ -8470,6 +8540,9 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -8795,6 +8868,77 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -15811,7 +15955,7 @@ func init() {
         }
       ]
     },
-    "/moves/{moveId}/uploadAdditionalDocuments": {
+    "/moves/{moveID}/uploadAdditionalDocuments": {
       "patch": {
         "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
         "consumes": [
@@ -15827,7 +15971,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "moveId",
+            "name": "moveID",
             "in": "path",
             "required": true
           },
@@ -16548,7 +16692,7 @@ func init() {
         }
       ]
     },
-    "/orders/{ordersId}/upload_amended_orders": {
+    "/orders/{orderID}/upload_amended_orders": {
       "post": {
         "description": "Create an amended order for a given order",
         "consumes": [
@@ -16564,7 +16708,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the order",
-            "name": "ordersId",
+            "name": "orderID",
             "in": "path",
             "required": true
           },
@@ -17789,7 +17933,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -17865,6 +18014,47 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
             }
           },
           "403": {
@@ -17960,7 +18150,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -19760,7 +19955,7 @@ func init() {
         }
       }
     },
-    "/uploads/{uploadId}": {
+    "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
         "tags": [
@@ -19773,7 +19968,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "UUID of the upload to be deleted",
-            "name": "uploadId",
+            "name": "uploadID",
             "in": "path",
             "required": true
           },
@@ -19781,7 +19976,7 @@ func init() {
             "type": "string",
             "format": "uuid",
             "description": "ID of the order that the upload belongs to",
-            "name": "orderId",
+            "name": "orderID",
             "in": "query"
           }
         ],
@@ -19993,6 +20188,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -21887,6 +22084,29 @@ func init() {
         }
       }
     },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
+      }
+    },
     "LockedOfficeUser": {
       "type": "object",
       "properties": {
@@ -22655,6 +22875,9 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -22980,6 +23203,77 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
