@@ -88,6 +88,9 @@ const Orders = () => {
     let longLoa = dfasMap.join('*');
     // remove any number of spaces following an asterisk in a LOA string
     longLoa = longLoa.replace(/\* +/g, '*');
+    // remove any number of spaces preceding an asterisk in a LOA string
+    longLoa = longLoa.replace(/ +\*/g, '*');
+
     return longLoa;
   };
 
