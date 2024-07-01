@@ -92,6 +92,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	PerPage *int64
+	/*filters the status of the PPM shipment
+	  In: query
+	*/
+	PpmStatus *string
 	/*filters PPM type
 	  In: query
 	*/
@@ -193,6 +197,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qPerPage, qhkPerPage, _ := qs.GetOK("perPage")
 	if err := o.bindPerPage(qPerPage, qhkPerPage, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qPpmStatus, qhkPpmStatus, _ := qs.GetOK("ppmStatus")
+	if err := o.bindPpmStatus(qPpmStatus, qhkPpmStatus, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -543,6 +552,38 @@ func (o *GetServicesCounselingQueueParams) bindPerPage(rawData []string, hasKey 
 	return nil
 }
 
+// bindPpmStatus binds and validates parameter PpmStatus from query.
+func (o *GetServicesCounselingQueueParams) bindPpmStatus(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.PpmStatus = &raw
+
+	if err := o.validatePpmStatus(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validatePpmStatus carries on validations for parameter PpmStatus
+func (o *GetServicesCounselingQueueParams) validatePpmStatus(formats strfmt.Registry) error {
+
+	if err := validate.EnumCase("ppmStatus", "query", *o.PpmStatus, []interface{}{"WAITING_ON_CUSTOMER", "NEEDS_CLOSEOUT"}, true); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // bindPpmType binds and validates parameter PpmType from query.
 func (o *GetServicesCounselingQueueParams) bindPpmType(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -618,7 +659,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus"}, true); err != nil {
 		return err
 	}
 
