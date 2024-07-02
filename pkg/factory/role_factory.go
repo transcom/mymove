@@ -141,6 +141,17 @@ func GetTraitContractingOfficerRole() []Customization {
 	}
 }
 
+func GetTraitHQRole() []Customization {
+	return []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roles.RoleTypeHQ,
+				RoleName: "Headquarters",
+			},
+		},
+	}
+}
+
 // lookup a role by role type, if it doesn't exist make it
 func FetchOrBuildRoleByRoleType(db *pop.Connection, roleType roles.RoleType) roles.Role {
 	roleName := roles.RoleName(cases.Title(language.Und).String(string(roleType)))
