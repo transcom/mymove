@@ -77,6 +77,10 @@ const counselingColumns = (moveLockFlag) => [
     id: 'dodID',
     isFilterable: true,
   }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
+  }),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: true,
@@ -172,6 +176,10 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
+    isFilterable: true,
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
     isFilterable: true,
   }),
   createHeader('Move code', 'locator', {

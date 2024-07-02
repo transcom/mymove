@@ -596,6 +596,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 	var expectedNameOrder []string
 	var expectedDodIDOrder []string
+	var expectedEmplidOrder []string
 	var expectedStatusOrder []string
 	var expectedCreatedAtOrder []time.Time
 	var expectedLocatorOrder []string
@@ -642,6 +643,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 					LastName:    models.StringPointer("Spacemen"),
 					FirstName:   models.StringPointer("Lena"),
 					Affiliation: &branchNavy,
+					Emplid:      models.StringPointer(""),
 				},
 			},
 			{
@@ -662,6 +664,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 					FirstName: models.StringPointer("Leo"),
 					LastName:  models.StringPointer("Spacemen"),
 					Edipi:     models.StringPointer("AZFG"),
+					Emplid:    models.StringPointer("1111111"),
 				},
 			},
 			{
@@ -716,6 +719,7 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 
 		expectedNameOrder = append(expectedNameOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.FirstName, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.FirstName)
 		expectedDodIDOrder = append(expectedDodIDOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Edipi, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Edipi)
+		expectedEmplidOrder = append(expectedEmplidOrder, *paymentRequest1.MoveTaskOrder.Orders.ServiceMember.Emplid, *paymentRequest2.MoveTaskOrder.Orders.ServiceMember.Emplid)
 		expectedStatusOrder = append(expectedStatusOrder, string(paymentRequest1.Status), string(paymentRequest2.Status))
 		expectedCreatedAtOrder = append(expectedCreatedAtOrder, paymentRequest1.CreatedAt, paymentRequest2.CreatedAt)
 		expectedLocatorOrder = append(expectedLocatorOrder, paymentRequest1.MoveTaskOrder.Locator, paymentRequest2.MoveTaskOrder.Locator)
@@ -775,6 +779,33 @@ func (suite *PaymentRequestServiceSuite) TestListPaymentRequestWithSortOrder() {
 		suite.Equal(2, len(paymentRequests))
 		suite.Equal(expectedDodIDOrder[0], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Edipi)
 		suite.Equal(expectedDodIDOrder[1], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Edipi)
+	})
+
+	suite.Run("Sort by emplid ASC", func() {
+		sort.Strings(expectedEmplidOrder)
+
+		// Sort by emplid
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("emplid"), Order: models.StringPointer("asc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedEmplidOrder[0], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Emplid)
+		suite.Equal(expectedEmplidOrder[1], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Emplid)
+	})
+
+	suite.Run("Sort by emplid DESC", func() {
+		sort.Strings(expectedEmplidOrder)
+
+		params := services.FetchPaymentRequestListParams{Sort: models.StringPointer("emplid"), Order: models.StringPointer("desc")}
+		expectedPaymentRequests, _, err := paymentRequestListFetcher.FetchPaymentRequestList(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		paymentRequests := *expectedPaymentRequests
+
+		suite.NoError(err)
+		suite.Equal(2, len(paymentRequests))
+		suite.Equal(expectedEmplidOrder[0], *paymentRequests[1].MoveTaskOrder.Orders.ServiceMember.Emplid)
+		suite.Equal(expectedEmplidOrder[1], *paymentRequests[0].MoveTaskOrder.Orders.ServiceMember.Emplid)
 	})
 
 	suite.Run("Sort by status ASC", func() {

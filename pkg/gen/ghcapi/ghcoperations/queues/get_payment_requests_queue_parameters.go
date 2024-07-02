@@ -49,6 +49,10 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
+	Emplid *string
+	/*
+	  In: query
+	*/
 	LastName *string
 	/*
 	  In: query
@@ -112,6 +116,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qDodID, qhkDodID, _ := qs.GetOK("dodID")
 	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
+	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -220,6 +229,24 @@ func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool,
 		return nil
 	}
 	o.DodID = &raw
+
+	return nil
+}
+
+// bindEmplid binds and validates parameter Emplid from query.
+func (o *GetPaymentRequestsQueueParams) bindEmplid(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.Emplid = &raw
 
 	return nil
 }
@@ -399,7 +426,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "age", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "emplid", "age", "originDutyLocation"}, true); err != nil {
 		return err
 	}
 

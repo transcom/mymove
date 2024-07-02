@@ -25,6 +25,9 @@ type SearchCustomer struct {
 	// dod ID
 	DodID *string `json:"dodID,omitempty"`
 
+	// emplid
+	Emplid *string `json:"emplid,omitempty"`
+
 	// first name
 	// Example: John
 	FirstName *string `json:"firstName,omitempty"`
