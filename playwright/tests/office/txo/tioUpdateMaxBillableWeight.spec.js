@@ -30,13 +30,13 @@ test.describe('TIO user', () => {
 
     const fieldset = page.locator('fieldset');
     await fieldset.locator('input#billableWeight').clear();
-    await fieldset.locator('input#billableWeight').type('7400');
+    await fieldset.locator('input#billableWeight').type('2200');
     await fieldset.locator('textarea#billableWeightJustification').type('Some basic remarks.');
 
     await page.getByRole('button', { name: 'Save changes' }).click();
     await officePage.waitForLoading();
 
-    await expect(page.locator('[data-testid="billableWeightValue"]')).toContainText('7,400 lbs');
+    await expect(page.locator('[data-testid="billableWeightValue"]')).toContainText('2,200 lbs');
     await expect(page.locator('[data-testid="billableWeightRemarks"]')).toContainText('Some basic remarks.');
   });
 });

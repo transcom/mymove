@@ -3833,6 +3833,7 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
+				NTSRecordedWeight:    &ntsRecordedWeight,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				TACType:              &tacType,
 				Status:               models.MTOShipmentStatusApproved,

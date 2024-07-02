@@ -228,6 +228,7 @@ describe('ShipmentCard', () => {
       },
       estimatedWeight: 5000,
       originalWeight: 4300,
+      ntsRecordedWeight: 4300,
       reweighRemarks: 'Unable to perform reweigh because shipment was already unloaded',
       editEntity: () => {},
       shipmentType: SHIPMENT_OPTIONS.NTSR,
@@ -235,8 +236,7 @@ describe('ShipmentCard', () => {
 
     render(<ShipmentCard {...props} />);
 
-    expect(screen.getByTestId('shipmentWeight')).toHaveTextContent('4,300 lbs');
-    expect(screen.queryByTestId('estimatedWeight')).not.toBeInTheDocument();
+    expect(screen.getByTestId('originalWeight')).toHaveTextContent('4,300 lbs');
 
     // addresses
     expect(screen.queryByText(formatAddressShort(props.pickupAddress))).not.toBeInTheDocument();

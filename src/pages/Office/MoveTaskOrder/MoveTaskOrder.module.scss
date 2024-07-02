@@ -41,6 +41,18 @@
   @include u-text('lowercase');
 }
 
+.subValue {
+  @include u-font-size('base', 6);
+  @include u-text('bold');
+  @include u-text('lowercase');
+}
+
+:global(.usa-button.usa-button--unstyled).toggleCalculations {
+  @include u-padding-x(2);
+  @include u-margin-bottom(1);
+  @include u-font-size(body, '3xs');
+}
+
 .financialReviewContainer {
   @include u-margin-top(1);
   :global(.usa-button) {

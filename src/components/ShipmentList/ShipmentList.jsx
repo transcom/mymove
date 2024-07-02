@@ -6,12 +6,13 @@ import { Tag, Button } from '@trussworks/react-uswds';
 
 import styles from './ShipmentList.module.scss';
 
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
 import { isPPMShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
+import ToolTip from 'shared/ToolTip/ToolTip';
 
 export const ShipmentListItem = ({
   shipment,
@@ -50,10 +51,25 @@ export const ShipmentListItem = ({
       }`}
       data-testid="shipment-list-item-container"
     >
-      <strong>
-        {shipmentTypes[shipment.shipmentType]}
-        {showNumber && ` ${shipmentNumber}`}
-      </strong>{' '}
+      <div>
+        <strong>
+          {shipmentTypes[shipment.shipmentType]}
+          {showNumber && ` ${shipmentNumber}`}
+        </strong>{' '}
+        <br />
+        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) && (
+          <>
+            <span>{formatWeight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT)} </span>
+            <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
+          </>
+        )}
+        {shipment.shipmentType === SHIPMENT_OPTIONS.NTSR && (
+          <>
+            <span>{formatWeight(shipment.ntsRecordedWeight * WEIGHT_ADJUSTMENT)} </span>
+            <ToolTip text="110% Previously Recorded Weight" icon="circle-question" closeOnLeave />
+          </>
+        )}
+      </div>
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>

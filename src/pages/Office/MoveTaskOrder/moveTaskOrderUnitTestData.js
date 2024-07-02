@@ -790,6 +790,7 @@ export const missingSomeWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      ntsRecordedWeight: 100,
       primeEstimatedWeight: 100,
       primeActualWeight: 100,
       reweigh: {
@@ -1156,6 +1157,7 @@ export const riskOfExcessWeightQuery = {
       },
       status: 'APPROVED',
       eTag: '1234',
+      ntsRecordedWeight: 50,
       primeEstimatedWeight: 40,
       primeActualWeight: 40,
       sitExtensions: [],

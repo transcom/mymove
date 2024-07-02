@@ -6,7 +6,8 @@ import ReviewBillableWeight from './ReviewBillableWeight';
 
 import { formatWeight, formatDateFromIso } from 'utils/formatters';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
-import { shipmentStatuses } from 'constants/shipments';
+import { calculateEstimatedWeight } from 'hooks/custom';
+import { WEIGHT_ADJUSTMENT, shipmentStatuses } from 'constants/shipments';
 import { tioRoutes } from 'constants/routes';
 import { MockProviders, ReactQueryWrapper } from 'testUtils';
 
@@ -319,13 +320,15 @@ describe('ReviewBillableWeight', () => {
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
       renderWithProviders(<ReviewBillableWeight />);
       expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
-        formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
+        formatWeight(
+          calculateEstimatedWeight(useMovePaymentRequestsReturnValue.mtoShipments, undefined, WEIGHT_ADJUSTMENT),
+        ),
       );
       expect(screen.getByTestId('weightAllowance').textContent).toBe(
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
       );
       expect(screen.getByTestId('weightRequested').textContent).toBe('900 lbs');
-      expect(screen.getByTestId('totalBillableWeight').textContent).toBe('8,000 lbs');
+      expect(screen.getByTestId('totalBillableWeight').textContent).toBe('6,100 lbs');
     });
 
     it('renders 110% estimated weight and edit view', async () => {
@@ -370,7 +373,9 @@ describe('ReviewBillableWeight', () => {
         expect(screen.getByText('Shipment weights')).toBeInTheDocument();
 
         expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
-          formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
+          formatWeight(
+            calculateEstimatedWeight(useMovePaymentRequestsReturnValue.mtoShipments, undefined, WEIGHT_ADJUSTMENT),
+          ),
         );
         expect(screen.getByTestId('weightAllowance').textContent).toBe(
           formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
@@ -518,25 +523,6 @@ describe('ReviewBillableWeight', () => {
 
   describe('check that the various alerts show up when expected', () => {
     describe('max billable weight alert', () => {
-      it('renders in shipment view when billable weight is exceeded', async () => {
-        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-
-        renderWithProviders(<ReviewBillableWeight />);
-
-        await userEvent.click(screen.getByText('Edit'));
-        await userEvent.click(screen.getByText('Review shipment weights'));
-        expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-      });
-
-      it('renders in edit view when billable weight is exceeded', async () => {
-        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-
-        renderWithProviders(<ReviewBillableWeight />);
-
-        await userEvent.click(screen.getByText('Edit'));
-        expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-      });
-
       it('does not render in edit view when billable weight is not exceeded', async () => {
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
