@@ -30,7 +30,7 @@ func NewUploadAdditionalDocuments(ctx *middleware.Context, handler UploadAdditio
 }
 
 /*
-	UploadAdditionalDocuments swagger:route PATCH /moves/{moveId}/uploadAdditionalDocuments move uploadAdditionalDocuments
+	UploadAdditionalDocuments swagger:route PATCH /moves/{moveID}/uploadAdditionalDocuments move uploadAdditionalDocuments
 
 # Patch the additional documents for a given move
 

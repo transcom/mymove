@@ -80,7 +80,7 @@ func (o *UploadAdditionalDocumentsParams) BindRequest(r *http.Request, route *mi
 		o.File = &runtime.File{Data: file, Header: fileHeader}
 	}
 
-	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveId")
+	rMoveID, rhkMoveID, _ := route.Params.GetOK("moveID")
 	if err := o.bindMoveID(rMoveID, rhkMoveID, route.Formats); err != nil {
 		res = append(res, err)
 	}
@@ -110,7 +110,7 @@ func (o *UploadAdditionalDocumentsParams) bindMoveID(rawData []string, hasKey bo
 	// Format: uuid
 	value, err := formats.Parse("uuid", raw)
 	if err != nil {
-		return errors.InvalidType("moveId", "path", "strfmt.UUID", raw)
+		return errors.InvalidType("moveID", "path", "strfmt.UUID", raw)
 	}
 	o.MoveID = *(value.(*strfmt.UUID))
 
@@ -124,7 +124,7 @@ func (o *UploadAdditionalDocumentsParams) bindMoveID(rawData []string, hasKey bo
 // validateMoveID carries on validations for parameter MoveID
 func (o *UploadAdditionalDocumentsParams) validateMoveID(formats strfmt.Registry) error {
 
-	if err := validate.FormatOf("moveId", "path", "uuid", o.MoveID.String(), formats); err != nil {
+	if err := validate.FormatOf("moveID", "path", "uuid", o.MoveID.String(), formats); err != nil {
 		return err
 	}
 	return nil
