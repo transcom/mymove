@@ -79,7 +79,7 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^1.2.0",
+    "yup": "^1.4.0",
     "dotenv": "^16.3.1"
   },
   "resolutions": {
