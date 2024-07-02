@@ -517,6 +517,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		movelocker.NewMoveUnlocker(),
 	}
 
+	ghcAPI.QueuesGetServicesCounselingOriginListHandler = GetServicesCounselingOriginListHandler{
+		handlerConfig,
+		order.NewOrderFetcher(),
+	}
+
 	ghcAPI.TacTacValidationHandler = TacValidationHandler{
 		handlerConfig,
 	}

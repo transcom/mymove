@@ -3645,7 +3645,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -3732,6 +3737,41 @@ func init() {
         }
       }
     },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -3804,7 +3844,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -7325,6 +7370,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {
@@ -16965,7 +17033,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -17058,6 +17131,47 @@ func init() {
         }
       }
     },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/queues/moves": {
       "get": {
         "description": "An office TOO user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location.  GHC moves will show up here onced they have reached the submitted status sent by the customer and have move task orders, shipments, and service items to approve.\n",
@@ -17130,7 +17244,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -20994,6 +21113,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {

@@ -2064,3 +2064,23 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithOneDeletedShipmen
 	suite.Equal(1, moveCount)
 	suite.Len(moves, 1)
 }
+
+func (suite *OrderServiceSuite) TestListAllOrderLocations() {
+	suite.Run("returns a list of all order locations in the current users queue", func() {
+		orderFetcher := NewOrderFetcher()
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		params := services.ListOrderParams{}
+		moves, err := orderFetcher.ListAllOrderLocations(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+
+		suite.FatalNoError(err)
+		suite.Equal(0, len(moves))
+	})
+}
