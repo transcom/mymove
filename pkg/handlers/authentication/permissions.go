@@ -43,6 +43,16 @@ var TOO = RolePermissions{
 	},
 }
 
+var HQ = RolePermissions{
+	RoleType: roles.RoleTypeHQ,
+	Permissions: []string{
+		"read.paymentRequest",
+		"read.shipmentsPaymentSITBalance",
+		"read.paymentServiceItemStatus",
+		"view.closeoutOffice",
+	},
+}
+
 var TIO = RolePermissions{
 	RoleType: roles.RoleTypeTIO,
 	Permissions: []string{
@@ -99,7 +109,7 @@ var CustomerServiceRepresentative = RolePermissions{
 	},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative}
+var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative, HQ}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
