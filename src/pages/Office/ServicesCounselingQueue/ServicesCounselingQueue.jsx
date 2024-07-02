@@ -42,7 +42,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 
-const counselingColumns = (moveLockFlag) => [
+export const counselingColumns = (moveLockFlag) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
@@ -139,7 +139,7 @@ const counselingColumns = (moveLockFlag) => [
     isFilterable: true,
   }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now

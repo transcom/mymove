@@ -25,7 +25,7 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const columns = (moveLockFlag, showBranchFilter = true) => [
+export const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader('ID', 'id'),
   createHeader(' ', (row) => {
     const now = new Date();
