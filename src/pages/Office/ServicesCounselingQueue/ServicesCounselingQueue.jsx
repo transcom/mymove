@@ -49,7 +49,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -179,7 +179,7 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
         isFilterable: true,
       }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -543,6 +543,8 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
           csvExportFileNamePrefix="PPM-Closeout-Queue"
           csvExportQueueFetcher={getServicesCounselingPPMQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );
@@ -568,6 +570,8 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
           csvExportFileNamePrefix="Services-Counseling-Queue"
           csvExportQueueFetcher={getServicesCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

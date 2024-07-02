@@ -11,6 +11,20 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
+import {
+  setTableQueueFilterSessionStorageValue,
+  getTableQueueFilterSessionStorageValue,
+  setTableQueuePageSizeSessionStorageValue,
+  getTableQueuePageSizeSessionStorageValue,
+  setTableQueuePageSessionStorageValue,
+  getTableQueuePageSessionStorageValue,
+  setTableQueueSortParamSessionStorageValue,
+  getTableQueueSortParamSessionStorageValue,
+  getSelectionOptionLabel,
+} from 'components/Table/utils';
+
+const defaultPageSize = 20;
+const defaultPage = 1;
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
 const TableQueue = ({
@@ -32,17 +46,54 @@ const TableQueue = ({
   csvExportHiddenColumns,
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
+  sessionStorageKey,
 }) => {
-  const [paramSort, setParamSort] = useState(defaultSortedColumns);
-  const [paramFilters, setParamFilters] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [currentPageSize, setCurrentPageSize] = useState(20);
+  const [isPageReload, setIsPageReload] = useState(true);
+  useEffect(() => {
+    // Component is mounted. Set flag to tell component
+    // subsequent effects are post mount.
+    setTimeout(() => {
+      setIsPageReload(false);
+    }, 500);
+  }, []);
+
+  const [paramSort, setParamSort] = useState(
+    getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
+  );
+  useEffect(() => {
+    setTableQueueSortParamSessionStorageValue(sessionStorageKey, paramSort);
+  }, [paramSort, sessionStorageKey]);
+
+  // Pull table filters directly from cache. Updates are done in general table useEffect below.
+  let paramFilters = getTableQueueFilterSessionStorageValue(sessionStorageKey) || [];
+
+  const [currentPage, setCurrentPage] = useState(
+    getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
+  );
+  useEffect(() => {
+    setTableQueuePageSessionStorageValue(sessionStorageKey, currentPage);
+  }, [currentPage, sessionStorageKey]);
+
+  const [currentPageSize, setCurrentPageSize] = useState(
+    getTableQueuePageSizeSessionStorageValue(sessionStorageKey) || defaultPageSize,
+  );
+  useEffect(() => {
+    setTableQueuePageSizeSessionStorageValue(sessionStorageKey, currentPageSize);
+  }, [currentPageSize, sessionStorageKey]);
+
   const [pageCount, setPageCount] = useState(0);
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
+  const multiSelectValueDelimiter = ',';
+
   const {
-    queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
+    queueResult: {
+      totalCount = 0,
+      data = [],
+      page = getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
+      perPage = getTableQueuePageSizeSessionStorageValue(sessionStorageKey) || defaultPageSize,
+    },
     isInitialLoading: isLoading,
     isError,
   } = useQueries({
@@ -76,6 +127,7 @@ const TableQueue = ({
     nextPage,
     previousPage,
     setPageSize,
+    setAllFilters,
     state: { filters, pageIndex, pageSize, sortBy },
   } = useTable(
     {
@@ -85,7 +137,7 @@ const TableQueue = ({
         hiddenColumns: defaultHiddenColumns,
         pageSize: perPage,
         pageIndex: page - 1,
-        sortBy: defaultSortedColumns,
+        sortBy: getTableQueueSortParamSessionStorageValue(sessionStorageKey) || defaultSortedColumns,
       },
       defaultColumn, // Be sure to pass the defaultColumn option
       manualFilters,
@@ -106,7 +158,22 @@ const TableQueue = ({
   useEffect(() => {
     if (!isLoading && !isError) {
       setParamSort(sortBy);
-      setParamFilters(filters);
+
+      if (filters.length === 0 && paramFilters.length > 0 && isPageReload) {
+        // This is executed once. This is to ensure paramFilters
+        // is set with cached values during page reload use case.
+        paramFilters.forEach((item) => {
+          // add cached filters to current prop filters var
+          filters.push(item);
+        });
+      }
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      paramFilters = filters;
+
+      // Save to cache.
+      setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
+
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
@@ -115,6 +182,113 @@ const TableQueue = ({
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const isDateFilterValue = (value) => {
+    return !Number.isNaN(Date.parse(value));
+  };
+
+  const handleRemoveFilterClick = (index) => {
+    if (index === null) {
+      paramFilters.length = 0;
+    } else {
+      paramFilters.splice(index, 1);
+    }
+    setAllFilters(paramFilters);
+  };
+
+  const handleRemoveMultiSelectFilterClick = (index, valueToDelete) => {
+    const filter = paramFilters[index];
+    const isObjectBasedArrayItem = Array.isArray(filter.value);
+    const filterValues = !isObjectBasedArrayItem ? filter.value.split(multiSelectValueDelimiter) : filter.value;
+    if (filterValues.length === 1) {
+      paramFilters.splice(index, 1);
+    } else {
+      const indexToDelete = filterValues.indexOf(valueToDelete);
+      if (indexToDelete !== -1) {
+        filterValues.splice(indexToDelete, 1);
+      }
+      paramFilters[index].value = isObjectBasedArrayItem ? filterValues : filterValues.join(multiSelectValueDelimiter);
+    }
+    setAllFilters(paramFilters);
+  };
+
+  const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
+    return (
+      <button
+        type="button"
+        title={buttonTitle}
+        data-testid={dataTestId}
+        className={styles.pillButton}
+        onClick={() => (value ? handleRemoveMultiSelectFilterClick(index, value) : handleRemoveFilterClick(index))}
+      >
+        {label} <span aria-hidden="true">&times;</span>
+      </button>
+    );
+  };
+
+  const renderRemoveAllPillButton = () => {
+    let isVisible = paramFilters?.length > 1;
+    if (paramFilters?.length === 1) {
+      if (!isDateFilterValue(paramFilters[0].value)) {
+        isVisible = Array.isArray(paramFilters[0].value)
+          ? paramFilters[0].value.length > 1
+          : paramFilters[0].value.split(multiSelectValueDelimiter).length > 1;
+      }
+    }
+    if (isVisible) {
+      return renderFilterPillButton(null, null, 'Remove all filters', 'All', 'remove-filters-all');
+    }
+    return null;
+  };
+
+  const renderFilterPillButtonList = () => {
+    if (paramFilters?.length > 0) {
+      const filterPillButtons = [];
+      const removeAllPillButton = renderRemoveAllPillButton();
+      if (removeAllPillButton !== null) {
+        filterPillButtons.push(removeAllPillButton);
+      }
+      const buttonTitle = 'Remove filter';
+      const prefixDataTestId = 'remove-filters-';
+      paramFilters.forEach(function callback(filter, index) {
+        columns.forEach((col) => {
+          if (col.id === filter.id) {
+            if ('Filter' in col) {
+              if (isDateFilterValue(filter.value)) {
+                filterPillButtons.push(
+                  renderFilterPillButton(index, null, buttonTitle, col.Header, `${prefixDataTestId}${filter.id}`),
+                );
+              } else if (Array.isArray(filter.value)) {
+                // value as real array
+                filter.value.forEach((val) => {
+                  const label = filter.value.length > 1 ? `${col.Header} (${val})` : col.Header;
+                  filterPillButtons.push(
+                    renderFilterPillButton(index, val, buttonTitle, label, `${prefixDataTestId}${filter.id}-${val}`),
+                  );
+                });
+              } else {
+                // value as string representing array using comma delimiter
+                const values = filter.value.split(multiSelectValueDelimiter);
+                values.forEach((val) => {
+                  const label = values.length > 1 ? `${col.Header} (${getSelectionOptionLabel(val)})` : col.Header;
+                  filterPillButtons.push(
+                    renderFilterPillButton(index, val, buttonTitle, label, `${prefixDataTestId}${filter.id}-${val}`),
+                  );
+                });
+              }
+            } else {
+              // default filter TextInput
+              filterPillButtons.push(
+                renderFilterPillButton(index, null, buttonTitle, col.Header, `${prefixDataTestId}${filter.id}`),
+              );
+            }
+          }
+        });
+      });
+      return <div className={styles.pillButtonRow}>Filters: {filterPillButtons}</div>;
+    }
+    return '';
+  };
 
   return (
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
@@ -134,6 +308,7 @@ const TableQueue = ({
           />
         )}
       </div>
+      {renderFilterPillButtonList()}
       <div className={styles.tableContainer}>
         <Table
           showFilters={showFilters}
@@ -197,6 +372,8 @@ TableQueue.propTypes = {
   csvExportQueueFetcher: PropTypes.func,
   // csvExportQueueFetcherKey is the key the queue data is stored under in the retrun value of csvExportQueueFetcher
   csvExportQueueFetcherKey: PropTypes.string,
+  // session storage key to store search filters
+  sessionStorageKey: PropTypes.string,
 };
 
 TableQueue.defaultProps = {
@@ -214,5 +391,6 @@ TableQueue.defaultProps = {
   csvExportHiddenColumns: ['id', 'lock'],
   csvExportQueueFetcher: null,
   csvExportQueueFetcherKey: null,
+  sessionStorageKey: 'default',
 };
 export default TableQueue;
