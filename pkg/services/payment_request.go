@@ -80,6 +80,7 @@ type FetchPaymentRequestListParams struct {
 	Branch                  *string
 	Locator                 *string
 	DodID                   *string
+	Emplid                  *string
 	LastName                *string
 	DestinationDutyLocation *string
 	Status                  []string
