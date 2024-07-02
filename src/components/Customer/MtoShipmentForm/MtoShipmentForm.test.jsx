@@ -314,6 +314,8 @@ describe('MtoShipmentForm component', () => {
         requestedDeliveryDate: '2021-06-14',
         hasSecondaryPickupAddress: false,
         hasSecondaryDeliveryAddress: false,
+        hasTertiaryPickupAddress: false,
+        hasTertiaryDeliveryAddress: false,
       };
 
       const updatedAt = '2021-06-11T18:12:11.918Z';
@@ -647,6 +649,10 @@ describe('MtoShipmentForm component', () => {
         hasSecondaryDeliveryAddress: false,
         secondaryPickupAddress: undefined,
         hasSecondaryPickupAddress: false,
+        tertiaryDeliveryAddress: undefined,
+        hasTertiaryDeliveryAddress: false,
+        tertiaryPickupAddress: undefined,
+        hasTertiaryPickupAddress: false,
         agents: [
           { agentType: 'RELEASING_AGENT', email: '', firstName: '', lastName: '', phone: '' },
           { agentType: 'RECEIVING_AGENT', email: '', firstName: '', lastName: '', phone: '' },

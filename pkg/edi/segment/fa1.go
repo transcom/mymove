@@ -29,7 +29,7 @@ func (s *FA1) StringArray() []string {
 func (s *FA1) Parse(elements []string) error {
 	expectedNumElements := 1
 	if len(elements) != expectedNumElements {
-		return fmt.Errorf("FA1: Wrong number of elements, expected %d, got %d", expectedNumElements, len(elements))
+		return fmt.Errorf("fA1: Wrong number of elements, expected %d, got %d", expectedNumElements, len(elements))
 	}
 
 	s.AgencyQualifierCode = elements[0]

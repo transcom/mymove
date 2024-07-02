@@ -1846,9 +1846,21 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -1904,9 +1916,13 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
@@ -1931,6 +1947,18 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
     required:
@@ -1959,6 +1987,12 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -1974,6 +2008,12 @@ definitions:
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -2069,11 +2109,23 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -3284,15 +3336,24 @@ definitions:
         x-omitempty: false
       pickupAddress:
         $ref: '#/definitions/Address'
-      hasSecondaryPickupAddress:
-        type: boolean
-        x-omitempty: false
-        x-nullable: true
       secondaryPickupAddress:
         allOf:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -3306,15 +3367,24 @@ definitions:
         x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
-      hasSecondaryDestinationAddress:
-        type: boolean
-        x-omitempty: false
-        x-nullable: true
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
           - x-nullable: true
           - x-omitempty: false
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -4405,15 +4475,15 @@ paths:
           format: uuid
           description: ID of the order that the upload belongs to
         - in: query
-          name: ppmId
-          type: string
-          format: uuid
-          description: Optional PPM shipment ID related to the upload
-        - in: query
           name: moveId
           type: string
           format: uuid
           description: Optional ID of the move that the upload belongs to
+        - in: query
+          name: ppmId
+          type: string
+          format: uuid
+          description: Optional PPM shipment ID related to the upload
       responses:
         '204':
           description: deleted
