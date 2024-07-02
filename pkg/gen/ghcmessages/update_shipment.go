@@ -59,6 +59,12 @@ type UpdateShipment struct {
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
+	// has tertiary delivery address
+	HasTertiaryDeliveryAddress *bool `json:"hasTertiaryDeliveryAddress"`
+
+	// has tertiary pickup address
+	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
@@ -103,6 +109,16 @@ type UpdateShipment struct {
 
 	// tac type
 	TacType nullable.String `json:"tacType,omitempty"`
+
+	// tertiary delivery address
+	TertiaryDeliveryAddress struct {
+		Address
+	} `json:"tertiaryDeliveryAddress,omitempty"`
+
+	// tertiary pickup address
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
 
 	// uses external vendor
 	// Example: false
@@ -162,6 +178,14 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -352,6 +376,22 @@ func (m *UpdateShipment) validateTacType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdateShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update shipment based on the context it is used
 func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -397,6 +437,14 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 	}
 
 	if err := m.contextValidateTacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -553,6 +601,16 @@ func (m *UpdateShipment) contextValidateTacType(ctx context.Context, formats str
 		}
 		return err
 	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

@@ -310,4 +310,20 @@ describe('Orders page', () => {
       expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
     });
   });
+  describe('LOA concatenation with regex removes extra spaces', () => {
+    it('concatenates the LOA string correctly and without extra spaces', async () => {
+      let extraSpacesLongLineOfAccounting =
+        '1  **20062016*1234 *0000**1A *123A**00000000**  **** ***22NL** *000000*SEE PCS ORDERS* *12345**B1*';
+      const expectedLongLineOfAccounting =
+        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*SEE PCS ORDERS**12345**B1*';
+
+      // preserves spaces in column values such as 'SEE PCS ORDERS'
+      // remove any number of spaces following an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/\* +/g, '*');
+      // remove any number of spaces preceding an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/ +\*/g, '*');
+
+      expect(extraSpacesLongLineOfAccounting).toEqual(expectedLongLineOfAccounting);
+    });
+  });
 });
