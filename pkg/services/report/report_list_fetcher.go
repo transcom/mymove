@@ -17,6 +17,18 @@ func NewReportListFetcher() services.ReportListFetcher {
 func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
+	// Raw query may not be viable without a new model created
+	// rawQueryTest, qerr := query.GetSQLQueryByName("report_builder")
+	// if qerr != nil {
+	// 	return moves, apperror.NewQueryError("AuditHistory", qerr, "")
+	// }
+	// queryy := appCtx.DB().RawQuery(rawQueryTest)
+	// errr := queryy.All(&moves)
+
+	// if errr != nil {
+	// 	return nil, errr
+	// }
+
 	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
 	query := appCtx.DB().EagerPreload(
 		"PaymentRequests",
@@ -38,7 +50,6 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 		"Orders.NewDutyLocation.TransportationOffice.Gbloc",
 		"Orders.OriginDutyLocation.Address",
 		"Orders.TAC",
-		// "Orders.TransportationAccountingCode",
 		"LockedByOfficeUser",
 	).
 		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").

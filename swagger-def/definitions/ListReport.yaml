@@ -161,7 +161,7 @@ properties:
     x-nullable: true
   depCD:
     description: Department Code
-    type: string
+    type: boolean
     x-nullable: true
   travelAdvance:
     type: number
@@ -176,7 +176,7 @@ properties:
     type: string
     x-nullable: true
   fiscalYear:
-    type: integer
+    type: string
     x-nullable: true
   appro:
     description: Appropriation
@@ -203,6 +203,8 @@ properties:
   paa:
     type: string
     x-nullable: true
+  documentNumber:
+    type: string
   costCD:
     type: string
     x-nullable: true
@@ -276,6 +278,10 @@ properties:
     type: number
     format: double
     x-nullable: true
+  linehaulFuelTotal:
+    type: number
+    format: double
+    x-nullable: true
   originPrice:
     type: number
     format: double
@@ -292,25 +298,98 @@ properties:
     type: number
     format: double
     x-nullable: true
-  sitTotal:
+  sitOriginFirstDayTotal:
     type: number
     format: double
     x-nullable: true
-  accessorialTotal:
+  sitOriginAddlDaysTotal:
     type: number
     format: double
     x-nullable: true
-  fuelTotal:
+  sitDestFirstDayTotal:
     type: number
     format: double
     x-nullable: true
-  otherTotal:
+  sitDestAddlDaysTotal:
+    type: number
+    format: double
+    x-nullable: true
+  sitPickupTotal:
+    type: number
+    format: double
+    x-nullable: true
+  sitDeliveryTotal:
+    type: number
+    format: double
+    x-nullable: true
+  sitOriginFuelSurcharge:
+    type: number
+    format: double
+    x-nullable: true
+  sitDestFuelSurcharge:
+    type: number
+    format: double
+    x-nullable: true
+  cratingTotal:
+    type: number
+    format: double
+    x-nullable: true
+  uncratingTotal:
+    type: number
+    format: double
+    x-nullable: true
+  cratingDimensions:
+    type: number
+    format: double
+    x-nullable: true
+  shuttleTotal:
+    type: number
+    format: double
+    x-nullable: true
+  moveManagementFeeTotal:
+    type: number
+    format: double
+    x-nullable: true
+  counselingFeeTotal:
     type: number
     format: double
     x-nullable: true
   invoicePaidAmt:
     type: number
     format: double
+    x-nullable: true
+  ppmLinehaul:
+    type: number
+    format: double
+    x-nullable: true
+  ppmFuelRateAdjTotal:
+    type: number
+    format: double
+    x-nullable: true
+  ppmOriginPrice:
+    type: number
+    format: double
+    x-nullable: true
+  ppmDestPrice:
+    type: number
+    format: double
+    x-nullable: true
+  ppmPacking:
+    type: number
+    format: double
+    x-nullable: true
+  ppmUnpacking:
+    type: number
+    format: double
+    x-nullable: true
+  ppmStorage:
+    type: number
+    format: double
+    x-nullable: true
+  ppmTotal:
+    type: number
+    format: double
+    x-nullable: true
   travelType:
     description: Travel Type
     example: Shipment of HHG Permitted

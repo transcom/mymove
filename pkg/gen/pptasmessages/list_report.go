@@ -23,9 +23,6 @@ type ListReport struct {
 	// aaa
 	Aaa *string `json:"aaa,omitempty"`
 
-	// accessorial total
-	AccessorialTotal *float64 `json:"accessorialTotal,omitempty"`
-
 	// actual origin net weight
 	ActualOriginNetWeight float64 `json:"actualOriginNetWeight,omitempty"`
 
@@ -48,6 +45,15 @@ type ListReport struct {
 	// Format: date
 	CounseledDate strfmt.Date `json:"counseledDate,omitempty"`
 
+	// counseling fee total
+	CounselingFeeTotal *float64 `json:"counselingFeeTotal,omitempty"`
+
+	// crating dimensions
+	CratingDimensions *float64 `json:"cratingDimensions,omitempty"`
+
+	// crating total
+	CratingTotal *float64 `json:"cratingTotal,omitempty"`
+
 	// Counseling Date
 	// Format: date
 	Dd2278IssueDate strfmt.Date `json:"dd2278IssueDate,omitempty"`
@@ -60,7 +66,7 @@ type ListReport struct {
 	DeliveryDate strfmt.Date `json:"deliveryDate,omitempty"`
 
 	// Department Code
-	DepCD *string `json:"depCD,omitempty"`
+	DepCD *bool `json:"depCD,omitempty"`
 
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
@@ -74,6 +80,9 @@ type ListReport struct {
 
 	// destination reweigh net weight
 	DestinationReweighNetWeight float64 `json:"destinationReweighNetWeight,omitempty"`
+
+	// document number
+	DocumentNumber string `json:"documentNumber,omitempty"`
 
 	// edipi
 	Edipi string `json:"edipi,omitempty"`
@@ -93,21 +102,21 @@ type ListReport struct {
 	FirstName string `json:"firstName,omitempty"`
 
 	// fiscal year
-	FiscalYear *int64 `json:"fiscalYear,omitempty"`
-
-	// fuel total
-	FuelTotal *float64 `json:"fuelTotal,omitempty"`
+	FiscalYear *string `json:"fiscalYear,omitempty"`
 
 	// id
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
 	// invoice paid amt
-	InvoicePaidAmt float64 `json:"invoicePaidAmt,omitempty"`
+	InvoicePaidAmt *float64 `json:"invoicePaidAmt,omitempty"`
 
 	// last name
 	// Example: Job
 	LastName string `json:"lastName,omitempty"`
+
+	// linehaul fuel total
+	LinehaulFuelTotal *float64 `json:"linehaulFuelTotal,omitempty"`
 
 	// linehaul total
 	LinehaulTotal *float64 `json:"linehaulTotal,omitempty"`
@@ -125,6 +134,9 @@ type ListReport struct {
 	// move date
 	// Format: date
 	MoveDate *strfmt.Date `json:"moveDate,omitempty"`
+
+	// move management fee total
+	MoveManagementFeeTotal *float64 `json:"moveManagementFeeTotal,omitempty"`
 
 	// net weight
 	NetWeight int64 `json:"netWeight,omitempty"`
@@ -156,9 +168,6 @@ type ListReport struct {
 	// origin price
 	OriginPrice *float64 `json:"originPrice,omitempty"`
 
-	// other total
-	OtherTotal *float64 `json:"otherTotal,omitempty"`
-
 	// paa
 	Paa *string `json:"paa,omitempty"`
 
@@ -186,6 +195,30 @@ type ListReport struct {
 	// Format: date
 	PickupDate strfmt.Date `json:"pickupDate,omitempty"`
 
+	// ppm dest price
+	PpmDestPrice *float64 `json:"ppmDestPrice,omitempty"`
+
+	// ppm fuel rate adj total
+	PpmFuelRateAdjTotal *float64 `json:"ppmFuelRateAdjTotal,omitempty"`
+
+	// ppm linehaul
+	PpmLinehaul *float64 `json:"ppmLinehaul,omitempty"`
+
+	// ppm origin price
+	PpmOriginPrice *float64 `json:"ppmOriginPrice,omitempty"`
+
+	// ppm packing
+	PpmPacking *float64 `json:"ppmPacking,omitempty"`
+
+	// ppm storage
+	PpmStorage *float64 `json:"ppmStorage,omitempty"`
+
+	// ppm total
+	PpmTotal *float64 `json:"ppmTotal,omitempty"`
+
+	// ppm unpacking
+	PpmUnpacking *float64 `json:"ppmUnpacking,omitempty"`
+
 	// scac
 	// Example: AGFM
 	Scac *string `json:"scac,omitempty"`
@@ -200,16 +233,40 @@ type ListReport struct {
 	// shipment type
 	ShipmentType string `json:"shipmentType,omitempty"`
 
+	// shuttle total
+	ShuttleTotal *float64 `json:"shuttleTotal,omitempty"`
+
+	// sit delivery total
+	SitDeliveryTotal *float64 `json:"sitDeliveryTotal,omitempty"`
+
+	// sit dest addl days total
+	SitDestAddlDaysTotal *float64 `json:"sitDestAddlDaysTotal,omitempty"`
+
+	// sit dest first day total
+	SitDestFirstDayTotal *float64 `json:"sitDestFirstDayTotal,omitempty"`
+
+	// sit dest fuel surcharge
+	SitDestFuelSurcharge *float64 `json:"sitDestFuelSurcharge,omitempty"`
+
 	// sit in date
 	// Format: date
 	SitInDate *strfmt.Date `json:"sitInDate,omitempty"`
+
+	// sit origin addl days total
+	SitOriginAddlDaysTotal *float64 `json:"sitOriginAddlDaysTotal,omitempty"`
+
+	// sit origin first day total
+	SitOriginFirstDayTotal *float64 `json:"sitOriginFirstDayTotal,omitempty"`
+
+	// sit origin fuel surcharge
+	SitOriginFuelSurcharge *float64 `json:"sitOriginFuelSurcharge,omitempty"`
 
 	// sit out date
 	// Format: date
 	SitOutDate *strfmt.Date `json:"sitOutDate,omitempty"`
 
-	// sit total
-	SitTotal *float64 `json:"sitTotal,omitempty"`
+	// sit pickup total
+	SitPickupTotal *float64 `json:"sitPickupTotal,omitempty"`
 
 	// sit type
 	// Example: Destination
@@ -240,6 +297,9 @@ type ListReport struct {
 
 	// type c d
 	TypeCD *string `json:"typeCD,omitempty"`
+
+	// uncrating total
+	UncratingTotal *float64 `json:"uncratingTotal,omitempty"`
 
 	// unpacking price
 	UnpackingPrice *float64 `json:"unpackingPrice,omitempty"`

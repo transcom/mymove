@@ -33,7 +33,7 @@ func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.
 				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListReports(&movesForReport)
+			payload := payloads.ListReports(appCtx, &movesForReport)
 
 			return pptasop.NewListReportsOK().WithPayload(payload), nil
 		})

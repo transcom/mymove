@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -29,13 +30,39 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 }
 
 // ListReport payload
-func ListReport(move *models.Move) *pptasmessages.ListReport {
+func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.ListReport {
 	if move == nil {
 		return nil
 	}
 
 	Orders := move.Orders
 	PaymentRequests := move.PaymentRequests
+
+	var tac []models.TransportationAccountingCode
+	tacQueryError := appCtx.DB().Q().
+		EagerPreload(
+			"LineOfAccounting",
+			"LineOfAccounting.LoaTrsySfxTx",
+			"LineOfAccounting.LoaObjClsID",
+			"LineOfAccounting.LoaAlltSnID",
+			"LineOfAccounting.LoaSbaltmtRcpntID",
+			"LineOfAccounting.LoaInstlAcntgActID",
+			"LineOfAccounting.LoaTrnsnID",
+			"LineOfAccounting.LoaJbOrdNm",
+			"LineOfAccounting.LoaDocID",
+			"LineOfAccounting.LoaPgmElmntID",
+			"LineOfAccounting.LoaDptID",
+		).
+		Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
+		Where("transportation_accounting_codes.tac = ?", Orders.TAC).
+		Where("? BETWEEN transportation_accounting_codes.trnsprtn_acnt_bgn_dt AND transportation_accounting_codes.trnsprtn_acnt_end_dt", Orders.IssueDate).
+		Where("? BETWEEN loa.loa_bgn_dt AND loa.loa_end_dt", Orders.IssueDate).
+		Where("loa.loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
+		All(&tac)
+
+	if tacQueryError != nil {
+		return nil
+	}
 
 	progear := unit.Pound(0)
 	sitTotal := unit.Pound(0)
@@ -69,21 +96,21 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		DestinationAddress: Address(move.MTOShipments[0].DestinationAddress),
 		OriginGbloc:        Orders.OriginDutyLocationGBLOC,
 		DestinationGbloc:   &Orders.NewDutyLocation.TransportationOffice.Gbloc,
-		DepCD:              nil, // same as Department Indicator?
+		DepCD:              &Orders.HasDependents, // has dependants?
 		TravelAdvance:      models.Float64Pointer(travelAdvance.Float64()),
 		MoveDate:           (*strfmt.Date)(moveDate),
 		Tac:                Orders.TAC,
-		FiscalYear:         nil,
-		Appro:              nil,
-		Subhead:            nil,
-		ObjClass:           nil,
-		Bcn:                nil,
-		SubAllotCD:         nil,
-		Aaa:                nil,
-		TypeCD:             nil,
-		Paa:                nil,
-		CostCD:             nil,
-		Ddcd:               nil,
+		FiscalYear:         tac[0].TacFyTxt,
+		Appro:              tac[0].LineOfAccounting.LoaBafID,
+		Subhead:            tac[0].LineOfAccounting.LoaObjClsID,
+		ObjClass:           tac[0].LineOfAccounting.LoaAlltSnID,
+		Bcn:                tac[0].LineOfAccounting.LoaSbaltmtRcpntID,
+		SubAllotCD:         tac[0].LineOfAccounting.LoaInstlAcntgActID,
+		Aaa:                tac[0].LineOfAccounting.LoaTrnsnID,
+		TypeCD:             tac[0].LineOfAccounting.LoaJbOrdNm,
+		Paa:                tac[0].LineOfAccounting.LoaDocID,
+		CostCD:             tac[0].LineOfAccounting.LoaPgmElmntID,
+		Ddcd:               tac[0].LineOfAccounting.LoaDptID,
 		ShipmentNum:        int64(len(move.MTOShipments)),
 		WeightEstimate:     calculateTotalWeightEstimate(move.MTOShipments).Float64(),
 		TransmitCD:         nil, // report.TransmitCd,
@@ -93,26 +120,45 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 		ShipmentID:         strfmt.UUID(move.ID.String()),
 		Scac:               nil, // I don't know what gbloc to use // HSFR
 		Loa:                nil, // what format should this be in? the format in the example looks nothing like our table
-		ShipmentType:       "",
+		ShipmentType:       string(*Orders.OrdersTypeDetail),
 		EntitlementWeight:  int64(*Orders.Entitlement.DBAuthorizedWeight),
 		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
 		PickupDate:         strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
 		PaidDate:           (*strfmt.Date)(PaymentRequests[0].ReviewedAt),
-		// LinehaulTotal:               nil, // report.LinehaulTotal,
+		// LinehaulTotal:
+		// LinehaulFuelTotal:
 		// OriginPrice
 		// DestinationPrice
-		// Packing
-		// Unpacking
-		// SitTotal:                    nil, // report.SitTotal,
-		// AccessorialTotal:            nil, // report.AccessorialTotal,
-		// FuelTotal:                   nil, // report.FuelTotal,
-		// OtherTotal:                  nil, // report.OtherTotal,
-		// InvoicePaidAmt:              0.0, // report.InvoicePaidAmt.Float64(),
-		TravelType:      string(*Orders.OrdersTypeDetail),
-		TravelClassCode: string(Orders.OrdersType),
-		DeliveryDate:    strfmt.Date(*moveDate),
-		// DestinationReweighNetWeight: 0, // report.DestinationReweighNetWeight.Float64(),
-		CounseledDate: strfmt.Date(*move.ServiceCounselingCompletedAt),
+		// PackingTotal
+		// UnpackingTotal
+		// SitOriginFirstDayTotal:
+		// SitOriginAddlDaysTotal:
+		// SitDestFirstDayTotal:
+		// SitDestAddlDaysTotal:
+		// SitPickupTotal:
+		// SitDeliveryTotal:
+		// SitOriginFuelSurcharge:
+		// SitDestFuelSurcharge:
+		// Cratingtotal:
+		// UncratingTotal:
+		// CratingDimensions:
+		// ShuttleTotal:
+		// MoveManagementFeeTotal:
+		// CounselingFeeTotal:
+		// InvoicePaidAmt:
+		// PpmLineHaul:
+		// PpmFuelRateAdjTotal:
+		// PpmOriginPrice:
+		// PpmDestPrice:
+		// PpmPacking:
+		// PpmUnpacking:
+		// PpmStorage:
+		// PpmTotal:
+		TravelType:                  string(*Orders.OrdersTypeDetail),
+		TravelClassCode:             string(Orders.OrdersType),
+		DeliveryDate:                strfmt.Date(*moveDate),
+		DestinationReweighNetWeight: move.MTOShipments[0].Reweigh.Weight.Float64(),
+		CounseledDate:               strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
 
 	// sharing this for loop for all MTOShipment calculations
@@ -158,12 +204,12 @@ func ListReport(move *models.Move) *pptasmessages.ListReport {
 }
 
 // ListReports payload
-func ListReports(moves *models.Moves) []*pptasmessages.ListReport {
+func ListReports(appCtx appcontext.AppContext, moves *models.Moves) []*pptasmessages.ListReport {
 	payload := make(pptasmessages.ListReports, len(*moves))
 
 	for i, move := range *moves {
 		copyOfMove := move // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListReport(&copyOfMove)
+		payload[i] = ListReport(appCtx, &copyOfMove)
 	}
 	return payload
 }

@@ -309,11 +309,6 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "accessorialTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "actualOriginNetWeight": {
           "type": "number",
           "format": "double"
@@ -341,6 +336,21 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "counselingFeeTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "cratingDimensions": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "cratingTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "dd2278IssueDate": {
           "description": "Counseling Date",
           "type": "string",
@@ -356,7 +366,7 @@ func init() {
         },
         "depCD": {
           "description": "Department Code",
-          "type": "string",
+          "type": "boolean",
           "x-nullable": true
         },
         "destinationAddress": {
@@ -399,6 +409,9 @@ func init() {
           "type": "number",
           "format": "double"
         },
+        "documentNumber": {
+          "type": "string"
+        },
         "edipi": {
           "type": "string"
         },
@@ -418,12 +431,7 @@ func init() {
           "example": "Bob"
         },
         "fiscalYear": {
-          "type": "integer",
-          "x-nullable": true
-        },
-        "fuelTotal": {
-          "type": "number",
-          "format": "double",
+          "type": "string",
           "x-nullable": true
         },
         "id": {
@@ -432,11 +440,17 @@ func init() {
         },
         "invoicePaidAmt": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "lastName": {
           "type": "string",
           "example": "Job"
+        },
+        "linehaulFuelTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
         },
         "linehaulTotal": {
           "type": "number",
@@ -457,6 +471,11 @@ func init() {
         "moveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "moveManagementFeeTotal": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "netWeight": {
@@ -513,11 +532,6 @@ func init() {
           "x-nullable": true
         },
         "originPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "otherTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -619,6 +633,46 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "ppmDestPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmFuelRateAdjTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmLinehaul": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmOriginPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmPacking": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmStorage": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmUnpacking": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "scac": {
           "type": "string",
           "x-nullable": true,
@@ -635,9 +689,49 @@ func init() {
         "shipmentType": {
           "type": "string"
         },
+        "shuttleTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDeliveryTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDestAddlDaysTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDestFirstDayTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDestFuelSurcharge": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "sitInDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sitOriginAddlDaysTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitOriginFirstDayTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitOriginFuelSurcharge": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "sitOutDate": {
@@ -645,7 +739,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "sitTotal": {
+        "sitPickupTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -689,6 +783,11 @@ func init() {
         },
         "typeCD": {
           "type": "string",
+          "x-nullable": true
+        },
+        "uncratingTotal": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "unpackingPrice": {
@@ -1035,11 +1134,6 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "accessorialTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "actualOriginNetWeight": {
           "type": "number",
           "format": "double"
@@ -1067,6 +1161,21 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "counselingFeeTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "cratingDimensions": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "cratingTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "dd2278IssueDate": {
           "description": "Counseling Date",
           "type": "string",
@@ -1082,7 +1191,7 @@ func init() {
         },
         "depCD": {
           "description": "Department Code",
-          "type": "string",
+          "type": "boolean",
           "x-nullable": true
         },
         "destinationAddress": {
@@ -1125,6 +1234,9 @@ func init() {
           "type": "number",
           "format": "double"
         },
+        "documentNumber": {
+          "type": "string"
+        },
         "edipi": {
           "type": "string"
         },
@@ -1144,12 +1256,7 @@ func init() {
           "example": "Bob"
         },
         "fiscalYear": {
-          "type": "integer",
-          "x-nullable": true
-        },
-        "fuelTotal": {
-          "type": "number",
-          "format": "double",
+          "type": "string",
           "x-nullable": true
         },
         "id": {
@@ -1158,11 +1265,17 @@ func init() {
         },
         "invoicePaidAmt": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "lastName": {
           "type": "string",
           "example": "Job"
+        },
+        "linehaulFuelTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
         },
         "linehaulTotal": {
           "type": "number",
@@ -1183,6 +1296,11 @@ func init() {
         "moveDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "moveManagementFeeTotal": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "netWeight": {
@@ -1239,11 +1357,6 @@ func init() {
           "x-nullable": true
         },
         "originPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "otherTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -1345,6 +1458,46 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "ppmDestPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmFuelRateAdjTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmLinehaul": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmOriginPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmPacking": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmStorage": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "ppmUnpacking": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "scac": {
           "type": "string",
           "x-nullable": true,
@@ -1361,9 +1514,49 @@ func init() {
         "shipmentType": {
           "type": "string"
         },
+        "shuttleTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDeliveryTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDestAddlDaysTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDestFirstDayTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitDestFuelSurcharge": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
         "sitInDate": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        },
+        "sitOriginAddlDaysTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitOriginFirstDayTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "sitOriginFuelSurcharge": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "sitOutDate": {
@@ -1371,7 +1564,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "sitTotal": {
+        "sitPickupTotal": {
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -1415,6 +1608,11 @@ func init() {
         },
         "typeCD": {
           "type": "string",
+          "x-nullable": true
+        },
+        "uncratingTotal": {
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "unpackingPrice": {
