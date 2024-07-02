@@ -22,6 +22,8 @@ const (
 	ServeSupportFlag string = "serve-api-support"
 	// ServePrimeSimulatorFlag is the prime simulator api flag
 	ServePrimeSimulatorFlag string = "serve-prime-simulator"
+	// ServePPTASFlag is the PPTAS api service flag
+	ServePPTASFlag string = "serve-api-pptas"
 	// ServeClientCollectorFlag enables the endpoints to collect client
 	// telemetry and logs
 	ServeClientCollectorFlag string = "serve-client-collector"

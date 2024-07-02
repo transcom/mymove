@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/handlers/pptasapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3"
@@ -101,6 +102,11 @@ type Config struct {
 	ServeGHC bool
 	// The path to the ghc api swagger definition
 	GHCSwaggerPath string
+
+	// Should the pptas api be served?
+	ServePPTAS bool
+	// The path to the ghc api swagger definition
+	PPTASSwaggerPath string
 
 	// Should devlocal auth be enabled? Definitely never enabled in
 	// production
@@ -351,6 +357,20 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 				tracingMiddleware := middleware.OpenAPITracing(api)
 				r.Mount("/", api.Serve(tracingMiddleware))
 			})
+			// Setup PPTAS API
+			primeRouter.Route("/pptas", func(r chi.Router) {
+				r.Method("GET", "/swagger.yaml",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						routingConfig.PPTASSwaggerPath))
+				if routingConfig.ServeSwaggerUI {
+					r.Method("GET", "/docs",
+						handlers.NewFileHandler(routingConfig.FileSystem,
+							path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
+				} else {
+					r.Method("GET", "/docs", http.NotFoundHandler())
+				}
+				r.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
+			})
 		})
 	}
 }
@@ -587,6 +607,28 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				})
 			})
 		}
+		site.Route("/prime/pptas", func(r chi.Router) {
+			r.Method("GET", "/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.PPTASSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				appCtx.Logger().Info("PPTAS API Swagger UI serving is enabled")
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+
+			// Mux for PPTAS API that enforces auth
+			r.Route("/", func(rAuth chi.Router) {
+				rAuth.Use(userAuthMiddleware)
+				rAuth.Use(addAuditUserToRequestContextMiddleware)
+				rAuth.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
+				rAuth.Use(middleware.NoCache())
+				rAuth.Mount("/", pptasapi.NewPPTASApiHandler(routingConfig.HandlerConfig))
+			})
+		})
 	}
 }
 
