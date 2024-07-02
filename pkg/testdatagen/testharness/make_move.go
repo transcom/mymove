@@ -1086,6 +1086,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	serviceOrderNumber := testdatagen.MakeRandomNumberString(4)
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
+	ntsRecordedWeight := unit.Pound(2000)
 	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -1104,6 +1105,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
+				NTSRecordedWeight:    &ntsRecordedWeight,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				TACType:              &tacType,
 				Status:               models.MTOShipmentStatusApproved,

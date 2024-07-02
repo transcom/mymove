@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { capitalize } from 'lodash';
 
-import { isAdminSite, isMilmoveSite, isOfficeSite } from '../shared/constants';
+import { SHIPMENT_OPTIONS, isAdminSite, isMilmoveSite, isOfficeSite } from '../shared/constants';
 
 import { ADMIN_BASE_PAGE_TITLE, MILMOVE_BASE_PAGE_TITLE, OFFICE_BASE_PAGE_TITLE } from 'constants/titles';
 import { shipmentStatuses } from 'constants/shipments';
@@ -72,10 +72,10 @@ const groupDivertedShipmentsByAddress = (shipments) => {
   return chains;
 };
 
-const getEstimatedLowestShipmentWeight = (shipments) => {
+const getEstimatedLowestShipmentWeight = (shipments, weightAdjusted = 1.0) => {
   return shipments.reduce((lowest, shipment) => {
     const estimatedWeight = getShipmentEstimatedWeight(shipment);
-    return estimatedWeight < lowest ? estimatedWeight : lowest;
+    return estimatedWeight < lowest ? estimatedWeight * weightAdjusted : lowest;
   }, Number.MAX_SAFE_INTEGER);
 };
 
@@ -97,7 +97,7 @@ const getLowestShipmentNetWeight = (shipments) => {
  * @param mtoShipments An array of MTO Shipments
  * @return {int|null} The calculated total billable weight
  */
-export const useCalculatedTotalBillableWeight = (mtoShipments) => {
+export const useCalculatedTotalBillableWeight = (mtoShipments, weightAdjustment = 1.0) => {
   return useMemo(() => {
     if (mtoShipments?.length) {
       // Separate diverted shipments and other eligible shipments for weight calculations
@@ -124,13 +124,19 @@ export const useCalculatedTotalBillableWeight = (mtoShipments) => {
 
       // Sum non-diverted eligible billable weights
       const sumOtherEligibleWeights = otherEligibleShipments.reduce((total, current) => {
-        return total + current.calculatedBillableWeight;
+        let currentWeight =
+          current.calculatedBillableWeight < current.primeEstimatedWeight * weightAdjustment
+            ? current.calculatedBillableWeight
+            : current.primeEstimatedWeight * weightAdjustment;
+        currentWeight =
+          current.shipmentType === SHIPMENT_OPTIONS.NTSR ? current.ntsRecordedWeight * weightAdjustment : currentWeight;
+        return total + currentWeight;
       }, 0);
 
       return sumOtherEligibleWeights + sumChainWeights > 0 ? sumOtherEligibleWeights + sumChainWeights : null;
     }
     return null;
-  }, [mtoShipments]);
+  }, [mtoShipments, weightAdjustment]);
 };
 
 /**
@@ -179,30 +185,38 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
-export const calculateEstimatedWeight = (mtoShipments) => {
+export const calculateEstimatedWeight = (mtoShipments, shipmentType, weightAdjustment = 1.0) => {
   if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s))) {
     // Separate diverted shipments and other eligible shipments for weight calculations
     // This is done because a diverted shipment only has one true weight, but when it gets diverted
     // it is entered as a whole new shipment. This causes the sum to be counted twice for its weight,
     // we filter to include only the lowest weight from the diverted shipments here to prevent that.
     const divertedEligibleShipments = mtoShipments.filter(
-      (s) => s.diversion && includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s),
+      (s) =>
+        s.diversion &&
+        (shipmentType ? s.shipmentType === shipmentType : true) &&
+        includedStatusesForCalculatingWeights(s.status) &&
+        getShipmentEstimatedWeight(s),
     );
     const otherEligibleShipments = mtoShipments.filter(
-      (s) => !s.diversion && includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s),
+      (s) =>
+        !s.diversion &&
+        (shipmentType ? s.shipmentType === shipmentType : true) &&
+        includedStatusesForCalculatingWeights(s.status) &&
+        getShipmentEstimatedWeight(s),
     );
 
     // In order to properly sum the lowest weight of the diverted shipments, we must first put them into
     // their correct "chains". Please see comments for groupDivertedShipments for more details.
     const chains = groupDivertedShipmentsByAddress(divertedEligibleShipments);
     // Grab the lowest weight from each chain
-    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain));
+    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain, weightAdjustment));
     // Now that we have the lowest weight from each chain, get the sum
     const sumChainWeights = chainWeights.reduce((total, weight) => total + weight, 0);
 
     // Sum non diverted shipments
     const sumOtherEligibleWeights = otherEligibleShipments.reduce(
-      (total, shipment) => total + getShipmentEstimatedWeight(shipment),
+      (total, shipment) => total + getShipmentEstimatedWeight(shipment, weightAdjustment),
       0,
     );
 

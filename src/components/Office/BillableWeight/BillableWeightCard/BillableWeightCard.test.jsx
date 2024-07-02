@@ -11,7 +11,7 @@ import { permissionTypes } from 'constants/permissions';
 describe('BillableWeightCard', () => {
   const defaultProps = {
     maxBillableWeight: 13750,
-    totalBillableWeight: 12460,
+    totalBillableWeight: 12260,
     weightRequested: 12260,
     weightAllowance: 8000,
     onReviewWeights: jest.fn(),
