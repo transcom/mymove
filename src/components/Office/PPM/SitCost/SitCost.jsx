@@ -12,6 +12,7 @@ export default function SitCost({
   sitEndDate,
   weightStored,
   useQueries,
+  setEstimatedCost,
 }) {
   const { estimatedCost, isLoading, isError } = useQueries(
     ppmShipmentInfo.id,
@@ -32,6 +33,7 @@ export default function SitCost({
     );
   }
 
+  setEstimatedCost(estimatedCost?.sitCost || 0);
   return (
     <div>
       <legend className={classnames('usa-label', styles.label)}>{costLabel}</legend>

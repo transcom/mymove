@@ -41,6 +41,9 @@ type UpdateMovingExpense struct {
 	// sit location
 	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
 
+	// The amount of SIT that will be reimbursed
+	SitReimburseableAmount *int64 `json:"sitReimburseableAmount"`
+
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Format: date
 	SitStartDate strfmt.Date `json:"sitStartDate,omitempty"`

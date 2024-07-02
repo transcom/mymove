@@ -182,7 +182,11 @@ export default function ReviewDocumentsSidePanel({
               {expenseTickets.length > 0
                 ? expenseSetProjection(expenseTickets).map((exp) => {
                     if (exp.status === PPMDocumentsStatus.APPROVED) {
-                      total += exp.amount;
+                      if (exp.movingExpenseType === expenseTypes.STORAGE) {
+                        total += exp.sitReimburseableAmount;
+                      } else {
+                        total += exp.amount;
+                      }
                     }
                     return (
                       <li className={styles.rowContainer} key={exp.receiptIndex}>
@@ -217,7 +221,7 @@ export default function ReviewDocumentsSidePanel({
                               </span>
                               <span>
                                 <dt>Authorized Price:</dt>
-                                <dl>${formatCents(exp.amount)}</dl>
+                                <dl>${formatCents(exp.sitReimburseableAmount)}</dl>
                               </span>
                             </dl>
                           ) : (

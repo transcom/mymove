@@ -548,6 +548,10 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 
+		if expenseType == "StorageMemberPaid" {
+			expenseDollarAmt = expense.SITReimburseableAmount.ToDollarFloatNoRound()
+		}
+
 		totals[expenseType] += expenseDollarAmt
 
 		if addToTotal && expenseType != "Storage" {

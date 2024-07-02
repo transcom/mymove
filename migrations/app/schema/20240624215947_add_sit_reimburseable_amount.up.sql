@@ -1,0 +1,2 @@
+ALTER TABLE moving_expenses ADD COLUMN IF NOT EXISTS sit_reimburseable_amount integer NULL;
+COMMENT ON COLUMN moving_expenses.sit_reimburseable_amount IS 'The reimburseable amount (in cents) of the PPM''s SIT.';
