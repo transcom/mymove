@@ -312,6 +312,12 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
 					return orderop.NewUpdateOrderInternalServerError(), err
 				}
+
+				err = models.UpdateServiceMemberEMPLID(appCtx.DB(), &newOrder.ServiceMember, nil)
+				if err != nil {
+					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
+					return orderop.NewUpdateOrderInternalServerError(), err
+				}
 			}
 
 			newMove, verrs, err := newOrder.CreateNewMove(appCtx.DB(), moveOptions)
