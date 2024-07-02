@@ -17,13 +17,11 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
-	serviceparamlookups "github.com/transcom/mymove/pkg/payment_request/service_param_value_lookups"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/audit"
 	"github.com/transcom/mymove/pkg/services/event"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 func payloadForClientError(title string, detail string, instance uuid.UUID) *ghcmessages.ClientError {
@@ -302,8 +300,6 @@ type ListMTOServiceItemsHandler struct {
 	handlers.HandlerConfig
 	services.ListFetcher
 	services.Fetcher
-	counselingPricer     services.CounselingServicesPricer
-	moveManagementPricer services.ManagementServicesPricer
 }
 
 // Handle handler that lists mto service items for the move task order
@@ -372,42 +368,6 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 					if loadErr != nil {
 						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), loadErr
 					}
-				}
-			}
-
-			// Get the move management and counseling service items for this move if applicable
-			var indices []int
-			for i, mtoServiceItem := range serviceItems {
-				if mtoServiceItem.MTOShipmentID == nil {
-					indices = append(indices, i)
-				}
-			}
-
-			if len(indices) > 0 {
-				contract, err := serviceparamlookups.FetchContract(appCtx, *moveTaskOrder.AvailableToPrimeAt)
-				if err != nil {
-					return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), err
-				}
-
-				for _, index := range indices {
-					var price unit.Cents
-					var displayParams services.PricingDisplayParams
-					var err error
-					if serviceItems[index].ReService.Code == "CS" {
-						price, displayParams, err = h.counselingPricer.Price(appCtx, contract.Code, *moveTaskOrder.AvailableToPrimeAt)
-					} else if serviceItems[index].ReService.Code == "MS" {
-						price, displayParams, err = h.moveManagementPricer.Price(appCtx, contract.Code, *moveTaskOrder.AvailableToPrimeAt)
-					}
-
-					for _, param := range displayParams {
-						appCtx.Logger().Debug("key: " + param.Key.String())
-						appCtx.Logger().Debug("value: " + param.Value)
-					}
-					if err != nil {
-						return mtoserviceitemop.NewListMTOServiceItemsInternalServerError(), err
-					}
-
-					serviceItems[index].PricingEstimate = &price
 				}
 			}
 

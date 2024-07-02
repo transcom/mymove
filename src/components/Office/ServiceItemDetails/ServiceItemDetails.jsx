@@ -471,16 +471,6 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
       );
       break;
     }
-    case 'MS':
-    case 'CS': {
-      const { estimatedPrice } = details;
-      detailSection = (
-        <div>
-          <dl>{estimatedPrice && generateDetailText({ Price: `$${formatCents(estimatedPrice)}` }, id)}</dl>
-        </div>
-      );
-      break;
-    }
     default:
       detailSection = (
         <div>

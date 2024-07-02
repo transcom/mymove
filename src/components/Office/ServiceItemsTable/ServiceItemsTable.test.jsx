@@ -102,62 +102,6 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
   });
 
-  it('renders with authorized price for MS item', () => {
-    const serviceItems = [
-      {
-        id: 'abc123',
-        createdAt: '2020-11-20',
-        serviceItem: 'Domestic Crating',
-        code: 'MS',
-        details: {
-          estimatedPrice: 100000,
-        },
-      },
-    ];
-
-    const wrapper = mount(
-      <MockProviders>
-        <ServiceItemsTable
-          {...defaultProps}
-          serviceItems={serviceItems}
-          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        />
-      </MockProviders>,
-    );
-
-    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
-    expect(wrapper.find('dt').at(0).text()).toBe('Price:');
-    expect(wrapper.find('dd').at(0).text()).toBe('$1,000.00');
-  });
-
-  it('renders with authorized price for CS item', () => {
-    const serviceItems = [
-      {
-        id: 'abc123',
-        createdAt: '2020-11-20',
-        serviceItem: 'Domestic Crating',
-        code: 'CS',
-        details: {
-          estimatedPrice: 100000,
-        },
-      },
-    ];
-
-    const wrapper = mount(
-      <MockProviders>
-        <ServiceItemsTable
-          {...defaultProps}
-          serviceItems={serviceItems}
-          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
-        />
-      </MockProviders>,
-    );
-
-    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
-    expect(wrapper.find('dt').at(0).text()).toBe('Price:');
-    expect(wrapper.find('dd').at(0).text()).toBe('$1,000.00');
-  });
-
   it('renders the customer contacts for DDFSIT service item', () => {
     const serviceItems = [
       {
