@@ -110,6 +110,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 var parameters = map[string]string{
 	"customerName":          "service_members.last_name",
 	"dodID":                 "service_members.edipi",
+	"emplid":                "service_members.emplid",
 	"branch":                "service_members.affiliation",
 	"locator":               "moves.locator",
 	"status":                "moves.status",
