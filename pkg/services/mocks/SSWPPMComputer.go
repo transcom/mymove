@@ -70,23 +70,23 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 	return r0, r1
 }
 
-// FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values) {
-	ret := _m.Called(shipmentSummaryFormData)
+// FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData, isPaymentPacket
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values) {
+	ret := _m.Called(shipmentSummaryFormData, isPaymentPacket)
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) (services.Page1Values, services.Page2Values)); ok {
-		return rf(shipmentSummaryFormData)
+	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values)); ok {
+		return rf(shipmentSummaryFormData, isPaymentPacket)
 	}
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData) services.Page1Values); ok {
-		r0 = rf(shipmentSummaryFormData)
+	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) services.Page1Values); ok {
+		r0 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
 		r0 = ret.Get(0).(services.Page1Values)
 	}
 
-	if rf, ok := ret.Get(1).(func(services.ShipmentSummaryFormData) services.Page2Values); ok {
-		r1 = rf(shipmentSummaryFormData)
+	if rf, ok := ret.Get(1).(func(services.ShipmentSummaryFormData, bool) services.Page2Values); ok {
+		r1 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
 		r1 = ret.Get(1).(services.Page2Values)
 	}

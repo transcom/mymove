@@ -92,7 +92,7 @@ func (p *paymentPacketCreator) Generate(appCtx appcontext.AppContext, ppmShipmen
 	var pdfFilesToMerge []io.ReadSeeker
 
 	// use aoa creator to generated SSW and Orders PDF
-	aoaPacketFile, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+	aoaPacketFile, err := p.aoaPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, true)
 	if err != nil {
 		errMsgPrefix = fmt.Sprintf("%s: %s", errMsgPrefix, fmt.Sprintf("failed to generate AOA packet for ppmShipmentID: %s", ppmShipmentID.String()))
 		appCtx.Logger().Error(errMsgPrefix, zap.Error(err))

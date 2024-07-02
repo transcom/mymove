@@ -15,25 +15,25 @@ type AOAPacketCreator struct {
 	mock.Mock
 }
 
-// CreateAOAPacket provides a mock function with given fields: appCtx, ppmShipmentID
-func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error) {
-	ret := _m.Called(appCtx, ppmShipmentID)
+// CreateAOAPacket provides a mock function with given fields: appCtx, ppmShipmentID, isPaymentPacket
+func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error) {
+	ret := _m.Called(appCtx, ppmShipmentID, isPaymentPacket)
 
 	var r0 afero.File
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (afero.File, error)); ok {
-		return rf(appCtx, ppmShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (afero.File, error)); ok {
+		return rf(appCtx, ppmShipmentID, isPaymentPacket)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) afero.File); ok {
-		r0 = rf(appCtx, ppmShipmentID)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) afero.File); ok {
+		r0 = rf(appCtx, ppmShipmentID, isPaymentPacket)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(afero.File)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
-		r1 = rf(appCtx, ppmShipmentID)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, bool) error); ok {
+		r1 = rf(appCtx, ppmShipmentID, isPaymentPacket)
 	} else {
 		r1 = ret.Error(1)
 	}

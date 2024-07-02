@@ -294,7 +294,7 @@ func (h showAOAPacketHandler) Handle(params ppmops.ShowAOAPacketParams) middlewa
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID)
+			AOAPacket, err := h.AOAPacketCreator.CreateAOAPacket(appCtx, ppmShipmentID, false)
 			if err != nil {
 				logger.Error("Error creating AOA", zap.Error(err))
 				aoaError := err.Error()
