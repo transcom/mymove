@@ -906,7 +906,7 @@ export const MoveTaskOrder = (props) => {
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
   const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
-  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? calculateMaxBillableWeight() : '-';
+  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? Math.round(calculateMaxBillableWeight()) : '-';
 
   /**
    * @function getSitAddressInitialValues
