@@ -136,7 +136,8 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Estimated Weight:</dt>
-        <dd>{shipment.primeEstimatedWeight}</dd>
+        {shipment.shipmentType === SHIPMENT_OPTIONS.NTSR && <dd>{shipment.ntsRecordedWeight}</dd>}
+        {shipment.shipmentType !== SHIPMENT_OPTIONS.NTSR && <dd>{shipment.primeEstimatedWeight}</dd>}
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Actual Weight:</dt>
@@ -216,8 +217,12 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.diversion ? 'yes' : 'no'}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Diversion Reason:</dt>
+        <dd>{shipment.diversionReason ? shipment.diversionReason : '—'}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Counselor Remarks:</dt>
-        <dd>{shipment.counselorRemarks}</dd>
+        <dd>{shipment.counselorRemarks ? shipment.counselorRemarks : '—'}</dd>
       </div>
       {shipment.ppmShipment && (
         <>

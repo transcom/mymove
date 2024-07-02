@@ -3,7 +3,7 @@ import { func, string, bool } from 'prop-types';
 
 import styles from './OrdersDetailForm.module.scss';
 
-import { formatLabelReportByDate } from 'utils/formatters';
+import { dropdownInputOptions, formatLabelReportByDate } from 'utils/formatters';
 import { CheckboxField, DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
@@ -14,9 +14,12 @@ const OrdersDetailForm = ({
   ordersTypeOptions,
   ordersTypeDetailOptions,
   hhgTacWarning,
+  hhgLoaWarning,
+  ntsLoaWarning,
   ntsTacWarning,
   validateHHGTac,
   validateNTSTac,
+  validateHHGLoa,
   showDepartmentIndicator,
   showOrdersNumber,
   showOrdersTypeDetail,
@@ -24,11 +27,14 @@ const OrdersDetailForm = ({
   showHHGSac,
   showNTSTac,
   showNTSSac,
+  showHHGLoa,
+  showNTSLoa,
   showOrdersAcknowledgement,
   ordersType,
   setFieldValue,
   payGradeOptions,
   formIsDisabled,
+  hhgLongLineOfAccounting,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -74,12 +80,12 @@ const OrdersDetailForm = ({
       <DropdownInput
         name="ordersType"
         label="Orders type"
-        options={ordersTypeOptions}
+        options={formOrdersType === 'SAFETY' ? dropdownInputOptions({ SAFETY: 'Safety' }) : ordersTypeOptions}
         onChange={(e) => {
           setFormOrdersType(e.target.value);
           setFieldValue('ordersType', e.target.value);
         }}
-        isDisabled={formIsDisabled}
+        isDisabled={formIsDisabled || formOrdersType === 'SAFETY'}
       />
       {showOrdersTypeDetail && (
         <DropdownInput
@@ -113,6 +119,20 @@ const OrdersDetailForm = ({
           optional
         />
       )}
+      {showHHGTac && showHHGLoa && (
+        <TextField
+          name="hhgLoa"
+          label="LOA"
+          id="hhgLoaTextField"
+          mask="****"
+          inputTestId="hhgLoaTextField"
+          data-testid="hhgLoaTextField"
+          warning={hhgLoaWarning}
+          validate={validateHHGLoa}
+          value={hhgLongLineOfAccounting}
+          isDisabled
+        />
+      )}
 
       {showNTSTac && showNTSSac && <h3>NTS accounting codes</h3>}
       {showNTSTac && (
@@ -138,6 +158,20 @@ const OrdersDetailForm = ({
           optional
         />
       )}
+      {/* This is a placeholder NTS TAC holder */}
+      {/* A future ticket will be placed to add NTS lookup logic on the backend and then it will display here */}
+      {showNTSTac && showNTSLoa && (
+        <TextField
+          name="ntsLoa"
+          label="LOA"
+          id="ntsLoaTextField"
+          mask="****"
+          inputTestId="ntsLoaTextField"
+          warning={ntsLoaWarning}
+          data-testid="ntsLoaTextField"
+          isDisabled
+        />
+      )}
 
       {showOrdersAcknowledgement && (
         <div className={styles.wrappedCheckbox}>
@@ -159,6 +193,8 @@ OrdersDetailForm.propTypes = {
   ordersTypeDetailOptions: DropdownArrayOf,
   hhgTacWarning: string,
   ntsTacWarning: string,
+  hhgLoaWarning: string,
+  ntsLoaWarning: string,
   validateHHGTac: func,
   validateNTSTac: func,
   showDepartmentIndicator: bool,
@@ -167,17 +203,22 @@ OrdersDetailForm.propTypes = {
   showHHGTac: bool,
   showHHGSac: bool,
   showNTSTac: bool,
+  showHHGLoa: bool,
+  showNTSLoa: bool,
   showNTSSac: bool,
   showOrdersAcknowledgement: bool,
   ordersType: string.isRequired,
   setFieldValue: func.isRequired,
   payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
+  hhgLongLineOfAccounting: string,
 };
 
 OrdersDetailForm.defaultProps = {
   hhgTacWarning: '',
   ntsTacWarning: '',
+  hhgLoaWarning: '',
+  ntsLoaWarning: '',
   deptIndicatorOptions: null,
   ordersTypeDetailOptions: null,
   validateHHGTac: null,
@@ -188,10 +229,13 @@ OrdersDetailForm.defaultProps = {
   showHHGTac: true,
   showHHGSac: true,
   showNTSTac: true,
+  showHHGLoa: true,
+  showNTSLoa: true,
   showNTSSac: true,
   showOrdersAcknowledgement: false,
   payGradeOptions: null,
   formIsDisabled: false,
+  hhgLongLineOfAccounting: '',
 };
 
 export default OrdersDetailForm;

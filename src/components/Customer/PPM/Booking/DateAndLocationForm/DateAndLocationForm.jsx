@@ -20,7 +20,9 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { requiredAddressSchema } from 'utils/validation';
 
-const validationShape = {
+let meta = '';
+
+let validationShape = {
   useCurrentResidence: Yup.boolean(),
   hasSecondaryPickupAddress: Yup.boolean(),
   useCurrentDestinationAddress: Yup.boolean(),
@@ -45,21 +47,17 @@ const validationShape = {
 
 const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMember, move, onBack, onSubmit }) => {
   const initialValues = {
-    pickupPostalCode: mtoShipment?.ppmShipment?.pickupPostalCode || '',
     useCurrentResidence: false,
     pickupAddress: {},
     secondaryPickupAddress: {},
     hasSecondaryPickupAddress: mtoShipment?.ppmShipment?.secondaryPickupAddress ? 'true' : 'false',
-    secondaryPickupPostalCode: mtoShipment?.ppmShipment?.secondaryPickupPostalCode || '',
     useCurrentDestinationAddress: false,
-    destinationPostalCode: mtoShipment?.ppmShipment?.destinationPostalCode || '',
     hasSecondaryDestinationAddress: mtoShipment?.ppmShipment?.secondaryDestinationAddress ? 'true' : 'false',
     destinationAddress: {},
     secondaryDestinationAddress: {},
-    secondaryDestinationPostalCode: mtoShipment?.ppmShipment?.secondaryDestinationPostalCode || '',
     sitExpected: mtoShipment?.ppmShipment?.sitExpected ? 'true' : 'false',
     expectedDepartureDate: mtoShipment?.ppmShipment?.expectedDepartureDate || '',
-    closeoutOffice: move?.closeoutOffice,
+    closeoutOffice: move?.closeoutOffice || {},
   };
 
   if (mtoShipment?.ppmShipment?.pickupAddress) {
@@ -86,13 +84,36 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.AIR_FORCE ||
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.SPACE_FORCE;
   if (showCloseoutOffice) {
-    validationShape.closeoutOffice = Yup.object().required('Required');
+    validationShape = {
+      ...validationShape,
+      closeoutOffice: Yup.object().shape({
+        address: Yup.object().required('Required'),
+      }),
+    };
   } else {
     delete validationShape.closeoutOffice;
   }
 
+  const validate = (values) => {
+    if (!values.closeoutOffice) {
+      meta = 'Required';
+    }
+    if (values.closeoutOffice) {
+      meta = '';
+    }
+    return {};
+  };
+
   return (
-    <Formik initialValues={initialValues} validationSchema={Yup.object().shape(validationShape)} onSubmit={onSubmit}>
+    <Formik
+      initialValues={initialValues}
+      validationSchema={Yup.object().shape(validationShape)}
+      onSubmit={onSubmit}
+      validate={validate}
+      validateOnBlur
+      validateOnMount
+      validateOnChange
+    >
       {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
@@ -156,7 +177,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="pickupAddress.address"
                   render={(fields) => (
                     <>
-                      <p>What address are the movers picking up from?</p>
+                      <p>What address are you moving from?</p>
                       <Checkbox
                         data-testid="useCurrentResidence"
                         label="Use my current origin address"
@@ -165,7 +186,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                         id="useCurrentResidence"
                       />
                       {fields}
-                      <h4>Second pickup location</h4>
                       <FormGroup>
                         <Fieldset>
                           <legend className="usa-label">
@@ -215,7 +235,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                   name="destinationAddress.address"
                   render={(fields) => (
                     <>
-                      <p>Please input Delivery Address</p>
+                      <p>Please input your destination address.</p>
                       <Checkbox
                         data-testid="useCurrentDestinationAddress"
                         label="Use my current destination address"
@@ -254,7 +274,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                           <AddressFields name="secondaryDestinationAddress.address" />
                           <Hint className={ppmStyles.hint}>
                             <p>
-                              A second destination ZIP could mean that your final incentive is lower than your estimate.
+                              A second destination address could mean that your final incentive is lower than your
+                              estimate.
                             </p>
                             <p>
                               Get separate weight tickets for each leg of the trip to show how the weight changes. Talk
@@ -284,6 +305,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       label="Which closeout office should review your PPM?"
                       placeholder="Start typing a closeout office..."
                       searchLocations={searchTransportationOffices}
+                      metaOverride={meta}
                     />
                     <Hint className={ppmStyles.hint}>
                       If you have more than one PPM for this move, your closeout office will be the same for all your

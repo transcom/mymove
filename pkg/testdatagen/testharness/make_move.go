@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -257,6 +258,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	sitDaysAllowance := 270
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
+	actualPickupDate := time.Now().AddDate(0, 0, 1)
 	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.MTOShipment{
@@ -265,6 +267,7 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 				ShipmentType:         models.MTOShipmentTypeHHG,
 				Status:               models.MTOShipmentStatusSubmitted,
 				SITDaysAllowance:     &sitDaysAllowance,
+				ActualPickupDate:     &actualPickupDate,
 			},
 		},
 		{
@@ -501,6 +504,125 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	if verrs.HasAny() || err != nil {
 		appCtx.Logger().Error("errors encountered saving test.png prime upload", zap.Error(err))
 	}
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
+// MakeHHGMoveForTOOAfterActualPickupDate is a function
+// that creates an HHG move with an actual pickup date in the past for diversion testing
+// copied almost verbatim from e2ebasic createHHGMoveWithServiceItemsAndPaymentRequestsAndFiles
+func MakeHHGMoveForTOOAfterActualPickupDate(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+	dependentsAuthorized := true
+	entitlements := factory.BuildEntitlement(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Entitlement{
+				DependentsAuthorized: &dependentsAuthorized,
+			},
+		},
+	}, nil)
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model:    entitlements,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+			},
+		},
+	}, nil)
+	sitDaysAllowance := 270
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				Status:               models.MTOShipmentStatusSubmitted,
+				SITDaysAllowance:     &sitDaysAllowance,
+				ActualPickupDate:     &twoMonthsAgo,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
@@ -2876,7 +2998,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -2980,7 +3102,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(2361, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter)
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
@@ -3825,7 +3947,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -3901,7 +4023,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -3967,7 +4089,7 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4151,7 +4273,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4249,7 +4371,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4326,8 +4448,6 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -4378,7 +4498,7 @@ func MakeApprovedMoveWithPPMShipmentAndExcessWeight(appCtx appcontext.AppContext
 		PPMShipment: models.PPMShipment{
 			ID:                          uuid.Must(uuid.NewV4()),
 			ApprovedAt:                  &approvedAt,
-			Status:                      models.PPMShipmentStatusNeedsPaymentApproval,
+			Status:                      models.PPMShipmentStatusNeedsCloseout,
 			ActualMoveDate:              models.TimePointer(time.Date(testdatagen.GHCTestYear, time.March, 16, 0, 0, 0, 0, time.UTC)),
 			ActualPickupPostalCode:      models.StringPointer("42444"),
 			ActualDestinationPostalCode: models.StringPointer("30813"),
@@ -4470,7 +4590,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -4736,7 +4856,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -5063,6 +5183,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
 	userInfo := newUserInfo("customer")
+	actualPickupDate := time.Now().AddDate(0, 0, 1)
 
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
@@ -5121,7 +5242,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 		},
 		{
 			Model: models.Move{
-				Status:             models.MoveStatusAPPROVED,
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: &now,
 			},
 		},
@@ -5143,6 +5264,7 @@ func MakeHHGMoveInSITEndsToday(appCtx appcontext.AppContext) models.Move {
 				RequestedPickupDate:   &requestedPickupDate,
 				RequestedDeliveryDate: &requestedDeliveryDate,
 				SITDaysAllowance:      &sitDaysAllowance,
+				ActualPickupDate:      &actualPickupDate,
 			},
 		},
 		{

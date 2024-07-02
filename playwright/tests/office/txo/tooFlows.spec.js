@@ -467,40 +467,6 @@ test.describe('TOO user', () => {
       await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
     });
 
-    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
-      await tooFlowPage.approveAllShipments();
-
-      await page.getByTestId('MoveTaskOrder-Tab').click();
-      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
-
-      // Move Task Order page
-      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
-
-      await page.locator('button').getByText('Request diversion').click();
-
-      // Check modal title includes shipment locator
-      const modalTitleText = await page.locator('div[data-testid="modal"] h3').textContent();
-      const modalTitlePattern = /^Request Shipment Diversion for #([A-Za-z0-9]{6}-\d{2})$/;
-      const hasValidModalTitle = modalTitlePattern.test(modalTitleText);
-      expect(hasValidModalTitle).toBeTruthy();
-
-      // Submit the diversion request
-      await page.locator('input[name="diversionReason"]').type('reasonable reason');
-      await page.locator('button[data-testid="modalSubmitButton"]').click();
-      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
-
-      // Check the alert message with shipment locator
-      const alertText = await page.locator('[data-testid="alert"]').textContent();
-      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
-      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
-      expect(hasValidShipmentNumber).toBeTruthy();
-
-      // Alert should disappear if focus changes
-      await page.locator('[data-testid="rejectTextButton"]').first().click();
-      await page.locator('[data-testid="closeRejectServiceItem"]').click();
-      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
-    });
-
     /**
      * This test is being temporarily skipped until flakiness issues
      * can be resolved. It was skipped in cypress and is not part of
@@ -582,7 +548,7 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveDetails();
     });
 
-    // Test that the TOO is blocked from doing QAECSR actions
+    // Test that the TOO is blocked from doing QAE actions
     test('is unable to see create report buttons', async ({ page }) => {
       await page.getByText('Quality assurance').click();
       await tooFlowPage.waitForLoading();
@@ -608,6 +574,49 @@ test.describe('TOO user', () => {
       // Check for Origin GBLOC label
       await expect(page.getByTestId('originGBLOC')).toHaveText('Origin GBLOC');
       await expect(page.getByTestId('infoBlock')).toContainText('KKFA');
+    });
+  });
+
+  test.describe('with HHG Moves after actual pickup date', () => {
+    test.beforeEach(async ({ officePage }) => {
+      const move = await officePage.testHarness.buildHHGMoveForTOOAfterActualPickupDate();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await officePage.tooNavigateToMove(move.locator);
+    });
+
+    test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.approveAllShipments();
+
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      expect(page.url()).toContain(`/moves/${tooFlowPage.moveLocator}/mto`);
+
+      // Move Task Order page
+      await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
+
+      await page.locator('button').getByText('Request diversion').click();
+
+      // Check modal title includes shipment locator
+      const modalTitleText = await page.locator('div[data-testid="modal"] h3').textContent();
+      const modalTitlePattern = /^Request Shipment Diversion for #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidModalTitle = modalTitlePattern.test(modalTitleText);
+      expect(hasValidModalTitle).toBeTruthy();
+
+      // Submit the diversion request
+      await page.locator('input[name="diversionReason"]').type('reasonable reason');
+      await page.locator('button[data-testid="modalSubmitButton"]').click();
+      await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
+
+      // Check the alert message with shipment locator
+      const alertText = await page.locator('[data-testid="alert"]').textContent();
+      const shipmentNumberPattern = /^Diversion successfully requested for Shipment #([A-Za-z0-9]{6}-\d{2})$/;
+      const hasValidShipmentNumber = shipmentNumberPattern.test(alertText);
+      expect(hasValidShipmentNumber).toBeTruthy();
+
+      // Alert should disappear if focus changes
+      await page.locator('[data-testid="rejectTextButton"]').first().click();
+      await page.locator('[data-testid="closeRejectServiceItem"]').click();
+      await expect(page.locator('[data-testid="alert"]')).not.toBeVisible();
     });
   });
 
@@ -669,7 +678,7 @@ test.describe('TOO user', () => {
       await page.locator(`input[name="params\\.${serviceItemID}\\.WeightBilled"]`).blur();
       await page.getByTestId('form').getByTestId('button').click();
       await page.getByRole('link', { name: 'Change user role' }).click();
-      await page.getByRole('button', { name: 'Select transportation_ordering_officer' }).click();
+      await page.getByRole('button', { name: 'Select task_ordering_officer' }).click();
     });
     test('weight-based multiplier prioritizes billed weight', async ({ page }) => {
       await page.getByRole('row', { name: 'Select...' }).getByTestId('locator').getByTestId('TextBoxFilter').click();
@@ -748,7 +757,8 @@ test.describe('TOO user', () => {
 
     await page.locator('input[name="locator"]').type(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
     await page.locator('input[name="locator"]').blur();
-    await expect(page.getByText('Move approved')).toBeVisible();
+    // once the move is in the Move approved status, it will no longer show up in the TOO queue
+    await expect(page.getByText('Move approved')).not.toBeVisible();
     await expect(page.getByText('Approvals requested')).not.toBeVisible();
   });
 });

@@ -53,6 +53,7 @@ const defaultProps = {
   ordersType: 'PERMANENT_CHANGE_OF_STATION',
   setFieldValue: jest.fn,
   payGradeOptions,
+  hhgLongLineOfAccounting: 'Long line of accounting is present',
 };
 
 function renderOrdersDetailForm(props) {
@@ -76,7 +77,6 @@ describe('OrdersDetailForm', () => {
     expect(screen.getByLabelText('Orders type detail')).toBeInTheDocument();
     expect(screen.queryAllByLabelText('TAC').length).toBe(2);
     expect(screen.queryAllByLabelText('SAC').length).toBe(2);
-    // expect(screen.getByLabelText('SAC')).toBeInTheDocument();
     expect(screen.getByLabelText('I have read the new orders')).toBeInTheDocument();
   });
 
@@ -100,9 +100,20 @@ describe('OrdersDetailForm', () => {
     expect(await screen.findByLabelText('I have read the new orders')).toBeInTheDocument();
   });
 
+  it('accepts longLineOfAccounting prop', async () => {
+    renderOrdersDetailForm();
+    const loaTextField = screen.getByTestId('hhgLoaTextField');
+    expect(loaTextField).toHaveValue('Long line of accounting is present');
+  });
+
   it('shows the tac warning', async () => {
     renderOrdersDetailForm({ hhgTacWarning: 'Test warning' });
     expect(await screen.findByText('Test warning')).toBeInTheDocument();
+  });
+
+  it('shows the loa warning', async () => {
+    renderOrdersDetailForm({ hhgLoaWarning: 'Test LOA warning' });
+    expect(await screen.findByText('Test LOA warning')).toBeInTheDocument();
   });
 
   it('hides hideable fields', async () => {
@@ -115,6 +126,7 @@ describe('OrdersDetailForm', () => {
       showNTSTac: false,
       showNTSSac: false,
       showOrdersAcknowledgement: false,
+      showLoa: false,
     });
 
     // fields are visible
@@ -127,6 +139,8 @@ describe('OrdersDetailForm', () => {
     expect(screen.queryByLabelText('TAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('SAC')).not.toBeInTheDocument();
     expect(screen.queryByLabelText('I have read the new orders')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Line of Accounting Preview')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('LOA')).not.toBeInTheDocument();
   });
 
   it('has the right labels for a retiree', async () => {
@@ -163,5 +177,22 @@ describe('OrdersDetailForm', () => {
     // correct labels are visible
     expect(await screen.findByLabelText('Date of separation')).toBeInTheDocument();
     expect(await screen.findByLabelText('HOR, HOS or PLEAD')).toBeInTheDocument();
+  });
+
+  it('has orders type dropdown disabled if safety move', async () => {
+    renderOrdersDetailForm({
+      showDepartmentIndicator: false,
+      showOrdersNumber: false,
+      showOrdersTypeDetail: false,
+      showHHGTac: false,
+      showHHGSac: false,
+      showNTSTac: false,
+      showNTSSac: false,
+      showOrdersAcknowledgement: false,
+      ordersType: 'SAFETY',
+    });
+
+    // correct labels are visible
+    expect(await screen.findByLabelText('Orders type')).toBeDisabled();
   });
 });

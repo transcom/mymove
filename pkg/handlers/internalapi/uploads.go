@@ -122,6 +122,17 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			var ppmShipmentStatus models.PPMShipmentStatus
+
+			if params.PpmID != nil {
+				ppmShipmentId, _ := uuid.FromString(params.PpmID.String())
+				ppmShipment, err := models.FetchPPMShipmentByPPMShipmentID(appCtx.DB(), ppmShipmentId)
+				if err != nil {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+				ppmShipmentStatus = ppmShipment.Status
+			}
+
 			if params.OrderID != nil {
 				orderID, _ := uuid.FromString(params.OrderID.String())
 				move, e := models.FetchMoveByOrderID(appCtx.DB(), orderID)
@@ -151,14 +162,36 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 
 				return uploadop.NewDeleteUploadNoContent(), nil
 			}
+
+			if params.MoveID != nil {
+				moveID, e := uuid.FromString(params.MoveID.String())
+				if e != nil {
+					appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", moveID.String()), zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				userUploader, e := uploaderpkg.NewUserUploader(
+					h.FileStorer(),
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+				if e = userUploader.DeleteUserUpload(appCtx, &userUpload); e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				return uploadop.NewDeleteUploadNoContent(), nil
+			}
+
 			//Fetch upload information so we can retrieve the move status
 			uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 			if err != nil {
 				appCtx.Logger().Error("error retrieving move associated with this upload", zap.Error(err))
 			}
 
-			//If move status is not DRAFT, upload cannot be deleted
-			if *uploadInformation.MoveStatus != models.MoveStatusDRAFT {
+			//If move status is not DRAFT and customer is not uploading ppm docs, upload cannot be deleted
+			if (*uploadInformation.MoveStatus != models.MoveStatusDRAFT) && (ppmShipmentStatus != models.PPMShipmentStatusWaitingOnCustomer) {
 				return uploadop.NewDeleteUploadForbidden(), fmt.Errorf("deletion not permitted Move is not in 'DRAFT' status")
 			}
 

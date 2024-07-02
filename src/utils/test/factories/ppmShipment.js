@@ -37,8 +37,6 @@ const createBasePPMShipment = (fieldOverrides = {}) => {
       shipmentId: mtoPPMShipmentId,
       status: ppmShipmentStatuses.DRAFT,
       expectedDepartureDate: '2022-09-15',
-      pickupPostalCode: '90210',
-      destinationPostalCode: '30813',
       sitExpected: false,
       estimatedWeight: null,
       hasProGear: null,
@@ -94,6 +92,22 @@ const createSubmittedPPMShipment = (fieldOverrides = {}) => {
     {
       ppmShipment: {
         status: ppmShipmentStatuses.SUBMITTED,
+        pickupAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Pickup Test City',
+          state: 'NY',
+          postalCode: '10001',
+        },
+        destinationAddress: {
+          streetAddress1: '1 Test Street',
+          streetAddress2: '2 Test Street',
+          streetAddress3: '3 Test Street',
+          city: 'Destination Test City',
+          state: 'NY',
+          postalCode: '11111',
+        },
       },
     },
     fieldOverrides,

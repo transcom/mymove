@@ -17,8 +17,10 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -47,10 +49,36 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
+
+	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
+		mockCreator := &mocks.SignedCertificationCreator{}
+
+		mockCreator.On(
+			"CreateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+		).Return(returnValue...)
+
+		return mockCreator
+	}
+
+	setUpSignedCertificationUpdaterMock := func(returnValue ...interface{}) services.SignedCertificationUpdater {
+		mockUpdater := &mocks.SignedCertificationUpdater{}
+
+		mockUpdater.On(
+			"UpdateSignedCertification",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("models.SignedCertification"),
+			mock.AnythingOfType("string"),
+		).Return(returnValue...)
+
+		return mockUpdater
+	}
+
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter),
-		moveRouter,
+		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
 	)
 	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
@@ -145,10 +173,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		counselorRemarks := "Some counselor remarks"
 		expectedDepartureDate := time.Now().AddDate(0, 0, 10)
-		pickupPostalCode := "30907"
-		secondaryPickupPostalCode := "30809"
-		destinationPostalCode := "29212"
-		secondaryDestinationPostalCode := "29201"
 		sitExpected := true
 		sitLocation := primev2messages.SITLocationTypeDESTINATION
 		sitEstimatedWeight := unit.Pound(1500)
@@ -168,20 +192,16 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				ShipmentType:     primev2messages.NewMTOShipmentType(primev2messages.MTOShipmentTypePPM),
 				CounselorRemarks: &counselorRemarks,
 				PpmShipment: &primev2messages.CreatePPMShipment{
-					ExpectedDepartureDate:          handlers.FmtDate(expectedDepartureDate),
-					PickupPostalCode:               &pickupPostalCode,
-					SecondaryPickupPostalCode:      &secondaryPickupPostalCode,
-					DestinationPostalCode:          &destinationPostalCode,
-					SecondaryDestinationPostalCode: &secondaryDestinationPostalCode,
-					SitExpected:                    &sitExpected,
-					SitLocation:                    &sitLocation,
-					SitEstimatedWeight:             handlers.FmtPoundPtr(&sitEstimatedWeight),
-					SitEstimatedEntryDate:          handlers.FmtDate(sitEstimatedEntryDate),
-					SitEstimatedDepartureDate:      handlers.FmtDate(sitEstimatedDepartureDate),
-					EstimatedWeight:                handlers.FmtPoundPtr(&estimatedWeight),
-					HasProGear:                     &hasProGear,
-					ProGearWeight:                  handlers.FmtPoundPtr(&proGearWeight),
-					SpouseProGearWeight:            handlers.FmtPoundPtr(&spouseProGearWeight),
+					ExpectedDepartureDate:     handlers.FmtDate(expectedDepartureDate),
+					SitExpected:               &sitExpected,
+					SitLocation:               &sitLocation,
+					SitEstimatedWeight:        handlers.FmtPoundPtr(&sitEstimatedWeight),
+					SitEstimatedEntryDate:     handlers.FmtDate(sitEstimatedEntryDate),
+					SitEstimatedDepartureDate: handlers.FmtDate(sitEstimatedDepartureDate),
+					EstimatedWeight:           handlers.FmtPoundPtr(&estimatedWeight),
+					HasProGear:                &hasProGear,
+					ProGearWeight:             handlers.FmtPoundPtr(&proGearWeight),
+					SpouseProGearWeight:       handlers.FmtPoundPtr(&spouseProGearWeight),
 				},
 			},
 		}
@@ -213,10 +233,6 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		suite.Equal(createdShipment.ID.String(), createdPPM.ShipmentID.String())
 		suite.Equal(primev2messages.PPMShipmentStatusSUBMITTED, createdPPM.Status)
 		suite.Equal(handlers.FmtDatePtr(&expectedDepartureDate), createdPPM.ExpectedDepartureDate)
-		suite.Equal(&pickupPostalCode, createdPPM.PickupPostalCode)
-		suite.Equal(&secondaryPickupPostalCode, createdPPM.SecondaryPickupPostalCode)
-		suite.Equal(&destinationPostalCode, createdPPM.DestinationPostalCode)
-		suite.Equal(&secondaryDestinationPostalCode, createdPPM.SecondaryDestinationPostalCode)
 		suite.Equal(&sitExpected, createdPPM.SitExpected)
 		suite.Equal(&sitLocation, createdPPM.SitLocation)
 		suite.Equal(handlers.FmtPoundPtr(&sitEstimatedWeight), createdPPM.SitEstimatedWeight)

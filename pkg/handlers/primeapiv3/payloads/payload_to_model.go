@@ -227,34 +227,22 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	addressModel = AddressModel(&ppmShipment.PickupAddress.Address)
 	if addressModel != nil {
 		model.PickupAddress = addressModel
-		// Set legacy postalCode using address. This is to make it backward compatiable with
-		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-		model.PickupPostalCode = addressModel.PostalCode
 	}
 
 	addressModel = AddressModel(&ppmShipment.SecondaryPickupAddress.Address)
 	if addressModel != nil {
 		model.SecondaryPickupAddress = addressModel
-		// Set legacy postalCode using address. This is to make it backward compatiable with
-		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-		model.SecondaryPickupPostalCode = &addressModel.PostalCode
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
-		// Set legacy postalCode using address. This is to make it backward compatiable with
-		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-		model.DestinationPostalCode = addressModel.PostalCode
 	}
 
 	addressModel = AddressModel(&ppmShipment.SecondaryDestinationAddress.Address)
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
-		// Set legacy postalCode using address. This is to make it backward compatiable with
-		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-		model.SecondaryDestinationPostalCode = &addressModel.PostalCode
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 
@@ -300,6 +288,16 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		ShipmentType:               models.MTOShipmentType(mtoShipment.ShipmentType),
 		Diversion:                  mtoShipment.Diversion,
 		CounselorRemarks:           mtoShipment.CounselorRemarks,
+	}
+
+	if mtoShipment.ActualProGearWeight != nil {
+		actualProGearWeight := unit.Pound(*mtoShipment.ActualProGearWeight)
+		model.ActualProGearWeight = &actualProGearWeight
+	}
+
+	if mtoShipment.ActualSpouseProGearWeight != nil {
+		actualSpouseProGearWeight := unit.Pound(*mtoShipment.ActualSpouseProGearWeight)
+		model.ActualSpouseProGearWeight = &actualSpouseProGearWeight
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {
@@ -381,9 +379,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 	addressModel = AddressModel(&ppmShipment.PickupAddress.Address)
 	if addressModel != nil {
 		model.PickupAddress = addressModel
-		// Set legacy postalCode using address. This is to make it backward compatiable with
-		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-		model.PickupPostalCode = addressModel.PostalCode
 	}
 
 	// only assume secondary address is added if has flag is set to true. If false the address will be ignored.
@@ -393,18 +388,12 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 			model.SecondaryPickupAddress = addressModel
 			secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 			model.SecondaryPickupAddressID = &secondaryPickupAddressID
-			// Set legacy postalCode using address. This is to make it backward compatiable with
-			// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-			model.SecondaryPickupPostalCode = &addressModel.PostalCode
 		}
 	}
 
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
-		// Set legacy postalCode using address. This is to make it backward compatiable with
-		// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-		model.DestinationPostalCode = addressModel.PostalCode
 	}
 
 	// only assume secondary address is added if has flag is set to true. If false the address will be ignored.
@@ -414,9 +403,6 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 			model.SecondaryDestinationAddress = addressModel
 			secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 			model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
-			// Set legacy postalCode using address. This is to make it backward compatiable with
-			// existing workflow in v2. Eventually postalCode column will be dropped when v2 is deprecated.
-			model.SecondaryDestinationPostalCode = &addressModel.PostalCode
 		}
 	}
 

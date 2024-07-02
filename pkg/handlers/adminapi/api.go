@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/clientcert"
 	electronicorder "github.com/transcom/mymove/pkg/services/electronic_order"
 	fetch "github.com/transcom/mymove/pkg/services/fetch"
+	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -22,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/query"
 	requestedofficeusers "github.com/transcom/mymove/pkg/services/requested_office_users"
 	"github.com/transcom/mymove/pkg/services/roles"
+	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	"github.com/transcom/mymove/pkg/services/upload"
 	user "github.com/transcom/mymove/pkg/services/user"
 	usersprivileges "github.com/transcom/mymove/pkg/services/users_privileges"
@@ -192,12 +194,14 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 	}
 
 	moveRouter := move.NewMoveRouter()
+	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	adminAPI.MovesUpdateMoveHandler = UpdateMoveHandler{
 		handlerConfig,
 		movetaskorder.NewMoveTaskOrderUpdater(
 			queryBuilder,
-			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter),
-			moveRouter,
+			mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+			moveRouter, signedCertificationCreator, signedCertificationUpdater,
 		),
 	}
 

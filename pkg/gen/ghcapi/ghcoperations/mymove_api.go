@@ -19,10 +19,12 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/ghc_documents"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/move_task_order"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/mto_agent"
@@ -183,6 +185,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
+		ApplicationParametersGetParamHandler: application_parameters.GetParamHandlerFunc(func(params application_parameters.GetParamParams) middleware.Responder {
+			return middleware.NotImplemented("operation application_parameters.GetParam has not yet been implemented")
+		}),
 		PaymentRequestsGetPaymentRequestHandler: payment_requests.GetPaymentRequestHandlerFunc(func(params payment_requests.GetPaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.GetPaymentRequest has not yet been implemented")
 		}),
@@ -221,6 +226,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
+		}),
+		LinesOfAccountingRequestLineOfAccountingHandler: lines_of_accounting.RequestLineOfAccountingHandlerFunc(func(params lines_of_accounting.RequestLineOfAccountingParams) middleware.Responder {
+			return middleware.NotImplemented("operation lines_of_accounting.RequestLineOfAccounting has not yet been implemented")
 		}),
 		ShipmentRequestShipmentCancellationHandler: shipment.RequestShipmentCancellationHandlerFunc(func(params shipment.RequestShipmentCancellationParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RequestShipmentCancellation has not yet been implemented")
@@ -442,6 +450,8 @@ type MymoveAPI struct {
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
 	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
+	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
+	ApplicationParametersGetParamHandler application_parameters.GetParamHandler
 	// PaymentRequestsGetPaymentRequestHandler sets the operation handler for the get payment request operation
 	PaymentRequestsGetPaymentRequestHandler payment_requests.GetPaymentRequestHandler
 	// PaymentRequestsGetPaymentRequestsForMoveHandler sets the operation handler for the get payment requests for move operation
@@ -468,6 +478,8 @@ type MymoveAPI struct {
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
+	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
+	LinesOfAccountingRequestLineOfAccountingHandler lines_of_accounting.RequestLineOfAccountingHandler
 	// ShipmentRequestShipmentCancellationHandler sets the operation handler for the request shipment cancellation operation
 	ShipmentRequestShipmentCancellationHandler shipment.RequestShipmentCancellationHandler
 	// ShipmentRequestShipmentDiversionHandler sets the operation handler for the request shipment diversion operation
@@ -732,6 +744,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PwsViolationsGetPWSViolationsHandler == nil {
 		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
 	}
+	if o.ApplicationParametersGetParamHandler == nil {
+		unregistered = append(unregistered, "application_parameters.GetParamHandler")
+	}
 	if o.PaymentRequestsGetPaymentRequestHandler == nil {
 		unregistered = append(unregistered, "payment_requests.GetPaymentRequestHandler")
 	}
@@ -770,6 +785,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
+	}
+	if o.LinesOfAccountingRequestLineOfAccountingHandler == nil {
+		unregistered = append(unregistered, "lines_of_accounting.RequestLineOfAccountingHandler")
 	}
 	if o.ShipmentRequestShipmentCancellationHandler == nil {
 		unregistered = append(unregistered, "shipment.RequestShipmentCancellationHandler")
@@ -1118,6 +1136,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/application_parameters/{parameterName}"] = application_parameters.NewGetParam(o.context, o.ApplicationParametersGetParamHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/payment-requests/{paymentRequestID}"] = payment_requests.NewGetPaymentRequest(o.context, o.PaymentRequestsGetPaymentRequestHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1167,6 +1189,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/lines-of-accounting"] = lines_of_accounting.NewRequestLineOfAccounting(o.context, o.LinesOfAccountingRequestLineOfAccountingHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

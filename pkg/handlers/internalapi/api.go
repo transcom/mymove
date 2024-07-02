@@ -53,6 +53,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	builder := query.NewQueryBuilder()
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
+	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
@@ -134,6 +135,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		handlerConfig,
 		moveRouter,
 	}
+	internalAPI.MovesUploadAdditionalDocumentsHandler = UploadAdditionalDocumentsHandler{
+		handlerConfig,
+		move.NewMoveAdditionalDocumentsUploader(uploadCreator),
+	}
 
 	internalAPI.OktaProfileShowOktaInfoHandler = GetOktaProfileHandler{handlerConfig}
 	internalAPI.OktaProfileUpdateOktaInfoHandler = UpdateOktaProfileHandler{handlerConfig}
@@ -176,8 +181,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		builder,
-		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter),
-		moveRouter,
+		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
+		moveRouter, signedCertificationCreator, signedCertificationUpdater,
 	)
 	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator), shipmentRouter, moveTaskOrderUpdater)
 

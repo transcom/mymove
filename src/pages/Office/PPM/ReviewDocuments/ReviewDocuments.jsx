@@ -29,7 +29,7 @@ const DOCUMENT_TYPES = {
   MOVING_EXPENSE: 'MOVING_EXPENSE',
 };
 
-export const ReviewDocuments = () => {
+export const ReviewDocuments = ({ readOnly }) => {
   const { shipmentId, moveCode } = useParams();
   const { orders, mtoShipments } = useReviewShipmentWeightsQuery(moveCode);
   const { mtoShipment, documents, ppmActualWeight, isLoading, isError } = usePPMShipmentDocsQueries(shipmentId);
@@ -41,6 +41,8 @@ export const ReviewDocuments = () => {
 
   const [documentSetIndex, setDocumentSetIndex] = useState(0);
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
+
+  const [ppmShipmentInfo, setPpmShipmentInfo] = useState({});
 
   let documentSets = useMemo(() => [], []);
   const weightTickets = documents?.WeightTickets ?? [];
@@ -64,6 +66,18 @@ export const ReviewDocuments = () => {
   useEffect(() => {
     setCurrentMtoShipments(mtoShipments);
   }, [mtoShipments]);
+
+  useEffect(() => {
+    if (mtoShipment) {
+      const updatedPpmShipmentInfo = {
+        ...mtoShipment.ppmShipment,
+        miles: mtoShipment.distance,
+        actualWeight: currentTotalWeight,
+      };
+      setPpmShipmentInfo(updatedPpmShipmentInfo);
+    }
+  }, [mtoShipment, currentTotalWeight]);
+
   const chronologicalComparatorProperty = (input) => input.createdAt;
   const compareChronologically = (itemA, itemB) =>
     chronologicalComparatorProperty(itemA) < chronologicalComparatorProperty(itemB) ? -1 : 1;
@@ -201,10 +215,6 @@ export const ReviewDocuments = () => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const ppmShipmentInfo = mtoShipment.ppmShipment;
-  ppmShipmentInfo.miles = mtoShipment.distance;
-  ppmShipmentInfo.actualWeight = currentTotalWeight;
-
   const currentDocumentSet = documentSets[documentSetIndex];
   const updateDocumentSetAllowableWeight = (newWeight) => {
     currentDocumentSet.documentSet.allowableWeight = newWeight;
@@ -223,20 +233,26 @@ export const ReviewDocuments = () => {
 
   const formatDocumentSetDisplay = documentSetIndex + 1;
 
+  let nextButton = 'Continue';
+  if (showOverview) {
+    nextButton = readOnly ? 'Close' : 'Confirm';
+  }
+
   return (
     <div data-testid="ReviewDocuments test" className={styles.ReviewDocuments}>
       <div className={styles.embed}>
         <DocumentViewer files={showOverview ? getAllUploads() : currentDocumentSet.uploads} allowDownload />
       </div>
       <DocumentViewerSidebar
-        title="Review documents"
+        title={readOnly ? 'View documents' : 'Review documents'}
         onClose={onClose}
         className={styles.sidebar}
         supertitle={
           showOverview ? 'All Document Sets' : `${formatDocumentSetDisplay} of ${documentSets.length} Document Sets`
         }
         defaultH3
-        hyperlink={reviewShipmentWeightsLink}
+        hyperlink={readOnly ? '' : reviewShipmentWeightsLink}
+        readOnly={readOnly}
       >
         <DocumentViewerSidebar.Content mainRef={mainRef}>
           <NotificationScrollToTop dependency={documentSetIndex || serverError} target={mainRef.current} />
@@ -260,6 +276,7 @@ export const ReviewDocuments = () => {
                 onSuccess={onConfirmSuccess}
                 formRef={formRef}
                 allowableWeight={currentAllowableWeight}
+                readOnly={readOnly}
               />
             ) : (
               <>
@@ -279,6 +296,7 @@ export const ReviewDocuments = () => {
                     allowableWeight={currentAllowableWeight}
                     updateTotalWeight={updateTotalWeight}
                     updateDocumentSetAllowableWeight={updateDocumentSetAllowableWeight}
+                    readOnly={readOnly}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.PROGEAR_WEIGHT_TICKET && (
@@ -291,6 +309,7 @@ export const ReviewDocuments = () => {
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
+                    readOnly={readOnly}
                   />
                 )}
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.MOVING_EXPENSE && (
@@ -306,6 +325,7 @@ export const ReviewDocuments = () => {
                     onError={onError}
                     onSuccess={onSuccess}
                     formRef={formRef}
+                    readOnly={readOnly}
                   />
                 )}
               </>
@@ -316,7 +336,7 @@ export const ReviewDocuments = () => {
             Back
           </Button>
           <Button type="submit" onClick={onContinue} data-testid="reviewDocumentsContinueButton">
-            {showOverview ? 'Confirm' : 'Continue'}
+            {nextButton}
           </Button>
         </DocumentViewerSidebar.Footer>
       </DocumentViewerSidebar>

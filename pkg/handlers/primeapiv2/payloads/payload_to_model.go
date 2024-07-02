@@ -210,24 +210,29 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 	}
 
 	model := &models.PPMShipment{
-		Status:                         models.PPMShipmentStatusSubmitted,
-		SITExpected:                    ppmShipment.SitExpected,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		HasProGear:                     ppmShipment.HasProGear,
+		Status:          models.PPMShipmentStatusSubmitted,
+		SITExpected:     ppmShipment.SitExpected,
+		EstimatedWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		HasProGear:      ppmShipment.HasProGear,
 	}
+
+	addressModel := &models.Address{
+		StreetAddress1: "Deprecated Endpoint Prime V1",
+		StreetAddress2: models.StringPointer("Endpoint no longer supported"),
+		StreetAddress3: models.StringPointer("Update address field to appropriate values"),
+		City:           "DEPV1",
+		State:          "CA",
+		PostalCode:     "90210",
+		Country:        models.StringPointer("US"),
+	}
+
+	model.PickupAddress = addressModel
+
+	model.DestinationAddress = addressModel
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	if expectedDepartureDate != nil && !expectedDepartureDate.IsZero() {
 		model.ExpectedDepartureDate = *expectedDepartureDate
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -274,6 +279,16 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev2messages.UpdateMTOShipment, 
 		CounselorRemarks:           mtoShipment.CounselorRemarks,
 		ActualProGearWeight:        handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:  handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
+	}
+
+	if mtoShipment.ActualProGearWeight != nil {
+		actualProGearWeight := unit.Pound(*mtoShipment.ActualProGearWeight)
+		model.ActualProGearWeight = &actualProGearWeight
+	}
+
+	if mtoShipment.ActualSpouseProGearWeight != nil {
+		actualSpouseProGearWeight := unit.Pound(*mtoShipment.ActualSpouseProGearWeight)
+		model.ActualSpouseProGearWeight = &actualSpouseProGearWeight
 	}
 
 	if mtoShipment.PrimeActualWeight != nil {
@@ -340,25 +355,16 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev2messages.UpdatePPMShipment) 
 	}
 
 	model := &models.PPMShipment{
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		SITExpected:                    ppmShipment.SitExpected,
-		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
-		HasProGear:                     ppmShipment.HasProGear,
-		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
-		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
+		SITExpected:         ppmShipment.SitExpected,
+		EstimatedWeight:     handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		HasProGear:          ppmShipment.HasProGear,
+		ProGearWeight:       handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
+		SpouseProGearWeight: handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
 	if expectedDepartureDate != nil && !expectedDepartureDate.IsZero() {
 		model.ExpectedDepartureDate = *expectedDepartureDate
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		model.PickupPostalCode = *ppmShipment.PickupPostalCode
-	}
-	if ppmShipment.DestinationPostalCode != nil {
-		model.DestinationPostalCode = *ppmShipment.DestinationPostalCode
 	}
 
 	if ppmShipment.SitLocation != nil {

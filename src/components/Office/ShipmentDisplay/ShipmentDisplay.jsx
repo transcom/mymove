@@ -31,6 +31,7 @@ const ShipmentDisplay = ({
   allowApproval,
   editURL,
   reviewURL,
+  viewURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
@@ -100,7 +101,7 @@ const ShipmentDisplay = ({
               <Tag>cancellation requested</Tag>
             )}
             {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.PAYMENT_APPROVED ||
+            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
               displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
@@ -146,6 +147,18 @@ const ShipmentDisplay = ({
             />
           )}
         </Restricted>
+        {viewURL && (
+          <ReviewButton
+            onClick={() => {
+              navigate(viewURL);
+            }}
+            className={styles.editButton}
+            data-testid={viewURL}
+            label="View documents"
+            secondary
+            disabled={isMoveLocked}
+          />
+        )}
       </ShipmentContainer>
     </div>
   );
@@ -199,14 +212,10 @@ ShipmentDisplay.propTypes = {
       shipmentType: PropTypes.string,
       hasRequestedAdvance: PropTypes.bool,
       advanceAmountRequested: PropTypes.number,
-      destinationPostalCode: PropTypes.string,
       estimatedIncentive: PropTypes.number,
       estimatedWeight: PropTypes.string,
       expectedDepartureDate: PropTypes.string,
-      pickupPostalCode: PropTypes.string,
       proGearWeight: PropTypes.string,
-      secondaryDestinationPostalCode: PropTypes.string,
-      secondaryPickupPostalCode: PropTypes.string,
       spouseProGearWeight: PropTypes.string,
       customerRemarks: PropTypes.string,
       tacType: PropTypes.string,

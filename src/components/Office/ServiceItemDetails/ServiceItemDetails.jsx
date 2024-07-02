@@ -12,7 +12,7 @@ import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape } from 'types/sitStatusShape';
 import { formatDateWithUTC } from 'shared/dates';
 import { formatCityStateAndPostalCode } from 'utils/shipmentDisplay';
-import { formatWeight, convertFromThousandthInchToInch } from 'utils/formatters';
+import { formatWeight, convertFromThousandthInchToInch, formatCents, toDollarString } from 'utils/formatters';
 
 function generateDetailText(details, id, className) {
   const detailList = Object.keys(details).map((detail) => (
@@ -449,6 +449,34 @@ const ServiceItemDetails = ({ id, code, details, serviceRequestDocs, shipment, s
               </div>
             ) : null}
           </dl>
+        </div>
+      );
+      break;
+    }
+    case 'DLH':
+    case 'DSH':
+    case 'FSC':
+    case 'DOP':
+    case 'DDP':
+    case 'DPK':
+    case 'DUPK': {
+      detailSection = (
+        <div>
+          <dl>
+            {generateDetailText({
+              'Estimated Price': details.estimatedPrice ? toDollarString(formatCents(details.estimatedPrice)) : '-',
+            })}
+          </dl>
+        </div>
+      );
+      break;
+    }
+    case 'MS':
+    case 'CS': {
+      const { estimatedPrice } = details;
+      detailSection = (
+        <div>
+          <dl>{estimatedPrice && generateDetailText({ Price: `$${formatCents(estimatedPrice)}` }, id)}</dl>
         </div>
       );
       break;

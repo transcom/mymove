@@ -51,11 +51,7 @@ export const PPMShipmentShape = shape({
   submittedAt: string,
   reviewedAt: string,
   approvedAt: string,
-  pickupPostalCode: string,
-  secondaryPickupPostalCode: string,
   actualPickupPostalCode: string,
-  destinationPostalCode: string,
-  secondaryDestinationPostalCode: string,
   actualDestinationPostalCode: string,
   sitExpected: bool,
   estimatedWeight: number,
@@ -217,6 +213,8 @@ export const ExpenseShape = shape({
   paidWithGtcc: bool,
   sitStartDate: string,
   sitEndDate: string,
+  sitLocation: string,
+  sitWeight: number,
 });
 
 export const StorageFacilityShape = shape({

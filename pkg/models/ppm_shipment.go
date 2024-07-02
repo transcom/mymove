@@ -60,10 +60,10 @@ const (
 	PPMShipmentStatusWaitingOnCustomer PPMShipmentStatus = "WAITING_ON_CUSTOMER"
 	// PPMShipmentStatusNeedsAdvanceApproval captures enum value "NEEDS_ADVANCE_APPROVAL"
 	PPMShipmentStatusNeedsAdvanceApproval PPMShipmentStatus = "NEEDS_ADVANCE_APPROVAL"
-	// PPMShipmentStatusNeedsPaymentApproval captures enum value "NEEDS_PAYMENT_APPROVAL"
-	PPMShipmentStatusNeedsPaymentApproval PPMShipmentStatus = "NEEDS_PAYMENT_APPROVAL"
-	// PPMShipmentStatusPaymentApproved captures enum value "PAYMENT_APPROVED"
-	PPMShipmentStatusPaymentApproved PPMShipmentStatus = "PAYMENT_APPROVED"
+	// PPMShipmentStatusNeedsCloseout captures enum value "NEEDS_CLOSEOUT"
+	PPMShipmentStatusNeedsCloseout PPMShipmentStatus = "NEEDS_CLOSEOUT"
+	// PPMShipmentStatusCloseoutComplete captures enum value "CLOSEOUT_COMPLETE"
+	PPMShipmentStatusCloseoutComplete PPMShipmentStatus = "CLOSEOUT_COMPLETE"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
 	PPMShipmentStatusComplete PPMShipmentStatus = "COMPLETED"
 )
@@ -76,8 +76,8 @@ var AllowedPPMShipmentStatuses = []string{
 	string(PPMShipmentStatusSubmitted),
 	string(PPMShipmentStatusWaitingOnCustomer),
 	string(PPMShipmentStatusNeedsAdvanceApproval),
-	string(PPMShipmentStatusNeedsPaymentApproval),
-	string(PPMShipmentStatusPaymentApproved),
+	string(PPMShipmentStatusNeedsCloseout),
+	string(PPMShipmentStatusCloseoutComplete),
 }
 
 // PPMAdvanceStatus represents the status of an advance that can be approved, edited or rejected by a SC
@@ -170,18 +170,14 @@ type PPMShipment struct {
 	ApprovedAt                     *time.Time           `json:"approved_at" db:"approved_at"`
 	W2Address                      *Address             `belongs_to:"addresses" fk_id:"w2_address_id"`
 	W2AddressID                    *uuid.UUID           `db:"w2_address_id"`
-	PickupPostalCode               string               `json:"pickup_postal_code" db:"pickup_postal_code"`
 	PickupAddress                  *Address             `belongs_to:"addresses" fk_id:"pickup_postal_address_id"`
 	PickupAddressID                *uuid.UUID           `db:"pickup_postal_address_id"`
-	SecondaryPickupPostalCode      *string              `json:"secondary_pickup_postal_code" db:"secondary_pickup_postal_code"`
 	SecondaryPickupAddress         *Address             `belongs_to:"addresses" fk_id:"secondary_pickup_postal_address_id"`
 	SecondaryPickupAddressID       *uuid.UUID           `db:"secondary_pickup_postal_address_id"`
 	HasSecondaryPickupAddress      *bool                `db:"has_secondary_pickup_address"`
 	ActualPickupPostalCode         *string              `json:"actual_pickup_postal_code" db:"actual_pickup_postal_code"`
-	DestinationPostalCode          string               `json:"destination_postal_code" db:"destination_postal_code"`
 	DestinationAddress             *Address             `belongs_to:"addresses" fk_id:"destination_postal_address_id"`
 	DestinationAddressID           *uuid.UUID           `db:"destination_postal_address_id"`
-	SecondaryDestinationPostalCode *string              `json:"secondary_destination_postal_code" db:"secondary_destination_postal_code"`
 	SecondaryDestinationAddress    *Address             `belongs_to:"addresses" fk_id:"secondary_destination_postal_address_id"`
 	SecondaryDestinationAddressID  *uuid.UUID           `db:"secondary_destination_postal_address_id"`
 	HasSecondaryDestinationAddress *bool                `db:"has_secondary_destination_address"`
@@ -241,14 +237,10 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&OptionalTimeIsPresent{Name: "ReviewedAt", Field: p.ReviewedAt},
 		&OptionalTimeIsPresent{Name: "ApprovedAt", Field: p.ApprovedAt},
 		&OptionalUUIDIsPresent{Name: "W2AddressID", Field: p.W2AddressID},
-		&validators.StringIsPresent{Name: "PickupPostalCode", Field: p.PickupPostalCode},
 		&OptionalUUIDIsPresent{Name: "PickupAddressID", Field: p.PickupAddressID},
-		&StringIsNilOrNotBlank{Name: "SecondaryPickupPostalCode", Field: p.SecondaryPickupPostalCode},
 		&OptionalUUIDIsPresent{Name: "SecondaryPickupAddressID", Field: p.SecondaryPickupAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualPickupPostalCode", Field: p.ActualPickupPostalCode},
-		&validators.StringIsPresent{Name: "DestinationPostalCode", Field: p.DestinationPostalCode},
 		&OptionalUUIDIsPresent{Name: "DestinationAddressID", Field: p.DestinationAddressID},
-		&StringIsNilOrNotBlank{Name: "SecondaryDestinationPostalCode", Field: p.SecondaryDestinationPostalCode},
 		&OptionalUUIDIsPresent{Name: "SecondaryDestinationAddressID", Field: p.SecondaryDestinationAddressID},
 		&StringIsNilOrNotBlank{Name: "ActualDestinationPostalCode", Field: p.ActualDestinationPostalCode},
 		&OptionalPoundIsNonNegative{Name: "EstimatedWeight", Field: p.EstimatedWeight},

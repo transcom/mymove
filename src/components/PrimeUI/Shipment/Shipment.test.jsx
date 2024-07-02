@@ -12,6 +12,7 @@ import {
   toDollarString,
 } from 'utils/formatters';
 import { MockProviders } from 'testUtils';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const shipmentId = 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee';
 const moveId = '9c7b255c-2981-4bf8-839f-61c7458e2b4d';
@@ -187,6 +188,14 @@ describe('Shipment details component', () => {
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.approvedDate);
 
+    field = screen.getByText('Diversion:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('no');
+
+    field = screen.getByText('Diversion Reason:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('—');
+
     field = screen.getByText('Counselor Remarks:');
     expect(field).toBeInTheDocument();
     expect(field.nextElementSibling.textContent).toBe(shipment.counselorRemarks);
@@ -220,6 +229,50 @@ describe('Shipment details component fields and values are present', () => {
     render(mockedComponent);
     await expect(screen.getByText(shipmentField)).toBeVisible();
     await expect(screen.getByText(shipmentFieldValue)).toBeVisible();
+  });
+});
+
+const shipmentNTSR = {
+  ...approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0],
+  shipmentType: SHIPMENT_OPTIONS.NTSR,
+  ntsRecordedWeight: 1000,
+};
+
+describe('Shipment details component fields and values are present for NTSR', () => {
+  it('renders the correct estimated weight', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={shipmentNTSR} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    const field = screen.getByText('Estimated Weight:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(shipmentNTSR.ntsRecordedWeight.toString());
+  });
+});
+
+const divertedShipment = {
+  ...approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0],
+  diversion: true,
+  diversionReason: 'Reasonable reason',
+};
+
+describe('Shipment has been diverted', () => {
+  it('renders the component with missing reweigh error', () => {
+    render(
+      <MockProviders>
+        <Shipment shipment={divertedShipment} moveId={moveId} />
+      </MockProviders>,
+    );
+
+    let field = screen.getByText('Diversion:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe('yes');
+
+    field = screen.getByText('Diversion Reason:');
+    expect(field).toBeInTheDocument();
+    expect(field.nextElementSibling.textContent).toBe(divertedShipment.diversionReason);
   });
 });
 

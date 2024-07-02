@@ -22,7 +22,7 @@ describe('ServiceItemsTable', () => {
     },
   };
 
-  it('renders with no details', () => {
+  it('renders with no estimated price when no estimated price exists', () => {
     const serviceItems = [
       {
         id: 'abc123',
@@ -41,7 +41,31 @@ describe('ServiceItemsTable', () => {
         />
       </MockProviders>,
     );
-    expect(wrapper.find('td').at(1).text()).toBe('—');
+    expect(wrapper.find('td').at(1).text()).toBe('Estimated Price: -');
+  });
+
+  it('renders with estimated price shown when estimated price', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        submittedAt: '2020-11-20',
+        serviceItem: 'Fuel Surcharge',
+        code: 'FSC',
+        details: {
+          estimatedPrice: 2314,
+        },
+      },
+    ];
+    const wrapper = mount(
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+          serviceItems={serviceItems}
+        />
+      </MockProviders>,
+    );
+    expect(wrapper.find('td').at(1).text()).toBe('Estimated Price: $23.14');
   });
 
   it('renders a thumbnail image with dimensions for item and crating', () => {
@@ -76,6 +100,62 @@ describe('ServiceItemsTable', () => {
     expect(wrapper.find('dd').at(1).text()).toBe('7"x2"x3.5"');
     expect(wrapper.find('dt').at(2).text()).toBe('Crate size:');
     expect(wrapper.find('dd').at(2).text()).toBe('10"x2.5"x5"');
+  });
+
+  it('renders with authorized price for MS item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        createdAt: '2020-11-20',
+        serviceItem: 'Domestic Crating',
+        code: 'MS',
+        details: {
+          estimatedPrice: 100000,
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
+    expect(wrapper.find('dt').at(0).text()).toBe('Price:');
+    expect(wrapper.find('dd').at(0).text()).toBe('$1,000.00');
+  });
+
+  it('renders with authorized price for CS item', () => {
+    const serviceItems = [
+      {
+        id: 'abc123',
+        createdAt: '2020-11-20',
+        serviceItem: 'Domestic Crating',
+        code: 'CS',
+        details: {
+          estimatedPrice: 100000,
+        },
+      },
+    ];
+
+    const wrapper = mount(
+      <MockProviders>
+        <ServiceItemsTable
+          {...defaultProps}
+          serviceItems={serviceItems}
+          statusForTableType={SERVICE_ITEM_STATUS.SUBMITTED}
+        />
+      </MockProviders>,
+    );
+
+    expect(wrapper.find('td').at(0).text()).toContain('Date requested: 20 Nov 2020');
+    expect(wrapper.find('dt').at(0).text()).toBe('Price:');
+    expect(wrapper.find('dd').at(0).text()).toBe('$1,000.00');
   });
 
   it('renders the customer contacts for DDFSIT service item', () => {

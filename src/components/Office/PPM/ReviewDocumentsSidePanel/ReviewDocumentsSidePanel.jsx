@@ -29,6 +29,7 @@ export default function ReviewDocumentsSidePanel({
   expenseTickets,
   proGearTickets,
   weightTickets,
+  readOnly,
 }) {
   let status;
   let showReason;
@@ -39,6 +40,10 @@ export default function ReviewDocumentsSidePanel({
   });
 
   const handleSubmit = () => {
+    if (readOnly) {
+      onSuccess();
+      return;
+    }
     patchDocumentsSetStatusMutation({
       ppmShipmentId: ppmShipment.id,
       eTag: ppmShipment.eTag,
@@ -95,10 +100,12 @@ export default function ReviewDocumentsSidePanel({
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
+        <div className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.PPMHeaderSummary)}>
+          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields readOnly={readOnly} />
+        </div>
         <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
-          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields />
           <hr />
-          <h3 className={styles.send}>Send to customer?</h3>
+          <h3 className={styles.send}>{readOnly ? 'Sent to customer' : 'Send to customer?'}</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
             <ul>
               {weightTickets.length > 0
@@ -174,7 +181,7 @@ export default function ReviewDocumentsSidePanel({
                 : null}
               {expenseTickets.length > 0
                 ? expenseSetProjection(expenseTickets).map((exp) => {
-                    if (exp.movingExpenseType !== expenseTypes.STORAGE && exp.status === PPMDocumentsStatus.APPROVED) {
+                    if (exp.status === PPMDocumentsStatus.APPROVED) {
                       total += exp.amount;
                     }
                     return (

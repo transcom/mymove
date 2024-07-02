@@ -200,8 +200,6 @@ paths:
                   moveTaskOrderId: 5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8
                   shipmentType: PPM
                   ppmShipment:
-                    pickupPostalCode: '90210'
-                    destinationPostalCode: '10001'
                     expectedDepartureDate: '2022-10-01'
                     estimatedWeight: 4999
                     hasProGear: false
@@ -699,43 +697,16 @@ definitions:
           Date the customer expects to begin moving from their origin.
         format: date
         type: string
-      pickupPostalCode:
+      pickupAddress:
+        description: The address of the origin location where goods are being moved from.
+        allOf:
+          - $ref: '#/definitions/Address'
+      destinationAddress:
         description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        description: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
+          The address of the destination location where goods are being
           delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
+        allOf:
+          - $ref: '#/definitions/Address'
       sitExpected:
         description: >
           Captures whether some or all of the PPM shipment will require
@@ -789,8 +760,6 @@ definitions:
         x-nullable: true
     required:
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - estimatedWeight
       - hasProGear
@@ -890,43 +859,6 @@ definitions:
           Date the customer expects to begin moving from their origin.
         format: date
         type: string
-        x-nullable: true
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryPickupPostalCode:
-        description: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
         x-nullable: true
       sitExpected:
         description: >
@@ -1790,6 +1722,9 @@ definitions:
       - ZipSITDestHHGOriginalAddress
       - ZipSITOriginHHGActualAddress
       - ZipSITOriginHHGOriginalAddress
+      - StandaloneCrate
+      - StandaloneCrateCap
+      - UncappedRequestTotal
   ServiceItemParamType:
     type: string
     enum:
@@ -2257,8 +2192,8 @@ definitions:
         * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.
         * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.
         * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.
-        * **NEEDS_PAYMENT_APPROVAL**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
-        * **PAYMENT_APPROVED**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
+        * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.
+        * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.
     type: string
     readOnly: true
     enum:
@@ -2266,8 +2201,8 @@ definitions:
       - SUBMITTED
       - WAITING_ON_CUSTOMER
       - NEEDS_ADVANCE_APPROVAL
-      - NEEDS_PAYMENT_APPROVAL
-      - PAYMENT_APPROVED
+      - NEEDS_CLOSEOUT
+      - CLOSEOUT_COMPLETE
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -2339,25 +2274,6 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryPickupPostalCode:
-        description: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -2365,24 +2281,6 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        example: '90210'
-        pattern: ^(\d{5})$
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
@@ -2516,8 +2414,6 @@ definitions:
       - createdAt
       - status
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - eTag
   ShipmentAddressUpdateStatus:
@@ -2608,8 +2504,8 @@ definitions:
         readOnly: true
       approvedDate:
         description: >-
-          The date when the Transportation Ordering Officer first approved this
-          shipment for the move.
+          The date when the Task Ordering Officer first approved this shipment
+          for the move.
         format: date
         type: string
         readOnly: true
@@ -2813,6 +2709,13 @@ definitions:
           diversion. If yes, the shipment can be either the starting or ending
           segment of the diversion.
         type: boolean
+      diversionReason:
+        description: >
+          The reason the TOO provided when requesting a diversion for this
+          shipment.
+        type: string
+        x-nullable: true
+        readOnly: true
       status:
         description: >
           The status of a shipment, indicating where it is in the TOO's approval

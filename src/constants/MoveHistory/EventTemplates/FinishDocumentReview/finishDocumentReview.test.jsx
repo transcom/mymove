@@ -15,7 +15,7 @@ describe('When given a completed services counseling for a move', () => {
         shipment_type: 'PPM',
       },
     ],
-    changedValues: { status: 'PAYMENT_APPROVED' },
+    changedValues: { status: 'CLOSEOUT_COMPLETE' },
   };
   it('correctly matches the update mto status services counseling completed event to the proper template', () => {
     const template = getTemplate(historyRecord);
