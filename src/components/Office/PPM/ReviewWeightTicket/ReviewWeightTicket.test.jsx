@@ -168,7 +168,6 @@ const fullShipmentProps = {
       advanceStatus: 'APPROVED',
       approvedAt: '2022-04-15T12:30:00.000Z',
       createdAt: '2023-12-20T17:33:48.206Z',
-      destinationPostalCode: '30813',
       eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDExNDFa',
       estimatedIncentive: 1000000,
       estimatedWeight: 4000,
@@ -179,12 +178,9 @@ const fullShipmentProps = {
       hasRequestedAdvance: true,
       id: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
       movingExpenses: null,
-      pickupPostalCode: '90210',
       proGearWeight: 1987,
       proGearWeightTickets: null,
       reviewedAt: null,
-      secondaryDestinationPostalCode: '30814',
-      secondaryPickupPostalCode: '90211',
       shipmentId: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
       sitEstimatedCost: null,
       sitEstimatedDepartureDate: null,
@@ -306,7 +302,6 @@ const fullShipmentProps = {
         advanceStatus: 'APPROVED',
         approvedAt: '2022-04-15T12:30:00.000Z',
         createdAt: '2023-12-20T17:33:48.206Z',
-        destinationPostalCode: '30813',
         eTag: 'MjAyMy0xMi0yMFQxNzozMzo1MC4xMDExNDFa',
         estimatedIncentive: 1000000,
         estimatedWeight: 4000,
@@ -317,12 +312,9 @@ const fullShipmentProps = {
         hasRequestedAdvance: true,
         id: '8ac2411e-d3eb-43e1-b98f-2476cfe8c02e',
         movingExpenses: null,
-        pickupPostalCode: '90210',
         proGearWeight: 1987,
         proGearWeightTickets: null,
         reviewedAt: null,
-        secondaryDestinationPostalCode: '30814',
-        secondaryPickupPostalCode: '90211',
         shipmentId: '0ec4a5d2-3cca-4d1f-a2db-91f83d22644a',
         sitEstimatedCost: null,
         sitEstimatedDepartureDate: null,
@@ -631,6 +623,61 @@ describe('ReviewWeightTicket component', () => {
           expect(screen.getByText('Add a reason why this weight ticket is rejected'));
         });
       });
+    });
+  });
+
+  describe('displays disabled read only form', () => {
+    it('renders disabled blank form on load with defaults', async () => {
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} readOnly />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('heading', { level: 3, name: 'Trip 1' })).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Vehicle description')).toBeInTheDocument();
+      expect(screen.getByLabelText('Full weight')).toBeDisabled();
+      expect(screen.getByText('Did they use a trailer they owned?')).toBeInTheDocument();
+      expect(screen.getByLabelText('Yes')).toBeDisabled();
+      expect(screen.getByLabelText('No')).toBeDisabled();
+      expect(screen.queryByText("Is the trailer's weight claimable?")).not.toBeInTheDocument();
+
+      expect(screen.getByRole('heading', { level: 3, name: 'Review trip 1' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Accept')).toBeDisabled();
+      expect(screen.getByLabelText('Reject')).toBeDisabled();
+    });
+
+    it('populates disabled edit form with existing weight ticket values', async () => {
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...weightTicketRequiredProps} readOnly />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Kia Forte')).toBeInTheDocument();
+      });
+      expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toHaveDisplayValue('400');
+      expect(screen.getByLabelText('Empty weight', { description: 'Weight tickets' })).toBeDisabled();
+      expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toHaveDisplayValue('1,200');
+      expect(screen.getByLabelText('Full weight', { description: 'Weight tickets' })).toBeDisabled();
+      expect(screen.getByLabelText('No')).toBeChecked();
+      expect(screen.getByLabelText('No')).toBeDisabled();
+    });
+
+    it('populates disabled edit form when weight ticket is missing', async () => {
+      render(
+        <MockProviders>
+          <ReviewWeightTicket {...defaultProps} {...missingWeightTicketProps} readOnly />
+        </MockProviders>,
+      );
+      await waitFor(() => {
+        expect(screen.getByLabelText('Empty weight', { description: 'Vehicle weight' })).toBeDisabled();
+      });
+      expect(screen.getByLabelText('Full weight', { description: 'Constructed weight' })).toBeDisabled();
     });
   });
 });

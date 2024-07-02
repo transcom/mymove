@@ -87,15 +87,11 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		SecondaryPickupAddress:         Address(ppmShipment.SecondaryPickupAddress),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
@@ -320,21 +316,27 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &internalmessages.MovingExpense{
-		ID:             *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
-		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
-		Document:       document,
-		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
-		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
-		Description:    movingExpense.Description,
-		PaidWithGtcc:   movingExpense.PaidWithGTCC,
-		Amount:         handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt: movingExpense.MissingReceipt,
-		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+		ID:                   *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:        *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:           *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:             document,
+		CreatedAt:            strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:            strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:          movingExpense.Description,
+		SubmittedDescription: movingExpense.SubmittedDescription,
+		PaidWithGtcc:         movingExpense.PaidWithGTCC,
+		Amount:               handlers.FmtCost(movingExpense.Amount),
+		SubmittedAmount:      handlers.FmtCost(movingExpense.SubmittedAmount),
+		MissingReceipt:       movingExpense.MissingReceipt,
+		ETag:                 etag.GenerateEtag(movingExpense.UpdatedAt),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := internalmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
 		payload.MovingExpenseType = &movingExpenseType
+	}
+	if movingExpense.SubmittedMovingExpenseType != nil {
+		movingExpenseType := internalmessages.SubmittedMovingExpenseType(*movingExpense.MovingExpenseType)
+		payload.SubmittedMovingExpenseType = &movingExpenseType
 	}
 
 	if movingExpense.Status != nil {
@@ -351,8 +353,16 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.SitStartDate = handlers.FmtDatePtr(movingExpense.SITStartDate)
 	}
 
+	if movingExpense.SubmittedSITStartDate != nil {
+		payload.SubmittedSitStartDate = handlers.FmtDatePtr(movingExpense.SubmittedSITStartDate)
+	}
+
 	if movingExpense.SITEndDate != nil {
 		payload.SitEndDate = handlers.FmtDatePtr(movingExpense.SITEndDate)
+	}
+
+	if movingExpense.SubmittedSITEndDate != nil {
+		payload.SubmittedSitEndDate = handlers.FmtDatePtr(movingExpense.SubmittedSITEndDate)
 	}
 
 	if movingExpense.WeightStored != nil {
@@ -412,16 +422,20 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		UpdatedAt:                         *handlers.FmtDateTime(weightTicket.UpdatedAt),
 		VehicleDescription:                weightTicket.VehicleDescription,
 		EmptyWeight:                       handlers.FmtPoundPtr(weightTicket.EmptyWeight),
+		SubmittedEmptyWeight:              handlers.FmtPoundPtr(weightTicket.SubmittedEmptyWeight),
 		MissingEmptyWeightTicket:          weightTicket.MissingEmptyWeightTicket,
 		EmptyDocumentID:                   *handlers.FmtUUID(weightTicket.EmptyDocumentID),
 		EmptyDocument:                     emptyDocument,
 		FullWeight:                        handlers.FmtPoundPtr(weightTicket.FullWeight),
+		SubmittedFullWeight:               handlers.FmtPoundPtr(weightTicket.SubmittedFullWeight),
 		MissingFullWeightTicket:           weightTicket.MissingFullWeightTicket,
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      fullDocument,
 		OwnsTrailer:                       weightTicket.OwnsTrailer,
 		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
+		SubmittedOwnsTrailer:              weightTicket.SubmittedOwnsTrailer,
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
+		SubmittedTrailerMeetsCriteria:     weightTicket.SubmittedTrailerMeetsCriteria,
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
@@ -462,17 +476,20 @@ func ProGearWeightTicket(storer storage.FileStorer, progear *models.ProgearWeigh
 	}
 
 	payload := &internalmessages.ProGearWeightTicket{
-		ID:               strfmt.UUID(progear.ID.String()),
-		PpmShipmentID:    ppmShipmentID,
-		CreatedAt:        *handlers.FmtDateTime(progear.CreatedAt),
-		UpdatedAt:        *handlers.FmtDateTime(progear.UpdatedAt),
-		DocumentID:       *handlers.FmtUUID(progear.DocumentID),
-		Document:         document,
-		Weight:           handlers.FmtPoundPtr(progear.Weight),
-		BelongsToSelf:    progear.BelongsToSelf,
-		HasWeightTickets: progear.HasWeightTickets,
-		Description:      progear.Description,
-		ETag:             etag.GenerateEtag(progear.UpdatedAt),
+		ID:                        strfmt.UUID(progear.ID.String()),
+		PpmShipmentID:             ppmShipmentID,
+		CreatedAt:                 *handlers.FmtDateTime(progear.CreatedAt),
+		UpdatedAt:                 *handlers.FmtDateTime(progear.UpdatedAt),
+		DocumentID:                *handlers.FmtUUID(progear.DocumentID),
+		Document:                  document,
+		Weight:                    handlers.FmtPoundPtr(progear.Weight),
+		SubmittedWeight:           handlers.FmtPoundPtr(progear.SubmittedWeight),
+		BelongsToSelf:             progear.BelongsToSelf,
+		SubmittedBelongsToSelf:    progear.SubmittedBelongsToSelf,
+		HasWeightTickets:          progear.HasWeightTickets,
+		SubmittedHasWeightTickets: progear.SubmittedHasWeightTickets,
+		Description:               progear.Description,
+		ETag:                      etag.GenerateEtag(progear.UpdatedAt),
 	}
 
 	if progear.Status != nil {

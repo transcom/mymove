@@ -838,15 +838,11 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -1147,6 +1143,79 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	}
 
 	return payload
+}
+
+// LineOfAccounting payload
+func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.LineOfAccounting {
+	// Nil check
+	if lineOfAccounting == nil {
+		return nil
+	}
+
+	return &ghcmessages.LineOfAccounting{
+		ID:                        strfmt.UUID(lineOfAccounting.ID.String()),
+		LoaActvtyID:               lineOfAccounting.LoaActvtyID,
+		LoaAgncAcntngCd:           lineOfAccounting.LoaAgncAcntngCd,
+		LoaAgncDsbrCd:             lineOfAccounting.LoaAgncDsbrCd,
+		LoaAlltSnID:               lineOfAccounting.LoaAlltSnID,
+		LoaBafID:                  lineOfAccounting.LoaBafID,
+		LoaBdgtAcntClsNm:          lineOfAccounting.LoaBdgtAcntClsNm,
+		LoaBetCd:                  lineOfAccounting.LoaBetCd,
+		LoaBgFyTx:                 handlers.FmtIntPtrToInt64(lineOfAccounting.LoaBgFyTx),
+		LoaBgnDt:                  handlers.FmtDatePtr(lineOfAccounting.LoaBgnDt),
+		LoaBgtLnItmID:             lineOfAccounting.LoaBgtLnItmID,
+		LoaBgtRstrCd:              lineOfAccounting.LoaBgtRstrCd,
+		LoaBgtSubActCd:            lineOfAccounting.LoaBgtSubActCd,
+		LoaClsRefID:               lineOfAccounting.LoaClsRefID,
+		LoaCstCd:                  lineOfAccounting.LoaCstCd,
+		LoaCstCntrID:              lineOfAccounting.LoaCstCntrID,
+		LoaCustNm:                 lineOfAccounting.LoaCustNm,
+		LoaDfAgncyAlctnRcpntID:    lineOfAccounting.LoaDfAgncyAlctnRcpntID,
+		LoaDocID:                  lineOfAccounting.LoaDocID,
+		LoaDptID:                  lineOfAccounting.LoaDptID,
+		LoaDscTx:                  lineOfAccounting.LoaDscTx,
+		LoaDtlRmbsmtSrcID:         lineOfAccounting.LoaDtlRmbsmtSrcID,
+		LoaEndDt:                  handlers.FmtDatePtr(lineOfAccounting.LoaEndDt),
+		LoaEndFyTx:                handlers.FmtIntPtrToInt64(lineOfAccounting.LoaEndFyTx),
+		LoaFmsTrnsactnID:          lineOfAccounting.LoaFmsTrnsactnID,
+		LoaFnclArID:               lineOfAccounting.LoaFnclArID,
+		LoaFnctPrsNm:              lineOfAccounting.LoaFnctPrsNm,
+		LoaFndCntrID:              lineOfAccounting.LoaFndCntrID,
+		LoaFndTyFgCd:              lineOfAccounting.LoaFndTyFgCd,
+		LoaHistStatCd:             lineOfAccounting.LoaHistStatCd,
+		LoaHsGdsCd:                lineOfAccounting.LoaHsGdsCd,
+		LoaInstlAcntgActID:        lineOfAccounting.LoaInstlAcntgActID,
+		LoaJbOrdNm:                lineOfAccounting.LoaJbOrdNm,
+		LoaLclInstlID:             lineOfAccounting.LoaLclInstlID,
+		LoaMajClmNm:               lineOfAccounting.LoaMajClmNm,
+		LoaMajRmbsmtSrcID:         lineOfAccounting.LoaMajRmbsmtSrcID,
+		LoaObjClsID:               lineOfAccounting.LoaObjClsID,
+		LoaOpAgncyID:              lineOfAccounting.LoaOpAgncyID,
+		LoaPgmElmntID:             lineOfAccounting.LoaPgmElmntID,
+		LoaPrjID:                  lineOfAccounting.LoaPrjID,
+		LoaSbaltmtRcpntID:         lineOfAccounting.LoaSbaltmtRcpntID,
+		LoaScrtyCoopCustCd:        lineOfAccounting.LoaScrtyCoopCustCd,
+		LoaScrtyCoopDsgntrCd:      lineOfAccounting.LoaScrtyCoopDsgntrCd,
+		LoaScrtyCoopImplAgncCd:    lineOfAccounting.LoaScrtyCoopImplAgncCd,
+		LoaScrtyCoopLnItmID:       lineOfAccounting.LoaScrtyCoopLnItmID,
+		LoaSpclIntrID:             lineOfAccounting.LoaSpclIntrID,
+		LoaSrvSrcID:               lineOfAccounting.LoaSrvSrcID,
+		LoaStatCd:                 lineOfAccounting.LoaStatCd,
+		LoaSubAcntID:              lineOfAccounting.LoaSubAcntID,
+		LoaSysID:                  lineOfAccounting.LoaSysID,
+		LoaTnsfrDptNm:             lineOfAccounting.LoaTnsfrDptNm,
+		LoaTrnsnID:                lineOfAccounting.LoaTrnsnID,
+		LoaTrsySfxTx:              lineOfAccounting.LoaTrsySfxTx,
+		LoaTskBdgtSblnTx:          lineOfAccounting.LoaTskBdgtSblnTx,
+		LoaUic:                    lineOfAccounting.LoaUic,
+		LoaWkCntrRcpntNm:          lineOfAccounting.LoaWkCntrRcpntNm,
+		LoaWrkOrdID:               lineOfAccounting.LoaWrkOrdID,
+		OrgGrpDfasCd:              lineOfAccounting.OrgGrpDfasCd,
+		UpdatedAt:                 strfmt.DateTime(lineOfAccounting.UpdatedAt),
+		CreatedAt:                 strfmt.DateTime(lineOfAccounting.CreatedAt),
+		ValidLoaForTac:            lineOfAccounting.ValidLoaForTac,
+		ValidHhgProgramCodeForLoa: lineOfAccounting.ValidHhgProgramCodeForLoa,
+	}
 }
 
 // MTOShipment payload
@@ -1763,10 +1832,14 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			closeoutLocation = move.CloseoutOffice.Name
 		}
 		var closeoutInitiated time.Time
+		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
-			if shipment.PPMShipment != nil && shipment.PPMShipment.SubmittedAt != nil {
-				if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
-					closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+			if shipment.PPMShipment != nil {
+				ppmStatus = shipment.PPMShipment.Status
+				if shipment.PPMShipment.SubmittedAt != nil {
+					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
+						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
+					}
 				}
 			}
 		}
@@ -1791,6 +1864,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUserID:    handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
+			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 		}
 	}
 	return &queueMoves

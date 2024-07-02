@@ -31,6 +31,7 @@ const ShipmentDisplay = ({
   allowApproval,
   editURL,
   reviewURL,
+  viewURL,
   ordersLOA,
   warnIfMissing,
   errorIfMissing,
@@ -146,6 +147,18 @@ const ShipmentDisplay = ({
             />
           )}
         </Restricted>
+        {viewURL && (
+          <ReviewButton
+            onClick={() => {
+              navigate(viewURL);
+            }}
+            className={styles.editButton}
+            data-testid={viewURL}
+            label="View documents"
+            secondary
+            disabled={isMoveLocked}
+          />
+        )}
       </ShipmentContainer>
     </div>
   );
@@ -199,14 +212,10 @@ ShipmentDisplay.propTypes = {
       shipmentType: PropTypes.string,
       hasRequestedAdvance: PropTypes.bool,
       advanceAmountRequested: PropTypes.number,
-      destinationPostalCode: PropTypes.string,
       estimatedIncentive: PropTypes.number,
       estimatedWeight: PropTypes.string,
       expectedDepartureDate: PropTypes.string,
-      pickupPostalCode: PropTypes.string,
       proGearWeight: PropTypes.string,
-      secondaryDestinationPostalCode: PropTypes.string,
-      secondaryPickupPostalCode: PropTypes.string,
       spouseProGearWeight: PropTypes.string,
       customerRemarks: PropTypes.string,
       tacType: PropTypes.string,
