@@ -121,7 +121,7 @@ export const AmendOrders = ({ updateOrders, serviceMemberId, orders }) => {
             {uploads?.length > 0 && (
               <>
                 <br />
-                <UploadsTable uploads={uploads} onDelete={handleDelete} showDeleteButton={false} />
+                <UploadsTable uploads={uploads} onDelete={handleDelete} showDeleteButton={false} showDownloadLink />
               </>
             )}
             <div className="uploader-box">
