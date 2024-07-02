@@ -89,12 +89,27 @@ func (r WeightBilledLookup) lookup(appCtx appcontext.AppContext, keyData *Servic
 			return "", fmt.Errorf("could not find actual weight for MTOServiceItemID [%s]", keyData.MTOServiceItem.ID)
 		}
 
-		if estimatedWeight != nil {
+		// Make sure the reweigh (if any) is loaded since that's expected by the calculate shipment billable weight service.
+		err = appCtx.DB().Load(&r.MTOShipment, "Reweigh")
+		if err != nil {
+			return "", err
+		}
+
+		// Check if the shipment has a reweigh
+		noReweigh := r.MTOShipment.Reweigh.ID.IsNil()
+
+		// If shipment has an estimatedWeight and is not a Reweigh. Else If the Shipment does have an estimatedWeight and has a Reweigh then call calculateMinimumBillableWeight(). Else return value from applyMinimum.
+		if estimatedWeight != nil && noReweigh {
 			estimatedWeightCap := math.Round(float64(*estimatedWeight) * 1.10)
 			if float64(*originalWeight) > estimatedWeightCap {
 				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(estimatedWeightCap))
 			} else {
 				value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
+			}
+		} else if estimatedWeight != nil && !noReweigh {
+			value, err = calculateMinimumBillableWeight(appCtx, r.MTOShipment, keyData)
+			if err != nil {
+				return "", err
 			}
 		} else {
 			value = applyMinimum(keyData.MTOServiceItem.ReService.Code, r.MTOShipment.ShipmentType, int(*originalWeight))
