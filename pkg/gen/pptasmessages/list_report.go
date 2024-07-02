@@ -79,7 +79,7 @@ type ListReport struct {
 	DestinationPrice *float64 `json:"destinationPrice,omitempty"`
 
 	// destination reweigh net weight
-	DestinationReweighNetWeight float64 `json:"destinationReweighNetWeight,omitempty"`
+	DestinationReweighNetWeight *float64 `json:"destinationReweighNetWeight,omitempty"`
 
 	// document number
 	DocumentNumber string `json:"documentNumber,omitempty"`

@@ -407,7 +407,8 @@ func init() {
         },
         "destinationReweighNetWeight": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "documentNumber": {
           "type": "string"
@@ -1232,7 +1233,8 @@ func init() {
         },
         "destinationReweighNetWeight": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "documentNumber": {
           "type": "string"

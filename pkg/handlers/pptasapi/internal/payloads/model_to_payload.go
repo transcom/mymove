@@ -157,9 +157,18 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		TravelType:                  string(*Orders.OrdersTypeDetail),
 		TravelClassCode:             string(Orders.OrdersType),
 		DeliveryDate:                strfmt.Date(*moveDate),
-		DestinationReweighNetWeight: move.MTOShipments[0].Reweigh.Weight.Float64(),
+		DestinationReweighNetWeight: nil,
 		CounseledDate:               strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
+
+	// for _, serviceItem := range move.PaymentRequests[0].PaymentServiceItems {
+	// 	mtoServiceItem := serviceItem.MTOServiceItem
+	// 	if mtoServiceItem.ReService.Name == "Domestic linehaul" || mtoServiceItem.ReService.Name == "Domestic shorthaul" {
+	// 		payload.LinehaulTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
+	// 	} else if mtoServiceItem.ReService.Name == "" {
+
+	// 	}
+	// }
 
 	// sharing this for loop for all MTOShipment calculations
 	for _, shipment := range move.MTOShipments {
@@ -192,6 +201,12 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 
 	payload.ActualOriginNetWeight = float64(originActualWeight) // is Prime_Actual_Weight what they want?
 	payload.PbpAnde = progear.Float64()
+	reweigh := move.MTOShipments[0].Reweigh
+	if reweigh != nil {
+		payload.DestinationReweighNetWeight = models.Float64Pointer(reweigh.Weight.Float64())
+	} else {
+		payload.DestinationReweighNetWeight = nil
+	}
 
 	// SAC is currently optional, is it acceptable to have an empty return here?
 	if Orders.SAC != nil {

@@ -406,6 +406,7 @@ properties:
   destinationReweighNetWeight:
     type: number
     format: double
+    x-nullable: true
   counseledDate:
     type: string
     format: date
