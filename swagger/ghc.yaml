@@ -3371,7 +3371,7 @@ paths:
             current user. Requires the HQ role.
 
             The parameter is ignored if the requesting user does not have the
-            necessary role..
+            necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
