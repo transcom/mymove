@@ -33,4 +33,38 @@
       color: $base-darker;
     }
   }
+
+  .AddressFieldSet {
+    :global(.labelWrapper .usa-label) {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    :global(.usa-legend) {
+      font-size: 1.25rem;
+    }
+
+    @include u-margin-top(0);
+    border-bottom: none;
+
+    :global(.usa-form-group:first-of-type .usa-label) {
+      @include u-margin-top(0);
+    }
+
+    :global(.usa-input) {
+      width: 100%;
+    }
+
+    :global(.grid-row.grid-gap) {
+      div:nth-child(1), div:nth-child(2) {
+        @include at-media('desktop'){
+          width: 50%;
+        }
+        :global(.usa-form-group) {
+          width: 100%;
+        }
+      }
+    }
+  }
 }
