@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
@@ -31,7 +31,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
   const [isSafetyMove, setIsSafetyMove] = useState(false);
-  const [isEmplidRequired, setIsEmplidRequired] = useState(false);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -39,10 +38,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const residentialAddressName = 'residential_address';
   const backupAddressName = 'backup_mailing_address';
   const backupContactName = 'backup_contact';
-
-  useEffect(() => {
-    setIsEmplidRequired(!isSafetyMove && showEmplid);
-  }, [showEmplid, isSafetyMove]);
 
   const isSafetyPrivileged = userPrivileges?.some(
     (privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY,
@@ -141,11 +136,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
-    emplid: isEmplidRequired
-      ? Yup.string()
-          .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
-          .required('Required')
-      : Yup.string().notRequired(),
+    emplid: Yup.string()
+      .notRequired()
+      .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number'),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
@@ -270,6 +263,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         name="emplid"
                         id="emplid"
                         maxLength="7"
+                        labelHint="Optional"
                         inputMode="numeric"
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}

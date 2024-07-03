@@ -240,7 +240,7 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				// create the service member and save to the db
 				smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 				if smVerrs.HasAny() || smErr != nil {
-					appCtx.Logger().Error("error creating service member", zap.Error(err))
+					appCtx.Logger().Error("error creating service member", zap.Error(smErr))
 					return smErr
 				}
 
