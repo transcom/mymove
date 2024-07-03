@@ -91,8 +91,7 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Status []string
-	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.
-	The parameter is ignored if the requesting user does not have the necessary role..
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
 
 	  In: query
 	*/
