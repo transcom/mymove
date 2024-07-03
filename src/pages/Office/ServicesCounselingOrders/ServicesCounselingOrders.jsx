@@ -84,7 +84,13 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       }
       return loa[key] || '';
     });
-    return dfasMap.join('*');
+    let longLoa = dfasMap.join('*');
+    // remove any number of spaces following an asterisk in a LOA string
+    longLoa = longLoa.replace(/\* +/g, '*');
+    // remove any number of spaces preceding an asterisk in a LOA string
+    longLoa = longLoa.replace(/ +\*/g, '*');
+
+    return longLoa;
   };
 
   const { mutate: validateLoa } = useMutation(getLoa, {
