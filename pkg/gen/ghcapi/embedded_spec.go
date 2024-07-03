@@ -4007,7 +4007,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -4184,7 +4184,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role..\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -4318,7 +4318,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -17962,7 +17962,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -18151,7 +18151,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role..\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
@@ -18291,7 +18291,7 @@ func init() {
           },
           {
             "type": "string",
-            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role.\nThe parameter is ignored if the requesting user does not have the necessary role.\n",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
             "name": "viewAsGBLOC",
             "in": "query"
           }
