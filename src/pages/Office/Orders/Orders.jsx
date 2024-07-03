@@ -9,7 +9,7 @@ import ordersFormValidationSchema from './ordersFormValidationSchema';
 
 import styles from 'styles/documentViewerWithSidebar.module.scss';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { getTacValid, getLoa, updateOrder, getOrder } from 'services/ghcApi';
+import { getTacValid, getLoa, updateOrder } from 'services/ghcApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { tooRoutes, tioRoutes } from 'constants/routes';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
