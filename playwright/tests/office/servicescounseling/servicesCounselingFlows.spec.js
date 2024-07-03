@@ -9,6 +9,8 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
+const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
+
 test.describe('Services counselor user', () => {
   test.describe('with basic HHG move', () => {
     test.beforeEach(async ({ scPage }) => {
@@ -200,6 +202,7 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to add and delete supporting documents', async ({ page, officePage }) => {
+      test.skip(supportingDocsEnabled === 'false', 'Skip if Supporting Documents is not enabled.');
       await page.getByRole('link', { name: 'Supporting Documents' }).click();
       await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
 
