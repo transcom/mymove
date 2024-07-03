@@ -65,7 +65,7 @@ const TableQueue = ({
   }, [paramSort, sessionStorageKey]);
 
   // Pull table filters directly from cache. Updates are done in general table useEffect below.
-  let paramFilters = getTableQueueFilterSessionStorageValue(sessionStorageKey) || [];
+  const paramFilters = getTableQueueFilterSessionStorageValue(sessionStorageKey) || [];
 
   const [currentPage, setCurrentPage] = useState(
     getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
@@ -159,26 +159,24 @@ const TableQueue = ({
     if (!isLoading && !isError) {
       setParamSort(sortBy);
 
-      if (filters.length === 0 && paramFilters.length > 0 && isPageReload) {
-        // This is executed once. This is to ensure paramFilters
+      if (filters.length === 0 && isPageReload) {
+        // This is executed once. This is to ensure filters
         // is set with cached values during page reload use case.
-        paramFilters.forEach((item) => {
+        const filterStorage = getTableQueueFilterSessionStorageValue(sessionStorageKey) || [];
+        filterStorage.forEach((item) => {
           // add cached filters to current prop filters var
           filters.push(item);
         });
       }
 
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      paramFilters = filters;
-
       // Save to cache.
-      setTableQueueFilterSessionStorageValue(sessionStorageKey, paramFilters);
+      setTableQueueFilterSessionStorageValue(sessionStorageKey, filters);
 
       setCurrentPage(pageIndex + 1);
       setCurrentPageSize(pageSize);
       setPageCount(Math.ceil(totalCount / pageSize));
     }
-  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount]);
+  }, [sortBy, filters, pageIndex, pageSize, isLoading, isError, totalCount, isPageReload, sessionStorageKey]);
 
   if (isLoading || (title === 'Move history' && data.length <= 0 && !isError)) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -189,27 +187,27 @@ const TableQueue = ({
 
   const handleRemoveFilterClick = (index) => {
     if (index === null) {
-      paramFilters.length = 0;
+      filters.length = 0;
     } else {
-      paramFilters.splice(index, 1);
+      filters.splice(index, 1);
     }
-    setAllFilters(paramFilters);
+    setAllFilters(filters);
   };
 
   const handleRemoveMultiSelectFilterClick = (index, valueToDelete) => {
-    const filter = paramFilters[index];
+    const filter = filters[index];
     const isObjectBasedArrayItem = Array.isArray(filter.value);
     const filterValues = !isObjectBasedArrayItem ? filter.value.split(multiSelectValueDelimiter) : filter.value;
     if (filterValues.length === 1) {
-      paramFilters.splice(index, 1);
+      filters.splice(index, 1);
     } else {
       const indexToDelete = filterValues.indexOf(valueToDelete);
       if (indexToDelete !== -1) {
         filterValues.splice(indexToDelete, 1);
       }
-      paramFilters[index].value = isObjectBasedArrayItem ? filterValues : filterValues.join(multiSelectValueDelimiter);
+      filters[index].value = isObjectBasedArrayItem ? filterValues : filterValues.join(multiSelectValueDelimiter);
     }
-    setAllFilters(paramFilters);
+    setAllFilters(filters);
   };
 
   const renderFilterPillButton = (index, value, buttonTitle, label, dataTestId) => {
@@ -227,22 +225,26 @@ const TableQueue = ({
   };
 
   const renderRemoveAllPillButton = () => {
-    let isVisible = paramFilters?.length > 1;
-    if (paramFilters?.length === 1) {
-      if (!isDateFilterValue(paramFilters[0].value)) {
-        isVisible = Array.isArray(paramFilters[0].value)
-          ? paramFilters[0].value.length > 1
-          : paramFilters[0].value.split(multiSelectValueDelimiter).length > 1;
+    let totalFilterValues = 0;
+    // Loop through all filters to ensure there are really more than one filter values.
+    // There is a chance filter.value that is object based array is empty. We can't totally
+    // rely on filters.length.
+    filters.forEach((filter) => {
+      if (Array.isArray(filter.value)) {
+        totalFilterValues += filter.value.length;
+      } else {
+        // legacy column filter control uses commas to represent array in one single string value
+        totalFilterValues += filter.value.split(multiSelectValueDelimiter).length;
       }
-    }
-    if (isVisible) {
+    });
+    if (totalFilterValues > 1) {
       return renderFilterPillButton(null, null, 'Remove all filters', 'All', 'remove-filters-all');
     }
     return null;
   };
 
   const renderFilterPillButtonList = () => {
-    if (paramFilters?.length > 0) {
+    if (filters?.length > 0) {
       const filterPillButtons = [];
       const removeAllPillButton = renderRemoveAllPillButton();
       if (removeAllPillButton !== null) {
@@ -250,7 +252,7 @@ const TableQueue = ({
       }
       const buttonTitle = 'Remove filter';
       const prefixDataTestId = 'remove-filters-';
-      paramFilters.forEach(function callback(filter, index) {
+      filters.forEach(function callback(filter, index) {
         columns.forEach((col) => {
           if (col.id === filter.id) {
             if ('Filter' in col) {
