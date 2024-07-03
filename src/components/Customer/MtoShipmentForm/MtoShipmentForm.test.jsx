@@ -77,7 +77,10 @@ describe('MtoShipmentForm component', () => {
 
       expect(screen.getAllByText('Date')[0]).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
-
+      expect(screen.getByRole('heading', { level: 2, name: 'Pickup info' })).toBeInTheDocument();
+      expect(screen.getByTestId('pickupDateHint')).toHaveTextContent(
+        'This is the day movers would put this shipment on their truck. Packing starts earlier. Dates will be finalized when you talk to your Customer Care Representative. Your requested pickup/load date should be your latest preferred pickup/load date, or the date you need to be out of your origin residence.',
+      );
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use my current address')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
@@ -765,6 +768,9 @@ describe('MtoShipmentForm component', () => {
 
       expect(screen.getByText(/5,000 lbs/)).toHaveClass('usa-alert__text');
 
+      expect(screen.getByTestId('pickupDateHint')).toHaveTextContent(
+        'This is the day movers would put this shipment on their truck. Packing starts earlier. Dates will be finalized when you talk to your Customer Care Representative. Your requested pickup/load date should be your latest preferred pickup/load date, or the date you need to be out of your origin residence.',
+      );
       expect(screen.getByText('Date')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Preferred pickup date')).toBeInstanceOf(HTMLInputElement);
 
