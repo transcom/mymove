@@ -136,7 +136,8 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Estimated Weight:</dt>
-        <dd>{shipment.primeEstimatedWeight}</dd>
+        {shipment.shipmentType === SHIPMENT_OPTIONS.NTSR && <dd>{shipment.ntsRecordedWeight}</dd>}
+        {shipment.shipmentType !== SHIPMENT_OPTIONS.NTSR && <dd>{shipment.primeEstimatedWeight}</dd>}
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Actual Weight:</dt>

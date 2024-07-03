@@ -6606,6 +6606,8 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -8176,27 +8178,8 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -8217,28 +8200,8 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -8402,8 +8365,6 @@ definitions:
       - createdAt
       - status
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - eTag
   ShipmentAddressUpdateStatus:

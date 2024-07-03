@@ -495,7 +495,7 @@ func (suite *HandlerSuite) TestSubmitPPMShipmentDocumentationHandlerIntegration(
 
 func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerUnit() {
 	setUpPPMShipment := func() models.PPMShipment {
-		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil)
+		ppmShipment := factory.BuildPPMShipmentThatNeedsToBeResubmitted(nil, nil, nil)
 
 		ppmShipment.ID = uuid.Must(uuid.NewV4())
 		ppmShipment.CreatedAt = time.Now()
@@ -799,7 +799,7 @@ func (suite *HandlerSuite) TestResubmitPPMShipmentDocumentationHandlerIntegratio
 	var needsCloseoutSM models.ServiceMember
 
 	suite.PreloadData(func() {
-		shipmentNeedsResubmitted = factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), userUploader)
+		shipmentNeedsResubmitted = factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), userUploader, nil)
 		shipmentNeedsResubmitted.SubmittedAt = &submissionTime
 		suite.NoError(suite.DB().Save(&shipmentNeedsResubmitted))
 		needsResubmittedSM = shipmentNeedsResubmitted.Shipment.MoveTaskOrder.Orders.ServiceMember
