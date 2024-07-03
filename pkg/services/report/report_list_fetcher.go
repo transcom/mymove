@@ -17,25 +17,13 @@ func NewReportListFetcher() services.ReportListFetcher {
 func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
-	// Raw query may not be viable without a new model created
-	// rawQueryTest, qerr := query.GetSQLQueryByName("report_builder")
-	// if qerr != nil {
-	// 	return moves, apperror.NewQueryError("AuditHistory", qerr, "")
-	// }
-	// queryy := appCtx.DB().RawQuery(rawQueryTest)
-	// errr := queryy.All(&moves)
-
-	// if errr != nil {
-	// 	return nil, errr
-	// }
-
 	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
 	query := appCtx.DB().EagerPreload(
+		"MTOServiceItems",
+		"MTOServiceItems.ReService",
+		"MTOServiceItems.ReService.Name",
 		"PaymentRequests",
 		"PaymentRequests.PaymentServiceItems",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Name",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -58,7 +46,7 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 	).
 		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
 		InnerJoin("payment_service_items", "payment_service_items.payment_request_id = payment_requests.id").
-		InnerJoin("mto_service_items", "payment_service_items.mto_service_item_id = mto_service_items.id").
+		InnerJoin("mto_service_items", "moves.id = mto_service_items.move_id").
 		InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
