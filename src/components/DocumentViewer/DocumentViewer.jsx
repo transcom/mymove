@@ -22,9 +22,7 @@ import { filenameFromPath } from 'utils/formatters';
 const DocumentViewer = ({ files, allowDownload }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [menuIsOpen, setMenuOpen] = useState(false);
-
-  const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
-  const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
+  const selectedFile = files[parseInt(selectedFileIndex, 10)];
 
   useEffect(() => {
     selectFile(0);
@@ -94,7 +92,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
       {menuIsOpen && <div className={styles.overlay} />}
       <Menu
         isOpen={menuIsOpen}
-        files={sortedFiles}
+        files={files}
         handleClose={closeMenu}
         selectedFileIndex={selectedFileIndex}
         handleSelectFile={handleSelectFile}

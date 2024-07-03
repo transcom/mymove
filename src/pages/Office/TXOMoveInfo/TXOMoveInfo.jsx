@@ -203,7 +203,7 @@ const TXOMoveInfo = () => {
             <Route
               path="supporting-documents"
               end
-              element={<SupportingDocuments uploads={move?.additionalDocuments?.uploads} />}
+              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
             />
           )}
           <Route path="payment-requests/:paymentRequestId" end element={<PaymentRequestReview order={order} />} />

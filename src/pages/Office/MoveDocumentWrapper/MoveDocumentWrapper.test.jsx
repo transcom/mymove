@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 
 import MoveDocumentWrapper from './MoveDocumentWrapper';
 
-import { useOrdersDocumentQueries } from 'hooks/queries';
+import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
 
 const mockOriginDutyLocation = {
   address: {
@@ -43,6 +43,7 @@ const mockDestinationDutyLocation = {
 
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
+  useAmendedDocumentQueries: jest.fn(),
 }));
 
 const testMoveId = '10000';
@@ -111,6 +112,22 @@ const useOrdersDocumentQueriesReturnValue = {
     },
   },
 };
+const useAmendedDocumentQueriesReturnValue = {
+  amendedDocuments: {
+    3: {
+      id: '3',
+      uploads: ['x'],
+    },
+  },
+  amendedUpload: {
+    x: {
+      id: 'z',
+      filename: 'amended_test.pdf',
+      contentType: 'application/pdf',
+      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
+    },
+  },
+};
 
 const loadingReturnValue = {
   ...useOrdersDocumentQueriesReturnValue,
@@ -137,6 +154,7 @@ describe('MoveDocumentWrapper', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(loadingReturnValue);
+      useAmendedDocumentQueries.mockReturnValue(loadingReturnValue);
 
       render(<MoveDocumentWrapper />);
 
@@ -147,6 +165,7 @@ describe('MoveDocumentWrapper', () => {
     it('renders the Something Went Wrong component when the query errors', async () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(errorReturnValue);
+      useAmendedDocumentQueries.mockReturnValue(errorReturnValue);
 
       render(<MoveDocumentWrapper />);
 
@@ -159,6 +178,7 @@ describe('MoveDocumentWrapper', () => {
     it('renders the document viewer', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
       const wrapper = shallow(<MoveDocumentWrapper />);
 
       expect(wrapper.find('DocumentViewer').exists()).toBe(true);
@@ -167,6 +187,7 @@ describe('MoveDocumentWrapper', () => {
     it('renders the sidebar Orders component', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
       const wrapper = shallow(<MoveDocumentWrapper />);
       expect(wrapper.find('Orders').exists()).toBe(true);
     });
@@ -174,6 +195,7 @@ describe('MoveDocumentWrapper', () => {
     it('renders the sidebar MoveAllowances component', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/allowances` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
       const wrapper = shallow(<MoveDocumentWrapper />);
       expect(wrapper.find('MoveAllowances').exists()).toBe(true);
     });
@@ -181,6 +203,7 @@ describe('MoveDocumentWrapper', () => {
     it('combines orders and amended orders', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+      useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
       const wrapper = shallow(<MoveDocumentWrapper />);
       expect(wrapper.find('DocumentViewer').props('files')).toEqual({
