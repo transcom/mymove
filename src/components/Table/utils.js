@@ -193,12 +193,6 @@ export const getTableQueueSortParamSessionStorageValue = (key) => {
  */
 export const getSelectionOptionLabel = (value) => {
   // Loop though known options and attempt to retrieve display.
-  // let label = SERVICE_COUNSELING_BRANCH_OPTIONS.filter((option) => value === option.value).map(
-  //   (option) => option.label,
-  // );
-  // if (label.length > 0) {
-  //   return label;
-  // }
   const label = MOVE_STATUS_OPTIONS.filter((option) => value === option.value).map((option) => option.label);
   if (label.length > 0) {
     return label;
