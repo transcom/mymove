@@ -4354,7 +4354,7 @@ definitions:
         format: date-time
         x-nullable: true
       additionalDocuments:
-        $ref: '#/definitions/Document'
+        $ref: 'definitions/Document.yaml'
   MoveHistory:
     properties:
       id:
@@ -6400,7 +6400,7 @@ definitions:
         type: string
         readOnly: true
       additionalDocuments:
-        $ref: '#/definitions/Document'
+        $ref: 'definitions/Document.yaml'
     required:
       - id
       - orders_id
@@ -6408,76 +6408,6 @@ definitions:
       - created_at
       - updated_at
       - eTag
-  Document:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
-  Upload:
-    description: An uploaded file.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-      isWeightTicket:
-        type: boolean
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
 responses:
   InvalidRequest:
     description: The request payload is invalid
