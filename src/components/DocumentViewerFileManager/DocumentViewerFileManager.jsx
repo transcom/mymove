@@ -13,7 +13,7 @@ import {
   deleteUploadForDocument,
   getOrder,
 } from 'services/ghcApi';
-import { ORDERS_DOCUMENTS, MOVES } from 'constants/queryKeys';
+import { ORDERS_DOCUMENTS, MOVES, ORDERS } from 'constants/queryKeys';
 import FileUpload from 'components/FileUpload/FileUpload';
 import Hint from 'components/Hint';
 import UploadsTable from 'components/UploadsTable/UploadsTable';
@@ -88,24 +88,43 @@ const DocumentViewerFileManager = ({
 
   const uploadAmdendedOrders = async (file) => {
     return createUploadForAmdendedOrders(file, orderId)
-      .catch((e) => {
-        const { response } = e;
-        const error = `Failed to upload due to server error: ${response?.body?.detail}`;
-        setServerError(error);
-      })
-      .finally(async () => {
+      .then(async () => {
         return getOrder(null, orderId)
           .then((res) => {
-            const amendedOrderDocumentId = res.orders[orderId]?.uploadedAmendedOrderID;
+            const updatedOrder = res.orders[orderId];
+            const amendedOrderDocumentId = updatedOrder?.uploadedAmendedOrderID;
+            const newOrderEtag = updatedOrder?.eTag;
+
             updateAmendedDocument(amendedOrderDocumentId);
             queryClient.invalidateQueries([ORDERS_DOCUMENTS, amendedOrderDocumentId]);
-            setIsFileProcessing(false);
+
+            queryClient.setQueryData([ORDERS, orderId], (oldData) => {
+              if (!oldData) return oldData;
+              return {
+                ...oldData,
+                orders: {
+                  ...oldData.orders,
+                  [orderId]: {
+                    ...oldData.orders[orderId],
+                    eTag: newOrderEtag,
+                  },
+                },
+              };
+            });
           })
           .catch((e) => {
             const { response } = e;
             const error = `Failed to upload due to server error: ${response?.body?.detail}`;
             setServerError(error);
           });
+      })
+      .catch((e) => {
+        const { response } = e;
+        const error = `Failed to upload due to server error: ${response?.body?.detail}`;
+        setServerError(error);
+      })
+      .finally(() => {
+        setIsFileProcessing(false);
       });
   };
 

@@ -222,11 +222,6 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
 
   const onSubmit = async (values) => {
     const { originDutyLocation, newDutyLocation, ...fields } = values;
-    const response = await getOrder(null, orderId);
-    let newEtag = order.eTag;
-    if (response) {
-      newEtag = response.orders[orderId].eTag;
-    }
     const body = {
       ...fields,
       originDutyLocationId: values.originDutyLocation.id,
@@ -240,7 +235,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
       grade: values.payGrade,
     };
 
-    mutateOrders({ orderID: orderId, ifMatchETag: newEtag, body });
+    mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
   };
 
   const tacWarningMsg =
