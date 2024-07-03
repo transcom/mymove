@@ -767,6 +767,9 @@ func init() {
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
         },
+        "emplid": {
+          "type": "string"
+        },
         "firstName": {
           "type": "string",
           "example": "Vanya"
@@ -4190,6 +4193,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
+        },
+        "emplid": {
+          "type": "string"
         },
         "firstName": {
           "type": "string",
