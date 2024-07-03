@@ -73,14 +73,19 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
     const hasSecondaryDestinationAddress = values.hasSecondaryDestinationAddress === 'true';
 
+    const hasTertiaryPickupAddress = values.hasTertiaryPickupAddress === 'true';
+    const hasTertiaryDestinationAddress = values.hasTertiaryPickupAddress === 'true';
+
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
         pickupAddress: formatAddressForAPI(values.pickupAddress.address),
         hasSecondaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        hasTertiaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         destinationAddress: formatAddressForAPI(values.destinationAddress.address),
-        hasSecondaryDestinationAddress,
+        hasSecondaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        hasTertiaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
       },
@@ -95,6 +100,17 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     if (hasSecondaryDestinationAddress && values.secondaryDestinationAddress?.address) {
       createOrUpdateShipment.ppmShipment.secondaryDestinationAddress = formatAddressForAPI(
         values.secondaryDestinationAddress.address,
+      );
+    }
+    if (hasTertiaryPickupAddress && values.tertiaryPickupAddress?.address) {
+      createOrUpdateShipment.ppmShipment.tertiaryPickupAddress = formatAddressForAPI(
+        values.tertiaryPickupAddress.address,
+      );
+    }
+
+    if (hasTertiaryDestinationAddress && values.tertiaryDestinationAddress?.address) {
+      createOrUpdateShipment.ppmShipment.tertiaryDestinationAddress = formatAddressForAPI(
+        values.tertiaryDestinationAddress.address,
       );
     }
 

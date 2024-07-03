@@ -182,7 +182,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 
@@ -509,13 +509,13 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -822,7 +822,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -940,7 +940,7 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -1009,7 +1009,7 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -1183,13 +1183,13 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -1704,13 +1704,13 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -2220,13 +2220,13 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE(appCtx appcontex
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -2855,13 +2855,13 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -2894,7 +2894,7 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2908,7 +2908,7 @@ func MakeHHGMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2938,7 +2938,7 @@ func MakeHHGMoveWithPPMShipmentsForTOO(appCtx appcontext.AppContext, readyForClo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2953,7 +2953,7 @@ func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2979,7 +2979,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	orders := newmove.Orders
@@ -3029,7 +3029,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err = models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3043,7 +3043,7 @@ func MakeMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3057,7 +3057,7 @@ func MakeHHGMoveWithNTSRShipmentsForTOO(appCtx appcontext.AppContext) models.Mov
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3083,7 +3083,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	orders := newmove.Orders
@@ -3133,7 +3133,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err = models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3148,7 +3148,7 @@ func MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3164,7 +3164,7 @@ func MakeMoveWithMinimalNTSRNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3180,7 +3180,7 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3195,7 +3195,7 @@ func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3211,7 +3211,7 @@ func MakeHHGMoveWithAmendedOrders(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3229,7 +3229,7 @@ func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3247,7 +3247,7 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3381,12 +3381,12 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch duty location: %w", err))
 	}
 	return *newmove
 }
@@ -3568,12 +3568,12 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch duty location: %w", err))
 	}
 	return *newmove
 }
@@ -3603,7 +3603,7 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3628,13 +3628,13 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	var closeoutOffice models.TransportationOffice
 	err = appCtx.DB().Find(&closeoutOffice, newmove.CloseoutOfficeID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch closeout office: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch closeout office: %w", err))
 	}
 
 	newmove.CloseoutOffice = &closeoutOffice
@@ -3663,7 +3663,7 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3705,7 +3705,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3744,7 +3744,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3795,7 +3795,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3836,7 +3836,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3907,7 +3907,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3984,7 +3984,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4050,7 +4050,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4139,7 +4139,7 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4275,7 +4275,7 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4416,7 +4416,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4504,7 +4504,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4544,7 +4544,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -6174,6 +6174,14 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 		},
 	}, nil)
 
+	tertiaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 3rd Address",
+			},
+		},
+	}, nil)
+
 	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -6206,6 +6214,11 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			Model: models.MTOShipment{
 				Status: models.MTOShipmentStatusApproved,
 			},
+		},
+		{
+			Model:    tertiaryDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.TertiaryDeliveryAddress,
 		},
 		{
 			Model:    secondaryDeliveryAddress,
@@ -6849,13 +6862,13 @@ func MakeMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 	// re-fetch the move so that we ensure we have exactly what is in the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -7491,13 +7504,13 @@ func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
