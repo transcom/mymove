@@ -220,7 +220,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const onSubmit = async (values) => {
+  const onSubmit = (values) => {
     const { originDutyLocation, newDutyLocation, ...fields } = values;
     const body = {
       ...fields,
