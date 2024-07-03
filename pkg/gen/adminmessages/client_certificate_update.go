@@ -53,7 +53,7 @@ type ClientCertificateUpdate struct {
 	// allow orders API
 	AllowOrdersAPI *bool `json:"allowOrdersAPI,omitempty"`
 
-	// allow pptas
+	// allow p p t a s
 	AllowPPTAS *bool `json:"allowPPTAS,omitempty"`
 
 	// allow prime

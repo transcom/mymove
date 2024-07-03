@@ -101,6 +101,7 @@ const ClientCertEdit = (props) => (
       />
       <SelectInput
         source="allowPPTAS"
+        label="Allow PPTAS"
         choices={[
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },

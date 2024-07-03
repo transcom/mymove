@@ -14,7 +14,7 @@ info:
     information relating to current moves in progress.
 
 
-    All endpoints are located at `/prime/pptas/`.
+    All endpoints are located at `/pptas/v1`.
 basePath: /pptas/v1
 host: primelocal
 consumes:
