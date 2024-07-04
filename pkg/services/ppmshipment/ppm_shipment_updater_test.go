@@ -1276,6 +1276,20 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				State:          state,
 				PostalCode:     postalCode,
 			},
+			TertiaryPickupAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
+			TertiaryDestinationAddress: &models.Address{
+				StreetAddress1: streetAddress1,
+				StreetAddress2: &streetAddress2,
+				City:           city,
+				State:          state,
+				PostalCode:     postalCode,
+			},
 		}
 
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1313,6 +1327,22 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(city, updatedPPM.SecondaryDestinationAddress.City)
 		suite.Equal(state, updatedPPM.SecondaryDestinationAddress.State)
 		suite.Equal(postalCode, updatedPPM.SecondaryDestinationAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.TertiaryPickupAddressID)
+		suite.NotNil(updatedPPM.TertiaryPickupAddress)
+		suite.Equal(streetAddress1, updatedPPM.TertiaryPickupAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.TertiaryPickupAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.TertiaryPickupAddress.City)
+		suite.Equal(state, updatedPPM.TertiaryPickupAddress.State)
+		suite.Equal(postalCode, updatedPPM.TertiaryPickupAddress.PostalCode)
+
+		suite.NotNil(updatedPPM.TertiaryDestinationAddressID)
+		suite.NotNil(updatedPPM.TertiaryDestinationAddress)
+		suite.Equal(streetAddress1, updatedPPM.TertiaryDestinationAddress.StreetAddress1)
+		suite.Equal(streetAddress2, *updatedPPM.TertiaryDestinationAddress.StreetAddress2)
+		suite.Equal(city, updatedPPM.TertiaryDestinationAddress.City)
+		suite.Equal(state, updatedPPM.TertiaryDestinationAddress.State)
+		suite.Equal(postalCode, updatedPPM.TertiaryDestinationAddress.PostalCode)
 	})
 	suite.Run("Can successfully update a PPM Shipment SIT estimated cost", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})

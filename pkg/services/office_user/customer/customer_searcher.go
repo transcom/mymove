@@ -1,8 +1,6 @@
 package customer
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
@@ -52,28 +50,28 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	}
 
 	var query *pop.Query
-
-	rawquery := `SELECT DISTINCT ON (id)
-			service_members.affiliation,
-			service_members.backup_mailing_address_id,
-			service_members.cac_validated,
-			service_members.created_at,
-			service_members.edipi,
-			service_members.email_is_preferred,
-			service_members.emplid,
-			service_members.first_name,
-			service_members.id,
-			service_members.last_name,
-			service_members.middle_name,
-			service_members.personal_email,
-			service_members.phone_is_preferred,
-			service_members.residential_address_id,
-			service_members.secondary_telephone,
-			service_members.suffix,
-			service_members.telephone,
-			service_members.updated_at,
-			service_members.user_id
-		FROM service_members
+	rawquery := `SELECT * FROM
+		(SELECT DISTINCT ON (id)
+		service_members.affiliation,
+		service_members.backup_mailing_address_id,
+		service_members.cac_validated,
+		service_members.created_at,
+		service_members.edipi,
+		service_members.email_is_preferred,
+		service_members.emplid,
+		service_members.first_name,
+		service_members.id,
+		service_members.last_name,
+		service_members.middle_name,
+		service_members.personal_email,
+		service_members.phone_is_preferred,
+		service_members.residential_address_id,
+		service_members.secondary_telephone,
+		service_members.suffix,
+		service_members.telephone,
+		service_members.updated_at,
+		service_members.user_id
+	FROM service_members AS service_members
 		JOIN users ON users.id = service_members.user_id
 		LEFT JOIN orders ON orders.service_member_id = service_members.id`
 
@@ -84,18 +82,28 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	}
 
 	if params.DodID != nil {
-		rawquery += ` service_members.edipi = $1)`
+		rawquery += ` service_members.edipi = $1) ) distinct_customers`
+		if params.Sort != nil && params.Order != nil {
+			sortTerm := parameters[*params.Sort]
+			rawquery += ` ORDER BY ` + sortTerm + *params.Order
+		} else {
+			rawquery += ` ORDER BY distinct_customers.last_name ASC`
+		}
 		query = appCtx.DB().RawQuery(rawquery, params.DodID)
 	} else {
-		rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name))`
+		rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name)) ) distinct_customers`
+		if params.Sort != nil && params.Order != nil {
+			sortTerm := parameters[*params.Sort]
+			rawquery += ` ORDER BY ` + sortTerm + ` ` + *params.Order
+		} else {
+			rawquery += ` ORDER BY distinct_customers.last_name ASC`
+		}
 		query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
 	}
 
 	customerNameQuery := customerNameSearch(params.CustomerName)
 	dodIDQuery := dodIDSearch(params.DodID)
-	orderQuery := sortOrder(params.Sort, params.Order)
-
-	options := [3]QueryOption{customerNameQuery, dodIDQuery, orderQuery}
+	options := [2]QueryOption{customerNameQuery, dodIDQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -109,6 +117,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	if err != nil {
 		return models.ServiceMembers{}, 0, apperror.NewQueryError("Customer", err, "")
 	}
+
 	return customers, query.Paginator.TotalEntriesSize, nil
 }
 
@@ -129,20 +138,10 @@ func customerNameSearch(customerName *string) QueryOption {
 }
 
 var parameters = map[string]string{
-	"customerName":  "service_members.last_name",
-	"dodID":         "service_members.edipi",
-	"branch":        "service_members.affiliation",
-	"personalEmail": "service_members.personal_email",
-	"telephone":     "service_members.telephone",
-}
-
-func sortOrder(sort *string, order *string) QueryOption {
-	return func(query *pop.Query) {
-		if sort != nil && order != nil {
-			sortTerm := parameters[*sort]
-			query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
-		} else {
-			query.Order("service_members.last_name ASC")
-		}
-	}
+	"customerName":  "distinct_customers.last_name, distinct_customers.first_name",
+	"dodID":         "distinct_customers.edipi",
+	"emplid":        "distinct_customers.emplid",
+	"branch":        "distinct_customers.affiliation",
+	"personalEmail": "distinct_customers.personal_email",
+	"telephone":     "distinct_customers.telephone",
 }

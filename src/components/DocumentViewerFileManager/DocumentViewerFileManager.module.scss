@@ -1,0 +1,15 @@
+@import '../../shared/styles/basics';
+@import '../../shared/styles/mixins';
+@import '../../shared/styles/colors';
+
+.documentViewerFileManager:not(:last-of-type) {
+  .upload {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e6e6e6;
+    margin-bottom: 2rem;
+  }
+}
+
+.documentViewerFileManager .sectionWrapper {
+  padding: 1.6rem;
+}

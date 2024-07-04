@@ -94,6 +94,10 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor) 
       return row.customer.dodID;
     },
   }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
+  }),
   createHeader('Move code', 'locator', {
     id: 'locator',
     isFilterable: true,
@@ -219,6 +223,10 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
     exportValue: (row) => {
       return row.customer.dodID;
     },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',

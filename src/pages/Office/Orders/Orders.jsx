@@ -22,16 +22,17 @@ import { ORDERS } from 'constants/queryKeys';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE } from 'shared/constants';
+import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const Orders = () => {
+const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
   const navigate = useNavigate();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
@@ -40,7 +41,13 @@ const Orders = () => {
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const { state } = useLocation();
   const orderId = move?.ordersId;
+  const documentId = orders[orderId]?.uploaded_order_id;
+  const amendedOrderDocumentId = orders[orderId]?.uploadedAmendedOrderID || amendedDocumentId;
   const from = state?.from;
+
+  const ordersDocuments = files[MOVE_DOCUMENT_TYPE.ORDERS];
+  const amendedDocuments = files[MOVE_DOCUMENT_TYPE.AMENDMENTS];
+
   const handleClose = useCallback(() => {
     let redirectPath;
     if (from === 'paymentRequestDetails') {
@@ -304,6 +311,21 @@ const Orders = () => {
                       View Allowances
                     </Link>
                   </div>
+                  <Restricted to={permissionTypes.updateOrders}>
+                    <DocumentViewerFileManager
+                      orderId={orderId}
+                      documentId={documentId}
+                      files={ordersDocuments}
+                      documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                    />
+                    <DocumentViewerFileManager
+                      orderId={orderId}
+                      documentId={amendedOrderDocumentId}
+                      files={amendedDocuments}
+                      documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
+                      updateAmendedDocument={updateAmendedDocument}
+                    />
+                  </Restricted>
                 </div>
                 <div className={styles.body}>
                   <Restricted
