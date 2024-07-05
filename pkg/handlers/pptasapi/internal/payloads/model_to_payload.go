@@ -36,7 +36,12 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	}
 
 	Orders := move.Orders
-	PaymentRequests := move.PaymentRequests
+	var PaymentRequest models.PaymentRequest
+	for _, pr := range move.PaymentRequests {
+		if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex || pr.Status == models.PaymentRequestStatusReceivedByGex {
+			PaymentRequest = pr
+		}
+	}
 
 	var tac []models.TransportationAccountingCode
 	tacQueryError := appCtx.DB().Q().
@@ -124,7 +129,7 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		EntitlementWeight:  int64(*Orders.Entitlement.DBAuthorizedWeight),
 		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
 		PickupDate:         strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
-		PaidDate:           (*strfmt.Date)(PaymentRequests[0].ReviewedAt),
+		PaidDate:           (*strfmt.Date)(PaymentRequest.ReviewedAt),
 		// LinehaulTotal:
 		// LinehaulFuelTotal:
 		// OriginPrice
@@ -161,14 +166,18 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		CounseledDate:               strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
 
-	// for _, serviceItem := range move.PaymentRequests[0].PaymentServiceItems {
-	// 	mtoServiceItem := serviceItem.MTOServiceItem
-	// 	if mtoServiceItem.ReService.Name == "Domestic linehaul" || mtoServiceItem.ReService.Name == "Domestic shorthaul" {
-	// 		payload.LinehaulTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
-	// 	} else if mtoServiceItem.ReService.Name == "" {
+	for _, serviceItem := range PaymentRequest.PaymentServiceItems {
+		if serviceItem.MTOServiceItem.ReService.Name == "Domestic linehaul" || serviceItem.MTOServiceItem.ReService.Name == "Domestic shorthaul" {
+			payload.LinehaulTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
+		} // else if serviceItem.ReService.Name == "Move management" {
 
-	// 	}
-	// }
+		// }
+		// "Fuel surcharge"
+		// "Domestic origin price"
+		// "Domestic destination price"
+		// "Domestic packing"
+		// "Domestic unpacking"
+	}
 
 	// sharing this for loop for all MTOShipment calculations
 	for _, shipment := range move.MTOShipments {
