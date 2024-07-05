@@ -9,6 +9,7 @@ import { MockProviders } from 'testUtils';
 import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import departmentIndicators from 'constants/departmentIndicators';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -286,6 +287,7 @@ describe('CreateCustomerForm', () => {
 
   it('allows safety privileged users to pass safety move status to orders screen', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
 
     const { getByLabelText, getByTestId, getByRole } = render(
       <MockProviders>
