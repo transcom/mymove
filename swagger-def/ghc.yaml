@@ -3023,6 +3023,8 @@ paths:
           description: payload is too large
         '500':
           description: server error
+      x-permissions:
+        - create.supportingDocuments
   '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
       - description: payment request ID of the payment request with SIT service items being reviewed
