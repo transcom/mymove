@@ -52,9 +52,9 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 }
 
 // Move payload
-func Move(move *models.Move) *ghcmessages.Move {
+func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
-		return nil
+		return nil, nil
 	}
 	// Adds shipmentGBLOC to be used for TOO/TIO's origin GBLOC
 	var gbloc ghcmessages.GBLOC
@@ -62,6 +62,15 @@ func Move(move *models.Move) *ghcmessages.Move {
 		gbloc = ghcmessages.GBLOC(*move.ShipmentGBLOC[0].GBLOC)
 	} else if move.Orders.OriginDutyLocationGBLOC != nil {
 		gbloc = ghcmessages.GBLOC(*move.Orders.OriginDutyLocationGBLOC)
+	}
+
+	var additionalDocumentsPayload *ghcmessages.Document
+	var err error
+	if move.AdditionalDocuments != nil {
+		additionalDocumentsPayload, err = PayloadForDocumentModel(storer, *move.AdditionalDocuments)
+	}
+	if err != nil {
+		return nil, err
 	}
 
 	payload := &ghcmessages.Move{
@@ -92,9 +101,10 @@ func Move(move *models.Move) *ghcmessages.Move {
 		LockedByOfficeUserID:         handlers.FmtUUIDPtr(move.LockedByOfficeUserID),
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
+		AdditionalDocuments:          additionalDocumentsPayload,
 	}
 
-	return payload
+	return payload, nil
 }
 
 // ListMove payload
@@ -838,15 +848,11 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
-		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
-		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
-		SitExpected:                    ppmShipment.SITExpected,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
+		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
+		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
@@ -1414,11 +1420,16 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		}
 	}
 
+	move, err := Move(&pr.MoveTaskOrder, storer)
+	if err != nil {
+		return nil, err
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                              *handlers.FmtUUID(pr.ID),
 		IsFinal:                         &pr.IsFinal,
 		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:                   Move(&pr.MoveTaskOrder),
+		MoveTaskOrder:                   move,
 		PaymentRequestNumber:            pr.PaymentRequestNumber,
 		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
 		RejectionReason:                 pr.RejectionReason,

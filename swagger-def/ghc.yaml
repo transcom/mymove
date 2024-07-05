@@ -3443,25 +3443,25 @@ paths:
           $ref: '#/responses/ServerError'
   /lines-of-accounting:
     post:
-      summary: "Fetch line of accounting"
-      description: "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC)."
+      summary: 'Fetch line of accounting'
+      description: 'Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).'
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
       consumes:
-        - "application/json"
+        - 'application/json'
       produces:
-        - "application/json"
+        - 'application/json'
       parameters:
-        - in: "body"
-          name: "body"
-          description: "Service member affiliation, order issue date, and TAC code."
+        - in: 'body'
+          name: 'body'
+          description: 'Service member affiliation, order issue date, and TAC code.'
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
       responses:
         '200':
-          description: "Successfully retrieved line of accounting"
+          description: 'Successfully retrieved line of accounting'
           schema:
             $ref: 'definitions/LineOfAccounting.yaml'
         '400':
@@ -4076,7 +4076,7 @@ definitions:
       ordersIssueDate:
         type: string
         format: date
-        example: "2023-01-01"
+        example: '2023-01-01'
       tacCode:
         type: string
         minLength: 4
@@ -4353,6 +4353,8 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        $ref: 'definitions/Document.yaml'
   MoveHistory:
     properties:
       id:
@@ -5330,7 +5332,7 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryPickupAddress:
@@ -5345,7 +5347,7 @@ definitions:
         format: zip
         type: string
         title: ZIP
-        example: "90210"
+        example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
       secondaryDestinationAddress:
@@ -6380,6 +6382,60 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
+  MovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice'
+      cancel_reason:
+        type: string
+        example: Change of orders
+        x-nullable: true
+      eTag:
+        type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      additionalDocuments:
+        $ref: 'definitions/Document.yaml'
+    required:
+      - id
+      - orders_id
+      - locator
+      - created_at
+      - updated_at
+      - eTag
 responses:
   InvalidRequest:
     description: The request payload is invalid

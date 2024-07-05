@@ -127,6 +127,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.Entitlement",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
+		"ShipmentGBLOC",
 	)
 
 	if searchParams == nil {

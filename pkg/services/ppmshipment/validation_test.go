@@ -81,8 +81,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			ShipmentID:            shipmentID,
 			Status:                models.PPMShipmentStatusDraft,
 			ExpectedDepartureDate: time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "08004",
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Pickup",
 				City:           "New York",
@@ -97,11 +95,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 				PostalCode:     "90210",
 			},
 			DestinationAddressID: models.UUIDPointer(uuid.Must(uuid.NewV4())),
-		}
-
-		if oldFlags.hasSecondaryZips {
-			oldShipment.SecondaryPickupPostalCode = models.StringPointer("90880")
-			oldShipment.SecondaryDestinationPostalCode = models.StringPointer("08900")
 		}
 
 		if ppmState >= PPMShipmentSIT {
@@ -181,8 +174,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 	// checkDatesAndLocationsDidntChange - ensures dates and locations fields didn't change
 	checkDatesAndLocationsDidntChange := func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment) {
 		suite.Equal(oldShipment.ExpectedDepartureDate, mergedShipment.ExpectedDepartureDate)
-		suite.Equal(oldShipment.PickupPostalCode, mergedShipment.PickupPostalCode)
-		suite.Equal(oldShipment.DestinationPostalCode, mergedShipment.DestinationPostalCode)
 	}
 
 	// checkEstimatedWeightsDidntChange - ensures estimated weights fields didn't change
@@ -281,8 +272,6 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			},
 			newShipment: models.PPMShipment{
 				ExpectedDepartureDate: time.Time{},
-				PickupPostalCode:      "",
-				DestinationPostalCode: "",
 				SITExpected:           nil,
 			},
 			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
@@ -301,62 +290,12 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			},
 			newShipment: models.PPMShipment{
 				ExpectedDepartureDate: time.Date(2020, time.May, 15, 0, 0, 0, 0, time.UTC),
-				PickupPostalCode:      "90206",
-				DestinationPostalCode: "79912",
 				SITExpected:           models.BoolPointer(true),
 			},
 			runChecks: func(mergedShipment models.PPMShipment, _ models.PPMShipment, newShipment models.PPMShipment) {
 				// ensure existing fields were changed
 				suite.Equal(newShipment.ExpectedDepartureDate, mergedShipment.ExpectedDepartureDate)
-				suite.Equal(newShipment.PickupPostalCode, mergedShipment.PickupPostalCode)
-				suite.Equal(newShipment.DestinationPostalCode, mergedShipment.DestinationPostalCode)
 				suite.Equal(newShipment.SITExpected, mergedShipment.SITExpected)
-			},
-		},
-		"Can add secondary ZIPs": {
-			oldState: PPMShipmentStateDatesAndLocations,
-			oldFlags: flags{
-				hasSecondaryZips:    false,
-				hasSIT:              false,
-				hasProGear:          false,
-				hasRequestedAdvance: false,
-				hasReceivedAdvance:  false,
-			},
-			newShipment: models.PPMShipment{
-				SecondaryPickupPostalCode:      models.StringPointer("90880"),
-				SecondaryDestinationPostalCode: models.StringPointer("79936"),
-			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, newShipment models.PPMShipment) {
-				// ensure existing fields weren't changed
-				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
-				checkSITDidntChange(mergedShipment, oldShipment)
-
-				// ensure fields were set correctly
-				suite.Equal(newShipment.SecondaryPickupPostalCode, mergedShipment.SecondaryPickupPostalCode)
-				suite.Equal(newShipment.SecondaryDestinationPostalCode, mergedShipment.SecondaryDestinationPostalCode)
-			},
-		},
-		"Can remove secondary ZIPs": {
-			oldState: PPMShipmentStateDatesAndLocations,
-			oldFlags: flags{
-				hasSecondaryZips:    true,
-				hasSIT:              false,
-				hasProGear:          false,
-				hasRequestedAdvance: false,
-				hasReceivedAdvance:  false,
-			},
-			newShipment: models.PPMShipment{
-				SecondaryPickupPostalCode:      models.StringPointer(""),
-				SecondaryDestinationPostalCode: models.StringPointer(""),
-			},
-			runChecks: func(mergedShipment models.PPMShipment, oldShipment models.PPMShipment, _ models.PPMShipment) {
-				// ensure existing fields weren't changed
-				checkDatesAndLocationsDidntChange(mergedShipment, oldShipment)
-				checkSITDidntChange(mergedShipment, oldShipment)
-
-				// ensure fields were set correctly
-				suite.Nil(mergedShipment.SecondaryPickupPostalCode)
-				suite.Nil(mergedShipment.SecondaryDestinationPostalCode)
 			},
 		},
 		"Add estimated weights - no pro gear": {

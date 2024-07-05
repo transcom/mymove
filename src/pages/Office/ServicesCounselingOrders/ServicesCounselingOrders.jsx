@@ -16,11 +16,13 @@ import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_PAY_GRADE_OPTI
 import { ORDERS, ORDERS_DOCUMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, counselingUpdateOrder, createUploadForDocument } from 'services/ghcApi';
+import { getTacValid, getLoa, counselingUpdateOrder, createUploadForDocument } from 'services/ghcApi';
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { TAC_VALIDATION_ACTIONS, reducer, initialState } from 'reducers/tacValidation';
+import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
+import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
+import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
 import { LOA_TYPE } from 'shared/constants';
 import FileUpload from 'components/FileUpload/FileUpload';
 import Hint from 'components/Hint';
@@ -35,7 +37,9 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode } = useParams();
-  const [tacValidationState, tacValidationDispatch] = useReducer(reducer, null, initialState);
+  const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
+  const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
+
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
   const [showUpload, setShowUpload] = useState(false);
   const [isDoneButtonDisabled, setIsDoneButtonDisabled] = useState(true);
@@ -84,6 +88,53 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
     },
   });
 
+  const buildFullLineOfAccountingString = (loa) => {
+    const dfasMap = LineOfAccountingDfasElementOrder.map((key) => {
+      if (key === 'loaEndFyTx') {
+        // Specific logic for DFAS element A3, the loaEndFyTx.
+        // This is a combination of both the BgFyTx and EndFyTx
+        // and if one are null, then typically we would resort to "XXXXXXXX"
+        // but for this one we'll just leave it empty as this is not for the EDI858.
+        if (loa.loaBgFyTx != null && loa.loaEndFyTx != null) {
+          return `${loa.loaBgFyTx}${loa.loaEndFyTx}`;
+        }
+        if (loa.loaBgFyTx === null || loa.loaByFyTx === undefined) {
+          // Catch the scenario of loaBgFyTx being null but loaEndFyTx not being null
+          return '';
+        }
+      }
+      return loa[key] || '';
+    });
+    let longLoa = dfasMap.join('*');
+    // remove any number of spaces following an asterisk in a LOA string
+    longLoa = longLoa.replace(/\* +/g, '*');
+    // remove any number of spaces preceding an asterisk in a LOA string
+    longLoa = longLoa.replace(/ +\*/g, '*');
+
+    return longLoa;
+  };
+
+  const { mutate: validateLoa } = useMutation(getLoa, {
+    onSuccess: (data) => {
+      // The server decides if this is a valid LOA or not
+      const isValid = (data?.validHhgProgramCodeForLoa ?? false) && (data?.validLoaForTac ?? false);
+      // Construct the long line of accounting string
+      const longLoa = data ? buildFullLineOfAccountingString(data) : '';
+      loaValidationDispatch({
+        type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        payload: {
+          loa: data,
+          longLineOfAccounting: longLoa,
+          isValid,
+        },
+      });
+    },
+    onError: (error) => {
+      const errorMsg = error?.response?.body;
+      milmoveLogger.error(errorMsg);
+    },
+  });
+
   const handleHHGTacValidation = async (value) => {
     if (value && value.length === 4 && value !== tacValidationState[LOA_TYPE.HHG].tac) {
       const response = await getTacValid({ tac: value });
@@ -92,6 +143,20 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
         loaType: LOA_TYPE.HHG,
         isValid: response.isValid,
         tac: value,
+      });
+    }
+  };
+
+  const handleLoaValidation = (formikValues) => {
+    // LOA is not a field that can be interacted with
+    // Validation is based on the scope of the form
+    const { tac, issueDate, departmentIndicator } = formikValues;
+    // Only run validation if a 4 length TAC is present, and department and issue date are also present
+    if (tac && tac.length === 4 && departmentIndicator && issueDate) {
+      validateLoa({
+        tacCode: tac,
+        serviceMemberAffiliation: departmentIndicator,
+        ordersIssueDate: formatSwaggerDate(issueDate),
       });
     }
   };
@@ -125,6 +190,20 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
       });
     };
 
+    // Validate LOA on load of form, loading it into state
+    // Need TAC, department indicator, and date issued present
+    if (
+      ((order?.tac && order.tac.length === 4) || (order?.ntsTac && order.tac.length === 4)) &&
+      order?.department_indicator &&
+      order?.date_issued
+    ) {
+      validateLoa({
+        tacCode: order?.tac,
+        ordersIssueDate: formatSwaggerDate(order?.date_issued),
+        serviceMemberAffiliation: order?.department_indicator,
+      });
+    }
+
     const checkNTSTac = async () => {
       const response = await getTacValid({ tac: order.ntsTac });
       tacValidationDispatch({
@@ -141,7 +220,7 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
     if (order?.ntsTac && order.ntsTac.length === 4) {
       checkNTSTac();
     }
-  }, [order?.tac, order?.ntsTac, isLoading, isError]);
+  }, [order?.tac, order?.ntsTac, order?.date_issued, order?.department_indicator, isLoading, isError, validateLoa]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -177,6 +256,9 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
 
   const tacWarningMsg =
     'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
+  const loaMissingWarningMsg =
+    'Unable to find a LOA based on the provided details. Please ensure an orders issue date, department indicator, and TAC are present on this form.';
+  const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
   return (
     <div className={styles.sidebar}>
@@ -184,6 +266,16 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
         {(formik) => {
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
+          // Conditionally set the LOA warning message based on off if it is missing or just invalid
+          const isHHGLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
+          let hhgLoaWarning = '';
+          // Making a nested ternary here goes against linter rules
+          // The primary warning should be if it is missing, the other warning should be if it is invalid
+          if (isHHGLoaMissing) {
+            hhgLoaWarning = loaMissingWarningMsg;
+          } else if (!loaValidationState.isValid) {
+            hhgLoaWarning = loaInvalidWarningMsg;
+          }
 
           return (
             <form onSubmit={formik.handleSubmit}>
@@ -233,9 +325,14 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
                     setFieldValue={formik.setFieldValue}
                     hhgTacWarning={hhgTacWarning}
                     ntsTacWarning={ntsTacWarning}
+                    hhgLoaWarning={hhgLoaWarning}
                     validateHHGTac={handleHHGTacValidation}
+                    validateHHGLoa={() =>
+                      handleLoaValidation(formik.values)
+                    } /* loa validation requires access to the formik values scope */
                     validateNTSTac={handleNTSTacValidation}
                     payGradeOptions={payGradeDropdownOptions}
+                    hhgLongLineOfAccounting={loaValidationState.longLineOfAccounting}
                   />
                 </div>
                 <div className={styles.bottom}>
