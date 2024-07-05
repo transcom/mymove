@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid, Alert, Label, Radio, Fieldset } from '@trussworks/react-uswds';
 import { generatePath, useNavigate } from 'react-router-dom';
 import { Field, Formik } from 'formik';
@@ -25,6 +25,7 @@ import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
@@ -39,9 +40,17 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupAddressName = 'backup_mailing_address';
   const backupContactName = 'backup_contact';
 
-  const isSafetyPrivileged = userPrivileges?.some(
-    (privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY,
-  );
+  const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+
+  useEffect(() => {
+    isBooleanFlagEnabled('safety_move')?.then((enabled) => {
+      setSafetyMoveFF(enabled);
+    });
+  }, []);
+
+  const isSafetyPrivileged = isSafetyMoveFF
+    ? userPrivileges?.some((privilege) => privilege.privilegeType === elevatedPrivilegeTypes.SAFETY)
+    : false;
 
   const initialValues = {
     affiliation: '',
@@ -159,7 +168,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     [backupContactName]: backupContactInfoSchema.required(),
     create_okta_account: isSafetyMove ? '' : Yup.boolean().required('Required'),
     cac_user: isSafetyMove ? '' : Yup.boolean().required('Required'),
-    is_safety_move: Yup.boolean().required('Required'),
+    is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
   return (
