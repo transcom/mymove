@@ -24,7 +24,7 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
   const formatShipmentType = (shipment) => {
     if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG && countHHG > 1) return `HHG ${shipment.count}`;
     if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG && countHHG <= 1) return 'HHG';
-    if (shipment.shipmentType === SHIPMENT_OPTIONS.NTSR) return 'NTS';
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.NTS) return 'NTS';
     if (shipment.shipmentType === SHIPMENT_OPTIONS.NTSR) return 'NTSR';
     return '';
   };
