@@ -201,6 +201,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -213,7 +219,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum: [customerName, dodID, branch, personalEmail, telephone]
+                enum: [customerName, dodID, emplid, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -3015,6 +3021,8 @@ paths:
           description: payload is too large
         '500':
           description: server error
+      x-permissions:
+        - create.supportingDocuments
   '/payment-requests/{paymentRequestID}/shipments-payment-sit-balance':
     parameters:
       - description: payment request ID of the payment request with SIT service items being reviewed
@@ -3178,6 +3186,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3213,6 +3222,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3387,6 +3400,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3412,6 +3426,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3469,7 +3486,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3500,6 +3517,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: destinationDutyLocation
@@ -3568,6 +3588,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               customerName:
                 description: Customer Name
                 type: string
@@ -3613,6 +3639,7 @@ paths:
                   [
                     customerName,
                     dodID,
+                    emplid,
                     branch,
                     locator,
                     status,
@@ -4384,6 +4411,9 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
       branch:
         type: string
@@ -5550,6 +5580,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryDeliveryAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -5891,20 +5935,34 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
-      secondaryPickupAddress:
+      tertiaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -6342,6 +6400,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   SearchMovesResult:
     type: object

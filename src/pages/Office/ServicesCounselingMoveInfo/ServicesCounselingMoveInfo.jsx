@@ -250,7 +250,7 @@ const ServicesCounselingMoveInfo = () => {
             <Route
               path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
               end
-              element={<SupportingDocuments uploads={move?.additionalDocuments?.uploads} />}
+              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
             />
           )}
           <Route

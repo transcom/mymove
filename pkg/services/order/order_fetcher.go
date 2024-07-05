@@ -102,6 +102,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	lastNameQuery := lastNameFilter(params.LastName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
@@ -115,7 +116,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [16]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
+	options := [17]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -506,6 +507,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	}
 }
 
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
+		}
+	}
+}
+
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
@@ -662,6 +671,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 	parameters := map[string]string{
 		"lastName":                "service_members.last_name",
 		"dodID":                   "service_members.edipi",
+		"emplid":                  "service_members.emplid",
 		"branch":                  "service_members.affiliation",
 		"locator":                 "moves.locator",
 		"status":                  "moves.status",

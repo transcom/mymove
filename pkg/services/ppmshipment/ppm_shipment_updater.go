@@ -209,6 +209,21 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			updatedPPMShipment.SecondaryPickupAddress = updatedAddress
 		}
 
+		if updatedPPMShipment.TertiaryPickupAddress != nil {
+			var updatedAddress *models.Address
+			var createOrUpdateErr error
+			if updatedPPMShipment.TertiaryPickupAddress.ID.IsNil() {
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.TertiaryPickupAddress)
+			} else {
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.TertiaryPickupAddress, etag.GenerateEtag(oldPPMShipment.TertiaryPickupAddress.UpdatedAt))
+			}
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
+			}
+			updatedPPMShipment.TertiaryPickupAddressID = &updatedAddress.ID
+			updatedPPMShipment.TertiaryPickupAddress = updatedAddress
+		}
+
 		if updatedPPMShipment.DestinationAddress != nil {
 			var updatedAddress *models.Address
 			var createOrUpdateErr error
@@ -237,6 +252,21 @@ func (f *ppmShipmentUpdater) updatePPMShipment(appCtx appcontext.AppContext, ppm
 			}
 			updatedPPMShipment.SecondaryDestinationAddressID = &updatedAddress.ID
 			updatedPPMShipment.SecondaryDestinationAddress = updatedAddress
+		}
+
+		if updatedPPMShipment.TertiaryDestinationAddress != nil {
+			var updatedAddress *models.Address
+			var createOrUpdateErr error
+			if updatedPPMShipment.TertiaryDestinationAddress.ID.IsNil() {
+				updatedAddress, createOrUpdateErr = f.addressCreator.CreateAddress(txnAppCtx, updatedPPMShipment.TertiaryDestinationAddress)
+			} else {
+				updatedAddress, createOrUpdateErr = f.addressUpdater.UpdateAddress(txnAppCtx, updatedPPMShipment.TertiaryDestinationAddress, etag.GenerateEtag(oldPPMShipment.TertiaryDestinationAddress.UpdatedAt))
+			}
+			if createOrUpdateErr != nil {
+				return createOrUpdateErr
+			}
+			updatedPPMShipment.TertiaryDestinationAddressID = &updatedAddress.ID
+			updatedPPMShipment.TertiaryDestinationAddress = updatedAddress
 		}
 
 		verrs, err := appCtx.DB().ValidateAndUpdate(updatedPPMShipment)
