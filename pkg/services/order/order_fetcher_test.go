@@ -633,7 +633,6 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	})
 }
 
-// Sailor Kosey:
 func getMoveNeedsServiceCounseling(suite *OrderServiceSuite, showMove bool, affiliation models.ServiceMemberAffiliation) models.Move {
 	nonCloseoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
 		{
