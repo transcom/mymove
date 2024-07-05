@@ -518,6 +518,30 @@ export const useOrdersDocumentQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    amendedOrderDocumentId,
+  };
+};
+
+export const useAmendedDocumentQueries = (amendedOrderDocumentId) => {
+  const staleTime = 0;
+  const cacheTime = staleTime;
+
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], ({ queryKey }) => getDocument(...queryKey), {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([amendedOrdersDocumentsQuery]);
+
+  return {
+    amendedDocuments,
+    amendedUpload,
+    isLoading,
+    isError,
+    isSuccess,
   };
 };
 

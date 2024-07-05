@@ -9,6 +9,8 @@ import { DEPARTMENT_INDICATOR_OPTIONS } from '../../utils/office/officeTest';
 
 import { test, expect } from './servicesCounselingTestFixture';
 
+const supportingDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
+
 test.describe('Services counselor user', () => {
   test.describe('with basic HHG move', () => {
     test.beforeEach(async ({ scPage }) => {
@@ -140,6 +142,90 @@ test.describe('Services counselor user', () => {
       await page
         .getByLabel('Department indicator')
         .selectOption(DEPARTMENT_INDICATOR_OPTIONS.OFFICE_OF_SECRETARY_OF_DEFENSE);
+    });
+
+    test('is able to add and delete orders and amended orders', async ({ page, officePage }) => {
+      await page.getByRole('link', { name: 'Orders', exact: true }).click();
+      await page.getByRole('link', { name: 'View and edit orders' }).click();
+
+      // check initial quanity of files
+      await page.getByTestId('openMenu').click();
+      await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
+      await page.getByTestId('closeMenu').click();
+
+      // add orders
+      await page.getByRole('button', { name: 'Manage Orders' }).click();
+      const filepondContainer = page.locator('.filepond--wrapper');
+      await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
+      await expect(page.getByText('Uploading')).toBeVisible();
+      await expect(page.getByText('Uploading')).not.toBeVisible();
+      await expect(page.getByText('Upload complete')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await page.getByTestId('openMenu').click();
+      await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
+      await page.getByTestId('closeMenu').click();
+
+      // delete orders
+      const firstDeleteButton = page.locator('text=Delete').nth(0);
+      await expect(firstDeleteButton).toBeVisible();
+      await firstDeleteButton.click();
+      await page.getByTestId('confirm-delete').click();
+      await expect(page.getByText('Yes, delete')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await page.getByTestId('openMenu').click();
+      await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
+      await page.getByTestId('closeMenu').click();
+      await page.getByRole('button', { name: 'Manage Orders' }).click();
+
+      // add amended orders
+      await page.getByRole('button', { name: 'Manage Amended Orders' }).click();
+      const filepondContainer2 = page.locator('.filepond--wrapper');
+      await officePage.uploadFileViaFilepond(filepondContainer2, 'AF Orders Sample.pdf');
+      await expect(page.getByText('Uploading')).toBeVisible();
+      await expect(page.getByText('Uploading')).not.toBeVisible();
+      await expect(page.getByText('Upload complete')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await page.getByTestId('openMenu').click();
+      await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(4);
+      await page.getByTestId('closeMenu').click();
+
+      // delete amended orders
+      const firstDeleteButtonAmended = page.locator('text=Delete').nth(0);
+      await expect(firstDeleteButtonAmended).toBeVisible();
+      await firstDeleteButtonAmended.click();
+      await page.getByTestId('confirm-delete').click();
+      await expect(page.getByText('Yes, delete')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await page.getByTestId('openMenu').click();
+      await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
+      await page.getByTestId('closeMenu').click();
+    });
+
+    test('is able to add and delete supporting documents', async ({ page, officePage }) => {
+      test.skip(supportingDocsEnabled === 'false', 'Skip if Supporting Documents is not enabled.');
+      await page.getByRole('link', { name: 'Supporting Documents' }).click();
+      await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
+
+      // add orders
+      const filepondContainer = page.locator('.filepond--wrapper');
+      await officePage.uploadFileViaFilepond(filepondContainer, 'AF Orders Sample.pdf');
+      await expect(page.getByText('Uploading')).toBeVisible();
+      await expect(page.getByText('Uploading')).not.toBeVisible();
+      await expect(page.getByText('Upload complete')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).toBeVisible();
+      await expect(page.getByText('No supporting documents have been uploaded.')).not.toBeVisible();
+      await page.getByTestId('openMenu').click();
+      await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(1);
+      await page.getByTestId('closeMenu').click();
+
+      // delete orders
+      const firstDeleteButton = page.locator('text=Delete').nth(0);
+      await expect(firstDeleteButton).toBeVisible();
+      await firstDeleteButton.click();
+      await page.getByTestId('confirm-delete').click();
+      await expect(page.getByText('Yes, delete')).not.toBeVisible();
+      await expect(page.getByTestId('uploads-table').getByText('AF Orders Sample.pdf')).not.toBeVisible();
+      await expect(page.getByText('No supporting documents have been uploaded.')).toBeVisible();
     });
   });
 
