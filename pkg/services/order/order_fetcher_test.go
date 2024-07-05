@@ -1270,15 +1270,15 @@ func getTransportationOffice(suite *OrderServiceSuite, name string) models.Trans
 	return trasportationOffice
 }
 
-func getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite *OrderServiceSuite, closeoutOffice models.TransportationOffice) models.PPMShipment{
+func getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite *OrderServiceSuite, closeoutOffice models.TransportationOffice) models.PPMShipment {
 	ppm := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
-		return ppm
+		{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
+		},
+	})
+	return ppm
 }
 
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCloseoutColumnsSort() {
