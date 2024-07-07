@@ -18,7 +18,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import dimensionTypes from 'constants/dimensionTypes';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { WEIGHT_ADJUSTMENT, mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
+import { mtoShipmentTypes, shipmentStatuses } from 'constants/shipments';
 import FlashGridContainer from 'containers/FlashGridContainer/FlashGridContainer';
 import { shipmentSectionLabels } from 'content/shipments';
 import RejectServiceItemModal from 'components/Office/RejectServiceItemModal/RejectServiceItemModal';
@@ -738,10 +738,6 @@ export const MoveTaskOrder = (props) => {
     );
   };
 
-  const calculateMaxBillableWeight = () => {
-    return WEIGHT_ADJUSTMENT * (estimatedHHGWeightTotal + estimatedNTSWeightTotal + estimatedNTSReleaseWeightTotal);
-  };
-
   /**
    * @typedef AddressShape
    * @prop {string} city
@@ -900,13 +896,15 @@ export const MoveTaskOrder = (props) => {
   // determine if max billable weight should be displayed yet
   const displayMaxBillableWeight = (shipments) => {
     return shipments?.some(
-      (shipment) => includedStatusesForCalculatingWeights(shipment.status) && shipment.primeEstimatedWeight,
+      (shipment) =>
+        includedStatusesForCalculatingWeights(shipment.status) &&
+        (shipment.primeEstimatedWeight || shipment.ntsRecordedWeight),
     );
   };
   // Edge case of diversion shipments being counted twice
   const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
   const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
-  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? Math.round(calculateMaxBillableWeight()) : '-';
+  const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? order?.entitlement?.authorizedWeight : '-';
 
   /**
    * @function getSitAddressInitialValues
@@ -1111,7 +1109,7 @@ export const MoveTaskOrder = (props) => {
           <ConnectedEditMaxBillableWeightModal
             isOpen={isWeightModalVisible}
             defaultWeight={order.entitlement.totalWeight}
-            maxBillableWeight={calculateMaxBillableWeight}
+            maxBillableWeight={order.entitlement.authorizedWeight}
             onSubmit={handleUpdateBillableWeight}
             onClose={setIsWeightModalVisible}
           />
