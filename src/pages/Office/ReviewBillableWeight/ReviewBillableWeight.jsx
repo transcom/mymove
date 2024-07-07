@@ -23,7 +23,6 @@ import {
   useCalculatedTotalBillableWeight,
   useCalculatedEstimatedWeight,
   calculateWeightRequested,
-  calculateEstimatedWeight,
 } from 'hooks/custom';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -79,7 +78,7 @@ export default function ReviewBillableWeight() {
   const weightRequested = calculateWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
-  const maxBillableWeight = calculateEstimatedWeight(filteredShipments, undefined, WEIGHT_ADJUSTMENT);
+  const maxBillableWeight = order?.entitlement?.authorizedWeight;
   const weightAllowance = order?.entitlement?.totalWeight;
 
   const shipmentsMissingInformation = filteredShipments?.filter((shipment) => {

@@ -27,7 +27,6 @@ import {
   calculateWeightRequested,
   includedStatusesForCalculatingWeights,
   useCalculatedTotalBillableWeight,
-  calculateEstimatedWeight,
 } from 'hooks/custom';
 import { updateFinancialFlag, updateMTOReviewedBillableWeights, updateMTOShipment } from 'services/ghcApi';
 import { milmoveLogger } from 'utils/milmoveLog';
@@ -144,7 +143,7 @@ const MovePaymentRequests = ({
 
   const actualBillableWeight = useCalculatedTotalBillableWeight(excludePPMShipments, WEIGHT_ADJUSTMENT);
   const weightRequested = calculateWeightRequested(excludePPMShipments);
-  const maxBillableWeight = WEIGHT_ADJUSTMENT * calculateEstimatedWeight(excludePPMShipments);
+  const maxBillableWeight = order?.entitlement?.authorizedWeight;
   const billableWeightsReviewed = move?.billableWeightsReviewedAt;
 
   if (isLoading) return <LoadingPlaceholder />;
