@@ -23,11 +23,6 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 		"PaymentRequests.PaymentServiceItems",
 		"PaymentRequests.PaymentServiceItems.PriceCents",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService",
-		"PaymentRequests.PaymentServiceItems.MTOServiceItem.ReService.Name",
-		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.ReService",
-		"MTOServiceItems.ReService.Name",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
@@ -46,8 +41,6 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 	).
 		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
 		InnerJoin("payment_service_items", "payment_service_items.payment_request_id = payment_requests.id").
-		InnerJoin("mto_service_items", "payment_service_items.mto_service_item_id = mto_service_items.id").
-		InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
