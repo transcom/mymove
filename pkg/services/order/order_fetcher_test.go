@@ -712,7 +712,6 @@ func buildPPMShipmentCloseoutComplete(suite *OrderServiceSuite, move models.Move
 	}, nil)
 	return ppm
 }
-
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	orderFetcher := NewOrderFetcher()
 
