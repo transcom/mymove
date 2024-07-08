@@ -878,6 +878,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	})
 
 	suite.Run("Filters out moves with PPM shipments not in the status of NeedsApproval", func() {
+		
 		cgMoveInWrongStatus := getSubmittedMove(suite, true, models.AffiliationCOASTGUARD)
 		buildPPMShipmentCloseoutComplete(suite, cgMoveInWrongStatus)
 
@@ -897,6 +898,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	})
 
 	suite.Run("Filters out moves with no PPM shipment", func() {
+		
 		moveWithHHG := getSubmittedMove(suite, true, models.AffiliationCOASTGUARD)
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
