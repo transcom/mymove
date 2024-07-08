@@ -5645,6 +5645,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -8300,6 +8302,9 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -8625,6 +8630,77 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -19547,6 +19623,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -22206,6 +22284,9 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -22531,6 +22612,77 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
