@@ -173,15 +173,20 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	// crating logic here
 	// var crating []struct{}
 
+	var allCrates []ServiceItemCrate
+
 	for _, serviceItem := range PaymentRequest.PaymentServiceItems {
 		var mtoServiceItem models.MTOServiceItem
 		msiErr := appCtx.DB().Q().EagerPreload("ReService", "Dimensions").
 			InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
+			Where("mto_service_items.id = ?", serviceItem.MTOServiceItemID).
 			First(&mtoServiceItem)
 		if msiErr != nil {
 			return nil
 		}
 
+		crate := buildServiceItemCrate(mtoServiceItem)
+		allCrates = append(allCrates,crate)
 		totalPrice := models.Float64Pointer(serviceItem.PriceCents.Float64())
 
 		switch mtoServiceItem.ReService.Name {
@@ -208,24 +213,29 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 			payload.SitPickupTotal = totalPrice
 		case "Domestic origin SIT fuel surcharge":
 			payload.SitOriginFuelSurcharge = totalPrice
-		// case "Domestic origin shuttle service":
-		// case "Domestic origin price":
-		// case "Domestic origin add'l SIT":
-		// case "Domestic origin 1st day SIT":
-		// case "Domestic NTS packing":
-		// case "Domestic destination SIT fuel surcharge":
-		// case "Domestic destination SIT delivery":
-		// case "Domestic destination shuttle service":
-		// case "Domestic destination price":
-		// case "Domestic destination add'l SIT":
-		// case "Domestic destination 1st day SIT":
+		 case "Domestic origin shuttle service":
+			payload.ShuttleTotal = totalPrice
+		 case "Domestic origin add'l SIT":
+			payload.SitOriginAddlDaysTotal = totalPrice
+		 case "Domestic origin 1st day SIT":
+			payload.SitOriginFirstDayTotal = totalPrice
+		 //case "Domestic NTS packing":
+		 case "Domestic destination SIT fuel surcharge":
+			payload.SitDestFuelSurcharge = totalPrice
+		 case "Domestic destination SIT delivery":
+			payload.SitDeliveryTotal = totalPrice
+		 case "Domestic destination shuttle service":
+			payload.ShuttleTotal = totalPrice
+		 case "Domestic destination add'l SIT":
+			payload.SitDestAddlDaysTotal = totalPrice
+		 case "Domestic destination 1st day SIT":
+			payload.SitDestFirstDayTotal = totalPrice
 
 		case "Counseling":
 			payload.CounselingFeeTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
 		}
 
 	}
-
 	// sharing this for loop for all MTOShipment calculations
 	for _, shipment := range move.MTOShipments {
 		// calculate total progear for entire move
@@ -254,7 +264,8 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 			originActualWeight += *shipment.PrimeActualWeight
 		}
 	}
-
+	// need field for json.
+	//serializedCrates := Serialize_Crate_DimensionsToJsonString(allCrates)
 	payload.ActualOriginNetWeight = float64(originActualWeight) // is Prime_Actual_Weight what they want?
 	payload.PbpAnde = progear.Float64()
 	reweigh := move.MTOShipments[0].Reweigh
@@ -444,4 +455,24 @@ func buildFullLineOfAccountingString(loa *models.LineOfAccounting) string {
 	longLoa = strings.ReplaceAll(longLoa, " *", "*")
 
 	return longLoa
+}
+
+type ServiceItemCrate struct {
+	ItemDimension models.MTOServiceItemDimension
+	CrateDimension models.MTOServiceItemDimension
+	ItemDescription string
+}
+
+func buildServiceItemCrate (serviceItem models.MTOServiceItem) ServiceItemCrate {
+	var newServiceItemCrate ServiceItemCrate
+	for dimensionIndex := range serviceItem.Dimensions {
+		if serviceItem.Dimensions[dimensionIndex].Type == "ITEM" {
+			newServiceItemCrate.ItemDimension = serviceItem.Dimensions[dimensionIndex]
+		}
+		if serviceItem.Dimensions[dimensionIndex].Type == "CRATE" {
+			newServiceItemCrate.CrateDimension = serviceItem.Dimensions[dimensionIndex]
+		}
+	}
+	return newServiceItemCrate
+
 }
