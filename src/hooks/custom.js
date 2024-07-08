@@ -72,10 +72,10 @@ const groupDivertedShipmentsByAddress = (shipments) => {
   return chains;
 };
 
-const getEstimatedLowestShipmentWeight = (shipments, weightAdjusted = 1.0) => {
+const getEstimatedLowestShipmentWeight = (shipments) => {
   return shipments.reduce((lowest, shipment) => {
     const estimatedWeight = getShipmentEstimatedWeight(shipment);
-    return estimatedWeight < lowest ? estimatedWeight * weightAdjusted : lowest;
+    return estimatedWeight < lowest ? estimatedWeight : lowest;
   }, Number.MAX_SAFE_INTEGER);
 };
 
@@ -185,7 +185,7 @@ export const useCalculatedWeightRequested = (mtoShipments) => {
   }, [mtoShipments]);
 };
 
-export const calculateEstimatedWeight = (mtoShipments, shipmentType, weightAdjustment = 1.0) => {
+export const calculateEstimatedWeight = (mtoShipments, shipmentType) => {
   if (mtoShipments?.some((s) => includedStatusesForCalculatingWeights(s.status) && getShipmentEstimatedWeight(s))) {
     // Separate diverted shipments and other eligible shipments for weight calculations
     // This is done because a diverted shipment only has one true weight, but when it gets diverted
@@ -210,13 +210,13 @@ export const calculateEstimatedWeight = (mtoShipments, shipmentType, weightAdjus
     // their correct "chains". Please see comments for groupDivertedShipments for more details.
     const chains = groupDivertedShipmentsByAddress(divertedEligibleShipments);
     // Grab the lowest weight from each chain
-    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain, weightAdjustment));
+    const chainWeights = chains.map((chain) => getEstimatedLowestShipmentWeight(chain));
     // Now that we have the lowest weight from each chain, get the sum
     const sumChainWeights = chainWeights.reduce((total, weight) => total + weight, 0);
 
     // Sum non diverted shipments
     const sumOtherEligibleWeights = otherEligibleShipments.reduce(
-      (total, shipment) => total + getShipmentEstimatedWeight(shipment, weightAdjustment),
+      (total, shipment) => total + getShipmentEstimatedWeight(shipment),
       0,
     );
 
