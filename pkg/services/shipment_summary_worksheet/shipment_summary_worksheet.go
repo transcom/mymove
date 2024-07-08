@@ -644,7 +644,7 @@ func FormatDollars(dollars float64) string {
 	return p.Sprintf("$%.2f", dollars)
 }
 
-// FormatDollars formats an int using 000s separator
+// FormatDollars formats cents using 000s separator
 func FormatDollarFromCents(cents unit.Cents) string {
 	d := float64(cents) / 100.0
 	p := message.NewPrinter(language.English)
