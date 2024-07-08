@@ -1,6 +1,8 @@
 package payloads
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -73,6 +75,8 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	sitTotal := unit.Pound(0)
 	originActualWeight := unit.Pound(0)
 	travelAdvance := unit.Cents(0)
+	scac := "HSFR"
+	longLoa := buildFullLineOfAccountingString(tac[0].LineOfAccounting)
 
 	var moveDate *time.Time
 	if move.MTOShipments[0].PPMShipment != nil {
@@ -123,8 +127,8 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		Miles:              int64(*move.MTOShipments[0].Distance),
 		WeightAuthorized:   0.0, // float64(Orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents), // WeightAlloted isn't returning any value
 		ShipmentID:         strfmt.UUID(move.ID.String()),
-		Scac:               nil, // I don't know what gbloc to use // HSFR
-		Loa:                nil, // what format should this be in? the format in the example looks nothing like our table
+		Scac:               &scac,
+		Loa:                &longLoa,
 		ShipmentType:       string(*Orders.OrdersTypeDetail),
 		EntitlementWeight:  int64(*Orders.Entitlement.DBAuthorizedWeight),
 		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
@@ -167,6 +171,8 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	}
 
 	for _, serviceItem := range PaymentRequest.PaymentServiceItems {
+		// have the MTOServiceItemID we could just load each one as we get to them
+
 		if serviceItem.MTOServiceItem.ReService.Name == "Domestic linehaul" || serviceItem.MTOServiceItem.ReService.Name == "Domestic shorthaul" {
 			payload.LinehaulTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
 		} // else if serviceItem.ReService.Name == "Move management" {
@@ -269,4 +275,132 @@ func calculateTotalWeightEstimate(shipments models.MTOShipments) *unit.Pound {
 	}
 
 	return &weightEstimate
+}
+
+func buildFullLineOfAccountingString(loa *models.LineOfAccounting) string {
+	emptyString := ""
+	var fiscalYear string
+	if fmt.Sprint(*loa.LoaBgFyTx) != "" && fmt.Sprint(*loa.LoaEndFyTx) != "" {
+		fiscalYear = fmt.Sprint(*loa.LoaBgFyTx) + fmt.Sprint(*loa.LoaEndFyTx)
+	} else {
+		fiscalYear = ""
+	}
+
+	if loa.LoaDptID == nil {
+		loa.LoaDptID = &emptyString
+	}
+	if loa.LoaTnsfrDptNm == nil {
+		loa.LoaTnsfrDptNm = &emptyString
+	}
+	if loa.LoaBafID == nil {
+		loa.LoaBafID = &emptyString
+	}
+	if loa.LoaTrsySfxTx == nil {
+		loa.LoaTrsySfxTx = &emptyString
+	}
+	if loa.LoaMajClmNm == nil {
+		loa.LoaMajClmNm = &emptyString
+	}
+	if loa.LoaOpAgncyID == nil {
+		loa.LoaOpAgncyID = &emptyString
+	}
+	if loa.LoaAlltSnID == nil {
+		loa.LoaAlltSnID = &emptyString
+	}
+	if loa.LoaUic == nil {
+		loa.LoaUic = &emptyString
+	}
+	if loa.LoaPgmElmntID == nil {
+		loa.LoaPgmElmntID = &emptyString
+	}
+	if loa.LoaTskBdgtSblnTx == nil {
+		loa.LoaTskBdgtSblnTx = &emptyString
+	}
+	if loa.LoaDfAgncyAlctnRcpntID == nil {
+		loa.LoaDfAgncyAlctnRcpntID = &emptyString
+	}
+	if loa.LoaJbOrdNm == nil {
+		loa.LoaJbOrdNm = &emptyString
+	}
+	if loa.LoaSbaltmtRcpntID == nil {
+		loa.LoaSbaltmtRcpntID = &emptyString
+	}
+	if loa.LoaWkCntrRcpntNm == nil {
+		loa.LoaWkCntrRcpntNm = &emptyString
+	}
+	if loa.LoaMajRmbsmtSrcID == nil {
+		loa.LoaMajRmbsmtSrcID = &emptyString
+	}
+	if loa.LoaDtlRmbsmtSrcID == nil {
+		loa.LoaDtlRmbsmtSrcID = &emptyString
+	}
+	if loa.LoaCustNm == nil {
+		loa.LoaCustNm = &emptyString
+	}
+	if loa.LoaObjClsID == nil {
+		loa.LoaObjClsID = &emptyString
+	}
+	if loa.LoaSrvSrcID == nil {
+		loa.LoaSrvSrcID = &emptyString
+	}
+	if loa.LoaSpclIntrID == nil {
+		loa.LoaSpclIntrID = &emptyString
+	}
+	if loa.LoaBdgtAcntClsNm == nil {
+		loa.LoaBdgtAcntClsNm = &emptyString
+	}
+	if loa.LoaDocID == nil {
+		loa.LoaDocID = &emptyString
+	}
+	if loa.LoaClsRefID == nil {
+		loa.LoaClsRefID = &emptyString
+	}
+	if loa.LoaInstlAcntgActID == nil {
+		loa.LoaInstlAcntgActID = &emptyString
+	}
+	if loa.LoaLclInstlID == nil {
+		loa.LoaLclInstlID = &emptyString
+	}
+	if loa.LoaTrnsnID == nil {
+		loa.LoaTrnsnID = &emptyString
+	}
+	if loa.LoaFmsTrnsactnID == nil {
+		loa.LoaFmsTrnsactnID = &emptyString
+	}
+
+	LineOfAccountingDfasElementOrder := []string{
+		*loa.LoaDptID,               // "LoaDptID"
+		*loa.LoaTnsfrDptNm,          // "LoaTnsfrDptNm",
+		fiscalYear,                  // "LoaEndFyTx",
+		*loa.LoaBafID,               // "LoaBafID",
+		*loa.LoaTrsySfxTx,           // "LoaTrsySfxTx",
+		*loa.LoaMajClmNm,            // "LoaMajClmNm",
+		*loa.LoaOpAgncyID,           // "LoaOpAgncyID",
+		*loa.LoaAlltSnID,            // "LoaAlltSnID",
+		*loa.LoaUic,                 // "LoaUic",
+		*loa.LoaPgmElmntID,          // "LoaPgmElmntID",
+		*loa.LoaTskBdgtSblnTx,       // "LoaTskBdgtSblnTx",
+		*loa.LoaDfAgncyAlctnRcpntID, // "LoaDfAgncyAlctnRcpntID",
+		*loa.LoaJbOrdNm,             // "LoaJbOrdNm",
+		*loa.LoaSbaltmtRcpntID,      // "LoaSbaltmtRcpntID",
+		*loa.LoaWkCntrRcpntNm,       // "LoaWkCntrRcpntNm",
+		*loa.LoaMajRmbsmtSrcID,      // "LoaMajRmbsmtSrcID",
+		*loa.LoaDtlRmbsmtSrcID,      // "LoaDtlRmbsmtSrcID",
+		*loa.LoaCustNm,              // "LoaCustNm",
+		*loa.LoaObjClsID,            // "LoaObjClsID",
+		*loa.LoaSrvSrcID,            // "LoaSrvSrcID",
+		*loa.LoaSpclIntrID,          // "LoaSpcLIntrID",
+		*loa.LoaBdgtAcntClsNm,       // "LoaBdgtAcntCLsNm",
+		*loa.LoaDocID,               // "LoaDocID",
+		*loa.LoaClsRefID,            // "LoaCLsRefID",
+		*loa.LoaInstlAcntgActID,     // "LoaInstLAcntgActID",
+		*loa.LoaLclInstlID,          // "LoaLcLInstLID",
+		*loa.LoaTrnsnID,             // "LoaTrnsnID",
+		*loa.LoaFmsTrnsactnID,       // "LoaFmsTrnsactnID",
+	}
+
+	longLoa := strings.Join(LineOfAccountingDfasElementOrder, "*")
+	longLoa = strings.ReplaceAll(longLoa, " *", "*")
+
+	return longLoa
 }
