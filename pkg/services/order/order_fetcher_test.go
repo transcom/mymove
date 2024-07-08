@@ -762,6 +762,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		// PPM moves that are not in one of the closeout statuses
 		nonCloseoutMove := getMoveNeedsServiceCounseling(suite, true, models.AffiliationAIRFORCE)
 		buildPPMShipmentDraft(suite, nonCloseoutMove)
+		
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
