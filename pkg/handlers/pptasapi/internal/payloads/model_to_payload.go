@@ -170,6 +170,9 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		CounseledDate:               strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
 
+	// crating logic here
+	// var crating []struct{}
+
 	for _, serviceItem := range PaymentRequest.PaymentServiceItems {
 		var mtoServiceItem models.MTOServiceItem
 		msiErr := appCtx.DB().Q().EagerPreload("ReService", "Dimensions").
@@ -179,41 +182,44 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 			return nil
 		}
 
+		totalPrice := models.Float64Pointer(serviceItem.PriceCents.Float64())
+
 		switch mtoServiceItem.ReService.Name {
 		case "Domestic linehaul":
 		case "Domestic shorthaul":
-			payload.LinehaulTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.LinehaulTotal = totalPrice
 		case "Move management":
-			payload.MoveManagementFeeTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.MoveManagementFeeTotal = totalPrice
 		case "Fuel surcharge":
-			payload.LinehaulFuelTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.LinehaulFuelTotal = totalPrice
 		case "Domestic origin price":
-			payload.OriginPrice = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.OriginPrice = totalPrice
 		case "Domestic destination price":
-			payload.DestinationPrice = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.DestinationPrice = totalPrice
 		case "Domestic packing":
-			payload.PackingPrice = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.PackingPrice = totalPrice
 		case "Domestic unpacking":
-			payload.UnpackingPrice = models.Float64Pointer(serviceItem.PriceCents.Float64())
+			payload.UnpackingPrice = totalPrice
 		// case "Domestic uncrating":
-		// case "Domestic tow away boat factor":
-		// case "Domestic origin SIT pickup":
-		// case "Domestic origin SIT fuel surcharge":
+		// case "Domestic crating - standalone":
+		// case "Domestic crating":
+
+		case "Domestic origin SIT pickup":
+			payload.SitPickupTotal = totalPrice
+		case "Domestic origin SIT fuel surcharge":
+			payload.SitOriginFuelSurcharge = totalPrice
 		// case "Domestic origin shuttle service":
 		// case "Domestic origin price":
 		// case "Domestic origin add'l SIT":
 		// case "Domestic origin 1st day SIT":
 		// case "Domestic NTS packing":
-		// case "Domestic mobile home factor":
-		// case "Domestic haul away boat factor":
 		// case "Domestic destination SIT fuel surcharge":
 		// case "Domestic destination SIT delivery":
 		// case "Domestic destination shuttle service":
 		// case "Domestic destination price":
 		// case "Domestic destination add'l SIT":
 		// case "Domestic destination 1st day SIT":
-		// case "Domestic crating - standalone":
-		// case "Domestic crating":
+
 		case "Counseling":
 			payload.CounselingFeeTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
 		}
