@@ -112,7 +112,7 @@ describe('MoveTaskOrder', () => {
       );
 
       const weightSummaries = await screen.findAllByTestId('weight-display');
-      expect(weightSummaries[2]).toHaveTextContent('110 lbs');
+      expect(weightSummaries[2]).toHaveTextContent('8,000 lbs');
     });
 
     it('displays the estimated total weight with all weights not set', async () => {

@@ -6,8 +6,7 @@ import ReviewBillableWeight from './ReviewBillableWeight';
 
 import { formatWeight, formatDateFromIso } from 'utils/formatters';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
-import { calculateEstimatedWeight } from 'hooks/custom';
-import { WEIGHT_ADJUSTMENT, shipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses } from 'constants/shipments';
 import { tioRoutes } from 'constants/routes';
 import { MockProviders, ReactQueryWrapper } from 'testUtils';
 
@@ -320,9 +319,7 @@ describe('ReviewBillableWeight', () => {
       useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
       renderWithProviders(<ReviewBillableWeight />);
       expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
-        formatWeight(
-          calculateEstimatedWeight(useMovePaymentRequestsReturnValue.mtoShipments, undefined, WEIGHT_ADJUSTMENT),
-        ),
+        formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
       );
       expect(screen.getByTestId('weightAllowance').textContent).toBe(
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
@@ -373,9 +370,7 @@ describe('ReviewBillableWeight', () => {
         expect(screen.getByText('Shipment weights')).toBeInTheDocument();
 
         expect(screen.getByTestId('maxBillableWeight').textContent).toBe(
-          formatWeight(
-            calculateEstimatedWeight(useMovePaymentRequestsReturnValue.mtoShipments, undefined, WEIGHT_ADJUSTMENT),
-          ),
+          formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.authorizedWeight),
         );
         expect(screen.getByTestId('weightAllowance').textContent).toBe(
           formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
