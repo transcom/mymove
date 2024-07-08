@@ -761,6 +761,45 @@ export async function createUploadForDocument(file, documentId) {
   );
 }
 
+export async function createUploadForAmdendedOrders(file, orderID) {
+  return makeGHCRequest(
+    'order.uploadAmendedOrders',
+    {
+      orderID,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForSupportingDocuments(file, moveID) {
+  return makeGHCRequest(
+    'move.uploadAdditionalDocuments',
+    {
+      moveID,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteUploadForDocument(uploadID, orderID) {
+  return makeGHCRequest(
+    'uploads.deleteUpload',
+    {
+      uploadID,
+      orderID,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function searchCustomers(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
   const paramFilters = {};
   filters.forEach((filter) => {

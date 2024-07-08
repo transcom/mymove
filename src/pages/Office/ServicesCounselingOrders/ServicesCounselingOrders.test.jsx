@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 
 const mockOriginDutyLocation = {
   address: {
@@ -141,6 +142,13 @@ const useOrdersDocumentQueriesReturnValue = {
   },
 };
 
+const ordersMockProps = {
+  files: {
+    [MOVE_DOCUMENT_TYPE.ORDERS]: [{ id: 'file-1', name: 'Order File 1' }],
+    [MOVE_DOCUMENT_TYPE.AMENDMENTS]: [{ id: 'file-2', name: 'Amended File 1' }],
+  },
+};
+
 const loadingReturnValue = {
   ...useOrdersDocumentQueriesReturnValue,
   isLoading: true,
@@ -162,7 +170,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -175,7 +183,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -190,7 +198,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -202,7 +210,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -213,7 +221,7 @@ describe('Orders page', () => {
     it('renders each option for orders type dropdown', async () => {
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -238,7 +246,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -253,14 +261,15 @@ describe('Orders page', () => {
     });
   });
 
-  it('renders an upload orders button when no orders are present', async () => {
+  it('renders an upload orders button', async () => {
     render(
       <MockProviders>
-        <ServicesCounselingOrders />
+        <ServicesCounselingOrders {...ordersMockProps} />
       </MockProviders>,
     );
 
-    expect(await screen.findByText('Add Orders')).toBeInTheDocument();
+    expect(await screen.findByText('Manage Orders')).toBeInTheDocument();
+    expect(await screen.findByText('Manage Amended Orders')).toBeInTheDocument();
   });
 
   describe('TAC validation', () => {
@@ -269,7 +278,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -281,7 +290,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -308,7 +317,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
     });
@@ -376,7 +385,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
