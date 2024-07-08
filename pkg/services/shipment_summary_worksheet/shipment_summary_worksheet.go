@@ -409,19 +409,19 @@ func FormatCurrentShipment(ppm models.PPMShipment) WorkSheetShipment {
 	formattedShipment := WorkSheetShipment{}
 
 	if ppm.FinalIncentive != nil {
-		formattedShipment.FinalIncentive = ppm.FinalIncentive.ToDollarString()
+		formattedShipment.FinalIncentive = FormatDollarFromCents(*ppm.FinalIncentive)
 	} else {
 		formattedShipment.FinalIncentive = "No final incentive."
 	}
 	if ppm.EstimatedIncentive != nil {
 		formattedShipment.MaxAdvance = formatMaxAdvance(ppm.EstimatedIncentive)
-		formattedShipment.EstimatedIncentive = ppm.EstimatedIncentive.ToDollarString()
+		formattedShipment.EstimatedIncentive = FormatDollarFromCents(*ppm.EstimatedIncentive)
 	} else {
 		formattedShipment.MaxAdvance = "Advance not available."
 		formattedShipment.EstimatedIncentive = "No estimated incentive."
 	}
 	if ppm.AdvanceAmountReceived != nil {
-		formattedShipment.AdvanceAmountReceived = ppm.AdvanceAmountReceived.ToDollarString()
+		formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived)
 	} else {
 		formattedShipment.AdvanceAmountReceived = "No advance received."
 	}
@@ -642,6 +642,13 @@ func FormatWeights(wtg unit.Pound) string {
 func FormatDollars(dollars float64) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("$%.2f", dollars)
+}
+
+// FormatDollars formats an int using 000s separator
+func FormatDollarFromCents(cents unit.Cents) string {
+	d := float64(cents) / 100.0
+	p := message.NewPrinter(language.English)
+	return p.Sprintf("$%.2f", d)
 }
 
 func derefStringTypes(st interface{}) string {
