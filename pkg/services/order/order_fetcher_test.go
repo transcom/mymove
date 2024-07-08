@@ -728,7 +728,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			IDToken:         "fake_token",
 			AccessToken:     "fakeAccessToken",
 		}
-		
+
 		move := getMoveNeedsServiceCounseling(suite, true, models.AffiliationARMY)
 		buildPPMShipmentNeedsCloseout(suite, move)
 
