@@ -762,7 +762,7 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 		// PPM moves that are not in one of the closeout statuses
 		nonCloseoutMove := getMoveNeedsServiceCounseling(suite, true, models.AffiliationAIRFORCE)
 		buildPPMShipmentDraft(suite, nonCloseoutMove)
-		
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
@@ -779,7 +779,6 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
 		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
 		// affiliation matters for SC  who are tied to the NAVY GBLOC.
-
 		move := getSubmittedMove(suite, true, models.AffiliationNAVY)
 		buildPPMShipmentNeedsCloseout(suite, move)
 
