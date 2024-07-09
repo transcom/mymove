@@ -4519,6 +4519,8 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
   MoveHistory:
     properties:
       id:
@@ -6594,6 +6596,60 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  MovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice'
+      cancel_reason:
+        type: string
+        example: Change of orders
+        x-nullable: true
+      eTag:
+        type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
+    required:
+      - id
+      - orders_id
+      - locator
+      - created_at
+      - updated_at
+      - eTag
   Affiliation:
     type: string
     x-nullable: true
@@ -6606,6 +6662,8 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -6853,6 +6911,76 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+  Upload:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      filename:
+        type: string
+        example: filename.pdf
+        readOnly: true
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+        readOnly: true
+      bytes:
+        type: integer
+        readOnly: true
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      isWeightTicket:
+        type: boolean
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - service_member_id
+      - uploads
   NullableString:
     type: string
     x-go-type:
@@ -6988,57 +7116,6 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  Upload:
-    description: An uploaded file.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-      isWeightTicket:
-        type: boolean
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
   ServiceRequestDocument:
     type: object
     properties:
@@ -7514,25 +7591,6 @@ definitions:
       - EDITED
       - RECEIVED
       - NOT_RECEIVED
-  Document:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
   OmittablePPMDocumentStatus:
     description: Status of the PPM document.
     type: string
