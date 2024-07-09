@@ -31,6 +31,7 @@ const GBLOCSwitcher = ({ officeUsersDefaultGbloc, ariaLabel }) => {
       value={selectedGbloc || officeUsersDefaultGbloc}
       ariaLabel={ariaLabel}
       divClassName={styles.switchGblocButton}
+      testId="gbloc_switcher"
     >
       {Object.keys(GBLOC).map((gbloc) => (
         <option value={gbloc} key={`filterOption_${gbloc}`}>

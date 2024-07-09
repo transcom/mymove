@@ -5,8 +5,8 @@ import classnames from 'classnames';
 
 import styles from './ButtonDropdown.module.scss';
 
-const ButtonDropdown = ({ children, onChange, value, ariaLabel, divClassName }) => (
-  <div className={classnames(styles.ButtonDropdown, divClassName)}>
+const ButtonDropdown = ({ children, onChange, value, ariaLabel, divClassName, testId }) => (
+  <div className={classnames(styles.ButtonDropdown, divClassName)} data-testid={testId}>
     <Dropdown
       aria-label={ariaLabel}
       onChange={onChange}

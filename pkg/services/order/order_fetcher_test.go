@@ -1933,6 +1933,128 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPM() {
 	suite.Len(moves, 1)
 }
 
+func (suite *OrderServiceSuite) TestListOrdersForHQWithViewAsParam() {
+	var hqOfficeUser models.OfficeUser
+	var hqOfficeUserAGFM models.OfficeUser
+
+	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 02, 20, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 03, 03, 0, 0, 0, 0, time.UTC)
+
+	setupTestData := func() (models.Move, models.Move, models.MTOShipment, auth.Session, auth.Session) {
+		// CREATE EXPECTED MOVES
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{ // Default New Duty Location name is Fort Eisenhower
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "AA1234",
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate1,
+				},
+			},
+		}, nil)
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "TTZ123",
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate2,
+				},
+			},
+		}, nil)
+
+		factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "06001", "AGFM")
+
+		expectedShipment3 := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:  "Fort Punxsutawney",
+					Gbloc: "AGFM",
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model: models.Address{
+					PostalCode: "06001",
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		}, nil)
+
+		hqOfficeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+		hqSession := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           hqOfficeUser.User.Roles,
+			OfficeUserID:    hqOfficeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		hqOfficeUserAGFM = factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
+			{
+				Model: models.TransportationOffice{
+					Name:  "Scott AFB",
+					Gbloc: "AGFM",
+				},
+			},
+		}, []roles.RoleType{roles.RoleTypeHQ})
+		hqSessionAGFM := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           hqOfficeUserAGFM.User.Roles,
+			OfficeUserID:    hqOfficeUserAGFM.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		return expectedMove1, expectedMove2, expectedShipment3, hqSession, hqSessionAGFM
+	}
+
+	orderFetcher := NewOrderFetcher()
+
+	suite.Run("Sort by locator code", func() {
+		expectedMove1, expectedMove2, expectedShipment3, hqSession, hqSessionAGFM := setupTestData()
+
+		// Request as an HQ user with their default GBLOC, KKFA
+		params := services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove1.Locator, moves[0].Locator)
+		suite.Equal(expectedMove2.Locator, moves[1].Locator)
+
+		// Expect the same results with a ViewAsGBLOC that equals the user's default GBLOC
+		params = services.ListOrderParams{Sort: models.StringPointer("locator"), Order: models.StringPointer("asc"), ViewAsGBLOC: models.StringPointer("KKFA")}
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal(expectedMove1.Locator, moves[0].Locator)
+		suite.Equal(expectedMove2.Locator, moves[1].Locator)
+
+		// Expect the AGFM move when using the ViewAsGBLOC param set to AGFM
+		params = services.ListOrderParams{ViewAsGBLOC: models.StringPointer("AGFM")}
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSession), hqOfficeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(expectedShipment3.ID, moves[0].MTOShipments[0].ID)
+
+		// Expect the same results without a ViewAsGBLOC for a user whose default GBLOC is AGFM
+		params = services.ListOrderParams{}
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&hqSessionAGFM), hqOfficeUserAGFM.ID, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(expectedShipment3.ID, moves[0].MTOShipments[0].ID)
+	})
+}
+
 func (suite *OrderServiceSuite) TestListOrdersForTOOWithPPMWithDeletedShipment() {
 	postalCode := "50309"
 	deletedAt := time.Now()
