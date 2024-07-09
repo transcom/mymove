@@ -30,7 +30,7 @@ import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orde
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
-const columns = (moveLockFlag, showBranchFilter = true) => [
+export const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader(
     ' ',
     (row) => {
