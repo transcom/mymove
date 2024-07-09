@@ -173,6 +173,7 @@ const EditOrdersForm = ({
                 uploads={initialValues.uploaded_orders}
                 onDelete={onDelete}
                 showDeleteButton={enableDelete(initialValues)}
+                showDownloadLink
               />
               <div>
                 <p>{documentSizeLimitMsg}</p>
