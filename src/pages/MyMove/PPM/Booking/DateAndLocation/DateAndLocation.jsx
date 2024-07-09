@@ -74,7 +74,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     const hasSecondaryDestinationAddress = values.hasSecondaryDestinationAddress === 'true';
 
     const hasTertiaryPickupAddress = values.hasTertiaryPickupAddress === 'true';
-    const hasTertiaryDestinationAddress = values.hasTertiaryPickupAddress === 'true';
+    const hasTertiaryDestinationAddress = values.hasTertiaryDestinationAddress === 'true';
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
