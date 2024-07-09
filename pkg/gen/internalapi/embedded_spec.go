@@ -3400,6 +3400,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -3543,22 +3545,13 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
         "pickupAddress",
-        "destinationPostalCode",
         "destinationAddress",
         "sitExpected"
       ],
       "properties": {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -3568,33 +3561,11 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "secondaryDestinationPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -5152,15 +5123,6 @@ func init() {
       ],
       "x-nullable": true
     },
-    "NullableString": {
-      "type": "string",
-      "x-go-type": {
-        "import": {
-          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
-        },
-        "type": "String"
-      }
-    },
     "OfficeUser": {
       "type": "object",
       "properties": {
@@ -5602,8 +5564,6 @@ func init() {
         "createdAt",
         "status",
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "eTag"
       ],
@@ -5667,14 +5627,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -5753,14 +5705,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -5794,16 +5738,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "allOf": [
             {
@@ -5816,15 +5750,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
@@ -6658,11 +6583,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -6670,7 +6597,9 @@ func init() {
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "x-nullable": true
     },
@@ -6882,14 +6811,6 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -6937,15 +6858,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -6953,22 +6865,8 @@ func init() {
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "secondaryDestinationPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean",
@@ -7175,6 +7073,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -7202,6 +7106,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",
@@ -11453,6 +11367,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -11596,22 +11512,13 @@ func init() {
       "description": "A personally procured move is a type of shipment that a service members moves themselves.",
       "required": [
         "expectedDepartureDate",
-        "pickupPostalCode",
         "pickupAddress",
-        "destinationPostalCode",
         "destinationAddress",
         "sitExpected"
       ],
       "properties": {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "expectedDepartureDate": {
           "description": "Date the customer expects to move.\n",
@@ -11621,33 +11528,11 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "secondaryDestinationPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean"
@@ -13209,15 +13094,6 @@ func init() {
       ],
       "x-nullable": true
     },
-    "NullableString": {
-      "type": "string",
-      "x-go-type": {
-        "import": {
-          "package": "github.com/transcom/mymove/pkg/swagger/nullable"
-        },
-        "type": "String"
-      }
-    },
     "OfficeUser": {
       "type": "object",
       "properties": {
@@ -13659,8 +13535,6 @@ func init() {
         "createdAt",
         "status",
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "eTag"
       ],
@@ -13724,14 +13598,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -13810,14 +13676,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -13851,16 +13709,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "allOf": [
             {
@@ -13873,15 +13721,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
@@ -14717,11 +14556,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -14729,7 +14570,9 @@ func init() {
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "x-nullable": true
     },
@@ -14941,14 +14784,6 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "destinationPostalCode": {
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "estimatedWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -14996,15 +14831,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "zip code",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "example": "90210"
-        },
         "proGearWeight": {
           "type": "integer",
           "x-nullable": true
@@ -15012,22 +14838,8 @@ func init() {
         "secondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "secondaryDestinationPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "secondaryPickupPostalCode": {
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "$ref": "#/definitions/NullableString",
-          "example": "90210"
         },
         "sitExpected": {
           "type": "boolean",
@@ -15239,6 +15051,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -15266,6 +15084,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",

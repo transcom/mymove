@@ -942,6 +942,7 @@
 20240521184834_add_standalone_field_to_service_items.up.sql
 20240522124339_add_csr_to_roles.up.sql
 20240524214247_add_sit_location_moving_expenses.up.sql
+20240528154043_drop_not_null_from_ppm_postal_codes.up.sql
 20240529181303_add_additional_documents_id_col_to_moves.up.sql
 20240530020648_adding_standalone_crate_service_param.up.sql
 20240530084720_rename_qae_csr_to_just_qae.up.sql
@@ -956,3 +957,4 @@
 20240606195706_adding_uncapped_request_total.up.sql
 20240611185048_drop_unique_constraint_emplid.up.sql
 20240613192433_move_valid_loa_for_tac_col_to_lines_of_accounting_table.up.sql
+20240625144828_add_to_update_type_enum.up.sql
