@@ -1112,7 +1112,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
-	o.handlers["DELETE"]["/uploads/{uploadId}"] = uploads.NewDeleteUpload(o.context, o.UploadsDeleteUploadHandler)
+	o.handlers["DELETE"]["/uploads/{uploadID}"] = uploads.NewDeleteUpload(o.context, o.UploadsDeleteUploadHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1400,11 +1400,11 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
-	o.handlers["PATCH"]["/moves/{moveId}/uploadAdditionalDocuments"] = move.NewUploadAdditionalDocuments(o.context, o.MoveUploadAdditionalDocumentsHandler)
+	o.handlers["PATCH"]["/moves/{moveID}/uploadAdditionalDocuments"] = move.NewUploadAdditionalDocuments(o.context, o.MoveUploadAdditionalDocumentsHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
-	o.handlers["POST"]["/orders/{ordersId}/upload_amended_orders"] = order.NewUploadAmendedOrders(o.context, o.OrderUploadAmendedOrdersHandler)
+	o.handlers["POST"]["/orders/{orderID}/upload_amended_orders"] = order.NewUploadAmendedOrders(o.context, o.OrderUploadAmendedOrdersHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

@@ -175,6 +175,9 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
+		tertiaryPickuupAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model:    secondaryPickupAddress,
@@ -185,6 +188,16 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 				Model:    secondaryDeliveryAddress,
 				LinkOnly: true,
 				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model:    tertiaryPickuupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model:    tertiaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.TertiaryDeliveryAddress,
 			},
 			{
 				Model:    move,
@@ -244,8 +257,10 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(agents.ID.String(), actualShipment.MTOAgents[0].ID.String())
 		suite.Equal(shipment.PickupAddress.ID.String(), actualShipment.PickupAddress.ID.String())
 		suite.Equal(secondaryPickupAddress.ID.String(), actualShipment.SecondaryPickupAddress.ID.String())
+		suite.Equal(tertiaryPickuupAddress.ID.String(), actualShipment.TertiaryPickupAddress.ID.String())
 		suite.Equal(shipment.DestinationAddress.ID.String(), actualShipment.DestinationAddress.ID.String())
 		suite.Equal(secondaryDeliveryAddress.ID.String(), actualShipment.SecondaryDeliveryAddress.ID.String())
+		suite.Equal(tertiaryDeliveryAddress.ID.String(), actualShipment.TertiaryDeliveryAddress.ID.String())
 		suite.Len(actualShipment.MTOServiceItems[0].Dimensions, 2)
 		suite.Equal(SITExtension.ID.String(), actualShipment.SITDurationUpdates[0].ID.String())
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())

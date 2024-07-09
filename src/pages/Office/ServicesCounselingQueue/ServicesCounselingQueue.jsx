@@ -49,7 +49,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -93,6 +93,10 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
     exportValue: (row) => {
       return row.customer.dodID;
     },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',
@@ -175,7 +179,7 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
         isFilterable: true,
       }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -219,6 +223,10 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
     exportValue: (row) => {
       return row.customer.dodID;
     },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
   }),
   createHeader('Move code', 'locator', {
     id: 'locator',

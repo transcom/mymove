@@ -38,6 +38,9 @@ type Customer struct {
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
 	Email string `json:"email,omitempty"`
 
+	// emplid
+	Emplid string `json:"emplid,omitempty"`
+
 	// first name
 	// Example: Vanya
 	FirstName string `json:"firstName,omitempty"`

@@ -30,7 +30,7 @@ import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orde
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
-const columns = (moveLockFlag, showBranchFilter = true) => [
+export const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader(
     ' ',
     (row) => {
@@ -76,6 +76,10 @@ const columns = (moveLockFlag, showBranchFilter = true) => [
     exportValue: (row) => {
       return row.customer.dodID;
     },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
   }),
   createHeader(
     'Status',

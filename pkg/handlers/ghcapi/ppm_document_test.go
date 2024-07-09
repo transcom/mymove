@@ -612,7 +612,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, nil)
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, nil)
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -647,7 +647,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, errors.New("Mock error"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
@@ -677,7 +677,7 @@ func (suite *HandlerSuite) TestShowAOAPacketHandler() {
 			AOAPacketCreator: &mockAOAPacketCreator,
 		}
 
-		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID")).Return(nil, errors.New("Mock error"))
+		mockAOAPacketCreator.On("CreateAOAPacket", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"), mock.AnythingOfType("bool")).Return(nil, errors.New("Mock error"))
 
 		// make the request
 		requestUser := factory.BuildUser(nil, nil, nil)
