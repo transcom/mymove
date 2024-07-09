@@ -177,3 +177,9 @@ export const FEATURE_FLAG_KEYS = {
   NTS: 'nts',
   NTSR: 'ntsr',
 };
+
+export const MOVE_DOCUMENT_TYPE = {
+  ORDERS: 'ORDERS',
+  AMENDMENTS: 'AMENDMENTS',
+  SUPPORTING: 'SUPPORTING',
+};

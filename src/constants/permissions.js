@@ -21,4 +21,5 @@ export const permissionTypes = {
   updateMTOPage: 'update.MTOPage',
   updateCustomer: 'update.customer',
   createTxoShipment: 'create.TXOShipment',
+  createSupportingDocuments: 'create.supportingDocuments',
 };

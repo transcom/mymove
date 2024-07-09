@@ -2435,7 +2435,10 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-permissions": [
+          "create.supportingDocuments"
+        ]
       }
     },
     "/mto-shipments": {
@@ -15689,7 +15692,10 @@ func init() {
           "500": {
             "description": "server error"
           }
-        }
+        },
+        "x-permissions": [
+          "create.supportingDocuments"
+        ]
       }
     },
     "/mto-shipments": {
