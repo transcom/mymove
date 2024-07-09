@@ -665,7 +665,7 @@ test.describe('TIO user', () => {
       const totalBillableWeightParent = page
         .getByRole('heading', { name: 'Actual billable weight', exact: true })
         .locator('..');
-      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,200 lbs', exact: true })).toBeVisible();
+      await expect(totalBillableWeightParent.getByRole('heading', { name: '2,000 lbs', exact: true })).toBeVisible();
 
       // Verify Maximum billable weight info
       const maximumBillableWeightParent = page
