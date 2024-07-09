@@ -410,7 +410,7 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
-			upload, url, verrs, err := h.uploader.CreateAdditionalDocumentsUpload(appCtx, appCtx.Session().UserID, moveID, file.Data, file.Header.Filename, h.FileStorer())
+			upload, url, verrs, err := h.uploader.CreateAdditionalDocumentsUpload(appCtx, appCtx.Session().UserID, moveID, file.Data, file.Header.Filename, h.FileStorer(), models.UploadTypeUSER)
 
 			if verrs.HasAny() || err != nil {
 				switch err.(type) {
