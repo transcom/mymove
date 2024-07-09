@@ -6039,6 +6039,12 @@ definitions:
         format: cents
         x-nullable: true
         x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -8366,6 +8372,11 @@ definitions:
           separate from the estimated incentive.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
         x-nullable: true
         x-omitempty: false
     required:
