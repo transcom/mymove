@@ -238,6 +238,51 @@ func (o *CreateCustomerWithOktaOptionNotFound) WriteResponse(rw http.ResponseWri
 	}
 }
 
+// CreateCustomerWithOktaOptionConflictCode is the HTTP code returned for type CreateCustomerWithOktaOptionConflict
+const CreateCustomerWithOktaOptionConflictCode int = 409
+
+/*
+CreateCustomerWithOktaOptionConflict Conflict error
+
+swagger:response createCustomerWithOktaOptionConflict
+*/
+type CreateCustomerWithOktaOptionConflict struct {
+
+	/*
+	  In: Body
+	*/
+	Payload *ghcmessages.Error `json:"body,omitempty"`
+}
+
+// NewCreateCustomerWithOktaOptionConflict creates CreateCustomerWithOktaOptionConflict with default headers values
+func NewCreateCustomerWithOktaOptionConflict() *CreateCustomerWithOktaOptionConflict {
+
+	return &CreateCustomerWithOktaOptionConflict{}
+}
+
+// WithPayload adds the payload to the create customer with okta option conflict response
+func (o *CreateCustomerWithOktaOptionConflict) WithPayload(payload *ghcmessages.Error) *CreateCustomerWithOktaOptionConflict {
+	o.Payload = payload
+	return o
+}
+
+// SetPayload sets the payload to the create customer with okta option conflict response
+func (o *CreateCustomerWithOktaOptionConflict) SetPayload(payload *ghcmessages.Error) {
+	o.Payload = payload
+}
+
+// WriteResponse to the client
+func (o *CreateCustomerWithOktaOptionConflict) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
+
+	rw.WriteHeader(409)
+	if o.Payload != nil {
+		payload := o.Payload
+		if err := producer.Produce(rw, payload); err != nil {
+			panic(err) // let the recovery middleware deal with this
+		}
+	}
+}
+
 // CreateCustomerWithOktaOptionPreconditionFailedCode is the HTTP code returned for type CreateCustomerWithOktaOptionPreconditionFailed
 const CreateCustomerWithOktaOptionPreconditionFailedCode int = 412
 

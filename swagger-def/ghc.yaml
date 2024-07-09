@@ -67,7 +67,7 @@ paths:
   '/customer':
     post:
       summary: Creates a customer with Okta option
-      description: Creates a customer with option to create an Okta profile account
+      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
       operationId: createCustomerWithOktaOption
       tags:
         - customer
@@ -94,6 +94,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -4335,6 +4337,11 @@ definitions:
         type: string
         example: John
         x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
+        x-nullable: true
       firstName:
         type: string
         example: John
@@ -5825,6 +5832,12 @@ definitions:
           - x-nullable: true
       sitEstimatedCost:
         description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
         type: integer
         format: cents
         x-nullable: true

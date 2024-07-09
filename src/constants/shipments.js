@@ -50,6 +50,8 @@ export const LONGHAUL_MIN_DISTANCE = 50;
 
 export const PPM_MAX_ADVANCE_RATIO = 0.6;
 
+export const WEIGHT_ADJUSTMENT = 1.1;
+
 export const ADDRESS_UPDATE_STATUS = {
   REQUESTED: 'REQUESTED',
   REJECTED: 'REJECTED',
