@@ -1,4 +1,4 @@
-import { test } from '../../utils/my/customerTest';
+import { test, expect } from '../../utils/my/customerTest';
 
 const multiMoveEnabled = process.env.FEATURE_FLAG_MULTI_MOVE;
 const manageSupportDocsEnabled = process.env.FEATURE_FLAG_MANAGE_SUPPORTING_DOCS;
