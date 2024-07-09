@@ -164,6 +164,9 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor) 
         {
           id: 'originDutyLocation',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
           Filter: (props) => (
             <MultiSelectTypeAheadCheckBoxFilter
               options={originLocationList}
@@ -177,6 +180,9 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor) 
     : createHeader('Origin duty location', 'originDutyLocation.name', {
         id: 'originDutyLocation',
         isFilterable: true,
+        exportValue: (row) => {
+          return row.originDutyLocation?.name;
+        },
       }),
 ];
 export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
@@ -295,6 +301,9 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
         {
           id: 'originDutyLocation',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
           Filter: (props) => (
             <MultiSelectTypeAheadCheckBoxFilter
               options={ppmCloseoutOriginLocationList}
@@ -308,6 +317,9 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
     : createHeader('Origin duty location', 'originDutyLocation.name', {
         id: 'originDutyLocation',
         isFilterable: true,
+        exportValue: (row) => {
+          return row.originDutyLocation?.name;
+        },
       }),
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
