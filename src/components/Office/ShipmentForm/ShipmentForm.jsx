@@ -76,6 +76,12 @@ const ShipmentForm = (props) => {
     move,
   } = props;
 
+  const [estimatedWeightValue, setEstimatedWeightValue] = useState(mtoShipment?.ppmShipment?.estimatedWeight || 0);
+
+  const updateEstimatedWeightValue = (value) => {
+    setEstimatedWeightValue(value);
+  };
+
   const { moveCode } = useParams();
   const navigate = useNavigate();
 
@@ -225,6 +231,7 @@ const ShipmentForm = (props) => {
       hasRequestedAdvance: mtoShipment.ppmShipment?.hasRequestedAdvance,
       isAdvancePage,
       showCloseoutOffice,
+      sitEstimatedWeightMax: estimatedWeightValue || 0,
     });
   } else {
     const shipmentOptions = getShipmentOptions(shipmentType, userRole);
@@ -982,7 +989,10 @@ const ShipmentForm = (props) => {
                       sitEstimatedEntryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
                       sitEstimatedDepartureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
                     />
-                    <ShipmentWeight authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()} />
+                    <ShipmentWeight
+                      authorizedWeight={serviceMember.weightAllotment.totalWeightSelf.toString()}
+                      onEstimatedWeightChange={updateEstimatedWeightValue}
+                    />
                   </>
                 )}
 
@@ -991,8 +1001,8 @@ const ShipmentForm = (props) => {
                     cost={mtoShipment.ppmShipment?.sitEstimatedCost}
                     weight={mtoShipment.ppmShipment?.sitEstimatedWeight}
                     sitLocation={mtoShipment.ppmShipment?.sitLocation}
-                    originZip={mtoShipment.ppmShipment?.pickupPostalCode}
-                    destinationZip={mtoShipment.ppmShipment?.destinationPostalCode}
+                    originZip={mtoShipment.ppmShipment?.pickupAddress.postalCode}
+                    destinationZip={mtoShipment.ppmShipment?.destinationAddress.postalCode}
                     departureDate={mtoShipment.ppmShipment?.sitEstimatedDepartureDate}
                     entryDate={mtoShipment.ppmShipment?.sitEstimatedEntryDate}
                   />

@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 
 const mockOriginDutyLocation = {
   address: {
@@ -141,6 +142,13 @@ const useOrdersDocumentQueriesReturnValue = {
   },
 };
 
+const ordersMockProps = {
+  files: {
+    [MOVE_DOCUMENT_TYPE.ORDERS]: [{ id: 'file-1', name: 'Order File 1' }],
+    [MOVE_DOCUMENT_TYPE.AMENDMENTS]: [{ id: 'file-2', name: 'Amended File 1' }],
+  },
+};
+
 const loadingReturnValue = {
   ...useOrdersDocumentQueriesReturnValue,
   isLoading: true,
@@ -162,7 +170,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -175,7 +183,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -190,7 +198,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -202,7 +210,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -213,7 +221,7 @@ describe('Orders page', () => {
     it('renders each option for orders type dropdown', async () => {
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -238,7 +246,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -253,14 +261,15 @@ describe('Orders page', () => {
     });
   });
 
-  it('renders an upload orders button when no orders are present', async () => {
+  it('renders an upload orders button', async () => {
     render(
       <MockProviders>
-        <ServicesCounselingOrders />
+        <ServicesCounselingOrders {...ordersMockProps} />
       </MockProviders>,
     );
 
-    expect(await screen.findByText('Add Orders')).toBeInTheDocument();
+    expect(await screen.findByText('Manage Orders')).toBeInTheDocument();
+    expect(await screen.findByText('Manage Amended Orders')).toBeInTheDocument();
   });
 
   describe('TAC validation', () => {
@@ -269,7 +278,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -281,7 +290,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -308,7 +317,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
     });
@@ -376,7 +385,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -385,10 +394,26 @@ describe('Orders page', () => {
       await userEvent.type(hhgTacInput, '1111');
 
       const expectedLongLineOfAccounting =
-        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345***PERSONAL PROPERTY - PARANORMAL ACTIVITY DIVISION (OTHER)';
+        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*HHG12345678900**12345**B1*';
 
       const loaTextField = screen.getByTestId('hhgLoaTextField');
       expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
+    });
+  });
+  describe('LOA concatenation with regex removes extra spaces', () => {
+    it('concatenates the LOA string correctly and without extra spaces', async () => {
+      let extraSpacesLongLineOfAccounting =
+        '1  **20062016*1234 *0000**1A *123A**00000000**  **** ***22NL** *000000*SEE PCS ORDERS* *12345**B1*';
+      const expectedLongLineOfAccounting =
+        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*SEE PCS ORDERS**12345**B1*';
+
+      // preserves spaces in column values such as 'SEE PCS ORDERS'
+      // remove any number of spaces following an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/\* +/g, '*');
+      // remove any number of spaces preceding an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/ +\*/g, '*');
+
+      expect(extraSpacesLongLineOfAccounting).toEqual(expectedLongLineOfAccounting);
     });
   });
 });
