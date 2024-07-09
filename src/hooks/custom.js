@@ -128,8 +128,13 @@ export const useCalculatedTotalBillableWeight = (mtoShipments, weightAdjustment 
           current.calculatedBillableWeight < current.primeEstimatedWeight * weightAdjustment
             ? current.calculatedBillableWeight
             : current.primeEstimatedWeight * weightAdjustment;
-        currentWeight =
-          current.shipmentType === SHIPMENT_OPTIONS.NTSR ? current.ntsRecordedWeight * weightAdjustment : currentWeight;
+
+        if (current.shipmentType === SHIPMENT_OPTIONS.NTSR) {
+          currentWeight =
+            current.calculatedBillableWeight < current.ntsRecordedWeight * weightAdjustment
+              ? current.calculatedBillableWeight
+              : current.ntsRecordedWeight * weightAdjustment;
+        }
         return total + currentWeight;
       }, 0);
 
