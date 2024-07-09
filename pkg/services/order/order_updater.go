@@ -105,7 +105,22 @@ func (f *orderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContex
 		return models.Upload{}, "", nil, findErr
 	}
 
-	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer)
+	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer, models.UploadTypeUSER)
+	if verrs.HasAny() || err != nil {
+		return models.Upload{}, "", verrs, err
+	}
+
+	return userUpload.Upload, url, nil, nil
+}
+
+// UploadAmendedOrdersAsOffice add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrdersAsOffice(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	orderToUpdate, findErr := f.findOrderWithAmendedOrders(appCtx, orderID)
+	if findErr != nil {
+		return models.Upload{}, "", nil, findErr
+	}
+
+	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer, models.UploadTypeOFFICE)
 	if verrs.HasAny() || err != nil {
 		return models.Upload{}, "", verrs, err
 	}
@@ -244,8 +259,7 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 	return order
 }
 
-func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
-
+func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer, uploadType models.UploadType) (models.UserUpload, string, *validate.Errors, error) {
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
 	savedAmendedOrdersDoc := order.UploadedAmendedOrders
@@ -280,6 +294,7 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 		uploader.MaxCustomerUserUploadFileSizeLimit,
 		uploader.AllowedTypesServiceMember,
 		&savedAmendedOrdersDoc.ID,
+		uploadType,
 	)
 
 	if verrs.HasAny() || err != nil {
@@ -490,7 +505,6 @@ func allowanceFromCounselingPayload(existingOrder models.Order, payload ghcmessa
 }
 
 func (f *orderUpdater) saveDocumentForAmendedOrder(appCtx appcontext.AppContext, doc *models.Document) (*models.Document, error) {
-
 	var docID uuid.UUID
 	if doc != nil {
 		docID = doc.ID

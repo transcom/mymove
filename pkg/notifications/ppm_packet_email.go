@@ -104,8 +104,8 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 	err := appCtx.DB().Find(&ppmShipment, p.ppmShipmentID)
 	if err != nil {
 		return PpmPacketEmailData{}, LoggerData{}, err
-	} else if ppmShipment.PickupPostalCode == "" || ppmShipment.DestinationPostalCode == "" {
-		return PpmPacketEmailData{}, LoggerData{}, fmt.Errorf("no pickup or destination postal code found for this shipment")
+	} else if ppmShipment.PickupAddressID == nil || ppmShipment.DestinationAddressID == nil {
+		return PpmPacketEmailData{}, LoggerData{}, fmt.Errorf("no pickup or destination address found for this shipment")
 	}
 
 	var mtoShipment models.MTOShipment
@@ -181,8 +181,8 @@ func (p PpmPacketEmail) GetEmailData(appCtx appcontext.AppContext) (PpmPacketEma
 
 	// Fallback to using ZIPs if the above if-block for city,state doesn't happen
 	return PpmPacketEmailData{
-			OriginZIP:                         &ppmShipment.PickupPostalCode,
-			DestinationZIP:                    &ppmShipment.DestinationPostalCode,
+			OriginZIP:                         &ppmShipment.PickupAddress.PostalCode,
+			DestinationZIP:                    &ppmShipment.DestinationAddress.PostalCode,
 			SubmitLocation:                    submitLocation,
 			ServiceBranch:                     affiliationDisplayValue[*serviceMember.Affiliation],
 			Locator:                           move.Locator,

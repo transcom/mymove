@@ -544,6 +544,43 @@ func init() {
         }
       ]
     },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/documents/{documentId}": {
       "get": {
         "description": "Returns a document and its uploads",
@@ -2345,6 +2382,62 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/uploadAdditionalDocuments": {
+      "patch": {
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Patch the additional documents for a given move",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -2895,6 +2988,62 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/orders/{orderID}/upload_amended_orders": {
+      "post": {
+        "description": "Create an amended order for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Create an amended order for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "orderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
@@ -5262,6 +5411,53 @@ func init() {
           }
         }
       }
+    },
+    "/uploads/{uploadID}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderID",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -5449,6 +5645,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -6893,6 +7091,17 @@ func init() {
       },
       "x-nullable": true
     },
+    "InvalidRequestResponsePayload": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
@@ -8093,6 +8302,9 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -8418,6 +8630,77 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -9010,6 +9293,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "orders_type": {
+          "$ref": "#/definitions/OrdersType"
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -9329,8 +9615,6 @@ func init() {
         "createdAt",
         "status",
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "eTag"
       ],
@@ -9394,14 +9678,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -9480,14 +9756,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -9521,16 +9789,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "allOf": [
             {
@@ -9543,15 +9801,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
@@ -9942,6 +10191,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {
@@ -11134,11 +11393,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -11981,6 +12242,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -12008,6 +12275,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",
@@ -13019,6 +13296,46 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/documents/{documentId}": {
       "get": {
@@ -15319,6 +15636,62 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/uploadAdditionalDocuments": {
+      "patch": {
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Patch the additional documents for a given move",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/mto-shipments": {
       "post": {
         "description": "Creates a MTO shipment for the specified Move Task Order.\nRequired fields include:\n* Shipment Type\n* Customer requested pick-up date\n* Pick-up Address\n* Delivery Address\n* Releasing / Receiving agents\nOptional fields include:\n* Delivery Address Type\n* Customer Remarks\n* Releasing / Receiving agents\n* An array of optional accessorial service item codes\n",
@@ -15999,6 +16372,62 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/orders/{orderID}/upload_amended_orders": {
+      "post": {
+        "description": "Create an amended order for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Create an amended order for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "orderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
@@ -18960,6 +19389,53 @@ func init() {
           }
         }
       }
+    },
+    "/uploads/{uploadID}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderID",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -19147,6 +19623,8 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -20595,6 +21073,17 @@ func init() {
       },
       "x-nullable": true
     },
+    "InvalidRequestResponsePayload": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
@@ -21795,6 +22284,9 @@ func init() {
     },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
           "type": "string",
@@ -22120,6 +22612,77 @@ func init() {
         },
         "totalCount": {
           "type": "integer"
+        }
+      }
+    },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },
@@ -22712,6 +23275,9 @@ func init() {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
         },
+        "orders_type": {
+          "$ref": "#/definitions/OrdersType"
+        },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
@@ -23032,8 +23598,6 @@ func init() {
         "createdAt",
         "status",
         "expectedDepartureDate",
-        "pickupPostalCode",
-        "destinationPostalCode",
         "sitExpected",
         "eTag"
       ],
@@ -23097,14 +23661,6 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
-        },
-        "destinationPostalCode": {
-          "description": "The postal code of the destination location where goods are being delivered to.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
         },
         "eTag": {
           "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
@@ -23183,14 +23739,6 @@ func init() {
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
-        "pickupPostalCode": {
-          "description": "The postal code of the origin location where goods are being moved from.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "example": "90210"
-        },
         "proGearWeight": {
           "description": "The estimated weight of the pro-gear being moved belonging to the service member.",
           "type": "integer",
@@ -23224,16 +23772,6 @@ func init() {
             }
           ]
         },
-        "secondaryDestinationPostalCode": {
-          "description": "An optional secondary location near the destination where goods will be dropped off.",
-          "type": "string",
-          "format": "zip",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
-        },
         "secondaryPickupAddress": {
           "allOf": [
             {
@@ -23246,15 +23784,6 @@ func init() {
               "x-omitempty": false
             }
           ]
-        },
-        "secondaryPickupPostalCode": {
-          "type": "string",
-          "format": "An optional secondary pickup location near the origin where additional goods exist.",
-          "title": "ZIP",
-          "pattern": "^(\\d{5})$",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "90210"
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
@@ -23645,6 +24174,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {
@@ -24891,11 +25430,13 @@ func init() {
       }
     },
     "SignedCertificationType": {
-      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n",
+      "description": "The type of signed certification:\n  - PPM_PAYMENT: This is used when the customer has a PPM shipment that they have uploaded their documents for and are\n      ready to submit their documentation for review. When they submit, they will be asked to sign certifying the\n      information is correct.\n  - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.\n  - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to\n       service-counseling-completed \"Submit move details\" by service counselor.\n  - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.\n",
       "type": "string",
       "enum": [
         "PPM_PAYMENT",
-        "SHIPMENT"
+        "SHIPMENT",
+        "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT",
+        "CLOSEOUT_REVIEWED_PPM_PAYMENT"
       ],
       "readOnly": true
     },
@@ -25747,6 +26288,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -25774,6 +26321,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",
