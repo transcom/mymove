@@ -21,7 +21,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { SHIPMENT_OPTIONS, LOA_TYPE } from 'shared/constants';
 import { useMovePaymentRequestsQueries } from 'hooks/queries';
 import { formatPaymentRequestAddressString, getShipmentModificationType } from 'utils/shipmentDisplay';
-import { shipmentStatuses } from 'constants/shipments';
+import { shipmentStatuses, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
 import {
   calculateWeightRequested,
@@ -141,7 +141,7 @@ const MovePaymentRequests = ({
 
   const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
 
-  const totalBillableWeight = useCalculatedTotalBillableWeight(excludePPMShipments);
+  const actualBillableWeight = useCalculatedTotalBillableWeight(excludePPMShipments, WEIGHT_ADJUSTMENT);
   const weightRequested = calculateWeightRequested(excludePPMShipments);
   const maxBillableWeight = order?.entitlement?.authorizedWeight;
   const billableWeightsReviewed = move?.billableWeightsReviewedAt;
@@ -212,7 +212,7 @@ const MovePaymentRequests = ({
     });
   };
 
-  const maxBillableWeightExceeded = totalBillableWeight > maxBillableWeight;
+  const maxBillableWeightExceeded = actualBillableWeight > maxBillableWeight;
   const noBillableWeightIssues =
     (billableWeightsReviewed && !maxBillableWeightExceeded) ||
     (!anyShipmentOverweight(filteredShipments) && !anyShipmentMissingWeight(filteredShipments));
@@ -282,7 +282,7 @@ const MovePaymentRequests = ({
             {/* Only show shipments in statuses of approved, diversion requested, or cancellation requested */}
             <BillableWeightCard
               maxBillableWeight={maxBillableWeight}
-              totalBillableWeight={totalBillableWeight}
+              actualBillableWeight={actualBillableWeight}
               weightRequested={weightRequested}
               weightAllowance={order?.entitlement?.totalWeight}
               onReviewWeights={handleReviewWeightsClick}
