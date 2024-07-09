@@ -82,7 +82,10 @@ paths:
   /customer:
     post:
       summary: Creates a customer with Okta option
-      description: Creates a customer with option to create an Okta profile account
+      description: >-
+        Creates a customer with option to also create an Okta profile account
+        based on the office user's input when completing the UI form and
+        submitting.
       operationId: createCustomerWithOktaOption
       tags:
         - customer
@@ -109,6 +112,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -4488,6 +4493,11 @@ definitions:
       edipi:
         type: string
         example: John
+        x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
         x-nullable: true
       firstName:
         type: string
