@@ -551,9 +551,10 @@ export const useMovesQueueQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...movesQueueQuery } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -572,9 +573,13 @@ export const useServicesCounselingQueuePPMQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true }],
+    [
+      SERVICES_COUNSELING_QUEUE,
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC },
+    ],
     ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
   );
 
@@ -594,9 +599,13 @@ export const useServicesCounselingQueueQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false }],
+    [
+      SERVICES_COUNSELING_QUEUE,
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC },
+    ],
     ({ queryKey }) => getServicesCounselingQueue(...queryKey),
   );
 
@@ -616,9 +625,10 @@ export const usePaymentRequestQueueQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
 
