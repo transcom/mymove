@@ -38,10 +38,10 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	}
 
 	Orders := move.Orders
-	var PaymentRequest models.PaymentRequest
+	var PaymentRequest []models.PaymentRequest
 	for _, pr := range move.PaymentRequests {
 		if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex || pr.Status == models.PaymentRequestStatusReceivedByGex {
-			PaymentRequest = pr
+			PaymentRequest = append(PaymentRequest, pr)
 		}
 	}
 
@@ -133,7 +133,7 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		EntitlementWeight:  int64(*Orders.Entitlement.DBAuthorizedWeight),
 		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
 		PickupDate:         strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
-		PaidDate:           (*strfmt.Date)(PaymentRequest.ReviewedAt),
+		PaidDate:           (*strfmt.Date)(PaymentRequest[0].ReviewedAt),
 		// LinehaulTotal:
 		// LinehaulFuelTotal:
 		// OriginPrice
@@ -173,57 +173,75 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	// crating logic here
 	// var crating []struct{}
 
-	for _, serviceItem := range PaymentRequest.PaymentServiceItems {
-		var mtoServiceItem models.MTOServiceItem
-		msiErr := appCtx.DB().Q().EagerPreload("ReService", "Dimensions").
-			InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
-			First(&mtoServiceItem)
-		if msiErr != nil {
-			return nil
+	var linehaulTotal float64
+	var managementTotal float64
+	var fuelPrice float64
+	var domesticOriginTotal float64
+	var domesticDestTotal float64
+	var domesticPacking float64
+	var domesticUnpacking float64
+	var domesticCrating float64
+	var domesticUncrating float64
+	var counselingTotal float64
+
+	for _, pr := range PaymentRequest {
+		for _, serviceItem := range pr.PaymentServiceItems {
+			var mtoServiceItem models.MTOServiceItem
+			msiErr := appCtx.DB().Q().EagerPreload("ReService", "Dimensions").
+				InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
+				Where("mto_service_items.id = ?", serviceItem.MTOServiceItemID).
+				First(&mtoServiceItem)
+			if msiErr != nil {
+				return nil
+			}
+
+			// handle crating logic here?
+
+			totalPrice := serviceItem.PriceCents.Float64()
+
+			switch mtoServiceItem.ReService.Name {
+			case "Domestic linehaul":
+			case "Domestic shorthaul":
+				linehaulTotal += totalPrice
+			case "Move management":
+				managementTotal += totalPrice
+			case "Fuel surcharge":
+				fuelPrice += totalPrice
+			case "Domestic origin price":
+				domesticOriginTotal += totalPrice
+			case "Domestic destination price":
+				domesticDestTotal += totalPrice
+			case "Domestic packing":
+				domesticPacking += totalPrice
+			case "Domestic unpacking":
+				domesticUnpacking += totalPrice
+			case "Domestic uncrating":
+				domesticUncrating += totalPrice
+			// case "Domestic crating - standalone":
+			case "Domestic crating":
+				domesticCrating += totalPrice
+
+			// case "Domestic origin SIT pickup":
+			// 	payload.SitPickupTotal = totalPrice
+			// case "Domestic origin SIT fuel surcharge":
+			// 	payload.SitOriginFuelSurcharge = totalPrice
+			// case "Domestic origin shuttle service":
+			// case "Domestic origin price":
+			// case "Domestic origin add'l SIT":
+			// case "Domestic origin 1st day SIT":
+			// case "Domestic NTS packing":
+			// case "Domestic destination SIT fuel surcharge":
+			// case "Domestic destination SIT delivery":
+			// case "Domestic destination shuttle service":
+			// case "Domestic destination price":
+			// case "Domestic destination add'l SIT":
+			// case "Domestic destination 1st day SIT":
+
+			case "Counseling":
+				counselingTotal += totalPrice
+			}
+
 		}
-
-		totalPrice := models.Float64Pointer(serviceItem.PriceCents.Float64())
-
-		switch mtoServiceItem.ReService.Name {
-		case "Domestic linehaul":
-		case "Domestic shorthaul":
-			payload.LinehaulTotal = totalPrice
-		case "Move management":
-			payload.MoveManagementFeeTotal = totalPrice
-		case "Fuel surcharge":
-			payload.LinehaulFuelTotal = totalPrice
-		case "Domestic origin price":
-			payload.OriginPrice = totalPrice
-		case "Domestic destination price":
-			payload.DestinationPrice = totalPrice
-		case "Domestic packing":
-			payload.PackingPrice = totalPrice
-		case "Domestic unpacking":
-			payload.UnpackingPrice = totalPrice
-		// case "Domestic uncrating":
-		// case "Domestic crating - standalone":
-		// case "Domestic crating":
-
-		case "Domestic origin SIT pickup":
-			payload.SitPickupTotal = totalPrice
-		case "Domestic origin SIT fuel surcharge":
-			payload.SitOriginFuelSurcharge = totalPrice
-		// case "Domestic origin shuttle service":
-		// case "Domestic origin price":
-		// case "Domestic origin add'l SIT":
-		// case "Domestic origin 1st day SIT":
-		// case "Domestic NTS packing":
-		// case "Domestic destination SIT fuel surcharge":
-		// case "Domestic destination SIT delivery":
-		// case "Domestic destination shuttle service":
-		// case "Domestic destination price":
-		// case "Domestic destination add'l SIT":
-		// case "Domestic destination 1st day SIT":
-
-		case "Counseling":
-			payload.CounselingFeeTotal = models.Float64Pointer(serviceItem.PriceCents.Float64())
-		}
-
 	}
 
 	// sharing this for loop for all MTOShipment calculations

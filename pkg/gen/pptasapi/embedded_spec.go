@@ -344,8 +344,40 @@ func init() {
           "x-nullable": true
         },
         "cratingDimensions": {
-          "type": "number",
-          "format": "double",
+          "type": "object",
+          "properties": {
+            "crateDimensions": {
+              "type": "object",
+              "properties": {
+                "height": {
+                  "type": "number"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "itemDimensions": {
+              "type": "object",
+              "properties": {
+                "height": {
+                  "type": "number"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                }
+              }
+            }
+          },
           "x-nullable": true
         },
         "cratingTotal": {
@@ -1172,8 +1204,40 @@ func init() {
           "x-nullable": true
         },
         "cratingDimensions": {
-          "type": "number",
-          "format": "double",
+          "type": "object",
+          "properties": {
+            "crateDimensions": {
+              "type": "object",
+              "properties": {
+                "height": {
+                  "type": "number"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": {
+              "type": "string"
+            },
+            "itemDimensions": {
+              "type": "object",
+              "properties": {
+                "height": {
+                  "type": "number"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "width": {
+                  "type": "number"
+                }
+              }
+            }
+          },
           "x-nullable": true
         },
         "cratingTotal": {
@@ -1634,6 +1698,71 @@ func init() {
           "description": "Total weight estimate",
           "type": "number",
           "format": "double"
+        }
+      }
+    },
+    "ListReportCratingDimensions": {
+      "type": "object",
+      "properties": {
+        "crateDimensions": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "length": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "itemDimensions": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "length": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "x-nullable": true
+    },
+    "ListReportCratingDimensionsCrateDimensions": {
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "number"
+        },
+        "length": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        }
+      }
+    },
+    "ListReportCratingDimensionsItemDimensions": {
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "number"
+        },
+        "length": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
         }
       }
     },

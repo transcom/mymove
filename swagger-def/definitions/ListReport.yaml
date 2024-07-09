@@ -339,8 +339,28 @@ properties:
     format: double
     x-nullable: true
   cratingDimensions:
-    type: number
-    format: double
+    type: object
+    properties:
+      itemDimensions:
+        type: object
+        properties:
+          height:
+            type: number
+          width:
+            type: number
+          length:
+            type: number
+      crateDimensions:
+        type: object
+        properties:
+          height:
+            type: number
+          width:
+            type: number
+          length:
+            type: number
+      description:
+        type: string
     x-nullable: true
   shuttleTotal:
     type: number
