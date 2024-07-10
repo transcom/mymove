@@ -19,8 +19,21 @@ jest.mock('utils/api', () => ({
 }));
 
 const localStorageMock = (() => {
+  let store = {};
+
   return {
-    clear() {},
+    getItem(key) {
+      return store[key] || null;
+    },
+    setItem(key, value) {
+      store[key] = value.toString();
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    },
   };
 })();
 
