@@ -101,13 +101,6 @@ export class OfficePage extends BaseTestPage {
   }
 
   /**
-   * Clear cache on current page
-   */
-  async clearCache() {
-    await this.page.evaluate(() => window.sessionStorage.clear());
-  }
-
-  /**
    * Use devlocal auth to sign in as office user with both TOO and TIO roles
    */
   async signInAsNewTIOAndTOOUser() {
