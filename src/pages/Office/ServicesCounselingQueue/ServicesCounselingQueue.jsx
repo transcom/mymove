@@ -45,7 +45,7 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
@@ -161,7 +161,7 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
         isFilterable: true,
       }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
