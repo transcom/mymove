@@ -275,18 +275,20 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		storageEnd := storageStart.Add(7 * time.Hour * 24)
 		sitLocation := models.SITLocationTypeOrigin
 		weightStored := 2000
+		sitReimburseableAmount := 500
 
 		expectedMovingExpense := &models.MovingExpense{
-			ID:                originalMovingExpense.ID,
-			MovingExpenseType: &storageExpenseType,
-			Description:       models.StringPointer("Dolly Parton memorabilia"),
-			PaidWithGTCC:      models.BoolPointer(true),
-			MissingReceipt:    models.BoolPointer(true),
-			Amount:            models.CentPointer(unit.Cents(67899)),
-			SITStartDate:      &storageStart,
-			SITEndDate:        &storageEnd,
-			WeightStored:      (*unit.Pound)(&weightStored),
-			SITLocation:       (*models.SITLocationType)(&sitLocation),
+			ID:                     originalMovingExpense.ID,
+			MovingExpenseType:      &storageExpenseType,
+			Description:            models.StringPointer("Dolly Parton memorabilia"),
+			PaidWithGTCC:           models.BoolPointer(true),
+			MissingReceipt:         models.BoolPointer(true),
+			Amount:                 models.CentPointer(unit.Cents(67899)),
+			SITStartDate:           &storageStart,
+			SITEndDate:             &storageEnd,
+			WeightStored:           (*unit.Pound)(&weightStored),
+			SITLocation:            (*models.SITLocationType)(&sitLocation),
+			SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
 		}
 
 		sitEstimatedCost := models.CentPointer(unit.Cents(62500))
@@ -313,6 +315,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.SITEndDate, *updatedMovingExpense.SITEndDate)
 		suite.Equal(*expectedMovingExpense.WeightStored, *updatedMovingExpense.WeightStored)
 		suite.Equal(*expectedMovingExpense.SITLocation, *updatedMovingExpense.SITLocation)
+		suite.Equal(*expectedMovingExpense.SITReimburseableAmount, *updatedMovingExpense.SITReimburseableAmount)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
 	})
@@ -323,12 +326,14 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		storageReceiptType := models.MovingExpenseReceiptTypeStorage
 		weightStored := 2000
 		sitLocation := "ORIGIN"
+		sitReimburseableAmount := 500
 		originalMovingExpense := setupForTest(appCtx, &models.MovingExpense{
-			MovingExpenseType: &storageReceiptType,
-			SITStartDate:      models.TimePointer(time.Now()),
-			SITEndDate:        models.TimePointer(time.Now()),
-			WeightStored:      (*unit.Pound)(&weightStored),
-			SITLocation:       (*models.SITLocationType)(&sitLocation),
+			MovingExpenseType:      &storageReceiptType,
+			SITStartDate:           models.TimePointer(time.Now()),
+			SITEndDate:             models.TimePointer(time.Now()),
+			WeightStored:           (*unit.Pound)(&weightStored),
+			SITLocation:            (*models.SITLocationType)(&sitLocation),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(sitReimburseableAmount)),
 		}, true)
 
 		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
@@ -369,6 +374,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Nil(updatedMovingExpense.SITLocation)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
+		suite.Nil(updatedMovingExpense.SITReimburseableAmount)
 	})
 
 	suite.Run("Successfully clears the reason when status is approved", func() {
