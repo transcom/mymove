@@ -303,6 +303,46 @@ func init() {
         }
       }
     },
+    "Crate": {
+      "description": "Crate object for PPTAS Reports",
+      "type": "object",
+      "properties": {
+        "crateDimensions": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "length": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "x-nullable": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "itemDimensions": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "length": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
     "ListReport": {
       "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
       "type": "object",
@@ -344,41 +384,10 @@ func init() {
           "x-nullable": true
         },
         "cratingDimensions": {
-          "type": "object",
-          "properties": {
-            "crateDimensions": {
-              "type": "object",
-              "properties": {
-                "height": {
-                  "type": "number"
-                },
-                "length": {
-                  "type": "number"
-                },
-                "width": {
-                  "type": "number"
-                }
-              }
-            },
-            "description": {
-              "type": "string"
-            },
-            "itemDimensions": {
-              "type": "object",
-              "properties": {
-                "height": {
-                  "type": "number"
-                },
-                "length": {
-                  "type": "number"
-                },
-                "width": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "x-nullable": true
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Crate"
+          }
         },
         "cratingTotal": {
           "type": "number",
@@ -468,10 +477,6 @@ func init() {
         "fiscalYear": {
           "type": "string",
           "x-nullable": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         },
         "invoicePaidAmt": {
           "type": "number",
@@ -1163,6 +1168,76 @@ func init() {
         }
       }
     },
+    "Crate": {
+      "description": "Crate object for PPTAS Reports",
+      "type": "object",
+      "properties": {
+        "crateDimensions": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "length": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "x-nullable": true
+        },
+        "description": {
+          "type": "string"
+        },
+        "itemDimensions": {
+          "type": "object",
+          "properties": {
+            "height": {
+              "type": "number"
+            },
+            "length": {
+              "type": "number"
+            },
+            "width": {
+              "type": "number"
+            }
+          },
+          "x-nullable": true
+        }
+      },
+      "x-nullable": true
+    },
+    "CrateCrateDimensions": {
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "number"
+        },
+        "length": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "x-nullable": true
+    },
+    "CrateItemDimensions": {
+      "type": "object",
+      "properties": {
+        "height": {
+          "type": "number"
+        },
+        "length": {
+          "type": "number"
+        },
+        "width": {
+          "type": "number"
+        }
+      },
+      "x-nullable": true
+    },
     "ListReport": {
       "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
       "type": "object",
@@ -1204,41 +1279,10 @@ func init() {
           "x-nullable": true
         },
         "cratingDimensions": {
-          "type": "object",
-          "properties": {
-            "crateDimensions": {
-              "type": "object",
-              "properties": {
-                "height": {
-                  "type": "number"
-                },
-                "length": {
-                  "type": "number"
-                },
-                "width": {
-                  "type": "number"
-                }
-              }
-            },
-            "description": {
-              "type": "string"
-            },
-            "itemDimensions": {
-              "type": "object",
-              "properties": {
-                "height": {
-                  "type": "number"
-                },
-                "length": {
-                  "type": "number"
-                },
-                "width": {
-                  "type": "number"
-                }
-              }
-            }
-          },
-          "x-nullable": true
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Crate"
+          }
         },
         "cratingTotal": {
           "type": "number",
@@ -1328,10 +1372,6 @@ func init() {
         "fiscalYear": {
           "type": "string",
           "x-nullable": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
         },
         "invoicePaidAmt": {
           "type": "number",
@@ -1698,71 +1738,6 @@ func init() {
           "description": "Total weight estimate",
           "type": "number",
           "format": "double"
-        }
-      }
-    },
-    "ListReportCratingDimensions": {
-      "type": "object",
-      "properties": {
-        "crateDimensions": {
-          "type": "object",
-          "properties": {
-            "height": {
-              "type": "number"
-            },
-            "length": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            }
-          }
-        },
-        "description": {
-          "type": "string"
-        },
-        "itemDimensions": {
-          "type": "object",
-          "properties": {
-            "height": {
-              "type": "number"
-            },
-            "length": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            }
-          }
-        }
-      },
-      "x-nullable": true
-    },
-    "ListReportCratingDimensionsCrateDimensions": {
-      "type": "object",
-      "properties": {
-        "height": {
-          "type": "number"
-        },
-        "length": {
-          "type": "number"
-        },
-        "width": {
-          "type": "number"
-        }
-      }
-    },
-    "ListReportCratingDimensionsItemDimensions": {
-      "type": "object",
-      "properties": {
-        "height": {
-          "type": "number"
-        },
-        "length": {
-          "type": "number"
-        },
-        "width": {
-          "type": "number"
         }
       }
     },

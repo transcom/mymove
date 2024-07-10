@@ -8,6 +8,7 @@ package pptasmessages
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
@@ -49,7 +50,7 @@ type ListReport struct {
 	CounselingFeeTotal *float64 `json:"counselingFeeTotal,omitempty"`
 
 	// crating dimensions
-	CratingDimensions *ListReportCratingDimensions `json:"cratingDimensions,omitempty"`
+	CratingDimensions []*Crate `json:"cratingDimensions"`
 
 	// crating total
 	CratingTotal *float64 `json:"cratingTotal,omitempty"`
@@ -103,10 +104,6 @@ type ListReport struct {
 
 	// fiscal year
 	FiscalYear *string `json:"fiscalYear,omitempty"`
-
-	// id
-	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
 
 	// invoice paid amt
 	InvoicePaidAmt *float64 `json:"invoicePaidAmt,omitempty"`
@@ -347,10 +344,6 @@ func (m *ListReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateMoveDate(formats); err != nil {
 		res = append(res, err)
 	}
@@ -452,15 +445,22 @@ func (m *ListReport) validateCratingDimensions(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if m.CratingDimensions != nil {
-		if err := m.CratingDimensions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cratingDimensions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cratingDimensions")
-			}
-			return err
+	for i := 0; i < len(m.CratingDimensions); i++ {
+		if swag.IsZero(m.CratingDimensions[i]) { // not required
+			continue
 		}
+
+		if m.CratingDimensions[i] != nil {
+			if err := m.CratingDimensions[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
+
 	}
 
 	return nil
@@ -605,18 +605,6 @@ func (m *ListReport) validateDestinationGbloc(formats strfmt.Registry) error {
 
 	// value enum
 	if err := m.validateDestinationGblocEnum("destinationGbloc", "body", *m.DestinationGbloc); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *ListReport) validateID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
 	}
 
@@ -1025,20 +1013,24 @@ func (m *ListReport) contextValidateAffiliation(ctx context.Context, formats str
 
 func (m *ListReport) contextValidateCratingDimensions(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.CratingDimensions != nil {
+	for i := 0; i < len(m.CratingDimensions); i++ {
 
-		if swag.IsZero(m.CratingDimensions) { // not required
-			return nil
-		}
+		if m.CratingDimensions[i] != nil {
 
-		if err := m.CratingDimensions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cratingDimensions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cratingDimensions")
+			if swag.IsZero(m.CratingDimensions[i]) { // not required
+				return nil
 			}
-			return err
+
+			if err := m.CratingDimensions[i].ContextValidate(ctx, formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
 		}
+
 	}
 
 	return nil
@@ -1097,241 +1089,6 @@ func (m *ListReport) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *ListReport) UnmarshalBinary(b []byte) error {
 	var res ListReport
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ListReportCratingDimensions list report crating dimensions
-//
-// swagger:model ListReportCratingDimensions
-type ListReportCratingDimensions struct {
-
-	// crate dimensions
-	CrateDimensions *ListReportCratingDimensionsCrateDimensions `json:"crateDimensions,omitempty"`
-
-	// description
-	Description string `json:"description,omitempty"`
-
-	// item dimensions
-	ItemDimensions *ListReportCratingDimensionsItemDimensions `json:"itemDimensions,omitempty"`
-}
-
-// Validate validates this list report crating dimensions
-func (m *ListReportCratingDimensions) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateCrateDimensions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateItemDimensions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ListReportCratingDimensions) validateCrateDimensions(formats strfmt.Registry) error {
-	if swag.IsZero(m.CrateDimensions) { // not required
-		return nil
-	}
-
-	if m.CrateDimensions != nil {
-		if err := m.CrateDimensions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cratingDimensions" + "." + "crateDimensions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cratingDimensions" + "." + "crateDimensions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *ListReportCratingDimensions) validateItemDimensions(formats strfmt.Registry) error {
-	if swag.IsZero(m.ItemDimensions) { // not required
-		return nil
-	}
-
-	if m.ItemDimensions != nil {
-		if err := m.ItemDimensions.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cratingDimensions" + "." + "itemDimensions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cratingDimensions" + "." + "itemDimensions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// ContextValidate validate this list report crating dimensions based on the context it is used
-func (m *ListReportCratingDimensions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.contextValidateCrateDimensions(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateItemDimensions(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *ListReportCratingDimensions) contextValidateCrateDimensions(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.CrateDimensions != nil {
-
-		if swag.IsZero(m.CrateDimensions) { // not required
-			return nil
-		}
-
-		if err := m.CrateDimensions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cratingDimensions" + "." + "crateDimensions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cratingDimensions" + "." + "crateDimensions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *ListReportCratingDimensions) contextValidateItemDimensions(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.ItemDimensions != nil {
-
-		if swag.IsZero(m.ItemDimensions) { // not required
-			return nil
-		}
-
-		if err := m.ItemDimensions.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("cratingDimensions" + "." + "itemDimensions")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("cratingDimensions" + "." + "itemDimensions")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ListReportCratingDimensions) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ListReportCratingDimensions) UnmarshalBinary(b []byte) error {
-	var res ListReportCratingDimensions
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ListReportCratingDimensionsCrateDimensions list report crating dimensions crate dimensions
-//
-// swagger:model ListReportCratingDimensionsCrateDimensions
-type ListReportCratingDimensionsCrateDimensions struct {
-
-	// height
-	Height float64 `json:"height,omitempty"`
-
-	// length
-	Length float64 `json:"length,omitempty"`
-
-	// width
-	Width float64 `json:"width,omitempty"`
-}
-
-// Validate validates this list report crating dimensions crate dimensions
-func (m *ListReportCratingDimensionsCrateDimensions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list report crating dimensions crate dimensions based on context it is used
-func (m *ListReportCratingDimensionsCrateDimensions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ListReportCratingDimensionsCrateDimensions) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ListReportCratingDimensionsCrateDimensions) UnmarshalBinary(b []byte) error {
-	var res ListReportCratingDimensionsCrateDimensions
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// ListReportCratingDimensionsItemDimensions list report crating dimensions item dimensions
-//
-// swagger:model ListReportCratingDimensionsItemDimensions
-type ListReportCratingDimensionsItemDimensions struct {
-
-	// height
-	Height float64 `json:"height,omitempty"`
-
-	// length
-	Length float64 `json:"length,omitempty"`
-
-	// width
-	Width float64 `json:"width,omitempty"`
-}
-
-// Validate validates this list report crating dimensions item dimensions
-func (m *ListReportCratingDimensionsItemDimensions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this list report crating dimensions item dimensions based on context it is used
-func (m *ListReportCratingDimensionsItemDimensions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *ListReportCratingDimensionsItemDimensions) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *ListReportCratingDimensionsItemDimensions) UnmarshalBinary(b []byte) error {
-	var res ListReportCratingDimensionsItemDimensions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

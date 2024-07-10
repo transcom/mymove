@@ -240,6 +240,33 @@ definitions:
       - city
       - state
       - postalCode
+  Crate:
+    description: Crate object for PPTAS Reports
+    type: object
+    properties:
+      itemDimensions:
+        type: object
+        x-nullable: true
+        properties:
+          height:
+            type: number
+          width:
+            type: number
+          length:
+            type: number
+      crateDimensions:
+        type: object
+        x-nullable: true
+        properties:
+          height:
+            type: number
+          width:
+            type: number
+          length:
+            type: number
+      description:
+        type: string
+    x-nullable: true
   ListReport:
     description: >
       An abbreviated definition for a report, without all the nested information
@@ -247,9 +274,6 @@ definitions:
       efficiently.
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
       firstName:
         example: Bob
         type: string
@@ -583,29 +607,9 @@ definitions:
         format: double
         x-nullable: true
       cratingDimensions:
-        type: object
-        properties:
-          itemDimensions:
-            type: object
-            properties:
-              height:
-                type: number
-              width:
-                type: number
-              length:
-                type: number
-          crateDimensions:
-            type: object
-            properties:
-              height:
-                type: number
-              width:
-                type: number
-              length:
-                type: number
-          description:
-            type: string
-        x-nullable: true
+        type: array
+        items:
+          $ref: '#/definitions/Crate'
       shuttleTotal:
         type: number
         format: double

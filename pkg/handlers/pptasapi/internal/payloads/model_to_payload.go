@@ -33,12 +33,15 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 
 // ListReport payload
 func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.ListReport {
+	var emptyReport *pptasmessages.ListReport
+
 	if move == nil {
 		return nil
 	}
 
 	Orders := move.Orders
 	var PaymentRequest []models.PaymentRequest
+	// get payment requests that have been approved
 	for _, pr := range move.PaymentRequests {
 		if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex || pr.Status == models.PaymentRequestStatusReceivedByGex {
 			PaymentRequest = append(PaymentRequest, pr)
@@ -68,14 +71,19 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		All(&tac)
 
 	if tacQueryError != nil {
-		return nil
+		return emptyReport
 	}
 
+	var middleInitial string
+	if *Orders.ServiceMember.MiddleName != "" {
+		middleInitial = string([]rune(*Orders.ServiceMember.MiddleName)[0])
+	}
 	progear := unit.Pound(0)
 	sitTotal := unit.Pound(0)
 	originActualWeight := unit.Pound(0)
 	travelAdvance := unit.Cents(0)
 	scac := "HSFR"
+	transmitCd := "T"
 	longLoa := buildFullLineOfAccountingString(tac[0].LineOfAccounting)
 
 	var moveDate *time.Time
@@ -85,11 +93,24 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		moveDate = move.MTOShipments[0].ActualPickupDate
 	}
 
+	// get weight entitlements
+	if Orders.Grade != nil && Orders.Entitlement != nil {
+		Orders.Entitlement.SetWeightAllotment(string(*Orders.Grade))
+	}
+
+	weightAllotment := Orders.Entitlement.WeightAllotment()
+
+	var totalWeight int64
+	if *Orders.Entitlement.DependentsAuthorized {
+		totalWeight = int64(weightAllotment.TotalWeightSelfPlusDependents)
+	} else {
+		totalWeight = int64(weightAllotment.TotalWeightSelf)
+	}
+
 	payload := &pptasmessages.ListReport{
-		// ID:        *report.ID,
 		FirstName:          *Orders.ServiceMember.FirstName,
 		LastName:           *Orders.ServiceMember.LastName,
-		MiddleInitial:      *Orders.ServiceMember.MiddleName,
+		MiddleInitial:      middleInitial,
 		Affiliation:        (*pptasmessages.Affiliation)(Orders.ServiceMember.Affiliation),
 		PayGrade:           (*string)(Orders.Grade),
 		Edipi:              *Orders.ServiceMember.Edipi,
@@ -122,39 +143,19 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		Ddcd:               tac[0].LineOfAccounting.LoaDptID,
 		ShipmentNum:        int64(len(move.MTOShipments)),
 		WeightEstimate:     calculateTotalWeightEstimate(move.MTOShipments).Float64(),
-		TransmitCD:         nil, // report.TransmitCd,
+		TransmitCD:         &transmitCd, // report.TransmitCd,
 		Dd2278IssueDate:    strfmt.Date(*move.ServiceCounselingCompletedAt),
 		Miles:              int64(*move.MTOShipments[0].Distance),
-		WeightAuthorized:   0.0, // float64(Orders.Entitlement.WeightAllotted.TotalWeightSelfPlusDependents), // WeightAlloted isn't returning any value
+		WeightAuthorized:   float64(*Orders.Entitlement.DBAuthorizedWeight),
 		ShipmentID:         strfmt.UUID(move.ID.String()),
 		Scac:               &scac,
 		Loa:                &longLoa,
 		ShipmentType:       string(*Orders.OrdersTypeDetail),
-		EntitlementWeight:  int64(*Orders.Entitlement.DBAuthorizedWeight),
+		EntitlementWeight:  totalWeight,
 		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
 		PickupDate:         strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
 		PaidDate:           (*strfmt.Date)(PaymentRequest[0].ReviewedAt),
-		// LinehaulTotal:
-		// LinehaulFuelTotal:
-		// OriginPrice
-		// DestinationPrice
-		// PackingTotal
-		// UnpackingTotal
-		// SitOriginFirstDayTotal:
-		// SitOriginAddlDaysTotal:
-		// SitDestFirstDayTotal:
-		// SitDestAddlDaysTotal:
-		// SitPickupTotal:
-		// SitDeliveryTotal:
-		// SitOriginFuelSurcharge:
-		// SitDestFuelSurcharge:
-		// Cratingtotal:
-		// UncratingTotal:
-		// CratingDimensions:
-		// ShuttleTotal:
-		// MoveManagementFeeTotal:
-		// CounselingFeeTotal:
-		// InvoicePaidAmt:
+
 		// PpmLineHaul:
 		// PpmFuelRateAdjTotal:
 		// PpmOriginPrice:
@@ -163,15 +164,11 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		// PpmUnpacking:
 		// PpmStorage:
 		// PpmTotal:
-		TravelType:                  string(*Orders.OrdersTypeDetail),
-		TravelClassCode:             string(Orders.OrdersType),
-		DeliveryDate:                strfmt.Date(*moveDate),
-		DestinationReweighNetWeight: nil,
-		CounseledDate:               strfmt.Date(*move.ServiceCounselingCompletedAt),
+		TravelType:      string(*Orders.OrdersTypeDetail),
+		TravelClassCode: string(Orders.OrdersType),
+		DeliveryDate:    strfmt.Date(*moveDate),
+		CounseledDate:   strfmt.Date(*move.ServiceCounselingCompletedAt),
 	}
-
-	// crating logic here
-	// var crating []struct{}
 
 	var linehaulTotal float64
 	var managementTotal float64
@@ -183,7 +180,20 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	var domesticCrating float64
 	var domesticUncrating float64
 	var counselingTotal float64
+	var sitPickuptotal float64
+	var sitOriginFuelSurcharge float64
+	var sitOriginShuttle float64
+	var sitOriginAddlDays float64
+	var sitOriginFirstDay float64
+	var sitDeliveryTotal float64
+	var sitDestFuelSurcharge float64
+	var sitDestShuttle float64
+	var sitDestAddlDays float64
+	var sitDestFirstDay float64
 
+	var allCrates []*pptasmessages.Crate
+
+	// this adds up all the different payment service items across all payment requests for a move
 	for _, pr := range PaymentRequest {
 		for _, serviceItem := range pr.PaymentServiceItems {
 			var mtoServiceItem models.MTOServiceItem
@@ -192,10 +202,8 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 				Where("mto_service_items.id = ?", serviceItem.MTOServiceItemID).
 				First(&mtoServiceItem)
 			if msiErr != nil {
-				return nil
+				return emptyReport
 			}
-
-			// handle crating logic here?
 
 			totalPrice := serviceItem.PriceCents.Float64()
 
@@ -219,30 +227,68 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 				domesticUncrating += totalPrice
 			// case "Domestic crating - standalone":
 			case "Domestic crating":
+				crate := buildServiceItemCrate(mtoServiceItem)
+				allCrates = append(allCrates, &crate)
 				domesticCrating += totalPrice
 
-			// case "Domestic origin SIT pickup":
-			// 	payload.SitPickupTotal = totalPrice
-			// case "Domestic origin SIT fuel surcharge":
-			// 	payload.SitOriginFuelSurcharge = totalPrice
-			// case "Domestic origin shuttle service":
-			// case "Domestic origin price":
-			// case "Domestic origin add'l SIT":
-			// case "Domestic origin 1st day SIT":
-			// case "Domestic NTS packing":
-			// case "Domestic destination SIT fuel surcharge":
-			// case "Domestic destination SIT delivery":
-			// case "Domestic destination shuttle service":
-			// case "Domestic destination price":
-			// case "Domestic destination add'l SIT":
-			// case "Domestic destination 1st day SIT":
-
+			case "Domestic origin SIT pickup":
+				sitPickuptotal += totalPrice
+			case "Domestic origin SIT fuel surcharge":
+				sitOriginFuelSurcharge += totalPrice
+			case "Domestic origin shuttle service":
+				sitOriginShuttle += totalPrice
+			case "Domestic origin add'l SIT":
+				sitOriginAddlDays += totalPrice
+			case "Domestic origin 1st day SIT":
+				sitType := "Origin"
+				payload.SitType = &sitType
+				sitOriginFirstDay += totalPrice
+			case "Domestic destination SIT fuel surcharge":
+				sitDestFuelSurcharge += totalPrice
+			case "Domestic destination SIT delivery":
+				sitDeliveryTotal += totalPrice
+			case "Domestic destination shuttle service":
+				sitDestShuttle += totalPrice
+			case "Domestic destination add'l SIT":
+				sitDestAddlDays += totalPrice
+			case "Domestic destination 1st day SIT":
+				sitType := "Destination"
+				payload.SitType = &sitType
+				sitDestFirstDay += totalPrice
 			case "Counseling":
 				counselingTotal += totalPrice
 			}
 
 		}
 	}
+
+	shuttleTotal := sitOriginShuttle + sitDestShuttle
+	payload.LinehaulTotal = &linehaulTotal
+	payload.LinehaulFuelTotal = &fuelPrice
+	payload.OriginPrice = &domesticOriginTotal
+	payload.DestinationPrice = &domesticDestTotal
+	payload.PackingPrice = &domesticPacking
+	payload.UnpackingPrice = &domesticUnpacking
+	payload.SitOriginFirstDayTotal = &sitOriginFirstDay
+	payload.SitOriginAddlDaysTotal = &sitOriginAddlDays
+	payload.SitDestFirstDayTotal = &sitDestFirstDay
+	payload.SitDestAddlDaysTotal = &sitDestAddlDays
+	payload.SitPickupTotal = &sitPickuptotal
+	payload.SitDeliveryTotal = &sitDeliveryTotal
+	payload.SitOriginFuelSurcharge = &sitOriginFuelSurcharge
+	payload.SitDestFuelSurcharge = &sitDestFuelSurcharge
+	payload.CratingTotal = &domesticCrating
+	payload.UncratingTotal = &domesticUncrating
+	payload.ShuttleTotal = &shuttleTotal
+	payload.MoveManagementFeeTotal = &managementTotal
+	payload.CounselingFeeTotal = &counselingTotal
+	payload.CratingDimensions = allCrates
+
+	// calculate total invoice cost
+	invoicePaidAmt := shuttleTotal + linehaulTotal + fuelPrice + domesticOriginTotal + domesticDestTotal + domesticPacking + domesticUnpacking +
+		sitOriginFirstDay + sitOriginAddlDays + sitDestFirstDay + sitDestAddlDays + sitPickuptotal + sitDeliveryTotal + sitOriginFuelSurcharge +
+		sitDestFuelSurcharge + domesticCrating + domesticUncrating
+	payload.InvoicePaidAmt = &invoicePaidAmt
 
 	// sharing this for loop for all MTOShipment calculations
 	for _, shipment := range move.MTOShipments {
@@ -263,8 +309,7 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 				// SIT Fields
 				payload.SitInDate = (*strfmt.Date)(shipment.PPMShipment.SITEstimatedEntryDate)
 				payload.SitOutDate = (*strfmt.Date)(shipment.PPMShipment.SITEstimatedDepartureDate)
-				// SitDuration = shipment.PPMShipment.SITEstimatedDepartureDate.Sub(*shipment.PPMShipment.SITEstimatedEntryDate)
-				// newreport.SitType = // Example data is destination.. ??
+				// newreport.SitType = shipment.PPMShipment.
 			}
 		}
 
@@ -273,7 +318,7 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		}
 	}
 
-	payload.ActualOriginNetWeight = float64(originActualWeight) // is Prime_Actual_Weight what they want?
+	payload.ActualOriginNetWeight = float64(originActualWeight)
 	payload.PbpAnde = progear.Float64()
 	reweigh := move.MTOShipments[0].Reweigh
 	if reweigh != nil {
@@ -282,7 +327,6 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		payload.DestinationReweighNetWeight = nil
 	}
 
-	// SAC is currently optional, is it acceptable to have an empty return here?
 	if Orders.SAC != nil {
 		payload.OrdersNumber = *Orders.SAC
 	} else {
@@ -462,4 +506,29 @@ func buildFullLineOfAccountingString(loa *models.LineOfAccounting) string {
 	longLoa = strings.ReplaceAll(longLoa, " *", "*")
 
 	return longLoa
+}
+
+func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crate {
+	var newServiceItemCrate pptasmessages.Crate
+	var newCrateDimensions pptasmessages.CrateCrateDimensions
+	var newItemDimensions pptasmessages.CrateItemDimensions
+
+	for dimensionIndex := range serviceItem.Dimensions {
+		if serviceItem.Dimensions[dimensionIndex].Type == "ITEM" {
+			newItemDimensions.Height = serviceItem.Dimensions[dimensionIndex].Height.ToInches()
+			newItemDimensions.Length = serviceItem.Dimensions[dimensionIndex].Length.ToInches()
+			newItemDimensions.Width = serviceItem.Dimensions[dimensionIndex].Width.ToInches()
+			newServiceItemCrate.ItemDimensions = &newItemDimensions
+		}
+		if serviceItem.Dimensions[dimensionIndex].Type == "CRATE" {
+			newCrateDimensions.Height = serviceItem.Dimensions[dimensionIndex].Height.ToInches()
+			newCrateDimensions.Length = serviceItem.Dimensions[dimensionIndex].Length.ToInches()
+			newCrateDimensions.Width = serviceItem.Dimensions[dimensionIndex].Width.ToInches()
+			newServiceItemCrate.CrateDimensions = &newCrateDimensions
+		}
+	}
+
+	newServiceItemCrate.Description = *serviceItem.Description
+
+	return newServiceItemCrate
 }
