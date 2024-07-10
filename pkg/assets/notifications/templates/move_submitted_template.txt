@@ -32,7 +32,7 @@ Your move request will be reviewed by the responsible personal property shipping
 Once this order is placed, you will receive an invitation to create an account in HomeSafe Connect. This is the system you will use for your counseling session. You will also schedule your pre-move survey during this session.
 {{- end }}
 
-HomeSafe is required to contact you within 24 hours of receiving your move task order. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
+HomeSafe is required to contact you within one Government Business Day. Once contact has been established, HomeSafe is your primary point of contact. If any information about your move changes at any point during the move, immediately notify your HomeSafe Customer Care Representative of the changes.
 
 If you have requested a PPM, DO NOT start your PPM until your counselor has approved it in MilMove. You will receive an email when that is complete.
 

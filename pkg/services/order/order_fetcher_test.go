@@ -405,8 +405,16 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		// Expected outcome: search results should only include the move with the PPM status that was searched for
 		officeUser, partialPPMMove, session := setupTestData()
 		suite.Equal("PARTIAL", *partialPPMMove.PPMType)
+		postalCode := "50309"
 
-		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, nil)
+		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		})
 		// Search for PARTIAL PPM moves
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("NEEDS_CLOSEOUT"),
@@ -416,7 +424,14 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(1, len(moves))
 		suite.Equal(moves[0].MTOShipments[0].PPMShipment.Status, ppmShipmentNeedsCloseout.Shipment.PPMShipment.Status)
 
-		ppmShipmentWaiting := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil)
+		ppmShipmentWaiting := factory.BuildPPMShipmentThatNeedsToBeResubmitted(suite.DB(), nil, []factory.Customization{
+			{
+				Model: models.Address{
+					PostalCode: postalCode,
+				},
+				Type: &factory.Addresses.PickupAddress,
+			},
+		})
 		// Search for FULL PPM moves
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
 			PPMStatus: models.StringPointer("WAITING_ON_CUSTOMER"),
@@ -618,9 +633,87 @@ func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	})
 }
 
+func getMoveNeedsServiceCounseling(suite *OrderServiceSuite, showMove bool, affiliation models.ServiceMemberAffiliation) models.Move {
+	nonCloseoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusNeedsServiceCounseling,
+				Show:   &showMove,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &affiliation,
+			},
+		},
+	}, nil)
+
+	return nonCloseoutMove
+}
+
+func getSubmittedMove(suite *OrderServiceSuite, showMove bool, affiliation models.ServiceMemberAffiliation) models.Move {
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model: models.Move{
+				Status: models.MoveStatusSUBMITTED,
+				Show:   &showMove,
+			},
+		},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &affiliation,
+			},
+		},
+	}, nil)
+	return move
+}
+
+func buildPPMShipmentNeedsCloseout(suite *OrderServiceSuite, move models.Move) models.PPMShipment {
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusNeedsCloseout,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	return ppm
+}
+
+func buildPPMShipmentDraft(suite *OrderServiceSuite, move models.Move) models.PPMShipment {
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusDraft,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	return ppm
+}
+
+func buildPPMShipmentCloseoutComplete(suite *OrderServiceSuite, move models.Move) models.PPMShipment {
+	ppm := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.PPMShipment{
+				Status: models.PPMShipmentStatusCloseoutComplete,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	return ppm
+}
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 	orderFetcher := NewOrderFetcher()
-	showMove := true
 
 	var session auth.Session
 
@@ -635,84 +728,14 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			AccessToken:     "fakeAccessToken",
 		}
 
-		army := models.AffiliationARMY
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusNeedsServiceCounseling,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &army,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// Moves that are not ready for closeout should not show in this queue
-		af := models.AffiliationAIRFORCE
-		afMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusNeedsServiceCounseling,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &af,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusDraft,
-				},
-			},
-			{
-				Model:    afMove,
-				LinkOnly: true,
-			},
-		}, nil)
-		// Coast guard moves should not show up in our office user's closeout queue
-		cg := models.AffiliationCOASTGUARD
-		cgMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusNeedsServiceCounseling,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &cg,
-				},
-			},
-		}, nil)
+		move := getMoveNeedsServiceCounseling(suite, true, models.AffiliationARMY)
+		buildPPMShipmentNeedsCloseout(suite, move)
 
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    cgMove,
-				LinkOnly: true,
-			},
-		}, nil)
+		afMove := getMoveNeedsServiceCounseling(suite, true, models.AffiliationAIRFORCE)
+		buildPPMShipmentDraft(suite, afMove)
+
+		cgMove := getMoveNeedsServiceCounseling(suite, true, models.AffiliationCOASTGUARD)
+		buildPPMShipmentNeedsCloseout(suite, cgMove)
 
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(true), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
@@ -733,58 +756,13 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 			AccessToken:     "fakeAccessToken",
 		}
 
-		// PPM moves that need closeout should not show up in counseling queue
-		army := models.AffiliationARMY
-		closeoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusNeedsServiceCounseling,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &army,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    closeoutMove,
-				LinkOnly: true,
-			},
-		}, nil)
+		closeoutMove := getMoveNeedsServiceCounseling(suite, true, models.AffiliationARMY)
+		buildPPMShipmentCloseoutComplete(suite, closeoutMove)
+
 		// PPM moves that are not in one of the closeout statuses
-		airforce := models.AffiliationAIRFORCE
-		nonCloseoutMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusNeedsServiceCounseling,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &airforce,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusDraft,
-				},
-			},
-			{
-				Model:    nonCloseoutMove,
-				LinkOnly: true,
-			},
-		}, nil)
+		nonCloseoutMove := getMoveNeedsServiceCounseling(suite, true, models.AffiliationAIRFORCE)
+		buildPPMShipmentDraft(suite, nonCloseoutMove)
+
 		params := services.ListOrderParams{PerPage: models.Int64Pointer(9), Page: models.Int64Pointer(1), NeedsPPMCloseout: models.BoolPointer(false), Status: []string{string(models.MoveStatusNeedsServiceCounseling)}}
 
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUserSC.ID, &params)
@@ -797,62 +775,16 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForArmyAirforce() {
 
 func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMarines() {
 	orderFetcher := NewOrderFetcher()
-	showMove := true
 
 	suite.Run("returns Navy order for NAVY office user when there's a ppm shipment in closeout", func() {
-		navy := models.AffiliationNAVY
 		// It doesn't matter what the Origin GBLOC is for the move. Only the navy
 		// affiliation matters for SC  who are tied to the NAVY GBLOC.
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &navy,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
+		move := getSubmittedMove(suite, true, models.AffiliationNAVY)
+		buildPPMShipmentNeedsCloseout(suite, move)
 
-		cg := models.AffiliationCOASTGUARD
-		cgMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &cg,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    cgMove,
-				LinkOnly: true,
-			},
-		}, nil)
+		cgMove := getSubmittedMove(suite, true, models.AffiliationCOASTGUARD)
+		buildPPMShipmentNeedsCloseout(suite, cgMove)
+
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -879,58 +811,14 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	})
 
 	suite.Run("returns TVCB order for TVCB office user when there's a ppm shipment in closeout", func() {
-		marines := models.AffiliationMARINES
 		// It doesn't matter what the Origin GBLOC is for the move. Only the marines
 		// affiliation matters for SC  who are tied to the TVCB GBLOC.
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &marines,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		army := models.AffiliationARMY
-		nonMarineMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &army,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    nonMarineMove,
-				LinkOnly: true,
-			},
-		}, nil)
+		move := getSubmittedMove(suite, true, models.AffiliationMARINES)
+		buildPPMShipmentNeedsCloseout(suite, move)
+
+		nonMarineMove := getSubmittedMove(suite, true, models.AffiliationARMY)
+		buildPPMShipmentNeedsCloseout(suite, nonMarineMove)
+
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -957,58 +845,14 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	})
 
 	suite.Run("returns coast guard order for USCG office user when there's a ppm shipment in closeout and filters out non coast guard moves", func() {
-		cg := models.AffiliationCOASTGUARD
 		// It doesn't matter what the Origin GBLOC is for the move. Only the coast guard
 		// affiliation matters for SC  who are tied to the USCG GBLOC.
-		move := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &cg,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		army := models.AffiliationARMY
-		armyMove := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &army,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusNeedsCloseout,
-				},
-			},
-			{
-				Model:    armyMove,
-				LinkOnly: true,
-			},
-		}, nil)
+		move := getSubmittedMove(suite, true, models.AffiliationCOASTGUARD)
+		buildPPMShipmentNeedsCloseout(suite, move)
+
+		armyMove := getSubmittedMove(suite, true, models.AffiliationARMY)
+		buildPPMShipmentNeedsCloseout(suite, armyMove)
+
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -1034,32 +878,10 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	})
 
 	suite.Run("Filters out moves with PPM shipments not in the status of NeedsApproval", func() {
-		cg := models.AffiliationCOASTGUARD
 
-		cgMoveInWrongStatus := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &cg,
-				},
-			},
-		}, nil)
-		factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					Status: models.PPMShipmentStatusCloseoutComplete,
-				},
-			},
-			{
-				Model:    cgMoveInWrongStatus,
-				LinkOnly: true,
-			},
-		}, nil)
+		cgMoveInWrongStatus := getSubmittedMove(suite, true, models.AffiliationCOASTGUARD)
+		buildPPMShipmentCloseoutComplete(suite, cgMoveInWrongStatus)
+
 		officeUserSC := factory.BuildOfficeUserWithRoles(suite.DB(), []factory.Customization{
 			{
 				Model: models.TransportationOffice{
@@ -1076,21 +898,8 @@ func (suite *OrderServiceSuite) TestListOrdersPPMCloseoutForNavyCoastGuardAndMar
 	})
 
 	suite.Run("Filters out moves with no PPM shipment", func() {
-		cg := models.AffiliationCOASTGUARD
 
-		moveWithHHG := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.Move{
-					Status: models.MoveStatusSUBMITTED,
-					Show:   &showMove,
-				},
-			},
-			{
-				Model: models.ServiceMember{
-					Affiliation: &cg,
-				},
-			},
-		}, nil)
+		moveWithHHG := getSubmittedMove(suite, true, models.AffiliationCOASTGUARD)
 		factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.MTOShipment{
@@ -1450,6 +1259,27 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 	})
 }
 
+func getTransportationOffice(suite *OrderServiceSuite, name string) models.TransportationOffice {
+	trasportationOffice := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name: name,
+			},
+		}}, nil)
+	return trasportationOffice
+}
+
+func getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite *OrderServiceSuite, closeoutOffice models.TransportationOffice) models.PPMShipment {
+	ppm := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
+		{
+			Model:    closeoutOffice,
+			LinkOnly: true,
+			Type:     &factory.TransportationOffices.CloseoutOffice,
+		},
+	})
+	return ppm
+}
+
 func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCloseoutColumnsSort() {
 	defaultShipmentPickupPostalCode := "90210"
 	setupTestData := func() models.OfficeUser {
@@ -1534,32 +1364,11 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 	suite.Run("Sort by PPM closeout location", func() {
 		officeUser := setupTestData()
 
-		locationA := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name: "A",
-				},
-			}}, nil)
-		ppmShipmentA := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    locationA,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
-		locationB := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-			{
-				Model: models.TransportationOffice{
-					Name: "B",
-				},
-			}}, nil)
-		ppmShipmentB := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    locationB,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
+		locationA := getTransportationOffice(suite, "A")
+		ppmShipmentA := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, locationA)
+
+		locationB := getTransportationOffice(suite, "B")
+		ppmShipmentB := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, locationB)
 
 		// Sort by closeout location (ascending)
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
@@ -1722,13 +1531,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 				Model: models.TransportationOffice{Gbloc: "KKFA"},
 			},
 		}, nil)
-		ppmShipmentNeedsCloseout := factory.BuildPPMShipmentThatNeedsCloseout(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
+		ppmShipmentNeedsCloseout := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, closeoutOffice)
 		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentWaitingOnCustomer(suite.DB(), nil, []factory.Customization{
 			{
 				Model:    closeoutOffice,

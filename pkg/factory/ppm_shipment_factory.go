@@ -780,11 +780,11 @@ func BuildPPMShipmentWithAllDocTypesApproved(db *pop.Connection, userUploader *u
 //
 // This function does not accept customizations to reduce the
 // complexity of supporting different variations for tests
-func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, nil)
+	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, customs)
 
 	// Document that got rejected. This would normally already exist
 	// and would just need to be updated to change the status, but for

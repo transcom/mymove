@@ -23,6 +23,7 @@ var TOO = RolePermissions{
 		"create.reweighRequest",
 		"create.shipmentCancellation",
 		"create.SITExtension",
+		"create.supportingDocuments",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
 		"read.paymentServiceItemStatus",
@@ -37,7 +38,9 @@ var TOO = RolePermissions{
 		"update.excessWeightRisk",
 		"update.customer",
 		"view.closeoutOffice",
+		"update.closeoutOffice",
 		"update.MTOPage",
+		"create.TXOShipment",
 	},
 }
 
@@ -45,6 +48,7 @@ var TIO = RolePermissions{
 	RoleType: roles.RoleTypeTIO,
 	Permissions: []string{
 		"create.serviceItem",
+		"create.supportingDocuments",
 		"read.paymentRequest",
 		"read.shipmentsPaymentSITBalance",
 		"update.financialReviewFlag",
@@ -63,6 +67,7 @@ var ServicesCounselor = RolePermissions{
 	Permissions: []string{
 		"create.shipmentDiversionRequest",
 		"create.reweighRequest",
+		"create.supportingDocuments",
 		"update.financialReviewFlag",
 		"update.shipment",
 		"update.orders",

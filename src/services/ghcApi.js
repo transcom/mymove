@@ -335,6 +335,17 @@ export async function getTacValid({ tac }) {
   return makeGHCRequest(operationPath, { tac }, { normalize: false });
 }
 
+// Retrieves the line of accounting based on a given TAC,
+// orders issue date, and service member affiliation
+export async function getLoa({ tacCode, ordersIssueDate, serviceMemberAffiliation }) {
+  const operationPath = 'linesOfAccounting.requestLineOfAccounting';
+  return makeGHCRequest(
+    operationPath,
+    { body: { tacCode, ordersIssueDate, serviceMemberAffiliation } },
+    { normalize: false },
+  );
+}
+
 export async function updateOrder({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateOrder';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });
@@ -730,6 +741,45 @@ export async function createUploadForDocument(file, documentId) {
     {
       documentId,
       file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForAmdendedOrders(file, orderID) {
+  return makeGHCRequest(
+    'order.uploadAmendedOrders',
+    {
+      orderID,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForSupportingDocuments(file, moveID) {
+  return makeGHCRequest(
+    'move.uploadAdditionalDocuments',
+    {
+      moveID,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteUploadForDocument(uploadID, orderID) {
+  return makeGHCRequest(
+    'uploads.deleteUpload',
+    {
+      uploadID,
+      orderID,
     },
     {
       normalize: false,

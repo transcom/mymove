@@ -433,6 +433,31 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   };
 };
 
+export const useGetDocumentQuery = (documentId) => {
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
+  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+    [ORDERS_DOCUMENTS, documentId],
+    ({ queryKey }) => getDocument(...queryKey),
+    {
+      enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([documentsQuery]);
+
+  return {
+    documents,
+    uploads,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
@@ -489,6 +514,30 @@ export const useOrdersDocumentQueries = (moveCode) => {
     documents,
     amendedDocuments,
     upload,
+    amendedUpload,
+    isLoading,
+    isError,
+    isSuccess,
+    amendedOrderDocumentId,
+  };
+};
+
+export const useAmendedDocumentQueries = (amendedOrderDocumentId) => {
+  const staleTime = 0;
+  const cacheTime = staleTime;
+
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], ({ queryKey }) => getDocument(...queryKey), {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([amendedOrdersDocumentsQuery]);
+
+  return {
+    amendedDocuments,
     amendedUpload,
     isLoading,
     isError,

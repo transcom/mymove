@@ -39,11 +39,13 @@ import (
 	"github.com/transcom/mymove/pkg/services/roles"
 	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
+	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 	sitentrydateupdate "github.com/transcom/mymove/pkg/services/sit_entry_date_update"
 	sitextension "github.com/transcom/mymove/pkg/services/sit_extension"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/services/upload"
 	usersroles "github.com/transcom/mymove/pkg/services/users_roles"
 	weightticket "github.com/transcom/mymove/pkg/services/weight_ticket"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -68,12 +70,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	newQueryFilter := query.NewQueryFilter
 	newUserRolesCreator := usersroles.NewUsersRolesCreator()
 	newRolesFetcher := roles.NewRolesFetcher()
+	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
+	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	moveTaskOrderUpdater := movetaskorder.NewMoveTaskOrderUpdater(
 		queryBuilder,
 		mtoserviceitem.NewMTOServiceItemCreator(handlerConfig.HHGPlanner(), queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
-		moveRouter,
+		moveRouter, signedCertificationCreator, signedCertificationUpdater,
 	)
+
 	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -175,6 +181,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		HandlerConfig:         handlerConfig,
 		mtoServiceItemFetcher: mtoserviceitem.NewMTOServiceItemFetcher(),
 	}
+
+	ghcAPI.MoveUploadAdditionalDocumentsHandler = UploadAdditionalDocumentsHandler{
+		HandlerConfig: handlerConfig,
+		uploader:      move.NewMoveAdditionalDocumentsUploader(uploadCreator),
+	}
 	paymentRequestRecalculator := paymentrequest.NewPaymentRequestRecalculator(
 		paymentrequest.NewPaymentRequestCreator(
 			handlerConfig.HHGPlanner(),
@@ -219,6 +230,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		fetch.NewListFetcher(queryBuilder),
 		fetch.NewFetcher(queryBuilder),
+		ghcrateengine.NewCounselingServicesPricer(),
+		ghcrateengine.NewManagementServicesPricer(),
 	}
 
 	ghcAPI.PaymentRequestsGetPaymentRequestHandler = GetPaymentRequestHandler{
@@ -487,6 +500,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 
 	ghcAPI.GhcDocumentsGetDocumentHandler = GetDocumentHandler{handlerConfig}
+	ghcAPI.GhcDocumentsCreateDocumentHandler = CreateDocumentHandler{handlerConfig}
 
 	ghcAPI.QueuesGetMovesQueueHandler = GetMovesQueueHandler{
 		handlerConfig,
@@ -529,6 +543,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		ppmshipment.NewPPMShipmentReviewDocuments(
 			ppmshipment.NewPPMShipmentRouter(mtoshipment.NewShipmentRouter()),
+			signedCertificationCreator, signedCertificationUpdater,
 		),
 	}
 
@@ -606,6 +621,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
+	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
 		HandlerConfig:    handlerConfig,
@@ -624,6 +640,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.ApplicationParametersGetParamHandler = ApplicationParametersParamHandler{handlerConfig}
 	ghcAPI.PpmUpdatePPMSITHandler = UpdatePPMSITHandler{handlerConfig, ppmShipmentUpdater, ppmShipmentFetcher}
 	ghcAPI.PpmGetPPMSITEstimatedCostHandler = GetPPMSITEstimatedCostHandler{handlerConfig, ppmEstimator, ppmShipmentFetcher}
+
+	ghcAPI.OrderUploadAmendedOrdersHandler = UploadAmendedOrdersHandler{
+		handlerConfig,
+		order.NewOrderUpdater(moveRouter),
+	}
 
 	return ghcAPI
 }
