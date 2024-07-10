@@ -65,7 +65,7 @@ const validationSchema = (maxWeight) => {
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
-      then: (schema) => schema.required('Required').oneOf(sitLocationOptions.map((i) => i.key)),
+      then: (schema) => schema.oneOf(sitLocationOptions.map((i) => i.key)).required('Required'),
     }),
   });
 };
@@ -303,7 +303,7 @@ export default function ReviewExpense({
                       label="Origin"
                       name="sitLocation"
                       value="ORIGIN"
-                      checked={values.sitLocation === 'ORIGIN'}
+                      checked={values.sitLocation === 'ORIGIN' || values.sitLocation === ''}
                       disabled={readOnly}
                       onChange={(e) => {
                         handleSITLocationChange(e);
