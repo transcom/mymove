@@ -17,7 +17,6 @@ test.describe('TOO user', () => {
   let tooFlowPage;
   test.describe('with unapproved HHG + NTS Move', () => {
     test.beforeEach(async ({ officePage }) => {
-      await officePage.clearCache();
       const move = await officePage.testHarness.buildHHGMoveWithNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
@@ -177,7 +176,6 @@ test.describe('TOO user', () => {
     let move;
 
     test.beforeEach(async ({ officePage }) => {
-      await officePage.clearCache();
       move = await officePage.testHarness.buildHHGMoveWithApprovedNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
@@ -290,7 +288,6 @@ test.describe('TOO user', () => {
 
   test.describe('with HHG Move plus NTS Shipment handled by external vendor', () => {
     test.beforeEach(async ({ officePage }) => {
-      await officePage.clearCache();
       const move = await officePage.testHarness.buildHHGMoveWithExternalNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
@@ -337,7 +334,6 @@ test.describe('TOO user', () => {
 
   test.describe('with NTS-only Move handled by external vendor', () => {
     test.beforeEach(async ({ officePage }) => {
-      await officePage.clearCache();
       const move = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
