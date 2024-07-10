@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import React, { useEffect, useReducer, useRef, useState } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
@@ -13,62 +13,41 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import OrdersDetailForm from 'components/Office/OrdersDetailForm/OrdersDetailForm';
 import { DEPARTMENT_INDICATOR_OPTIONS } from 'constants/departmentIndicators';
 import { ORDERS_TYPE_DETAILS_OPTIONS, ORDERS_TYPE_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
-import { ORDERS, ORDERS_DOCUMENTS } from 'constants/queryKeys';
+import { ORDERS } from 'constants/queryKeys';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { useOrdersDocumentQueries } from 'hooks/queries';
-import { getTacValid, getLoa, counselingUpdateOrder, createUploadForDocument } from 'services/ghcApi';
+import { getTacValid, getLoa, counselingUpdateOrder, getOrder } from 'services/ghcApi';
 import { formatSwaggerDate, dropdownInputOptions } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { LineOfAccountingDfasElementOrder } from 'types/lineOfAccounting';
 import { LOA_VALIDATION_ACTIONS, reducer as loaReducer, initialState as initialLoaState } from 'reducers/loaValidation';
 import { TAC_VALIDATION_ACTIONS, reducer as tacReducer, initialState as initialTacState } from 'reducers/tacValidation';
-import { LOA_TYPE } from 'shared/constants';
-import FileUpload from 'components/FileUpload/FileUpload';
-import Hint from 'components/Hint';
+import { LOA_TYPE, MOVE_DOCUMENT_TYPE } from 'shared/constants';
+import DocumentViewerFileManager from 'components/DocumentViewerFileManager/DocumentViewerFileManager';
 
 const deptIndicatorDropdownOptions = dropdownInputOptions(DEPARTMENT_INDICATOR_OPTIONS);
 const ordersTypeDropdownOptions = dropdownInputOptions(ORDERS_TYPE_OPTIONS);
 const ordersTypeDetailsDropdownOptions = dropdownInputOptions(ORDERS_TYPE_DETAILS_OPTIONS);
 const payGradeDropdownOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
-const ServicesCounselingOrders = ({ hasDocuments }) => {
-  const filePondEl = useRef();
+const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { moveCode } = useParams();
   const [tacValidationState, tacValidationDispatch] = useReducer(tacReducer, null, initialTacState);
   const [loaValidationState, loaValidationDispatch] = useReducer(loaReducer, null, initialLoaState);
-
   const { move, orders, isLoading, isError } = useOrdersDocumentQueries(moveCode);
-  const [showUpload, setShowUpload] = useState(false);
-  const [isDoneButtonDisabled, setIsDoneButtonDisabled] = useState(true);
+
   const orderId = move?.ordersId;
-  const documentId = orders[orderId]?.uploaded_order_id;
+  const orderDocumentId = orders[orderId]?.uploaded_order_id;
+  const amendedOrderDocumentId = orders[orderId]?.uploadedAmendedOrderID || amendedDocumentId;
+
+  const ordersDocuments = files[MOVE_DOCUMENT_TYPE.ORDERS];
+  const amendedDocuments = files[MOVE_DOCUMENT_TYPE.AMENDMENTS];
 
   const handleClose = () => {
     navigate(`../${servicesCounselingRoutes.MOVE_VIEW_PATH}`);
-  };
-
-  const handleUploadFile = (file) => {
-    return createUploadForDocument(file, documentId);
-  };
-
-  // enable done button when upload completes
-  // will need update when implementing deletion
-  const handleChange = () => {
-    setIsDoneButtonDisabled(false);
-  };
-
-  const toggleUploadVisibility = () => {
-    setShowUpload((show) => !show);
-  };
-
-  // when the user clicks done, invalidate the query to trigger re render
-  // of parent to display uploaded orders and hide the button
-  const uploadComplete = () => {
-    queryClient.invalidateQueries([ORDERS_DOCUMENTS, documentId]);
-    toggleUploadVisibility();
   };
 
   const { mutate: mutateOrders } = useMutation(counselingUpdateOrder, {
@@ -105,7 +84,13 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
       }
       return loa[key] || '';
     });
-    return dfasMap.join('*');
+    let longLoa = dfasMap.join('*');
+    // remove any number of spaces following an asterisk in a LOA string
+    longLoa = longLoa.replace(/\* +/g, '*');
+    // remove any number of spaces preceding an asterisk in a LOA string
+    longLoa = longLoa.replace(/ +\*/g, '*');
+
+    return longLoa;
   };
 
   const { mutate: validateLoa } = useMutation(getLoa, {
@@ -219,7 +204,12 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const onSubmit = (values) => {
+  const onSubmit = async (values) => {
+    const response = await getOrder(null, orderId);
+    let newEtag = order.eTag;
+    if (response) {
+      newEtag = response.orders[orderId].eTag;
+    }
     const body = {
       ...values,
       originDutyLocationId: values.originDutyLocation.id,
@@ -229,7 +219,7 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
       ordersType: values.ordersType,
       grade: values.payGrade,
     };
-    mutateOrders({ orderID: orderId, ifMatchETag: order.eTag, body });
+    mutateOrders({ orderID: orderId, ifMatchETag: newEtag, body });
   };
 
   const initialValues = {
@@ -292,23 +282,19 @@ const ServicesCounselingOrders = ({ hasDocuments }) => {
                       View allowances
                     </Link>
                   </div>
-                  {!hasDocuments && !showUpload && <Button onClick={toggleUploadVisibility}>Add Orders</Button>}
-                  <div>
-                    {showUpload && (
-                      <div className={styles.upload}>
-                        <FileUpload
-                          ref={filePondEl}
-                          createUpload={handleUploadFile}
-                          onChange={handleChange}
-                          labelIdle="Drag files here or click to upload"
-                        />
-                        <Hint>PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible</Hint>
-                        <Button disabled={isDoneButtonDisabled} onClick={uploadComplete}>
-                          Done
-                        </Button>
-                      </div>
-                    )}
-                  </div>
+                  <DocumentViewerFileManager
+                    orderId={orderId}
+                    documentId={orderDocumentId}
+                    files={ordersDocuments}
+                    documentType={MOVE_DOCUMENT_TYPE.ORDERS}
+                  />
+                  <DocumentViewerFileManager
+                    orderId={orderId}
+                    documentId={amendedOrderDocumentId}
+                    files={amendedDocuments}
+                    documentType={MOVE_DOCUMENT_TYPE.AMENDMENTS}
+                    updateAmendedDocument={updateAmendedDocument}
+                  />
                 </div>
                 <div className={styles.body}>
                   <OrdersDetailForm

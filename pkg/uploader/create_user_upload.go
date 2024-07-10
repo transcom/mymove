@@ -20,12 +20,28 @@ func CreateUserUploadForDocumentWrapper(
 	fileSizeLimit ByteSize,
 	allowedFileTypes AllowedFileTypes,
 	docID *uuid.UUID,
+	uploadType models.UploadType,
 ) (*models.UserUpload, string, *validate.Errors, error) {
 
-	userUploader, err := NewUserUploader(storer, fileSizeLimit)
-	if err != nil {
-		appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
-		return nil, "", &validate.Errors{}, ErrFailedToInitUploader{message: err.Error()}
+	var userUploader *UserUploader
+
+	if uploadType == models.UploadTypeUSER {
+		var err error
+		userUploader, err = NewUserUploader(storer, fileSizeLimit)
+		if err != nil {
+			appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+			return nil, "", &validate.Errors{}, ErrFailedToInitUploader{message: err.Error()}
+		}
+	} else if uploadType == models.UploadTypeOFFICE {
+		var err error
+		userUploader, err = NewOfficeUploader(storer, fileSizeLimit)
+		if err != nil {
+			appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+			return nil, "", &validate.Errors{}, ErrFailedToInitUploader{message: err.Error()}
+		}
+	} else {
+		appCtx.Logger().Fatal("could not instantiate uploader")
+		return nil, "", &validate.Errors{}, ErrFailedToInitUploader{message: "could not instantiate uploader"}
 	}
 
 	aFile, err := userUploader.PrepareFileForUpload(appCtx, file, filename)
