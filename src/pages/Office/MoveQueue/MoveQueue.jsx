@@ -26,7 +26,7 @@ import NotFound from 'components/NotFound/NotFound';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const columns = (moveLockFlag, showBranchFilter = true) => [
+export const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     ' ',

@@ -49,7 +49,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -164,6 +164,9 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
         {
           id: 'originDutyLocation',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
           Filter: (props) => (
             <MultiSelectTypeAheadCheckBoxFilter
               options={originLocationList}
@@ -177,9 +180,12 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
     : createHeader('Origin duty location', 'originDutyLocation.name', {
         id: 'originDutyLocation',
         isFilterable: true,
+        exportValue: (row) => {
+          return row.originDutyLocation?.name;
+        },
       }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -295,6 +301,9 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
         {
           id: 'originDutyLocation',
           isFilterable: true,
+          exportValue: (row) => {
+            return row.originDutyLocation?.name;
+          },
           Filter: (props) => (
             <MultiSelectTypeAheadCheckBoxFilter
               options={ppmCloseoutOriginLocationList}
@@ -308,6 +317,9 @@ const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocati
     : createHeader('Origin duty location', 'originDutyLocation.name', {
         id: 'originDutyLocation',
         isFilterable: true,
+        exportValue: (row) => {
+          return row.originDutyLocation?.name;
+        },
       }),
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
