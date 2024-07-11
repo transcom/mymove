@@ -508,7 +508,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			"50309", "30813")
 		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-		suite.Equal(unit.Pound(5000), ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Pound(5000), *ppmShipment.EstimatedWeight)
 		suite.Equal(unit.Cents(69599960), linehaul)
 		suite.Equal(unit.Cents(3004), fuel)
 		suite.Equal(unit.Cents(20200), origin)

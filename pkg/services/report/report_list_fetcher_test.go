@@ -21,7 +21,7 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 				},
 			},
 		}, nil)
-		_ = factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+		pr := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model:    navyMove,
 				LinkOnly: true,
@@ -29,6 +29,17 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 			{
 				Model: models.PaymentRequest{
 					Status: models.PaymentRequestStatusReviewed,
+				},
+			},
+		}, nil)
+		factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    pr,
+				LinkOnly: true,
+			},
+			{
+				Model: models.PaymentServiceItem{
+					Status: models.PaymentServiceItemStatusApproved,
 				},
 			},
 		}, nil)
