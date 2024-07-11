@@ -581,7 +581,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightEstimated(
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightFinal() {
 	pounds := unit.Pound(1000)
 
-	suite.Equal("1,000 lbs - Final", FormatPPMWeightFinal(pounds))
+	suite.Equal("1,000 lbs - Actual", FormatPPMWeightFinal(pounds))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
