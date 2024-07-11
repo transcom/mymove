@@ -49,7 +49,7 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
@@ -181,7 +181,7 @@ const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
         },
       }),
 ];
-const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(
     ' ',
     (row) => {
