@@ -275,6 +275,8 @@ const MoveQueue = () => {
           csvExportFileNamePrefix="Task-Order-Queue"
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );
