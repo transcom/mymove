@@ -38,9 +38,9 @@ func configureAPI(api *pptasoperations.MymoveAPI) http.Handler {
 
 	api.JSONProducer = runtime.JSONProducer()
 
-	if api.MovesListMovesHandler == nil {
-		api.MovesListMovesHandler = moves.ListMovesHandlerFunc(func(params moves.ListMovesParams) middleware.Responder {
-			return middleware.NotImplemented("operation moves.ListMoves has not yet been implemented")
+	if api.MovesListReportsHandler == nil {
+		api.MovesListReportsHandler = moves.ListReportsHandlerFunc(func(params moves.ListReportsParams) middleware.Responder {
+			return middleware.NotImplemented("operation moves.ListReports has not yet been implemented")
 		})
 	}
 

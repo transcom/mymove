@@ -28,25 +28,11 @@ tags:
 paths:
   /moves:
     get:
-      summary: listMoves
+      summary: listReports
       description: >
-        Gets all moves that have been reviewed and approved by the TOO. The
-        `since` parameter can be used to filter this
-
-        list down to only the moves that have been updated since the provided
-        timestamp. A move will be considered
-
-        updated if the `updatedAt` timestamp on the move or on its orders,
-        shipments, service items, or payment
-
-        requests, is later than the provided date and time.
-
-
-        **WIP**: Include what causes moves to leave this list. Currently, once
-        the `availableToPrimeAt` timestamp has
-
-        been set, that move will always appear in this list.
-      operationId: listMoves
+        Gets all reports that have been ??approved??. Based on payment requests,
+        includes data from Move, Shipments, Orders, and TAC/SAC.
+      operationId: listReports
       tags:
         - moves
       produces:
@@ -65,7 +51,7 @@ paths:
             Successfully retrieved moves. A successful fetch might still return
             zero moves.
           schema:
-            $ref: '#/definitions/ListMoves'
+            $ref: '#/definitions/ListReports'
         '401':
           $ref: '#/responses/PermissionDenied'
         '403':
@@ -73,53 +59,629 @@ paths:
         '500':
           $ref: '#/responses/ServerError'
 definitions:
-  ListMove:
-    description: >
-      An abbreviated definition for a move, without all the nested information
-      (shipments, service items, etc). Used to fetch a list of moves more
-      efficiently.
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
+  Address:
+    description: A postal address
     type: object
     properties:
       id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        type: string
         format: uuid
-        type: string
-      moveCode:
-        type: string
-        example: HYXFJF
-        readOnly: true
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      orderID:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
+      streetAddress1:
         type: string
-      referenceId:
-        example: 1001-3456
+        example: 123 Main Ave
+        title: Street address 1
+      streetAddress2:
         type: string
-      availableToPrimeAt:
-        format: date-time
-        type: string
+        example: Apartment 9000
         x-nullable: true
-        readOnly: true
-      updatedAt:
-        format: date-time
+        title: Street address 2
+      streetAddress3:
         type: string
-        readOnly: true
-      ppmType:
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
         type: string
-        enum:
-          - FULL
-          - PARTIAL
+        example: Anytown
+        title: City
       eTag:
         type: string
         readOnly: true
-  ListMoves:
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+    required:
+      - streetAddress1
+      - city
+      - state
+      - postalCode
+  Crate:
+    description: Crate object for PPTAS Reports
+    type: object
+    properties:
+      itemDimensions:
+        type: object
+        x-nullable: true
+        properties:
+          height:
+            type: number
+          width:
+            type: number
+          length:
+            type: number
+      crateDimensions:
+        type: object
+        x-nullable: true
+        properties:
+          height:
+            type: number
+          width:
+            type: number
+          length:
+            type: number
+      description:
+        type: string
+    x-nullable: true
+  ListReport:
+    description: >
+      An abbreviated definition for a report, without all the nested information
+      (shipments, service items, etc). Used to fetch a list of reports more
+      efficiently.
+    type: object
+    properties:
+      firstName:
+        example: Bob
+        type: string
+      lastName:
+        example: Job
+        type: string
+      middleInitial:
+        example: G
+        type: string
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+      payGrade:
+        type: string
+        x-nullable: true
+        title: grade
+        enum:
+          - E_1
+          - E_2
+          - E_3
+          - E_4
+          - E_5
+          - E_6
+          - E_7
+          - E_8
+          - E_9
+          - E_9_SPECIAL_SENIOR_ENLISTED
+          - O_1_ACADEMY_GRADUATE
+          - O_2
+          - O_3
+          - O_4
+          - O_5
+          - O_6
+          - O_7
+          - O_8
+          - O_9
+          - O_10
+          - W_1
+          - W_2
+          - W_3
+          - W_4
+          - W_5
+          - AVIATION_CADET
+          - CIVILIAN_EMPLOYEE
+          - ACADEMY_CADET
+          - MIDSHIPMAN
+        x-display-value:
+          E_1: E-1
+          E_2: E-2
+          E_3: E-3
+          E_4: E-4
+          E_5: E-5
+          E_6: E-6
+          E_7: E-7
+          E_8: E-8
+          E_9: E-9
+          E_9_SPECIAL_SENIOR_ENLISTED: E-9 (Special Senior Enlisted)
+          O_1_ACADEMY_GRADUATE: O-1 or Service Academy Graduate
+          O_2: O-2
+          O_3: O-3
+          O_4: O-4
+          O_5: O-5
+          O_6: O-6
+          O_7: O-7
+          O_8: O-8
+          O_9: O-9
+          O_10: O-10
+          W_1: W-1
+          W_2: W-2
+          W_3: W-3
+          W_4: W-4
+          W_5: W-5
+          AVIATION_CADET: Aviation Cadet
+          CIVILIAN_EMPLOYEE: Civilian Employee
+          ACADEMY_CADET: Service Academy Cadet
+          MIDSHIPMAN: Midshipman
+      edipi:
+        type: string
+      phonePrimary:
+        type: string
+      phoneSecondary:
+        type: string
+        x-nullable: true
+      emailPrimary:
+        example: a@b.com
+        type: string
+      emailSecondary:
+        type: string
+        x-nullable: true
+      ordersType:
+        type: string
+      ordersNumber:
+        type: string
+      ordersDate:
+        type: string
+        format: date-time
+      address:
+        $ref: '#/definitions/Address'
+      originAddress:
+        $ref: '#/definitions/Address'
+      destinationAddress:
+        $ref: '#/definitions/Address'
+      originGbloc:
+        type: string
+        enum:
+          - AGFM
+          - APAT
+          - BGAC
+          - BGNC
+          - BKAS
+          - CFMQ
+          - CLPK
+          - CNNQ
+          - DMAT
+          - GSAT
+          - HAFC
+          - HBAT
+          - JEAT
+          - JENQ
+          - KKFA
+          - LHNQ
+          - LKNQ
+          - MAPK
+          - MAPS
+          - MBFL
+          - MLNQ
+          - XXXX
+        x-nullable: true
+      destinationGbloc:
+        type: string
+        enum:
+          - AGFM
+          - APAT
+          - BGAC
+          - BGNC
+          - BKAS
+          - CFMQ
+          - CLPK
+          - CNNQ
+          - DMAT
+          - GSAT
+          - HAFC
+          - HBAT
+          - JEAT
+          - JENQ
+          - KKFA
+          - LHNQ
+          - LKNQ
+          - MAPK
+          - MAPS
+          - MBFL
+          - MLNQ
+          - XXXX
+        x-nullable: true
+      depCD:
+        description: Department Code
+        type: boolean
+        x-nullable: true
+      travelAdvance:
+        type: number
+        format: double
+        x-nullable: true
+      moveDate:
+        type: string
+        format: date
+        x-nullable: true
+      tac:
+        description: Transportation Accounting Code
+        type: string
+        x-nullable: true
+      fiscalYear:
+        type: string
+        x-nullable: true
+      appro:
+        description: Appropriation
+        type: string
+        x-nullable: true
+      subhead:
+        type: string
+        x-nullable: true
+      objClass:
+        type: string
+        x-nullable: true
+      bcn:
+        type: string
+        x-nullable: true
+      subAllotCD:
+        type: string
+        x-nullable: true
+      aaa:
+        type: string
+        x-nullable: true
+      typeCD:
+        type: string
+        x-nullable: true
+      paa:
+        type: string
+        x-nullable: true
+      documentNumber:
+        type: string
+      costCD:
+        type: string
+        x-nullable: true
+      ddcd:
+        type: string
+        x-nullable: true
+      shipmentNum:
+        description: Number of shipments
+        type: integer
+      weightEstimate:
+        description: Total weight estimate
+        type: number
+        format: double
+      transmitCD:
+        description: Transmit Code
+        type: string
+        x-nullable: true
+      dd2278IssueDate:
+        description: Counseling Date
+        type: string
+        format: date
+      miles:
+        type: integer
+      weightAuthorized:
+        type: number
+        format: double
+      shipmentId:
+        type: string
+        format: uuid
+      scac:
+        example: AGFM
+        type: string
+        x-nullable: true
+      orderNumber:
+        description: not to be confused with Orders Number
+        type: string
+        example: 030-00362
+      loa:
+        type: string
+        x-nullable: true
+      shipmentType:
+        type: string
+      entitlementWeight:
+        type: integer
+      netWeight:
+        type: integer
+      pbpAnde:
+        description: Pro Gear
+        type: number
+        format: double
+      pickupDate:
+        type: string
+        format: date
+      sitInDate:
+        type: string
+        format: date
+        x-nullable: true
+      sitOutDate:
+        type: string
+        format: date
+        x-nullable: true
+      sitType:
+        example: Destination
+        type: string
+        x-nullable: true
+      paidDate:
+        type: string
+        format: date
+        x-nullable: true
+      linehaulTotal:
+        type: number
+        format: double
+        x-nullable: true
+      linehaulFuelTotal:
+        type: number
+        format: double
+        x-nullable: true
+      originPrice:
+        type: number
+        format: double
+        x-nullable: true
+      destinationPrice:
+        type: number
+        format: double
+        x-nullable: true
+      packingPrice:
+        type: number
+        format: double
+        x-nullable: true
+      unpackingPrice:
+        type: number
+        format: double
+        x-nullable: true
+      sitOriginFirstDayTotal:
+        type: number
+        format: double
+        x-nullable: true
+      sitOriginAddlDaysTotal:
+        type: number
+        format: double
+        x-nullable: true
+      sitDestFirstDayTotal:
+        type: number
+        format: double
+        x-nullable: true
+      sitDestAddlDaysTotal:
+        type: number
+        format: double
+        x-nullable: true
+      sitPickupTotal:
+        type: number
+        format: double
+        x-nullable: true
+      sitDeliveryTotal:
+        type: number
+        format: double
+        x-nullable: true
+      sitOriginFuelSurcharge:
+        type: number
+        format: double
+        x-nullable: true
+      sitDestFuelSurcharge:
+        type: number
+        format: double
+        x-nullable: true
+      cratingTotal:
+        type: number
+        format: double
+        x-nullable: true
+      uncratingTotal:
+        type: number
+        format: double
+        x-nullable: true
+      cratingDimensions:
+        type: array
+        items:
+          $ref: '#/definitions/Crate'
+      shuttleTotal:
+        type: number
+        format: double
+        x-nullable: true
+      moveManagementFeeTotal:
+        type: number
+        format: double
+        x-nullable: true
+      counselingFeeTotal:
+        type: number
+        format: double
+        x-nullable: true
+      invoicePaidAmt:
+        type: number
+        format: double
+        x-nullable: true
+      ppmLinehaul:
+        type: number
+        format: double
+        x-nullable: true
+      ppmFuelRateAdjTotal:
+        type: number
+        format: double
+        x-nullable: true
+      ppmOriginPrice:
+        type: number
+        format: double
+        x-nullable: true
+      ppmDestPrice:
+        type: number
+        format: double
+        x-nullable: true
+      ppmPacking:
+        type: number
+        format: double
+        x-nullable: true
+      ppmUnpacking:
+        type: number
+        format: double
+        x-nullable: true
+      ppmStorage:
+        type: number
+        format: double
+        x-nullable: true
+      ppmTotal:
+        type: number
+        format: double
+        x-nullable: true
+      travelType:
+        description: Travel Type
+        example: Shipment of HHG Permitted
+        type: string
+      travelClassCode:
+        example: PCS
+        type: string
+      deliveryDate:
+        type: string
+        format: date
+      actualOriginNetWeight:
+        type: number
+        format: double
+      destinationReweighNetWeight:
+        type: number
+        format: double
+        x-nullable: true
+      counseledDate:
+        type: string
+        format: date
+  ListReports:
     type: array
     items:
-      $ref: '#/definitions/ListMove'
+      $ref: '#/definitions/ListReport'
   ClientError:
     type: object
     properties:

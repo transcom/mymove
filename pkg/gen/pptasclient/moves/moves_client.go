@@ -30,37 +30,30 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ListMoves(params *ListMovesParams, opts ...ClientOption) (*ListMovesOK, error)
+	ListReports(params *ListReportsParams, opts ...ClientOption) (*ListReportsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-	ListMoves lists moves
+ListReports lists reports
 
-	Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
-
-list down to only the moves that have been updated since the provided timestamp. A move will be considered
-updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment
-requests, is later than the provided date and time.
-
-**WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
-been set, that move will always appear in this list.
+Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.
 */
-func (a *Client) ListMoves(params *ListMovesParams, opts ...ClientOption) (*ListMovesOK, error) {
+func (a *Client) ListReports(params *ListReportsParams, opts ...ClientOption) (*ListReportsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListMovesParams()
+		params = NewListReportsParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "listMoves",
+		ID:                 "listReports",
 		Method:             "GET",
 		PathPattern:        "/moves",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &ListMovesReader{formats: a.formats},
+		Reader:             &ListReportsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -72,13 +65,13 @@ func (a *Client) ListMoves(params *ListMovesParams, opts ...ClientOption) (*List
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListMovesOK)
+	success, ok := result.(*ListReportsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for listMoves: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for listReports: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

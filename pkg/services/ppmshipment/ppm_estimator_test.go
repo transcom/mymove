@@ -480,6 +480,46 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		})
 	}
 
+	suite.Run("Price Breakdown", func() {
+		weight := unit.Pound(5000)
+		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight: &weight,
+				},
+			},
+		}, nil)
+
+		setupPricerData()
+
+		mockedPaymentRequestHelper.On(
+			"FetchServiceParamsForServiceItems",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("[]models.MTOServiceItem")).Return(serviceParams, nil)
+
+		// DTOD distance is going to be less than the HHG Rand McNally distance of 2361 miles
+		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813").Return(2294, nil)
+
+		linehaul, fuel, origin, dest, packing, unpacking, err := ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
+		suite.NilOrNoVerrs(err)
+
+		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
+			"50309", "30813")
+		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
+
+		suite.Equal(unit.Pound(5000), *ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Cents(69599960), linehaul)
+		suite.Equal(unit.Cents(3004), fuel)
+		suite.Equal(unit.Cents(20200), origin)
+		suite.Equal(unit.Cents(41600), dest)
+		suite.Equal(unit.Cents(369750), packing)
+		suite.Equal(unit.Cents(29850), unpacking)
+
+		total := linehaul + fuel + origin + dest + packing + unpacking
+		suite.Equal(unit.Cents(70064364), total)
+	})
+
 	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success", func() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)

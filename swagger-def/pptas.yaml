@@ -22,16 +22,10 @@ tags:
 paths:
   /moves:
     get:
-      summary: listMoves
+      summary: listReports
       description: |
-        Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
-        list down to only the moves that have been updated since the provided timestamp. A move will be considered
-        updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment
-        requests, is later than the provided date and time.
-
-        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
-        been set, that move will always appear in this list.
-      operationId: listMoves
+        Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.
+      operationId: listReports
       tags:
         - moves
       produces:
@@ -46,7 +40,7 @@ paths:
         '200':
           description: Successfully retrieved moves. A successful fetch might still return zero moves.
           schema:
-            $ref: 'definitions/ListMoves.yaml'
+            $ref: 'definitions/ListReports.yaml'
         '401':
           $ref: 'responses/PermissionDenied.yaml'
         '403':
