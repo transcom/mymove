@@ -3,6 +3,8 @@
 
 import returnLowestValue from './returnLowestValue';
 
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+
 // eslint-disable-next-line import/prefer-default-export
 export function shipmentIsOverweight(estimatedWeight, weightCap) {
   return weightCap > estimatedWeight * 1.1;
@@ -12,7 +14,23 @@ export const getShipmentEstimatedWeight = (shipment) => {
   if (shipment.ppmShipment) {
     return shipment.ppmShipment.estimatedWeight ?? 0;
   }
-  return shipment.primeEstimatedWeight ?? 0;
+  if (shipment.shipmentType === SHIPMENT_OPTIONS.NTSR) {
+    return shipment.ntsRecordedWeight ? shipment.ntsRecordedWeight : 0;
+  }
+
+  return shipment.primeEstimatedWeight ? shipment.primeEstimatedWeight : 0;
+};
+
+export const getDisplayWeight = (shipment, weightAdjustment = 1.0) => {
+  const recordedWeight =
+    shipment.shipmentType === SHIPMENT_OPTIONS.NTSR ? shipment.ntsRecordedWeight : shipment.primeEstimatedWeight;
+
+  const displayWeight =
+    shipment.calculatedBillableWeight < recordedWeight * weightAdjustment
+      ? shipment.calculatedBillableWeight
+      : recordedWeight * weightAdjustment;
+
+  return displayWeight;
 };
 
 export const calculateNetWeightForProGearWeightTicket = (weightTicket) => {

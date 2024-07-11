@@ -62,6 +62,7 @@ var May14GHCTestYear = time.Date(testdatagen.GHCTestYear, time.May, 14, 0, 0, 0,
 
 var estimatedWeight = unit.Pound(1400)
 var actualWeight = unit.Pound(2000)
+var ntsRecordedWeight = unit.Pound(2000)
 var tioRemarks = "New billable weight set"
 
 // Closeout offices populated via migrations, this is the ID of one within the GBLOC 'KKFA' with the name 'Creech AFB'

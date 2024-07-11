@@ -958,3 +958,4 @@
 20240606195706_adding_uncapped_request_total.up.sql
 20240611185048_drop_unique_constraint_emplid.up.sql
 20240613192433_move_valid_loa_for_tac_col_to_lines_of_accounting_table.up.sql
+20240625144828_add_to_update_type_enum.up.sql

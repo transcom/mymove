@@ -1,8 +1,11 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import SupportingDocuments from './SupportingDocuments';
+
+import { permissionTypes } from 'constants/permissions';
+import { MockProviders } from 'testUtils';
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -37,10 +40,20 @@ const mockUploads = [
   },
 ];
 
+const mockProps = {
+  move: {
+    orderId: '1739c51a-f87e-4f09-a3ed-cf49dff31755',
+    additionalDocuments: {
+      id: '1739c51a-f87e-4f09-a3ed-cf49dff31712',
+    },
+  },
+  uploads: mockUploads,
+};
+
 describe('Supporting Documents Viewer', () => {
   describe('displays viewer', () => {
     it('renders document viewer correctly on load', async () => {
-      render(<SupportingDocuments uploads={mockUploads} />);
+      render(<SupportingDocuments {...mockProps} />);
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
       expect(docMenuButton).toBeInTheDocument();
 
@@ -67,7 +80,7 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('displays message if no files were uploaded', async () => {
-      render(<SupportingDocuments uploads={[]} />);
+      render(<SupportingDocuments {...mockProps} uploads={[]} />);
       expect(screen.getByRole('heading', { name: /No supporting documents have been uploaded/i })).toBeInTheDocument();
       const docMenuButton = await screen.queryByRole('button', { name: /open menu/i });
       expect(docMenuButton).not.toBeInTheDocument();
@@ -79,7 +92,7 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('displays message if uploads variable is undefined', async () => {
-      render(<SupportingDocuments uploads={undefined} />);
+      render(<SupportingDocuments {...mockProps} uploads={undefined} />);
       expect(screen.getByRole('heading', { name: /No supporting documents have been uploaded/i })).toBeInTheDocument();
       const docMenuButton = await screen.queryByRole('button', { name: /open menu/i });
       expect(docMenuButton).not.toBeInTheDocument();
@@ -91,7 +104,7 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('displays message if uploads variable is not an array', async () => {
-      render(<SupportingDocuments uploads={1} />);
+      render(<SupportingDocuments {...mockProps} uploads={1} />);
       expect(screen.getByRole('heading', { name: /No supporting documents have been uploaded/i })).toBeInTheDocument();
       const docMenuButton = await screen.queryByRole('button', { name: /open menu/i });
       expect(docMenuButton).not.toBeInTheDocument();
@@ -100,6 +113,27 @@ describe('Supporting Documents Viewer', () => {
 
       expect(screen.queryByRole('button', { name: /close menu/i })).not.toBeInTheDocument();
       expect(screen.queryByText('Download file')).not.toBeInTheDocument();
+    });
+
+    it('displays document manager sidebar', async () => {
+      render(
+        <MockProviders permissions={[permissionTypes.createSupportingDocuments]}>
+          <SupportingDocuments {...mockProps} />
+        </MockProviders>,
+      );
+      await waitFor(() => {
+        expect(
+          screen.queryByText(/PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible/),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('hides document manager sidebar', async () => {
+      render(<SupportingDocuments {...mockProps} />);
+
+      expect(
+        screen.queryByText(/PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible/),
+      ).not.toBeInTheDocument();
     });
   });
 });

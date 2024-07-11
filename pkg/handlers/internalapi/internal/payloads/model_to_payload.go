@@ -308,6 +308,7 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
