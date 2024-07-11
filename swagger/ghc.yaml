@@ -82,7 +82,10 @@ paths:
   /customer:
     post:
       summary: Creates a customer with Okta option
-      description: Creates a customer with option to create an Okta profile account
+      description: >-
+        Creates a customer with option to also create an Okta profile account
+        based on the office user's input when completing the UI form and
+        submitting.
       operationId: createCustomerWithOktaOption
       tags:
         - customer
@@ -109,6 +112,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -3414,6 +3419,13 @@ paths:
             - WAITING_ON_CUSTOMER
             - NEEDS_CLOSEOUT
           description: filters the status of the PPM shipment
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role. The parameter is ignored if the
+            requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3608,6 +3620,13 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role. The parameter is ignored if the
+            requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3705,6 +3724,13 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: >
+            Used to return a queue for a GBLOC other than the default of the
+            current user. Requires the HQ role. The parameter is ignored if the
+            requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -4488,6 +4514,11 @@ definitions:
       edipi:
         type: string
         example: John
+        x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
         x-nullable: true
       firstName:
         type: string
@@ -6035,6 +6066,12 @@ definitions:
           The estimated amount that the government will pay the service member
           to put their goods into storage. This estimated storage cost is
           separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
         type: integer
         format: cents
         x-nullable: true
@@ -8366,6 +8403,11 @@ definitions:
           separate from the estimated incentive.
         type: integer
         format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
         x-nullable: true
         x-omitempty: false
     required:
