@@ -212,6 +212,8 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
     required:
       - id
       - orders_id
@@ -1140,6 +1142,8 @@ definitions:
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     x-nullable: true
   PostDocumentPayload:
     type: object
@@ -1919,46 +1923,19 @@ definitions:
           Date the customer expects to move.
         format: date
         type: string
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       sitExpected:
         type: boolean
     required:
       - expectedDepartureDate
-      - pickupPostalCode
       - pickupAddress
-      - destinationPostalCode
       - destinationAddress
       - sitExpected
   UpdatePPMShipment:
@@ -1974,22 +1951,8 @@ definitions:
         format: date
         type: string
         x-nullable: true
-      pickupPostalCode:
-        description: zip code
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
@@ -2006,21 +1969,8 @@ definitions:
         example: '90210'
         pattern: ^(\d{5})$
         x-nullable: true
-      destinationPostalCode:
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        format: zip
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        $ref: '#/definitions/NullableString'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
@@ -2468,6 +2418,8 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -2599,8 +2551,21 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+      deletedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+        readOnly: true
       isWeightTicket:
         type: boolean
+      uploadType:
+        type: string
+        example: OFFICE
+        enum:
+          - USER
+          - PRIME
+          - OFFICE
+        readOnly: true
     required:
       - id
       - url
@@ -3161,10 +3126,15 @@ definitions:
             ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
             information is correct.
         - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+        - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to
+             service-counseling-completed "Submit move details" by service counselor.
+        - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.
     type: string
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     readOnly: true
   SignedCertification:
     description: Signed certification
@@ -3303,27 +3273,8 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -3344,28 +3295,8 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -3529,8 +3460,6 @@ definitions:
       - createdAt
       - status
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - eTag
   PpmID:
@@ -3563,12 +3492,6 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
-  NullableString:
-    type: string
-    x-go-type:
-      import:
-        package: github.com/transcom/mymove/pkg/swagger/nullable
-      type: String
 paths:
   /feature-flags/user-boolean/{key}:
     post:
@@ -4473,6 +4396,11 @@ paths:
           format: uuid
           description: ID of the order that the upload belongs to
         - in: query
+          name: moveId
+          type: string
+          format: uuid
+          description: Optional ID of the move that the upload belongs to
+        - in: query
           name: ppmId
           type: string
           format: uuid
@@ -5115,6 +5043,47 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{moveId}/uploadAdditionalDocuments:
+    patch:
+      summary: Patch the additional documents for a given move
+      description: >-
+        Customers will on occaision need the ability to upload additional
+        supporting documents, for a variety of reasons. This does not include
+        amended order.
+      operationId: uploadAdditionalDocuments
+      tags:
+        - moves
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /ppm-shipments/{ppmShipmentId}/moving-expenses:
     post:
       summary: Creates moving expense document

@@ -147,6 +147,55 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Nil(emptySSD)
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLID() {
+	edipi := "12345567890"
+	affiliation := models.AffiliationCOASTGUARD
+	emplid := "9999999"
+	serviceMember := models.ServiceMember{
+		ID:          uuid.Must(uuid.NewV4()),
+		Edipi:       &edipi,
+		Affiliation: &affiliation,
+		Emplid:      &emplid,
+	}
+
+	result, err := formatEmplid(serviceMember)
+
+	suite.Equal("EMPLID: 9999999", *result)
+	suite.NoError(err)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNotCG() {
+	edipi := "12345567890"
+	affiliation := models.AffiliationARMY
+	emplid := "9999999"
+	serviceMember := models.ServiceMember{
+		ID:          uuid.Must(uuid.NewV4()),
+		Edipi:       &edipi,
+		Affiliation: &affiliation,
+		Emplid:      &emplid,
+	}
+
+	result, err := formatEmplid(serviceMember)
+
+	suite.Equal("12345567890", *result)
+	suite.NoError(err)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatEMPLIDNull() {
+	edipi := "12345567890"
+	affiliation := models.AffiliationARMY
+	serviceMember := models.ServiceMember{
+		ID:          uuid.Must(uuid.NewV4()),
+		Edipi:       &edipi,
+		Affiliation: &affiliation,
+	}
+
+	result, err := formatEmplid(serviceMember)
+
+	suite.Equal("12345567890", *result)
+	suite.NoError(err)
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchMovingExpensesShipmentSummaryWorksheetNoPPM() {
 	serviceMemberID, _ := uuid.NewV4()
 
@@ -584,15 +633,37 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightFinal() {
 	suite.Equal("1,000 lbs - Actual", FormatPPMWeightFinal(pounds))
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignature() {
-	sm := models.ServiceMember{
-		FirstName: models.StringPointer("John"),
-		LastName:  models.StringPointer("Smith"),
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertifications() {
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	testDate := time.Now()
+	certifications := Certifications{
+		CustomerField: "",
+		OfficeField:   "AOA: Firstname Lastname\nSSW: ",
+		DateField:     "AOA: " + FormatSignatureDate(testDate) + "\nSSW: ",
 	}
 
-	formattedSignature := FormatSignature(sm)
+	signedCertType := models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT
+	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SignedCertification{
+				CertificationType: &signedCertType,
+				CertificationText: "APPROVED",
+				Signature:         "Firstname Lastname",
+				UpdatedAt:         testDate,
+				PpmID:             models.UUIDPointer(move.MTOShipments[0].PPMShipment.ID),
+			},
+		},
+	}, nil)
+	var certs []*models.SignedCertification
+	certs = append(certs, &ppmPaymentsignedCertification)
 
-	suite.Equal("John Smith electronically signed", formattedSignature)
+	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+
+	suite.Equal(certifications, formattedSignature)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
@@ -604,7 +675,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
 
 	formattedDate := FormatSignatureDate(signature.Date)
 
-	suite.Equal("26 Jan 2019 at 2:40pm", formattedDate)
+	suite.Equal("26 Jan 2019", formattedDate)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {

@@ -123,7 +123,6 @@ export const MoveTaskOrder = (props) => {
   const [estimatedWeightTotal, setEstimatedWeightTotal] = useState(null);
   const [estimatedPPMWeightTotal, setEstimatedPPMWeightTotal] = useState(null);
   const [, setSubmittedChangeTime] = useState(Date.now());
-
   const nonShipmentSections = useMemo(() => {
     return ['move-weights'];
   }, []);
@@ -440,7 +439,7 @@ export const MoveTaskOrder = (props) => {
 
   /* istanbul ignore next */
   const handleShowDiversionModal = (mtoShipment) => {
-    setSelectedShipment(mtoShipment);
+    setSelectedShipment(mtoShipments[mtoShipments.findIndex((shipment) => shipment.id === mtoShipment.id)]);
     setIsDiversionModalVisible(true);
   };
   /* istanbul ignore next */

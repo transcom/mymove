@@ -85,6 +85,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 				uploaderpkg.AllowedTypesServiceMember,
 				docID,
+				models.UploadTypeUSER,
 			)
 
 			if verrs.HasAny() || createErr != nil {
@@ -162,6 +163,28 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 
 				return uploadop.NewDeleteUploadNoContent(), nil
 			}
+
+			if params.MoveID != nil {
+				moveID, e := uuid.FromString(params.MoveID.String())
+				if e != nil {
+					appCtx.Logger().Error(fmt.Sprintf("UUID Parsing for %s", moveID.String()), zap.Error(err))
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				userUploader, e := uploaderpkg.NewUserUploader(
+					h.FileStorer(),
+					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+				)
+				if e != nil {
+					appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(e))
+				}
+				if e = userUploader.DeleteUserUpload(appCtx, &userUpload); e != nil {
+					return handlers.ResponseForError(appCtx.Logger(), e), e
+				}
+
+				return uploadop.NewDeleteUploadNoContent(), nil
+			}
+
 			//Fetch upload information so we can retrieve the move status
 			uploadInformation, err := h.FetchUploadInformation(appCtx, uploadID)
 			if err != nil {
@@ -333,6 +356,7 @@ func (h CreatePPMUploadHandler) Handle(params ppmop.CreatePPMUploadParams) middl
 					uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 					uploaderpkg.AllowedTypesPPMDocuments,
 					&document.ID,
+					models.UploadTypeUSER,
 				)
 
 				if verrs.HasAny() || createErr != nil {
