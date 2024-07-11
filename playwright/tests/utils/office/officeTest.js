@@ -204,6 +204,7 @@ export class OfficePage extends BaseTestPage {
    */
   async tooNavigateToMove(moveLocator) {
     await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').press('Enter');
     await this.page.locator('input[name="locator"]').blur();
 
     // click result to navigate to move details page
