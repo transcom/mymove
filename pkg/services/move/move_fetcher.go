@@ -7,6 +7,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -23,7 +24,8 @@ func NewMoveFetcher() services.MoveFetcher {
 func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	move := &models.Move{}
 	query := appCtx.DB().
-		EagerPreload("CloseoutOffice.Address", "Contractor", "ShipmentGBLOC", "LockedByOfficeUser", "LockedByOfficeUser.TransportationOffice").
+		EagerPreload("CloseoutOffice.Address", "Contractor", "ShipmentGBLOC", "LockedByOfficeUser", "LockedByOfficeUser.TransportationOffice", "AdditionalDocuments",
+			"AdditionalDocuments.UserUploads").
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		LeftJoin("office_users", "office_users.id = moves.locked_by").
 		Where("locator = $1", locator)
@@ -41,6 +43,18 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 		default:
 			return &models.Move{}, apperror.NewQueryError("Move", err, "")
 		}
+	}
+
+	if move.AdditionalDocumentsID != nil {
+		var additionalDocumentUploads models.UserUploads
+		err = appCtx.DB().Q().
+			Scope(utilities.ExcludeDeletedScope()).EagerPreload("Upload").
+			Where("document_id = ?", move.AdditionalDocumentsID).
+			All(&additionalDocumentUploads)
+		if err != nil {
+			return move, err
+		}
+		move.AdditionalDocuments.UserUploads = additionalDocumentUploads
 	}
 
 	return move, nil

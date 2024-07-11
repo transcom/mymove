@@ -52,7 +52,7 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
         <div data-testid="maxBillableWeight" className={styles.marginBottom}>
           {formatWeight(maxBillableWeight)}
         </div>
-        <h4 className={styles.weightSummaryHeading}>Weight requested</h4>
+        <h4 className={styles.weightSummaryHeading}>Actual weight</h4>
         <div data-testid="weightRequested" className={styles.marginBottom}>
           {formatWeight(weightRequested)}
         </div>
