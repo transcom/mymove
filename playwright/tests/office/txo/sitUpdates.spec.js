@@ -14,6 +14,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveInSIT();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
@@ -134,6 +135,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
@@ -164,6 +166,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveInSITWithPendingExtension();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
