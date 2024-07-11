@@ -116,7 +116,6 @@ export default function ShipmentCard({
       </header>
       <div className={styles.weights}>
         <ShipmentCardDetailRow
-          display={!shipmentIsNTSR}
           rowTestId="estimatedWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: !estimatedWeight,
@@ -127,7 +126,6 @@ export default function ShipmentCard({
         />
 
         <ShipmentCardDetailRow
-          display={!shipmentIsNTSR}
           rowTestId="actualWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: !primeActualWeight,
@@ -138,7 +136,6 @@ export default function ShipmentCard({
         />
 
         <ShipmentCardDetailRow
-          display={!shipmentIsNTSR}
           rowTestId="originalWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: showOriginalWeightHighlight,
@@ -149,7 +146,7 @@ export default function ShipmentCard({
         />
 
         <ShipmentCardDetailRow
-          display={!shipmentIsNTSR && !!dateReweighRequested}
+          display={!!dateReweighRequested}
           rowTestId="reweighWeightContainer"
           className={classnames(styles.field, {
             [styles.warning]: showReweighWeightHighlight,
@@ -160,7 +157,7 @@ export default function ShipmentCard({
         />
 
         <ShipmentCardDetailRow
-          display={!shipmentIsNTSR && !!dateReweighRequested}
+          display={!!dateReweighRequested}
           className={reweighRemarks ? styles.field : classnames(styles.field, styles.lastRow)}
           title="Date reweigh requested"
           contentTestId="dateReweighRequested"
@@ -168,19 +165,11 @@ export default function ShipmentCard({
         />
 
         <ShipmentCardDetailRow
-          display={!shipmentIsNTSR && !!dateReweighRequested && !!reweighRemarks}
+          display={!!dateReweighRequested && !!reweighRemarks}
           className={classnames(styles.field, styles.remarks, styles.lastRow)}
           title="Reweigh remarks"
           contentTestId="reweighRemarks"
           content={reweighRemarks}
-        />
-
-        <ShipmentCardDetailRow
-          display={shipmentIsNTSR}
-          className={classnames(styles.field, styles.lastRow)}
-          title="Shipment weight"
-          contentTestId="shipmentWeight"
-          content={formatWeight(originalWeight)}
         />
       </div>
       <footer>
