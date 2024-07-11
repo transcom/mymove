@@ -733,6 +733,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
 		"W2Address",
+		"WeightTickets",
 		"MovingExpenses",
 	).Find(&ppmShipment, ppmShipmentID)
 
