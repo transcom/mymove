@@ -348,19 +348,17 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	return &totalPrice, nil
 }
 
-type PpmPriceBreakdown struct {
-	linehaul    unit.Cents
-	fuel        unit.Cents
-	origin      unit.Cents
-	destination unit.Cents
-	packing     unit.Cents
-	unpacking   unit.Cents
-}
-
 // returns the price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
-func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (PpmPriceBreakdown, error) {
-	var breakdown PpmPriceBreakdown
+func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	logger := appCtx.Logger()
+
+	var emptyPrice unit.Cents
+	var linehaul unit.Cents
+	var fuel unit.Cents
+	var origin unit.Cents
+	var dest unit.Cents
+	var packing unit.Cents
+	var unpacking unit.Cents
 
 	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
 
@@ -389,8 +387,20 @@ func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
 	if err != nil {
 		logger.Error("fetching PPM estimate ServiceParams failed", zap.Error(err))
-		return breakdown, err
+		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 	}
+
+	contractDate := ppmShipment.ExpectedDepartureDate
+	if ppmShipment.ActualMoveDate != nil {
+		contractDate = *ppmShipment.ActualMoveDate
+	}
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+	}
+
+	var blankPPM models.PPMShipment
+	_, totalWeightFromWeightTickets := SumWeightTickets(blankPPM, *ppmShipment)
 
 	var mtoShipment models.MTOShipment
 	if totalWeightFromWeightTickets > 0 {
@@ -405,7 +415,7 @@ func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
-			return breakdown, err
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
 
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
@@ -421,7 +431,7 @@ func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
 		if err != nil {
 			logger.Error("could not find shipment in the database")
-			return breakdown, err
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
 		serviceItem.MTOShipment = shipmentWithDistance
 		// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
@@ -434,7 +444,7 @@ func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
 			if valueErr != nil {
 				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
-				return breakdown, valueErr
+				return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 			}
 
 			// Gather all the param values for the service item to pass to the pricer's Price() method
@@ -452,7 +462,7 @@ func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		if len(paramValues) == 0 {
-			return breakdown, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
 		}
 
 		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
@@ -461,27 +471,27 @@ func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))
-			return breakdown, err
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
 
 		switch serviceItem.ReService.Code {
 		case models.ReServiceCodeDSH:
 		case models.ReServiceCodeDLH:
-			breakdown.linehaul = centsValue
+			linehaul = centsValue
 		case models.ReServiceCodeFSC:
-			breakdown.fuel = centsValue
+			fuel = centsValue
 		case models.ReServiceCodeDOP:
-			breakdown.origin = centsValue
+			origin = centsValue
 		case models.ReServiceCodeDDP:
-			breakdown.destination = centsValue
+			dest = centsValue
 		case models.ReServiceCodeDPK:
-			breakdown.packing = centsValue
+			packing = centsValue
 		case models.ReServiceCodeDUPK:
-			breakdown.unpacking = centsValue
+			unpacking = centsValue
 		}
 	}
 
-	return breakdown, nil
+	return linehaul, fuel, origin, dest, packing, unpacking, nil
 }
 
 func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {

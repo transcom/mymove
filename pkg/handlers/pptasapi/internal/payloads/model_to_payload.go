@@ -316,7 +316,6 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	var ppmDestPrice float64
 	var ppmPacking float64
 	var ppmUnpacking float64
-	var ppmTotal float64
 
 	var ppmBreakdown services.PPMEstimator
 	// sharing this for loop for all MTOShipment calculations
@@ -342,14 +341,33 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 			}
 
 			// do the ppm cost breakdown here
-			
-ppmBreakdown.
+
+			linehaul, fuel, origin, dest, packing, unpacking, err := ppmBreakdown.PriceBreakdown(appCtx, shipment.PPMShipment)
+			if err != nil {
+				return nil
+			}
+
+			ppmLinehaul += linehaul.Float64()
+			ppmFuel += fuel.Float64()
+			ppmOriginPrice += origin.Float64()
+			ppmDestPrice += dest.Float64()
+			ppmPacking += packing.Float64()
+			ppmUnpacking += unpacking.Float64()
 		}
 
 		if shipment.PrimeActualWeight != nil {
 			originActualWeight += *shipment.PrimeActualWeight
 		}
 	}
+
+	payload.PpmLinehaul = &ppmLinehaul
+	payload.PpmFuelRateAdjTotal = &ppmFuel
+	payload.PpmOriginPrice = &ppmOriginPrice
+	payload.PpmDestPrice = &ppmDestPrice
+	payload.PpmPacking = &ppmPacking
+	payload.PpmUnpacking = &ppmUnpacking
+	ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
+	payload.PpmTotal = &ppmTotal
 
 	payload.ActualOriginNetWeight = float64(originActualWeight)
 	payload.PbpAnde = progear.Float64()

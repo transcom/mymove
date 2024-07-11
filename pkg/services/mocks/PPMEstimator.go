@@ -77,6 +77,65 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 	return r0, r1
 }
 
+// PriceBreakdown provides a mock function with given fields: appCtx, ppmShipment
+func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
+	ret := _m.Called(appCtx, ppmShipment)
+
+	var r0 unit.Cents
+	var r1 unit.Cents
+	var r2 unit.Cents
+	var r3 unit.Cents
+	var r4 unit.Cents
+	var r5 unit.Cents
+	var r6 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error)); ok {
+		return rf(appCtx, ppmShipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r0 = rf(appCtx, ppmShipment)
+	} else {
+		r0 = ret.Get(0).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r1 = rf(appCtx, ppmShipment)
+	} else {
+		r1 = ret.Get(1).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r2 = rf(appCtx, ppmShipment)
+	} else {
+		r2 = ret.Get(2).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(3).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r3 = rf(appCtx, ppmShipment)
+	} else {
+		r3 = ret.Get(3).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(4).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r4 = rf(appCtx, ppmShipment)
+	} else {
+		r4 = ret.Get(4).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(5).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
+		r5 = rf(appCtx, ppmShipment)
+	} else {
+		r5 = ret.Get(5).(unit.Cents)
+	}
+
+	if rf, ok := ret.Get(6).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r6 = rf(appCtx, ppmShipment)
+	} else {
+		r6 = ret.Error(6)
+	}
+
+	return r0, r1, r2, r3, r4, r5, r6
+}
+
 // NewPPMEstimator creates a new instance of PPMEstimator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewPPMEstimator(t interface {
