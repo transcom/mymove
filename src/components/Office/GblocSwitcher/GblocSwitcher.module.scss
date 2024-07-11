@@ -10,6 +10,10 @@ div.switchGblocButton {
     background-color: $mm-blue;
     border-color: transparent;
     line-height: 1;
+
+    option {
+      background-color: $bg-white;
+    }
   }
 
   select:hover, select:focus {
