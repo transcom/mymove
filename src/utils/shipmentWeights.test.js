@@ -304,16 +304,19 @@ describe('Calculating shipment net weights', () => {
 describe('Calculating shipment estimated weights', () => {
   const ppmShipments = [
     {
+      shipmentType: 'PPM',
       ppmShipment: {
         estimatedWeight: 5000,
       },
     },
     {
+      shipmentType: 'PPM',
       ppmShipment: {
         estimatedWeight: 11000,
       },
     },
     {
+      shipmentType: 'PPM',
       ppmShipment: {
         weightTickets: [
           { emptyWeight: 14000, fullWeight: 19000 },
@@ -326,18 +329,23 @@ describe('Calculating shipment estimated weights', () => {
 
   const hhgShipments = [
     {
+      shipmentType: 'HHG',
       primeEstimatedWeight: 10,
     },
     {
+      shipmentType: 'HHG',
       primeEstimatedWeight: 2000,
     },
     {
+      shipmentType: 'HHG',
       primeEstimatedWeight: 100,
     },
     {
+      shipmentType: 'HHG',
       primeEstimatedWeight: 1000,
     },
     {
+      shipmentType: 'HHG',
       reweigh: {
         weight: 3000,
       },

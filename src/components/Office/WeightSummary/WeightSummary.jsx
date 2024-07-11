@@ -5,8 +5,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './WeightSummary.module.scss';
 
 import { formatWeight } from 'utils/formatters';
-import { shipmentIsOverweight } from 'utils/shipmentWeights';
-import { shipmentTypes } from 'constants/shipments';
+import { shipmentIsOverweight, getDisplayWeight } from 'utils/shipmentWeights';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
 
 const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, totalBillableWeight, shipments }) => {
   const formatShipments = shipments.slice();
@@ -21,24 +22,25 @@ const WeightSummary = ({ maxBillableWeight, weightRequested, weightAllowance, to
   }
 
   const formatShipmentType = (shipment) => {
-    if (shipment.shipmentType === 'HHG' && countHHG > 1) return `HHG ${shipment.count}`;
-    if (shipment.shipmentType === 'HHG' && countHHG <= 1) return 'HHG';
-    if (shipment.shipmentType === 'HHG_INTO_NTS_DOMESTIC') return 'NTS';
-    if (shipment.shipmentType === 'HHG_OUTOF_NTS_DOMESTIC') return 'NTSR';
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG && countHHG > 1) return `HHG ${shipment.count}`;
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.HHG && countHHG <= 1) return 'HHG';
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.NTS) return 'NTS';
+    if (shipment.shipmentType === SHIPMENT_OPTIONS.NTSR) return 'NTSR';
     return '';
   };
 
   const displayShipments = formatShipments?.map((shipment) => {
+    const displayWeight = getDisplayWeight(shipment, 1.1);
     return (
       <div className={styles.weight} key={shipment.id} data-testid="billableWeightCap">
-        {shipmentIsOverweight(shipment.primeEstimatedWeight, shipment.calculatedBillableWeight) ||
+        {shipmentIsOverweight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT, shipment.calculatedBillableWeight) ||
         !shipment.primeEstimatedWeight ||
         (shipment.reweigh?.dateReweighRequested && !shipment.reweigh?.weight) ? (
           <FontAwesomeIcon icon="exclamation-triangle" data-testid="shipmentHasFlag" className={styles.warningFlag} />
         ) : (
           <div className={styles.noEdit} />
         )}
-        {formatWeight(shipment.calculatedBillableWeight)} {formatShipmentType(shipment)}
+        {formatWeight(displayWeight)} {formatShipmentType(shipment)}
       </div>
     );
   });
