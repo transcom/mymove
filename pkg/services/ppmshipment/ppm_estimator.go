@@ -348,6 +348,142 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	return &totalPrice, nil
 }
 
+type PpmPriceBreakdown struct {
+	linehaul    unit.Cents
+	fuel        unit.Cents
+	origin      unit.Cents
+	destination unit.Cents
+	packing     unit.Cents
+	unpacking   unit.Cents
+}
+
+// returns the price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
+func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, totalWeightFromWeightTickets unit.Pound, contract models.ReContract) (PpmPriceBreakdown, error) {
+	var breakdown PpmPriceBreakdown
+	logger := appCtx.Logger()
+
+	serviceItemsToPrice := BaseServiceItems(ppmShipment.ShipmentID)
+
+	// Replace linehaul pricer with shorthaul pricer if move is within the same Zip3
+	var pickupPostal, destPostal string
+
+	// Check different address values for a postal code
+	if ppmShipment.ActualPickupPostalCode != nil {
+		pickupPostal = *ppmShipment.ActualPickupPostalCode
+	} else if ppmShipment.PickupAddress.PostalCode != "" {
+		pickupPostal = ppmShipment.PickupAddress.PostalCode
+	}
+
+	// Same for destination
+	if ppmShipment.ActualDestinationPostalCode != nil {
+		destPostal = *ppmShipment.ActualDestinationPostalCode
+	} else if ppmShipment.DestinationAddress.PostalCode != "" {
+		destPostal = ppmShipment.DestinationAddress.PostalCode
+	}
+
+	if pickupPostal[0:3] == destPostal[0:3] {
+		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+	}
+
+	// Get a list of all the pricing params needed to calculate the price for each service item
+	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
+	if err != nil {
+		logger.Error("fetching PPM estimate ServiceParams failed", zap.Error(err))
+		return breakdown, err
+	}
+
+	var mtoShipment models.MTOShipment
+	if totalWeightFromWeightTickets > 0 {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
+	} else {
+		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
+		mtoShipment = MapPPMShipmentEstimatedFields(*ppmShipment)
+	}
+
+	for _, serviceItem := range serviceItemsToPrice {
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
+		if err != nil {
+			logger.Error("unable to find pricer for service item", zap.Error(err))
+			return breakdown, err
+		}
+
+		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
+		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
+		// rather than optimizing I think.
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, mtoShipment, serviceItem)
+
+		// This is the struct that gets passed to every param lookup() method that was initialized above
+		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
+
+		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
+		var shipmentWithDistance models.MTOShipment
+		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
+		if err != nil {
+			logger.Error("could not find shipment in the database")
+			return breakdown, err
+		}
+		serviceItem.MTOShipment = shipmentWithDistance
+		// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
+		ppmShipment.Shipment = shipmentWithDistance
+
+		var paramValues models.PaymentServiceItemParams
+		for _, param := range paramsForServiceCode(serviceItem.ReService.Code, paramsForServiceItems) {
+			paramKey := param.ServiceItemParamKey
+			// This is where the lookup() method of each service item param is actually evaluated
+			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
+			if valueErr != nil {
+				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
+				return breakdown, valueErr
+			}
+
+			// Gather all the param values for the service item to pass to the pricer's Price() method
+			paymentServiceItemParam := models.PaymentServiceItemParam{
+				// Some pricers like Fuel Surcharge try to requery the shipment through the service item, this is a
+				// workaround to avoid a not found error because our PPM shipment has no service items saved in the db.
+				// I think the FSC service item should really be relying on one of the zip distance params.
+				PaymentServiceItem: models.PaymentServiceItem{
+					MTOServiceItem: serviceItem,
+				},
+				ServiceItemParamKey: paramKey,
+				Value:               paramValue,
+			}
+			paramValues = append(paramValues, paymentServiceItemParam)
+		}
+
+		if len(paramValues) == 0 {
+			return breakdown, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
+		}
+
+		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
+		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
+		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
+
+		if err != nil {
+			logger.Error("unable to calculate service item price", zap.Error(err))
+			return breakdown, err
+		}
+
+		switch serviceItem.ReService.Code {
+		case models.ReServiceCodeDSH:
+		case models.ReServiceCodeDLH:
+			breakdown.linehaul = centsValue
+		case models.ReServiceCodeFSC:
+			breakdown.fuel = centsValue
+		case models.ReServiceCodeDOP:
+			breakdown.origin = centsValue
+		case models.ReServiceCodeDDP:
+			breakdown.destination = centsValue
+		case models.ReServiceCodeDPK:
+			breakdown.packing = centsValue
+		case models.ReServiceCodeDUPK:
+			breakdown.unpacking = centsValue
+		}
+	}
+
+	return breakdown, nil
+}
+
 func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {
 	logger := appCtx.Logger()
 

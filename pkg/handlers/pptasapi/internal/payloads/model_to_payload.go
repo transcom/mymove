@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -309,6 +310,15 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		sitDestFuelSurcharge + domesticCrating + domesticUncrating
 	payload.InvoicePaidAmt = &invoicePaidAmt
 
+	var ppmLinehaul float64
+	var ppmFuel float64
+	var ppmOriginPrice float64
+	var ppmDestPrice float64
+	var ppmPacking float64
+	var ppmUnpacking float64
+	var ppmTotal float64
+
+	var ppmBreakdown services.PPMEstimator
 	// sharing this for loop for all MTOShipment calculations
 	for _, shipment := range move.MTOShipments {
 		// calculate total progear for entire move
@@ -330,6 +340,10 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 				payload.SitOutDate = (*strfmt.Date)(shipment.PPMShipment.SITEstimatedDepartureDate)
 				// newreport.SitType = shipment.PPMShipment.
 			}
+
+			// do the ppm cost breakdown here
+			
+ppmBreakdown.
 		}
 
 		if shipment.PrimeActualWeight != nil {
