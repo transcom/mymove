@@ -372,7 +372,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", "SAFETY")
+			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
 		}
 	} else {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -401,7 +401,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
-			query.Where("orders.orders_type != (?)", "SAFETY")
+			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
 		}
 
 		if params.NeedsPPMCloseout != nil {
@@ -415,7 +415,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 			}
 		} else {
 			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
-				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = 'PARTIAL' or (moves.ppm_type = 'FULL' and origin_dl.provides_services_counseling = 'false')))")
+				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = (?) or (moves.ppm_type = (?) and origin_dl.provides_services_counseling = 'false')))", models.MovePPMTypePARTIAL, models.MovePPMTypeFULL)
 			}
 			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
 		}
