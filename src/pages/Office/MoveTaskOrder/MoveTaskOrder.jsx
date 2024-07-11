@@ -930,7 +930,7 @@ export const MoveTaskOrder = (props) => {
       <div className={moveTaskOrderStyles.subValue}>
         {Number.isFinite(estimatedNTSWeightTotal) ? formatWeight(Math.round(estimatedNTSWeightTotal * 1.1)) : '—'}
       </div>
-      <div>110% Estimated NTSR</div>
+      <div>110% Estimated NTS-Release</div>
       <div className={moveTaskOrderStyles.subValue}>
         {Number.isFinite(estimatedNTSReleaseWeightTotal)
           ? formatWeight(Math.round(estimatedNTSReleaseWeightTotal * 1.1))
