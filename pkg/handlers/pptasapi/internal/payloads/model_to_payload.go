@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 	"time"
 
@@ -33,18 +34,16 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 
 // ListReport payload
 func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.ListReport {
-	var emptyReport *pptasmessages.ListReport
-
 	if move == nil {
 		return nil
 	}
 
-	Orders := move.Orders
-	var PaymentRequest []models.PaymentRequest
+	orders := move.Orders
+	var paymentRequest []models.PaymentRequest
 	// get payment requests that have been approved
 	for _, pr := range move.PaymentRequests {
 		if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex || pr.Status == models.PaymentRequestStatusReceivedByGex {
-			PaymentRequest = append(PaymentRequest, pr)
+			paymentRequest = append(paymentRequest, pr)
 		}
 	}
 
@@ -64,19 +63,19 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 			"LineOfAccounting.LoaDptID",
 		).
 		Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
-		Where("transportation_accounting_codes.tac = ?", Orders.TAC).
-		Where("? BETWEEN transportation_accounting_codes.trnsprtn_acnt_bgn_dt AND transportation_accounting_codes.trnsprtn_acnt_end_dt", Orders.IssueDate).
-		Where("? BETWEEN loa.loa_bgn_dt AND loa.loa_end_dt", Orders.IssueDate).
+		Where("transportation_accounting_codes.tac = ?", orders.TAC).
+		Where("? BETWEEN transportation_accounting_codes.trnsprtn_acnt_bgn_dt AND transportation_accounting_codes.trnsprtn_acnt_end_dt", orders.IssueDate).
+		Where("? BETWEEN loa.loa_bgn_dt AND loa.loa_end_dt", orders.IssueDate).
 		Where("loa.loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
 		All(&tac)
 
 	if tacQueryError != nil {
-		return emptyReport
+		return nil
 	}
 
 	var middleInitial string
-	if *Orders.ServiceMember.MiddleName != "" {
-		middleInitial = string([]rune(*Orders.ServiceMember.MiddleName)[0])
+	if *orders.ServiceMember.MiddleName != "" {
+		middleInitial = string([]rune(*orders.ServiceMember.MiddleName)[0])
 	}
 	progear := unit.Pound(0)
 	sitTotal := unit.Pound(0)
@@ -84,77 +83,48 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	travelAdvance := unit.Cents(0)
 	scac := "HSFR"
 	transmitCd := "T"
-	longLoa := buildFullLineOfAccountingString(tac[0].LineOfAccounting)
 
 	var moveDate *time.Time
 	if move.MTOShipments[0].PPMShipment != nil {
 		moveDate = &move.MTOShipments[0].PPMShipment.ExpectedDepartureDate
-	} else {
+	} else if move.MTOShipments[0].ActualPickupDate != nil {
 		moveDate = move.MTOShipments[0].ActualPickupDate
 	}
 
-	// get weight entitlements
-	if Orders.Grade != nil && Orders.Entitlement != nil {
-		Orders.Entitlement.SetWeightAllotment(string(*Orders.Grade))
-	}
-
-	weightAllotment := Orders.Entitlement.WeightAllotment()
-
-	var totalWeight int64
-	if *Orders.Entitlement.DependentsAuthorized {
-		totalWeight = int64(weightAllotment.TotalWeightSelfPlusDependents)
-	} else {
-		totalWeight = int64(weightAllotment.TotalWeightSelf)
-	}
-
 	payload := &pptasmessages.ListReport{
-		FirstName:          *Orders.ServiceMember.FirstName,
-		LastName:           *Orders.ServiceMember.LastName,
+		FirstName:          *orders.ServiceMember.FirstName,
+		LastName:           *orders.ServiceMember.LastName,
 		MiddleInitial:      middleInitial,
-		Affiliation:        (*pptasmessages.Affiliation)(Orders.ServiceMember.Affiliation),
-		PayGrade:           (*string)(Orders.Grade),
-		Edipi:              *Orders.ServiceMember.Edipi,
-		PhonePrimary:       *Orders.ServiceMember.Telephone,
-		PhoneSecondary:     Orders.ServiceMember.SecondaryTelephone,
-		EmailPrimary:       *Orders.ServiceMember.PersonalEmail,
-		EmailSecondary:     &Orders.ServiceMember.BackupContacts[0].Email,
-		OrdersType:         string(Orders.OrdersType),
-		OrdersNumber:       *Orders.OrdersNumber,
-		OrdersDate:         strfmt.DateTime(Orders.IssueDate),
-		Address:            Address(Orders.ServiceMember.ResidentialAddress),
+		Affiliation:        (*pptasmessages.Affiliation)(orders.ServiceMember.Affiliation),
+		PayGrade:           (*string)(orders.Grade),
+		Edipi:              *orders.ServiceMember.Edipi,
+		PhonePrimary:       *orders.ServiceMember.Telephone,
+		PhoneSecondary:     orders.ServiceMember.SecondaryTelephone,
+		EmailPrimary:       *orders.ServiceMember.PersonalEmail,
+		EmailSecondary:     &orders.ServiceMember.BackupContacts[0].Email,
+		OrdersType:         string(orders.OrdersType),
+		TravelClassCode:    string(orders.OrdersType),
+		OrdersNumber:       *orders.OrdersNumber,
+		OrdersDate:         strfmt.DateTime(orders.IssueDate),
+		Address:            Address(orders.ServiceMember.ResidentialAddress),
 		OriginAddress:      Address(move.MTOShipments[0].PickupAddress),
 		DestinationAddress: Address(move.MTOShipments[0].DestinationAddress),
-		OriginGbloc:        Orders.OriginDutyLocationGBLOC,
-		DestinationGbloc:   &Orders.NewDutyLocation.TransportationOffice.Gbloc,
-		DepCD:              &Orders.HasDependents, // has dependants?
+		OriginGbloc:        orders.OriginDutyLocationGBLOC,
+		DestinationGbloc:   &orders.NewDutyLocation.TransportationOffice.Gbloc,
+		DepCD:              &orders.HasDependents, // has dependants?
 		TravelAdvance:      models.Float64Pointer(travelAdvance.Float64()),
 		MoveDate:           (*strfmt.Date)(moveDate),
-		Tac:                Orders.TAC,
-		FiscalYear:         tac[0].TacFyTxt,
-		Appro:              tac[0].LineOfAccounting.LoaBafID,
-		Subhead:            tac[0].LineOfAccounting.LoaObjClsID,
-		ObjClass:           tac[0].LineOfAccounting.LoaAlltSnID,
-		Bcn:                tac[0].LineOfAccounting.LoaSbaltmtRcpntID,
-		SubAllotCD:         tac[0].LineOfAccounting.LoaInstlAcntgActID,
-		Aaa:                tac[0].LineOfAccounting.LoaTrnsnID,
-		TypeCD:             tac[0].LineOfAccounting.LoaJbOrdNm,
-		Paa:                tac[0].LineOfAccounting.LoaDocID,
-		CostCD:             tac[0].LineOfAccounting.LoaPgmElmntID,
-		Ddcd:               tac[0].LineOfAccounting.LoaDptID,
+		Tac:                orders.TAC,
 		ShipmentNum:        int64(len(move.MTOShipments)),
 		WeightEstimate:     calculateTotalWeightEstimate(move.MTOShipments).Float64(),
 		TransmitCD:         &transmitCd, // report.TransmitCd,
 		Dd2278IssueDate:    strfmt.Date(*move.ServiceCounselingCompletedAt),
 		Miles:              int64(*move.MTOShipments[0].Distance),
-		WeightAuthorized:   float64(*Orders.Entitlement.DBAuthorizedWeight),
 		ShipmentID:         strfmt.UUID(move.ID.String()),
 		Scac:               &scac,
-		Loa:                &longLoa,
-		ShipmentType:       string(*Orders.OrdersTypeDetail),
-		EntitlementWeight:  totalWeight,
 		NetWeight:          int64(models.GetTotalNetWeightForMove(*move)), // this only calculates PPM is that correct?
-		PickupDate:         strfmt.Date(*move.MTOShipments[0].ActualPickupDate),
-		PaidDate:           (*strfmt.Date)(PaymentRequest[0].ReviewedAt),
+		PaidDate:           (*strfmt.Date)(paymentRequest[0].ReviewedAt),
+		CounseledDate:      strfmt.Date(*move.ServiceCounselingCompletedAt),
 
 		// PpmLineHaul:
 		// PpmFuelRateAdjTotal:
@@ -164,10 +134,59 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		// PpmUnpacking:
 		// PpmStorage:
 		// PpmTotal:
-		TravelType:      string(*Orders.OrdersTypeDetail),
-		TravelClassCode: string(Orders.OrdersType),
-		DeliveryDate:    strfmt.Date(*moveDate),
-		CounseledDate:   strfmt.Date(*move.ServiceCounselingCompletedAt),
+	}
+
+	if moveDate != nil {
+		payload.DeliveryDate = strfmt.Date(*moveDate)
+	}
+
+	// check orders type detail for test using reflect because regular nil checks cause test to crash
+	if !reflect.ValueOf(orders.OrdersTypeDetail).IsNil() {
+		payload.ShipmentType = string(*orders.OrdersTypeDetail)
+		payload.TravelType = string(*orders.OrdersTypeDetail)
+	}
+
+	// check pickup date for test using reflect because regular nil checks cause test to crash
+	if !reflect.ValueOf(move.MTOShipments[0].ActualPickupDate).IsNil() {
+		payload.PickupDate = strfmt.Date(*move.MTOShipments[0].ActualPickupDate)
+	}
+
+	// get weight entitlements
+	if orders.Grade != nil && orders.Entitlement != nil {
+		orders.Entitlement.SetWeightAllotment(string(*orders.Grade))
+	}
+
+	weightAllotment := orders.Entitlement.WeightAllotment()
+
+	var totalWeight int64
+	if orders.Entitlement.DBAuthorizedWeight != nil {
+		if *orders.Entitlement.DependentsAuthorized {
+			totalWeight = int64(weightAllotment.TotalWeightSelfPlusDependents)
+
+			payload.WeightAuthorized = float64(*orders.Entitlement.DBAuthorizedWeight)
+		} else {
+			totalWeight = int64(weightAllotment.TotalWeightSelf)
+		}
+	}
+
+	payload.EntitlementWeight = totalWeight
+
+	var longLoa string
+	if len(tac) > 0 {
+		longLoa = buildFullLineOfAccountingString(tac[0].LineOfAccounting)
+
+		payload.Loa = &longLoa
+		payload.FiscalYear = tac[0].TacFyTxt
+		payload.Appro = tac[0].LineOfAccounting.LoaBafID
+		payload.Subhead = tac[0].LineOfAccounting.LoaObjClsID
+		payload.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
+		payload.Bcn = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
+		payload.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
+		payload.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
+		payload.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
+		payload.Paa = tac[0].LineOfAccounting.LoaDocID
+		payload.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
+		payload.Ddcd = tac[0].LineOfAccounting.LoaDptID
 	}
 
 	var linehaulTotal float64
@@ -194,7 +213,7 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 	var allCrates []*pptasmessages.Crate
 
 	// this adds up all the different payment service items across all payment requests for a move
-	for _, pr := range PaymentRequest {
+	for _, pr := range paymentRequest {
 		for _, serviceItem := range pr.PaymentServiceItems {
 			var mtoServiceItem models.MTOServiceItem
 			msiErr := appCtx.DB().Q().EagerPreload("ReService", "Dimensions").
@@ -202,7 +221,7 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 				Where("mto_service_items.id = ?", serviceItem.MTOServiceItemID).
 				First(&mtoServiceItem)
 			if msiErr != nil {
-				return emptyReport
+				return nil
 			}
 
 			totalPrice := serviceItem.PriceCents.Float64()
@@ -327,8 +346,8 @@ func ListReport(appCtx appcontext.AppContext, move *models.Move) *pptasmessages.
 		payload.DestinationReweighNetWeight = nil
 	}
 
-	if Orders.SAC != nil {
-		payload.OrdersNumber = *Orders.SAC
+	if orders.SAC != nil {
+		payload.OrdersNumber = *orders.SAC
 	} else {
 		payload.OrderNumber = ""
 	}
