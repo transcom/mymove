@@ -28,6 +28,7 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
+const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
@@ -60,6 +61,15 @@ const TXOMoveInfo = () => {
     };
     fetchData();
   }, [move, officeUserID, moveLockFlag]);
+
+  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
 
   const hideNav =
     matchPath(
@@ -189,6 +199,13 @@ const TXOMoveInfo = () => {
               />
             }
           />
+          {supportingDocsFF && (
+            <Route
+              path="supporting-documents"
+              end
+              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+            />
+          )}
           <Route path="payment-requests/:paymentRequestId" end element={<PaymentRequestReview order={order} />} />
           <Route
             path="payment-requests"
