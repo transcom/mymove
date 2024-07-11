@@ -711,6 +711,7 @@ test.describe('TOO user', () => {
     const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    await tooFlowPage.waitForLoading();
     await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
 
     await expect(page.getByText('Review required')).toBeVisible();
