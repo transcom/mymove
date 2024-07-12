@@ -2555,8 +2555,21 @@ definitions:
         type: string
         format: date-time
         readOnly: true
+      deletedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+        readOnly: true
       isWeightTicket:
         type: boolean
+      uploadType:
+        type: string
+        example: OFFICE
+        enum:
+          - USER
+          - PRIME
+          - OFFICE
+        readOnly: true
     required:
       - id
       - url
