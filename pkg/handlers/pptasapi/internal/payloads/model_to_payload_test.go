@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
@@ -89,30 +90,34 @@ func (suite *PayloadsSuite) TestListReport() {
 		ServiceCounselingCompletedAt: &now,
 	}
 
-	// ordersIssueDate := time.Now()
-	// endDate := ordersIssueDate.AddDate(1, 0, 0)
-	// tacCode := "CACI"
-	// loa := factory.BuildLineOfAccounting(suite.AppContextForTest().DB(), []factory.Customization{
-	// 	{
-	// 		Model: models.LineOfAccounting{
-	// 			LoaBgnDt:   &ordersIssueDate,
-	// 			LoaEndDt:   &endDate,
-	// 			LoaSysID:   models.StringPointer("1234567890"),
-	// 			LoaHsGdsCd: models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
-	// 		},
-	// 	},
-	// }, nil)
-	// factory.BuildTransportationAccountingCodeWithoutAttachedLoa(suite.AppContextForTest().DB(), []factory.Customization{
-	// 	{
-	// 		Model: models.TransportationAccountingCode{
-	// 			TAC:               tacCode,
-	// 			TrnsprtnAcntBgnDt: &ordersIssueDate,
-	// 			TrnsprtnAcntEndDt: &endDate,
-	// 			TacFnBlModCd:      models.StringPointer("1"),
-	// 			LoaSysID:          loa.LoaSysID,
-	// 		},
-	// 	},
-	// }, nil)
+	ordersIssueDate := time.Now()
+	endDate := ordersIssueDate.AddDate(1, 0, 0)
+	dptId := "1"
+
+	// Add TAC/LOA records with fully filled out LOA fields
+	loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaInstlAcntgActID: models.StringPointer("123"),
+				LoaDptID:           &dptId,
+			},
+		},
+	}, nil)
+
+	factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TAC:               *move.Orders.TAC,
+				TacFnBlModCd:      models.StringPointer("W"),
+				TrnsprtnAcntBgnDt: &ordersIssueDate,
+				TrnsprtnAcntEndDt: &endDate,
+				LoaSysID:          loa.LoaSysID,
+			},
+		},
+		{
+			Model: loa,
+		},
+	}, nil)
 
 	suite.Run("valid move", func() {
 		payload := ListReport(appCtx, &move)
@@ -131,6 +136,8 @@ func (suite *PayloadsSuite) TestListReport() {
 		suite.Equal(int64(len(move.MTOShipments)), payload.ShipmentNum)
 		suite.Equal(move.MTOShipments[0].PrimeEstimatedWeight.Float64(), payload.WeightEstimate)
 		suite.Equal(move.MTOShipments[0].PrimeActualWeight.Float64(), payload.ActualOriginNetWeight)
+		longLoa := "1*1234*20242025*1234*1234*1234*1234*12345*123456*123456789012*88888888*1234*1234567890*1*123456*1*123*123456*123456*1*12*12345678*123456789012345*12*123*123456789012345678*123*123456789012"
+		suite.Equal(&longLoa, payload.Loa)
 	})
 
 	suite.Run("nil move", func() {
