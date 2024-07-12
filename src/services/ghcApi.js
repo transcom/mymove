@@ -600,6 +600,19 @@ export async function getServicesCounselingQueue(
   );
 }
 
+export async function getServicesCounselingOriginLocations(needsPPMCloseout) {
+  const operationPath = 'queues.getServicesCounselingOriginList';
+
+  return makeGHCRequest(
+    operationPath,
+    {
+      needsPPMCloseout,
+    },
+
+    { schemaKey: 'Locations', normalize: false },
+  );
+}
+
 export async function getServicesCounselingPPMQueue(
   key,
   { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true },
@@ -720,6 +733,45 @@ export async function createUploadForDocument(file, documentId) {
     {
       documentId,
       file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForAmdendedOrders(file, orderID) {
+  return makeGHCRequest(
+    'order.uploadAmendedOrders',
+    {
+      orderID,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function createUploadForSupportingDocuments(file, moveID) {
+  return makeGHCRequest(
+    'move.uploadAdditionalDocuments',
+    {
+      moveID,
+      file,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
+export async function deleteUploadForDocument(uploadID, orderID) {
+  return makeGHCRequest(
+    'uploads.deleteUpload',
+    {
+      uploadID,
+      orderID,
     },
     {
       normalize: false,
