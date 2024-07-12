@@ -4,7 +4,9 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
@@ -17,6 +19,8 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 // GetMoveHandler gets a move by locator
@@ -81,7 +85,10 @@ func (h GetMoveHandler) Handle(params moveop.GetMoveParams) middleware.Responder
 				appCtx.Logger().Error("Invalid permissions")
 				return moveop.NewGetMoveNotFound(), nil
 			} else {
-				payload := payloads.Move(move)
+				payload, err := payloads.Move(move, h.FileStorer())
+				if err != nil {
+					return nil, err
+				}
 				return moveop.NewGetMoveOK().WithPayload(payload), nil
 			}
 		})
@@ -174,7 +181,10 @@ func (h SetFinancialReviewFlagHandler) Handle(params moveop.SetFinancialReviewFl
 				}
 			}
 
-			payload := payloads.Move(move)
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
 			return moveop.NewSetFinancialReviewFlagOK().WithPayload(payload), nil
 		})
 }
@@ -204,6 +214,85 @@ func (h UpdateMoveCloseoutOfficeHandler) Handle(params moveop.UpdateCloseoutOffi
 				}
 			}
 
-			return moveop.NewUpdateCloseoutOfficeOK().WithPayload(payloads.Move(move)), nil
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
+			return moveop.NewUpdateCloseoutOfficeOK().WithPayload(payload), nil
 		})
+}
+
+type UploadAdditionalDocumentsHandler struct {
+	handlers.HandlerConfig
+	uploader services.MoveAdditionalDocumentsUploader
+}
+
+func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalDocumentsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			file, ok := params.File.(*runtime.File)
+			if !ok {
+				errMsg := "This should always be a runtime.File, something has changed in go-swagger."
+
+				appCtx.Logger().Error(errMsg)
+
+				return moveop.NewUploadAdditionalDocumentsInternalServerError(), nil
+			}
+
+			appCtx.Logger().Info(
+				"File uploader and size",
+				zap.String("userID", appCtx.Session().UserID.String()),
+				zap.String("serviceMemberID", appCtx.Session().ServiceMemberID.String()),
+				zap.String("officeUserID", appCtx.Session().OfficeUserID.String()),
+				zap.String("AdminUserID", appCtx.Session().AdminUserID.String()),
+				zap.Int64("size", file.Header.Size),
+			)
+
+			moveID, err := uuid.FromString(params.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			upload, url, verrs, err := h.uploader.CreateAdditionalDocumentsUpload(appCtx, appCtx.Session().UserID, moveID, file.Data, file.Header.Filename, h.FileStorer(), models.UploadTypeOFFICE)
+
+			if verrs.HasAny() || err != nil {
+				switch err.(type) {
+				case uploader.ErrTooLarge:
+					return moveop.NewUploadAdditionalDocumentsRequestEntityTooLarge(), err
+				case uploader.ErrFile:
+					return moveop.NewUploadAdditionalDocumentsInternalServerError(), err
+				case uploader.ErrFailedToInitUploader:
+					return moveop.NewUploadAdditionalDocumentsInternalServerError(), err
+				case apperror.NotFoundError:
+					return moveop.NewUploadAdditionalDocumentsNotFound(), err
+				default:
+					return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err
+				}
+			}
+
+			uploadPayload, err := payloadForUploadModelFromAdditionalDocumentsUpload(h.FileStorer(), upload, url)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			return moveop.NewUploadAdditionalDocumentsCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStorer, upload models.Upload, url string) (*ghcmessages.Upload, error) {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
 }
