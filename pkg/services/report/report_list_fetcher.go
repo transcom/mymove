@@ -29,6 +29,7 @@ func (f *reportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, p
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.Reweigh",
+		"MTOShipments.PPMShipment",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.BackupContacts",
 		"Orders.Entitlement",

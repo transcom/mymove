@@ -48,6 +48,10 @@ func (f *estimatePPM) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppConte
 	return f.finalIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
 }
 
+func (f *estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
+	return f.priceBreakdown(appCtx, ppmShipment)
+}
+
 func shouldSkipEstimatingIncentive(newPPMShipment *models.PPMShipment, oldPPMShipment *models.PPMShipment) bool {
 	return oldPPMShipment.ExpectedDepartureDate.Equal(newPPMShipment.ExpectedDepartureDate) &&
 		newPPMShipment.PickupAddress.PostalCode == oldPPMShipment.PickupAddress.PostalCode &&
@@ -349,7 +353,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 }
 
 // returns the price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
-func (f estimatePPM) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
+func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	logger := appCtx.Logger()
 
 	var emptyPrice unit.Cents
