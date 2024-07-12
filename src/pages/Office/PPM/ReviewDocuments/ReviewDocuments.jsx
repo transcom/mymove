@@ -267,7 +267,7 @@ export const ReviewDocuments = ({ readOnly }) => {
               </Alert>
             </Grid>
           )}
-          <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
+          <ErrorMessage className={styles.errorMessage} display={!!serverError}>{serverError}</ErrorMessage>
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
