@@ -8,6 +8,7 @@ import Orders from './Orders';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
+import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 
 const mockOriginDutyLocation = {
   address: {
@@ -142,6 +143,12 @@ const useOrdersDocumentQueriesReturnValue = {
     },
   },
 };
+const ordersMockProps = {
+  files: {
+    [MOVE_DOCUMENT_TYPE.ORDERS]: [{ id: 'file-1', name: 'Order File 1' }],
+    [MOVE_DOCUMENT_TYPE.AMENDMENTS]: [{ id: 'file-2', name: 'Amended File 1' }],
+  },
+};
 
 const loadingReturnValue = {
   ...useOrdersDocumentQueriesReturnValue,
@@ -164,7 +171,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -177,7 +184,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -192,7 +199,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -209,7 +216,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -221,7 +228,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders permissions={[permissionTypes.updateOrders]}>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -247,7 +254,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders permissions={[permissionTypes.updateOrders]}>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
     });
@@ -295,7 +302,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders permissions={[permissionTypes.updateOrders]}>
-          <Orders />
+          <Orders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -308,6 +315,52 @@ describe('Orders page', () => {
 
       const loaTextField = screen.getByTestId('hhgLoaTextField');
       expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
+    });
+  });
+  describe('LOA concatenation with regex removes extra spaces', () => {
+    it('concatenates the LOA string correctly and without extra spaces', async () => {
+      let extraSpacesLongLineOfAccounting =
+        '1  **20062016*1234 *0000**1A *123A**00000000**  **** ***22NL** *000000*SEE PCS ORDERS* *12345**B1*';
+      const expectedLongLineOfAccounting =
+        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*SEE PCS ORDERS**12345**B1*';
+
+      // preserves spaces in column values such as 'SEE PCS ORDERS'
+      // remove any number of spaces following an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/\* +/g, '*');
+      // remove any number of spaces preceding an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/ +\*/g, '*');
+
+      expect(extraSpacesLongLineOfAccounting).toEqual(expectedLongLineOfAccounting);
+    });
+  });
+  describe('Manage document permission', () => {
+    it('renders manage document component', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders permissions={[permissionTypes.updateOrders]}>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Manage Orders/)).toBeInTheDocument();
+        expect(screen.queryByText(/Manage Amended Orders/)).toBeInTheDocument();
+      });
+    });
+    it('does not render manage document component', async () => {
+      useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
+
+      render(
+        <MockProviders>
+          <Orders {...ordersMockProps} />
+        </MockProviders>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText(/Manage Orders/)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Manage Amended Orders/)).not.toBeInTheDocument();
+      });
     });
   });
 });

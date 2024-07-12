@@ -60,7 +60,8 @@ func (f *shipmentApprover) ApproveShipment(appCtx appcontext.AppContext, shipmen
 
 	// if the shipment has an estimated weight at time of approval
 	// recalculate the authorized weight to include the newly authorized shipment
-	if shipment.PrimeEstimatedWeight != nil {
+	// and check for excess weight
+	if shipment.PrimeEstimatedWeight != nil || shipment.NTSRecordedWeight != nil {
 		err = f.updateAuthorizedWeight(appCtx, shipment)
 		if err != nil {
 			return nil, err
@@ -205,11 +206,26 @@ func (f *shipmentApprover) updateAuthorizedWeight(appCtx appcontext.AppContext, 
 		return apperror.NewQueryError("Move", err, "unable to find Move")
 	}
 
-	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
+	var dBAuthorizedWeight int
+	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+		dBAuthorizedWeight = int(*shipment.PrimeEstimatedWeight)
+	} else {
+		dBAuthorizedWeight = int(*shipment.NTSRecordedWeight)
+	}
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
-				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+			if mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
+				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+					//uses PrimeEstimatedWeight for HHG and NTS shipments
+					if mtoShipment.PrimeEstimatedWeight != nil {
+						dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+					}
+				} else {
+					//used NTSRecordedWeight for NTSRShipments
+					if mtoShipment.NTSRecordedWeight != nil {
+						dBAuthorizedWeight += int(*mtoShipment.NTSRecordedWeight)
+					}
+				}
 			}
 		}
 	}

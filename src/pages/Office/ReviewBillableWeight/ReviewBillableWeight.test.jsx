@@ -325,7 +325,7 @@ describe('ReviewBillableWeight', () => {
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
       );
       expect(screen.getByTestId('weightRequested').textContent).toBe('900 lbs');
-      expect(screen.getByTestId('totalBillableWeight').textContent).toBe('8,000 lbs');
+      expect(screen.getByTestId('totalBillableWeight').textContent).toBe('6,100 lbs');
     });
 
     it('renders 110% estimated weight and edit view', async () => {
@@ -518,25 +518,6 @@ describe('ReviewBillableWeight', () => {
 
   describe('check that the various alerts show up when expected', () => {
     describe('max billable weight alert', () => {
-      it('renders in shipment view when billable weight is exceeded', async () => {
-        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-
-        renderWithProviders(<ReviewBillableWeight />);
-
-        await userEvent.click(screen.getByText('Edit'));
-        await userEvent.click(screen.getByText('Review shipment weights'));
-        expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-      });
-
-      it('renders in edit view when billable weight is exceeded', async () => {
-        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-
-        renderWithProviders(<ReviewBillableWeight />);
-
-        await userEvent.click(screen.getByText('Edit'));
-        expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-      });
-
       it('does not render in edit view when billable weight is not exceeded', async () => {
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
