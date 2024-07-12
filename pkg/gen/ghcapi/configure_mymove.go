@@ -319,6 +319,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOffices has not yet been implemented")
 		})
 	}
+	if api.TransportationOfficeGetTransportationOfficesGBLOCsHandler == nil {
+		api.TransportationOfficeGetTransportationOfficesGBLOCsHandler = transportation_office.GetTransportationOfficesGBLOCsHandlerFunc(func(params transportation_office.GetTransportationOfficesGBLOCsParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesGBLOCs has not yet been implemented")
+		})
+	}
 	if api.TransportationOfficeGetTransportationOfficesOpenHandler == nil {
 		api.TransportationOfficeGetTransportationOfficesOpenHandler = transportation_office.GetTransportationOfficesOpenHandlerFunc(func(params transportation_office.GetTransportationOfficesOpenParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
