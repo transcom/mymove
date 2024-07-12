@@ -18,6 +18,7 @@ import {
   SERVICE_COUNSELING_PPM_STATUS_LABELS,
 } from 'constants/queues';
 import { generalRoutes, servicesCounselingRoutes } from 'constants/routes';
+import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import {
   useServicesCounselingQueueQueries,
   useServicesCounselingQueuePPMQueries,
@@ -25,6 +26,7 @@ import {
   useMoveSearchQueries,
   useCustomerSearchQueries,
 } from 'hooks/queries';
+import { getServicesCounselingOriginLocations } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -41,8 +43,9 @@ import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orde
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
+import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
-export const counselingColumns = (moveLockFlag) => [
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
@@ -134,12 +137,31 @@ export const counselingColumns = (moveLockFlag) => [
   createHeader('Origin GBLOC', 'originGBLOC', {
     disableSortBy: true,
   }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
-  createHeader('Origin duty location', 'originDutyLocation.name', {
-    id: 'originDutyLocation',
-    isFilterable: true,
-  }),
+  supervisor
+    ? createHeader(
+        'Origin duty location',
+        (row) => {
+          return `${row.originDutyLocation.name}`;
+        },
+        {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          Filter: (props) => (
+            <MultiSelectTypeAheadCheckBoxFilter
+              options={originLocationList}
+              placeholder="Start typing a duty location..."
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...props}
+            />
+          ),
+        },
+      )
+    : createHeader('Origin duty location', 'originDutyLocation.name', {
+        id: 'originDutyLocation',
+        isFilterable: true,
+      }),
 ];
-export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
+export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
@@ -232,10 +254,29 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
       ),
     },
   ),
-  createHeader('Origin duty location', 'originDutyLocation.name', {
-    id: 'originDutyLocation',
-    isFilterable: true,
-  }),
+  supervisor
+    ? createHeader(
+        'Origin duty location',
+        (row) => {
+          return `${row.originDutyLocation.name}`;
+        },
+        {
+          id: 'originDutyLocation',
+          isFilterable: true,
+          Filter: (props) => (
+            <MultiSelectTypeAheadCheckBoxFilter
+              options={ppmCloseoutOriginLocationList}
+              placeholder="Start typing a duty location..."
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...props}
+            />
+          ),
+        },
+      )
+    : createHeader('Origin duty location', 'originDutyLocation.name', {
+        id: 'originDutyLocation',
+        isFilterable: true,
+      }),
   createHeader('Destination duty location', 'destinationDutyLocation.name', {
     id: 'destinationDutyLocation',
     isFilterable: true,
@@ -248,7 +289,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC) => [
   }),
 ];
 
-const ServicesCounselingQueue = () => {
+const ServicesCounselingQueue = ({ userPrivileges }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -257,9 +298,29 @@ const ServicesCounselingQueue = () => {
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
+  const [originLocationList, setOriginLocationList] = useState([]);
+  const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
+  const supervisor = userPrivileges
+    ? userPrivileges.some((p) => p.privilegeType === elevatedPrivilegeTypes.SUPERVISOR)
+    : false;
 
   // Feature Flag
   useEffect(() => {
+    const getOriginLocationList = (needsPPMCloseout) => {
+      if (supervisor) {
+        getServicesCounselingOriginLocations(needsPPMCloseout).then((response) => {
+          if (needsPPMCloseout) {
+            setPpmCloseoutOriginLocationList(response);
+          } else {
+            setOriginLocationList(response);
+          }
+        });
+      }
+    };
+
+    getOriginLocationList(true);
+    getOriginLocationList(false);
+
     const fetchData = async () => {
       try {
         const isEnabled = await isCounselorMoveCreateEnabled();
@@ -278,7 +339,7 @@ const ServicesCounselingQueue = () => {
       }
     };
     fetchData();
-  }, [setErrorState]);
+  }, [setErrorState, supervisor]);
 
   const handleEditProfileClick = (locator) => {
     navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: locator }));
@@ -438,7 +499,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'closeoutInitiated', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC)}
+          columns={closeoutColumns(moveLockFlag, inPPMCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueuePPMQueries}
@@ -459,7 +520,7 @@ const ServicesCounselingQueue = () => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag)}
+          columns={counselingColumns(moveLockFlag, originLocationList, supervisor)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}

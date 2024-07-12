@@ -29,7 +29,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDown
 
   return (
     uploads?.length > 0 && (
-      <SectionWrapper className={classnames(styles.uploadsTableContainer, className)}>
+      <SectionWrapper className={classnames(styles.uploadsTableContainer, className)} data-testid="uploads-table">
         <h6>{uploads.length} Files Uploaded</h6>
         <ul>
           {uploads.map((upload) => (
