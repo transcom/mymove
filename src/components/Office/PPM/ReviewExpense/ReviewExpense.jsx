@@ -202,8 +202,10 @@ export default function ReviewExpense({
         errorMessage += 'SIT Location is required.\n';
       }
 
-      onError(errorMessage);
-      return;
+      if (errorMessage !== '') {
+        onError(errorMessage);
+        return;
+      }
     }
 
     const payload = {
