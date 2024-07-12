@@ -85,7 +85,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		rawquery += ` service_members.edipi = $1) ) distinct_customers`
 		if params.Sort != nil && params.Order != nil {
 			sortTerm := parameters[*params.Sort]
-			rawquery += ` ORDER BY ` + sortTerm + *params.Order
+			rawquery += ` ORDER BY ` + sortTerm + ` ` + *params.Order
 		} else {
 			rawquery += ` ORDER BY distinct_customers.last_name ASC`
 		}
