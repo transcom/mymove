@@ -112,7 +112,7 @@ export default function ReviewExpense({
   const actualWeight = ppmShipmentInfo?.actualWeight || '';
   const [amountValue, setAmountValue] = React.useState(amount.toString());
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
-  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
+  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || 'DESTINATION');
   const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
   const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
   const displaySitCost =
@@ -178,6 +178,31 @@ export default function ReviewExpense({
   const handleSubmit = (values) => {
     if (readOnly) {
       onSuccess();
+      return;
+    }
+
+    // To prevent errors when submitting the request and for better error messages we notify the user which fields are still required.
+    // This is also to done because Formik can fail to perform validation correctly when components are refreshed.
+    if (selectedExpenseType.toUpperCase() === expenseTypes.STORAGE) {
+      let errorMessage = "";
+
+      if (sitStartDateValue === "") {
+        errorMessage = errorMessage + "SIT Start Date is required.\n";
+      }
+
+      if (sitEndDateValue === "") {
+        errorMessage = errorMessage + "SIT End Date is required.\n";
+      }
+
+      if (weightStoredValue === null) {
+        errorMessage = errorMessage + "Weight Stored is required.\n";
+      }
+      
+      if (ppmSITLocation === "") {
+        errorMessage = errorMessage + "SIT Location is required.\n";
+      }
+
+      onError(errorMessage);
       return;
     }
 
@@ -323,7 +348,7 @@ export default function ReviewExpense({
                       label="Origin"
                       name="sitLocation"
                       value="ORIGIN"
-                      checked={values.sitLocation === 'ORIGIN' || values.sitLocation === ''}
+                      checked={values.sitLocation === 'ORIGIN'}
                       disabled={readOnly}
                       onChange={(e) => {
                         handleSITLocationChange(e);

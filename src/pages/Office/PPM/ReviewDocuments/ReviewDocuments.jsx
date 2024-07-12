@@ -199,6 +199,10 @@ export const ReviewDocuments = ({ readOnly }) => {
     setServerError('There was an error submitting the form. Please try again later.');
   };
 
+  const onErrorMessage = (errorMessage) => {
+    setServerError(errorMessage)
+  };
+
   const onConfirmSuccess = () => {
     if (roleTypes.SERVICES_COUNSELOR)
       navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode }));
@@ -263,7 +267,7 @@ export const ReviewDocuments = ({ readOnly }) => {
               </Alert>
             </Grid>
           )}
-          <ErrorMessage display={!!serverError}>{serverError}</ErrorMessage>
+          <ErrorMessage className={styles.errorMessage} display={!!serverError}>{serverError}</ErrorMessage>
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
@@ -323,7 +327,7 @@ export const ReviewDocuments = ({ readOnly }) => {
                     ppmNumber={1}
                     tripNumber={currentTripNumber}
                     mtoShipment={mtoShipment}
-                    onError={onError}
+                    onError={onErrorMessage}
                     onSuccess={onSuccess}
                     formRef={formRef}
                     readOnly={readOnly}
