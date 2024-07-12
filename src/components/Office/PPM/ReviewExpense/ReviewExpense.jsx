@@ -184,22 +184,22 @@ export default function ReviewExpense({
     // To prevent errors when submitting the request and for better error messages we notify the user which fields are still required.
     // This is also to done because Formik can fail to perform validation correctly when components are refreshed.
     if (selectedExpenseType.toUpperCase() === expenseTypes.STORAGE) {
-      let errorMessage = "";
+      let errorMessage = '';
 
-      if (sitStartDateValue === "") {
-        errorMessage = errorMessage + "SIT Start Date is required.\n";
+      if (sitStartDateValue === '') {
+        errorMessage += 'SIT Start Date is required.\n';
       }
 
-      if (sitEndDateValue === "") {
-        errorMessage = errorMessage + "SIT End Date is required.\n";
+      if (sitEndDateValue === '') {
+        errorMessage += 'SIT End Date is required.\n';
       }
 
       if (weightStoredValue === null) {
-        errorMessage = errorMessage + "Weight Stored is required.\n";
+        errorMessage += 'Weight Stored is required.\n';
       }
-      
-      if (ppmSITLocation === "") {
-        errorMessage = errorMessage + "SIT Location is required.\n";
+
+      if (ppmSITLocation === '') {
+        errorMessage += 'SIT Location is required.\n';
       }
 
       onError(errorMessage);
