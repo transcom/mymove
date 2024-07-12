@@ -19,6 +19,7 @@ import (
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
+	ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, error)
 }
 
 // OrderUpdater is the service object interface for updating fields of an Order
@@ -49,7 +50,7 @@ type ListOrderParams struct {
 	DodID                   *string
 	LastName                *string
 	DestinationDutyLocation *string
-	OriginDutyLocation      *string
+	OriginDutyLocation      []string
 	OriginGBLOC             *string
 	SubmittedAt             *time.Time
 	AppearedInTOOAt         *time.Time
