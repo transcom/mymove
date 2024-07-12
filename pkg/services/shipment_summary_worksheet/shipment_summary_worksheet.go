@@ -607,7 +607,7 @@ func FormatPPMWeightEstimated(ppm models.PPMShipment) string {
 // FormatPPMWeight formats a ppms final NetWeight for the Shipment Summary Worksheet
 func FormatPPMWeightFinal(weight unit.Pound) string {
 	wtg := FormatWeights(unit.Pound(weight))
-	return fmt.Sprintf("%s lbs - Final", wtg)
+	return fmt.Sprintf("%s lbs - Actual", wtg)
 }
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
