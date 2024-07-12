@@ -200,7 +200,7 @@ export const ReviewDocuments = ({ readOnly }) => {
   };
 
   const onErrorMessage = (errorMessage) => {
-    setServerError(errorMessage)
+    setServerError(errorMessage);
   };
 
   const onConfirmSuccess = () => {
@@ -267,7 +267,9 @@ export const ReviewDocuments = ({ readOnly }) => {
               </Alert>
             </Grid>
           )}
-          <ErrorMessage className={styles.errorMessage} display={!!serverError}>{serverError}</ErrorMessage>
+          <ErrorMessage className={styles.errorMessage} display={!!serverError}>
+            {serverError}
+          </ErrorMessage>
           {documentSets &&
             (showOverview ? (
               <ReviewDocumentsSidePanel
