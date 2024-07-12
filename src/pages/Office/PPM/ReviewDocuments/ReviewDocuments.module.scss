@@ -32,3 +32,7 @@
 .alertContainer {
   @include u-margin-bottom(2);
 }
+
+.usa-error-message {
+  white-space: pre-line;
+}
