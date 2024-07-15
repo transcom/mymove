@@ -7,6 +7,7 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
+import { WEIGHT_ADJUSTMENT } from 'constants/shipments';
 import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import { updateMTOShipment, updateMaxBillableWeightAsTIO, updateTIORemarks } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
@@ -73,7 +74,7 @@ export default function ReviewBillableWeight() {
   );
   const isLastShipment = filteredShipments && selectedShipmentIndex === filteredShipments.length - 1;
 
-  const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments);
+  const totalBillableWeight = useCalculatedTotalBillableWeight(filteredShipments, WEIGHT_ADJUSTMENT);
   const weightRequested = calculateWeightRequested(filteredShipments);
   const totalEstimatedWeight = useCalculatedEstimatedWeight(filteredShipments);
 
@@ -173,6 +174,24 @@ export default function ReviewBillableWeight() {
       };
       mutateMTOShipment(payload);
     }
+  };
+
+  const getEstimatedWeight = () => {
+    if (selectedShipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+      return selectedShipment.ppmShipment.estimatedWeight;
+    }
+
+    if (selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR) {
+      return selectedShipment.ntsRecordedWeight;
+    }
+    return selectedShipment.primeEstimatedWeight;
+  };
+
+  const getOriginalWeight = () => {
+    if (selectedShipment.shipmentType === SHIPMENT_OPTIONS.NTSR) {
+      return selectedShipment.ntsRecordedWeight;
+    }
+    return selectedShipment.primeActualWeight;
   };
 
   if (isLoading) return <LoadingPlaceholder />;
@@ -279,17 +298,13 @@ export default function ReviewBillableWeight() {
                   departedDate={selectedShipment.actualPickupDate}
                   pickupAddress={selectedShipment.pickupAddress}
                   destinationAddress={selectedShipment.destinationAddress}
-                  estimatedWeight={
-                    selectedShipment.shipmentType !== SHIPMENT_OPTIONS.PPM
-                      ? selectedShipment.primeEstimatedWeight
-                      : selectedShipment.ppmShipment.estimatedWeight
-                  }
+                  estimatedWeight={getEstimatedWeight()}
                   primeActualWeight={
                     selectedShipment.shipmentType !== SHIPMENT_OPTIONS.PPM
                       ? selectedShipment.primeActualWeight
                       : weightRequested
                   }
-                  originalWeight={selectedShipment.primeActualWeight}
+                  originalWeight={getOriginalWeight()}
                   adjustedWeight={selectedShipment.billableWeightCap}
                   reweighRemarks={selectedShipment?.reweigh?.verificationReason}
                   reweighWeight={selectedShipment?.reweigh?.weight}
