@@ -28,11 +28,17 @@ const (
 
 	// SignedCertificationTypeSHIPMENT captures enum value "SHIPMENT" for all shipment types from 10/2020
 	SignedCertificationTypeSHIPMENT SignedCertificationType = "SHIPMENT"
+
+	SignedCertificationTypePreCloseoutReviewedPPMPAYMENT SignedCertificationType = "PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT"
+
+	SignedCertificationTypeCloseoutReviewedPPMPAYMENT SignedCertificationType = "CLOSEOUT_REVIEWED_PPM_PAYMENT"
 )
 
 var AllowedSignedCertificationTypes = []string{
 	string(SignedCertificationTypePPMPAYMENT),
 	string(SignedCertificationTypeSHIPMENT),
+	string(SignedCertificationTypePreCloseoutReviewedPPMPAYMENT),
+	string(SignedCertificationTypeCloseoutReviewedPPMPAYMENT),
 }
 
 // SignedCertification represents users acceptance
@@ -110,6 +116,27 @@ func FetchSignedCertifications(db *pop.Connection, session *auth.Session, id uui
 	}
 	// Validate the move is associated to the logged-in service member
 	_, fetchErr := FetchMove(db, session, id)
+	if fetchErr != nil {
+		return nil, errors.Wrap(ErrFetchForbidden, "signed_certification: unauthorized access")
+	}
+
+	return signedCertification, nil
+}
+
+func FetchSignedCertificationPPMByType(db *pop.Connection, session *auth.Session, move_id uuid.UUID, ppm_id uuid.UUID, certificationType SignedCertificationType) ([]*SignedCertification, error) {
+	var signedCertification []*SignedCertification
+	err := db.Where("move_id = $1 and ppm_id = $2 and certification_type = $3", move_id.String(), ppm_id.String(), certificationType).All(&signedCertification)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			msg := fmt.Sprintf("signed_certification: with move_id: %s, ppm_id: %s not found", move_id.String(), ppm_id.String())
+			return nil, errors.Wrap(ErrFetchNotFound, msg)
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, errors.Wrap(err, "signed_certification: unable to fetch signed certification")
+	}
+	// Validate the move is associated to the logged-in service member
+	_, fetchErr := FetchMove(db, session, move_id)
 	if fetchErr != nil {
 		return nil, errors.Wrap(ErrFetchForbidden, "signed_certification: unauthorized access")
 	}

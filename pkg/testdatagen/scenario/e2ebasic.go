@@ -960,8 +960,6 @@ func serviceMemberWithOrdersAndPPMMove05(appCtx appcontext.AppContext, userUploa
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -991,8 +989,6 @@ func serviceMemberWithOrdersAndPPMMove06(appCtx appcontext.AppContext, userUploa
 			Status:                models.PPMShipmentStatusDraft,
 			EstimatedWeight:       models.PoundPointer(unit.Pound(4000)),
 			EstimatedIncentive:    models.CentPointer(unit.Cents(1000000)),
-			PickupPostalCode:      "90210",
-			DestinationPostalCode: "76127",
 			ExpectedDepartureDate: departureDate,
 		},
 	}
@@ -3837,6 +3833,7 @@ func createNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
+				NTSRecordedWeight:    &ntsRecordedWeight,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				TACType:              &tacType,
 				Status:               models.MTOShipmentStatusApproved,

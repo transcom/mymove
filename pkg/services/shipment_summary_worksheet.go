@@ -95,6 +95,7 @@ type Page2Values struct {
 	TrustedAgentName            string
 	FormattedMovingExpenses
 	ServiceMemberSignature string
+	PPPOPPSORepresentative string
 	SignatureDate          string
 	FormattedOtherExpenses
 }
@@ -143,12 +144,13 @@ type ShipmentSummaryFormData struct {
 	WeightAllotment          SSWMaxWeightEntitlement
 	PPMShipment              models.PPMShipment
 	PPMShipments             models.PPMShipments
+	PPMShipmentFinalWeight   unit.Pound
 	W2Address                *models.Address
 	PreparationDate          time.Time
 	Obligations              Obligations
 	MovingExpenses           models.MovingExpenses
 	PPMRemainingEntitlement  unit.Pound
-	SignedCertification      models.SignedCertification
+	SignedCertifications     []*models.SignedCertification
 	MaxSITStorageEntitlement int
 }
 
@@ -179,7 +181,7 @@ type SSWMaxWeightEntitlement struct {
 type SSWPPMComputer interface {
 	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*ShipmentSummaryFormData, error)
 	ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (Obligations, error)
-	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData) (Page1Values, Page2Values)
+	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values)
 }
 
 //go:generate mockery --name SSWPPMGenerator

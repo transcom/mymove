@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -49,6 +50,11 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev3messages.MoveTaskOrder {
 	// mto service item references a polymorphic type which auto-generates an interface and getters and setters
 	payload.SetMtoServiceItems(*mtoServiceItems)
 
+	// update originDutyLocationGBLOC to match TOO's gbloc and not service counselors's gbloc
+	if len(moveTaskOrder.ShipmentGBLOC) > 0 && moveTaskOrder.ShipmentGBLOC[0].GBLOC != nil {
+		payload.Order.OriginDutyLocationGBLOC = swag.StringValue(moveTaskOrder.ShipmentGBLOC[0].GBLOC)
+	}
+
 	return payload
 }
 
@@ -61,6 +67,7 @@ func Customer(customer *models.ServiceMember) *primev3messages.Customer {
 		FirstName:      swag.StringValue(customer.FirstName),
 		LastName:       swag.StringValue(customer.LastName),
 		DodID:          swag.StringValue(customer.Edipi),
+		Emplid:         swag.StringValue(customer.Emplid),
 		ID:             strfmt.UUID(customer.ID.String()),
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		CurrentAddress: Address(customer.ResidentialAddress),
@@ -114,7 +121,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		Naics:                          order.NAICS,
 	}
 
-	if payload.Customer.Branch == "MARINES" {
+	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
 	}
 

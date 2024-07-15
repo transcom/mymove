@@ -725,6 +725,44 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.maxBillableWeight
+  /orders/{orderID}/upload_amended_orders:
+    post:
+      summary: Create an amended order for a given order
+      description: Create an amended order for a given order
+      operationId: uploadAmendedOrders
+      tags:
+        - order
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: orderID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /counseling/orders/{orderID}/allowances:
     parameters:
       - description: ID of order to use
@@ -2944,6 +2982,49 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.financialReviewFlag
+  /moves/{moveID}/uploadAdditionalDocuments:
+    patch:
+      summary: Patch the additional documents for a given move
+      description: >-
+        Customers will on occaision need the ability to upload additional
+        supporting documents, for a variety of reasons. This does not include
+        amended order.
+      operationId: uploadAdditionalDocuments
+      tags:
+        - move
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: moveID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        '201':
+          description: created upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
+      x-permissions:
+        - create.supportingDocuments
   /payment-requests/{paymentRequestID}/shipments-payment-sit-balance:
     parameters:
       - description: >-
@@ -3065,6 +3146,32 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /documents:
+    post:
+      summary: Create a new document
+      description: >-
+        Documents represent a physical artifact such as a scanned document or a
+        PDF file
+      operationId: createDocument
+      tags:
+        - ghcDocuments
+      parameters:
+        - in: body
+          name: documentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/PostDocumentPayload'
+      responses:
+        '201':
+          description: created document
+          schema:
+            $ref: '#/definitions/Document'
+        '400':
+          description: invalid request
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          description: server error
   /queues/counseling:
     get:
       produces:
@@ -3149,7 +3256,11 @@ paths:
           description: filters the GBLOC of the service member's origin duty location
         - in: query
           name: originDutyLocation
-          type: string
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
           description: filters the name of the origin duty location on the orders
         - in: query
           name: destinationDutyLocation
@@ -3203,6 +3314,36 @@ paths:
           description: Successfully returned all moves matching the criteria
           schema:
             $ref: '#/definitions/QueueMovesResult'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '500':
+          $ref: '#/responses/ServerError'
+  /queues/counseling/origin-list:
+    get:
+      produces:
+        - application/json
+      summary: Gets queued list of all moves origin locations in the counselors queue
+      description: >
+        An office services counselor user will be assigned a transportation
+        office that will determine which moves are displayed in their queue
+        based on the origin duty location. This pulls the availalble origin duty
+        locations.
+      operationId: getServicesCounselingOriginList
+      tags:
+        - queues
+      parameters:
+        - in: query
+          name: needsPPMCloseout
+          type: boolean
+          description: >-
+            Only used for Services Counseling queue. If true, show PPM moves
+            origin locations that are ready for closeout. Otherwise, show all
+            other moves origin locations.
+      responses:
+        '200':
+          description: Successfully returned all moves matching the criteria
+          schema:
+            $ref: '#/definitions/Locations'
         '403':
           $ref: '#/responses/PermissionDenied'
         '500':
@@ -3327,7 +3468,11 @@ paths:
           type: string
         - in: query
           name: originDutyLocation
-          type: string
+          type: array
+          uniqueItems: true
+          collectionFormat: multi
+          items:
+            type: string
         - in: query
           name: destinationDutyLocation
           type: string
@@ -3732,6 +3877,38 @@ paths:
           description: payload is too large
         '500':
           description: server error
+  /uploads/{uploadID}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+        - in: query
+          name: orderID
+          type: string
+          format: uuid
+          description: ID of the order that the upload belongs to
+      responses:
+        '204':
+          description: deleted
+        '400':
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -3773,6 +3950,20 @@ definitions:
         type: string
         format: string
         x-nullable: true
+  PostDocumentPayload:
+    type: object
+    properties:
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
   ClientError:
     type: object
     properties:
@@ -4519,6 +4710,8 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
   MoveHistory:
     properties:
       id:
@@ -4848,9 +5041,27 @@ definitions:
         type: string
       naics:
         type: string
+      orders_type:
+        $ref: '#/definitions/OrdersType'
       eTag:
         type: string
     type: object
+  Location:
+    type: object
+    properties:
+      label:
+        type: string
+        example: Label for display
+      value:
+        type: string
+        example: Value for location
+    required:
+      - label
+      - value
+  Locations:
+    type: array
+    items:
+      $ref: '#/definitions/Location'
   OrderBody:
     type: object
     properties:
@@ -6594,6 +6805,60 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  MovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      locator:
+        type: string
+        example: '12432'
+      status:
+        $ref: '#/definitions/MoveStatus'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      submitted_at:
+        type: string
+        format: date-time
+        x-nullable: true
+      mto_shipments:
+        $ref: '#/definitions/MTOShipments'
+      closeout_office:
+        $ref: '#/definitions/TransportationOffice'
+      cancel_reason:
+        type: string
+        example: Change of orders
+        x-nullable: true
+      eTag:
+        type: string
+      primeCounselingCompletedAt:
+        format: date-time
+        type: string
+        readOnly: true
+      additionalDocuments:
+        $ref: '#/definitions/Document'
+    required:
+      - id
+      - orders_id
+      - locator
+      - created_at
+      - updated_at
+      - eTag
   Affiliation:
     type: string
     x-nullable: true
@@ -6606,6 +6871,8 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -6853,6 +7120,89 @@ definitions:
       WOUNDED_WARRIOR: Wounded Warrior
       BLUEBARK: BLUEBARK
       SAFETY: Safety
+  Upload:
+    description: An uploaded file.
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      filename:
+        type: string
+        example: filename.pdf
+        readOnly: true
+      contentType:
+        type: string
+        format: mime-type
+        example: application/pdf
+        readOnly: true
+      bytes:
+        type: integer
+        readOnly: true
+      status:
+        type: string
+        enum:
+          - INFECTED
+          - CLEAN
+          - PROCESSING
+        readOnly: true
+      createdAt:
+        type: string
+        format: date-time
+        readOnly: true
+      updatedAt:
+        type: string
+        format: date-time
+        readOnly: true
+      deletedAt:
+        type: string
+        format: date-time
+        x-nullable: true
+        readOnly: true
+      isWeightTicket:
+        type: boolean
+      uploadType:
+        type: string
+        example: OFFICE
+        enum:
+          - USER
+          - PRIME
+          - OFFICE
+        readOnly: true
+    required:
+      - id
+      - url
+      - filename
+      - contentType
+      - bytes
+      - createdAt
+      - updatedAt
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/Upload'
+    required:
+      - id
+      - service_member_id
+      - uploads
   NullableString:
     type: string
     x-go-type:
@@ -6988,57 +7338,6 @@ definitions:
       - SUBMITTED
       - APPROVED
       - REJECTED
-  Upload:
-    description: An uploaded file.
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      url:
-        type: string
-        format: uri
-        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      filename:
-        type: string
-        example: filename.pdf
-        readOnly: true
-      contentType:
-        type: string
-        format: mime-type
-        example: application/pdf
-        readOnly: true
-      bytes:
-        type: integer
-        readOnly: true
-      status:
-        type: string
-        enum:
-          - INFECTED
-          - CLEAN
-          - PROCESSING
-        readOnly: true
-      createdAt:
-        type: string
-        format: date-time
-        readOnly: true
-      updatedAt:
-        type: string
-        format: date-time
-        readOnly: true
-      isWeightTicket:
-        type: boolean
-    required:
-      - id
-      - url
-      - filename
-      - contentType
-      - bytes
-      - createdAt
-      - updatedAt
   ServiceRequestDocument:
     type: object
     properties:
@@ -7514,25 +7813,6 @@ definitions:
       - EDITED
       - RECEIVED
       - NOT_RECEIVED
-  Document:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        title: The service member this document belongs to
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/Upload'
-    required:
-      - id
-      - service_member_id
-      - uploads
   OmittablePPMDocumentStatus:
     description: Status of the PPM document.
     type: string
@@ -8029,10 +8309,15 @@ definitions:
             ready to submit their documentation for review. When they submit, they will be asked to sign certifying the
             information is correct.
         - SHIPMENT: This is used when a customer submits their move with their shipments to be reviewed by office users.
+        - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a move has a PPM shipment and is set to
+             service-counseling-completed "Submit move details" by service counselor.
+        - CLOSEOUT_REVIEWED_PPM_PAYMENT: This is used when a PPM shipment is reviewed by counselor in close out queue.
     type: string
     enum:
       - PPM_PAYMENT
       - SHIPMENT
+      - PRE_CLOSEOUT_REVIEWED_PPM_PAYMENT
+      - CLOSEOUT_REVIEWED_PPM_PAYMENT
     readOnly: true
   SignedCertification:
     description: Signed certification
@@ -8171,27 +8456,8 @@ definitions:
         type: string
         x-nullable: true
         x-omitempty: false
-      pickupPostalCode:
-        description: >-
-          The postal code of the origin location where goods are being moved
-          from.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       pickupAddress:
         $ref: '#/definitions/Address'
-      secondaryPickupPostalCode:
-        format: >-
-          An optional secondary pickup location near the origin where additional
-          goods exist.
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -8212,28 +8478,8 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
         x-omitempty: false
-      destinationPostalCode:
-        description: >-
-          The postal code of the destination location where goods are being
-          delivered to.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDestinationPostalCode:
-        description: >-
-          An optional secondary location near the destination where goods will
-          be dropped off.
-        format: zip
-        type: string
-        title: ZIP
-        example: '90210'
-        pattern: ^(\d{5})$
-        x-nullable: true
-        x-omitempty: false
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -8397,8 +8643,6 @@ definitions:
       - createdAt
       - status
       - expectedDepartureDate
-      - pickupPostalCode
-      - destinationPostalCode
       - sitExpected
       - eTag
   ShipmentAddressUpdateStatus:
