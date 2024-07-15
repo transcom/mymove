@@ -5593,6 +5593,42 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -7292,6 +7328,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
@@ -20054,6 +20096,57 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -21757,6 +21850,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
