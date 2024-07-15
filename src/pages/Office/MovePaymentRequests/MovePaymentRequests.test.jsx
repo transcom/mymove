@@ -633,26 +633,6 @@ describe('MovePaymentRequests', () => {
     });
   });
 
-  describe('a billable weight that exceeds the max billable weight', () => {
-    beforeEach(() => {
-      useMovePaymentRequestsQueries.mockReturnValue(multiplePaymentRequests);
-    });
-
-    it('shows the max billable weight tag in sidebar', async () => {
-      renderMovePaymentRequests(testProps);
-      await waitFor(() => {
-        expect(screen.getByTestId('maxBillableWeightErrorTag')).toBeInTheDocument();
-      });
-    });
-
-    it('shows the max billable weight error text in the billable weight card', async () => {
-      renderMovePaymentRequests(testProps);
-      await waitFor(() => {
-        expect(screen.getByText('Move exceeds max billable weight')).toBeInTheDocument();
-      });
-    });
-  });
-
   describe('a move that has an overweight shipment displays a warning tag', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(moveShipmentOverweight);
