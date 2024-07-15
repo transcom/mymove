@@ -453,9 +453,6 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "documentNumber": {
-          "type": "string"
-        },
         "edipi": {
           "type": "string"
         },
@@ -1347,9 +1344,6 @@ func init() {
           "type": "number",
           "format": "double",
           "x-nullable": true
-        },
-        "documentNumber": {
-          "type": "string"
         },
         "edipi": {
           "type": "string"

@@ -471,8 +471,6 @@ definitions:
       paa:
         type: string
         x-nullable: true
-      documentNumber:
-        type: string
       costCD:
         type: string
         x-nullable: true

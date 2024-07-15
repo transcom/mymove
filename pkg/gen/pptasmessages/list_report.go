@@ -82,9 +82,6 @@ type ListReport struct {
 	// destination reweigh net weight
 	DestinationReweighNetWeight *float64 `json:"destinationReweighNetWeight,omitempty"`
 
-	// document number
-	DocumentNumber string `json:"documentNumber,omitempty"`
-
 	// edipi
 	Edipi string `json:"edipi,omitempty"`
 
