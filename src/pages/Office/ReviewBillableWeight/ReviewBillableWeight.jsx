@@ -202,7 +202,7 @@ export default function ReviewBillableWeight() {
       <div className={styles.embed}>
         <DocumentViewer files={getAllFiles()} />
       </div>
-      <div className={styles.sidebar}>
+      <div>
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
             <DocumentViewerSidebar.Content>
