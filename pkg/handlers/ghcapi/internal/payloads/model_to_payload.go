@@ -366,6 +366,15 @@ func TransportationOffices(transportationOffices models.TransportationOffices) g
 	return payload
 }
 
+func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
+	payload := make(ghcmessages.GBLOCs, len(gblocs))
+
+	for i, gbloc := range gblocs {
+		payload[i] = string(gbloc)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{

@@ -72,7 +72,7 @@ const validationSchema = (maxWeight) => {
     }),
     sitLocation: Yup.mixed().when('movingExpenseType', {
       is: expenseTypes.STORAGE,
-      then: (schema) => schema.required('Required').oneOf(sitLocationOptions.map((i) => i.key)),
+      then: (schema) => schema.oneOf(sitLocationOptions.map((i) => i.key)).required('Required'),
     }),
   });
 };
@@ -112,7 +112,7 @@ export default function ReviewExpense({
   const actualWeight = ppmShipmentInfo?.actualWeight || '';
   const [amountValue, setAmountValue] = React.useState(amount.toString());
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
-  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || '');
+  const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || 'DESTINATION');
   const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
   const [sitEndDateValue, setSitEndDateValue] = React.useState(sitEndDate != null ? sitEndDate : '');
   const displaySitCost =
@@ -179,6 +179,33 @@ export default function ReviewExpense({
     if (readOnly) {
       onSuccess();
       return;
+    }
+
+    // To prevent errors when submitting the request and for better error messages we notify the user which fields are still required.
+    // This is also to done because Formik can fail to perform validation correctly when components are refreshed.
+    if (selectedExpenseType.toUpperCase() === expenseTypes.STORAGE) {
+      let errorMessage = '';
+
+      if (sitStartDateValue === '') {
+        errorMessage += 'SIT Start Date is required.\n';
+      }
+
+      if (sitEndDateValue === '') {
+        errorMessage += 'SIT End Date is required.\n';
+      }
+
+      if (weightStoredValue === null) {
+        errorMessage += 'Weight Stored is required.\n';
+      }
+
+      if (ppmSITLocation === '') {
+        errorMessage += 'SIT Location is required.\n';
+      }
+
+      if (errorMessage !== '') {
+        onError(errorMessage);
+        return;
+      }
     }
 
     const payload = {
