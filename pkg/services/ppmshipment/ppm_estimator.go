@@ -411,7 +411,6 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
 	} else {
-		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		mtoShipment = MapPPMShipmentEstimatedFields(*ppmShipment)
 	}
 
@@ -432,7 +431,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 
 		// The distance value gets saved to the mto shipment model to reduce repeated api calls.
 		var shipmentWithDistance models.MTOShipment
-		err = appCtx.DB().Find(&shipmentWithDistance, mtoShipment.ID)
+		err = appCtx.DB().Find(&shipmentWithDistance, ppmShipment.ShipmentID)
 		if err != nil {
 			logger.Error("could not find shipment in the database")
 			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err

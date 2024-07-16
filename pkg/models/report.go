@@ -52,7 +52,7 @@ type Report struct {
 	WeightAuthorized            *unit.Pound
 	ShipmentId                  uuid.UUID
 	SCAC                        *string
-	OrderNumber                 *string
+	OrderNumber                 string
 	LOA                         *string
 	ShipmentType                *string
 	EntitlementWeight           *unit.Pound
@@ -84,14 +84,14 @@ type Report struct {
 	MoveManagementFeeTotal      *float64
 	CounselingFeeTotal          *float64
 	InvoicePaidAmt              *float64
-	PPMLinehaul                 *float64
+	PpmLinehaul                 *float64
 	PpmFuelRateAdjTotal         *float64
-	PPMOriginPrice              *float64
-	PPMDestPrice                *float64
-	PPMPacking                  *float64
-	PPMUnpacking                *float64
-	PPMStorage                  *float64
-	PPMTotal                    *float64
+	PpmOriginPrice              *float64
+	PpmDestPrice                *float64
+	PpmPacking                  *float64
+	PpmUnpacking                *float64
+	PpmStorage                  *float64
+	PpmTotal                    *float64
 	TravelType                  *string
 	TravelClassCode             *string
 	DeliveryDate                *time.Time

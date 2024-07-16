@@ -15,13 +15,16 @@ import (
 )
 
 type reportListFetcher struct {
+	estimator services.PPMEstimator
 }
 
-func NewReportListFetcher() services.ReportListFetcher {
-	return &reportListFetcher{}
+func NewReportListFetcher(estimator services.PPMEstimator) services.ReportListFetcher {
+	return &reportListFetcher{
+		estimator: estimator,
+	}
 }
 
-func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, params *services.MoveFetcherParams) (*models.Reports, error) {
+func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
 	var fullreport models.Reports
 	moves, err := FetchMovesForReports(appCtx, params)
 
@@ -236,12 +239,12 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			sitDestFuelSurcharge + domesticCrating + domesticUncrating
 		report.InvoicePaidAmt = &invoicePaidAmt
 
-		var ppmLinehaul float64
-		var ppmFuel float64
-		var ppmOriginPrice float64
-		var ppmDestPrice float64
-		var ppmPacking float64
-		var ppmUnpacking float64
+		// var ppmLinehaul float64
+		// var ppmFuel float64
+		// var ppmOriginPrice float64
+		// var ppmDestPrice float64
+		// var ppmPacking float64
+		// var ppmUnpacking float64
 
 		// sharing this for loop for all MTOShipment calculations
 		for _, shipment := range move.MTOShipments {
@@ -272,21 +275,28 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 					report.SitOutDate = shipment.PPMShipment.SITEstimatedDepartureDate
 				}
 
-				var estimator services.PPMEstimator
-				// do the ppm cost breakdown here
-				if estimator != nil {
-					linehaul, fuel, origin, dest, packing, unpacking, err := estimator.PriceBreakdown(appCtx, shipment.PPMShipment)
-					if err != nil {
-						return nil, apperror.NewUnprocessableEntityError("ppm price breakdown")
-					}
-
-					ppmLinehaul += linehaul.Float64()
-					ppmFuel += fuel.Float64()
-					ppmOriginPrice += origin.Float64()
-					ppmDestPrice += dest.Float64()
-					ppmPacking += packing.Float64()
-					ppmUnpacking += unpacking.Float64()
+				// query the ppmshipment for all it's child needs for the price breakdown
+				var ppmShipment models.PPMShipment
+				ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets").
+					InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
+					Where("ppm_shipments.id = ?", shipment.PPMShipment.ID).
+					First(&ppmShipment)
+				if ppmQ != nil {
+					return nil, apperror.NewQueryError("failed to query ppm ", ppmQ, ".")
 				}
+
+				// // do the ppm cost breakdown here
+				// linehaul, fuel, origin, dest, packing, unpacking, err := f.estimator.PriceBreakdown(appCtx, &ppmShipment)
+				// if err != nil {
+				// 	return nil, apperror.NewUnprocessableEntityError("ppm price breakdown")
+				// }
+
+				// ppmLinehaul += linehaul.Float64()
+				// ppmFuel += fuel.Float64()
+				// ppmOriginPrice += origin.Float64()
+				// ppmDestPrice += dest.Float64()
+				// ppmPacking += packing.Float64()
+				// ppmUnpacking += unpacking.Float64()
 
 			}
 
@@ -296,14 +306,14 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 		}
 
-		report.PPMLinehaul = &ppmLinehaul
-		report.PpmFuelRateAdjTotal = &ppmFuel
-		report.PPMOriginPrice = &ppmOriginPrice
-		report.PPMDestPrice = &ppmDestPrice
-		report.PPMPacking = &ppmPacking
-		report.PPMUnpacking = &ppmUnpacking
-		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
-		report.PPMTotal = &ppmTotal
+		// report.PpmLinehaul = &ppmLinehaul
+		// report.PpmFuelRateAdjTotal = &ppmFuel
+		// report.PpmOriginPrice = &ppmOriginPrice
+		// report.PpmDestPrice = &ppmDestPrice
+		// report.PpmPacking = &ppmPacking
+		// report.PpmUnpacking = &ppmUnpacking
+		// ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
+		// report.PpmTotal = &ppmTotal
 
 		report.ActualOriginNetWeight = &originActualWeight
 		report.PBPAndE = &progear
@@ -315,7 +325,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		}
 
 		if orders.SAC != nil {
-			report.OrdersNumber = orders.SAC
+			report.OrderNumber = *orders.SAC
 		}
 
 		report.FirstName = orders.ServiceMember.FirstName
@@ -355,11 +365,11 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		fullreport = append(fullreport, report)
 	}
 
-	return &fullreport, nil
+	return fullreport, nil
 }
 
 // Fetch Moves with an approved Payment Request for Navy service members and ignore TIO and GBLOC rules
-func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFetcherParams) (models.Moves, error) {
+func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
 	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
@@ -376,6 +386,7 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFet
 		"MTOShipments.Reweigh",
 		"MTOShipments.PPMShipment",
 		"Orders.ServiceMember",
+		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.ServiceMember.BackupContacts",
 		"Orders.Entitlement",
 		"Orders.Entitlement.WeightAllotted",
@@ -391,9 +402,15 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFet
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		LeftJoin("personally_procured_moves", "personally_procured_moves.move_id = moves.id").
+		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		InnerJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id, service_members.residential_address_id)").
 		Where("payment_requests.status in (?)", approvedStatuses).
 		Where("service_members.affiliation = ?", models.AffiliationNAVY).
 		GroupBy("moves.id")
+
+	if params.Since != nil {
+		query.Where("payment_requests.updated_at >= ?", params.Since)
+	}
 
 	err := query.All(&moves)
 

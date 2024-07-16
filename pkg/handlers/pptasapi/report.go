@@ -21,11 +21,11 @@ type ListReportsHandler struct {
 func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			var searchParams services.MoveFetcherParams
-			// if params.Since != nil {
-			// 	since := handlers.FmtDateTimePtrToPop(params.Since)
-			// 	searchParams.Since = &since
-			// }
+			var searchParams services.MoveTaskOrderFetcherParams
+			if params.Since != nil {
+				since := handlers.FmtDateTimePtrToPop(params.Since)
+				searchParams.Since = &since
+			}
 
 			movesForReport, err := h.BuildReportFromMoves(appCtx, &searchParams)
 			if err != nil {
@@ -33,7 +33,7 @@ func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.
 				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListReports(appCtx, movesForReport)
+			payload := payloads.ListReports(appCtx, &movesForReport)
 
 			return pptasop.NewListReportsOK().WithPayload(payload), nil
 		})
