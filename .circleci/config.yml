@@ -43,7 +43,7 @@ references:
   dp3-branch: &dp3-branch issue-13243-deploy
   # MUST BE ONE OF: loadtest, demo, exp.
   # These are used to pull in env vars so the spelling matters!
-  dp3-env: &dp3-env demo
+  dp3-env: &dp3-env exp
 
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
