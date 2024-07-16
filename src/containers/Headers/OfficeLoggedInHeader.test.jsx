@@ -150,4 +150,39 @@ describe('OfficeLoggedInHeader', () => {
     expect(logOut).toHaveBeenCalled();
     expect(LogoutUser).toHaveBeenCalled();
   });
+
+  it('renders the GBLOC switcher when the current user is signed in with the HQ role', async () => {
+    const testState = {
+      auth: {
+        activeRole: roleTypes.HQ,
+        isLoading: false,
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [{ roleType: roleTypes.HQ }],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'KKFA',
+              },
+            },
+          },
+        },
+      },
+    };
+
+    render(
+      <MockProviders initialState={testState}>
+        <ConnectedOfficeLoggedInHeader />
+      </MockProviders>,
+    );
+
+    const gblocSwitcher = screen.getByTestId('gbloc_switcher');
+    expect(gblocSwitcher).toBeInstanceOf(HTMLDivElement);
+    expect(gblocSwitcher.firstChild).toBeInstanceOf(HTMLSelectElement);
+  });
 });
