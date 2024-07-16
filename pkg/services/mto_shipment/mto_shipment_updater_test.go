@@ -77,6 +77,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	var oldMTOShipment models.MTOShipment
 	var secondaryPickupAddress models.Address
 	var secondaryDeliveryAddress models.Address
+	var tertiaryPickupAddress models.Address
+	var tertiaryDeliveryAddress models.Address
 	var newDestinationAddress models.Address
 	var newPickupAddress models.Address
 
@@ -94,6 +96,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		requestedPickupDate := *oldMTOShipment.RequestedPickupDate
 		secondaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 		secondaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		tertiaryPickupAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
+		tertiaryDeliveryAddress = factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 		newDestinationAddress = factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -225,7 +229,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 
 	suite.Run("Successfully remove a secondary pickup address", func() {
 		setupTestData()
-		fmt.Println("secondaryPickupAddress", secondaryPickupAddress)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -262,7 +265,6 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 	})
 	suite.Run("Successfully remove a secondary delivery address", func() {
 		setupTestData()
-		fmt.Println("secondaryDeliveryAddress", secondaryDeliveryAddress)
 
 		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -297,6 +299,80 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.False(*newShipment.HasSecondaryDeliveryAddress)
 		suite.Nil(newShipment.SecondaryDeliveryAddress)
 	})
+
+	suite.Run("Successfully remove a tertiary pickup address", func() {
+		setupTestData()
+
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
+			},
+			{
+				Model:    tertiaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.TertiaryPickupAddress,
+			},
+		}, nil)
+		suite.FatalNotNil(oldShipment.TertiaryPickupAddress)
+		suite.FatalNotNil(oldShipment.TertiaryPickupAddressID)
+		suite.FatalNotNil(oldShipment.HasTertiaryPickupAddress)
+		suite.True(*oldShipment.HasTertiaryPickupAddress)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		no := false
+		updatedShipment := models.MTOShipment{
+			ID:                       oldShipment.ID,
+			HasTertiaryPickupAddress: &no,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+
+		suite.Require().NoError(err)
+		suite.FatalNotNil(newShipment.HasTertiaryPickupAddress)
+		suite.False(*newShipment.HasTertiaryPickupAddress)
+		suite.Nil(newShipment.TertiaryPickupAddress)
+	})
+	suite.Run("Successfully remove a tertiary delivery address", func() {
+		setupTestData()
+
+		oldShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeHHG,
+				},
+			},
+			{
+				Model:    tertiaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.TertiaryDeliveryAddress,
+			},
+		}, nil)
+		suite.FatalNotNil(oldShipment.TertiaryDeliveryAddress)
+		suite.FatalNotNil(oldShipment.TertiaryDeliveryAddressID)
+		suite.FatalNotNil(oldShipment.HasTertiaryDeliveryAddress)
+		suite.True(*oldShipment.HasTertiaryDeliveryAddress)
+
+		eTag := etag.GenerateEtag(oldShipment.UpdatedAt)
+
+		no := false
+		updatedShipment := models.MTOShipment{
+			ID:                         oldShipment.ID,
+			HasTertiaryDeliveryAddress: &no,
+		}
+
+		session := auth.Session{}
+		newShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), &updatedShipment, eTag, "test")
+
+		suite.Require().NoError(err)
+		suite.FatalNotNil(newShipment.HasTertiaryDeliveryAddress)
+		suite.False(*newShipment.HasTertiaryDeliveryAddress)
+		suite.Nil(newShipment.TertiaryDeliveryAddress)
+	})
+
 	suite.Run("Successful update to all address fields", func() {
 		setupTestData()
 
@@ -318,6 +394,13 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryDeliveryAddress: models.BoolPointer(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			SecondaryDeliveryAddressID:  &secondaryDeliveryAddress.ID,
+
+			HasTertiaryPickupAddress:   models.BoolPointer(true),
+			TertiaryPickupAddress:      &tertiaryPickupAddress,
+			TertiaryPickupAddressID:    &tertiaryPickupAddress.ID,
+			HasTertiaryDeliveryAddress: models.BoolPointer(true),
+			TertiaryDeliveryAddress:    &tertiaryDeliveryAddress,
+			TertiaryDeliveryAddressID:  &tertiaryDeliveryAddress.ID,
 		}
 		session := auth.Session{}
 		updatedShipment, err := mtoShipmentUpdaterCustomer.UpdateMTOShipment(suite.AppContextWithSessionForTest(&session), updatedShipment, eTag, "test")
@@ -331,6 +414,11 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(secondaryPickupAddress.StreetAddress1, updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(secondaryDeliveryAddress.ID, *updatedShipment.SecondaryDeliveryAddressID)
 		suite.Equal(secondaryDeliveryAddress.StreetAddress1, updatedShipment.SecondaryDeliveryAddress.StreetAddress1)
+
+		suite.Equal(tertiaryPickupAddress.ID, *updatedShipment.TertiaryPickupAddressID)
+		suite.Equal(tertiaryPickupAddress.StreetAddress1, updatedShipment.TertiaryPickupAddress.StreetAddress1)
+		suite.Equal(tertiaryDeliveryAddress.ID, *updatedShipment.TertiaryDeliveryAddressID)
+		suite.Equal(tertiaryDeliveryAddress.StreetAddress1, updatedShipment.TertiaryDeliveryAddress.StreetAddress1)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 
@@ -364,6 +452,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:        handlers.FmtBool(true),
 			SecondaryDeliveryAddress:         &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress:      handlers.FmtBool(true),
+			TertiaryPickupAddress:            &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:         handlers.FmtBool(true),
+			TertiaryDeliveryAddress:          &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:       handlers.FmtBool(true),
 			RequestedPickupDate:              &requestedPickupDate,
 			ScheduledPickupDate:              &scheduledPickupDate,
 			RequestedDeliveryDate:            &requestedDeliveryDate,
@@ -402,6 +494,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+		suite.Equal(tertiaryPickupAddress.ID, *newShipment.TertiaryPickupAddressID)
+		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 		suite.Equal(actualProGearWeight, *newShipment.ActualProGearWeight)
 		suite.Equal(actualSpouseProGearWeight, *newShipment.ActualSpouseProGearWeight)
 
@@ -440,6 +534,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:          &newPickupAddress.ID,
 			SecondaryPickupAddress:   &secondaryPickupAddress,
 			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			TertiaryPickupAddress:    &tertiaryPickupAddress,
+			TertiaryDeliveryAddress:  &tertiaryDeliveryAddress,
 			RequestedPickupDate:      &requestedPickupDate,
 			RequestedDeliveryDate:    &requestedDeliveryDate,
 			CustomerRemarks:          &customerRemarks,
@@ -488,6 +584,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:          &newPickupAddress.ID,
 			SecondaryPickupAddress:   &secondaryPickupAddress,
 			SecondaryDeliveryAddress: &secondaryDeliveryAddress,
+			TertiaryPickupAddress:    &tertiaryPickupAddress,
+			TertiaryDeliveryAddress:  &tertiaryDeliveryAddress,
 			RequestedPickupDate:      &requestedPickupDate,
 			RequestedDeliveryDate:    &requestedDeliveryDate,
 			CustomerRemarks:          &customerRemarks,
@@ -948,6 +1046,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:   handlers.FmtBool(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			ScheduledPickupDate:         &scheduledPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
@@ -984,6 +1086,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+		suite.Equal(tertiaryPickupAddress.ID, *newShipment.TertiaryPickupAddressID)
+		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.Anything, mock.Anything)
@@ -1125,6 +1229,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:   handlers.FmtBool(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			ScheduledPickupDate:         &scheduledPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
@@ -1193,6 +1301,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:   handlers.FmtBool(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			ScheduledPickupDate:         &scheduledPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
@@ -1263,6 +1375,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:   handlers.FmtBool(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &secondaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &secondaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			ScheduledPickupDate:         &scheduledPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
@@ -1328,6 +1444,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:   handlers.FmtBool(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			ScheduledPickupDate:         &scheduledPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
@@ -1382,6 +1502,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			ScheduledPickupDate:         &scheduledPickupDate,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
 			ActualPickupDate:            &actualPickupDate,
@@ -1417,6 +1541,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+		suite.Equal(tertiaryPickupAddress.ID, *newShipment.TertiaryPickupAddressID)
+		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 	})
 
 	suite.Run("Prime can update the weight estimate if scheduled pickup date in nil", func() {
@@ -1456,6 +1582,10 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			HasSecondaryPickupAddress:   handlers.FmtBool(true),
 			SecondaryDeliveryAddress:    &secondaryDeliveryAddress,
 			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			TertiaryPickupAddress:       &tertiaryPickupAddress,
+			HasTertiaryPickupAddress:    handlers.FmtBool(true),
+			TertiaryDeliveryAddress:     &tertiaryDeliveryAddress,
+			HasTertiaryDeliveryAddress:  handlers.FmtBool(true),
 			RequestedPickupDate:         &requestedPickupDate,
 			RequestedDeliveryDate:       &requestedDeliveryDate,
 			ActualPickupDate:            &actualPickupDate,
@@ -1488,6 +1618,8 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(newPickupAddress.ID, *newShipment.PickupAddressID)
 		suite.Equal(secondaryPickupAddress.ID, *newShipment.SecondaryPickupAddressID)
 		suite.Equal(secondaryDeliveryAddress.ID, *newShipment.SecondaryDeliveryAddressID)
+		suite.Equal(tertiaryPickupAddress.ID, *newShipment.TertiaryPickupAddressID)
+		suite.Equal(tertiaryDeliveryAddress.ID, *newShipment.TertiaryDeliveryAddressID)
 	})
 }
 

@@ -174,12 +174,20 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "201 Other Street",
 		}
 
+		customTertiaryPickupAddress := models.Address{
+			StreetAddress1: "301 Other Street",
+		}
+
 		customDeliveryAddress := models.Address{
 			StreetAddress1: "301 Another Good Street",
 		}
 
 		customSecondaryDeliveryAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
+		}
+
+		customTertiaryDeliveryAddress := models.Address{
+			StreetAddress1: "301 Big MTO Street",
 		}
 
 		customStorageFacility := models.StorageFacility{
@@ -212,6 +220,14 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Model: customSecondaryDeliveryAddress,
 				Type:  &Addresses.SecondaryDeliveryAddress,
 			},
+			{
+				Model: customTertiaryPickupAddress,
+				Type:  &Addresses.TertiaryPickupAddress,
+			},
+			{
+				Model: customTertiaryDeliveryAddress,
+				Type:  &Addresses.TertiaryDeliveryAddress,
+			},
 		}, nil)
 
 		// VALIDATE RESULTS
@@ -226,6 +242,9 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check Secondary PickupAddress
 		suite.Equal(customSecondaryPickupAddress.StreetAddress1, mtoShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryPickupAddress)
+		// Check Tertiary PickupAddress
+		suite.Equal(customTertiaryPickupAddress.StreetAddress1, mtoShipment.TertiaryPickupAddress.StreetAddress1)
+		suite.Equal(models.BoolPointer(true), mtoShipment.HasTertiaryPickupAddress)
 
 		// Check Storage Facility
 		suite.Equal(customStorageFacility.Email, mtoShipment.StorageFacility.Email)
@@ -267,6 +286,10 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "401 Big MTO Street",
 		}
 
+		customTertiaryDeliveryAddress := models.Address{
+			StreetAddress1: "401 Big MTO Street",
+		}
+
 		customStorageFacility := models.StorageFacility{
 			Email: models.StringPointer("old@email.com"),
 		}
@@ -289,6 +312,10 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Model: customSecondaryDeliveryAddress,
 				Type:  &Addresses.SecondaryDeliveryAddress,
 			},
+			{
+				Model: customSecondaryDeliveryAddress,
+				Type:  &Addresses.TertiaryDeliveryAddress,
+			},
 		}, nil)
 
 		// VALIDATE RESULTS
@@ -303,6 +330,10 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check Secondary DeliveryAddress
 		suite.Equal(customSecondaryDeliveryAddress.StreetAddress1, mtoShipment.SecondaryDeliveryAddress.StreetAddress1)
 		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryDeliveryAddress)
+
+		// Check Tertiary DeliveryAddress
+		suite.Equal(customTertiaryDeliveryAddress.StreetAddress1, mtoShipment.TertiaryDeliveryAddress.StreetAddress1)
+		suite.Equal(models.BoolPointer(true), mtoShipment.HasTertiaryDeliveryAddress)
 
 		// Check Storage Facility
 		suite.Equal(customStorageFacility.Email, mtoShipment.StorageFacility.Email)
@@ -360,16 +391,26 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(models.MTOShipmentTypeHHGIntoNTSDom, ntsShipment.ShipmentType)
 		suite.False(ntsShipment.MoveTaskOrderID.IsNil())
 		suite.False(ntsShipment.MoveTaskOrder.ID.IsNil())
+
 		suite.NotNil(ntsShipment.PickupAddressID)
 		suite.NotNil(ntsShipment.PickupAddress)
 		suite.False(ntsShipment.PickupAddressID.IsNil())
 		suite.False(ntsShipment.PickupAddress.ID.IsNil())
+
 		suite.NotNil(ntsShipment.SecondaryPickupAddressID)
 		suite.NotNil(ntsShipment.SecondaryPickupAddress)
 		suite.False(ntsShipment.SecondaryPickupAddressID.IsNil())
 		suite.False(ntsShipment.SecondaryPickupAddress.ID.IsNil())
 		suite.NotNil(ntsShipment.HasSecondaryPickupAddress)
 		suite.True(*ntsShipment.HasSecondaryPickupAddress)
+
+		suite.NotNil(ntsShipment.TertiaryPickupAddressID)
+		suite.NotNil(ntsShipment.TertiaryPickupAddress)
+		suite.False(ntsShipment.TertiaryPickupAddressID.IsNil())
+		suite.False(ntsShipment.TertiaryPickupAddress.ID.IsNil())
+		suite.NotNil(ntsShipment.HasTertiaryPickupAddress)
+		suite.True(*ntsShipment.HasTertiaryPickupAddress)
+
 		suite.NotNil(ntsShipment.CustomerRemarks)
 		suite.Equal("Please treat gently", *ntsShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusDraft, ntsShipment.Status)
@@ -403,12 +444,21 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.NotNil(ntsrShipment.DestinationAddress)
 		suite.False(ntsrShipment.DestinationAddressID.IsNil())
 		suite.False(ntsrShipment.DestinationAddress.ID.IsNil())
+
 		suite.NotNil(ntsrShipment.SecondaryDeliveryAddressID)
 		suite.NotNil(ntsrShipment.SecondaryDeliveryAddress)
 		suite.False(ntsrShipment.SecondaryDeliveryAddressID.IsNil())
 		suite.False(ntsrShipment.SecondaryDeliveryAddress.ID.IsNil())
 		suite.NotNil(ntsrShipment.HasSecondaryDeliveryAddress)
 		suite.True(*ntsrShipment.HasSecondaryDeliveryAddress)
+
+		suite.NotNil(ntsrShipment.TertiaryDeliveryAddressID)
+		suite.NotNil(ntsrShipment.TertiaryDeliveryAddress)
+		suite.False(ntsrShipment.TertiaryDeliveryAddressID.IsNil())
+		suite.False(ntsrShipment.TertiaryDeliveryAddress.ID.IsNil())
+		suite.NotNil(ntsrShipment.HasTertiaryDeliveryAddress)
+		suite.True(*ntsrShipment.HasTertiaryDeliveryAddress)
+
 		suite.NotNil(ntsrShipment.CustomerRemarks)
 		suite.Equal("Please treat gently", *ntsrShipment.CustomerRemarks)
 		suite.Equal(models.MTOShipmentStatusDraft, ntsrShipment.Status)

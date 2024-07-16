@@ -39,6 +39,8 @@ func (t TransportationOffice) TableName() string {
 
 type TransportationOffices []TransportationOffice
 
+type GBLOCs []string
+
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TransportationOffice) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	verrs := validate.Validate(
