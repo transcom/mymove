@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
 
 import styles from './TableQueue.module.scss';
+import TableCSVExportButton from './TableCSVExportButton';
 
 import Table from 'components/Table/Table';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
+import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 import {
   setTableQueueFilterSessionStorageValue,
   getTableQueueFilterSessionStorageValue,
@@ -40,6 +42,11 @@ const TableQueue = ({
   useQueries,
   showFilters,
   showPagination,
+  showCSVExport,
+  csvExportFileNamePrefix,
+  csvExportHiddenColumns,
+  csvExportQueueFetcher,
+  csvExportQueueFetcherKey,
   sessionStorageKey,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
@@ -79,6 +86,9 @@ const TableQueue = ({
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
+  const gblocContext = useContext(SelectedGblocContext);
+  const { selectedGbloc } = gblocContext || { selectedGbloc: undefined };
+
   const multiSelectValueDelimiter = ',';
 
   const {
@@ -96,10 +106,10 @@ const TableQueue = ({
     filters: paramFilters,
     currentPage,
     currentPageSize,
+    viewAsGBLOC: selectedGbloc,
   });
 
   // react-table setup below
-
   const defaultColumn = useMemo(
     () => ({
       // Let's set up our default Filter UI
@@ -289,7 +299,22 @@ const TableQueue = ({
 
   return (
     <GridContainer data-testid="table-queue" containerSize="widescreen" className={styles.TableQueue}>
-      <h1>{`${title} (${totalCount})`}</h1>
+      <div className={styles.queueHeader}>
+        <h1>{`${title} (${totalCount})`}</h1>
+        {showCSVExport && (
+          <TableCSVExportButton
+            className={styles.csvDownloadLink}
+            tableColumns={columns}
+            hiddenColumns={csvExportHiddenColumns}
+            filePrefix={csvExportFileNamePrefix}
+            queueFetcher={csvExportQueueFetcher}
+            queueFetcherKey={csvExportQueueFetcherKey}
+            totalCount={totalCount}
+            paramSort={paramSort}
+            paramFilters={paramFilters}
+          />
+        )}
+      </div>
       {renderFilterPillButtonList()}
       <div className={styles.tableContainer}>
         <Table
@@ -344,6 +369,16 @@ TableQueue.propTypes = {
   defaultSortedColumns: SortShape,
   // defaultHiddenColumns is an array of columns to hide
   defaultHiddenColumns: PropTypes.arrayOf(PropTypes.string),
+  // showCSVExport shows the CSV export button
+  showCSVExport: PropTypes.bool,
+  // csvExportFileNamePrefix is the prefix used when this queue is exported to a CSV
+  csvExportFileNamePrefix: PropTypes.string,
+  // csvExportHiddenColumns is a array of the column ids to not use in a CSV export of the queue
+  csvExportHiddenColumns: PropTypes.arrayOf(PropTypes.string),
+  // csvExportQueueFetcher is the function to handle refetching non-paginated queue data
+  csvExportQueueFetcher: PropTypes.func,
+  // csvExportQueueFetcherKey is the key the queue data is stored under in the retrun value of csvExportQueueFetcher
+  csvExportQueueFetcherKey: PropTypes.string,
   // session storage key to store search filters
   sessionStorageKey: PropTypes.string,
 };
@@ -358,6 +393,11 @@ TableQueue.defaultProps = {
   disableSortBy: true,
   defaultSortedColumns: [],
   defaultHiddenColumns: ['id'],
+  showCSVExport: false,
+  csvExportFileNamePrefix: 'Moves',
+  csvExportHiddenColumns: ['id', 'lock'],
+  csvExportQueueFetcher: null,
+  csvExportQueueFetcherKey: null,
   sessionStorageKey: 'default',
 };
 export default TableQueue;

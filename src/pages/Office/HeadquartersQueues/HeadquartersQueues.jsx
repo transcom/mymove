@@ -16,6 +16,12 @@ import {
   useServicesCounselingQueuePPMQueries,
   useUserQueries,
 } from 'hooks/queries';
+import {
+  getServicesCounselingQueue,
+  getServicesCounselingPPMQueue,
+  getPaymentRequestsQueue,
+  getMovesQueue,
+} from 'services/ghcApi';
 import { GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -231,6 +237,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToDetails}
           useQueries={useMovesQueueQueries}
           key="TOO Queue"
+          showCSVExport
+          csvExportFileNamePrefix="Task-Order-Queue"
+          csvExportQueueFetcher={getMovesQueue}
+          csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
         />
       </div>
@@ -253,6 +263,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToPaymentRequests}
           useQueries={usePaymentRequestQueueQueries}
           key="TIO Queue"
+          showCSVExport
+          csvExportFileNamePrefix="Payment-Request-Queue"
+          csvExportQueueFetcher={getPaymentRequestsQueue}
+          csvExportQueueFetcherKey="queuePaymentRequests"
           sessionStorageKey={queueType}
         />
       </div>
@@ -275,6 +289,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueuePPMQueries}
           key="PPM Closeout Queue"
+          showCSVExport
+          csvExportFileNamePrefix="PPM-Closeout-Queue"
+          csvExportQueueFetcher={getServicesCounselingPPMQueue}
+          csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
         />
       </div>
@@ -298,6 +316,10 @@ const HeadquartersQueue = () => {
           handleClick={handleClickNavigateToDetails}
           useQueries={useServicesCounselingQueueQueries}
           key="Counseling Queue"
+          showCSVExport
+          csvExportFileNamePrefix="Services-Counseling-Queue"
+          csvExportQueueFetcher={getServicesCounselingQueue}
+          csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
         />
       </div>

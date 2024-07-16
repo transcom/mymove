@@ -6,6 +6,7 @@ import styles from './MoveQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
 import { useMovesQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
+import { getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
@@ -26,19 +27,25 @@ import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const columns = (moveLockFlag, showBranchFilter = true) => [
-  createHeader('ID', 'id'),
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
+  createHeader('ID', 'id', { id: 'id' }),
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    {
+      id: 'lock',
+    },
+  ),
   createHeader(
     'Customer name',
     (row) => {
@@ -54,11 +61,17 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
   }),
   createHeader(
     'Status',
@@ -118,6 +131,9 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader('Origin duty location', 'originDutyLocation.name', {
     id: 'originDutyLocation',
     isFilterable: true,
+    exportValue: (row) => {
+      return row.originDutyLocation?.name;
+    },
   }),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
 ];
@@ -251,6 +267,10 @@ const MoveQueue = () => {
           title="All moves"
           handleClick={handleClick}
           useQueries={useMovesQueueQueries}
+          showCSVExport
+          csvExportFileNamePrefix="Task-Order-Queue"
+          csvExportQueueFetcher={getMovesQueue}
+          csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
         />

@@ -52,7 +52,6 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 	}
 
 	var query *pop.Query
-
 	rawquery := `SELECT DISTINCT ON (id)
 			service_members.affiliation,
 			service_members.backup_mailing_address_id,
