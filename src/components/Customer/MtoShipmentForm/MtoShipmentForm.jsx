@@ -259,10 +259,11 @@ class MtoShipmentForm extends Component {
                         <SectionWrapper className={formStyles.formSection}>
                           {showDeliveryFields && <h2>Pickup info</h2>}
                           <Fieldset legend="Date">
-                            <Hint id="pickupDateHint">
+                            <Hint id="pickupDateHint" data-testid="pickupDateHint">
                               This is the day movers would put this shipment on their truck. Packing starts earlier.
-                              Dates will be finalized when you talk to your Customer Care Representative. Your actual
-                              pickup date will fall within 7 days of your preferred date.
+                              Dates will be finalized when you talk to your Customer Care Representative. Your requested
+                              pickup/load date should be your latest preferred pickup/load date, or the date you need to
+                              be out of your origin residence.
                             </Hint>
                             <DatePickerInput
                               name="pickup.requestedDate"
