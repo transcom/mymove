@@ -2,7 +2,9 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
+import classnames from 'classnames';
 
+import GblocSwitcher from 'components/Office/GblocSwitcher/GblocSwitcher';
 import MilMoveHeader from 'components/MilMoveHeader/index';
 import OfficeUserInfo from 'components/MilMoveHeader/OfficeUserInfo';
 import { LogoutUser } from 'utils/api';
@@ -14,6 +16,7 @@ import { roleTypes } from 'constants/userRoles';
 const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
   const navigate = useNavigate();
   const handleLogout = () => {
+    window.sessionStorage.clear();
     logOut();
     LogoutUser().then((r) => {
       const redirectURL = r.body;
@@ -39,10 +42,14 @@ const OfficeLoggedInHeader = ({ officeUser, activeRole, logOut }) => {
     <MilMoveHeader>
       {officeUser?.transportation_office && (
         <ul className="usa-nav__primary">
-          <li className="usa-nav__primary-item">
-            <Link to="/">
-              {officeUser.transportation_office.gbloc} {queueText}
-            </Link>
+          <li className={classnames('usa-nav__primary-item')}>
+            {activeRole === roleTypes.HQ ? (
+              <GblocSwitcher officeUsersDefaultGbloc={officeUser.transportation_office.gbloc} />
+            ) : (
+              <Link to="/">
+                {officeUser.transportation_office.gbloc} {queueText}
+              </Link>
+            )}
           </li>
         </ul>
       )}

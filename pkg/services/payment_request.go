@@ -90,6 +90,7 @@ type FetchPaymentRequestListParams struct {
 	Order                   *string
 	OriginDutyLocation      *string
 	OrderType               *string
+	ViewAsGBLOC             *string
 }
 
 // ShipmentPaymentSITBalance is a public struct that's used to return current SIT balances to the TIO for a payment

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useContext } from 'react';
 import { GridContainer } from '@trussworks/react-uswds';
 import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
 import PropTypes from 'prop-types';
@@ -10,6 +10,7 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import { SortShape } from 'constants/queues';
+import SelectedGblocContext from 'components/Office/GblocSwitcher/SelectedGblocContext';
 
 // TableQueue is a react-table that uses react-hooks to fetch, filter, sort and page data
 const TableQueue = ({
@@ -35,6 +36,9 @@ const TableQueue = ({
 
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
+  const gblocContext = useContext(SelectedGblocContext);
+  const { selectedGbloc } = gblocContext || { selectedGbloc: undefined };
+
   const {
     queueResult: { totalCount = 0, data = [], page = 1, perPage = 20 },
     isInitialLoading: isLoading,
@@ -45,10 +49,10 @@ const TableQueue = ({
     filters: paramFilters,
     currentPage,
     currentPageSize,
+    viewAsGBLOC: selectedGbloc,
   });
 
   // react-table setup below
-
   const defaultColumn = useMemo(
     () => ({
       // Let's set up our default Filter UI

@@ -43,10 +43,30 @@ func (h GetTransportationOfficesOpenHandler) Handle(params transportationofficeo
 			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
-				return transportationofficeop.NewGetTransportationOfficesInternalServerError(), err
+				return transportationofficeop.NewGetTransportationOfficesOpenInternalServerError(), err
 			}
 
 			returnPayload := payloads.TransportationOffices(*transportationOffices)
-			return transportationofficeop.NewGetTransportationOfficesOK().WithPayload(returnPayload), nil
+			return transportationofficeop.NewGetTransportationOfficesOpenOK().WithPayload(returnPayload), nil
+		})
+}
+
+type GetTransportationOfficesGBLOCsHandler struct {
+	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
+}
+
+func (h GetTransportationOfficesGBLOCsHandler) Handle(params transportationofficeop.GetTransportationOfficesGBLOCsParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+
+			transportationOffices, err := h.TransportationOfficesFetcher.GetAllGBLOCs(appCtx)
+			if err != nil {
+				appCtx.Logger().Error("Error listing distinct GBLOCs: ", zap.Error(err))
+				return transportationofficeop.NewGetTransportationOfficesGBLOCsInternalServerError(), err
+			}
+
+			returnPayload := payloads.GBLOCs(*transportationOffices)
+			return transportationofficeop.NewGetTransportationOfficesGBLOCsOK().WithPayload(returnPayload), nil
 		})
 }

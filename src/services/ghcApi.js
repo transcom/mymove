@@ -562,7 +562,10 @@ export function deleteShipment({ shipmentID, normalize = false, schemaKey = 'shi
   );
 }
 
-export async function getMovesQueue(key, { sort, order, filters = [], currentPage = 1, currentPageSize = 20 }) {
+export async function getMovesQueue(
+  key,
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
+) {
   const operationPath = 'queues.getMovesQueue';
   const paramFilters = {};
   filters.forEach((filter) => {
@@ -570,14 +573,14 @@ export async function getMovesQueue(key, { sort, order, filters = [], currentPag
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
 
 export async function getServicesCounselingQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = false },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = false, viewAsGBLOC },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
@@ -593,6 +596,7 @@ export async function getServicesCounselingQueue(
       page: currentPage,
       perPage: currentPageSize,
       needsPPMCloseout,
+      viewAsGBLOC,
       ...paramFilters,
     },
 
@@ -615,7 +619,7 @@ export async function getServicesCounselingOriginLocations(needsPPMCloseout) {
 
 export async function getServicesCounselingPPMQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, needsPPMCloseout = true, viewAsGBLOC },
 ) {
   const operationPath = 'queues.getServicesCounselingQueue';
   const paramFilters = {};
@@ -625,14 +629,14 @@ export async function getServicesCounselingPPMQueue(
 
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, needsPPMCloseout, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, needsPPMCloseout, viewAsGBLOC, ...paramFilters },
     { schemaKey: 'queueMovesResult', normalize: false },
   );
 }
 
 export async function getPaymentRequestsQueue(
   key,
-  { sort, order, filters = [], currentPage = 1, currentPageSize = 20 },
+  { sort, order, filters = [], currentPage = 1, currentPageSize = 20, viewAsGBLOC },
 ) {
   const operationPath = 'queues.getPaymentRequestsQueue';
   const paramFilters = {};
@@ -641,7 +645,7 @@ export async function getPaymentRequestsQueue(
   });
   return makeGHCRequest(
     operationPath,
-    { sort, order, page: currentPage, perPage: currentPageSize, ...paramFilters },
+    { sort, order, page: currentPage, perPage: currentPageSize, viewAsGBLOC, ...paramFilters },
     { schemaKey: 'queuePaymentRequestsResult', normalize: false },
   );
 }
@@ -697,6 +701,11 @@ export async function searchTransportationOffices(search) {
 export async function searchTransportationOfficesOpen(search) {
   const operationPath = 'transportationOffice.getTransportationOfficesOpen';
   return makeGHCRequest(operationPath, { search }, { normalize: false });
+}
+
+export async function getGBLOCs() {
+  const operationPath = 'transportationOffice.getTransportationOfficesGBLOCs';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
 }
 
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {

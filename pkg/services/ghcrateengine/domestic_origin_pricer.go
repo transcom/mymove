@@ -42,7 +42,7 @@ func (p domesticOriginPricer) Price(appCtx appcontext.AppContext, contractCode s
 	// look up rate for domestic origin price
 	domServiceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, models.ReServiceCodeDOP, serviceArea, isPeakPeriod)
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
+		return 0, nil, fmt.Errorf("could not lookup Domestic Service Area Price: %w", err)
 	}
 
 	finalWeight := weight
