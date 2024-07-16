@@ -17,7 +17,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.58.2
 	github.com/aws/aws-sdk-go-v2/service/ses v1.22.7
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.50.2
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.3
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3
 	github.com/aws/smithy-go v1.20.3
 	github.com/benbjohnson/clock v1.3.5
