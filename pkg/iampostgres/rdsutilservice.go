@@ -20,7 +20,7 @@ type RDSU struct{}
 func (r RDSU) GetToken(ctx context.Context, endpoint string, region string, user string, iamcreds aws.CredentialsProvider) (string, error) {
 	authToken, err := auth.BuildAuthToken(ctx, endpoint, region, user, iamcreds)
 	if err != nil {
-		return "", fmt.Errorf("Failed to create RDSIAM token: %w", err)
+		return "", fmt.Errorf("failed to create RDSIAM token: %w", err)
 	}
 
 	return authToken, nil

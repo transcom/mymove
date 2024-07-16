@@ -122,7 +122,7 @@ func (h UpdateUserHandler) Handle(params userop.UpdateUserParams) middleware.Res
 			// Check that the uuid provided is valid and get user model
 			userID, err := uuid.FromString(params.UserID.String())
 			if err != nil {
-				appCtx.Logger().Error("updateUserHandler Error", zap.Error(fmt.Errorf("Could not parse ID: %s", params.UserID.String())))
+				appCtx.Logger().Error("updateUserHandler Error", zap.Error(fmt.Errorf("could not parse ID: %s", params.UserID.String())))
 				return userop.NewUpdateUserUnprocessableEntity(), err
 			}
 			dbUser := models.User{}
