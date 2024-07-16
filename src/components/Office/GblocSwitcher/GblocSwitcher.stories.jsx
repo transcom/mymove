@@ -1,12 +1,22 @@
 import React, { useContext } from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import GblocSwitcher from './GblocSwitcher';
 import SelectedGblocProvider from './SelectedGblocProvider';
 import SelectedGblocContext from './SelectedGblocContext';
 
+const queryClient = new QueryClient();
+
+const withQueryClient = (Story) => (
+  <QueryClientProvider client={queryClient}>
+    <Story />
+  </QueryClientProvider>
+);
+
 export default {
   title: 'Office Components/GblocSwitcher',
   component: GblocSwitcher,
+  decorators: [withQueryClient],
 };
 
 const SelectedGblocDisplayer = () => {
