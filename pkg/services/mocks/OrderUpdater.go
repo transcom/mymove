@@ -204,6 +204,46 @@ func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppConte
 	return r0, r1, r2, r3
 }
 
+// UploadAmendedOrdersAsOffice provides a mock function with given fields: appCtx, userID, orderID, file, filename, storer
+func (_m *OrderUpdater) UploadAmendedOrdersAsOffice(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	ret := _m.Called(appCtx, userID, orderID, file, filename, storer)
+
+	var r0 models.Upload
+	var r1 string
+	var r2 *validate.Errors
+	var r3 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) (models.Upload, string, *validate.Errors, error)); ok {
+		return rf(appCtx, userID, orderID, file, filename, storer)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) models.Upload); ok {
+		r0 = rf(appCtx, userID, orderID, file, filename, storer)
+	} else {
+		r0 = ret.Get(0).(models.Upload)
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) string); ok {
+		r1 = rf(appCtx, userID, orderID, file, filename, storer)
+	} else {
+		r1 = ret.Get(1).(string)
+	}
+
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) *validate.Errors); ok {
+		r2 = rf(appCtx, userID, orderID, file, filename, storer)
+	} else {
+		if ret.Get(2) != nil {
+			r2 = ret.Get(2).(*validate.Errors)
+		}
+	}
+
+	if rf, ok := ret.Get(3).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, io.ReadCloser, string, storage.FileStorer) error); ok {
+		r3 = rf(appCtx, userID, orderID, file, filename, storer)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
+}
+
 // NewOrderUpdater creates a new instance of OrderUpdater. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewOrderUpdater(t interface {
