@@ -4007,6 +4007,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4178,6 +4184,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4193,11 +4205,7 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -4309,6 +4317,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -5541,6 +5555,42 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -6473,6 +6523,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -6529,6 +6589,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -7207,6 +7281,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
@@ -9967,6 +10047,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -10100,6 +10190,32 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
@@ -12372,6 +12488,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -12429,6 +12555,20 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "tertiaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -17947,6 +18087,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -18130,6 +18276,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -18151,11 +18303,7 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -18267,6 +18415,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -19832,6 +19986,57 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -20768,6 +20973,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -20824,6 +21039,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -21502,6 +21731,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
@@ -24263,6 +24498,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "Primary auto-generated unique identifier of the PPM shipment object",
           "type": "string",
@@ -24396,6 +24641,32 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
         },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
@@ -26727,6 +26998,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -26784,6 +27065,20 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "tertiaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",

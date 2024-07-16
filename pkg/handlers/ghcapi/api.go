@@ -609,6 +609,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		transportationOfficeFetcher,
 	}
 
+	ghcAPI.TransportationOfficeGetTransportationOfficesGBLOCsHandler = GetTransportationOfficesGBLOCsHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+	}
+
 	ghcAPI.MoveUpdateCloseoutOfficeHandler = UpdateMoveCloseoutOfficeHandler{
 		handlerConfig,
 		closeoutOfficeUpdater,
