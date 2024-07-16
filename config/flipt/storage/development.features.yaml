@@ -1,6 +1,14 @@
 version: "1.2"
 namespace: development
 flags:
+- key: headquarters_role
+  name: Headquarters Role feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: safety_move
   name: Safety Move feature flag
   type: BOOLEAN_FLAG_TYPE
@@ -131,6 +139,14 @@ flags:
     distributions:
     - variant: one
       rollout: 100
+- key: third_address_available
+  name: Third Address Available
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 segments:
 - key: mil-app
   name: Mil App

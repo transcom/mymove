@@ -158,4 +158,30 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.NoError(err)
 		suite.Len(customers, 0)
 	})
+
+	suite.Run("search as HQ role", func() {
+		hqUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeHQ})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           hqUser.User.Roles,
+			OfficeUserID:    hqUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{
+					FirstName: models.StringPointer("Mike"),
+					LastName:  models.StringPointer("Gordon"),
+					Edipi:     models.StringPointer("8121581215"),
+				},
+			},
+		}, nil)
+
+		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{DodID: serviceMember1.Edipi})
+		suite.NoError(err)
+		suite.Len(customers, 1)
+		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
+	})
 }

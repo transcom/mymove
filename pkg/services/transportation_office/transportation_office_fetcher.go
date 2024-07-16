@@ -86,3 +86,29 @@ select office.*
 	}
 	return officeList, nil
 }
+
+func (o transportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error) {
+	gblocsList, err := ListDistinctGBLOCs(appCtx)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &gblocsList, apperror.NewNotFoundError(uuid.Nil, "No GBLOCS found")
+		default:
+			return &gblocsList, err
+		}
+	}
+
+	return &gblocsList, nil
+}
+
+func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
+	var gblocList models.GBLOCs
+
+	err := appCtx.DB().RawQuery("SELECT DISTINCT gbloc FROM transportation_offices ORDER BY gbloc ASC").All(&gblocList)
+	if err != nil {
+		return gblocList, err
+	}
+
+	return gblocList, err
+}

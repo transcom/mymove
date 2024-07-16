@@ -3188,6 +3188,11 @@ paths:
             - WAITING_ON_CUSTOMER
             - NEEDS_CLOSEOUT
           description: filters the status of the PPM shipment
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3355,6 +3360,11 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3364,9 +3374,6 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-      x-permissions:
-        - update.move
-        - create.serviceItem
   /queues/payment-requests:
     get:
       produces:
@@ -3437,6 +3444,11 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3662,6 +3674,30 @@ paths:
           description: Successfully retrieved transportation offices
           schema:
             $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /transportation-offices/gblocs:
+    get:
+      produces:
+        - application/json
+      summary: Returns a list of distinct GBLOCs that exist in the transportation offices table
+      description: Returns a list of distinct GBLOCs that exist in the transportation offices table
+      operationId: getTransportationOfficesGBLOCs
+      tags:
+        - transportationOffice
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/GBLOCs'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -5459,6 +5495,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryDeliveryAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -5794,20 +5844,34 @@ definitions:
       pickupAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
-      secondaryPickupAddress:
+      tertiaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'
       hasSecondaryPickupAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -6552,6 +6616,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
+  GBLOCs:
+    type: array
+    items:
+        type: string
   MovePayload:
     type: object
     properties:
