@@ -72,28 +72,20 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
 
     const hasSecondaryPickupAddress = values.hasSecondaryPickupAddress === 'true';
     const hasSecondaryDestinationAddress = values.hasSecondaryDestinationAddress === 'true';
-    let secondaryPickupPostalCode = null;
-    if (hasSecondaryPickupAddress && values.secondaryPickupAddress?.address) {
-      secondaryPickupPostalCode = values.secondaryPickupAddress.address.postalCode;
-    }
 
-    let secondaryDestinationPostalCode = null;
-    if (hasSecondaryDestinationAddress && values.secondaryDestinationAddress?.address) {
-      secondaryDestinationPostalCode = values.secondaryDestinationAddress.address.postalCode;
-    }
+    const hasTertiaryPickupAddress = values.hasTertiaryPickupAddress === 'true';
+    const hasTertiaryDestinationAddress = values.hasTertiaryDestinationAddress === 'true';
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_OPTIONS.PPM,
       ppmShipment: {
-        pickupPostalCode: values.pickupAddress.address.postalCode,
         pickupAddress: formatAddressForAPI(values.pickupAddress.address),
         hasSecondaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
-        secondaryPickupPostalCode,
-        destinationPostalCode: values.destinationAddress.address.postalCode,
+        hasTertiaryPickupAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         destinationAddress: formatAddressForAPI(values.destinationAddress.address),
-        hasSecondaryDestinationAddress,
-        secondaryDestinationPostalCode,
+        hasSecondaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously secondary ZIPs, or we could send nulls for those fields.
+        hasTertiaryDestinationAddress, // I think sending this is necessary so we know if the customer wants to clear their previously tertiary ZIPs, or we could send nulls for those fields.
         sitExpected: values.sitExpected === 'true',
         expectedDepartureDate: formatDateForSwagger(values.expectedDepartureDate),
       },
@@ -108,6 +100,17 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     if (hasSecondaryDestinationAddress && values.secondaryDestinationAddress?.address) {
       createOrUpdateShipment.ppmShipment.secondaryDestinationAddress = formatAddressForAPI(
         values.secondaryDestinationAddress.address,
+      );
+    }
+    if (hasTertiaryPickupAddress && values.tertiaryPickupAddress?.address) {
+      createOrUpdateShipment.ppmShipment.tertiaryPickupAddress = formatAddressForAPI(
+        values.tertiaryPickupAddress.address,
+      );
+    }
+
+    if (hasTertiaryDestinationAddress && values.tertiaryDestinationAddress?.address) {
+      createOrUpdateShipment.ppmShipment.tertiaryDestinationAddress = formatAddressForAPI(
+        values.tertiaryDestinationAddress.address,
       );
     }
 

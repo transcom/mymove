@@ -59,6 +59,7 @@ const ServicesCounselingQueue = lazy(() => import('pages/Office/ServicesCounseli
 const ServicesCounselingAddShipment = lazy(() =>
   import('pages/Office/ServicesCounselingAddShipment/ServicesCounselingAddShipment'),
 );
+const AddShipment = lazy(() => import('pages/Office/AddShipment/AddShipment'));
 const EditShipmentDetails = lazy(() => import('pages/Office/EditShipmentDetails/EditShipmentDetails'));
 const PrimeSimulatorAvailableMoves = lazy(() => import('pages/PrimeUI/AvailableMoves/AvailableMovesQueue'));
 const PrimeSimulatorMoveDetails = lazy(() => import('pages/PrimeUI/MoveTaskOrder/MoveDetails'));
@@ -272,7 +273,7 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                            <ServicesCounselingQueue />
+                            <ServicesCounselingQueue userPrivileges={userPrivileges} />
                           </PrivateRoute>
                         }
                       />
@@ -339,6 +340,16 @@ export class OfficeApp extends Component {
                       element={
                         <PrivateRoute requiredRoles={[roleTypes.TOO]}>
                           <CustomerInfo />
+                        </PrivateRoute>
+                      }
+                    />
+                    <Route
+                      key="tooAddShipmentRoute"
+                      end
+                      path={tooRoutes.SHIPMENT_ADD_PATH}
+                      element={
+                        <PrivateRoute requiredRoles={[roleTypes.TOO]}>
+                          <AddShipment />
                         </PrivateRoute>
                       }
                     />

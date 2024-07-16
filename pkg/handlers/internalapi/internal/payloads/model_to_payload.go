@@ -87,17 +87,17 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		SubmittedAt:                    handlers.FmtDateTimePtr(ppmShipment.SubmittedAt),
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
-		PickupPostalCode:               &ppmShipment.PickupPostalCode,
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		SecondaryPickupPostalCode:      ppmShipment.SecondaryPickupPostalCode,
 		SecondaryPickupAddress:         Address(ppmShipment.SecondaryPickupAddress),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationPostalCode:          &ppmShipment.DestinationPostalCode,
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
-		SecondaryDestinationPostalCode: ppmShipment.SecondaryDestinationPostalCode,
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
@@ -133,9 +133,13 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		PickupAddress:               Address(mtoShipment.PickupAddress),
 		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		TertiaryPickupAddress:       Address(mtoShipment.TertiaryPickupAddress),
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		TertiaryDeliveryAddress:     Address(mtoShipment.TertiaryDeliveryAddress),
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
@@ -150,6 +154,13 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil && !*mtoShipment.HasSecondaryDeliveryAddress {
 		payload.SecondaryDeliveryAddress = nil
+	}
+
+	if mtoShipment.HasTertiaryPickupAddress != nil && !*mtoShipment.HasTertiaryPickupAddress {
+		payload.TertiaryPickupAddress = nil
+	}
+	if mtoShipment.HasTertiaryDeliveryAddress != nil && !*mtoShipment.HasTertiaryDeliveryAddress {
+		payload.TertiaryDeliveryAddress = nil
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -297,6 +308,7 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),

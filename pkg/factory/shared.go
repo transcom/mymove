@@ -40,6 +40,7 @@ type CustomType string
 // You can have CustomType like ResidentialAddress to define specifically
 // where this address will get created and nested
 var Address CustomType = "Address"
+var AdditionalDocuments CustomType = "AdditionalDocuments"
 var AdminUser CustomType = "AdminUser"
 var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
@@ -163,6 +164,8 @@ type addressGroup struct {
 	DeliveryAddress               CustomType
 	SecondaryPickupAddress        CustomType
 	SecondaryDeliveryAddress      CustomType
+	TertiaryPickupAddress         CustomType
+	TertiaryDeliveryAddress       CustomType
 	ResidentialAddress            CustomType
 	BackupMailingAddress          CustomType
 	DutyLocationAddress           CustomType
@@ -184,6 +187,8 @@ var Addresses = addressGroup{
 	DeliveryAddress:               "DeliveryAddress",
 	SecondaryPickupAddress:        "SecondaryPickupAddress",
 	SecondaryDeliveryAddress:      "SecondaryDeliveryAddress",
+	TertiaryPickupAddress:         "TertiaryPickupAddress",
+	TertiaryDeliveryAddress:       "TertiaryDeliveryAddress",
 	ResidentialAddress:            "ResidentialAddress",
 	BackupMailingAddress:          "BackupMailingAddress",
 	DutyLocationAddress:           "DutyLocationAddress",

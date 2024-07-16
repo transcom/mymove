@@ -61,15 +61,11 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		Shipment:              shipment,
 		Status:                models.PPMShipmentStatusDraft,
 		ExpectedDepartureDate: time.Date(GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
-		PickupPostalCode:      serviceMember.ResidentialAddress.PostalCode,
-		DestinationPostalCode: shipment.MoveTaskOrder.Orders.NewDutyLocation.Address.PostalCode,
 		SITExpected:           models.BoolPointer(false),
 	}
 
 	if buildType == ppmBuildStandard {
 		ppmShipment.Status = models.PPMShipmentStatusSubmitted
-		ppmShipment.SecondaryPickupPostalCode = models.StringPointer("90211")
-		ppmShipment.SecondaryDestinationPostalCode = models.StringPointer("30814")
 		ppmShipment.EstimatedWeight = models.PoundPointer(unit.Pound(4000))
 		ppmShipment.HasProGear = models.BoolPointer(true)
 		ppmShipment.ProGearWeight = models.PoundPointer(unit.Pound(1987))
@@ -139,15 +135,41 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				},
 			},
 		}, nil)
+		tertiaryPickupAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "123 Third Street",
+					City:           pickupAddress.City,
+					State:          pickupAddress.State,
+					PostalCode:     pickupAddress.PostalCode,
+				},
+			},
+		}, nil)
+		tertiaryDestinationAddress := BuildAddress(db, []Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "1234 Third Street",
+					City:           destinationAddress.City,
+					State:          destinationAddress.State,
+					PostalCode:     destinationAddress.PostalCode,
+				},
+			},
+		}, nil)
 		ppmShipment.SecondaryPickupAddressID = &secondaryPickupAddress.ID
 		ppmShipment.SecondaryPickupAddress = &secondaryPickupAddress
-		ppmShipment.SecondaryPickupPostalCode = &secondaryPickupAddress.PostalCode
 		ppmShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 
 		ppmShipment.SecondaryDestinationAddressID = &secondaryDestinationAddress.ID
 		ppmShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
-		ppmShipment.SecondaryDestinationPostalCode = &secondaryDestinationAddress.PostalCode
 		ppmShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
+
+		ppmShipment.TertiaryPickupAddressID = &tertiaryPickupAddress.ID
+		ppmShipment.TertiaryPickupAddress = &tertiaryPickupAddress
+		ppmShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
+
+		ppmShipment.TertiaryDestinationAddressID = &tertiaryDestinationAddress.ID
+		ppmShipment.TertiaryDestinationAddress = &tertiaryDestinationAddress
+		ppmShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 	}
 
 	// Overwrite values with those from customizations
@@ -238,8 +260,8 @@ func buildApprovedPPMShipmentWithActualInfo(db *pop.Connection, userUploader *up
 	ppmShipment := buildApprovedPPMShipmentWaitingOnCustomer(db, userUploader, customs)
 
 	ppmShipment.ActualMoveDate = models.TimePointer(ppmShipment.ExpectedDepartureDate.AddDate(0, 0, 1))
-	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupPostalCode
-	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationPostalCode
+	ppmShipment.ActualPickupPostalCode = &ppmShipment.PickupAddress.PostalCode
+	ppmShipment.ActualDestinationPostalCode = &ppmShipment.DestinationAddress.PostalCode
 
 	if ppmShipment.HasRequestedAdvance != nil && *ppmShipment.HasRequestedAdvance {
 		ppmShipment.HasReceivedAdvance = models.BoolPointer(true)
@@ -786,11 +808,11 @@ func BuildPPMShipmentWithAllDocTypesApproved(db *pop.Connection, userUploader *u
 //
 // This function does not accept customizations to reduce the
 // complexity of supporting different variations for tests
-func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *uploader.UserUploader) models.PPMShipment {
+func BuildPPMShipmentThatNeedsToBeResubmitted(db *pop.Connection, userUploader *uploader.UserUploader, customs []Customization) models.PPMShipment {
 	// It's easier to use some of the data from other downstream
 	// functions if we have them go first and then make our changes on
 	// top of those changes.
-	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, nil)
+	ppmShipment := BuildPPMShipmentThatNeedsCloseout(db, userUploader, customs)
 
 	// Document that got rejected. This would normally already exist
 	// and would just need to be updated to change the status, but for

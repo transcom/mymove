@@ -170,26 +170,50 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.DestinationType = requestedUpdatedShipment.DestinationType
 	}
 
-	// If HasSecondaryPickupAddress is false, we want to remove the address
+	// If HasSecondaryPickupAddress is false, we want to remove the secondary address as well as the tertiary address
 	// Otherwise, if a non-nil address is in the payload, we should save it
 	if requestedUpdatedShipment.HasSecondaryPickupAddress != nil && !*requestedUpdatedShipment.HasSecondaryPickupAddress {
 		dbShipment.HasSecondaryPickupAddress = requestedUpdatedShipment.HasSecondaryPickupAddress
 		dbShipment.SecondaryPickupAddress = nil
 		dbShipment.SecondaryPickupAddressID = nil
+		requestedUpdatedShipment.HasTertiaryPickupAddress = models.BoolPointer(false)
 	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 		dbShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
 
-	// If HasSecondaryDeliveryAddress is false, we want to remove the address
+	// If HasSecondaryDeliveryAddress is false, we want to remove the secondary address as well as the tertiary address
 	// Otherwise, if a non-nil address is in the payload, we should save it
 	if requestedUpdatedShipment.HasSecondaryDeliveryAddress != nil && !*requestedUpdatedShipment.HasSecondaryDeliveryAddress {
 		dbShipment.HasSecondaryDeliveryAddress = requestedUpdatedShipment.HasSecondaryDeliveryAddress
 		dbShipment.SecondaryDeliveryAddress = nil
 		dbShipment.SecondaryDeliveryAddressID = nil
+		requestedUpdatedShipment.HasTertiaryDeliveryAddress = models.BoolPointer(false)
 	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 		dbShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+	}
+
+	// If HasTertiaryPickupAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if requestedUpdatedShipment.HasTertiaryPickupAddress != nil && !*requestedUpdatedShipment.HasTertiaryPickupAddress {
+		dbShipment.HasTertiaryPickupAddress = requestedUpdatedShipment.HasTertiaryPickupAddress
+		dbShipment.TertiaryPickupAddress = nil
+		dbShipment.TertiaryPickupAddressID = nil
+	} else if requestedUpdatedShipment.TertiaryPickupAddress != nil {
+		dbShipment.TertiaryPickupAddress = requestedUpdatedShipment.TertiaryPickupAddress
+		dbShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
+	}
+
+	// If HasTertiaryDeliveryAddress is false, we want to remove the address
+	// Otherwise, if a non-nil address is in the payload, we should save it
+	if requestedUpdatedShipment.HasTertiaryDeliveryAddress != nil && !*requestedUpdatedShipment.HasTertiaryDeliveryAddress {
+		dbShipment.HasTertiaryDeliveryAddress = requestedUpdatedShipment.HasTertiaryDeliveryAddress
+		dbShipment.TertiaryDeliveryAddress = nil
+		dbShipment.TertiaryDeliveryAddressID = nil
+	} else if requestedUpdatedShipment.TertiaryDeliveryAddress != nil {
+		dbShipment.TertiaryDeliveryAddress = requestedUpdatedShipment.TertiaryDeliveryAddress
+		dbShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
 	}
 
 	if requestedUpdatedShipment.ShipmentType != "" {
@@ -329,6 +353,8 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"DestinationAddress",
 		"SecondaryPickupAddress",
 		"SecondaryDeliveryAddress",
+		"TertiaryPickupAddress",
+		"TertiaryDeliveryAddress",
 		"SITDurationUpdates",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -549,6 +575,71 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 		}
 
+		if newShipment.HasTertiaryPickupAddress != nil {
+			if !*newShipment.HasTertiaryPickupAddress {
+				newShipment.TertiaryPickupAddressID = nil
+			}
+		}
+		if newShipment.HasTertiaryDeliveryAddress != nil {
+			if !*newShipment.HasTertiaryDeliveryAddress {
+				newShipment.TertiaryDeliveryAddressID = nil
+			}
+		}
+
+		if newShipment.HasTertiaryPickupAddress != nil && *newShipment.HasTertiaryPickupAddress && newShipment.TertiaryPickupAddress != nil {
+			if dbShipment.TertiaryPickupAddress != nil {
+				newShipment.TertiaryPickupAddress.ID = *dbShipment.TertiaryPickupAddressID
+			}
+
+			if dbShipment.TertiaryPickupAddress != nil {
+				// Tertiary pickup address exists, meaning it should be updated
+				newTertiaryPickupAddress, newTertiaryPickupUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.TertiaryPickupAddress, etag.GenerateEtag(dbShipment.TertiaryPickupAddress.UpdatedAt))
+				if newTertiaryPickupUpdateErr != nil {
+					return newTertiaryPickupUpdateErr
+				}
+				newShipment.TertiaryPickupAddressID = &newTertiaryPickupAddress.ID
+			} else if newShipment.TertiaryPickupAddressID == nil {
+				// Tertiary pickup address appears to not exist yet, meaning it should be created
+				if newShipment.TertiaryPickupAddress.ID == uuid.Nil {
+					newTertiaryPickupAddress, newTertiaryPickupCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.TertiaryPickupAddress)
+					if newTertiaryPickupCreateErr != nil {
+						return newTertiaryPickupCreateErr
+					}
+					newShipment.TertiaryPickupAddressID = &newTertiaryPickupAddress.ID
+				} else {
+					// No original address to update, and the new address already has an ID so we should just assign it to the shipment
+					newShipment.TertiaryPickupAddressID = &newShipment.TertiaryPickupAddress.ID
+				}
+			}
+		}
+
+		if newShipment.TertiaryDeliveryAddress != nil {
+			if dbShipment.TertiaryDeliveryAddressID != nil {
+				newShipment.TertiaryDeliveryAddress.ID = *dbShipment.TertiaryDeliveryAddressID
+			}
+
+			if dbShipment.TertiaryDeliveryAddress != nil {
+				// Tertiary delivery address exists, meaning it should be updated
+				newTertiaryDeliveryAddress, tertiaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.TertiaryDeliveryAddress, etag.GenerateEtag(dbShipment.TertiaryDeliveryAddress.UpdatedAt))
+				if tertiaryDeliveryUpdateErr != nil {
+					return tertiaryDeliveryUpdateErr
+				}
+				newShipment.TertiaryDeliveryAddressID = &newTertiaryDeliveryAddress.ID
+			} else if newShipment.TertiaryDeliveryAddressID == nil {
+				// Tertiary delivery address appears to not exist yet, meaning it should be created
+				if newShipment.TertiaryDeliveryAddress.ID == uuid.Nil {
+					newTertiaryDeliveryAddress, tertiaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.TertiaryDeliveryAddress)
+					if tertiaryDeliveryCreateErr != nil {
+						return tertiaryDeliveryCreateErr
+					}
+					newShipment.TertiaryDeliveryAddressID = &newTertiaryDeliveryAddress.ID
+				} else {
+					// No original address to update, and the new address already has an ID so we should just assign it to the shipment
+					newShipment.TertiaryDeliveryAddressID = &newShipment.TertiaryDeliveryAddress.ID
+				}
+			}
+		}
+
 		if newShipment.StorageFacility != nil {
 			if dbShipment.StorageFacilityID != nil {
 				newShipment.StorageFacility.ID = *dbShipment.StorageFacilityID
@@ -619,7 +710,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		// If the estimated weight was updated on an approved shipment then it would mean the move could qualify for
 		// excess weight risk depending on the weight allowance and other shipment estimated weights
-		if newShipment.PrimeEstimatedWeight != nil {
+		if newShipment.PrimeEstimatedWeight != nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && newShipment.NTSRecordedWeight != nil) {
 			// checking if the total of shipment weight & new prime estimated weight is 90% or more of allowed weight
 			move, verrs, err := f.moveWeights.CheckExcessWeight(txnAppCtx, dbShipment.MoveTaskOrderID, *newShipment)
 			if verrs != nil && verrs.HasAny() {
@@ -631,7 +722,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			// we only want to update the authorized weight if the shipment is approved and the previous weight is nil
 			// otherwise, shipment_updater will handle updating authorized weight when a shipment is approved
-			if dbShipment.PrimeEstimatedWeight == nil && newShipment.Status == models.MTOShipmentStatusApproved {
+			if (dbShipment.PrimeEstimatedWeight == nil || (newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && newShipment.NTSRecordedWeight == nil)) && newShipment.Status == models.MTOShipmentStatusApproved {
 				// updates to prime estimated weight should change the authorized weight of the entitlement
 				// which can be manually adjusted by an office user if needed
 				err = updateAuthorizedWeight(appCtx, newShipment, move)
@@ -1229,11 +1320,26 @@ func UpdateDestinationSITServiceItemsSITDeliveryMiles(planner route.Planner, app
 }
 
 func updateAuthorizedWeight(appCtx appcontext.AppContext, shipment *models.MTOShipment, move *models.Move) error {
-	dBAuthorizedWeight := int(*shipment.PrimeEstimatedWeight)
+	var dBAuthorizedWeight int
+	if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+		dBAuthorizedWeight = int(*shipment.PrimeEstimatedWeight)
+	} else {
+		dBAuthorizedWeight = int(*shipment.NTSRecordedWeight)
+	}
 	if len(move.MTOShipments) != 0 {
 		for _, mtoShipment := range move.MTOShipments {
-			if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
-				dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+			if mtoShipment.Status == models.MTOShipmentStatusApproved && mtoShipment.ID != shipment.ID {
+				if mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
+					//uses PrimeEstimatedWeight for HHG and NTS shipments
+					if mtoShipment.PrimeEstimatedWeight != nil {
+						dBAuthorizedWeight += int(*mtoShipment.PrimeEstimatedWeight)
+					}
+				} else {
+					//used NTSRecordedWeight for NTSRShipments
+					if mtoShipment.NTSRecordedWeight != nil {
+						dBAuthorizedWeight += int(*mtoShipment.NTSRecordedWeight)
+					}
+				}
 			}
 		}
 	}

@@ -95,11 +95,20 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+
 	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 	model.HasSecondaryPickupAddress = handlers.FmtBool(mtoShipment.SecondaryPickupAddress != nil)
+
+	model.TertiaryPickupAddress = AddressModel(mtoShipment.TertiaryPickupAddress)
+	model.HasTertiaryPickupAddress = handlers.FmtBool(mtoShipment.TertiaryPickupAddress != nil)
+
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+
 	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 	model.HasSecondaryDeliveryAddress = handlers.FmtBool(mtoShipment.SecondaryDeliveryAddress != nil)
+
+	model.TertiaryDeliveryAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
+	model.HasTertiaryDeliveryAddress = handlers.FmtBool(mtoShipment.TertiaryDeliveryAddress != nil)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
@@ -120,12 +129,8 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	}
 
 	model := &models.PPMShipment{
-		PickupPostalCode:               *ppmShipment.PickupPostalCode,
-		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryPickupPostalCode),
-		DestinationPostalCode:          *ppmShipment.DestinationPostalCode,
-		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToNil(ppmShipment.SecondaryDestinationPostalCode),
-		SITExpected:                    ppmShipment.SitExpected,
-		ExpectedDepartureDate:          handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
+		SITExpected:           ppmShipment.SitExpected,
+		ExpectedDepartureDate: handlers.FmtDatePtrToPop(ppmShipment.ExpectedDepartureDate),
 	}
 
 	if ppmShipment.PickupAddress != nil {
@@ -137,6 +142,11 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
 	}
 
+	model.HasTertiaryPickupAddress = handlers.FmtBool(ppmShipment.TertiaryPickupAddress != nil)
+	if ppmShipment.TertiaryPickupAddress != nil {
+		model.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryPickupAddress)
+	}
+
 	if ppmShipment.DestinationAddress != nil {
 		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
 	}
@@ -144,6 +154,11 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	model.HasSecondaryDestinationAddress = handlers.FmtBool(ppmShipment.SecondaryDestinationAddress != nil)
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		model.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
+	}
+
+	model.HasTertiaryDestinationAddress = handlers.FmtBool(ppmShipment.TertiaryDestinationAddress != nil)
+	if ppmShipment.TertiaryDestinationAddress != nil {
+		model.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
 	}
 
 	return model
@@ -156,9 +171,7 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	ppmModel := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
-		SecondaryPickupPostalCode:      handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.SecondaryPickupPostalCode),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		SecondaryDestinationPostalCode: handlers.FmtNullableStringToStringPtrNilToBlankString(ppmShipment.SecondaryDestinationPostalCode),
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
@@ -172,15 +185,13 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 	}
 
 	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
 	if ppmShipment.ExpectedDepartureDate != nil {
 		ppmModel.ExpectedDepartureDate = *handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
-	}
-
-	if ppmShipment.PickupPostalCode != nil {
-		ppmModel.PickupPostalCode = *ppmShipment.PickupPostalCode
 	}
 
 	if ppmShipment.PickupAddress != nil {
@@ -191,8 +202,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
 	}
 
-	if ppmShipment.DestinationPostalCode != nil {
-		ppmModel.DestinationPostalCode = *ppmShipment.DestinationPostalCode
+	if ppmShipment.TertiaryPickupAddress != nil {
+		ppmModel.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryPickupAddress)
 	}
 
 	if ppmShipment.DestinationAddress != nil {
@@ -201,6 +212,10 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		ppmModel.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
+	}
+
+	if ppmShipment.TertiaryDestinationAddress != nil {
+		ppmModel.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
 	}
 
 	if ppmShipment.FinalIncentive != nil {
@@ -235,6 +250,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		Status:                      models.MTOShipmentStatus(mtoShipment.Status),
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
@@ -245,9 +262,19 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 			model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 		}
 	}
+	if mtoShipment.HasTertiaryPickupAddress != nil {
+		if *mtoShipment.HasTertiaryPickupAddress {
+			model.TertiaryPickupAddress = AddressModel(mtoShipment.TertiaryPickupAddress)
+		}
+	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
 		if *mtoShipment.HasSecondaryDeliveryAddress {
 			model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+		}
+	}
+	if mtoShipment.HasTertiaryDeliveryAddress != nil {
+		if *mtoShipment.HasTertiaryDeliveryAddress {
+			model.TertiaryDeliveryAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
 		}
 	}
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)

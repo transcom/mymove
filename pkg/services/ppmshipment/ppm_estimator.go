@@ -247,8 +247,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Check different address values for a postal code
 	if ppmShipment.ActualPickupPostalCode != nil {
 		pickupPostal = *ppmShipment.ActualPickupPostalCode
-	} else if ppmShipment.PickupPostalCode != "" {
-		pickupPostal = ppmShipment.PickupPostalCode
 	} else if ppmShipment.PickupAddress.PostalCode != "" {
 		pickupPostal = ppmShipment.PickupAddress.PostalCode
 	}
@@ -256,8 +254,6 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	// Same for destination
 	if ppmShipment.ActualDestinationPostalCode != nil {
 		destPostal = *ppmShipment.ActualDestinationPostalCode
-	} else if ppmShipment.DestinationPostalCode != "" {
-		destPostal = ppmShipment.DestinationPostalCode
 	} else if ppmShipment.DestinationAddress.PostalCode != "" {
 		destPostal = ppmShipment.DestinationAddress.PostalCode
 	}
@@ -293,7 +289,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
 		// for the same param. However, this is how the payment request does things and we'd want to know if it breaks
 		// rather than optimizing I think.
-		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(mtoShipment, serviceItem)
+		serviceItemLookups := serviceparamvaluelookups.InitializeLookups(appCtx, mtoShipment, serviceItem)
 
 		// This is the struct that gets passed to every param lookup() method that was initialized above
 		keyData := serviceparamvaluelookups.NewServiceItemParamKeyData(f.planner, serviceItemLookups, serviceItem, mtoShipment, contract.Code)
