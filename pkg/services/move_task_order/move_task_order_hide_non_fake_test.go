@@ -422,6 +422,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				},
 			},
 		}, nil)
+		validTertiaryPickupAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Blvd NE",
+				},
+			},
+		}, nil)
 		validDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
@@ -433,6 +440,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			{
 				Model: models.Address{
 					StreetAddress1: "142 E Barrel Hoop Circle #4A",
+				},
+			},
+		}, nil)
+		validTertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+			{
+				Model: models.Address{
+					StreetAddress1: "448 Washington Blvd NE",
 				},
 			},
 		}, nil)
@@ -453,6 +467,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
 			{
+				Model:    validTertiaryPickupAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.TertiaryPickupAddress,
+			},
+			{
 				Model:    validDestinationAddress,
 				LinkOnly: true,
 				Type:     &factory.Addresses.DeliveryAddress,
@@ -461,6 +480,11 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				Model:    validSecondaryDeliveryAddress,
 				LinkOnly: true,
 				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			},
+			{
+				Model:    validTertiaryDeliveryAddress,
+				LinkOnly: true,
+				Type:     &factory.Addresses.TertiaryDeliveryAddress,
 			},
 		}, nil)
 		return shipment
