@@ -29,7 +29,7 @@ import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
-const columns = (moveLockFlag, showBranchFilter = true) => [
+export const columns = (moveLockFlag, showBranchFilter = true) => [
   createHeader(' ', (row) => {
     const now = new Date();
     // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
