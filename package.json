@@ -48,6 +48,7 @@
     "react-admin": "^4.12.3",
     "react-admin-import-csv": "^4.0.0",
     "react-app-polyfill": "^3.0.0",
+    "react-csv": "^2.2.2",
     "react-day-picker": "=7.4.10",
     "react-dom": "^17.0.1",
     "react-filepond": "^7.1.2",
