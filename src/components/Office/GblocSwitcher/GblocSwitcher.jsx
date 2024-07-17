@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import styles from './GblocSwitcher.module.scss';
 
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
-import { GBLOC } from 'constants/queues';
+import { useListGBLOCsQueries } from 'hooks/queries';
 import SelectedGblocContext, {
   SELECTED_GBLOC_SESSION_STORAGE_KEY,
 } from 'components/Office/GblocSwitcher/SelectedGblocContext';
@@ -12,6 +12,8 @@ import SelectedGblocContext, {
 const GBLOCSwitcher = ({ officeUsersDefaultGbloc, ariaLabel }) => {
   const [isInitialPageLoad, setIsInitialPageLoad] = useState(true);
   const { selectedGbloc, handleGblocChange } = useContext(SelectedGblocContext);
+
+  const { result: gblocs } = useListGBLOCsQueries();
 
   useEffect(() => {
     if (window.sessionStorage.getItem(SELECTED_GBLOC_SESSION_STORAGE_KEY) && isInitialPageLoad) {
@@ -33,7 +35,7 @@ const GBLOCSwitcher = ({ officeUsersDefaultGbloc, ariaLabel }) => {
       divClassName={styles.switchGblocButton}
       testId="gbloc_switcher"
     >
-      {Object.keys(GBLOC).map((gbloc) => (
+      {gblocs.map((gbloc) => (
         <option value={gbloc} key={`filterOption_${gbloc}`}>
           {gbloc}
         </option>

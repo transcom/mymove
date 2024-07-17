@@ -33,6 +33,7 @@ import {
   getPPMSITEstimatedCost,
   getPPMActualWeight,
   searchCustomers,
+  getGBLOCs,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -67,6 +68,7 @@ import {
   PPMACTUALWEIGHT,
   SC_CUSTOMER_SEARCH,
   PPMSIT_ESTIMATED_COST,
+  GBLOCS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -1010,6 +1012,18 @@ export const useCustomerQuery = (customerId) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([customerQuery]);
   return {
     customerData,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useListGBLOCsQueries = () => {
+  const { data = [], ...listGBLOCsQuery } = useQuery([GBLOCS, {}], ({ queryKey }) => getGBLOCs(...queryKey));
+  const { isLoading, isError, isSuccess } = listGBLOCsQuery;
+  const gblocs = data;
+  return {
+    result: gblocs,
     isLoading,
     isError,
     isSuccess,

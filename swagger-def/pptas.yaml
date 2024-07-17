@@ -9,7 +9,7 @@ info:
     email: milmove-developers@caci.com
   description:
     $ref: 'info/pptas_description.md'
-basePath: /prime/pptas
+basePath: /pptas/v1
 host: primelocal
 consumes:
   - application/json

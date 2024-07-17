@@ -1087,7 +1087,7 @@ commands:
             export MUTUAL_TLS_ENABLED=true
             export MUTUAL_TLS_PORT=9443
             export SERVE_API_PRIME=true
-
+            export SERVE_API_PPTAS=true
             make db_dev_create
             bin/milmove migrate
             # load tests do not need client files

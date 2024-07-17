@@ -2,7 +2,6 @@ package pptasapi
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/go-openapi/loads"
 
@@ -12,8 +11,7 @@ import (
 	report "github.com/transcom/mymove/pkg/services/report"
 )
 
-func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
-
+func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
 	pptasSpec, err := loads.Analyzed(pptasapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -26,5 +24,5 @@ func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 		ReportListFetcher: report.NewReportListFetcher(),
 	}
 
-	return pptasAPI.Serve(nil)
+	return pptasAPI
 }
