@@ -890,8 +890,6 @@ describe('ShipmentForm component', () => {
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Yes')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('No')).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
@@ -1083,6 +1081,8 @@ describe('ShipmentForm component', () => {
           counselorRemarks: newCounselorRemarks,
           hasSecondaryDeliveryAddress: false,
           hasSecondaryPickupAddress: false,
+          hasTertiaryDeliveryAddress: false,
+          hasTertiaryPickupAddress: false,
           destinationAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
@@ -1289,8 +1289,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
       expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
@@ -1411,8 +1411,8 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
       });
     });
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
