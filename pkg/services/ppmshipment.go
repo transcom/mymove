@@ -23,6 +23,7 @@ type PPMShipmentCreator interface {
 //go:generate mockery --name PPMShipmentUpdater
 type PPMShipmentUpdater interface {
 	UpdatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment, mtoShipmentID uuid.UUID) (*models.PPMShipment, error)
+	UpdatePPMShipmentSITEstimatedCost(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error)
 }
 
 // PPMShipmentFetcher fetches a PPM shipment
@@ -47,6 +48,7 @@ type PPMEstimator interface {
 	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error)
 	FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error)
 	PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error)
+	CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error)
 }
 
 // PPMShipmentRouter routes a PPM shipment

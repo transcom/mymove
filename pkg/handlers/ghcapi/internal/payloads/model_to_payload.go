@@ -961,17 +961,18 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &ghcmessages.MovingExpense{
-		ID:             *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
-		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
-		Document:       document,
-		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
-		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
-		Description:    movingExpense.Description,
-		PaidWithGtcc:   movingExpense.PaidWithGTCC,
-		Amount:         handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt: movingExpense.MissingReceipt,
-		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+		ID:               *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:    *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:       *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:         document,
+		CreatedAt:        strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:      movingExpense.Description,
+		PaidWithGtcc:     movingExpense.PaidWithGTCC,
+		Amount:           handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt:   movingExpense.MissingReceipt,
+		ETag:             etag.GenerateEtag(movingExpense.UpdatedAt),
+		SitEstimatedCost: handlers.FmtCost(movingExpense.SITEstimatedCost),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := ghcmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
@@ -1137,6 +1138,17 @@ func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
 	}
 	payload := &ghcmessages.PPMActualWeight{
 		ActualWeight: handlers.FmtPoundPtr(ppmActualWeight),
+	}
+
+	return payload
+}
+
+func PPMSITEstimatedCost(ppmSITEstimatedCost *unit.Cents) *ghcmessages.PPMSITEstimatedCost {
+	if ppmSITEstimatedCost == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMSITEstimatedCost{
+		SitCost: handlers.FmtCost(ppmSITEstimatedCost),
 	}
 
 	return payload
