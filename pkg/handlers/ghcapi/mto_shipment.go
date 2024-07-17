@@ -152,8 +152,6 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			payload := params.Body
-			fmt.Println(&payload)
-			fmt.Println(*payload)
 
 			if payload == nil {
 				invalidShipmentError := apperror.NewBadDataError("Invalid mto shipment: params Body is nil")
