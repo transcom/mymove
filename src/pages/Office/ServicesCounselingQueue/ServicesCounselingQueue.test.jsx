@@ -3,6 +3,8 @@ import { mount } from 'enzyme';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
+import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table/utils';
+
 import ServicesCounselingQueue from './ServicesCounselingQueue';
 
 import { useUserQueries, useServicesCounselingQueueQueries, useServicesCounselingQueuePPMQueries } from 'hooks/queries';
@@ -17,6 +19,29 @@ jest.mock('hooks/queries', () => ({
   useServicesCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
 }));
+
+const localStorageMock = (() => {
+  let store = {};
+
+  return {
+    getItem(key) {
+      return store[key] || null;
+    },
+    setItem(key, value) {
+      store[key] = value;
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -267,6 +292,75 @@ describe('ServicesCounselingQueue', () => {
     it('omits filter input element for origin GBLOC column', () => {
       expect(wrapper.find('th[data-testid="originGBLOC"] input').exists()).toBe(false);
     });
+  });
+
+  describe('verify cached filters are displayed in respective filter column header on page reload -  Service Counselor', () => {
+    window.sessionStorage.setItem(
+      OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID,
+      '{"counseling":{"filters":[{"id":"lastName","value":"Spacemen"},{"id":"dodID","value":"7232607949"},{"id":"locator","value":"PPMADD"},{"id":"requestedMoveDate","value":"2024-06-21"},{"id":"submittedAt","value":"2024-06-20T04:00:00+00:00"},{"id":"branch","value":"ARMY"},{"id":"originDutyLocation","value":"12345"}], "sortParam":[{"id":"lastName","desc":false}], "page":3,"pageSize":10}}',
+    );
+    useUserQueries.mockReturnValue(serviceCounselorUser);
+
+    const moves = JSON.parse(JSON.stringify(needsCounselingMoves));
+
+    for (let i = 0; i < 30; i += 1) {
+      moves.queueResult.data.push({
+        id: `move${moves.queueResult.data.length}${1}`,
+        customer: {
+          agency: SERVICE_MEMBER_AGENCIES.ARMY,
+          first_name: 'test first',
+          last_name: 'test last',
+          dodID: '555555555',
+        },
+        locator: 'AB5PC',
+        requestedMoveDate: '2021-03-01T00:00:00.000Z',
+        submittedAt: '2021-01-31T00:00:00.000Z',
+        status: MOVE_STATUSES.NEEDS_SERVICE_COUNSELING,
+        originDutyLocation: {
+          name: 'Area 51',
+        },
+        originGBLOC: 'LKNQ',
+      });
+    }
+    moves.queueResult.totalCount = moves.queueResult.data.length;
+
+    useServicesCounselingQueueQueries.mockReturnValue(moves);
+    const wrapper = mount(
+      <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
+        <ServicesCounselingQueue />
+      </MockProviders>,
+    );
+
+    // Verify controls are using cached data on load.
+    // If any of these fail check setup data window.sessionStorage.setItem()
+    expect(wrapper.find('th[data-testid="lastName"] input').instance().value).toBe('Spacemen');
+    expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('7232607949');
+    expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('PPMADD');
+    expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('21 Jun 2024');
+    expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('20 Jun 2024');
+    expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('12345');
+    expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('ARMY');
+    expect(wrapper.find('[data-testid="pagination"] select[id="table-rows-per-page"]').instance().value).toBe('10');
+    expect(wrapper.find('[data-testid="pagination"] select[id="table-pagination"]').instance().value).toBe('2');
+    expect(wrapper.find('th[data-testid="lastName"][role="columnheader"]').instance().className).toBe('sortAscending');
+  });
+
+  describe('filter sessionStorage filters - no cache-  Service Counselor', () => {
+    window.sessionStorage.clear();
+    useUserQueries.mockReturnValue(serviceCounselorUser);
+    useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    const wrapper = mount(
+      <MockProviders path={pagePath} params={{ queueType: 'counseling' }}>
+        <ServicesCounselingQueue />
+      </MockProviders>,
+    );
+    expect(wrapper.find('th[data-testid="lastName"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="dodID"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="locator"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="requestedMoveDate"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="submittedAt"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="originDutyLocation"] input').instance().value).toBe('');
+    expect(wrapper.find('th[data-testid="branch"] select').instance().value).toBe('');
   });
 
   describe('service counseling tab routing', () => {
