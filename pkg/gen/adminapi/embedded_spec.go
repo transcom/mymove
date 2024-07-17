@@ -2082,6 +2082,9 @@ func init() {
         "allowOrdersAPI": {
           "type": "boolean"
         },
+        "allowPPTAS": {
+          "type": "boolean"
+        },
         "allowPrime": {
           "type": "boolean"
         },
@@ -2156,6 +2159,9 @@ func init() {
         "allowOrdersAPI": {
           "type": "boolean"
         },
+        "allowPPTAS": {
+          "type": "boolean"
+        },
         "allowPrime": {
           "type": "boolean"
         },
@@ -2221,6 +2227,10 @@ func init() {
           "x-nullable": true
         },
         "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPPTAS": {
           "type": "boolean",
           "x-nullable": true
         },
@@ -5420,6 +5430,9 @@ func init() {
         "allowOrdersAPI": {
           "type": "boolean"
         },
+        "allowPPTAS": {
+          "type": "boolean"
+        },
         "allowPrime": {
           "type": "boolean"
         },
@@ -5494,6 +5507,9 @@ func init() {
         "allowOrdersAPI": {
           "type": "boolean"
         },
+        "allowPPTAS": {
+          "type": "boolean"
+        },
         "allowPrime": {
           "type": "boolean"
         },
@@ -5559,6 +5575,10 @@ func init() {
           "x-nullable": true
         },
         "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPPTAS": {
           "type": "boolean",
           "x-nullable": true
         },
