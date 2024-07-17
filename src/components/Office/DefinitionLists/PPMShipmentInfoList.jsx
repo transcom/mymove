@@ -41,6 +41,8 @@ const PPMShipmentInfoList = ({
     proGearWeight,
     secondaryDestinationAddress,
     secondaryPickupAddress,
+    tertiaryDestinationAddress,
+    tertiaryPickupAddress,
     sitExpected,
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
@@ -102,6 +104,14 @@ const PPMShipmentInfoList = ({
     </div>
   );
 
+  const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
+  const tertiaryPickupAddressElement = (
+    <div className={tertiaryPickupAddressElementFlags.classes}>
+      <dt>Tertiary Pickup Address</dt>
+      <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
+    </div>
+  );
+
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
@@ -116,6 +126,16 @@ const PPMShipmentInfoList = ({
       <dt>Secondary Destination Address</dt>
       <dd data-testid="secondaryDestinationAddress">
         {secondaryDestinationAddress ? formatAddress(secondaryDestinationAddress) : '—'}
+      </dd>
+    </div>
+  );
+
+  const tertiaryDestinationAddressElementFlags = getDisplayFlags('tertiaryDestinationAddress');
+  const tertiaryDestinationAddressElement = (
+    <div className={tertiaryDestinationAddressElementFlags.classes}>
+      <dt>Tertiary Destination Address</dt>
+      <dd data-testid="tertiaryDestinationAddress">
+        {tertiaryDestinationAddress ? formatAddress(tertiaryDestinationAddress) : '—'}
       </dd>
     </div>
   );
@@ -243,8 +263,10 @@ const PPMShipmentInfoList = ({
       {expectedDepartureDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
+      {tertiaryPickupAddressElement}
       {destinationAddressElement}
       {secondaryDestinationAddressElement}
+      {tertiaryDestinationAddressElement}
       <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}

@@ -36,10 +36,12 @@ const ShipmentInfoList = ({
     actualDeliveryDate,
     pickupAddress,
     secondaryPickupAddress,
+    tertiaryPickupAddress,
     destinationAddress,
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
+    tertiaryDeliveryAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -181,6 +183,14 @@ const ShipmentInfoList = ({
     </div>
   );
 
+  const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
+  const tertiaryPickupAddressElement = (
+    <div className={tertiaryPickupAddressElementFlags.classes}>
+      <dt>Third pickup address</dt>
+      <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
+    </div>
+  );
+
   const destinationTypeFlags = getDisplayFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
@@ -207,6 +217,16 @@ const ShipmentInfoList = ({
       <dt>Second destination address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
+      </dd>
+    </div>
+  );
+
+  const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
+  const tertiaryDeliveryAddressElement = (
+    <div className={tertiaryDeliveryAddressElementFlags.classes}>
+      <dt>Third destination address</dt>
+      <dd data-testid="tertiaryDeliveryAddress">
+        {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
       </dd>
     </div>
   );
@@ -241,11 +261,13 @@ const ShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
+      {tertiaryPickupAddressElement}
       {showElement(agentsElementFlags) && releasingAgentElement}
       {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
       {secondaryDeliveryAddressElement}
+      {tertiaryDeliveryAddressElement}
       {showElement(agentsElementFlags) && receivingAgentElement}
       {counselorRemarksElement}
       {customerRemarksElement}

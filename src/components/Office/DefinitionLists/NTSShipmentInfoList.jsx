@@ -29,6 +29,7 @@ const NTSShipmentInfoList = ({
   const {
     pickupAddress,
     secondaryPickupAddress,
+    tertiaryPickupAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -145,6 +146,14 @@ const NTSShipmentInfoList = ({
     </div>
   );
 
+  const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
+  const tertiaryPickupAddressElement = (
+    <div className={tertiaryPickupAddressElementFlags.classes}>
+      <dt>Third pickup address</dt>
+      <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
+    </div>
+  );
+
   const scheduledDeliveryDateElementFlags = getDisplayFlags('scheduledDeliveryDate');
   const scheduledDeliveryDateElement = (
     <div className={scheduledDeliveryDateElementFlags.classes}>
@@ -253,6 +262,7 @@ const NTSShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
+      {tertiaryPickupAddressElement}
       {showElement(releasingAgentFlags) && releasingAgentElement}
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}

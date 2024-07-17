@@ -5595,6 +5595,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -5797,6 +5811,38 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'

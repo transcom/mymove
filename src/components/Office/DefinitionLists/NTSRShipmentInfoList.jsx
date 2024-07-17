@@ -31,6 +31,7 @@ const NTSRShipmentInfoList = ({
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
+    tertiaryDeliveryAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -206,6 +207,16 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
+  const tertiaryDeliveryAddressElement = (
+    <div className={tertiaryDeliveryAddressElementFlags.classes}>
+      <dt>Third delivery address</dt>
+      <dd data-testid="tertiaryDeliveryAddress">
+        {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
+      </dd>
+    </div>
+  );
+
   const tacElementFlags = getDisplayFlags('tacType');
   const tacElement = (
     <div className={tacElementFlags.classes}>
@@ -264,6 +275,7 @@ const NTSRShipmentInfoList = ({
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
+      {isExpanded && tertiaryDeliveryAddressElement}
       {showElement(receivingAgentFlags) && receivingAgentElement}
       {isExpanded && customerRemarksElement}
       {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
