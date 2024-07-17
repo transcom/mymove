@@ -83,6 +83,27 @@ export async function getPPMCloseout(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMCloseout', { ppmShipmentId }, { normalize: false });
 }
 
+export async function getPPMSITEstimatedCost(
+  key,
+  ppmShipmentId,
+  sitLocation,
+  sitEntryDate,
+  sitDepartureDate,
+  weightStored,
+) {
+  return makeGHCRequest(
+    'ppm.getPPMSITEstimatedCost',
+    {
+      ppmShipmentId,
+      sitLocation,
+      sitEntryDate,
+      sitDepartureDate,
+      weightStored,
+    },
+    { normalize: false },
+  );
+}
+
 export async function getPPMActualWeight(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMActualWeight', { ppmShipmentId }, { normalize: false });
 }
@@ -805,5 +826,19 @@ export async function searchCustomers(key, { sort, order, filters = [], currentP
       },
     },
     { schemaKey: 'searchMovesResult', normalize: false },
+  );
+}
+
+export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
+  return makeGHCRequest(
+    'ppm.updatePPMSIT',
+    {
+      ppmShipmentId,
+      'If-Match': eTag,
+      body: payload,
+    },
+    {
+      normalize: false,
+    },
   );
 }
