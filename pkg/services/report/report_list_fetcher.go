@@ -175,7 +175,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 					crate := buildServiceItemCrate(mtoServiceItem)
 					allCrates = append(allCrates, &crate)
 					domesticCrating += totalPrice
-
 				case "Domestic origin SIT pickup":
 					sitPickuptotal += totalPrice
 				case "Domestic origin SIT fuel surcharge":
@@ -207,7 +206,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 				case "Counseling":
 					counselingTotal += totalPrice
 				}
-
 			}
 		}
 
@@ -218,14 +216,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.DestinationPrice = &domesticDestTotal
 		report.PackingPrice = &domesticPacking
 		report.UnpackingPrice = &domesticUnpacking
-		report.SITOriginFirstDayTotal = &sitOriginFirstDay
-		report.SITOriginAddlDaysTotal = &sitOriginAddlDays
-		report.SITDestFirstDayTotal = &sitDestFirstDay
-		report.SITDestAddlDaysTotal = &sitDestAddlDays
-		report.SITPickupTotal = &sitPickuptotal
-		report.SITDeliveryTotal = &sitDeliveryTotal
-		report.SITOriginFuelSurcharge = &sitOriginFuelSurcharge
-		report.SITDestFuelSurcharge = &sitDestFuelSurcharge
 		report.CratingTotal = &domesticCrating
 		report.UncratingTotal = &domesticUncrating
 		report.ShuttleTotal = &shuttleTotal
@@ -239,12 +229,12 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			sitDestFuelSurcharge + domesticCrating + domesticUncrating
 		report.InvoicePaidAmt = &invoicePaidAmt
 
-		// var ppmLinehaul float64
-		// var ppmFuel float64
-		// var ppmOriginPrice float64
-		// var ppmDestPrice float64
-		// var ppmPacking float64
-		// var ppmUnpacking float64
+		var ppmLinehaul float64
+		var ppmFuel float64
+		var ppmOriginPrice float64
+		var ppmDestPrice float64
+		var ppmPacking float64
+		var ppmUnpacking float64
 
 		// sharing this for loop for all MTOShipment calculations
 		for _, shipment := range move.MTOShipments {
@@ -277,7 +267,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 				// query the ppmshipment for all it's child needs for the price breakdown
 				var ppmShipment models.PPMShipment
-				ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets").
+				ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets", "Shipment").
 					InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
 					Where("ppm_shipments.id = ?", shipment.PPMShipment.ID).
 					First(&ppmShipment)
@@ -285,35 +275,45 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 					return nil, apperror.NewQueryError("failed to query ppm ", ppmQ, ".")
 				}
 
-				// // do the ppm cost breakdown here
-				// linehaul, fuel, origin, dest, packing, unpacking, err := f.estimator.PriceBreakdown(appCtx, &ppmShipment)
-				// if err != nil {
-				// 	return nil, apperror.NewUnprocessableEntityError("ppm price breakdown")
-				// }
+				// do the ppm cost breakdown here
+				linehaul, fuel, origin, dest, packing, unpacking, err := f.estimator.PriceBreakdown(appCtx, &ppmShipment)
+				if err != nil {
+					return nil, apperror.NewUnprocessableEntityError("ppm price breakdown")
+				}
 
-				// ppmLinehaul += linehaul.Float64()
-				// ppmFuel += fuel.Float64()
-				// ppmOriginPrice += origin.Float64()
-				// ppmDestPrice += dest.Float64()
-				// ppmPacking += packing.Float64()
-				// ppmUnpacking += unpacking.Float64()
+				ppmLinehaul += linehaul.Float64()
+				ppmFuel += fuel.Float64()
+				ppmOriginPrice += origin.Float64()
+				ppmDestPrice += dest.Float64()
+				ppmPacking += packing.Float64()
+				ppmUnpacking += unpacking.Float64()
 
 			}
 
 			if shipment.PrimeActualWeight != nil {
 				originActualWeight += *shipment.PrimeActualWeight
 			}
-
 		}
 
-		// report.PpmLinehaul = &ppmLinehaul
-		// report.PpmFuelRateAdjTotal = &ppmFuel
-		// report.PpmOriginPrice = &ppmOriginPrice
-		// report.PpmDestPrice = &ppmDestPrice
-		// report.PpmPacking = &ppmPacking
-		// report.PpmUnpacking = &ppmUnpacking
-		// ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
-		// report.PpmTotal = &ppmTotal
+		if report.SitInDate != nil || report.SitOutDate != nil {
+			report.SITOriginFirstDayTotal = &sitOriginFirstDay
+			report.SITOriginAddlDaysTotal = &sitOriginAddlDays
+			report.SITDestFirstDayTotal = &sitDestFirstDay
+			report.SITDestAddlDaysTotal = &sitDestAddlDays
+			report.SITPickupTotal = &sitPickuptotal
+			report.SITDeliveryTotal = &sitDeliveryTotal
+			report.SITOriginFuelSurcharge = &sitOriginFuelSurcharge
+			report.SITDestFuelSurcharge = &sitDestFuelSurcharge
+		}
+
+		report.PpmLinehaul = &ppmLinehaul
+		report.PpmFuelRateAdjTotal = &ppmFuel
+		report.PpmOriginPrice = &ppmOriginPrice
+		report.PpmDestPrice = &ppmDestPrice
+		report.PpmPacking = &ppmPacking
+		report.PpmUnpacking = &ppmUnpacking
+		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
+		report.PpmTotal = &ppmTotal
 
 		report.ActualOriginNetWeight = &originActualWeight
 		report.PBPAndE = &progear
@@ -325,8 +325,15 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		}
 
 		if orders.SAC != nil {
-			report.OrderNumber = *orders.SAC
+			report.OrderNumber = orders.SAC
 		}
+
+		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress")
+		if addressLoad != nil {
+			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
+		}
+
+		netWeight := models.GetTotalNetWeightForMove(move)
 
 		report.FirstName = orders.ServiceMember.FirstName
 		report.LastName = orders.ServiceMember.LastName
@@ -348,7 +355,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.OriginGBLOC = orders.OriginDutyLocationGBLOC
 		report.DestinationGBLOC = &orders.NewDutyLocation.TransportationOffice.Gbloc
 		report.DepCD = orders.HasDependents
-		report.TravelAdvance = travelAdvance
+		report.TravelAdvance = &travelAdvance
 		report.MoveDate = moveDate
 		report.TAC = orders.TAC
 		report.ShipmentNum = len(move.MTOShipments)
@@ -358,7 +365,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.Miles = move.MTOShipments[0].Distance
 		report.ShipmentId = move.ID
 		report.SCAC = &scac
-		report.NetWeight = models.GetTotalNetWeightForMove(move)
+		report.NetWeight = &netWeight
 		report.PaidDate = paymentRequests[0].ReviewedAt
 		report.CounseledDate = move.ServiceCounselingCompletedAt
 

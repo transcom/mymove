@@ -44,10 +44,11 @@ func (suite *PayloadsSuite) TestListReport() {
 			PostalCode:     "10001",
 			County:         "Some County",
 		},
-		OrdersDate:   &now,
-		TAC:          models.StringPointer("CACI"),
-		OrdersType:   internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber: models.StringPointer("123456"),
+		OrdersDate:      &now,
+		TAC:             models.StringPointer("CACI"),
+		OrdersType:      internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+		OrdersNumber:    models.StringPointer("123456"),
+		DD2278IssueDate: &now,
 	}
 
 	suite.Run("valid report", func() {
@@ -60,10 +61,9 @@ func (suite *PayloadsSuite) TestListReport() {
 		suite.Equal(*report.Edipi, payload.Edipi)
 		suite.Equal(*report.PhonePrimary, payload.PhonePrimary)
 		suite.Equal(*report.EmailPrimary, payload.EmailPrimary)
-		suite.Equal(report.OrdersType, payload.OrdersType)
-		suite.Equal(report.OrdersNumber, payload.OrdersNumber)
-		suite.Equal(report.OrdersDate, payload.OrdersDate)
-		suite.Equal(report.ShipmentNum, payload.ShipmentNum)
+		suite.Equal(*report.OrdersNumber, payload.OrdersNumber)
+		suite.Equal(int64(report.ShipmentNum), payload.ShipmentNum)
+		suite.Equal(report.DD2278IssueDate.Format(time.DateOnly), payload.Dd2278IssueDate.String())
 	})
 
 	suite.Run("nil report", func() {

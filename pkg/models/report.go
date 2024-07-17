@@ -30,7 +30,7 @@ type Report struct {
 	OriginGBLOC                 *string
 	DestinationGBLOC            *string
 	DepCD                       bool
-	TravelAdvance               unit.Cents
+	TravelAdvance               *unit.Cents
 	MoveDate                    *time.Time
 	TAC                         *string
 	FiscalYear                  *string
@@ -52,11 +52,11 @@ type Report struct {
 	WeightAuthorized            *unit.Pound
 	ShipmentId                  uuid.UUID
 	SCAC                        *string
-	OrderNumber                 string
+	OrderNumber                 *string
 	LOA                         *string
 	ShipmentType                *string
 	EntitlementWeight           *unit.Pound
-	NetWeight                   unit.Pound
+	NetWeight                   *unit.Pound
 	PBPAndE                     *unit.Pound
 	PickupDate                  *time.Time
 	SitInDate                   *time.Time

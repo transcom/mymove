@@ -213,6 +213,7 @@ properties:
     description: Total weight estimate
     type: number
     format: double
+    x-nullable: true
   transmitCD:
     description: Transmit Code
     type: string
@@ -226,6 +227,7 @@ properties:
   weightAuthorized:
     type: number
     format: double
+    x-nullable: true
   shipmentId:
     type: string
     format: uuid
@@ -237,6 +239,7 @@ properties:
     description: not to be confused with Orders Number
     type: string
     example: '030-00362'
+    x-nullable: true
   loa:
     type: string
     x-nullable: true
@@ -244,12 +247,15 @@ properties:
     type: string
   entitlementWeight:
     type: integer
+    x-nullable: true
   netWeight:
     type: integer
+    x-nullable: true
   pbpAnde:
     description: Pro Gear
     type: number
     format: double
+    x-nullable: true
   pickupDate:
     type: string
     format: date
@@ -398,6 +404,7 @@ properties:
   actualOriginNetWeight:
     type: number
     format: double
+    x-nullable: true
   destinationReweighNetWeight:
     type: number
     format: double

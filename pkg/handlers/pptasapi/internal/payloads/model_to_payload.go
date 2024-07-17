@@ -30,6 +30,10 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 
 // ListReport payload
 func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessages.ListReport {
+	if report == nil {
+		return nil
+	}
+
 	payload := &pptasmessages.ListReport{
 		FirstName:              *report.FirstName,
 		LastName:               *report.LastName,
@@ -42,29 +46,22 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		EmailPrimary:           *report.EmailPrimary,
 		EmailSecondary:         report.EmailSecondary,
 		OrdersType:             string(report.OrdersType),
+		OrdersNumber:           *report.OrdersNumber,
 		OrdersDate:             strfmt.DateTime(*report.OrdersDate),
-		Address:                Address(report.Address),
 		OriginAddress:          Address(report.OriginAddress),
 		DestinationAddress:     Address(report.DestinationAddress),
 		OriginGbloc:            report.OriginGBLOC,
 		DestinationGbloc:       report.DestinationGBLOC,
 		DepCD:                  &report.DepCD,
-		TravelAdvance:          models.Float64Pointer(report.TravelAdvance.Float64()),
 		MoveDate:               (*strfmt.Date)(report.MoveDate),
 		Tac:                    report.TAC,
 		FiscalYear:             report.FiscalYear,
 		ShipmentNum:            int64(report.ShipmentNum),
 		TransmitCD:             report.TransmitCd,
 		Dd2278IssueDate:        strfmt.Date(*report.DD2278IssueDate),
-		Miles:                  int64(*report.Miles),
 		ShipmentID:             strfmt.UUID(report.ShipmentId.String()),
 		Scac:                   report.SCAC,
 		Loa:                    report.LOA,
-		ShipmentType:           *report.ShipmentType,
-		EntitlementWeight:      report.EntitlementWeight.Int64(),
-		NetWeight:              report.NetWeight.Int64(),
-		PbpAnde:                report.PBPAndE.Float64(),
-		PickupDate:             strfmt.Date(*report.PickupDate),
 		SitInDate:              (*strfmt.Date)(report.SitInDate),
 		SitOutDate:             (*strfmt.Date)(report.SitOutDate),
 		SitType:                report.SitType,
@@ -98,14 +95,46 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		PpmUnpacking:           report.PpmUnpacking,
 		PpmStorage:             report.PpmStorage,
 		PpmTotal:               report.PpmTotal,
-		TravelType:             *report.TravelType,
-		DeliveryDate:           strfmt.Date(*report.DeliveryDate),
-		ActualOriginNetWeight:  report.ActualOriginNetWeight.Float64(),
-		CounseledDate:          strfmt.Date(*report.CounseledDate),
 	}
 
-	if report.OrderNumber != "" {
+	if report.OrderNumber != nil {
 		payload.OrderNumber = report.OrderNumber
+	}
+
+	if report.PickupDate != nil {
+		payload.PickupDate = strfmt.Date(*report.PickupDate)
+	}
+
+	if report.PBPAndE != nil {
+		payload.PbpAnde = models.Float64Pointer(report.PBPAndE.Float64())
+	}
+
+	if report.TravelAdvance != nil {
+		payload.TravelAdvance = models.Float64Pointer(report.TravelAdvance.Float64())
+	}
+
+	if report.NetWeight != nil {
+		payload.NetWeight = models.Int64Pointer(report.NetWeight.Int64())
+	}
+
+	if report.EntitlementWeight != nil {
+		payload.EntitlementWeight = models.Int64Pointer(report.EntitlementWeight.Int64())
+	}
+
+	if report.Miles != nil {
+		payload.Miles = int64(*report.Miles)
+	}
+
+	if report.Address != nil {
+		payload.Address = Address(report.Address)
+	}
+
+	if report.ShipmentType != nil {
+		payload.ShipmentType = *report.ShipmentType
+	}
+
+	if report.TravelType != nil {
+		payload.TravelType = *report.TravelType
 	}
 
 	if !reflect.ValueOf(report.Appro).IsNil() {
@@ -152,12 +181,24 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		payload.TravelClassCode = *report.TravelClassCode
 	}
 
-	if !reflect.ValueOf(report.WeightEstimate).IsNil() {
-		payload.WeightEstimate = report.WeightEstimate.Float64()
+	if report.WeightEstimate != nil {
+		payload.WeightEstimate = models.Float64Pointer(report.WeightEstimate.Float64())
+	}
+
+	if report.ActualOriginNetWeight != nil {
+		payload.ActualOriginNetWeight = models.Float64Pointer(report.ActualOriginNetWeight.Float64())
 	}
 
 	if !reflect.ValueOf(report.DestinationReweighNetWeight).IsNil() {
 		payload.DestinationReweighNetWeight = models.Float64Pointer(report.DestinationReweighNetWeight.Float64())
+	}
+
+	if report.DeliveryDate != nil {
+		payload.DeliveryDate = strfmt.Date(*report.DeliveryDate)
+	}
+
+	if report.CounseledDate != nil {
+		payload.CounseledDate = strfmt.Date(*report.CounseledDate)
 	}
 
 	return payload
