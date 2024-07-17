@@ -353,7 +353,8 @@ func init() {
         },
         "actualOriginNetWeight": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "address": {
           "$ref": "#/definitions/Address"
@@ -453,9 +454,6 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "documentNumber": {
-          "type": "string"
-        },
         "edipi": {
           "type": "string"
         },
@@ -468,7 +466,8 @@ func init() {
           "x-nullable": true
         },
         "entitlementWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -519,7 +518,8 @@ func init() {
           "x-nullable": true
         },
         "netWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "objClass": {
           "type": "string",
@@ -528,6 +528,7 @@ func init() {
         "orderNumber": {
           "description": "not to be confused with Orders Number",
           "type": "string",
+          "x-nullable": true,
           "example": "030-00362"
         },
         "ordersDate": {
@@ -660,7 +661,8 @@ func init() {
         "pbpAnde": {
           "description": "Pro Gear",
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "phonePrimary": {
           "type": "string"
@@ -837,12 +839,14 @@ func init() {
         },
         "weightAuthorized": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "weightEstimate": {
           "description": "Total weight estimate",
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         }
       }
     },
@@ -1248,7 +1252,8 @@ func init() {
         },
         "actualOriginNetWeight": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "address": {
           "$ref": "#/definitions/Address"
@@ -1348,9 +1353,6 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "documentNumber": {
-          "type": "string"
-        },
         "edipi": {
           "type": "string"
         },
@@ -1363,7 +1365,8 @@ func init() {
           "x-nullable": true
         },
         "entitlementWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -1414,7 +1417,8 @@ func init() {
           "x-nullable": true
         },
         "netWeight": {
-          "type": "integer"
+          "type": "integer",
+          "x-nullable": true
         },
         "objClass": {
           "type": "string",
@@ -1423,6 +1427,7 @@ func init() {
         "orderNumber": {
           "description": "not to be confused with Orders Number",
           "type": "string",
+          "x-nullable": true,
           "example": "030-00362"
         },
         "ordersDate": {
@@ -1555,7 +1560,8 @@ func init() {
         "pbpAnde": {
           "description": "Pro Gear",
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "phonePrimary": {
           "type": "string"
@@ -1732,12 +1738,14 @@ func init() {
         },
         "weightAuthorized": {
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         },
         "weightEstimate": {
           "description": "Total weight estimate",
           "type": "number",
-          "format": "double"
+          "format": "double",
+          "x-nullable": true
         }
       }
     },

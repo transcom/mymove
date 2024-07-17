@@ -25,7 +25,7 @@ type ListReport struct {
 	Aaa *string `json:"aaa,omitempty"`
 
 	// actual origin net weight
-	ActualOriginNetWeight float64 `json:"actualOriginNetWeight,omitempty"`
+	ActualOriginNetWeight *float64 `json:"actualOriginNetWeight,omitempty"`
 
 	// address
 	Address *Address `json:"address,omitempty"`
@@ -82,9 +82,6 @@ type ListReport struct {
 	// destination reweigh net weight
 	DestinationReweighNetWeight *float64 `json:"destinationReweighNetWeight,omitempty"`
 
-	// document number
-	DocumentNumber string `json:"documentNumber,omitempty"`
-
 	// edipi
 	Edipi string `json:"edipi,omitempty"`
 
@@ -96,7 +93,7 @@ type ListReport struct {
 	EmailSecondary *string `json:"emailSecondary,omitempty"`
 
 	// entitlement weight
-	EntitlementWeight int64 `json:"entitlementWeight,omitempty"`
+	EntitlementWeight *int64 `json:"entitlementWeight,omitempty"`
 
 	// first name
 	// Example: Bob
@@ -136,14 +133,14 @@ type ListReport struct {
 	MoveManagementFeeTotal *float64 `json:"moveManagementFeeTotal,omitempty"`
 
 	// net weight
-	NetWeight int64 `json:"netWeight,omitempty"`
+	NetWeight *int64 `json:"netWeight,omitempty"`
 
 	// obj class
 	ObjClass *string `json:"objClass,omitempty"`
 
 	// not to be confused with Orders Number
 	// Example: 030-00362
-	OrderNumber string `json:"orderNumber,omitempty"`
+	OrderNumber *string `json:"orderNumber,omitempty"`
 
 	// orders date
 	// Format: date-time
@@ -180,7 +177,7 @@ type ListReport struct {
 	PayGrade *string `json:"payGrade,omitempty"`
 
 	// Pro Gear
-	PbpAnde float64 `json:"pbpAnde,omitempty"`
+	PbpAnde *float64 `json:"pbpAnde,omitempty"`
 
 	// phone primary
 	PhonePrimary string `json:"phonePrimary,omitempty"`
@@ -302,10 +299,10 @@ type ListReport struct {
 	UnpackingPrice *float64 `json:"unpackingPrice,omitempty"`
 
 	// weight authorized
-	WeightAuthorized float64 `json:"weightAuthorized,omitempty"`
+	WeightAuthorized *float64 `json:"weightAuthorized,omitempty"`
 
 	// Total weight estimate
-	WeightEstimate float64 `json:"weightEstimate,omitempty"`
+	WeightEstimate *float64 `json:"weightEstimate,omitempty"`
 }
 
 // Validate validates this list report
