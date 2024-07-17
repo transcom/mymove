@@ -684,6 +684,12 @@ definitions:
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          An optional secondary pickup location address near the origin where
+          additional goods exist.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >-
           The address of the destination location where goods are being
@@ -691,6 +697,12 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       secondaryDestinationAddress:
+        description: >-
+          An optional secondary address near the destination where goods will be
+          dropped off.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
         description: >-
           An optional secondary address near the destination where goods will be
           dropped off.
@@ -866,6 +878,16 @@ definitions:
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        description: >
+          An optional secondary pickup location near the origin where additional
+          goods exist.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
           The address of the destination location where goods are being
@@ -877,6 +899,16 @@ definitions:
         x-omitempty: false
         x-nullable: true
       secondaryDestinationAddress:
+        description: >
+          An optional secondary address near the destination where goods will be
+          dropped off.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
         description: >
           An optional secondary address near the destination where goods will be
           dropped off.
@@ -1043,7 +1075,19 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
+        description: >-
+          A second delivery address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.

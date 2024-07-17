@@ -402,11 +402,19 @@ definitions:
         description: An optional secondary pickup location address near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: An optional secondary pickup location address near the origin where additional goods exist.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: The address of the destination location where goods are being delivered to.
         allOf:
           - $ref: 'definitions/Address.yaml'
       secondaryDestinationAddress:
+        description: An optional secondary address near the destination where goods will be dropped off.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
         description: An optional secondary address near the destination where goods will be dropped off.
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -561,6 +569,15 @@ definitions:
           An optional secondary pickup location near the origin where additional goods exist.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        description: >
+          An optional secondary pickup location near the origin where additional goods exist.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
         description: >
           The address of the destination location where goods are being delivered to.
@@ -571,6 +588,15 @@ definitions:
         x-omitempty: false
         x-nullable: true
       secondaryDestinationAddress:
+        description: >
+          An optional secondary address near the destination where goods will be dropped off.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
         description: >
           An optional secondary address near the destination where goods will be dropped off.
         allOf:
@@ -705,7 +731,15 @@ definitions:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: A second pickup address for this shipment, if the customer entered one. An optional field.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       secondaryDeliveryAddress:
+        description: A second delivery address for this shipment, if the customer entered one. An optional field.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDeliveryAddress:
         description: A second delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: 'definitions/Address.yaml'
