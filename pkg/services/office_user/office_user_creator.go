@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
+	"github.com/transcom/mymove/pkg/random"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/query"
 )
@@ -42,6 +43,13 @@ func (o *officeUserCreator) CreateOfficeUser(
 		user = models.User{
 			OktaEmail: strings.ToLower(officeUser.Email),
 			Active:    true,
+		}
+
+		sess := appCtx.Session()
+
+		if sess.IDToken == "devlocal" || appCtx.Session().Hostname == "officelocal" {
+			// in devlocal we generate a random okta_id for accounts to use
+			user.OktaID = GenerateFakeOktaID()
 		}
 	}
 
@@ -118,6 +126,24 @@ func (o *officeUserCreator) CreateOfficeUser(
 	}
 
 	return officeUser, nil, nil
+}
+
+func GenerateFakeOktaID() string {
+	const ID_LEN = 20
+	const CHARSET = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	fakeOktaID := ""
+
+	for range [ID_LEN]int{} {
+		index, err := random.GetRandomInt(len(CHARSET))
+
+		if err != nil {
+			return ""
+		}
+
+		fakeOktaID += string(CHARSET[index])
+	}
+
+	return fakeOktaID
 }
 
 // NewOfficeUserCreator returns a new office user creator
