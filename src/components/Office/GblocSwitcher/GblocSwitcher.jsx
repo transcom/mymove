@@ -14,6 +14,9 @@ const GBLOCSwitcher = ({ officeUsersDefaultGbloc, ariaLabel }) => {
   const { selectedGbloc, handleGblocChange } = useContext(SelectedGblocContext);
 
   const { result: gblocs } = useListGBLOCsQueries();
+  if (gblocs.indexOf(officeUsersDefaultGbloc) === -1) {
+    gblocs.push(officeUsersDefaultGbloc);
+  }
 
   useEffect(() => {
     if (window.sessionStorage.getItem(SELECTED_GBLOC_SESSION_STORAGE_KEY) && isInitialPageLoad) {
