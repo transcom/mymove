@@ -110,7 +110,7 @@ export default function ReviewExpense({
 
   const [descriptionString, setDescriptionString] = React.useState(description || '');
   const actualWeight = ppmShipmentInfo?.actualWeight || '';
-  const [amountValue, setAmountValue] = React.useState(amount.toString());
+  const [amountValue, setAmountValue] = React.useState(amount?.toString() || '');
   const [weightStoredValue, setWeightStoredValue] = React.useState(weightStored);
   const [ppmSITLocation, setSITLocation] = React.useState(sitLocation?.toString() || 'DESTINATION');
   const [sitStartDateValue, setSitStartDateValue] = React.useState(sitStartDate != null ? sitStartDate : '');
