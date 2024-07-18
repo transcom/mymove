@@ -40,7 +40,9 @@ const SmartCardRedirect = () => {
           Click the button to sign out and authenticate with your smart card.
         </p>
         <div className={styles.signOutBtn}>
-          <Button onClick={handleLogout}>Sign Out</Button>
+          <Button onClick={handleLogout} data-testid="signOutRedirectBtn">
+            Sign Out
+          </Button>
         </div>
         <br />
         <br />

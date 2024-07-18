@@ -41,6 +41,9 @@ describe('SmartCardRedirect tests', () => {
     const helperText = screen.getByTestId('helperText');
     expect(helperText).toBeInTheDocument();
 
+    const signOutRedirectBtn = screen.getByTestId('signOutRedirectBtn');
+    expect(signOutRedirectBtn).toBeInTheDocument();
+
     const contactMsg = screen.getByTestId('contactMsg');
     expect(contactMsg).toBeInTheDocument();
 
