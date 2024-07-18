@@ -209,5 +209,6 @@ describe('OfficeLoggedInHeader', () => {
     const gblocSwitcher = screen.getByTestId('gbloc_switcher');
     expect(gblocSwitcher).toBeInstanceOf(HTMLDivElement);
     expect(gblocSwitcher.firstChild).toBeInstanceOf(HTMLSelectElement);
+    expect(gblocSwitcher.firstChild.firstChild).toBeInstanceOf(HTMLOptionElement);
   });
 });

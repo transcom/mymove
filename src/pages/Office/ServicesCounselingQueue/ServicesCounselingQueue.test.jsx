@@ -305,8 +305,8 @@ describe('ServicesCounselingQueue', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
 
     const moves = JSON.parse(JSON.stringify(needsCounselingMoves));
-    /* eslint-disable no-plusplus */
-    for (let i = 0; i < 30; i++) {
+
+    for (let i = 0; i < 30; i += 1) {
       moves.queueResult.data.push({
         id: `move${moves.queueResult.data.length}${1}`,
         customer: {
