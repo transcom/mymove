@@ -12,6 +12,12 @@ import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments'
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const mockMutateFunction = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -1214,6 +1220,7 @@ describe('ShipmentForm component', () => {
 
   describe('TOO editing an already existing PPM shipment', () => {
     it('renders the PPM shipment form with pre-filled values as TOO', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1337,6 +1344,7 @@ describe('ShipmentForm component', () => {
     });
     describe('editing an already existing PPM shipment', () => {
       it('renders the PPM shipment form with pre-filled values', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         renderWithRouter(
           <ShipmentForm
             {...defaultProps}

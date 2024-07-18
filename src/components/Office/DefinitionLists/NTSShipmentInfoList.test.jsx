@@ -1,7 +1,14 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import NTSShipmentInfoList from './NTSShipmentInfoList';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const shipment = {
   storageFacility: {
@@ -72,9 +79,12 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['tacType', '1234 (HHG)'],
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      await waitFor(() => {
+        const shipmentFieldElement = screen.getByTestId(shipmentField);
+        expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      });
     });
   });
 
@@ -94,9 +104,12 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['tacType', '1234 (HHG)'],
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       render(<NTSShipmentInfoList isExpanded shipment={shipment} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      await waitFor(() => {
+        const shipmentFieldElement = screen.getByTestId(shipmentField);
+        expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      });
     });
   });
 });
