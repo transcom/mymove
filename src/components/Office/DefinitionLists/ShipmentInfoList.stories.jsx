@@ -24,6 +24,12 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
+  tertiaryPickupAddress: {
+    streetAddress1: '1909 Electric Ave',
+    city: 'Missoula',
+    state: 'MT',
+    postalCode: '59801',
+  },
   destinationAddress: {
     streetAddress1: '7 Q St',
     city: 'Austin',
@@ -38,6 +44,12 @@ const info = {
     city: 'Austin',
     state: 'TX',
     postalCode: '78751',
+  },
+  tertiaryDeliveryAddress: {
+    streetAddress1: '14 9th St',
+    city: 'Austin',
+    state: 'TX',
+    postalCode: '78752',
   },
   agents: [
     {
@@ -83,6 +95,20 @@ export const WithSecondaryAddresses = () => (
   />
 );
 
+export const WithTertiaryAddresses = () => (
+  <ShipmentInfoList
+    shipment={{
+      requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
+      pickupAddress: object('pickupAddress', info.pickupAddress),
+      secondaryPickupAddress: object('secondaryPickupAddress', info.secondaryPickupAddress),
+      tertiaryPickupAddress: object('tertiaryPickupAddress', info.tertiaryPickupAddress),
+      destinationAddress: object('destinationAddress', info.destinationAddress),
+      secondaryDeliveryAddress: object('secondaryDeliveryAddress', info.secondaryDeliveryAddress),
+      tertiaryDeliveryAddress: object('tertiaryDeliveryAddress', info.tertiaryDeliveryAddress),
+    }}
+  />
+);
+
 export const WithAgents = () => (
   <ShipmentInfoList
     shipment={{
@@ -112,8 +138,10 @@ export const WithAllInfo = () => (
       requestedPickupDate: text('requestedPickupDate', info.requestedPickupDate),
       pickupAddress: object('pickupAddress', info.pickupAddress),
       secondaryPickupAddress: object('secondaryPickupAddress', info.secondaryPickupAddress),
+      tertiaryPickupAddress: object('tertiaryPickupAddress', info.tertiaryPickupAddress),
       destinationAddress: object('destinationAddress', info.destinationAddress),
       secondaryDeliveryAddress: object('secondaryDeliveryAddress', info.secondaryDeliveryAddress),
+      tertiaryDeliveryAddress: object('tertiaryDeliveryAddress', info.tertiaryDeliveryAddress),
       agents: [object('agent1', info.agents[0]), object('agent2', info.agents[1])],
       counselorRemarks: text('counselorRemarks', info.counselorRemarks),
       customerRemarks: text('customerRemarks', info.customerRemarks),

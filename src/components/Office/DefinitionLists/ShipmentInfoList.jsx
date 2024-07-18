@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -16,6 +16,7 @@ import {
   fieldValidationShape,
 } from 'utils/displayFlags';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ShipmentInfoList = ({
   className,
@@ -36,10 +37,12 @@ const ShipmentInfoList = ({
     actualDeliveryDate,
     pickupAddress,
     secondaryPickupAddress,
+    tertiaryPickupAddress,
     destinationAddress,
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
+    tertiaryDeliveryAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -52,6 +55,16 @@ const ShipmentInfoList = ({
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setIsTertiaryAddressEnabled(enabled);
+      });
+    };
+    fetchData();
+  }, []);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -181,6 +194,14 @@ const ShipmentInfoList = ({
     </div>
   );
 
+  const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
+  const tertiaryPickupAddressElement = (
+    <div className={tertiaryPickupAddressElementFlags.classes}>
+      <dt>Third pickup address</dt>
+      <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
+    </div>
+  );
+
   const destinationTypeFlags = getDisplayFlags('destinationType');
   const destinationTypeElement = (
     <div className={destinationTypeFlags.classes}>
@@ -207,6 +228,16 @@ const ShipmentInfoList = ({
       <dt>Second destination address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
+      </dd>
+    </div>
+  );
+
+  const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
+  const tertiaryDeliveryAddressElement = (
+    <div className={tertiaryDeliveryAddressElementFlags.classes}>
+      <dt>Third destination address</dt>
+      <dd data-testid="tertiaryDeliveryAddress">
+        {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
       </dd>
     </div>
   );
@@ -241,11 +272,13 @@ const ShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
       {showElement(agentsElementFlags) && releasingAgentElement}
       {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
       {secondaryDeliveryAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryDeliveryAddressElement : null}
       {showElement(agentsElementFlags) && receivingAgentElement}
       {counselorRemarksElement}
       {customerRemarksElement}

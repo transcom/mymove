@@ -5955,6 +5955,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -6188,6 +6202,38 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -9087,6 +9133,20 @@ definitions:
         x-omitempty: false
         x-nullable: true
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true

@@ -217,6 +217,26 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.DestinationAddress = addressModel
 	}
 
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
+	}
+
 	if mtoShipment.DestinationType != nil {
 		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
 		model.DestinationType = &valDestinationType
@@ -276,6 +296,12 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -285,6 +311,12 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -379,6 +411,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
@@ -393,6 +427,17 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
 		if *mtoShipment.HasSecondaryDeliveryAddress {
 			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+		}
+	}
+
+	if mtoShipment.HasTertiaryPickupAddress != nil {
+		if *mtoShipment.HasTertiaryPickupAddress {
+			model.TertiaryPickupAddress = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+		}
+	}
+	if mtoShipment.HasTertiaryDeliveryAddress != nil {
+		if *mtoShipment.HasTertiaryDeliveryAddress {
+			model.TertiaryDeliveryAddress = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
 		}
 	}
 
@@ -439,6 +484,8 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
@@ -465,6 +512,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -475,6 +529,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SecondaryDestinationAddress = addressModel
 		secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
 	}
 
 	if ppmShipment.W2Address != nil {
