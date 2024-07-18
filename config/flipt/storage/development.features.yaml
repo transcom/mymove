@@ -113,6 +113,14 @@ flags:
   - segment:
       key: mil-app
       value: false
+- key: queue_management
+  name: Office user queue management feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: false
+  rollouts:
+  - segment:
+      key: mil-app
+      value: false
 - key: boolean_flag
   name: Boolean Flag
   type: BOOLEAN_FLAG_TYPE
