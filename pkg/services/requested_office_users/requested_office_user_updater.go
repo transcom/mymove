@@ -69,7 +69,7 @@ func (o *requestedOfficeUserUpdater) UpdateRequestedOfficeUser(appCtx appcontext
 
 	if payload.Status != "" {
 		officeUser.Status = &payload.Status
-		if officeUser.Status != nil && *officeUser.Status == string(models.OrderStatusAPPROVED) {
+		if *officeUser.Status == string(models.OrderStatusAPPROVED) {
 			officeUser.Active = true
 		}
 	}
