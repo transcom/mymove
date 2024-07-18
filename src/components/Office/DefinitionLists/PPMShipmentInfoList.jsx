@@ -73,7 +73,7 @@ const PPMShipmentInfoList = ({
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, ppmShipmentInfo);
 
-  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       isBooleanFlagEnabled('third_address_available').then((enabled) => {
