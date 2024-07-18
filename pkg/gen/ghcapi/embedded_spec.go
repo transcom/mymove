@@ -3871,6 +3871,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4042,6 +4048,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -4057,11 +4069,7 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -4173,6 +4181,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -5385,6 +5399,42 @@ func init() {
             "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
             }
           },
           "400": {
@@ -7095,6 +7145,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
@@ -17659,6 +17715,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -17842,6 +17904,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -17863,11 +17931,7 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -17979,6 +18043,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -19509,6 +19579,57 @@ func init() {
             "description": "Successfully retrieved transportation offices",
             "schema": {
               "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
             }
           },
           "400": {
@@ -21238,6 +21359,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
