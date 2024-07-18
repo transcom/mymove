@@ -49,6 +49,7 @@ func InitHostFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPAdminServerNameFlag, HTTPAdminServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPOrdersServerNameFlag, HTTPOrdersServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPPrimeServerNameFlag, HTTPPrimeServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPPPTASServerNameFlag, HTTPPrimeServerNameLocal, "Hostname according to environment.")
 }
 
 // CheckHosts validates the Hosts command line flags
@@ -60,6 +61,7 @@ func CheckHosts(v *viper.Viper) error {
 		HTTPAdminServerNameFlag,
 		HTTPOrdersServerNameFlag,
 		HTTPPrimeServerNameFlag,
+		HTTPPPTASServerNameFlag,
 	}
 
 	for _, c := range hostVars {

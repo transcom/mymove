@@ -29,7 +29,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request\ninformation relating to current moves in progress.\n\nAll endpoints are located at ` + "`" + `/prime/pptas/` + "`" + `.\n",
+    "description": "The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request\ninformation relating to current moves in progress.\n\nAll endpoints are located at ` + "`" + `/pptas/v1` + "`" + `.\n",
     "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
@@ -41,7 +41,7 @@ func init() {
     "version": "0.0.1"
   },
   "host": "primelocal",
-  "basePath": "/prime/pptas",
+  "basePath": "/pptas/v1",
   "paths": {
     "/moves": {
       "get": {
@@ -195,7 +195,7 @@ func init() {
   ],
   "swagger": "2.0",
   "info": {
-    "description": "The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request\ninformation relating to current moves in progress.\n\nAll endpoints are located at ` + "`" + `/prime/pptas/` + "`" + `.\n",
+    "description": "The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request\ninformation relating to current moves in progress.\n\nAll endpoints are located at ` + "`" + `/pptas/v1` + "`" + `.\n",
     "title": "MilMove PPTAS API",
     "contact": {
       "email": "milmove-developers@caci.com"
@@ -207,7 +207,7 @@ func init() {
     "version": "0.0.1"
   },
   "host": "primelocal",
-  "basePath": "/prime/pptas",
+  "basePath": "/pptas/v1",
   "paths": {
     "/moves": {
       "get": {

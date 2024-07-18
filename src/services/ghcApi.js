@@ -724,6 +724,11 @@ export async function searchTransportationOfficesOpen(search) {
   return makeGHCRequest(operationPath, { search }, { normalize: false });
 }
 
+export async function getGBLOCs() {
+  const operationPath = 'transportationOffice.getTransportationOfficesGBLOCs';
+  return makeGHCRequest(operationPath, {}, { normalize: false });
+}
+
 export const reviewShipmentAddressUpdate = async ({ shipmentID, ifMatchETag, body }) => {
   const operationPath = 'shipment.reviewShipmentAddressUpdate';
   const schemaKey = 'ShipmentAddressUpdate';

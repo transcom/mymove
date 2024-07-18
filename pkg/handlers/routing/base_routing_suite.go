@@ -109,6 +109,7 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		// include all these as true to increase test coverage
 		ServeSwaggerUI:      true,
 		ServePrime:          true,
+		ServePPTAS:          true,
 		ServeSupport:        true,
 		ServeDebugPProf:     true,
 		ServeAPIInternal:    true,
