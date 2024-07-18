@@ -241,6 +241,7 @@ const HeadquartersQueue = () => {
           csvExportFileNamePrefix="Task-Order-Queue"
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
         />
       </div>
     );
@@ -266,6 +267,7 @@ const HeadquartersQueue = () => {
           csvExportFileNamePrefix="Payment-Request-Queue"
           csvExportQueueFetcher={getPaymentRequestsQueue}
           csvExportQueueFetcherKey="queuePaymentRequests"
+          sessionStorageKey={queueType}
         />
       </div>
     );
@@ -291,6 +293,7 @@ const HeadquartersQueue = () => {
           csvExportFileNamePrefix="PPM-Closeout-Queue"
           csvExportQueueFetcher={getServicesCounselingPPMQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
         />
       </div>
     );
@@ -317,6 +320,7 @@ const HeadquartersQueue = () => {
           csvExportFileNamePrefix="Services-Counseling-Queue"
           csvExportQueueFetcher={getServicesCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
         />
       </div>
     );

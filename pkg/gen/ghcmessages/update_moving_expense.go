@@ -35,8 +35,14 @@ type UpdateMovingExpense struct {
 	// Format: date
 	SitEndDate strfmt.Date `json:"sitEndDate,omitempty"`
 
+	// The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+	SitEstimatedCost *int64 `json:"sitEstimatedCost"`
+
 	// sit location
 	SitLocation *SITLocationType `json:"sitLocation,omitempty"`
+
+	// The amount of SIT that will be reimbursed
+	SitReimburseableAmount *int64 `json:"sitReimburseableAmount"`
 
 	// The date the shipment entered storage, applicable for the `STORAGE` movingExpenseType only
 	// Format: date

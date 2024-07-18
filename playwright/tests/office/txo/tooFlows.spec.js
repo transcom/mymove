@@ -28,7 +28,7 @@ test.describe('TOO user', () => {
       testMove = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, testMove);
-
+      await tooFlowPage.waitForLoading();
       const searchTab = officePage.page.getByTitle(TOOTabsTitles[1]);
       await searchTab.click();
     });
@@ -175,6 +175,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
@@ -582,6 +583,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveForTOOAfterActualPickupDate();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
@@ -626,6 +628,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
 
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(move.locator);
     });
 
@@ -708,6 +711,7 @@ test.describe('TOO user', () => {
     const shipmentAddressUpdate = await officePage.testHarness.bulidHHGMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
+    await tooFlowPage.waitForLoading();
     await officePage.tooNavigateToMove(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
 
     await expect(page.getByText('Review required')).toBeVisible();

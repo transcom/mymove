@@ -9,12 +9,12 @@ const column = {
   setFilter: jest.fn(),
 };
 const optionsConstants = [
-  { value: 'ARMY', label: 'Army' },
-  { value: 'NAVY', label: 'Navy' },
+  { value: 'Army', label: 'Army' },
+  { value: 'Navy', label: 'Navy' },
 ];
 const optionsStrings = [
-  { value: 'approval requested', label: 'Approval Requested' },
-  { value: 'paid', label: 'Paid' },
+  { value: 'Approval Requested', label: 'Approval Requested' },
+  { value: 'Paid', label: 'Paid' },
 ];
 
 describe('MutliSelectTypeAheadCheckboxFilter', () => {
@@ -30,7 +30,7 @@ describe('MutliSelectTypeAheadCheckboxFilter', () => {
   });
 
   describe('It renders the expected placeholder text', () => {
-    it('from an array of constant valued objects when a value is chosen', () => {
+    it('from an array of constant valued objects when a value is chosen', async () => {
       const wrapper = mount(<MutliSelectTypeAheadCheckboxFilter options={optionsConstants} column={column} />);
       const input = wrapper.find(Select).find('input');
       input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
@@ -39,7 +39,7 @@ describe('MutliSelectTypeAheadCheckboxFilter', () => {
       expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Army');
     });
 
-    it('from an array of string valued objects when a value is chosen', () => {
+    it('from an array of string valued objects when a value is chosen', async () => {
       const wrapper = mount(<MutliSelectTypeAheadCheckboxFilter options={optionsStrings} column={column} />);
       const input = wrapper.find(Select).find('input');
       input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });
@@ -48,7 +48,7 @@ describe('MutliSelectTypeAheadCheckboxFilter', () => {
       expect(wrapper.find('[data-testid="multi-value-container"]').text()).toEqual('Approval Requested');
     });
 
-    it('from an array of objects when multiple values are chosen', () => {
+    it('from an array of objects when multiple values are chosen', async () => {
       const wrapper = mount(<MutliSelectTypeAheadCheckboxFilter options={optionsStrings} column={column} />);
       const input = wrapper.find(Select).find('input');
       input.simulate('keyDown', { key: 'ArrowDown', keyCode: 40 });

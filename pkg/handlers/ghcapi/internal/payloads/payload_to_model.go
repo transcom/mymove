@@ -569,6 +569,8 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	model.Status = (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status)))
 	model.Reason = handlers.FmtString(movingExpense.Reason)
 	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
+	model.SITEstimatedCost = handlers.FmtInt64PtrToPopPtr(movingExpense.SitEstimatedCost)
+	model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
 
 	return &model
 }

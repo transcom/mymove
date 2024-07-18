@@ -264,6 +264,8 @@ const PaymentRequestQueue = () => {
           csvExportFileNamePrefix="Payment-Request-Queue"
           csvExportQueueFetcher={getPaymentRequestsQueue}
           csvExportQueueFetcherKey="queuePaymentRequests"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

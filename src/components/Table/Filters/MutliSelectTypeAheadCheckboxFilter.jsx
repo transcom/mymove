@@ -1,5 +1,5 @@
 /* eslint-disable react/jsx-props-no-spreading */
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { bool, string, shape, node, func, arrayOf } from 'prop-types';
 import AsyncSelect, { components } from 'react-select';
 import { Checkbox } from '@trussworks/react-uswds';
@@ -59,6 +59,23 @@ MultiValueContainer.propTypes = {
 };
 
 const MultiSelectTypeAheadCheckBoxFilter = ({ options, placeholder, column: { filterValue, setFilter } }) => {
+  const [selectValue, setSelectValue] = useState([]);
+
+  const selectFilterValue = (filterVal) => {
+    const filter = filterVal
+      ? filterVal.map((val) => ({
+          label: val,
+          value: val,
+        }))
+      : [];
+    setSelectValue(filter);
+    return filter;
+  };
+
+  const selectDefaultFilterValue = useMemo(() => {
+    selectFilterValue(filterValue);
+  }, [filterValue]);
+
   const onChange = (value) => {
     let paramFilterValue = [];
     if (value) {
@@ -69,6 +86,7 @@ const MultiSelectTypeAheadCheckBoxFilter = ({ options, placeholder, column: { fi
       paramFilterValue = undefined;
     }
     setFilter(paramFilterValue || undefined);
+    selectFilterValue(paramFilterValue);
   };
 
   return (
@@ -77,7 +95,8 @@ const MultiSelectTypeAheadCheckBoxFilter = ({ options, placeholder, column: { fi
         classNamePrefix="MultiSelectTypeAheadCheckBoxFilter"
         className={styles.MultiSelectTypeAheadCheckBoxFilterWrapper}
         options={options}
-        defaultValue={filterValue || undefined}
+        defaultValue={selectDefaultFilterValue}
+        value={selectValue}
         onChange={onChange}
         hideSelectedOptions={false}
         isClearable={false}
