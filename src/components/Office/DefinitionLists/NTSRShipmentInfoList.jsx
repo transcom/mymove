@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -16,6 +16,7 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -58,6 +59,16 @@ const NTSRShipmentInfoList = ({
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setIsTertiaryAddressEnabled(enabled);
+      });
+    };
+    fetchData();
+  }, []);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -275,7 +286,7 @@ const NTSRShipmentInfoList = ({
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
-      {isExpanded && tertiaryDeliveryAddressElement}
+      {isExpanded && isTertiaryAddressEnabled ? tertiaryDeliveryAddressElement : null}
       {showElement(receivingAgentFlags) && receivingAgentElement}
       {isExpanded && customerRemarksElement}
       {showElement(counselorRemarksElementFlags) && counselorRemarksElement}

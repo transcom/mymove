@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -16,6 +16,7 @@ import {
   fieldValidationShape,
 } from 'utils/displayFlags';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ShipmentInfoList = ({
   className,
@@ -54,6 +55,16 @@ const ShipmentInfoList = ({
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('third_address_available').then((enabled) => {
+        setIsTertiaryAddressEnabled(enabled);
+      });
+    };
+    fetchData();
+  }, []);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -261,13 +272,13 @@ const ShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
-      {tertiaryPickupAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
       {showElement(agentsElementFlags) && releasingAgentElement}
       {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
       {secondaryDeliveryAddressElement}
-      {tertiaryDeliveryAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryDeliveryAddressElement : null}
       {showElement(agentsElementFlags) && receivingAgentElement}
       {counselorRemarksElement}
       {customerRemarksElement}
