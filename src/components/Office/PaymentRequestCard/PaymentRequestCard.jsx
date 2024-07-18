@@ -193,10 +193,10 @@ const PaymentRequestCard = ({
               <FontAwesomeIcon icon="check" />
               <div>
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                <span>Sent to Gex</span>
+                <span>Sent to GEX</span>
                 <span data-testid="sentToGexDate">
                   {' '}
-                  on {formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY')}
+                  on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
                 </span>
               </div>
             </div>
@@ -215,7 +215,13 @@ const PaymentRequestCard = ({
                       <div>
                         <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                         <span>Accepted</span>
-                        <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+                        <span>
+                          {' '}
+                          on{' '}
+                          {paymentRequest?.reviewedAt
+                            ? formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')
+                            : '-'}
+                        </span>
                       </div>
                     </div>
                   )}
@@ -225,7 +231,13 @@ const PaymentRequestCard = ({
                       <div>
                         <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                         <span>Rejected</span>
-                        <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+                        <span>
+                          {' '}
+                          on{' '}
+                          {paymentRequest?.reviewedAt
+                            ? formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')
+                            : '-'}
+                        </span>
                       </div>
                     </div>
                   )}
