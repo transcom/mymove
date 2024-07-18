@@ -425,7 +425,7 @@ func FetchMoveByOrderID(db *pop.Connection, orderID uuid.UUID) (Move, error) {
 	return move, nil
 }
 
-// FetchMovesByOrderID returns a Moves for a given id
+// FetchMovesByOrderID returns moves for a given id of an order
 func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 	var moves Moves
 
@@ -434,7 +434,11 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.PPMShipment",
+		"MTOShipments.PPMShipment.W2Address",
 		"MTOShipments.PPMShipment.WeightTickets",
+		"MTOShipments.PPMShipment.WeightTickets.EmptyDocument.UserUploads.Upload",
+		"MTOShipments.PPMShipment.WeightTickets.FullDocument.UserUploads.Upload",
+		"MTOShipments.PPMShipment.WeightTickets.ProofOfTrailerOwnershipDocument.UserUploads.Upload",
 		"MTOShipments.PPMShipment.MovingExpenses",
 		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"MTOShipments.DestinationAddress",
@@ -494,6 +498,20 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 			return moves, err
 		}
 		moves[0].Orders.UploadedAmendedOrders.UserUploads = amendedUserUploads
+	}
+
+	// We do not need to consider deleted weight tickets or uploads within them
+	if moves[0].MTOShipments[0].PPMShipment.WeightTickets != nil {
+		var filteredWeightTickets []WeightTicket
+		for _, wt := range moves[0].MTOShipments[0].PPMShipment.WeightTickets {
+			if wt.DeletedAt == nil {
+				wt.EmptyDocument.UserUploads = wt.EmptyDocument.UserUploads.FilterDeleted()
+				wt.FullDocument.UserUploads = wt.FullDocument.UserUploads.FilterDeleted()
+				wt.ProofOfTrailerOwnershipDocument.UserUploads = wt.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+				filteredWeightTickets = append(filteredWeightTickets, wt)
+			}
+		}
+		moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
 	}
 
 	return moves, err
