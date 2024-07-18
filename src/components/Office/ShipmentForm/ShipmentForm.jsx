@@ -93,7 +93,7 @@ const ShipmentForm = (props) => {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [isAddressChangeModalOpen, setIsAddressChangeModalOpen] = useState(false);
 
-  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       isBooleanFlagEnabled('third_address_available').then((enabled) => {
@@ -1283,7 +1283,7 @@ const ShipmentForm = (props) => {
                   {!isPPM && (
                     <Button
                       data-testid="submitForm"
-                      // disabled={isSubmitting || !isValid}
+                      disabled={isSubmitting || !isValid}
                       type="submit"
                       onClick={handleSubmit}
                     >
