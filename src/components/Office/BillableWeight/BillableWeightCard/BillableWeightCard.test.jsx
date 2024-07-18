@@ -43,7 +43,6 @@ describe('BillableWeightCard', () => {
         estimatedWeight: 5000,
         primeEstimatedWeight: 1000,
         reweigh: { id: '1234', weight: 300 },
-        diversion: true,
       },
       {
         id: '0003',
