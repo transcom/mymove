@@ -1,11 +1,11 @@
 ALTER TABLE moves
-    ADD COLUMN sc_assigned_id uuid
+    ADD COLUMN IF NOT EXISTS sc_assigned_id uuid
         CONSTRAINT moves_sc_assigned_id_fkey
             REFERENCES office_users,
-    ADD COLUMN too_assigned_id uuid
+    ADD COLUMN IF NOT EXISTS too_assigned_id uuid
         CONSTRAINT moves_too_assigned_id_fkey
             REFERENCES office_users,
-    ADD COLUMN tio_assigned_id uuid
+    ADD COLUMN IF NOT EXISTS tio_assigned_id uuid
         CONSTRAINT moves_tio_assigned_id_fkey
             REFERENCES office_users;
 
