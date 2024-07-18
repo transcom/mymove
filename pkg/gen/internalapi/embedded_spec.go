@@ -4416,6 +4416,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHome": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -4516,6 +4519,101 @@ func init() {
         "GTCC": "GTCC",
         "MIL_PAY": "MilPay",
         "OTHER_DD": "Other account"
+      },
+      "x-nullable": true
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "counselorRemarks": {
+          "type": "string"
+        },
+        "customerRemarks": {
+          "type": "string"
+        },
+        "dimensions": {
+          "description": "The complete dimesions of a mobile home. w x l x h?",
+          "type": "string"
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "height": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "orginAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupLocation": {
+          "$ref": "#/definitions/Address"
+        },
+        "receivingAgent": {
+          "type": "string"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "width": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
       },
       "x-nullable": true
     },
@@ -12509,6 +12607,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHome": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -12609,6 +12710,101 @@ func init() {
         "GTCC": "GTCC",
         "MIL_PAY": "MilPay",
         "OTHER_DD": "Other account"
+      },
+      "x-nullable": true
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "counselorRemarks": {
+          "type": "string"
+        },
+        "customerRemarks": {
+          "type": "string"
+        },
+        "dimensions": {
+          "description": "The complete dimesions of a mobile home. w x l x h?",
+          "type": "string"
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "height": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "orginAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupLocation": {
+          "$ref": "#/definitions/Address"
+        },
+        "receivingAgent": {
+          "type": "string"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "width": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
       },
       "x-nullable": true
     },
