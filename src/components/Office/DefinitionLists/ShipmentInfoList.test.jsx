@@ -1,9 +1,15 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 
 import ShipmentInfoList from './ShipmentInfoList';
 
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const info = {
   requestedPickupDate: '2020-03-26',
@@ -77,7 +83,8 @@ const labels = {
 };
 
 describe('Shipment Info List', () => {
-  it('renders all fields when provided and expanded', () => {
+  it('renders all fields when provided and expanded', async () => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<ShipmentInfoList isExpanded shipment={info} />);
 
     const requestedPickupDate = screen.getByText(labels.requestedPickupDate);
@@ -95,12 +102,14 @@ describe('Shipment Info List', () => {
       }),
     ).toBeInTheDocument();
 
-    const tertiaryPickupAddress = screen.getByText(labels.tertiaryPickupAddress);
-    expect(
-      within(tertiaryPickupAddress.parentElement).getByText(info.tertiaryPickupAddress.streetAddress1, {
-        exact: false,
-      }),
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      const tertiaryPickupAddress = screen.getByText(labels.tertiaryPickupAddress);
+      expect(
+        within(tertiaryPickupAddress.parentElement).getByText(info.tertiaryPickupAddress.streetAddress1, {
+          exact: false,
+        }),
+      ).toBeInTheDocument();
+    });
 
     const destinationAddress = screen.getByText(labels.destinationAddress);
     expect(

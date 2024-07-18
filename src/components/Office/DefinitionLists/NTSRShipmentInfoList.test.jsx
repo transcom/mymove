@@ -1,8 +1,15 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { object, text } from '@storybook/addon-knobs';
 
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const showWhenCollapsed = ['counselorRemarks'];
 const warnIfMissing = [
@@ -82,9 +89,12 @@ describe('NTSR Shipment Info List renders all fields when provided and expanded'
     ['tacType', '1234 (HHG)'],
     ['sacType', '1234123412 (NTS)'],
   ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
-    const shipmentFieldElement = screen.getByTestId(shipmentField);
-    expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    await waitFor(() => {
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    });
   });
 });
 

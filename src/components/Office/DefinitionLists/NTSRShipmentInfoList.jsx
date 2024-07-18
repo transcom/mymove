@@ -60,12 +60,10 @@ const NTSRShipmentInfoList = ({
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
 
-  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(true);
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      isBooleanFlagEnabled('third_address_available').then((enabled) => {
-        setIsTertiaryAddressEnabled(enabled);
-      });
+      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
     };
     fetchData();
   }, []);

@@ -58,12 +58,10 @@ const NTSShipmentInfoList = ({
   // and services counselor and show different things.
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
 
-  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(true);
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      isBooleanFlagEnabled('third_address_available').then((enabled) => {
-        setIsTertiaryAddressEnabled(enabled);
-      });
+      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
     };
     fetchData();
   }, []);
