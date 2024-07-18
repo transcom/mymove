@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate, generatePath } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
@@ -322,6 +323,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
     payGrade: order.grade,
+    amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
+    uploadedAmendedOrderID: order.uploadedAmendedOrderID,
   };
   const ordersLOA = {
     tac: order.tac,
@@ -427,7 +430,29 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     setIsFinancialModalVisible(false);
   };
 
+  const counselorCanEditOrdersAndAllowances = () => {
+    if (counselorCanEdit || counselorCanEditNonPPM) return true;
+    if (
+      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+      move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
+      (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt) // status is set to 'Approval Requested' if customer uploads amended orders.
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  const requiredOrdersInfo = {
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+  };
+
   const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
+  const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
+  const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -438,6 +463,23 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             testID="requestedShipmentsTag"
           >
             {shipmentConcernCount}
+          </LeftNavTag>
+          <LeftNavTag
+            className="usa-tag usa-tag--alert"
+            associatedSectionName="orders"
+            showTag={hasMissingOrdersRequiredInfo}
+            testID="tag"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            associatedSectionName="orders"
+            showTag={Boolean(
+              !hasMissingOrdersRequiredInfo && hasAmendedOrders && counselorCanEditOrdersAndAllowances(),
+            )}
+            testID="newOrdersNavTag"
+          >
+            NEW
           </LeftNavTag>
         </LeftNav>
         {isSubmitModalVisible && (
@@ -593,10 +635,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Orders"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
+                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
+                    data-testid="view-edit-orders"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
                     View and edit orders
@@ -612,7 +655,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Allowances"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
+                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"

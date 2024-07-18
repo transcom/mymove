@@ -572,4 +572,16 @@ test.describe('Services counselor user', () => {
       await expect(page.getByTestId('ppmType-0')).toContainText('Full');
     });
   });
+
+  test.describe('with approved HHG move sent to Prime', () => {
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveInSIT();
+      await scPage.navigateToMoveUsingMoveSearch(move.locator);
+    });
+
+    test('is unable to view/edit orders after MTO has been created(sent to prime)', async ({ page }) => {
+      await expect(page.getByTestId('view-edit-orders')).toBeHidden();
+      await expect(page.getByTestId('edit-allowances')).toBeHidden();
+    });
+  });
 });
