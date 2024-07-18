@@ -133,7 +133,7 @@ func FetchUserUploadFromUploadID(db *pop.Connection, session *auth.Session, uplo
 		if docErr != nil {
 			return UserUpload{}, docErr
 		}
-	} else if userUpload.UploaderID != session.UserID {
+	} else if userUpload.UploaderID != session.UserID && (!session.IsOfficeUser() && !session.IsOfficeApp()) { // Allow access if user is an office user
 		return UserUpload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
 	}
 	return userUpload, nil

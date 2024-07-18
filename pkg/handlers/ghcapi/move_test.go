@@ -1,6 +1,7 @@
 package ghcapi
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -19,8 +20,12 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
+	move "github.com/transcom/mymove/pkg/services/move"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
+	"github.com/transcom/mymove/pkg/services/upload"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *HandlerSuite) TestGetMoveHandler() {
@@ -693,5 +698,63 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 
 		response := handler.Handle(params)
 		suite.IsType(&moveops.UpdateCloseoutOfficePreconditionFailed{}, response)
+	})
+}
+
+func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	uploadCreator := upload.NewUploadCreator(fakeS3)
+	additionalDocumentsUploader := move.NewMoveAdditionalDocumentsUploader(uploadCreator)
+
+	setupRequestAndParams := func(move models.Move) *moveops.UploadAdditionalDocumentsParams {
+		endpoint := fmt.Sprintf("/moves/%v/upload_additional_documents", move.ID)
+		req := httptest.NewRequest("PATCH", endpoint, nil)
+		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+
+		params := moveops.UploadAdditionalDocumentsParams{
+			HTTPRequest: req,
+			File:        suite.Fixture("filled-out-orders.pdf"),
+			MoveID:      *handlers.FmtUUID(move.ID),
+		}
+
+		return &params
+	}
+
+	setupHandler := func() UploadAdditionalDocumentsHandler {
+		return UploadAdditionalDocumentsHandler{
+			suite.createS3HandlerConfig(),
+			additionalDocumentsUploader,
+		}
+	}
+
+	suite.Run("Returns 201 if the additional documents uploaded successfully", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+		params := setupRequestAndParams(move)
+		handler := setupHandler()
+		response := handler.Handle(*params)
+
+		if suite.IsType(&moveops.UploadAdditionalDocumentsCreated{}, response) {
+			payload := response.(*moveops.UploadAdditionalDocumentsCreated).Payload
+
+			suite.NoError(payload.Validate(strfmt.Default))
+
+			suite.NotEqual("", string(payload.ID))
+			suite.Equal("filled-out-orders.pdf", payload.Filename)
+			suite.Equal(uploader.FileTypePDF, payload.ContentType)
+			suite.NotEqual("", string(payload.URL))
+		}
+	})
+
+	suite.Run("Returns 400 - Bad Request if there is an issue with the file being uploaded", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		params := setupRequestAndParams(move)
+		params.File = factory.FixtureOpen("empty.pdf")
+
+		handler := setupHandler()
+		response := handler.Handle(*params)
+
+		suite.IsType(&moveops.UploadAdditionalDocumentsInternalServerError{}, response)
+
 	})
 }

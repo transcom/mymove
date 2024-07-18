@@ -198,7 +198,7 @@ const customerSearchColumns = () => [
         </Button>
       );
     },
-    { isFilterable: false, disableSortBy: true },
+    { id: 'createMove', isFilterable: false, disableSortBy: true },
   ),
   createHeader(
     'id',

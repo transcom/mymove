@@ -30,6 +30,7 @@ type GetPaymentRequestsQueueURL struct {
 	Sort                    *string
 	Status                  []string
 	SubmittedAt             *strfmt.DateTime
+	ViewAsGBLOC             *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -184,6 +185,14 @@ func (o *GetPaymentRequestsQueueURL) Build() (*url.URL, error) {
 	}
 	if submittedAtQ != "" {
 		qs.Set("submittedAt", submittedAtQ)
+	}
+
+	var viewAsGBLOCQ string
+	if o.ViewAsGBLOC != nil {
+		viewAsGBLOCQ = *o.ViewAsGBLOC
+	}
+	if viewAsGBLOCQ != "" {
+		qs.Set("viewAsGBLOC", viewAsGBLOCQ)
 	}
 
 	_result.RawQuery = qs.Encode()

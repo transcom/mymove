@@ -19,6 +19,7 @@ import (
 type OrderFetcher interface {
 	FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error)
 	ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, int, error)
+	ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *ListOrderParams) ([]models.Move, error)
 }
 
 // OrderUpdater is the service object interface for updating fields of an Order
@@ -26,6 +27,7 @@ type OrderFetcher interface {
 //go:generate mockery --name OrderUpdater
 type OrderUpdater interface {
 	UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error)
+	UploadAmendedOrdersAsOffice(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error)
 	UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error)
 	UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error)
 	UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error)
@@ -49,7 +51,7 @@ type ListOrderParams struct {
 	Emplid                  *string
 	LastName                *string
 	DestinationDutyLocation *string
-	OriginDutyLocation      *string
+	OriginDutyLocation      []string
 	OriginGBLOC             *string
 	SubmittedAt             *time.Time
 	AppearedInTOOAt         *time.Time
@@ -65,4 +67,5 @@ type ListOrderParams struct {
 	CloseoutLocation        *string
 	OrderType               *string
 	PPMStatus               *string
+	ViewAsGBLOC             *string
 }

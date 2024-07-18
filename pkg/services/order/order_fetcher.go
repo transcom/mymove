@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // Since timestamps in a postgres DB are stored with at the microsecond precision, we want to ensure that we are checking all timestamps up until that point to prevent moves from not showing up
@@ -30,22 +31,23 @@ type QueryOption func(*pop.Query)
 
 func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	var moves []models.Move
-	var transportationOffice models.TransportationOffice
-	// select the GBLOC associated with the transportation office of the session's current office user
-	err := appCtx.DB().Q().
-		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
-	if err != nil {
-		return []models.Move{}, 0, err
+	var officeUserGbloc string
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return []models.Move{}, 0, gblocErr
+		}
 	}
 
 	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
-
-	officeUserGbloc := transportationOffice.Gbloc
 
 	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
@@ -176,7 +178,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -279,6 +281,166 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	return moves, count, nil
 }
 
+func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
+	var moves []models.Move
+	var transportationOffice models.TransportationOffice
+	// select the GBLOC associated with the transportation office of the session's current office user
+	err := appCtx.DB().Q().
+		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
+		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
+
+	if err != nil {
+		return []models.Move{}, err
+	}
+
+	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
+	if err != nil {
+		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
+	}
+
+	officeUserGbloc := transportationOffice.Gbloc
+
+	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
+	// Essentially these are private functions that return query objects that we can mash together to form a complete
+	// query from modular parts.
+
+	// The services counselor queue does not base exclude marine results.
+	// Only the TIO and TOO queues should.
+	needsCounseling := false
+	if len(params.Status) > 0 {
+		for _, status := range params.Status {
+			if status == string(models.MoveStatusNeedsServiceCounseling) {
+				needsCounseling = true
+			}
+		}
+	}
+
+	ppmCloseoutGblocs := officeUserGbloc == "NAVY" || officeUserGbloc == "TVCB" || officeUserGbloc == "USCG"
+
+	// Services Counselors in closeout GBLOCs should only see closeout moves
+	if needsCounseling && ppmCloseoutGblocs && params.NeedsPPMCloseout != nil && !*params.NeedsPPMCloseout {
+		return []models.Move{}, nil
+	}
+
+	branchQuery := branchFilter(params.Branch, needsCounseling, ppmCloseoutGblocs)
+
+	// If the user is associated with the USMC GBLOC we want to show them ALL the USMC moves, so let's override here.
+	// We also only want to do the gbloc filtering thing if we aren't a USMC user, which we cover with the else.
+	// var gblocQuery QueryOption
+	var gblocToFilterBy *string
+	if officeUserGbloc == "USMC" && !needsCounseling {
+		branchQuery = branchFilter(models.StringPointer(string(models.AffiliationMARINES)), needsCounseling, ppmCloseoutGblocs)
+		gblocToFilterBy = &officeUserGbloc
+	}
+
+	// We need to use three different GBLOC filter queries because:
+	//  - The Services Counselor queue filters based on the GBLOC of the origin duty location's
+	//    transportation office
+	//  - There is a separate queue for the GBLOCs: NAVY, TVCB and USCG. These GBLOCs are used by SC doing PPM Closeout
+	//  - The TOO queue uses the GBLOC we get from examining the postal code of the first shipment's
+	//    pickup address. However, if that shipment happens to be an NTS-Release, we instead drop
+	//    back to the GBLOC of the origin duty location's transportation office since an NTS-Release
+	//    does not populate the pickup address field.
+	var gblocQuery QueryOption
+	if ppmCloseoutGblocs {
+		gblocQuery = gblocFilterForPPMCloseoutForNavyMarineAndCG(gblocToFilterBy)
+	} else if needsCounseling {
+		gblocQuery = gblocFilterForSC(gblocToFilterBy)
+	} else if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+		gblocQuery = gblocFilterForSCinArmyAirForce(gblocToFilterBy)
+	} else {
+		gblocQuery = gblocFilterForTOO(gblocToFilterBy)
+	}
+	moveStatusQuery := moveStatusFilter(params.Status)
+	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
+	options := [15]QueryOption{branchQuery, moveStatusQuery, gblocQuery}
+
+	var query *pop.Query
+	if ppmCloseoutGblocs {
+		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+			"Orders.Entitlement",
+			"Orders.OrdersType",
+			"MTOShipments.PPMShipment",
+			"LockedByOfficeUser",
+		).InnerJoin("orders", "orders.id = moves.orders_id").
+			InnerJoin("service_members", "orders.service_member_id = service_members.id").
+			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+			InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
+			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("office_users", "office_users.id = moves.locked_by").
+			Where("show = ?", models.BoolPointer(true))
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		}
+	} else {
+		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
+			"Orders.ServiceMember",
+			"Orders.NewDutyLocation.Address",
+			"Orders.OriginDutyLocation.Address",
+			"Orders.Entitlement",
+			"Orders.OrdersType",
+			"MTOShipments",
+			"MTOServiceItems",
+			"ShipmentGBLOC",
+			"MTOShipments.PPMShipment",
+			"CloseoutOffice",
+			"LockedByOfficeUser",
+		).InnerJoin("orders", "orders.id = moves.orders_id").
+			InnerJoin("service_members", "orders.service_member_id = service_members.id").
+			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
+			InnerJoin("duty_locations as origin_dl", "orders.origin_duty_location_id = origin_dl.id").
+			// Need to use left join because some duty locations do not have transportation offices
+			LeftJoin("transportation_offices as origin_to", "origin_dl.transportation_office_id = origin_to.id").
+			// If a customer puts in an invalid ZIP for their pickup address, it won't show up in this view,
+			// and we don't want it to get hidden from services counselors.
+			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
+			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
+			LeftJoin("office_users", "office_users.id = moves.locked_by").
+			Where("show = ?", models.BoolPointer(true))
+
+		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
+			query.Where("orders.orders_type != (?)", models.PrivilegeSearchTypeSafety)
+		}
+
+		if params.NeedsPPMCloseout != nil {
+			if *params.NeedsPPMCloseout {
+				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
+					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
+			} else {
+				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
+					Where("(ppm_shipments.status IS NULL OR ppm_shipments.status NOT IN (?))", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete)
+			}
+		} else {
+			if appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				query.Where("(moves.ppm_type IS NULL OR (moves.ppm_type = (?) or (moves.ppm_type = (?) and origin_dl.provides_services_counseling = 'false')))", models.MovePPMTypePARTIAL, models.MovePPMTypeFULL)
+			}
+			query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id")
+		}
+	}
+
+	for _, option := range options {
+		if option != nil {
+			option(query) // mutates
+		}
+	}
+
+	var groupByColumms []string
+	groupByColumms = append(groupByColumms, "service_members.id", "orders.id", "origin_dl.id")
+
+	err = query.GroupBy("moves.id", groupByColumms...).All(&moves)
+	if err != nil {
+		return []models.Move{}, err
+	}
+
+	return moves, nil
+}
+
 // NewOrderFetcher creates a new struct with the service dependencies
 func NewOrderFetcher() services.OrderFetcher {
 	return &orderFetcher{}
@@ -363,11 +525,10 @@ func locatorFilter(locator *string) QueryOption {
 	}
 }
 
-func originDutyLocationFilter(originDutyLocation *string) QueryOption {
+func originDutyLocationFilter(originDutyLocation []string) QueryOption {
 	return func(query *pop.Query) {
-		if originDutyLocation != nil {
-			nameSearch := fmt.Sprintf("%s%%", *originDutyLocation)
-			query.Where("origin_dl.name ILIKE ?", nameSearch)
+		if len(originDutyLocation) > 0 {
+			query.Where("origin_dl.name IN (?)", originDutyLocation)
 		}
 	}
 }

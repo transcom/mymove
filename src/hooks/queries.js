@@ -32,6 +32,7 @@ import {
   getPPMCloseout,
   getPPMActualWeight,
   searchCustomers,
+  getGBLOCs,
 } from 'services/ghcApi';
 import { getLoggedInUserQueries } from 'services/internalApi';
 import { getPrimeSimulatorMove } from 'services/primeApi';
@@ -65,6 +66,7 @@ import {
   PPMCLOSEOUT,
   PPMACTUALWEIGHT,
   SC_CUSTOMER_SEARCH,
+  GBLOCS,
 } from 'constants/queryKeys';
 import { PAGINATION_PAGE_DEFAULT, PAGINATION_PAGE_SIZE_DEFAULT } from 'constants/queues';
 
@@ -409,6 +411,31 @@ export const useMoveTaskOrderQueries = (moveCode) => {
   };
 };
 
+export const useGetDocumentQuery = (documentId) => {
+  const staleTime = 15 * 60000; // 15 * 60000 milliseconds = 15 mins
+  const cacheTime = staleTime;
+  const { data: { documents, uploads } = {}, ...documentsQuery } = useQuery(
+    [ORDERS_DOCUMENTS, documentId],
+    ({ queryKey }) => getDocument(...queryKey),
+    {
+      enabled: !!documentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    },
+  );
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([documentsQuery]);
+
+  return {
+    documents,
+    uploads,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
 export const useOrdersDocumentQueries = (moveCode) => {
   // Get the orders info so we can get the uploaded_orders_id (which is a document id)
   const { data: move, ...moveQuery } = useQuery([MOVES, moveCode], ({ queryKey }) => getMove(...queryKey));
@@ -469,6 +496,30 @@ export const useOrdersDocumentQueries = (moveCode) => {
     isLoading,
     isError,
     isSuccess,
+    amendedOrderDocumentId,
+  };
+};
+
+export const useAmendedDocumentQueries = (amendedOrderDocumentId) => {
+  const staleTime = 0;
+  const cacheTime = staleTime;
+
+  const { data: { documents: amendedDocuments, upload: amendedUpload } = {}, ...amendedOrdersDocumentsQuery } =
+    useQuery([ORDERS_DOCUMENTS, amendedOrderDocumentId], ({ queryKey }) => getDocument(...queryKey), {
+      enabled: !!amendedOrderDocumentId,
+      staleTime,
+      cacheTime,
+      refetchOnWindowFocus: false,
+    });
+
+  const { isLoading, isError, isSuccess } = getQueriesStatus([amendedOrdersDocumentsQuery]);
+
+  return {
+    amendedDocuments,
+    amendedUpload,
+    isLoading,
+    isError,
+    isSuccess,
   };
 };
 
@@ -478,9 +529,10 @@ export const useMovesQueueQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...movesQueueQuery } = useQuery(
-    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [MOVES_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getMovesQueue(...queryKey),
   );
   const { isLoading, isError, isSuccess } = movesQueueQuery;
@@ -499,9 +551,13 @@ export const useServicesCounselingQueuePPMQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true }],
+    [
+      SERVICES_COUNSELING_QUEUE,
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: true, viewAsGBLOC },
+    ],
     ({ queryKey }) => getServicesCounselingPPMQueue(...queryKey),
   );
 
@@ -521,9 +577,13 @@ export const useServicesCounselingQueueQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...servicesCounselingQueueQuery } = useQuery(
-    [SERVICES_COUNSELING_QUEUE, { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false }],
+    [
+      SERVICES_COUNSELING_QUEUE,
+      { sort, order, filters, currentPage, currentPageSize, needsPPMCloseout: false, viewAsGBLOC },
+    ],
     ({ queryKey }) => getServicesCounselingQueue(...queryKey),
   );
 
@@ -543,9 +603,10 @@ export const usePaymentRequestQueueQueries = ({
   filters = [],
   currentPage = PAGINATION_PAGE_DEFAULT,
   currentPageSize = PAGINATION_PAGE_SIZE_DEFAULT,
+  viewAsGBLOC,
 }) => {
   const { data = {}, ...paymentRequestsQueueQuery } = useQuery(
-    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize }],
+    [PAYMENT_REQUESTS_QUEUE, { sort, order, filters, currentPage, currentPageSize, viewAsGBLOC }],
     ({ queryKey }) => getPaymentRequestsQueue(...queryKey),
   );
 
@@ -927,6 +988,18 @@ export const useCustomerQuery = (customerId) => {
   const { isLoading, isError, isSuccess } = getQueriesStatus([customerQuery]);
   return {
     customerData,
+    isLoading,
+    isError,
+    isSuccess,
+  };
+};
+
+export const useListGBLOCsQueries = () => {
+  const { data = [], ...listGBLOCsQuery } = useQuery([GBLOCS, {}], ({ queryKey }) => getGBLOCs(...queryKey));
+  const { isLoading, isError, isSuccess } = listGBLOCsQuery;
+  const gblocs = data;
+  return {
+    result: gblocs,
     isLoading,
     isError,
     isSuccess,

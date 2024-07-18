@@ -123,7 +123,10 @@ func (h UpdateMoveTaskOrderStatusHandlerFunc) Handle(params movetaskorderops.Upd
 				}
 			}
 
-			moveTaskOrderPayload := payloads.Move(mto)
+			moveTaskOrderPayload, err := payloads.Move(mto, h.FileStorer())
+			if err != nil {
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+			}
 
 			// Audit attempt to make MTO available to prime
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
@@ -198,7 +201,10 @@ func (h UpdateMTOStatusServiceCounselingCompletedHandlerFunc) Handle(params move
 				return handleError(err)
 			}
 
-			moveTaskOrderPayload := payloads.Move(mto)
+			moveTaskOrderPayload, err := payloads.Move(mto, h.FileStorer())
+			if err != nil {
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+			}
 
 			// Audit
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
@@ -269,7 +275,10 @@ func (h UpdateMTOReviewedBillableWeightsAtHandlerFunc) Handle(params movetaskord
 				}
 			}
 
-			moveTaskOrderPayload := payloads.Move(mto)
+			moveTaskOrderPayload, err := payloads.Move(mto, h.FileStorer())
+			if err != nil {
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+			}
 
 			// Audit
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
@@ -324,7 +333,10 @@ func (h UpdateMoveTIORemarksHandlerFunc) Handle(params movetaskorderops.UpdateMo
 				}
 			}
 
-			moveTaskOrderPayload := payloads.Move(mto)
+			moveTaskOrderPayload, err := payloads.Move(mto, h.FileStorer())
+			if err != nil {
+				return movetaskorderops.NewUpdateMoveTaskOrderStatusInternalServerError(), err
+			}
 
 			// Audit
 			_, err = audit.Capture(appCtx, mto, moveTaskOrderPayload, params.HTTPRequest)
