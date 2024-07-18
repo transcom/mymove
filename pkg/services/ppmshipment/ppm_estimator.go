@@ -73,6 +73,41 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext,
 	return estimatedSITCost, nil
 }
 
+func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMSITEstimatedCostInfo, error) {
+
+	if ppmShipment == nil {
+		return nil, nil
+	}
+
+	oldPPMShipment, err := FindPPMShipment(appCtx, ppmShipment.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	updatedPPMShipment, err := mergePPMShipment(*ppmShipment, oldPPMShipment)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validatePPMShipment(appCtx, *updatedPPMShipment, oldPPMShipment, &oldPPMShipment.Shipment, f.checks...)
+	if err != nil {
+		return nil, err
+	}
+
+	contractDate := ppmShipment.ExpectedDepartureDate
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
+	if err != nil {
+		return nil, err
+	}
+
+	ppmSITEstimatedCostInfoData, err := CalculateSITCostBreakdown(appCtx, updatedPPMShipment, contract)
+	if err != nil {
+		return nil, err
+	}
+
+	return ppmSITEstimatedCostInfoData, nil
+}
+
 // EstimateIncentiveWithDefaultChecks func that returns the estimate hard coded to 12K (because it'll be clear that the value is coming from the service)
 func (f *estimatePPM) EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error) {
 	return f.estimateIncentive(appCtx, oldPPMShipment, newPPMShipment, f.checks...)
@@ -416,6 +451,54 @@ func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipm
 	}
 
 	return &totalPrice, nil
+}
+
+func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*models.PPMSITEstimatedCostInfo, error) {
+	logger := appCtx.Logger()
+
+	ppmSITEstimatedCostInfoData := models.PPMSITEstimatedCostInfo{}
+
+	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
+	ppmSITEstimatedCostInfoData.AdditionalDaysInSIT = additionalDaysInSIT
+
+	serviceItemsToPrice := StorageServiceItems(ppmShipment.ShipmentID, *ppmShipment.SITLocation, additionalDaysInSIT)
+
+	totalPrice := unit.Cents(0)
+	for _, serviceItem := range serviceItemsToPrice {
+		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
+		if err != nil {
+			logger.Error("unable to find pricer for service item", zap.Error(err))
+			return nil, err
+		}
+
+		var price *unit.Cents
+		switch serviceItemPricer := pricer.(type) {
+		case services.DomesticOriginFirstDaySITPricer, services.DomesticDestinationFirstDaySITPricer:
+			price, err = priceFirstDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract)
+			if err != nil {
+				return nil, err
+			}
+			ppmSITEstimatedCostInfoData.PriceFirstDaySIT = price
+		case services.DomesticOriginAdditionalDaysSITPricer, services.DomesticDestinationAdditionalDaysSITPricer:
+			price, err = priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT, contract)
+			if err != nil {
+				return nil, err
+			}
+			ppmSITEstimatedCostInfoData.PriceAdditionalDaySIT = price
+		default:
+			return nil, fmt.Errorf("unknown SIT pricer type found for service item code %s", serviceItem.ReService.Code)
+		}
+
+		if err != nil {
+			return nil, err
+		}
+
+		logger.Debug(fmt.Sprintf("Price of service item %s %d", serviceItem.ReService.Code, *price))
+		totalPrice += *price
+		ppmSITEstimatedCostInfoData.EstimatedSITCost = &totalPrice
+	}
+
+	return &ppmSITEstimatedCostInfoData, nil
 }
 
 func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, error) {

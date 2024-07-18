@@ -50,6 +50,13 @@ type PPMSITEstimatedCost struct {
 	PPMSITEstimatedCost *unit.Pound
 }
 
+type PPMSITEstimatedCostInfo struct {
+	EstimatedSITCost      *unit.Cents
+	AdditionalDaysInSIT   int
+	PriceFirstDaySIT      *unit.Cents
+	PriceAdditionalDaySIT *unit.Cents
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 

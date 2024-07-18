@@ -9904,9 +9904,34 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "additionalDaysInSIT",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "additionalDaysInSIT": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 20
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
           "x-nullable": true,
@@ -24355,9 +24380,34 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "additionalDaysInSIT",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "additionalDaysInSIT": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 20
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
           "x-nullable": true,

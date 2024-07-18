@@ -9353,8 +9353,30 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
+      additionalDaysInSIT:
+        example: 20
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      priceFirstDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of the first day in SIT
+        x-nullable: true
+        x-omitempty: false
+      priceAdditionalDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of an additional day in SIT
+        x-nullable: true
+        x-omitempty: false
     required:
       - sitCost
+      - additionalDaysInSIT
+      - priceFirstDaySIT
+      - priceAdditionalDaySIT
   MTOServiceItemSingle:
     type: object
     properties:

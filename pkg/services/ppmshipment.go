@@ -48,6 +48,7 @@ type PPMEstimator interface {
 	EstimateIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, *unit.Cents, error)
 	FinalIncentiveWithDefaultChecks(appCtx appcontext.AppContext, oldPPMShipment models.PPMShipment, newPPMShipment *models.PPMShipment) (*unit.Cents, error)
 	CalculatePPMSITEstimatedCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*unit.Cents, error)
+	CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (*models.PPMSITEstimatedCostInfo, error)
 }
 
 // PPMShipmentRouter routes a PPM shipment

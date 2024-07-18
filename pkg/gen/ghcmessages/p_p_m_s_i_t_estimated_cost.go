@@ -19,6 +19,21 @@ import (
 // swagger:model PPMSITEstimatedCost
 type PPMSITEstimatedCost struct {
 
+	// additional days in s i t
+	// Example: 20
+	// Required: true
+	AdditionalDaysInSIT *int64 `json:"additionalDaysInSIT"`
+
+	// Price of an additional day in SIT
+	// Example: 2000
+	// Required: true
+	PriceAdditionalDaySIT *int64 `json:"priceAdditionalDaySIT"`
+
+	// Price of the first day in SIT
+	// Example: 2000
+	// Required: true
+	PriceFirstDaySIT *int64 `json:"priceFirstDaySIT"`
+
 	// sit cost
 	// Example: 2000
 	// Required: true
@@ -29,6 +44,18 @@ type PPMSITEstimatedCost struct {
 func (m *PPMSITEstimatedCost) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAdditionalDaysInSIT(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePriceAdditionalDaySIT(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validatePriceFirstDaySIT(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateSitCost(formats); err != nil {
 		res = append(res, err)
 	}
@@ -36,6 +63,33 @@ func (m *PPMSITEstimatedCost) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *PPMSITEstimatedCost) validateAdditionalDaysInSIT(formats strfmt.Registry) error {
+
+	if err := validate.Required("additionalDaysInSIT", "body", m.AdditionalDaysInSIT); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMSITEstimatedCost) validatePriceAdditionalDaySIT(formats strfmt.Registry) error {
+
+	if err := validate.Required("priceAdditionalDaySIT", "body", m.PriceAdditionalDaySIT); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PPMSITEstimatedCost) validatePriceFirstDaySIT(formats strfmt.Registry) error {
+
+	if err := validate.Required("priceFirstDaySIT", "body", m.PriceFirstDaySIT); err != nil {
+		return err
+	}
+
 	return nil
 }
 

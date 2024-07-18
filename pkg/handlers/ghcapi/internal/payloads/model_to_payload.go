@@ -1143,12 +1143,15 @@ func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
 	return payload
 }
 
-func PPMSITEstimatedCost(ppmSITEstimatedCost *unit.Cents) *ghcmessages.PPMSITEstimatedCost {
+func PPMSITEstimatedCost(ppmSITEstimatedCost *models.PPMSITEstimatedCostInfo) *ghcmessages.PPMSITEstimatedCost {
 	if ppmSITEstimatedCost == nil {
 		return nil
 	}
 	payload := &ghcmessages.PPMSITEstimatedCost{
-		SitCost: handlers.FmtCost(ppmSITEstimatedCost),
+		SitCost:               handlers.FmtCost(ppmSITEstimatedCost.EstimatedSITCost),
+		AdditionalDaysInSIT:   handlers.FmtInt64(int64(ppmSITEstimatedCost.AdditionalDaysInSIT)),
+		PriceFirstDaySIT:      handlers.FmtCost(ppmSITEstimatedCost.PriceFirstDaySIT),
+		PriceAdditionalDaySIT: handlers.FmtCost(ppmSITEstimatedCost.PriceAdditionalDaySIT),
 	}
 
 	return payload
