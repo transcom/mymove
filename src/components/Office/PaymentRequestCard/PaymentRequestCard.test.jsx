@@ -388,13 +388,13 @@ describe('PaymentRequestCard', () => {
   });
 
   describe('payment request gex statuses', () => {
-    it('renders the reviewed status tag for sent_to_gex', () => {
+    it('renders the Error status tag for edi_error', () => {
       const sentToGexPaymentRequest = {
         id: '29474c6a-69b6-4501-8e08-670a12512e5f',
         createdAt: '2020-12-01T00:00:00.000Z',
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
-        status: 'SENT_TO_GEX',
+        status: 'EDI_ERROR',
         moveTaskOrder: move,
         serviceItems: [
           {
@@ -423,7 +423,48 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Error')).toBe(true);
+    });
+
+    it('renders the Sent to GEX status tag and the date it was sent to gex for sent_to_gex', () => {
+      const sentToGexPaymentRequest = {
+        id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+        paymentRequestNumber: '1843-9061-2',
+        status: 'SENT_TO_GEX',
+        moveTaskOrder: move,
+        serviceItems: [
+          {
+            id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 2000001,
+            status: 'DENIED',
+          },
+          {
+            id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+            createdAt: '2020-12-01T00:00:00.000Z',
+            mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+            priceCents: 4000001,
+            status: 'DENIED',
+            rejectionReason: 'duplicate charge',
+          },
+        ],
+        sentToGexAt: '2020-12-13T00:00:00.000Z',
+      };
+      const sentToGex = mount(
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={sentToGexPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
+        </MockProviders>,
+      );
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
+      const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
+      expect(sentToGexAtDate).toBe(' on 13 Dec 2020');
     });
 
     it('renders the reviewed status tag for received_by_gex', () => {
