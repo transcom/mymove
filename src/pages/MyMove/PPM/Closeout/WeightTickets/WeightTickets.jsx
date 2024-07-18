@@ -5,9 +5,19 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
-import { selectMTOShipmentById, selectWeightTicketAndIndexById } from 'store/entities/selectors';
+import {
+  selectMTOShipmentById,
+  selectServiceMemberFromLoggedInUser,
+  selectWeightTicketAndIndexById,
+} from 'store/entities/selectors';
 import { customerRoutes } from 'constants/routes';
-import { createUploadForPPMDocument, createWeightTicket, deleteUpload, patchWeightTicket } from 'services/internalApi';
+import {
+  createUploadForPPMDocument,
+  createWeightTicket,
+  deleteUpload,
+  getAllMoves,
+  patchWeightTicket,
+} from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -15,7 +25,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import WeightTicketForm from 'components/Customer/PPM/Closeout/WeightTicketForm/WeightTicketForm';
-import { updateMTOShipment } from 'store/entities/actions';
+import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 import ErrorModal from 'shared/ErrorModal/ErrorModal';
 
 const WeightTickets = () => {
@@ -30,6 +40,9 @@ const WeightTickets = () => {
   const { weightTicket: currentWeightTicket, index: currentIndex } = useSelector((state) =>
     selectWeightTicketAndIndexById(state, mtoShipmentId, weightTicketId),
   );
+
+  const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
+  const serviceMemberId = serviceMember.id;
 
   const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
   const toggleErrorModal = () => {
@@ -67,7 +80,12 @@ const WeightTickets = () => {
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
+  }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
+
+  useEffect(() => {
+    const moves = getAllMoves(serviceMemberId);
+    dispatch(updateAllMoves(moves));
+  }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentWeightTicket[`${fieldName}Id`];
