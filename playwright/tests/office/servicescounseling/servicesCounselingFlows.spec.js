@@ -125,7 +125,6 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to view orders and amended orders', async ({ page }) => {
-      await page.getByRole('link', { name: 'Orders', exact: true }).click();
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
@@ -145,7 +144,6 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to add and delete orders and amended orders', async ({ page, officePage }) => {
-      await page.getByRole('link', { name: 'Orders', exact: true }).click();
       await page.getByRole('link', { name: 'View and edit orders' }).click();
 
       // check initial quanity of files
