@@ -106,6 +106,17 @@ const canceledShipment = {
   },
 };
 
+const cancellationRequestedShipment = {
+  ...canceledShipment,
+  shipmentInfo: {
+    id: '456',
+    eTag: 'abc123',
+    status: 'CANCELLATION_REQUESTED',
+    shipmentType: SHIPMENT_OPTIONS.HHG,
+    shipmentLocator: 'ABCDEF-01',
+  },
+};
+
 describe('ShipmentAddresses', () => {
   it('calls props.handleShowDiversionModal on request diversion button click', async () => {
     render(
@@ -128,7 +139,20 @@ describe('ShipmentAddresses', () => {
         <ShipmentAddresses {...canceledShipment} />
       </MockProviders>,
     );
-    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request Diversion' });
+
+    await waitFor(() => {
+      expect(requestDiversionBtn).toBeNull();
+    });
+  });
+
+  it('hides the request diversion button for a cancelation requested shipment', async () => {
+    render(
+      <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
+        <ShipmentAddresses {...cancellationRequestedShipment} />
+      </MockProviders>,
+    );
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request Diversion' });
 
     await waitFor(() => {
       expect(requestDiversionBtn).toBeNull();
