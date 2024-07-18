@@ -70,6 +70,7 @@ type MovingExpense struct {
 	WeightStored               *unit.Pound               `json:"weight_stored" db:"weight_stored"`
 	SITLocation                *SITLocationType          `json:"sit_location" db:"sit_location"`
 	SITEstimatedCost           *unit.Cents               `json:"sit_estimated_cost" db:"sit_estimated_cost"`
+	SITReimburseableAmount     *unit.Cents               `json:"sit_reimburseable_amount" db:"sit_reimburseable_amount"`
 }
 
 // TableName overrides the table name used by Pop.
