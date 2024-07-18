@@ -72,6 +72,8 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 
 	if *mergedMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage &&
 		mergedMovingExpense.PPMShipment.Status == models.PPMShipmentStatusNeedsCloseout {
+		sitExpected := true
+		mergedMovingExpense.PPMShipment.SITExpected = &sitExpected
 		estimatedCost, err := f.estimator.CalculatePPMSITEstimatedCost(appCtx, &mergedMovingExpense.PPMShipment)
 
 		if err != nil {

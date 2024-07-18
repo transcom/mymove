@@ -77,6 +77,8 @@ func (h GetPPMSITEstimatedCostHandler) Handle(params ppmsitops.GetPPMSITEstimate
 			ppmShipment.SITEstimatedEntryDate = (*time.Time)(&params.SitEntryDate)
 			ppmShipment.SITEstimatedDepartureDate = (*time.Time)(&params.SitDepartureDate)
 			ppmShipment.SITEstimatedWeight = handlers.PoundPtrFromInt64Ptr(&params.WeightStored)
+			sitExpected := true
+			ppmShipment.SITExpected = &sitExpected
 
 			calculatedCost, err := h.PPMEstimator.CalculatePPMSITEstimatedCost(appCtx, ppmShipment)
 
@@ -146,6 +148,8 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 			}
 
 			ppmShipment.SITLocation = (*models.SITLocationType)(payload.SitLocation)
+			sitExpected := true
+			ppmShipment.SITExpected = &sitExpected
 			updatedPPMShipment, err := h.PPMShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, ppmShipment)
 
 			if err != nil {
