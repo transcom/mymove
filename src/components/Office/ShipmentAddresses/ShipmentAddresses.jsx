@@ -62,7 +62,7 @@ const ShipmentAddresses = ({
                       unstyled
                       disabled={isMoveLocked}
                     >
-                      Request diversion
+                      Request Diversion
                     </Button>
                   </Restricted>
                 </Restricted>

@@ -71,7 +71,7 @@ const ppmShipment = {
   },
 };
 
-const cancelledShipment = {
+const canceledShipment = {
   pickupAddress: {
     city: 'Fairfax',
     state: 'VA',
@@ -113,7 +113,7 @@ describe('ShipmentAddresses', () => {
         <ShipmentAddresses {...testProps} />
       </MockProviders>,
     );
-    const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
+    const requestDiversionBtn = screen.getByRole('button', { name: 'Request Diversion' });
 
     await userEvent.click(requestDiversionBtn);
     await waitFor(() => {
@@ -125,7 +125,7 @@ describe('ShipmentAddresses', () => {
   it('hides the request diversion button for a cancelled shipment', async () => {
     render(
       <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest, permissionTypes.updateMTOPage]}>
-        <ShipmentAddresses {...cancelledShipment} />
+        <ShipmentAddresses {...canceledShipment} />
       </MockProviders>,
     );
     const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
@@ -136,8 +136,8 @@ describe('ShipmentAddresses', () => {
   });
 
   it('hides the request diversion button when user does not have permissions', async () => {
-    render(<ShipmentAddresses {...cancelledShipment} />);
-    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
+    render(<ShipmentAddresses {...canceledShipment} />);
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request Diversion' });
 
     await waitFor(() => {
       expect(requestDiversionBtn).toBeNull();
@@ -147,10 +147,10 @@ describe('ShipmentAddresses', () => {
   it('hides the request diversion button when user does not have updateMTOPage permissions', async () => {
     render(
       <MockProviders permissions={[permissionTypes.createShipmentDiversionRequest]}>
-        <ShipmentAddresses {...cancelledShipment} />
+        <ShipmentAddresses {...canceledShipment} />
       </MockProviders>,
     );
-    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request diversion' });
+    const requestDiversionBtn = screen.queryByRole('button', { name: 'Request Diversion' });
 
     await waitFor(() => {
       expect(requestDiversionBtn).toBeNull();
@@ -196,7 +196,7 @@ describe('ShipmentAddresses', () => {
       </MockProviders>,
     );
 
-    expect(screen.queryByText('Request diversion')).not.toBeInTheDocument();
+    expect(screen.queryByText('Request Diversion')).not.toBeInTheDocument();
   });
 
   it('renders with disabled request diversion button', async () => {
@@ -206,7 +206,7 @@ describe('ShipmentAddresses', () => {
         <ShipmentAddresses {...testProps} isMoveLocked={isMoveLocked} />
       </MockProviders>,
     );
-    const requestDiversionBtn = screen.getByRole('button', { name: 'Request diversion' });
+    const requestDiversionBtn = screen.getByRole('button', { name: 'Request Diversion' });
     expect(requestDiversionBtn).toBeDisabled();
   });
 });
