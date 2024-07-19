@@ -10466,6 +10466,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -24985,6 +24990,11 @@ func init() {
           "example": "documentation was incomplete"
         },
         "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sentToGexAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
