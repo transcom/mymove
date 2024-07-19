@@ -80,7 +80,7 @@ const WeightTickets = () => {
           setErrorMessage('Failed to create trip record');
         });
     }
-  }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
+  }, [weightTicketId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
 
   useEffect(() => {
     const moves = getAllMoves(serviceMemberId);

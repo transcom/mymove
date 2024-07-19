@@ -440,7 +440,9 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.WeightTickets.FullDocument.UserUploads.Upload",
 		"MTOShipments.PPMShipment.WeightTickets.ProofOfTrailerOwnershipDocument.UserUploads.Upload",
 		"MTOShipments.PPMShipment.MovingExpenses",
+		"MTOShipments.PPMShipment.MovingExpenses.Document.UserUploads.Upload",
 		"MTOShipments.PPMShipment.ProgearWeightTickets",
+		"MTOShipments.PPMShipment.ProgearWeightTickets.Document.UserUploads.Upload",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.TertiaryDeliveryAddress",
@@ -500,6 +502,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		moves[0].Orders.UploadedAmendedOrders.UserUploads = amendedUserUploads
 	}
 
+	// the following checks are needed since we can't use "ExcludeDeletedScope()" in the big query above
+	// this is because not all of the tables being queried have "deleted_at" columns and this returns an error
 	// We do not need to consider deleted weight tickets or uploads within them
 	if moves[0].MTOShipments[0].PPMShipment.WeightTickets != nil {
 		var filteredWeightTickets []WeightTicket
@@ -512,6 +516,16 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 			}
 		}
 		moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
+	}
+	// We do not need to consider deleted moving expenses
+	if moves[0].MTOShipments[0].PPMShipment.MovingExpenses != nil {
+		nonDeletedMovingExpenses := moves[0].MTOShipments[0].PPMShipment.MovingExpenses.FilterDeleted()
+		moves[0].MTOShipments[0].PPMShipment.MovingExpenses = nonDeletedMovingExpenses
+	}
+	// We do not need to consider deleted progear weight tickets
+	if moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets != nil {
+		nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
+		moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 	}
 
 	return moves, err
