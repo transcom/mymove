@@ -227,7 +227,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
-	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
+	packingAndShippingInstructions string,
+	newDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -256,6 +257,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SpouseHasProGear:               spouseHasProGear,
 			NewDutyLocationID:              newDutyLocation.ID,
 			NewDutyLocation:                newDutyLocation,
+			DestinationGBLOC:               newDutyLocationGBLOC,
 			UploadedOrders:                 uploadedOrders,
 			UploadedOrdersID:               uploadedOrders.ID,
 			Status:                         OrderStatusDRAFT,

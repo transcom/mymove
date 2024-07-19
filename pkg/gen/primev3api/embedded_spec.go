@@ -1840,6 +1840,10 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -5346,6 +5350,10 @@ func init() {
         },
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
         },
         "eTag": {
           "type": "string",
