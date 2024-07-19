@@ -5,12 +5,9 @@ import smartCard from 'shared/images/smart-card.png';
 import styles from './SmartCardRedirect.module.scss';
 import { logOut } from 'store/auth/actions';
 import { LogoutUserWithOktaRedirect } from 'utils/api';
-import { useNavigate } from 'react-router';
 
 const SmartCardRedirect = () => {
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logOut();
     LogoutUserWithOktaRedirect().then((r) => {
       const redirectURL = r.body;
@@ -19,7 +16,7 @@ const SmartCardRedirect = () => {
       if (redirectURL && idTokenHint !== 'devlocal') {
         window.location.href = redirectURL;
       } else {
-        navigate('/sign-in');
+        window.location.href = '/sign-in';
       }
     });
   };
