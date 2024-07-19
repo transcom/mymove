@@ -83,18 +83,9 @@ function ReviewWeightTicket({
       ? weightTicket.allowableWeight
       : weightTicket.fullWeight - weightTicket.emptyWeight;
     currentAllowableWeight.current = newWeight;
-    // updateAllowableWeight(newWeight);
   }
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
-  if (!emptyWeight || (emptyWeight && currentEmptyWeight.current !== emptyWeight)) {
-    const newWeight = weightTicket.emptyWeight;
-    currentEmptyWeight.current = newWeight;
-  }
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
-  if (!fullWeight || (fullWeight && currentFullWeight.current !== fullWeight)) {
-    const newWeight = weightTicket.fullWeight;
-    currentFullWeight.current = newWeight;
-  }
   const [canEditRejection, setCanEditRejection] = useState(true);
   const [currentWeightTicket, setCurrentWeightTicket] = useState(weightTicket);
   const { mutate: patchWeightTicketMutation } = useMutation({
