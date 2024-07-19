@@ -83,7 +83,6 @@ function ReviewWeightTicket({
       ? weightTicket.allowableWeight
       : weightTicket.fullWeight - weightTicket.emptyWeight;
     currentAllowableWeight.current = newWeight;
-    // updateAllowableWeight(newWeight);
   }
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
