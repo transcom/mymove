@@ -504,28 +504,32 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 
 	// the following checks are needed since we can't use "ExcludeDeletedScope()" in the big query above
 	// this is because not all of the tables being queried have "deleted_at" columns and this returns an error
-	// We do not need to consider deleted weight tickets or uploads within them
-	if moves[0].MTOShipments[0].PPMShipment.WeightTickets != nil {
-		var filteredWeightTickets []WeightTicket
-		for _, wt := range moves[0].MTOShipments[0].PPMShipment.WeightTickets {
-			if wt.DeletedAt == nil {
-				wt.EmptyDocument.UserUploads = wt.EmptyDocument.UserUploads.FilterDeleted()
-				wt.FullDocument.UserUploads = wt.FullDocument.UserUploads.FilterDeleted()
-				wt.ProofOfTrailerOwnershipDocument.UserUploads = wt.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
-				filteredWeightTickets = append(filteredWeightTickets, wt)
+	if len(moves) > 0 {
+		if len(moves[0].MTOShipments) > 0 {
+			// We do not need to consider deleted weight tickets or uploads within them
+			if moves[0].MTOShipments[0].PPMShipment != nil && moves[0].MTOShipments[0].PPMShipment.WeightTickets != nil {
+				var filteredWeightTickets []WeightTicket
+				for _, wt := range moves[0].MTOShipments[0].PPMShipment.WeightTickets {
+					if wt.DeletedAt == nil {
+						wt.EmptyDocument.UserUploads = wt.EmptyDocument.UserUploads.FilterDeleted()
+						wt.FullDocument.UserUploads = wt.FullDocument.UserUploads.FilterDeleted()
+						wt.ProofOfTrailerOwnershipDocument.UserUploads = wt.ProofOfTrailerOwnershipDocument.UserUploads.FilterDeleted()
+						filteredWeightTickets = append(filteredWeightTickets, wt)
+					}
+				}
+				moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
+			}
+			// We do not need to consider deleted moving expenses
+			if moves[0].MTOShipments[0].PPMShipment.MovingExpenses != nil && len(moves[0].MTOShipments[0].PPMShipment.MovingExpenses) > 0 {
+				nonDeletedMovingExpenses := moves[0].MTOShipments[0].PPMShipment.MovingExpenses.FilterDeleted()
+				moves[0].MTOShipments[0].PPMShipment.MovingExpenses = nonDeletedMovingExpenses
+			}
+			// We do not need to consider deleted progear weight tickets
+			if moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets != nil && len(moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets) > 0 {
+				nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
+				moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 			}
 		}
-		moves[0].MTOShipments[0].PPMShipment.WeightTickets = filteredWeightTickets
-	}
-	// We do not need to consider deleted moving expenses
-	if moves[0].MTOShipments[0].PPMShipment.MovingExpenses != nil {
-		nonDeletedMovingExpenses := moves[0].MTOShipments[0].PPMShipment.MovingExpenses.FilterDeleted()
-		moves[0].MTOShipments[0].PPMShipment.MovingExpenses = nonDeletedMovingExpenses
-	}
-	// We do not need to consider deleted progear weight tickets
-	if moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets != nil {
-		nonDeletedProgearTickets := moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets.FilterDeleted()
-		moves[0].MTOShipments[0].PPMShipment.ProgearWeightTickets = nonDeletedProgearTickets
 	}
 
 	return moves, err
