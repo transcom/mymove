@@ -1,17 +1,26 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import SmartCardRedirect from './SmartCardRedirect';
+import { MemoryRouter } from 'react-router';
 
 describe('SmartCardRedirect tests', () => {
-  it('renders without crashing', async () => {
-    const { container } = render(<SmartCardRedirect />);
+  it('renders without crashing', () => {
+    const { container } = render(
+      <MemoryRouter>
+        <SmartCardRedirect />
+      </MemoryRouter>,
+    );
 
-    const errorPage = await container.querySelector('.usa-grid');
+    const errorPage = container.querySelector('.usa-grid');
     expect(errorPage).toBeInTheDocument();
   });
 
   it('should render the smart card image on the page', () => {
-    render(<SmartCardRedirect />);
+    render(
+      <MemoryRouter>
+        <SmartCardRedirect />
+      </MemoryRouter>,
+    );
 
     const image = screen.getByRole('img');
     expect(image).toBeInTheDocument();
@@ -19,14 +28,21 @@ describe('SmartCardRedirect tests', () => {
   });
 
   it('should render the text on the page', () => {
-    render(<SmartCardRedirect />);
+    render(
+      <MemoryRouter>
+        <SmartCardRedirect />
+      </MemoryRouter>,
+    );
 
     const oopsMsg = screen.getByRole('heading', { level: 2 });
     expect(oopsMsg).toBeInTheDocument();
-    expect(oopsMsg).toHaveTextContent('You must sign in with your smart card first.');
+    expect(oopsMsg).toHaveTextContent('Please sign in with your smart card.');
 
     const helperText = screen.getByTestId('helperText');
     expect(helperText).toBeInTheDocument();
+
+    const signOutRedirectBtn = screen.getByTestId('signOutRedirectBtn');
+    expect(signOutRedirectBtn).toBeInTheDocument();
 
     const contactMsg = screen.getByTestId('contactMsg');
     expect(contactMsg).toBeInTheDocument();
