@@ -246,6 +246,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -390,6 +393,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -410,6 +420,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -1855,6 +1866,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -1895,6 +1913,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -3861,6 +3880,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3911,6 +3931,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -4094,6 +4120,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -4135,6 +4162,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -4228,6 +4260,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -4283,6 +4316,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -6214,6 +6252,12 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
+        },
         "firstName": {
           "type": "string",
           "example": "John"
@@ -6722,6 +6766,9 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string"
         },
         "first_name": {
           "type": "string",
@@ -10419,6 +10466,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -11275,6 +11327,11 @@ func init() {
         },
         "dodID": {
           "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
           "x-nullable": true
         },
         "firstName": {
@@ -11348,6 +11405,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -13331,6 +13392,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -13517,6 +13584,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -13537,6 +13611,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -15405,6 +15480,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -15445,6 +15527,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -17954,6 +18037,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -18004,6 +18088,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -18199,6 +18289,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -18240,6 +18331,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -18339,6 +18435,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -18394,6 +18491,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -20677,6 +20779,12 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
+        },
         "firstName": {
           "type": "string",
           "example": "John"
@@ -21185,6 +21293,9 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string"
         },
         "first_name": {
           "type": "string",
@@ -24883,6 +24994,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -25791,6 +25907,11 @@ func init() {
         },
         "dodID": {
           "type": "string",
+          "x-nullable": true,
+          "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
           "x-nullable": true
         },
         "firstName": {
@@ -25864,6 +25985,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",

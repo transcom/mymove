@@ -358,6 +358,8 @@ definitions:
         type: boolean
       allowPrime:
         type: boolean
+      allowPPTAS:
+        type: boolean
   ClientCertificates:
     type: array
     items:
@@ -401,6 +403,8 @@ definitions:
       allowNavyOrdersWrite:
         type: boolean
       allowPrime:
+        type: boolean
+      allowPPTAS:
         type: boolean
   ClientCertificateUpdate:
     type: object
@@ -448,6 +452,9 @@ definitions:
         type: boolean
         x-nullable: true
       allowPrime:
+        type: boolean
+        x-nullable: true
+      allowPPTAS:
         type: boolean
         x-nullable: true
   ClientError:

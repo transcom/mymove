@@ -488,6 +488,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		Agency:             swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress:     Address(customer.ResidentialAddress),
 		DodID:              swag.StringValue(customer.Edipi),
+		Emplid:             swag.StringValue(customer.Emplid),
 		Email:              customer.PersonalEmail,
 		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
@@ -1464,6 +1465,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
+		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
 	}, nil
 }
 
@@ -2037,7 +2039,6 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 		customer := move.Orders.ServiceMember
 
 		numShipments := 0
-
 		for _, shipment := range move.MTOShipments {
 			if shipment.Status != models.MTOShipmentStatusDraft {
 				numShipments++
@@ -2093,6 +2094,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
 			DodID:                             customer.Edipi,
+			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
 			ID:                                *handlers.FmtUUID(move.ID),
@@ -2155,6 +2157,7 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
 			DodID:         customer.Edipi,
+			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
 			PersonalEmail: *customer.PersonalEmail,

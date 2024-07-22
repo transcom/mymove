@@ -22,6 +22,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/authentication"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi"
 	"github.com/transcom/mymove/pkg/handlers/internalapi"
+	"github.com/transcom/mymove/pkg/handlers/pptasapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv2"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3"
@@ -101,6 +102,11 @@ type Config struct {
 	ServeGHC bool
 	// The path to the ghc api swagger definition
 	GHCSwaggerPath string
+
+	// Should the pptas api be served?
+	ServePPTAS bool
+	// The path to the pptas api swagger definition
+	PPTASSwaggerPath string
 
 	// Should devlocal auth be enabled? Definitely never enabled in
 	// production
@@ -355,6 +361,42 @@ func mountPrimeAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi
 	}
 }
 
+// PPTAS API to serve under the mTLS "Api" / "Prime" API server to support Navy requests
+func mountPPTASAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
+	if routingConfig.ServePPTAS {
+		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
+		site.Route("/pptas/v1", func(r chi.Router) {
+			if routingConfig.ServeDevlocalAuth {
+				devlocalClientCertMiddleware := authentication.DevlocalClientCertMiddleware(appCtx)
+				r.Use(devlocalClientCertMiddleware)
+			} else {
+				r.Use(clientCertMiddleware)
+			}
+			r.Use(authentication.PPTASAuthorizationMiddleware(appCtx.Logger()))
+			r.Use(middleware.NoCache())
+			r.Use(middleware.RequestLogger())
+			r.Method(
+				"GET",
+				"/swagger.yaml",
+				handlers.NewFileHandler(routingConfig.FileSystem,
+					routingConfig.PPTASSwaggerPath))
+			if routingConfig.ServeSwaggerUI {
+				r.Method("GET", "/docs",
+					handlers.NewFileHandler(routingConfig.FileSystem,
+						path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
+			} else {
+				r.Method("GET", "/docs", http.NotFoundHandler())
+			}
+			api := pptasapi.NewPPTASAPI(routingConfig.HandlerConfig)
+			tracingMiddleware := middleware.OpenAPITracing(api)
+			r.Mount("/", api.Serve(tracingMiddleware))
+		})
+	}
+}
+
+// Remember that the support api is to assist inside of dev/stg for endpoints such as
+// manually invoking the EDI858 generator for a given payment request. It should never
+// be utilized in production
 func mountSupportAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.Router) {
 	if routingConfig.ServeSupport {
 		clientCertMiddleware := authentication.ClientCertMiddleware(appCtx)
@@ -614,6 +656,7 @@ func mountGHCAPI(appCtx appcontext.AppContext, routingConfig *Config, site chi.R
 			r.Route("/open", func(rOpen chi.Router) {
 				rOpen.Mount("/", api.Serve(tracingMiddleware))
 			})
+
 			// Mux for GHC API that enforces auth
 			r.Route("/", func(rAuth chi.Router) {
 				rAuth.Use(userAuthMiddleware)
@@ -633,6 +676,7 @@ func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site c
 		r.Method("GET", "/okta", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie()))
 		r.Method("GET", "/okta/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender()))
 		r.Method("POST", "/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+		r.Method("POST", "/logoutOktaRedirect", authentication.NewLogoutOktaRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
 	})
 
 	if routingConfig.ServeDevlocalAuth {
@@ -749,6 +793,8 @@ func newAdminRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	return site
 }
 
+// This "Prime" router is really just the "API" router for MilMove.
+// It was initially just named under "Prime" as it was the only use of the router
 func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	routingConfig *Config, telemetryConfig *telemetry.Config, serverName string) chi.Router {
 
@@ -758,7 +804,7 @@ func newPrimeRouter(appCtx appcontext.AppContext, redisPool *redis.Pool,
 	mountPrimeAPI(appCtx, routingConfig, site)
 	mountSupportAPI(appCtx, routingConfig, site)
 	mountTestharnessAPI(appCtx, routingConfig, site)
-
+	mountPPTASAPI(appCtx, routingConfig, site)
 	return site
 }
 
@@ -769,7 +815,7 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 
 	// check for missing CSRF middleware ASAP
 	if routingConfig.CSRFMiddleware == nil {
-		return nil, errors.New("Missing CSRF Middleware")
+		return nil, errors.New("missing CSRF Middleware")
 	}
 
 	// With chi, we have to register all middleware before setting up
@@ -785,7 +831,6 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	hostRouter.Map(milServerName, milRouter)
 
 	officeServerName := routingConfig.HandlerConfig.AppNames().OfficeServername
-
 	officeRouter := newOfficeRouter(appCtx, redisPool, routingConfig, telemetryConfig, serverName)
 	hostRouter.Map(officeServerName, officeRouter)
 

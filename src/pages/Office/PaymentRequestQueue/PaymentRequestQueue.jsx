@@ -21,12 +21,12 @@ import { BRANCH_OPTIONS, GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import TabNav from 'components/TabNav';
 import { tioRoutes, generalRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
@@ -76,6 +76,10 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
     exportValue: (row) => {
       return row.customer.dodID;
     },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
   }),
   createHeader(
     'Status',

@@ -1021,7 +1021,6 @@ func (suite *OrderServiceSuite) TestListOrdersWithEmptyFields() {
 
 	suite.FatalNoError(err)
 	suite.Nil(moves)
-
 }
 
 func (suite *OrderServiceSuite) TestListOrdersWithPagination() {
@@ -1108,6 +1107,7 @@ func (suite *OrderServiceSuite) TestListOrdersWithSortOrder() {
 			},
 		}, nil)
 		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			Roles:           officeUser.User.Roles,
@@ -1581,6 +1581,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 
 		// Create a services counselor (default GBLOC is KKFA)
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+
 		session := auth.Session{
 			ApplicationName: auth.OfficeApp,
 			Roles:           officeUser.User.Roles,
@@ -1669,7 +1670,6 @@ func (suite *OrderServiceSuite) TestListOrdersForTOOWithNTSRelease() {
 		IDToken:         "fake_token",
 		AccessToken:     "fakeAccessToken",
 	}
-
 	orderFetcher := NewOrderFetcher()
 	moves, moveCount, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), tooOfficeUser.ID, &services.ListOrderParams{})
 

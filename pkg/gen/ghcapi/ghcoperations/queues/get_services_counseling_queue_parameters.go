@@ -54,6 +54,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	DodID *string
+	/*filters to match the unique service member's EMPLID
+	  In: query
+	*/
+	Emplid *string
 	/*filters using a prefix match on the service member's last name
 	  In: query
 	*/
@@ -157,6 +161,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qDodID, qhkDodID, _ := qs.GetOK("dodID")
 	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
+	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -350,6 +359,24 @@ func (o *GetServicesCounselingQueueParams) bindDodID(rawData []string, hasKey bo
 		return nil
 	}
 	o.DodID = &raw
+
+	return nil
+}
+
+// bindEmplid binds and validates parameter Emplid from query.
+func (o *GetServicesCounselingQueueParams) bindEmplid(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.Emplid = &raw
 
 	return nil
 }
@@ -669,7 +696,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus"}, true); err != nil {
 		return err
 	}
 

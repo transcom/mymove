@@ -29,42 +29,6 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
-  '/customer':
-    post:
-      summary: Creates a customer with Okta option
-      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
-      operationId: createCustomerWithOktaOption
-      tags:
-        - customer
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/CreateCustomerPayload'
-      responses:
-        '200':
-          description: successfully created the customer
-          schema:
-            $ref: '#/definitions/CreatedCustomer'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /open/requested-office-users:
     post:
       consumes:
@@ -100,6 +64,44 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  '/customer':
+    post:
+      summary: Creates a customer with Okta option
+      description: Creates a customer with option to also create an Okta profile account based on the office user's input when completing the UI form and submitting.
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -201,6 +203,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -213,7 +221,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum: [customerName, dodID, branch, personalEmail, telephone]
+                enum: [customerName, dodID, emplid, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -1801,7 +1809,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "definitions/PPMShipmentSIT.yaml"
+            $ref: 'definitions/PPMShipmentSIT.yaml'
       responses:
         '200':
           description: Successfully finished PPM SIT update
@@ -3180,6 +3188,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3215,6 +3224,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3394,6 +3407,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3419,6 +3433,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3481,7 +3498,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3512,6 +3529,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: destinationDutyLocation
@@ -3585,6 +3605,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               customerName:
                 description: Customer Name
                 type: string
@@ -3630,6 +3656,7 @@ paths:
                   [
                     customerName,
                     dodID,
+                    emplid,
                     branch,
                     locator,
                     status,
@@ -4196,6 +4223,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
         type: string
+      emplid:
+        type: string
       userID:
         type: string
         format: uuid
@@ -4332,6 +4361,11 @@ definitions:
         type: string
         example: John
         x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
+        x-nullable: true
       firstName:
         type: string
         example: John
@@ -4421,6 +4455,10 @@ definitions:
         example: Doe
         x-nullable: true
       dodID:
+        type: string
+        example: 1234567890
+        x-nullable: true
+      emplid:
         type: string
         x-nullable: true
       branch:
@@ -5425,6 +5463,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6393,12 +6435,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -6414,6 +6456,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   SearchMovesResult:
     type: object
@@ -6724,7 +6769,7 @@ definitions:
   GBLOCs:
     type: array
     items:
-        type: string
+      type: string
   MovePayload:
     type: object
     properties:

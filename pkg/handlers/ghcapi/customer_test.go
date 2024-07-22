@@ -161,6 +161,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 		Telephone:     handlers.FmtString("223-455-3399"),
 		Affiliation:   &affiliation,
 		Edipi:         handlers.FmtString(""),
+		Emplid:        handlers.FmtString(""),
 		PersonalEmail: *handlers.FmtString("email@email.com"),
 		BackupContact: &ghcmessages.BackupContact{
 			Name:  handlers.FmtString("New Backup Contact"),

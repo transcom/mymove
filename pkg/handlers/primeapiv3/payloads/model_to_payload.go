@@ -156,6 +156,7 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),

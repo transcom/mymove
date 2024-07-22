@@ -11,6 +11,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"github.com/lib/pq"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
@@ -187,14 +188,13 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				oktaSub = oktaUser.ID
 			}
 
-			// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
-			// to true so that the customer can log in without having to authenticate with a CAC
-			var cacValidated = false
-			if !payload.CacUser {
-				cacValidated = true
-			}
-
 			transactionError := appCtx.NewTransaction(func(_ appcontext.AppContext) error {
+				// if the office user checked "no" to indicate the customer does NOT have a CAC, set cac_validated
+				// to true so that the customer can log in without having to authenticate with a CAC
+				var cacValidated = false
+				if !payload.CacUser {
+					cacValidated = true
+				}
 				var verrs *validate.Errors
 				// creating a user and populating okta values (for now these can be null)
 				user, userErr := models.CreateUser(appCtx.DB(), oktaSub, email)
@@ -214,10 +214,18 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 					edipi = payload.Edipi
 				}
 
+				var emplid *string
+				if *payload.Emplid == "" {
+					emplid = nil
+				} else {
+					emplid = payload.Emplid
+				}
+
 				// Create a new serviceMember using the userID
 				newServiceMember = models.ServiceMember{
 					UserID:               userID,
 					Edipi:                edipi,
+					Emplid:               emplid,
 					Affiliation:          (*models.ServiceMemberAffiliation)(payload.Affiliation),
 					FirstName:            &payload.FirstName,
 					MiddleName:           payload.MiddleName,
@@ -236,8 +244,8 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				// create the service member and save to the db
 				smVerrs, smErr := models.SaveServiceMember(appCtx, &newServiceMember)
 				if smVerrs.HasAny() || smErr != nil {
-					appCtx.Logger().Error("error creating service member", zap.Error(err))
-					return err
+					appCtx.Logger().Error("error creating service member", zap.Error(smErr))
+					return smErr
 				}
 
 				// creating backup contact associated with service member since this is done separately
@@ -256,7 +264,13 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 			})
 
 			if transactionError != nil {
-				return nil, transactionError
+				switch transactionError.(type) {
+				case *pq.Error:
+					// handle duplicate key error for emplid
+					return customercodeop.NewCreateCustomerWithOktaOptionConflict(), transactionError
+				default:
+					return customercodeop.NewCreateCustomerWithOktaOptionBadRequest(), transactionError
+				}
 			}
 
 			// covering error returns

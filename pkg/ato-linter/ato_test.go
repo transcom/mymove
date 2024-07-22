@@ -9,7 +9,7 @@ import (
 )
 
 func TestAll(t *testing.T) {
-	t.Skip("skipping as this as we wont be following the suppression format")
+	t.Skip("skip for now, we wont be using this as official scanning for code issues")
 	wd, err := os.Getwd()
 	if err != nil {
 		t.Errorf("Failed to get wd: %s", err)

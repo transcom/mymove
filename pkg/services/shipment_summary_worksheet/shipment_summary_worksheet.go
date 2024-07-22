@@ -768,13 +768,12 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, err
 	}
 
-	serviceMember.Edipi, err = formatEmplid(serviceMember)
+	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
+	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return nil, err
 	}
-
-	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
-	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	serviceMember.Edipi, err = formatEmplid(serviceMember)
 	if err != nil {
 		return nil, err
 	}

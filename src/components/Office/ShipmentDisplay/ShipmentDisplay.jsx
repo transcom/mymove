@@ -106,7 +106,6 @@ const ShipmentDisplay = ({
               <Tag className={styles.ppmStatus}>packet ready for download</Tag>
             )}
           </div>
-
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         <ShipmentInfoListSelector

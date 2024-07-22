@@ -63,6 +63,7 @@ const useOrdersDocumentQueriesReturnValue = {
         proGearWeightSpouse: 500,
         requiredMedicalEquipmentWeight: 1000,
         organizationalClothingAndIndividualEquipment: true,
+        gunSafe: true,
         storageInTransit: 2,
         totalDependents: 1,
         totalWeight: 5000,
@@ -154,6 +155,7 @@ describe('MoveAllowances page', () => {
       expect(screen.getByTestId('sitInput')).toHaveDisplayValue('2');
 
       expect(screen.getByLabelText('OCIE authorized (Army only)')).toBeChecked();
+      expect(screen.getByLabelText('Gun safe authorized')).toBeChecked();
       expect(screen.getByLabelText('Dependents authorized')).toBeChecked();
 
       expect(screen.getByTestId('weightAllowance')).toHaveTextContent('5,000 lbs');
