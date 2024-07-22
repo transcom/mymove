@@ -415,7 +415,9 @@ func (suite *ModelSuite) TestSaveOrder() {
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
 
-	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), location.Address.PostalCode)
+	postalCodeToGBLOC := factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), "12345", "UUUU") // Build a postal code -> GBLOC association for test DB
+	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), postalCodeToGBLOC.PostalCode)
+
 	suite.NoError(gblocErr)
 	order.DestinationGBLOC = &newGBLOC.GBLOC
 
