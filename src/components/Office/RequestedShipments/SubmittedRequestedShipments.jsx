@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
+import { debounce } from 'lodash';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -190,7 +191,8 @@ const SubmittedRequestedShipments = ({
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
-          onSubmit={formik.handleSubmit}
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          onSubmit={useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), [])}
           counselingFee={formik.values.counselingFee}
           shipmentManagementFee={formik.values.shipmentManagementFee}
         />
