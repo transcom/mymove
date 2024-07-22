@@ -2,6 +2,7 @@ package ghcapi
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -18,12 +19,14 @@ import (
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
+	officeusercreator "github.com/transcom/mymove/pkg/services/office_user"
 	order "github.com/transcom/mymove/pkg/services/order"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -76,6 +79,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -87,6 +92,9 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 
 	// Validate outgoing payload
 	suite.NoError(payload.Validate(strfmt.Default))
+
+	suite.Len(payload.Assignees, 1)
+	suite.Equal(payload.Assignees[0].ID.String(), officeUser.ID.String())
 
 	order := hhgMove.Orders
 	result := payload.QueueMoves[0]
@@ -200,6 +208,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			handlerConfig,
 			&orderFetcher,
 			mockUnlocker,
+			officeusercreator.NewOfficeUserFetcherPop(),
+			officeusercreator.NewOfficeUserGblocFetcher(),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -273,6 +283,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -360,6 +372,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -508,6 +522,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -764,6 +780,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -909,6 +927,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -939,6 +959,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -990,6 +1012,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1007,6 +1031,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+	factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 
 	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -1038,6 +1063,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1050,6 +1077,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 	suite.NoError(payload.Validate(strfmt.Default))
 
 	suite.Len(payload.QueuePaymentRequests, 1)
+	suite.Len(payload.Assignees, 1)
+	suite.Equal(payload.Assignees[0].ID.String(), officeUser.ID.String())
 
 	paymentRequest := *payload.QueuePaymentRequests[0]
 
@@ -1113,6 +1142,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 	suite.Run("returns unfiltered results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
@@ -1192,6 +1223,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1227,6 +1260,8 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		handlerConfig,
 		&paymentRequestListFetcher,
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1263,11 +1298,14 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		handlerConfig,
 		&paymentRequestListFetcher,
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
 
 	response := handler.Handle(params)
+	fmt.Println(response)
 	suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
@@ -1468,6 +1506,8 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		handlerConfig,
 		order.NewOrderFetcher(),
 		mockUnlocker,
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	return subtestData
@@ -1496,6 +1536,9 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		order := subtestData.needsCounselingMove.Orders
 		result1 := payload.QueueMoves[0]
 		result2 := payload.QueueMoves[1]
+
+		suite.Len(payload.Assignees, 1)
+		suite.Equal(subtestData.officeUser.ID.String(), payload.Assignees[0].ID.String())
 
 		suite.Len(payload.QueueMoves, 2)
 		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())

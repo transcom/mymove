@@ -1834,6 +1834,25 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 		status == models.MTOShipmentStatusCancellationRequested
 }
 
+func QueueAssignees(officeUsers []models.OfficeUser) *ghcmessages.Assignees {
+
+	// var assignees ghcmessages.Assignees
+	assignees := make(ghcmessages.Assignees, len(officeUsers))
+	for i, officeUser := range officeUsers {
+
+		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
+
+		assignees[i] = &ghcmessages.Assignee{
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+			ID:        *handlers.FmtUUID(officeUser.ID),
+			Safety:    swag.BoolValue(&hasSafety),
+		}
+	}
+
+	return &assignees
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))

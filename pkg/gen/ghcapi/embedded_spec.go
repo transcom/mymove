@@ -5985,6 +5985,35 @@ func init() {
         }
       }
     },
+    "Assignee": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "safety": {
+          "type": "boolean"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "Assignees": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Assignee"
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -10863,6 +10892,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "assignees": {
+          "$ref": "#/definitions/Assignees"
+        },
         "page": {
           "type": "integer"
         },
@@ -10950,6 +10982,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "assignees": {
+          "$ref": "#/definitions/Assignees"
+        },
         "page": {
           "type": "integer"
         },
@@ -20508,6 +20543,35 @@ func init() {
         }
       }
     },
+    "Assignee": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "safety": {
+          "type": "boolean"
+        },
+        "userId": {
+          "type": "string",
+          "format": "uuid"
+        }
+      }
+    },
+    "Assignees": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Assignee"
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -25393,6 +25457,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "assignees": {
+          "$ref": "#/definitions/Assignees"
+        },
         "page": {
           "type": "integer"
         },
@@ -25480,6 +25547,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "assignees": {
+          "$ref": "#/definitions/Assignees"
+        },
         "page": {
           "type": "integer"
         },

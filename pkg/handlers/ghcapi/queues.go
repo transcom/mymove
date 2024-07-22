@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
@@ -24,6 +25,8 @@ type GetMovesQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
 	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+	services.OfficeUserGblocFetcher
 }
 
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -89,6 +92,25 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
+			var gblocErr error
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+			if gblocErr != nil {
+				return nil, gblocErr
+			}
+
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+				appCtx,
+				roles.RoleTypeTOO,
+				officeUserGbloc,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
 			// if the TOO/office user is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
 				officeUserID := appCtx.Session().OfficeUserID
@@ -111,12 +133,14 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
+			assignees := payloads.QueueAssignees(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
 				PerPage:    *ListOrderParams.PerPage,
 				TotalCount: int64(count),
 				QueueMoves: *queueMoves,
+				Assignees:  *assignees,
 			}
 
 			return queues.NewGetMovesQueueOK().WithPayload(result), nil
@@ -179,6 +203,8 @@ type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
 	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+	services.OfficeUserGblocFetcher
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
@@ -240,6 +266,25 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
+			var gblocErr error
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+			if gblocErr != nil {
+				return nil, gblocErr
+			}
+
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+				appCtx,
+				roles.RoleTypeTIO,
+				officeUserGbloc,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
 			// if this TIO/office user is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
 				officeUserID := appCtx.Session().OfficeUserID
@@ -262,12 +307,14 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
+			assignees := payloads.QueueAssignees(officeUsers)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
 				Page:                 int64(*listPaymentRequestParams.Page),
 				PerPage:              int64(*listPaymentRequestParams.PerPage),
 				QueuePaymentRequests: *queuePaymentRequests,
+				Assignees:            *assignees,
 			}
 
 			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result), nil
@@ -279,6 +326,8 @@ type GetServicesCounselingQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
 	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+	services.OfficeUserGblocFetcher
 }
 
 // Handle returns the paginated list of moves for the services counselor
@@ -352,6 +401,25 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
+			var gblocErr error
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+			if gblocErr != nil {
+				return nil, gblocErr
+			}
+
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+				appCtx,
+				roles.RoleTypeServicesCounselor,
+				officeUserGbloc,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
 			// if the SC/office user is accessing the queue, we need to unlock move/moves they have locked
 			if appCtx.Session().IsOfficeUser() {
 				officeUserID := appCtx.Session().OfficeUserID
@@ -374,12 +442,14 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
+			assignees := payloads.QueueAssignees(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
 				Page:       *ListOrderParams.Page,
 				PerPage:    *ListOrderParams.PerPage,
 				TotalCount: int64(count),
 				QueueMoves: *queueMoves,
+				Assignees:  *assignees,
 			}
 
 			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil
