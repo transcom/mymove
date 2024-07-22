@@ -612,7 +612,11 @@ func FormatPPMWeightFinal(weight unit.Pound) string {
 
 // FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
 func FormatPPMPickupDate(ppm models.PPMShipment) string {
-	return FormatDate(ppm.ExpectedDepartureDate)
+	// nil check just incase of bad ppm state. if so return not available.
+	if ppm.ActualMoveDate == nil {
+		return "N/A"
+	}
+	return FormatDate(*ppm.ActualMoveDate)
 }
 
 // FormatSITEntryDate formats a SIT EstimatedEntryDate for the Shipment Summary Worksheet
@@ -870,7 +874,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
 		Version:  "pdfcpu v0.8.0 dev",
-		Creation: "2024-06-04 17:34:35 UTC",
+		Creation: "2024-07-19 18:07:42 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
