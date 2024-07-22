@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -280,6 +281,8 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 	suite.MustSave(&uploadedOrder)
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
+	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+	suite.NoError(gblocErr)
 	order := m.Order{
 		ServiceMemberID:                serviceMember1.ID,
 		ServiceMember:                  serviceMember1,
@@ -290,6 +293,7 @@ func (suite *ModelSuite) TestFetchOrderNotForUser() {
 		SpouseHasProGear:               spouseHasProGear,
 		NewDutyLocationID:              dutyLocation.ID,
 		NewDutyLocation:                dutyLocation,
+		DestinationGBLOC:               &newGBLOC.GBLOC,
 		UploadedOrdersID:               uploadedOrder.ID,
 		UploadedOrders:                 uploadedOrder,
 		Status:                         m.OrderStatusSUBMITTED,
@@ -331,6 +335,8 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 	packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
 	suite.MustSave(&uploadedOrder)
+	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation.Address.PostalCode)
+	suite.NoError(gblocErr)
 	order := m.Order{
 		ServiceMemberID:                serviceMember1.ID,
 		ServiceMember:                  serviceMember1,
@@ -341,6 +347,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		SpouseHasProGear:               spouseHasProGear,
 		NewDutyLocationID:              dutyLocation.ID,
 		NewDutyLocation:                dutyLocation,
+		DestinationGBLOC:               &newGBLOC.GBLOC,
 		UploadedOrdersID:               uploadedOrder.ID,
 		UploadedOrders:                 uploadedOrder,
 		Status:                         m.OrderStatusDRAFT,
@@ -407,6 +414,11 @@ func (suite *ModelSuite) TestSaveOrder() {
 	suite.Equal(postalCode, order.NewDutyLocation.Address.PostalCode, "Wrong orig postal code")
 	order.NewDutyLocationID = location.ID
 	order.NewDutyLocation = location
+
+	newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), location.Address.PostalCode)
+	suite.NoError(gblocErr)
+	order.DestinationGBLOC = &newGBLOC.GBLOC
+
 	verrs, err := m.SaveOrder(suite.DB(), &order)
 	suite.NoError(err)
 	suite.False(verrs.HasAny())
