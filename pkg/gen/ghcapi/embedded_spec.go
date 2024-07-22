@@ -6770,6 +6770,10 @@ func init() {
         "emplid": {
           "type": "string"
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -11329,6 +11333,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "emplid": {
           "type": "string",
@@ -21297,6 +21305,10 @@ func init() {
         "emplid": {
           "type": "string"
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -25909,6 +25921,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "emplid": {
           "type": "string",
