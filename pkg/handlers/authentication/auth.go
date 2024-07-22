@@ -492,6 +492,7 @@ func NewLogoutHandler(ac Context, hc handlers.HandlerConfig) LogoutHandler {
 	return logoutHandler
 }
 
+// logic for the /auth/logout endpoint
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	appCtx := h.AppContextFromRequest(r)
 	provider, err := okta.GetOktaProviderForRequest(r)
@@ -529,6 +530,92 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 			// getting okta logout URL that will contain ID token and redirect
 			oktaLogoutURL, err := logoutOktaUserURL(provider, userIDToken, redirectURL)
+			if oktaLogoutURL == "" || err != nil {
+				appCtx.Logger().Error("failed to get Okta Logout URL")
+			}
+
+			// Remember, UserID is UUID; however, the Okta ID is not.
+			if appCtx.Session().UserID != uuid.Nil {
+				err = resetUserCurrentSessionID(appCtx)
+				if err != nil {
+					appCtx.Logger().Error("failed to reset user's current_x_session_id")
+				}
+			}
+			err = sessionManager.Destroy(r.Context())
+			if err != nil {
+				appCtx.Logger().Error("failed to destroy session")
+			}
+			auth.DeleteCSRFCookies(w)
+			appCtx.Logger().Info("user logged out of application")
+			fmt.Fprint(w, oktaLogoutURL)
+		} else {
+			// Can't log out of okta.mil without a token, redirect and let them re-auth
+			appCtx.Logger().Info("session exists but has an empty IDToken")
+
+			if appCtx.Session().UserID != uuid.Nil {
+				err := resetUserCurrentSessionID(appCtx)
+				if err != nil {
+					appCtx.Logger().Error("failed to reset user's current_x_session_id")
+				}
+			}
+
+			err := sessionManager.Destroy(r.Context())
+			if err != nil {
+				appCtx.Logger().Error("failed to destroy session", zap.Error(err))
+			}
+
+			auth.DeleteCSRFCookies(w)
+			fmt.Fprint(w, redirectURL)
+		}
+	}
+}
+
+// LogoutOktaRedirectHandler handles logging the user out of okta.mil
+// and then redirecting the user BACK to the sign in page
+// this will be used for customers that are required to authenticate with CAC first
+type LogoutOktaRedirectHandler struct {
+	Context
+	handlers.HandlerConfig
+}
+
+// NewLogoutOktaRedirectHandler creates a new NewLogoutOktaRedirectHandler
+func NewLogoutOktaRedirectHandler(ac Context, hc handlers.HandlerConfig) LogoutOktaRedirectHandler {
+	logoutHandler := LogoutOktaRedirectHandler{
+		Context:       ac,
+		HandlerConfig: hc,
+	}
+	return logoutHandler
+}
+
+// logic for the /auth/logoutOktaRedirect endpoint
+func (h LogoutOktaRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	appCtx := h.AppContextFromRequest(r)
+	provider, err := okta.GetOktaProviderForRequest(r)
+	if err != nil {
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+	if appCtx.Session() != nil {
+		sessionManager := h.SessionManagers().SessionManagerForApplication(appCtx.Session().ApplicationName)
+		if sessionManager == nil {
+			appCtx.Logger().Error("Authenticating user, cannot get session manager from request")
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+		redirectURL := h.landingURL(appCtx.Session())
+		if appCtx.Session().IDToken != "" {
+
+			// storing ID token to use for logging the user out of Okta
+			// this contains the user's token that Okta needs to clear their session
+			userIDToken := appCtx.Session().IDToken
+
+			// clearing okta.mil sessions by clearing Access Token & ID Token
+			// this is shown in a sample app here: https://github.com/okta/samples-golang/blob/master/okta-hosted-login/main.go
+			appCtx.Session().AccessToken = ""
+			appCtx.Session().IDToken = ""
+
+			// getting okta logout URL that will contain ID token and redirect back to the Okta sign in page via redirect
+			oktaLogoutURL, err := logoutOktaUserURLWithRedirect(provider, userIDToken, redirectURL)
 			if oktaLogoutURL == "" || err != nil {
 				appCtx.Logger().Error("failed to get Okta Logout URL")
 			}

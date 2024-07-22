@@ -51,7 +51,7 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 				return transportationofficeop.NewGetTransportationOfficesForbidden(), noServiceMemberIDErr
 			}
 
-			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search)
+			transportationOffices, err := h.TransportationOfficesFetcher.GetTransportationOffices(appCtx, params.Search, false)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
 				return transportationofficeop.NewGetTransportationOfficesInternalServerError(), err
