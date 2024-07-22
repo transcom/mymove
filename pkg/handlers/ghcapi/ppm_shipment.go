@@ -148,6 +148,9 @@ func (h UpdatePPMSITHandler) Handle(params ppmsitops.UpdatePPMSITParams) middlew
 			}
 
 			ppmShipment.SITLocation = (*models.SITLocationType)(payload.SitLocation)
+			// We set sitExpected to true because this is a storage moving expense therefore SIT has to be true
+			// The case where this could be false at this point is when the Customer created the shipment they answered No to SIT Expected question,
+			// but later decided they needed SIT and submitted a moving expense for storage or if the Service Counselor adds one.
 			sitExpected := true
 			ppmShipment.SITExpected = &sitExpected
 			updatedPPMShipment, err := h.PPMShipmentUpdater.UpdatePPMShipmentSITEstimatedCost(appCtx, ppmShipment)
