@@ -1,8 +1,11 @@
 @import 'shared/styles/_basics';
 @import 'shared/styles/colors';
 
+.sidebar > div {
+  width: 400px;
+}
+
 .contentContainer {
-  width: 336px;
   @include u-margin-bottom(2);
 }
 
