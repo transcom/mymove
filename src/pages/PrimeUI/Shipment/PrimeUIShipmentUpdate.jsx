@@ -142,9 +142,17 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const editableProGearWeightActualField = true;
   const editableSpouseProGearWeightActualField = true;
   const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
+  const reformatPrimeApiSecondaryPickupAddress = fromPrimeAPIAddressFormat(shipment.secondaryPickupAddress);
+  const reformatPrimeApiTertiaryPickupAddress = fromPrimeAPIAddressFormat(shipment.tertiaryPickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
+  const reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDestinationAddress);
+  const reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDestinationAddress);
   const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
+  const editableSecondaryPickupAddress = isEmpty(reformatPrimeApiPickupAddress);
+  const editableTertiaryPickupAddress = isEmpty(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
+  const editableSecondaryDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
+  const editableTertiaryDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
   const onCancelShipmentClick = () => {
     mutateMTOShipmentStatus({ mtoShipmentID: shipmentId, ifMatchETag: shipment.eTag }).then(() => {
@@ -160,8 +168,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           expectedDepartureDate,
           pickupAddress,
           secondaryPickupAddress,
+          tertiaryPickupAddress,
           destinationAddress,
           secondaryDestinationAddress,
+          tertiaryDestinationAddress,
           sitExpected,
           sitLocation,
           sitEstimatedWeight,
@@ -172,7 +182,9 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           proGearWeight,
           spouseProGearWeight,
           hasSecondaryPickupAddress,
+          hasTertiaryPickupAddress,
           hasSecondaryDestinationAddress,
+          hasTertiaryDestinationAddress,
         },
         counselorRemarks,
       } = values;
@@ -183,8 +195,14 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           secondaryPickupAddress: isEmpty(secondaryPickupAddress)
             ? emptyAddress
             : formatAddressForPrimeAPI(secondaryPickupAddress),
+          tertiaryPickupAddress: isEmpty(tertiaryPickupAddress)
+            ? emptyAddress
+            : formatAddressForPrimeAPI(secondaryDestinationAddress),
           destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
           secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
+            ? emptyAddress
+            : formatAddressForPrimeAPI(secondaryDestinationAddress),
+          tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
             ? emptyAddress
             : formatAddressForPrimeAPI(secondaryDestinationAddress),
           sitExpected,
@@ -201,7 +219,9 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
           }),
           hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+          hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
           hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+          hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
         },
         counselorRemarks: counselorRemarks || null,
       };
@@ -216,7 +236,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         actualDeliveryDate,
         scheduledDeliveryDate,
         pickupAddress,
+        secondaryPickupAddress,
+        tertiaryPickupAddress,
         destinationAddress,
+        secondaryDestinationAddress,
+        tertiaryDestinationAddress,
         destinationType,
         diversion,
       } = values;
@@ -231,7 +255,17 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         scheduledDeliveryDate: scheduledDeliveryDate ? formatSwaggerDate(scheduledDeliveryDate) : null,
         actualDeliveryDate: actualDeliveryDate ? formatSwaggerDate(actualDeliveryDate) : null,
         pickupAddress: editablePickupAddress ? formatAddressForPrimeAPI(pickupAddress) : null,
+        secondaryPickupAddress: editableSecondaryPickupAddress
+          ? formatAddressForPrimeAPI(secondaryPickupAddress)
+          : null,
+        tertiaryPickupAddress: editableTertiaryPickupAddress ? formatAddressForPrimeAPI(tertiaryPickupAddress) : null,
         destinationAddress: editableDestinationAddress ? formatAddressForPrimeAPI(destinationAddress) : null,
+        secondaryDestinationAddress: editableSecondaryDestinationAddress
+          ? formatAddressForPrimeAPI(secondaryDestinationAddress)
+          : null,
+        tertiaryDestinationAddress: editableTertiaryDestinationAddress
+          ? formatAddressForPrimeAPI(tertiaryDestinationAddress)
+          : null,
         destinationType,
         diversion,
       };
@@ -253,10 +287,16 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         secondaryPickupAddress: shipment.ppmShipment.secondaryPickupAddress
           ? formatAddressForPrimeAPI(shipment.ppmShipment.secondaryPickupAddress)
           : emptyAddress,
+        tertiaryPickupAddress: isEmpty(shipment.ppmShipment.tertiaryPickupAddress)
+          ? formatAddressForPrimeAPI(shipment.ppmShipment.secondaryDestinationAddress)
+          : emptyAddress,
         destinationAddress: shipment.ppmShipment.destinationAddress
           ? formatAddressForPrimeAPI(shipment.ppmShipment.destinationAddress)
           : emptyAddress,
         secondaryDestinationAddress: shipment.ppmShipment.secondaryDestinationAddress
+          ? formatAddressForPrimeAPI(shipment.ppmShipment.secondaryDestinationAddress)
+          : emptyAddress,
+        tertiaryDestinationAddress: isEmpty(shipment.ppmShipment.tertiaryDestinationAddress)
           ? formatAddressForPrimeAPI(shipment.ppmShipment.secondaryDestinationAddress)
           : emptyAddress,
         sitExpected: shipment.ppmShipment.sitExpected,
@@ -271,6 +311,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
         hasSecondaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
         hasSecondaryDestinationAddress: shipment.ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
+        hasTertiaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
+        hasTertiaryDestinationAddress: shipment.ppmShipment.hasTertiaryDestinationAddress ? 'true' : 'false',
       },
       counselorRemarks: shipment.counselorRemarks || '',
     };
@@ -281,8 +323,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
         pickupAddress: requiredAddressSchema.required('Required'),
         secondaryPickupAddress: OptionalAddressSchema,
+        tertiaryPickupAddress: OptionalAddressSchema,
         destinationAddress: requiredAddressSchema.required('Required'),
         secondaryDestinationAddress: OptionalAddressSchema,
+        tertiaryDestinationAddress: OptionalAddressSchema,
         sitExpected: Yup.boolean().required('Required'),
         sitLocation: Yup.string().when('sitExpected', {
           is: true,
@@ -329,14 +373,26 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       scheduledDeliveryDate: shipment.scheduledDeliveryDate,
       actualDeliveryDate: shipment.actualDeliveryDate,
       pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
+      secondaryPickupAddress: editableSecondaryPickupAddress ? emptyAddress : reformatPrimeApiSecondaryPickupAddress,
+      tertiaryPickupAddress: editableTertiaryPickupAddress ? emptyAddress : reformatPrimeApiTertiaryPickupAddress,
       destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
+      secondaryDestinationAddress: editableSecondaryDestinationAddress
+        ? emptyAddress
+        : reformatPrimeApiSecondaryDestinationAddress,
+      tertiaryDestinationAddress: editableTertiaryDestinationAddress
+        ? emptyAddress
+        : reformatPrimeApiTertiaryDestinationAddress,
       destinationType: shipment.destinationType,
       diversion: shipment.diversion,
     };
 
     validationSchema = Yup.object().shape({
       pickupAddress: addressSchema,
+      secondaryPickupAddress: addressSchema,
+      tertiaryPickupAddress: addressSchema,
       destinationAddress: addressSchema,
+      secondaryDestinationAddress: addressSchema,
+      tertiaryDestinationAddress: addressSchema,
       scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     });
@@ -384,7 +440,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                           actualSpouseProGearWeight={initialValues.actualSpouseProGearWeight}
                           requestedPickupDate={initialValues.requestedPickupDate}
                           pickupAddress={initialValues.pickupAddress}
+                          secondaryPickupAddress={initialValues.secondaryPickupAddress}
+                          tertiaryPickupAddress={initialValues.tertiaryPickupAddress}
                           destinationAddress={initialValues.destinationAddress}
+                          secondaryDestinationAddress={initialValues.secondaryDestinationAddress}
+                          tertiaryDestinationAddress={initialValues.tertiaryDestinationAddress}
                           diversion={initialValues.diversion}
                         />
                       )}
