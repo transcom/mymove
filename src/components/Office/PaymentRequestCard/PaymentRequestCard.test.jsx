@@ -136,6 +136,24 @@ describe('PaymentRequestCard', () => {
       },
     ],
   };
+  const nonWeightReliantPaymentRequest = {
+    id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+    createdAt: '2020-12-01T00:00:00.000Z',
+    moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+    paymentRequestNumber: '1843-9061-2',
+    moveTaskOrder: move,
+    status: 'PENDING',
+    serviceItems: [
+      {
+        id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemCode: 'MS',
+        mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 2000001,
+        status: 'REQUESTED',
+      },
+    ],
+  };
   describe('pending payment request', () => {
     const wrapper = mount(
       <MockProviders
@@ -605,5 +623,19 @@ describe('PaymentRequestCard', () => {
       expect(screen.queryByRole('button', { name: 'View documents' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Review service items' })).toBeDisabled();
     });
+  });
+
+  it('Review service items is enabled when payment request only contains non weight reliant service items', () => {
+    render(
+      <MockProviders
+        path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+        params={{ moveCode }}
+        permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+      >
+        <PaymentRequestCard paymentRequest={nonWeightReliantPaymentRequest} shipmentInfo={shipmentInfo} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Review service items' })).toBeEnabled();
   });
 });
