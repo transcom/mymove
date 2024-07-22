@@ -969,8 +969,8 @@ describe('MoveDetails page', () => {
         expect(screen.queryByRole('button', { name: 'Submit move details' })).not.toBeInTheDocument();
         expect(screen.queryByRole('combobox')).not.toBeInTheDocument(); // Add a new shipment ButtonDropdown
         expect(screen.queryByRole('button', { name: 'Edit shipment' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'View and edit orders' })).not.toBeInTheDocument();
-        expect(screen.queryByRole('link', { name: 'Edit allowances' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'View and edit orders' })).toBeInTheDocument();
+        expect(screen.queryByRole('link', { name: 'Edit allowances' })).toBeInTheDocument();
         expect(screen.queryByRole('link', { name: 'Edit customer info' })).toBeInTheDocument();
       });
     });
