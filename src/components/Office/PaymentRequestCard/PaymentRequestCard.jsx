@@ -10,6 +10,7 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { nonWeightReliantServiceItems } from 'content/serviceItems';
 import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
@@ -121,6 +122,18 @@ const PaymentRequestCard = ({
     navigate(`/moves/${locator}/orders`);
   };
 
+  const nonWeightRelatedServiceItemsOnly = () => {
+    let nonWeightRelated = true;
+
+    paymentRequest.serviceItems.forEach((serviceItem) => {
+      if (!Object.prototype.hasOwnProperty.call(nonWeightReliantServiceItems, serviceItem.mtoServiceItemCode)) {
+        nonWeightRelated = false;
+      }
+    });
+
+    return nonWeightRelated;
+  };
+
   const renderReviewServiceItemsBtnForTOO = () => {
     return (
       <Restricted to={permissionTypes.readPaymentServiceItemStatus}>
@@ -129,7 +142,7 @@ const PaymentRequestCard = ({
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
             Review service items
           </Button>
-          {hasBillableWeightIssues && (
+          {hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly() && (
             <span className={styles.errorText} data-testid="errorTxt">
               Resolve billable weight before reviewing service items.
             </span>
@@ -147,13 +160,13 @@ const PaymentRequestCard = ({
           <Button
             style={{ maxWidth: '225px' }}
             onClick={handleClick}
-            disabled={hasBillableWeightIssues || isMoveLocked}
+            disabled={(hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly()) || isMoveLocked}
             data-testid="reviewBtn"
           >
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
             Review service items
           </Button>
-          {hasBillableWeightIssues && (
+          {hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly() && (
             <span className={styles.errorText} data-testid="errorTxt">
               Resolve billable weight before reviewing service items.
             </span>
