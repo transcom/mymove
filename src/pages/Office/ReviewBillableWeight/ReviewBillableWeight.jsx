@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import classNames from 'classnames';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
@@ -194,6 +195,10 @@ export default function ReviewBillableWeight() {
     return selectedShipment.primeActualWeight;
   };
 
+  const selectedShipmentIsDiverted = selectedShipment.diversion;
+  const moveContainsDivertedShipment =
+    selectedShipmentIsDiverted || filteredShipments ? filteredShipments.filter((s) => s.diversion).length > 0 : false;
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -202,9 +207,14 @@ export default function ReviewBillableWeight() {
       <div className={styles.embed}>
         <DocumentViewer files={getAllFiles()} />
       </div>
-      <div className={styles.sidebar}>
+      <div className={classNames(styles.sidebar, reviewBillableWeightStyles.sidebar)}>
         {sidebarType === 'MAX' ? (
-          <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
+          <DocumentViewerSidebar
+            title="Review weights"
+            subtitle="Edit max billable weight"
+            onClose={handleClose}
+            showDiversionModificationTag={moveContainsDivertedShipment}
+          >
             <DocumentViewerSidebar.Content>
               {totalBillableWeight > maxBillableWeight && (
                 <Alert headingLevel="h4" slim type="error" data-testid="maxBillableWeightAlert">
@@ -251,6 +261,7 @@ export default function ReviewBillableWeight() {
             subtitle="Shipment weights"
             description={`Shipment ${selectedShipmentIndex + 1} of ${filteredShipments?.length}`}
             onClose={handleClose}
+            showDiversionModificationTag={selectedShipmentIsDiverted}
           >
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>
