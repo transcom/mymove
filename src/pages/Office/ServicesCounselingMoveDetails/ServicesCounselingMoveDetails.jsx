@@ -51,7 +51,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
-  const documentsForViewer = Object.values(upload || {}).concat(Object.values(amendedUpload || {}));
+  const documentsForViewer = Object.values(upload || {})
+    .concat(Object.values(amendedUpload || {}))
+    ?.filter((file) => {
+      return !file.deletedAt;
+    });
   const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
