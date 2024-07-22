@@ -94,9 +94,12 @@ test.describe('Services counselor user', () => {
 
       // test with the closeout date of the created move and that our
       // move is found
-      await page.locator('th[data-testid="closeoutInitiated"] > div > div > input').clear();
+      await page.getByTestId('remove-filters-closeoutInitiated').click();
       await page.locator('th[data-testid="closeoutInitiated"] > div > div > input').type(closeoutDate);
+      await page.getByRole('cell', { name: 'Previous Month Next Month' }).getByRole('textbox').fill(closeoutDate);
       await expect(page.locator('h1')).not.toContainText('Moves (0)');
+      await page.getByLabel('rows per page').click();
+      await page.getByLabel('rows per page').selectOption('50');
       await expect(page.getByText(moveLocator)).toBeVisible();
     });
   });
