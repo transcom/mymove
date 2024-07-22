@@ -18,6 +18,9 @@ import (
 // swagger:model QueueMovesResult
 type QueueMovesResult struct {
 
+	// assignees
+	Assignees Assignees `json:"assignees,omitempty"`
+
 	// page
 	Page int64 `json:"page,omitempty"`
 
@@ -35,6 +38,10 @@ type QueueMovesResult struct {
 func (m *QueueMovesResult) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAssignees(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateQueueMoves(formats); err != nil {
 		res = append(res, err)
 	}
@@ -42,6 +49,23 @@ func (m *QueueMovesResult) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueueMovesResult) validateAssignees(formats strfmt.Registry) error {
+	if swag.IsZero(m.Assignees) { // not required
+		return nil
+	}
+
+	if err := m.Assignees.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("assignees")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("assignees")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -66,6 +90,10 @@ func (m *QueueMovesResult) validateQueueMoves(formats strfmt.Registry) error {
 func (m *QueueMovesResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAssignees(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateQueueMoves(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -73,6 +101,20 @@ func (m *QueueMovesResult) ContextValidate(ctx context.Context, formats strfmt.R
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueueMovesResult) contextValidateAssignees(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.Assignees.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("assignees")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("assignees")
+		}
+		return err
+	}
+
 	return nil
 }
 
