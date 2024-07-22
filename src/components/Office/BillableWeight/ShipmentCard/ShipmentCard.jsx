@@ -7,7 +7,6 @@ import EditBillableWeight from '../EditBillableWeight/EditBillableWeight';
 import styles from './ShipmentCard.module.scss';
 
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
-import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
 import { formatWeight, formatDateFromIso, formatAddressShort } from 'utils/formatters';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import { MandatorySimpleAddressShape, SimpleAddressShape } from 'types/address';
@@ -15,7 +14,6 @@ import { ShipmentOptionsOneOf } from 'types/shipment';
 import { shipmentTypeLabels } from 'content/shipments';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import returnLowestValue from 'utils/returnLowestValue';
-import { shipmentModificationTypes } from 'constants/shipments';
 
 const ShipmentCardDetailRow = ({ display, rowTestId, className, title, content, contentTestId }) => {
   if (display) {
@@ -66,7 +64,6 @@ export default function ShipmentCard({
   totalBillableWeight,
   shipmentType,
   storageFacilityAddress,
-  shipmentIsDiverted,
 }) {
   let showOriginalWeightHighlight = false;
   let showReweighWeightHighlight = false;
@@ -98,15 +95,11 @@ export default function ShipmentCard({
 
   const originAddress = shipmentIsNTSR ? storageFacilityAddress : pickupAddress;
   const deliveryAddress = shipmentIsNTS ? storageFacilityAddress : destinationAddress;
-  const shipmentModification = shipmentIsDiverted ? shipmentModificationTypes.DIVERSION : null;
 
   return (
     <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
       <header>
-        <h2>
-          {shipmentTypeLabels[shipmentType]}
-          {shipmentModification && <ShipmentModificationTag shipmentModificationType={shipmentModification} />}
-        </h2>
+        <h2>{shipmentTypeLabels[shipmentType]}</h2>
         <section>
           <span>
             <strong>{dateText}</strong>
@@ -213,7 +206,6 @@ ShipmentCard.propTypes = {
   totalBillableWeight: number,
   shipmentType: ShipmentOptionsOneOf.isRequired,
   storageFacilityAddress: SimpleAddressShape,
-  shipmentIsDiverted: bool,
 };
 
 ShipmentCard.defaultProps = {
@@ -227,5 +219,4 @@ ShipmentCard.defaultProps = {
   reweighRemarks: '',
   totalBillableWeight: 0,
   storageFacilityAddress: {},
-  shipmentIsDiverted: false,
 };

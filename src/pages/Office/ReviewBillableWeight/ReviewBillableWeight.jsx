@@ -313,7 +313,6 @@ export default function ReviewBillableWeight() {
                   totalBillableWeight={totalBillableWeight}
                   shipmentType={selectedShipment.shipmentType}
                   storageFacilityAddress={selectedShipment.storageFacility?.address}
-                  shipmentIsDiverted={selectedShipment.diversion}
                 />
               </div>
             </DocumentViewerSidebar.Content>
