@@ -27,10 +27,14 @@ type CustomerSearcher interface {
 }
 
 type SearchCustomersParams struct {
-	DodID        *string
-	CustomerName *string
-	Page         int64
-	PerPage      int64
-	Sort         *string
-	Order        *string
+	DodID         *string
+	Emplid        *string
+	Branch        *string
+	CustomerName  *string
+	PersonalEmail *string
+	Telephone     *string
+	Page          int64
+	PerPage       int64
+	Sort          *string
+	Order         *string
 }
