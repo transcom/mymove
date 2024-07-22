@@ -20,3 +20,9 @@
 .weightSummary {
   @include u-margin-top(1.5);
 }
+
+
+.reviewWeightSideBar {
+  width: 400px;
+  box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
+}
