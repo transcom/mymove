@@ -107,6 +107,7 @@ const needsCounselingMoves = {
           first_name: 'test another first',
           last_name: 'test another last',
           dodID: '4444444444',
+          emplid: '4521567',
         },
         locator: 'T12AR',
         requestedMoveDate: '2021-04-15T00:00:00.000Z',
@@ -246,6 +247,7 @@ describe('ServicesCounselingQueue', () => {
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
       expect(secondMove.find('td.dodID').text()).toBe('4444444444');
+      expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
       expect(secondMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
@@ -273,6 +275,7 @@ describe('ServicesCounselingQueue', () => {
     it('allows sorting on certain columns', () => {
       expect(wrapper.find('th[data-testid="lastName"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="dodID"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
+      expect(wrapper.find('th[data-testid="emplid"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="locator"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
       expect(wrapper.find('th[data-testid="requestedMoveDate"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
