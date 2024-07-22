@@ -6,6 +6,9 @@ import classnames from 'classnames';
 
 import styles from './DocumentViewerSidebar.module.scss';
 
+import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
+import { shipmentModificationTypes } from 'constants/shipments';
+
 export default function DocumentViewerSidebar({
   children,
   description,
@@ -15,6 +18,7 @@ export default function DocumentViewerSidebar({
   onClose,
   defaultH3,
   hyperlink,
+  showDiversionModificationTag,
 }) {
   return (
     <div
@@ -26,7 +30,12 @@ export default function DocumentViewerSidebar({
       <header className={styles.header}>
         <div>
           {supertitle && <h2 className={styles.supertitle}>{supertitle}</h2>}
-          <h1>{title}</h1>
+          <h1>
+            {title}
+            {showDiversionModificationTag && (
+              <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.DIVERSION} />
+            )}
+          </h1>
           {subtitle && <h2>{subtitle}</h2>}
           {description && <h3>{description}</h3>}
           {hyperlink && <p data-testid="hyperlink">{hyperlink}</p>}
@@ -48,6 +57,7 @@ DocumentViewerSidebar.propTypes = {
   description: string,
   onClose: func.isRequired,
   defaultH3: bool,
+  showDiversionModificationTag: bool,
 };
 
 DocumentViewerSidebar.defaultProps = {
@@ -55,6 +65,7 @@ DocumentViewerSidebar.defaultProps = {
   supertitle: '',
   description: '',
   defaultH3: false,
+  showDiversionModificationTag: false,
 };
 
 DocumentViewerSidebar.Content = function Content({ children, mainRef }) {

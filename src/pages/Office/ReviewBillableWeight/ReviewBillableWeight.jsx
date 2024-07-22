@@ -195,6 +195,10 @@ export default function ReviewBillableWeight() {
     return selectedShipment.primeActualWeight;
   };
 
+  const selectedShipmentIsDiverted = selectedShipment.diversion;
+  const moveContainsDivertedShipment =
+    selectedShipmentIsDiverted || filteredShipments ? filteredShipments.filter((s) => s.diversion).length > 0 : false;
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -205,7 +209,12 @@ export default function ReviewBillableWeight() {
       </div>
       <div className={classNames(styles.sidebar, reviewBillableWeightStyles.sidebar)}>
         {sidebarType === 'MAX' ? (
-          <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
+          <DocumentViewerSidebar
+            title="Review weights"
+            subtitle="Edit max billable weight"
+            onClose={handleClose}
+            showDiversionModificationTag={moveContainsDivertedShipment}
+          >
             <DocumentViewerSidebar.Content>
               {totalBillableWeight > maxBillableWeight && (
                 <Alert headingLevel="h4" slim type="error" data-testid="maxBillableWeightAlert">
@@ -252,6 +261,7 @@ export default function ReviewBillableWeight() {
             subtitle="Shipment weights"
             description={`Shipment ${selectedShipmentIndex + 1} of ${filteredShipments?.length}`}
             onClose={handleClose}
+            showDiversionModificationTag={selectedShipmentIsDiverted}
           >
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>
