@@ -191,6 +191,8 @@ const SubmittedRequestedShipments = ({
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
+          // Adding an inline function will break the debounce fix and allow multiple submits
+          // RA Validator Status: RA Accepted
           // eslint-disable-next-line react-hooks/exhaustive-deps
           onSubmit={useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), [])}
           counselingFee={formik.values.counselingFee}
