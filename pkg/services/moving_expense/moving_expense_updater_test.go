@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -12,11 +13,13 @@ import (
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
+	ppmEstimator := mocks.PPMEstimator{}
 
 	setupForTest := func(appCtx appcontext.AppContext, overrides *models.MovingExpense, hasDocumentUploads bool) *models.MovingExpense {
 		serviceMember := factory.BuildServiceMember(suite.DB(), nil, nil)
@@ -73,7 +76,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			ID: uuid.Must(uuid.NewV4()),
 		}
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 		updatedMovingExpense, err := updater.UpdateMovingExpense(appCtx, notFoundMovingExpense, "")
@@ -95,7 +98,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, false)
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *originalMovingExpense, "")
 
@@ -121,7 +124,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			ServiceMemberID: unauthorizedUser.ID,
 		})
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *originalMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
 
@@ -183,7 +186,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		// Actual test starts here
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 		contractedExpenseType := models.MovingExpenseReceiptTypeContractedExpense
 
 		expectedMovingExpense := &models.MovingExpense{
@@ -223,7 +226,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
-		updater := NewOfficeMovingExpenseUpdater()
+		updater := NewOfficeMovingExpenseUpdater(&ppmEstimator)
 		contractedExpenseType := models.MovingExpenseReceiptTypeContractedExpense
 		rejectedStatus := models.PPMDocumentStatusRejected
 
@@ -266,25 +269,37 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 		storageExpenseType := models.MovingExpenseReceiptTypeStorage
 		storageStart := time.Now()
 		storageEnd := storageStart.Add(7 * time.Hour * 24)
+		sitLocation := models.SITLocationTypeOrigin
 		weightStored := 2000
-		sitLocation := "ORIGIN"
+		sitReimburseableAmount := 500
 
 		expectedMovingExpense := &models.MovingExpense{
-			ID:                originalMovingExpense.ID,
-			MovingExpenseType: &storageExpenseType,
-			Description:       models.StringPointer("Dolly Parton memorabilia"),
-			PaidWithGTCC:      models.BoolPointer(true),
-			MissingReceipt:    models.BoolPointer(true),
-			Amount:            models.CentPointer(unit.Cents(67899)),
-			SITStartDate:      &storageStart,
-			SITEndDate:        &storageEnd,
-			WeightStored:      (*unit.Pound)(&weightStored),
-			SITLocation:       (*models.SITLocationType)(&sitLocation),
+			ID:                     originalMovingExpense.ID,
+			MovingExpenseType:      &storageExpenseType,
+			Description:            models.StringPointer("Dolly Parton memorabilia"),
+			PaidWithGTCC:           models.BoolPointer(true),
+			MissingReceipt:         models.BoolPointer(true),
+			Amount:                 models.CentPointer(unit.Cents(67899)),
+			SITStartDate:           &storageStart,
+			SITEndDate:             &storageEnd,
+			WeightStored:           (*unit.Pound)(&weightStored),
+			SITLocation:            (*models.SITLocationType)(&sitLocation),
+			SITReimburseableAmount: (*unit.Cents)(&sitReimburseableAmount),
 		}
+
+		sitEstimatedCost := models.CentPointer(unit.Cents(62500))
+		ppmEstimator = mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"CalculatePPMSITEstimatedCost",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(sitEstimatedCost, nil)
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
 
@@ -300,6 +315,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Equal(*expectedMovingExpense.SITEndDate, *updatedMovingExpense.SITEndDate)
 		suite.Equal(*expectedMovingExpense.WeightStored, *updatedMovingExpense.WeightStored)
 		suite.Equal(*expectedMovingExpense.SITLocation, *updatedMovingExpense.SITLocation)
+		suite.Equal(*expectedMovingExpense.SITReimburseableAmount, *updatedMovingExpense.SITReimburseableAmount)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
 	})
@@ -310,15 +326,17 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		storageReceiptType := models.MovingExpenseReceiptTypeStorage
 		weightStored := 2000
 		sitLocation := "ORIGIN"
+		sitReimburseableAmount := 500
 		originalMovingExpense := setupForTest(appCtx, &models.MovingExpense{
-			MovingExpenseType: &storageReceiptType,
-			SITStartDate:      models.TimePointer(time.Now()),
-			SITEndDate:        models.TimePointer(time.Now()),
-			WeightStored:      (*unit.Pound)(&weightStored),
-			SITLocation:       (*models.SITLocationType)(&sitLocation),
+			MovingExpenseType:      &storageReceiptType,
+			SITStartDate:           models.TimePointer(time.Now()),
+			SITEndDate:             models.TimePointer(time.Now()),
+			WeightStored:           (*unit.Pound)(&weightStored),
+			SITLocation:            (*models.SITLocationType)(&sitLocation),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(sitReimburseableAmount)),
 		}, true)
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 		packingReceiptType := models.MovingExpenseReceiptTypePackingMaterials
 
 		expectedMovingExpense := &models.MovingExpense{
@@ -329,6 +347,16 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			MissingReceipt:    models.BoolPointer(true),
 			Amount:            models.CentPointer(unit.Cents(67899)),
 		}
+
+		sitEstimatedCost := models.CentPointer(unit.Cents(62500))
+		ppmEstimator = mocks.PPMEstimator{}
+		ppmEstimator.
+			On(
+				"CalculatePPMSITEstimatedCost",
+				mock.AnythingOfType("*appcontext.appContext"),
+				mock.AnythingOfType("*models.PPMShipment"),
+			).
+			Return(sitEstimatedCost, nil)
 
 		updatedMovingExpense, updateErr := updater.UpdateMovingExpense(appCtx, *expectedMovingExpense, etag.GenerateEtag(originalMovingExpense.UpdatedAt))
 
@@ -346,6 +374,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 		suite.Nil(updatedMovingExpense.SITLocation)
 		suite.Nil(updatedMovingExpense.Status)
 		suite.Nil(updatedMovingExpense.Reason)
+		suite.Nil(updatedMovingExpense.SITReimburseableAmount)
 	})
 
 	suite.Run("Successfully clears the reason when status is approved", func() {
@@ -357,7 +386,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 			Reason: models.StringPointer("Can't pump your own gas in New Jersey"),
 		}, true)
 
-		updater := NewOfficeMovingExpenseUpdater()
+		updater := NewOfficeMovingExpenseUpdater(&ppmEstimator)
 		oilExpenseType := models.MovingExpenseReceiptTypeOil
 
 		approvedStatus := models.PPMDocumentStatusApproved
@@ -392,7 +421,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, false)
 
-		updater := NewCustomerMovingExpenseUpdater()
+		updater := NewCustomerMovingExpenseUpdater(&ppmEstimator)
 		oilExpenseType := models.MovingExpenseReceiptTypeOil
 
 		approvedStatus := models.PPMDocumentStatusApproved
@@ -419,7 +448,7 @@ func (suite *MovingExpenseSuite) TestUpdateMovingExpense() {
 
 		originalMovingExpense := setupForTest(appCtx, nil, true)
 
-		updater := NewOfficeMovingExpenseUpdater()
+		updater := NewOfficeMovingExpenseUpdater(&ppmEstimator)
 		oilExpenseType := models.MovingExpenseReceiptTypeOil
 
 		excludedStatus := models.PPMDocumentStatusExcluded

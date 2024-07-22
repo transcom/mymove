@@ -20,6 +20,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSRShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
@@ -199,7 +200,7 @@ test.describe('TOO user', () => {
       move = await officePage.testHarness.buildHHGMoveWithApprovedNTSRShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-
+      await tooFlowPage.waitForLoading();
       const searchTab = officePage.page.getByTitle(TOOTabsTitles[1]);
       await searchTab.click();
     });
@@ -314,6 +315,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveWithExternalNTSRShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 
@@ -360,6 +362,7 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
       await officePage.tooNavigateToMove(move.locator);
     });
 

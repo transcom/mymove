@@ -19,6 +19,7 @@
     "core-js": "^3.37.1",
     "customize-cra": "^1.0.0",
     "deep-object-diff": "^1.1.9",
+    "dotenv": "^16.3.1",
     "eslint-plugin-react": "^7.34",
     "filepond": "^4.31.1",
     "filepond-plugin-file-validate-size": "^2.2.8",
@@ -47,6 +48,7 @@
     "react-admin": "^4.12.3",
     "react-admin-import-csv": "^4.0.0",
     "react-app-polyfill": "^3.0.0",
+    "react-csv": "^2.2.2",
     "react-day-picker": "=7.4.10",
     "react-dom": "^17.0.1",
     "react-filepond": "^7.1.2",
@@ -79,8 +81,7 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^1.2.0",
-    "dotenv": "^16.3.1"
+    "yup": "^1.2.0"
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
@@ -132,7 +133,7 @@
     "@babel/helper-builder-react-jsx-experimental": "^7.12.11",
     "@faker-js/faker": "^8.4.1",
     "@jackfranklin/test-data-bot": "^2.1.0",
-    "@playwright/test": "^1.36.0",
+    "@playwright/test": "1.38",
     "@stoplight/spectral-cli": "^6.10.0",
     "@storybook/addon-a11y": "^7.2.0",
     "@storybook/addon-actions": "^7.2.0",
