@@ -126,15 +126,9 @@ const PaymentRequestCard = ({
   };
 
   const nonWeightRelatedServiceItemsOnly = () => {
-    let nonWeightRelated = true;
-
-    paymentRequest.serviceItems.forEach((serviceItem) => {
-      if (!Object.prototype.hasOwnProperty.call(nonWeightReliantServiceItems, serviceItem.mtoServiceItemCode)) {
-        nonWeightRelated = false;
-      }
-    });
-
-    return nonWeightRelated;
+    return paymentRequest.serviceItems.every((serviceItem) =>
+      Object.prototype.hasOwnProperty.call(nonWeightReliantServiceItems, serviceItem.mtoServiceItemCode),
+    );
   };
 
   const renderReviewServiceItemsBtnForTOO = () => {
