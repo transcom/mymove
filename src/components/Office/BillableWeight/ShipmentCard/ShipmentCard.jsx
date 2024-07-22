@@ -100,6 +100,7 @@ export default function ShipmentCard({
     <ShipmentContainer shipmentType={shipmentType} className={styles.container}>
       <header>
         <h2>{shipmentTypeLabels[shipmentType]}</h2>
+
         <section>
           <span>
             <strong>{dateText}</strong>
