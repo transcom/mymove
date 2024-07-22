@@ -37,6 +37,7 @@ jest.mock('services/internalApi', () => ({
   deleteUpload: jest.fn(),
   patchProGearWeightTicket: jest.fn(),
   getResponseError: jest.fn(),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const mockMTOShipment = {
@@ -109,11 +110,16 @@ const mockEntitlement = {
   proGearSpouse: 123,
 };
 
+const mockServiceMember = {
+  id: 'testId',
+};
+
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
   selectProGearWeightTicketAndIndexById: jest.fn(() => mockEmptyProGearWeightTicketAndIndex),
   selectProGearEntitlements: jest.fn(() => mockEntitlement),
+  selectServiceMemberFromLoggedInUser: jest.fn(() => mockServiceMember),
 }));
 
 beforeEach(() => {
