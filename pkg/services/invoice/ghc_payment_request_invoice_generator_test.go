@@ -786,7 +786,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// which should match the Origin Duty location name when there is no associated transportation office.
 		n1 := result.Header.OriginName
 		suite.Equal(originDutyLocation.Name, n1.Name)
-
 	})
 
 	suite.Run("adds actual pickup date to header", func() {
@@ -930,6 +929,55 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.NoError(phoneExpectedErr)
 		suite.Equal(phoneExpected, per.CommunicationNumber)
 	})
+
+	// suite.Run("location names get truncated to only 60 characters in N102 section", func() {
+	// 	setupTestData(nil)
+	// 	// name
+	// 	expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
+	// 	n1 := result.Header.OriginName
+	// 	suite.IsType(edisegment.N1{}, n1)
+	// 	suite.Equal("SF", n1.EntityIdentifierCode)
+	// 	suite.Equal(expectedDutyLocation.Name, n1.Name)
+	// 	suite.Equal("10", n1.IdentificationCodeQualifier)
+	// 	suite.Equal(expectedDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
+	// 	// street address
+	// 	address := expectedDutyLocation.Address
+	// 	n3Address := result.Header.OriginStreetAddress
+	// 	suite.IsType(&edisegment.N3{}, n3Address)
+	// 	n3 := *n3Address
+	// 	suite.Equal(address.StreetAddress1, n3.AddressInformation1)
+	// 	suite.Equal(*address.StreetAddress2, n3.AddressInformation2)
+	// 	// city state info
+	// 	n4 := result.Header.OriginPostalDetails
+	// 	suite.IsType(edisegment.N4{}, n4)
+	// 	if len(n4.CityName) >= maxCityLength {
+	// 		suite.Equal(address.City[:maxCityLength]+"...", n4.CityName)
+	// 	} else {
+	// 		suite.Equal(address.City, n4.CityName)
+	// 	}
+	// 	suite.Equal(address.State, n4.StateOrProvinceCode)
+	// 	suite.Equal(address.PostalCode, n4.PostalCode)
+	// 	countryCode, err := address.CountryCode()
+	// 	suite.NoError(err)
+	// 	suite.Equal(*countryCode, n4.CountryCode)
+	// 	// Office Phone
+	// 	originDutyLocationPhoneLines := expectedDutyLocation.TransportationOffice.PhoneLines
+	// 	var originPhoneLines []string
+	// 	for _, phoneLine := range originDutyLocationPhoneLines {
+	// 		if phoneLine.Type == "voice" {
+	// 			originPhoneLines = append(originPhoneLines, phoneLine.Number)
+	// 		}
+	// 	}
+	// 	phone := result.Header.OriginPhone
+	// 	suite.IsType(&edisegment.PER{}, phone)
+	// 	per := *phone
+	// 	suite.Equal("CN", per.ContactFunctionCode)
+	// 	suite.Equal("TE", per.CommunicationNumberQualifier)
+	// 	g := ghcPaymentRequestInvoiceGenerator{}
+	// 	phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
+	// 	suite.NoError(phoneExpectedErr)
+	// 	suite.Equal(phoneExpected, per.CommunicationNumber)
+	// })
 
 	suite.Run("adds various service item segments", func() {
 		setupTestData(nil)
@@ -1328,14 +1376,6 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		suite.NotPanics(panicFunc)
 		nilPaymentRequest.MoveTaskOrder.ReferenceID = oldReferenceID
 	})
-
-	// TODO: Needs some additional thought since PaymentServiceItems is loaded from the DB in Generate.
-	//suite.Run("nil PriceCents does not cause panic", func() {
-	//	oldPriceCents := nilPaymentRequest.PaymentServiceItems[0].PriceCents
-	//	nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
-	//	suite.NotPanics(panicFunc)
-	//	nilPaymentRequest.PaymentServiceItems[0].PriceCents = oldPriceCents
-	//})
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
