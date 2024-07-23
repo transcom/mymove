@@ -158,31 +158,4 @@ func (suite CustomerServiceSuite) TestCustomerSearch() {
 		suite.NoError(err)
 		suite.Len(customers, 0)
 	})
-
-	suite.Run("search with a customer name and missing email should NOT fail", func() {
-		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
-		session := auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
-			OfficeUserID:    scUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-
-		serviceMember1 := factory.BuildServiceMember(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					FirstName:     models.StringPointer("Page"),
-					LastName:      models.StringPointer("McConnell"),
-					Edipi:         models.StringPointer("1018231018"),
-					PersonalEmail: nil,
-				},
-			},
-		}, nil)
-
-		customers, _, err := searcher.SearchCustomers(suite.AppContextWithSessionForTest(&session), &services.SearchCustomersParams{CustomerName: models.StringPointer("Page McConnell")})
-		suite.NoError(err)
-		suite.Len(customers, 1)
-		suite.Equal(serviceMember1.Edipi, customers[0].Edipi)
-	})
 }

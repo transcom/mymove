@@ -2126,20 +2126,13 @@ func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSI
 func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustomers {
 	searchCustomers := make(ghcmessages.SearchCustomers, len(customers))
 	for i, customer := range customers {
-		var personalEmail string
-		if customer.PersonalEmail != nil {
-			personalEmail = *customer.PersonalEmail
-		} else {
-			personalEmail = ""
-		}
-
 		searchCustomers[i] = &ghcmessages.SearchCustomer{
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
 			DodID:         customer.Edipi,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
-			PersonalEmail: personalEmail,
+			PersonalEmail: customer.PersonalEmail,
 			Telephone:     customer.Telephone,
 		}
 	}
