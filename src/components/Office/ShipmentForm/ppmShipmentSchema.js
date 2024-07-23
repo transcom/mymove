@@ -40,6 +40,12 @@ const ppmShipmentSchema = ({
     secondaryDestination: Yup.object().shape({
       address: OptionalAddressSchema,
     }),
+    tertiaryPickup: Yup.object().shape({
+      address: OptionalAddressSchema,
+    }),
+    tertiaryDestination: Yup.object().shape({
+      address: OptionalAddressSchema,
+    }),
 
     expectedDepartureDate: Yup.date()
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')

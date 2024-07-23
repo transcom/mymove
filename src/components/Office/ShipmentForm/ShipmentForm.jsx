@@ -1095,7 +1095,7 @@ const ShipmentForm = (props) => {
                                     <h4>Third pickup location</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers pick up any belongings from a second address? (Must be near the
+                                        Will the movers pick up any belongings from a third address? (Must be near the
                                         pickup address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
@@ -1172,7 +1172,7 @@ const ShipmentForm = (props) => {
                                     <h4>Third destination address</h4>
                                     <FormGroup>
                                       <p>
-                                        Will the movers deliver any belongings to a second address? (Must be near the
+                                        Will the movers deliver any belongings to a third address? (Must be near the
                                         destination address. Subject to approval.)
                                       </p>
                                       <div className={formStyles.radioGroup}>
