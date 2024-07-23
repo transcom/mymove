@@ -438,6 +438,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.Run("adding to n9 header", func() {
 		grade := models.ServiceMemberGradeE1
+		firstName := "FirstName"
+		serviceMember.FirstName = &firstName
+		middleName := "MiddleName"
+		serviceMember.MiddleName = &middleName
+		lastName := "LastName"
+		serviceMember.LastName = &lastName
 		setupTestData(&grade)
 		testData := []struct {
 			TestName      string
@@ -457,6 +463,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			suite.Run(fmt.Sprintf("adds %s to header", data.TestName), func() {
 				suite.IsType(&edisegment.N9{}, data.ActualValue)
 				n9 := data.ActualValue
+				if data.TestName == "service member name" {
+					if len(data.TestName) >= maxServiceMemberNameLengthN9 {
+						suite.Equal(data.ExpectedValue[:maxServiceMemberNameLengthN9]+"...", data.ActualValue)
+					} else {
+						suite.Equal(data.TestName, data.ActualValue)
+					}
+				}
 				suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
 				suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
 			})
