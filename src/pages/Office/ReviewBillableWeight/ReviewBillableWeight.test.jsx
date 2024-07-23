@@ -697,22 +697,22 @@ describe('ReviewBillableWeight', () => {
 
       expect(screen.getByText('Review weights')).toBeInTheDocument();
       expect(screen.queryByTestId('tag', { name: 'DIVERSION' })).toBeInTheDocument();
-      let sidebarTitle = screen.queryAllByText('Review weights');
+      const sidebarTitle = screen.queryAllByText('Review weights');
       expect(sidebarTitle[0].lastChild.textContent).toEqual('DIVERSION');
 
       const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
       await userEvent.click(reviewShipmentWeights);
 
       expect(screen.getByText('Shipment 1 of 3')).toBeInTheDocument();
-      sidebarTitle = screen.queryAllByText('Review weights');
-      expect(sidebarTitle[0].lastChild.textContent).toEqual('DIVERSION');
+      let sidebarSubTitle = screen.queryAllByText('Shipment weights');
+      expect(sidebarSubTitle[0].lastChild.textContent).toEqual('DIVERSION');
 
       const nextShipment = screen.getByRole('button', { name: 'Next Shipment' });
       await userEvent.click(nextShipment);
 
       expect(screen.getByText('Shipment 2 of 3')).toBeInTheDocument();
-      sidebarTitle = screen.queryAllByText('Review weights');
-      expect(sidebarTitle[0].lastChild.textContent).toEqual('DIVERSION');
+      sidebarSubTitle = screen.queryAllByText('Shipment weights');
+      expect(sidebarSubTitle[0].lastChild.textContent).toEqual('DIVERSION');
 
       await userEvent.click(nextShipment);
 
