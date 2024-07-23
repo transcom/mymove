@@ -23,11 +23,14 @@ properties:
     description: The year the mobile home was made.
     type: integer
   length:
-    type: integer
+    type: number
+    format: double
   width:
-    type: integer
+    type: number
+    format: double
   height:
-    type: integer
+    type: number
+    format: double
   updatedAt:
     description: Timestamp of when a property of this object was last updated (UTC)
     format: date-time

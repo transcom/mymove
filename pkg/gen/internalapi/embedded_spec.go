@@ -4541,7 +4541,8 @@ func init() {
           "x-omitempty": false
         },
         "height": {
-          "type": "integer"
+          "type": "number",
+          "format": "double"
         },
         "id": {
           "description": "Primary auto-generated unique identifier of the Mobile Home object",
@@ -4551,7 +4552,8 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "length": {
-          "type": "integer"
+          "type": "number",
+          "format": "double"
         },
         "make": {
           "description": "The make of the mobile home",
@@ -4608,7 +4610,8 @@ func init() {
           "readOnly": true
         },
         "width": {
-          "type": "integer"
+          "type": "number",
+          "format": "double"
         },
         "year": {
           "description": "The year the mobile home was made.",
@@ -12732,7 +12735,8 @@ func init() {
           "x-omitempty": false
         },
         "height": {
-          "type": "integer"
+          "type": "number",
+          "format": "double"
         },
         "id": {
           "description": "Primary auto-generated unique identifier of the Mobile Home object",
@@ -12742,7 +12746,8 @@ func init() {
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "length": {
-          "type": "integer"
+          "type": "number",
+          "format": "double"
         },
         "make": {
           "description": "The make of the mobile home",
@@ -12799,7 +12804,8 @@ func init() {
           "readOnly": true
         },
         "width": {
-          "type": "integer"
+          "type": "number",
+          "format": "double"
         },
         "year": {
           "description": "The year the mobile home was made.",

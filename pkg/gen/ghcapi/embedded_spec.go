@@ -6326,6 +6326,9 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "mobileHome": {
+          "$ref": "#/definitions/CreateMobileHome"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -6400,6 +6403,26 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": false
+        }
+      }
+    },
+    "CreateMobileHome": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "properties": {
+        "length": {
+          "type": "number",
+          "format": "double"
+        },
+        "make": {
+          "description": "The make of the mobile home.",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "year": {
+          "type": "string"
         }
       }
     },
@@ -20789,6 +20812,9 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "mobileHome": {
+          "$ref": "#/definitions/CreateMobileHome"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -20863,6 +20889,26 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "example": false
+        }
+      }
+    },
+    "CreateMobileHome": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "properties": {
+        "length": {
+          "type": "number",
+          "format": "double"
+        },
+        "make": {
+          "description": "The make of the mobile home.",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "year": {
+          "type": "string"
         }
       }
     },
