@@ -54,6 +54,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
 func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	const SAC_LIMIT = 80
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -62,6 +63,10 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	if payload.Sac.Present && payload.Sac.Value != nil && len(*payload.Sac.Value) > SAC_LIMIT {
+		return &models.Order{}, uuid.Nil, apperror.NewInvalidInputError(orderID, nil, nil, "SAC cannot be more than 80 characters")
 	}
 
 	orderToUpdate := orderFromCounselingPayload(*order, payload)

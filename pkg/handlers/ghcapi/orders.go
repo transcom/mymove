@@ -186,7 +186,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			if len(*payload.Sac) > SAC_LIMIT {
+			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
 				err = apperror.NewBadDataError("SAC cannot be more than 80 characters.")
 				appCtx.Logger().Error(err.Error())
 				return orderop.NewCreateOrderUnprocessableEntity(), err
