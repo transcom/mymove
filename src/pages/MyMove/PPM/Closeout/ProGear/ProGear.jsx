@@ -5,7 +5,11 @@ import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
 
-import { selectMTOShipmentById, selectProGearWeightTicketAndIndexById } from 'store/entities/selectors';
+import {
+  selectMTOShipmentById,
+  selectProGearWeightTicketAndIndexById,
+  selectServiceMemberFromLoggedInUser,
+} from 'store/entities/selectors';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
@@ -17,15 +21,19 @@ import {
   patchProGearWeightTicket,
   patchMTOShipment,
   getMTOShipmentsForMove,
+  getAllMoves,
 } from 'services/internalApi';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import closingPageStyles from 'pages/MyMove/PPM/Closeout/Closeout.module.scss';
 import ProGearForm from 'components/Customer/PPM/Closeout/ProGearForm/ProGearForm';
-import { updateMTOShipment } from 'store/entities/actions';
+import { updateAllMoves, updateMTOShipment } from 'store/entities/actions';
 
 const ProGear = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
+  const serviceMemberId = serviceMember.id;
 
   const { moveId, mtoShipmentId, proGearId } = useParams();
 
@@ -73,6 +81,11 @@ const ProGear = () => {
         });
     }
   }, [proGearId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment]);
+
+  useEffect(() => {
+    const moves = getAllMoves(serviceMemberId);
+    dispatch(updateAllMoves(moves));
+  }, [proGearId, moveId, mtoShipmentId, navigate, dispatch, mtoShipment, serviceMemberId]);
 
   const handleCreateUpload = async (fieldName, file, setFieldTouched) => {
     const documentId = currentProGearWeightTicket[`${fieldName}Id`];
