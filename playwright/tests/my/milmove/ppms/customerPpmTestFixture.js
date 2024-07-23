@@ -99,8 +99,6 @@ export class CustomerPpmPage extends CustomerPage {
 
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
 
-    await this.page.getByText('Save & Continue').click();
-
     await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
   }
 
