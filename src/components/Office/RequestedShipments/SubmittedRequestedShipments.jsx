@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useFormik } from 'formik';
 import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
+import { debounce } from 'lodash';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -177,6 +178,11 @@ const SubmittedRequestedShipments = ({
   // If we are hiding both counseling and move management then hide the entire service item form
   const hideAddServiceItemsForm = hideCounselingCheckbox && hideMoveManagementCheckbox;
 
+  // Adding an inline function will break the debounce fix and allow multiple submits
+  // RA Validator Status: RA Accepted
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSubmit = useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), []);
+
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
       <div
@@ -190,7 +196,7 @@ const SubmittedRequestedShipments = ({
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
-          onSubmit={formik.handleSubmit}
+          onSubmit={debouncedSubmit}
           counselingFee={formik.values.counselingFee}
           shipmentManagementFee={formik.values.shipmentManagementFee}
         />
