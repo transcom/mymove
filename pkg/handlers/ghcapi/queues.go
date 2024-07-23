@@ -133,14 +133,14 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
-			assignees := payloads.QueueAssignees(officeUsers)
+			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:       *ListOrderParams.Page,
-				PerPage:    *ListOrderParams.PerPage,
-				TotalCount: int64(count),
-				QueueMoves: *queueMoves,
-				Assignees:  *assignees,
+				Page:                 *ListOrderParams.Page,
+				PerPage:              *ListOrderParams.PerPage,
+				TotalCount:           int64(count),
+				QueueMoves:           *queueMoves,
+				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetMovesQueueOK().WithPayload(result), nil
@@ -307,14 +307,14 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
-			assignees := payloads.QueueAssignees(officeUsers)
+			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
 				Page:                 int64(*listPaymentRequestParams.Page),
 				PerPage:              int64(*listPaymentRequestParams.PerPage),
 				QueuePaymentRequests: *queuePaymentRequests,
-				Assignees:            *assignees,
+				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result), nil
@@ -442,14 +442,14 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
-			assignees := payloads.QueueAssignees(officeUsers)
+			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:       *ListOrderParams.Page,
-				PerPage:    *ListOrderParams.PerPage,
-				TotalCount: int64(count),
-				QueueMoves: *queueMoves,
-				Assignees:  *assignees,
+				Page:                 *ListOrderParams.Page,
+				PerPage:              *ListOrderParams.PerPage,
+				TotalCount:           int64(count),
+				QueueMoves:           *queueMoves,
+				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil

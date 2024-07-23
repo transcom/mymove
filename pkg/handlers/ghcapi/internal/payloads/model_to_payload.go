@@ -1833,13 +1833,13 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 		status == models.MTOShipmentStatusCancellationRequested
 }
 
-func QueueAssignees(officeUsers []models.OfficeUser) *ghcmessages.Assignees {
-	assignees := make(ghcmessages.Assignees, len(officeUsers))
+func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
 	for i, officeUser := range officeUsers {
 
 		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
 
-		assignees[i] = &ghcmessages.Assignee{
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
 			FirstName: officeUser.FirstName,
 			LastName:  officeUser.LastName,
 			ID:        *handlers.FmtUUID(officeUser.ID),
@@ -1847,7 +1847,7 @@ func QueueAssignees(officeUsers []models.OfficeUser) *ghcmessages.Assignees {
 		}
 	}
 
-	return &assignees
+	return &availableOfficeUsers
 }
 
 // QueueMoves payload

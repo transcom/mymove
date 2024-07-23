@@ -5982,7 +5982,20 @@ func init() {
         }
       }
     },
-    "Assignee": {
+    "AssociateReportViolations": {
+      "description": "A list of PWS violation string ids to associate with an evaluation report",
+      "type": "object",
+      "properties": {
+        "violations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    "AvailableOfficeUser": {
       "type": "object",
       "properties": {
         "firstName": {
@@ -6005,23 +6018,10 @@ func init() {
         }
       }
     },
-    "Assignees": {
+    "AvailableOfficeUsers": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Assignee"
-      }
-    },
-    "AssociateReportViolations": {
-      "description": "A list of PWS violation string ids to associate with an evaluation report",
-      "type": "object",
-      "properties": {
-        "violations": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "$ref": "#/definitions/AvailableOfficeUser"
       }
     },
     "BackupContact": {
@@ -10879,8 +10879,8 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "assignees": {
-          "$ref": "#/definitions/Assignees"
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "page": {
           "type": "integer"
@@ -10969,8 +10969,8 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "assignees": {
-          "$ref": "#/definitions/Assignees"
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "page": {
           "type": "integer"
@@ -20523,7 +20523,20 @@ func init() {
         }
       }
     },
-    "Assignee": {
+    "AssociateReportViolations": {
+      "description": "A list of PWS violation string ids to associate with an evaluation report",
+      "type": "object",
+      "properties": {
+        "violations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      }
+    },
+    "AvailableOfficeUser": {
       "type": "object",
       "properties": {
         "firstName": {
@@ -20546,23 +20559,10 @@ func init() {
         }
       }
     },
-    "Assignees": {
+    "AvailableOfficeUsers": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Assignee"
-      }
-    },
-    "AssociateReportViolations": {
-      "description": "A list of PWS violation string ids to associate with an evaluation report",
-      "type": "object",
-      "properties": {
-        "violations": {
-          "type": "array",
-          "items": {
-            "type": "string",
-            "format": "uuid"
-          }
-        }
+        "$ref": "#/definitions/AvailableOfficeUser"
       }
     },
     "BackupContact": {
@@ -25427,8 +25427,8 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
-        "assignees": {
-          "$ref": "#/definitions/Assignees"
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "page": {
           "type": "integer"
@@ -25517,8 +25517,8 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
-        "assignees": {
-          "$ref": "#/definitions/Assignees"
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
         },
         "page": {
           "type": "integer"
