@@ -6409,6 +6409,30 @@ func init() {
     "CreateMobileHome": {
       "description": "A mobile home shipment that the prime moves for a service member.",
       "properties": {
+        "customerRemarks": {
+          "type": "string"
+        },
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "height": {
+          "type": "number",
+          "format": "double"
+        },
         "length": {
           "type": "number",
           "format": "double"
@@ -6420,6 +6444,51 @@ func init() {
         "model": {
           "description": "The model of the mobile home.",
           "type": "string"
+        },
+        "originAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "receivingAgent": {
+          "type": "string"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "width": {
+          "type": "number",
+          "format": "double"
         },
         "year": {
           "type": "string"
@@ -20895,6 +20964,30 @@ func init() {
     "CreateMobileHome": {
       "description": "A mobile home shipment that the prime moves for a service member.",
       "properties": {
+        "customerRemarks": {
+          "type": "string"
+        },
+        "destinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "height": {
+          "type": "number",
+          "format": "double"
+        },
         "length": {
           "type": "number",
           "format": "double"
@@ -20906,6 +20999,51 @@ func init() {
         "model": {
           "description": "The model of the mobile home.",
           "type": "string"
+        },
+        "originAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "pickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "receivingAgent": {
+          "type": "string"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "secondaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "width": {
+          "type": "number",
+          "format": "double"
         },
         "year": {
           "type": "string"

@@ -5954,6 +5954,47 @@ definitions:
       length:
         type: number
         format: double
+      height:
+        type: number
+        format: double
+      width:
+        type: number
+        format: double
+      requestedPickupDate:
+        format: date
+        type: string
+        x-nullable: true
+      requestedDeliveryDate:
+        format: date
+        type: string
+        x-nullable: true
+      pickupAddress:
+        allOf:
+        - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        allOf:
+        - $ref: 'definitions/Address.yaml'
+      destinationAddress:
+        allOf:
+        - $ref: 'definitions/Address.yaml'
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDestinationAddress:
+        allOf:
+        - $ref: 'definitions/Address.yaml'
+      originAddress:
+        allOf:
+        - $ref: 'definitions/Address.yaml'
+      receivingAgent:
+        type: string
+      customerRemarks:
+        type: string
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
