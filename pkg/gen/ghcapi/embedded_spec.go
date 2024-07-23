@@ -9525,6 +9525,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -23987,6 +23990,9 @@ func init() {
         },
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "eTag": {
           "type": "string"

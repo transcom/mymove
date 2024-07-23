@@ -313,6 +313,13 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), dutyLocation.Address.PostalCode)
+			if err != nil {
+				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
 			if payload.OriginDutyLocationID != "" {
 				originDutyLocationID, errorOrigin := uuid.FromString(payload.OriginDutyLocationID.String())
 				if errorOrigin != nil {
@@ -340,6 +347,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 			order.SpouseHasProGear = *payload.SpouseHasProGear
 			order.NewDutyLocationID = dutyLocation.ID
 			order.NewDutyLocation = dutyLocation
+			order.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
 			order.TAC = payload.Tac
 			order.SAC = payload.Sac
 

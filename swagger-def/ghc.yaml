@@ -4906,6 +4906,8 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      destinationDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocationGBLOC:

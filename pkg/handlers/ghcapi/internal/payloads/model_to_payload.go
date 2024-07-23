@@ -587,6 +587,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	payload := ghcmessages.Order{
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   ghcmessages.GBLOC(swag.StringValue(order.DestinationGBLOC)),
 		Entitlement:                    entitlements,
 		Grade:                          &grade,
 		OrderNumber:                    order.OrdersNumber,

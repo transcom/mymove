@@ -641,8 +641,20 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
+
+		newDestinationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
+			default:
+				return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+			}
+		}
+
 		order.NewDutyLocationID = newDutyLocation.ID
 		order.NewDutyLocation = newDutyLocation
+		order.DestinationGBLOC = &newDestinationGBLOC.GBLOC
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)
