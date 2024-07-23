@@ -968,3 +968,4 @@
 20240711181909_josephdoye_cn_cac.up.sql
 20240711204446_mai_cac.up.sql
 20240719222007_add_state_to_us_post_region_cities.up.sql
+20240722134633_update_move_history_indexes.up.sql
