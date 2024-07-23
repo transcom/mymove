@@ -67,7 +67,7 @@ test.describe('(MultiMove) Expenses', () => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMMovingExpense();
       await customerPpmPage.signInForPPMWithMove(move);
       await customerPpmPage.clickOnGoToMoveButton();
-      await customerPpmPage.navigateToPPMReviewPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
     });
 
     test(`new expense page loads`, async ({ customerPpmPage }) => {
