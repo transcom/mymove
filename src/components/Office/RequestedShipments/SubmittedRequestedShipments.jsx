@@ -178,6 +178,11 @@ const SubmittedRequestedShipments = ({
   // If we are hiding both counseling and move management then hide the entire service item form
   const hideAddServiceItemsForm = hideCounselingCheckbox && hideMoveManagementCheckbox;
 
+  // Adding an inline function will break the debounce fix and allow multiple submits
+  // RA Validator Status: RA Accepted
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSubmit = useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), []);
+
   return (
     <div className={styles.RequestedShipments} data-testid="requested-shipments">
       <div
@@ -191,10 +196,7 @@ const SubmittedRequestedShipments = ({
           allowancesInfo={allowancesInfo}
           customerInfo={customerInfo}
           setIsModalVisible={setIsModalVisible}
-          // Adding an inline function will break the debounce fix and allow multiple submits
-          // RA Validator Status: RA Accepted
-          // eslint-disable-next-line react-hooks/exhaustive-deps
-          onSubmit={useCallback(debounce(formik.handleSubmit, 5000, { leading: true }), [])}
+          onSubmit={debouncedSubmit}
           counselingFee={formik.values.counselingFee}
           shipmentManagementFee={formik.values.shipmentManagementFee}
         />
