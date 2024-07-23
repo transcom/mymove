@@ -107,7 +107,7 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 
 		fetchedUsers, err := fetcher.FetchOfficeUserByRoleAndGbloc(suite.AppContextForTest(), roles.RoleTypeTOO, "KKFA")
 
-		// ensure length of returned set is 2, corresponding to the TOO passed to FetchOfficeUserByRoleAndGbloc
+		// ensure length of returned set is 2, corresponding to the TOO role passed to FetchOfficeUserByRoleAndGbloc
 		suite.NoError(err)
 		suite.Len(fetchedUsers, 2)
 	})
