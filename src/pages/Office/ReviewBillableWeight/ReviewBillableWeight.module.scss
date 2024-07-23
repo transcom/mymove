@@ -23,6 +23,12 @@
 
 
 .reviewWeightSideBar {
-  width: 400px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  flex-basis: 0;
+  flex-grow: 1;
+  flex-shrink: 1;
+  overflow: auto;
   box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
 }
