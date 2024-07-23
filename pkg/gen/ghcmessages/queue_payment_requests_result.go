@@ -18,8 +18,8 @@ import (
 // swagger:model QueuePaymentRequestsResult
 type QueuePaymentRequestsResult struct {
 
-	// assignees
-	Assignees Assignees `json:"assignees,omitempty"`
+	// available office users
+	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
 
 	// page
 	Page int64 `json:"page,omitempty"`
@@ -38,7 +38,7 @@ type QueuePaymentRequestsResult struct {
 func (m *QueuePaymentRequestsResult) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAssignees(formats); err != nil {
+	if err := m.validateAvailableOfficeUsers(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -52,16 +52,16 @@ func (m *QueuePaymentRequestsResult) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *QueuePaymentRequestsResult) validateAssignees(formats strfmt.Registry) error {
-	if swag.IsZero(m.Assignees) { // not required
+func (m *QueuePaymentRequestsResult) validateAvailableOfficeUsers(formats strfmt.Registry) error {
+	if swag.IsZero(m.AvailableOfficeUsers) { // not required
 		return nil
 	}
 
-	if err := m.Assignees.Validate(formats); err != nil {
+	if err := m.AvailableOfficeUsers.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("assignees")
+			return ve.ValidateName("availableOfficeUsers")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("assignees")
+			return ce.ValidateName("availableOfficeUsers")
 		}
 		return err
 	}
@@ -90,7 +90,7 @@ func (m *QueuePaymentRequestsResult) validateQueuePaymentRequests(formats strfmt
 func (m *QueuePaymentRequestsResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAssignees(ctx, formats); err != nil {
+	if err := m.contextValidateAvailableOfficeUsers(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -104,13 +104,13 @@ func (m *QueuePaymentRequestsResult) ContextValidate(ctx context.Context, format
 	return nil
 }
 
-func (m *QueuePaymentRequestsResult) contextValidateAssignees(ctx context.Context, formats strfmt.Registry) error {
+func (m *QueuePaymentRequestsResult) contextValidateAvailableOfficeUsers(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.Assignees.ContextValidate(ctx, formats); err != nil {
+	if err := m.AvailableOfficeUsers.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("assignees")
+			return ve.ValidateName("availableOfficeUsers")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("assignees")
+			return ce.ValidateName("availableOfficeUsers")
 		}
 		return err
 	}

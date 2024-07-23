@@ -6195,11 +6195,11 @@ definitions:
       eTag:
         type: string
     type: object
-  Assignees:
+  AvailableOfficeUsers:
     type: array
     items:
-      $ref: '#/definitions/Assignee'
-  Assignee:
+      $ref: '#/definitions/AvailableOfficeUser'
+  AvailableOfficeUser:
     type: object
     properties:
       id:
@@ -6292,8 +6292,8 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
-      assignees:
-        $ref: '#/definitions/Assignees'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
@@ -6407,8 +6407,8 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
-      assignees:
-        $ref: '#/definitions/Assignees'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
