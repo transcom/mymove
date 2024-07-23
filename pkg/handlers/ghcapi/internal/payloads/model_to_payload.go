@@ -1834,8 +1834,6 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 }
 
 func QueueAssignees(officeUsers []models.OfficeUser) *ghcmessages.Assignees {
-
-	// var assignees ghcmessages.Assignees
 	assignees := make(ghcmessages.Assignees, len(officeUsers))
 	for i, officeUser := range officeUsers {
 

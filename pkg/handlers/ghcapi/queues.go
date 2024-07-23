@@ -96,7 +96,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
 			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
 			if gblocErr != nil {
-				return nil, gblocErr
+				return queues.NewGetMovesQueueInternalServerError(), gblocErr
 			}
 
 			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
@@ -108,7 +108,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
 			// if the TOO/office user is accessing the queue, we need to unlock move/moves they have locked
@@ -270,7 +270,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
 			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
 			if gblocErr != nil {
-				return nil, gblocErr
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), gblocErr
 			}
 
 			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
@@ -282,7 +282,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching office users", zap.Error(err))
-				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
 			// if this TIO/office user is accessing the queue, we need to unlock move/moves they have locked
@@ -405,7 +405,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
 			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
 			if gblocErr != nil {
-				return nil, gblocErr
+				return queues.NewGetServicesCounselingQueueInternalServerError(), gblocErr
 			}
 
 			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
