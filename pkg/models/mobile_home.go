@@ -9,15 +9,15 @@ import (
 )
 
 type MobileHome struct {
-	ID                             uuid.UUID   `json:"id" db:"id"`
-	ShipmentID                     uuid.UUID   `json:"shipment_id" db:"shipment_id"`
-	Shipment                       MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
-	Make                           string      `json:"make" db:"make"`
-	Model                          string      `json:"model" db:"model"`
-	Year                           int         `json:"mh_year" db:"mh_year"`
-	Length                         int         `json:"mh_length" db:"mh_length"`
-	Height                         int         `json:"height" db:"height"`
-	Width                          int         `json:"width" db:"width"`
+	ID         uuid.UUID   `json:"id" db:"id"`
+	ShipmentID uuid.UUID   `json:"shipment_id" db:"shipment_id"`
+	Shipment   MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
+	Make       string      `json:"make" db:"make"`
+	Model      string      `json:"model" db:"model"`
+	Year       int         `json:"mh_year" db:"mh_year"`
+	Length     int         `json:"mh_length" db:"mh_length"`
+	Height     int         `json:"height" db:"height"`
+	Width      int         `json:"width" db:"width"`
 }
 
 // TableName overrides the table name used by Pop.
