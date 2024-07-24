@@ -206,18 +206,22 @@ describe('MoveDocumentWrapper', () => {
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
       const wrapper = shallow(<MoveDocumentWrapper />);
+      const { files } = wrapper.find('DocumentViewer').props('files');
+
+      // Sort files by filename - sometimes they get swapped in the array which causes a flaky test
+      files.sort((a, b) => a.filename.localeCompare(b.filename));
       expect(wrapper.find('DocumentViewer').props('files')).toEqual({
         allowDownload: true,
         files: [
           {
             contentType: 'application/pdf',
-            filename: 'test.pdf',
+            filename: 'amended_test.pdf',
             id: 'z',
             url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
           },
           {
             contentType: 'application/pdf',
-            filename: 'amended_test.pdf',
+            filename: 'test.pdf',
             id: 'z',
             url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
           },
