@@ -23,6 +23,7 @@ func BuildClientCert(db *pop.Connection, customs []Customization, traits []Trait
 	var cClientCert models.ClientCert
 	// default to allowing prime
 	defaultAllowPrime := true
+	defaultAllowPPTAS := true
 	if result := findValidCustomization(customs, ClientCert); result != nil {
 		cClientCert = result.Model.(models.ClientCert)
 		if result.LinkOnly {
@@ -31,6 +32,7 @@ func BuildClientCert(db *pop.Connection, customs []Customization, traits []Trait
 		// if customization is provided, explicitly override it to
 		// allow false to override true
 		defaultAllowPrime = cClientCert.AllowPrime
+		defaultAllowPPTAS = cClientCert.AllowPPTAS
 	}
 
 	user := BuildUserAndUsersRoles(db, customs, traits)
@@ -43,6 +45,7 @@ func BuildClientCert(db *pop.Connection, customs []Customization, traits []Trait
 		Subject:      "/C=US/ST=DC/L=Washington/O=Truss/OU=AppClientTLS/CN=factory-" + id.String(),
 		UserID:       user.ID,
 		AllowPrime:   defaultAllowPrime,
+		AllowPPTAS:   defaultAllowPPTAS,
 	}
 
 	// Overwrite values with those from customizations
@@ -93,6 +96,7 @@ func GetTraitClientCertDevlocal() []Customization {
 				Sha256Digest: devlocalSha256Digest,
 				Subject:      devlocalSubject,
 				AllowPrime:   true,
+				AllowPPTAS:   true,
 			},
 		},
 	}

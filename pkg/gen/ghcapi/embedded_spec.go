@@ -246,6 +246,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -6249,6 +6252,12 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
+        },
         "firstName": {
           "type": "string",
           "example": "John"
@@ -6759,8 +6768,7 @@ func init() {
           "type": "boolean"
         },
         "emplid": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "first_name": {
           "type": "string",
@@ -10458,6 +10466,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -11314,7 +11327,8 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true
+          "x-nullable": true,
+          "example": 1234567890
         },
         "emplid": {
           "type": "string",
@@ -13374,6 +13388,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -20759,6 +20779,12 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
+        },
         "firstName": {
           "type": "string",
           "example": "John"
@@ -21269,8 +21295,7 @@ func init() {
           "type": "boolean"
         },
         "emplid": {
-          "type": "string",
-          "x-nullable": true
+          "type": "string"
         },
         "first_name": {
           "type": "string",
@@ -24969,6 +24994,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -25877,7 +25907,8 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true
+          "x-nullable": true,
+          "example": 1234567890
         },
         "emplid": {
           "type": "string",

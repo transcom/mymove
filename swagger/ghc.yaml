@@ -41,45 +41,6 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
-  /customer:
-    post:
-      summary: Creates a customer with Okta option
-      description: >-
-        Creates a customer with option to also create an Okta profile account
-        based on the office user's input when completing the UI form and
-        submitting.
-      operationId: createCustomerWithOktaOption
-      tags:
-        - customer
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/CreateCustomerPayload'
-      responses:
-        '200':
-          description: successfully created the customer
-          schema:
-            $ref: '#/definitions/CreatedCustomer'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
   /open/requested-office-users:
     post:
       consumes:
@@ -118,6 +79,47 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: internal server error
+  /customer:
+    post:
+      summary: Creates a customer with Okta option
+      description: >-
+        Creates a customer with option to also create an Okta profile account
+        based on the office user's input when completing the UI form and
+        submitting.
+      operationId: createCustomerWithOktaOption
+      tags:
+        - customer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/CreateCustomerPayload'
+      responses:
+        '200':
+          description: successfully created the customer
+          schema:
+            $ref: '#/definitions/CreatedCustomer'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -4403,6 +4405,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
         type: string
+      emplid:
+        type: string
       userID:
         type: string
         format: uuid
@@ -4422,9 +4426,6 @@ definitions:
         $ref: '#/definitions/Address'
       cacValidated:
         type: boolean
-        x-nullable: true
-      emplid:
-        type: string
         x-nullable: true
   CreatedCustomer:
     type: object
@@ -4542,6 +4543,11 @@ definitions:
         type: string
         example: John
         x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
+        x-nullable: true
       firstName:
         type: string
         example: John
@@ -4632,6 +4638,7 @@ definitions:
         x-nullable: true
       dodID:
         type: string
+        example: 1234567890
         x-nullable: true
       emplid:
         type: string
@@ -5670,6 +5677,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6692,12 +6703,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -7084,29 +7095,6 @@ definitions:
       - created_at
       - updated_at
       - eTag
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
   Address:
     description: A postal address
     type: object
@@ -7308,6 +7296,29 @@ definitions:
       - address
       - created_at
       - updated_at
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
   DutyLocation:
     type: object
     properties:

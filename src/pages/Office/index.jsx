@@ -302,11 +302,19 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue />
+                              <ServicesCounselingQueue userPrivileges={userPrivileges} />
                             </PrivateRoute>
                           }
                         />
                       )}
+                      <Route
+                        path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <CreateCustomerForm userPrivileges={userPrivileges} />
+                          </PrivateRoute>
+                        }
+                      />
                       <Route
                         path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
                         element={
@@ -357,14 +365,6 @@ export class OfficeApp extends Component {
                           }
                         />
                       )}
-                      <Route
-                        path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
-                        element={
-                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                            <CreateCustomerForm userPrivileges={userPrivileges} />
-                          </PrivateRoute>
-                        }
-                      />
                       <Route
                         key="servicesCounselingMoveInfoRoute"
                         path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}

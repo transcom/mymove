@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import styles from './ServicesCounselingQueue.module.scss';
 
 import { createHeader } from 'components/Table/utils';
+import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import TableQueue from 'components/Table/TableQueue';
@@ -27,9 +28,9 @@ import {
   useCustomerSearchQueries,
 } from 'hooks/queries';
 import {
-  getServicesCounselingOriginLocations,
   getServicesCounselingQueue,
   getServicesCounselingPPMQueue,
+  getServicesCounselingOriginLocations,
 } from 'services/ghcApi';
 import { DATE_FORMAT_STRING, MOVE_STATUSES } from 'shared/constants';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
@@ -40,12 +41,11 @@ import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import TabNav from 'components/TabNav';
-import { isBooleanFlagEnabled, isCounselorMoveCreateEnabled } from 'utils/featureFlags';
+import { isNullUndefinedOrWhitespace } from 'shared/utils';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 
@@ -497,6 +497,7 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
       <Navigate to={servicesCounselingRoutes.BASE_QUEUE_COUNSELING_PATH} />
     );
   }
+
   const navTabs = () => (isCounselorMoveCreateFFEnabled ? ffTabs : tabs);
 
   const renderNavBar = () => {

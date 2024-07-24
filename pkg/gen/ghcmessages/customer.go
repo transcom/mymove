@@ -48,7 +48,7 @@ type Customer struct {
 	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
 	// emplid
-	Emplid *string `json:"emplid,omitempty"`
+	Emplid string `json:"emplid,omitempty"`
 
 	// first name
 	// Example: John

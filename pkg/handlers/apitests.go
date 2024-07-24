@@ -39,6 +39,8 @@ const (
 	AdminTestHost string = "admin.example.com"
 	// PrimeTestHost
 	PrimeTestHost string = "prime.example.com"
+	// PrimeTestHost
+	PPTASTestHost string = "pptas.example.com"
 )
 
 // ApplicationTestServername is a collection of the test servernames
@@ -49,6 +51,7 @@ func ApplicationTestServername() auth.ApplicationServername {
 		OrdersServername: OrdersTestHost,
 		AdminServername:  AdminTestHost,
 		PrimeServername:  PrimeTestHost,
+		PPTASServerName:  PrimeTestHost,
 	}
 }
 

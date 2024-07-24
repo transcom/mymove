@@ -107,6 +107,17 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
+  async navigateToPPMReviewPageWithCompletePPM() {
+    await this.clickOnUploadPPMDocumentsButton();
+
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
+
+    await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
   async navigateFromPPMReviewPageToFinalCloseoutPage() {
     await this.page.locator('a').getByText('Save & Continue').click();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/complete/);
@@ -732,8 +743,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromCloseoutReviewPageToEditProGearPage() {
-    await this.page.locator('.progearSection a').getByText('Edit').click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/pro-gear/);
+    await this.page.getByRole('link', { name: 'Edit' }).nth(2).click();
   }
 
   /**
@@ -747,8 +757,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    */
   async navigateFromCloseoutReviewPageToEditWeightTicketPage() {
-    await this.page.locator('.reviewWeightTickets a').getByText('Edit').click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/weight-tickets/);
+    await this.page.getByRole('link', { name: 'Edit' }).nth(1).click();
   }
 
   /**
@@ -775,8 +784,7 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
-    await this.page.locator('.reviewExpenses a').getByText('Edit').click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await this.page.getByRole('link', { name: 'Edit' }).nth(3).click();
   }
 
   /**
@@ -785,6 +793,13 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToAddExpensePage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
+  async returnToMoveHome() {
+    await this.page.getByRole('button', { name: 'Return To Homepage' }).click();
   }
 
   /**
@@ -798,7 +813,6 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromProgearPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
   }
 
   async verifySaveAndContinueDisabled() {
@@ -874,7 +888,6 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
   }
 
   /**

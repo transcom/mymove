@@ -31,10 +31,10 @@ const (
 	ServicesCounselorOfficeUserType string = "Services Counselor office"
 	// PrimeSimulatorOfficeUserType is the type of user for an Office user
 	PrimeSimulatorOfficeUserType string = "Prime Simulator office"
-	// QaeOfficeUserType is a type of user for an Office user
-	QaeOfficeUserType string = "QAE office"
 	// CustomerServiceRepresentativeOfficeUserType is the Customer Service Representative type of user for an Office user
 	CustomerServiceRepresentativeOfficeUserType string = "CSR office"
+	// QaeOfficeUserType is a type of user for an Office user
+	QaeOfficeUserType string = "QAE office"
 	// MultiRoleOfficeUserType has all the Office user roles
 	MultiRoleOfficeUserType string = "Multi role office"
 	// AdminUserType is the type of user for an admin user
