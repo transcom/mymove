@@ -406,14 +406,12 @@ export class Summary extends Component {
           <p>Talk with your movers directly if you want to add or change shipments.</p>
         )}
         {moveIsApproved && currentDutyLocation && (
-          <div className="approved-edit-warning">
+          <p>
             *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}{' '}
             {officePhone ? ` at ${officePhone}` : ''}.
-          </div>
+          </p>
         )}
-        {moveIsApproved && !currentDutyLocation && (
-          <div className="approved-edit-warning">*To change these fields, contact your local PPPO office.</div>
-        )}
+        {moveIsApproved && !currentDutyLocation && <p>*To change these fields, contact your local PPPO office.</p>}
         <ConnectedAddShipmentModal
           isOpen={showModal}
           closeModal={this.toggleModal}
