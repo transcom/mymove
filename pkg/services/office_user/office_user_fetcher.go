@@ -73,6 +73,8 @@ func (o *officeUserFetcherPop) FetchOfficeUserByRoleAndGbloc(appCtx appcontext.A
 		Join("transportation_offices", "office_users.transportation_office_id = transportation_offices.id").
 		Where("gbloc = ?", gbloc).
 		Where("role_type = ?", role).
+		Where("office_users.active = TRUE").
+		Order("last_name asc").
 		All(&officeUsers)
 
 	if err != nil {

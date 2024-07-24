@@ -6465,18 +6465,13 @@ definitions:
   AvailableOfficeUser:
     type: object
     properties:
-      id:
+      officeUserId:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      userId:
+      fullName:
         type: string
-        format: uuid
-      firstName:
-        type: string
-      lastName:
-        type: string
-      safety:
+      hasSafetyPrivilege:
         type: boolean
   QueueMoves:
     type: array
