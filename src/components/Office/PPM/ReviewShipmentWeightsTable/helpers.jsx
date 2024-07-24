@@ -174,7 +174,7 @@ export const PPMReviewWeightsTableColumns = [
     },
   ),
   createHeader(
-    'Departure date',
+    'Actual Departure date',
     (row) => (row.ppmShipment.actualMoveDate ? formatReviewShipmentWeightsDate(row.ppmShipment.actualMoveDate) : DASH),
     {
       id: 'departureDate',
