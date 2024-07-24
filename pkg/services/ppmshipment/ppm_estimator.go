@@ -597,7 +597,7 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 	// Need to declare if origin or destination for the serviceAreaLookup, otherwise we already have it
 	serviceAreaPostalCode := ppmShipment.PickupAddress.PostalCode
 	serviceAreaKey := models.ServiceItemParamNameServiceAreaOrigin
-	if serviceItem.ReService.Code == models.ReServiceCodeDDFSIT {
+	if serviceItem.ReService.Code == models.ReServiceCodeDDASIT {
 		serviceAreaPostalCode = ppmShipment.DestinationAddress.PostalCode
 		serviceAreaKey = models.ServiceItemParamNameServiceAreaDest
 	}
