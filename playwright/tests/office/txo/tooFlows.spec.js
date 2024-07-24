@@ -176,7 +176,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to approve a shipment', async ({ page }) => {
@@ -584,7 +584,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
