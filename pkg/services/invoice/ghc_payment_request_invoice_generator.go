@@ -44,6 +44,7 @@ const dateFormat = "20060102"
 const isaDateFormat = "060102"
 const timeFormat = "1504"
 const maxCityLength = 30
+const maxServiceMemberNameLengthN9 = 30
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -314,7 +315,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// name
 	header.ServiceMemberName = edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
-		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
+		ReferenceIdentification:          truncateStr(serviceMember.ReverseNameLineFormat(), maxServiceMemberNameLengthN9),
 	}
 
 	// branch
