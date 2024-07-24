@@ -253,7 +253,7 @@ func PickShipmentCardLayout(shipmentType models.MTOShipmentType) []TableRow {
 		return NTSShipmentCardLayout
 	case models.MTOShipmentTypeHHGOutOfNTSDom:
 		return NTSRShipmentCardLayout
-	case models.MTOShipmentTypeMotorhome:
+	case models.MTOShipmentTypeMobilehome:
 		return []TableRow{}
 	case models.MTOShipmentTypeBoatHaulAway:
 		return []TableRow{}

@@ -69,7 +69,7 @@ export const mockMovesPCS = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -155,7 +155,7 @@ export const mockMovesPCS = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -239,7 +239,7 @@ export const mockMovesPCS = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -328,7 +328,7 @@ export const mockMovesRetirement = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -414,7 +414,7 @@ export const mockMovesRetirement = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -498,7 +498,7 @@ export const mockMovesRetirement = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -587,7 +587,7 @@ export const mockMovesSeparation = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -673,7 +673,7 @@ export const mockMovesSeparation = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -757,7 +757,7 @@ export const mockMovesSeparation = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -846,7 +846,7 @@ export const mockMovesNoPreviousMoves = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -937,7 +937,7 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },
@@ -1021,7 +1021,7 @@ export const mockMovesNoCurrentMoveWithPreviousMoves = {
         },
         {
           id: 'shipment5',
-          shipmentType: 'MOTORHOME',
+          shipmentType: 'MOBILEHOME',
           status: 'APPROVED',
           created_at: '2024-01-05 15:28:28.468 -0600',
         },

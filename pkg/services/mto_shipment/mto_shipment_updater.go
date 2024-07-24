@@ -1087,7 +1087,7 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 			models.ReServiceCodeDDP,
 			models.ReServiceCodeDUPK,
 		}
-	case models.MTOShipmentTypeMotorhome:
+	case models.MTOShipmentTypeMobilehome:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,

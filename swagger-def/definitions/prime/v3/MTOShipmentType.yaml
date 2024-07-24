@@ -15,7 +15,7 @@ enum:
   - HHG_OUTOF_NTS_DOMESTIC
   - INTERNATIONAL_HHG
   - INTERNATIONAL_UB
-  - MOTORHOME
+  - MOBILEHOME
   - PPM
 x-display-value:
   HHG: Household goods move (HHG)
