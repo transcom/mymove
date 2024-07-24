@@ -21,7 +21,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+      await officePage.tooNavigateToMove(move.locator);
     });
 
     // TODO FOR NTS-RELEASE
@@ -293,7 +293,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+      await officePage.tooNavigateToMove(move.locator);
     });
 
     test('can approve an shipment', async ({ page }) => {
@@ -340,7 +340,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+      await officePage.tooNavigateToMove(move.locator);
     });
 
     test('can submit service items', async ({ page }) => {
