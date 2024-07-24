@@ -36,8 +36,14 @@ test('Admin User Create Page', async ({ page, adminPage }) => {
 
   // create an admin user
   await page.getByLabel('Email').fill(testEmail);
-  await page.getByLabel('First name').fill('Cypress');
-  await page.getByLabel('Last name').fill('Test');
+
+  const firstName = page.getByLabel('First name');
+  await firstName.focus();
+  await firstName.fill('Cypress');
+
+  const lastName = page.getByLabel('Last name');
+  await lastName.focus();
+  await lastName.fill('Test');
 
   // The autocomplete form results in multiple matching elements, so
   // pick the input element
@@ -114,6 +120,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   await page.getByRole('link', { name: 'Edit' }).click();
   await adminPage.waitForPage.adminPage();
 
+  // Potentially flaky if there are multiple pages of admin users
   expect(page.url()).toContain(adminUserId);
 
   const disabledFields = ['id', 'email', 'userId', 'createdAt', 'updatedAt'];
@@ -121,11 +128,16 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
     await expect(page.locator(`#${field}`)).toBeDisabled();
   }
 
-  await page.getByLabel('First name').clear();
-  await page.getByLabel('First name').fill('NewFirst');
+  const firstName = page.getByLabel('First name');
+  await firstName.focus();
+  await firstName.clear();
+  await firstName.fill('NewFirst');
 
-  await page.getByLabel('Last name').clear();
-  await page.getByLabel('Last name').fill('NewLast');
+  const lastName = page.getByLabel('Last name');
+  await lastName.focus();
+  await lastName.clear();
+  await lastName.fill('NewLast');
+
   // set the user to the active status they did NOT have before
   const activeStatus = await page.locator('div:has(label :text-is("Active")) >> input[name="active"]').inputValue();
 
