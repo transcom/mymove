@@ -36,3 +36,8 @@ COMMENT on COLUMN boat_shipments.width_in_inches IS 'Width of the Boat in inches
 COMMENT on COLUMN boat_shipments.height_in_inches IS 'Height of the Boat in inches.';
 COMMENT on COLUMN boat_shipments.has_Trailer IS 'Does the boat have a trailer.';
 COMMENT on COLUMN boat_shipments.is_roadworthy IS 'Is the trailer roadworthy.';
+
+CREATE INDEX boat_shipments_shipment_id_idx ON boat_shipments (shipment_id);
+CREATE INDEX boat_shipments_type_idx ON boat_shipments (type);
+CREATE INDEX boat_shipments_created_at_idx ON boat_shipments (created_at);
+CREATE INDEX boat_shipments_deleted_at_idx ON boat_shipments (deleted_at);
