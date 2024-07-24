@@ -44,6 +44,7 @@ const dateFormat = "20060102"
 const isaDateFormat = "060102"
 const timeFormat = "1504"
 const maxCityLength = 30
+const maxServiceMemberNameLengthN9 = 30
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -149,8 +150,8 @@ func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext
 		FunctionalIdentifierCode: "SI",
 		ApplicationSendersCode:   "MILMOVE",
 		ApplicationReceiversCode: "8004171844",
-		Date:                     currentTime.Format(dateFormat),
-		Time:                     currentTime.Format(timeFormat),
+		Date:                     paymentRequest.RequestedAt.Format(dateFormat),
+		Time:                     paymentRequest.RequestedAt.Format(timeFormat),
 		GroupControlNumber:       interchangeControlNumber,
 		ResponsibleAgencyCode:    "X",
 		Version:                  "004010",
@@ -314,7 +315,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// name
 	header.ServiceMemberName = edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
-		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
+		ReferenceIdentification:          truncateStr(serviceMember.ReverseNameLineFormat(), maxServiceMemberNameLengthN9),
 	}
 
 	// branch
