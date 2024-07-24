@@ -968,3 +968,4 @@
 20240711181909_josephdoye_cn_cac.up.sql
 20240711204446_mai_cac.up.sql
 20240719192106_add_destination_gbloc_to_orders.up.sql
+20240722134633_update_move_history_indexes.up.sql
