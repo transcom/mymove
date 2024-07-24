@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate, generatePath } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { func } from 'prop-types';
 import classnames from 'classnames';
 import 'styles/office.scss';
@@ -21,7 +22,7 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
@@ -50,6 +51,13 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
+  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const documentsForViewer = Object.values(upload || {})
+    .concat(Object.values(amendedUpload || {}))
+    ?.filter((file) => {
+      return !file.deletedAt;
+    });
+  const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
@@ -134,7 +142,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
   }
 
-  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)
+  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac || !hasDocuments)
     disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
@@ -300,7 +308,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const allowancesInfo = {
     branch: customer.agency,
     grade: order.grade,
-    authorizedWeight: allowances.authorizedWeight,
+    totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
@@ -324,6 +332,8 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     NTStac: order.ntsTac,
     NTSsac: order.ntsSac,
     payGrade: order.grade,
+    amendedOrdersAcknowledgedAt: order.amendedOrdersAcknowledgedAt,
+    uploadedAmendedOrderID: order.uploadedAmendedOrderID,
   };
   const ordersLOA = {
     tac: order.tac,
@@ -429,7 +439,29 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     setIsFinancialModalVisible(false);
   };
 
+  const counselorCanEditOrdersAndAllowances = () => {
+    if (counselorCanEdit || counselorCanEditNonPPM) return true;
+    if (
+      move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING ||
+      move.status === MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED ||
+      (move.status === MOVE_STATUSES.APPROVALS_REQUESTED && !move.availableToPrimeAt) // status is set to 'Approval Requested' if customer uploads amended orders.
+    ) {
+      return true;
+    }
+    return false;
+  };
+
+  const requiredOrdersInfo = {
+    ordersNumber: order.order_number,
+    ordersType: order.order_type,
+    ordersTypeDetail: order.order_type_detail,
+    tacMDC: order.tac,
+  };
+
   const allShipmentsDeleted = mtoShipments.every((shipment) => !!shipment.deletedAt);
+  const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
+  const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.container}>
@@ -440,6 +472,23 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             testID="requestedShipmentsTag"
           >
             {shipmentConcernCount}
+          </LeftNavTag>
+          <LeftNavTag
+            className="usa-tag usa-tag--alert"
+            associatedSectionName="orders"
+            showTag={hasMissingOrdersRequiredInfo}
+            testID="tag"
+          >
+            <FontAwesomeIcon icon="exclamation" />
+          </LeftNavTag>
+          <LeftNavTag
+            associatedSectionName="orders"
+            showTag={Boolean(
+              !hasMissingOrdersRequiredInfo && hasAmendedOrders && counselorCanEditOrdersAndAllowances(),
+            )}
+            testID="newOrdersNavTag"
+          >
+            NEW
           </LeftNavTag>
         </LeftNav>
         {isSubmitModalVisible && (
@@ -595,10 +644,11 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Orders"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
+                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
+                    data-testid="view-edit-orders"
                     to={`../${servicesCounselingRoutes.ORDERS_EDIT_PATH}`}
                   >
                     View and edit orders
@@ -614,7 +664,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
             <DetailsPanel
               title="Allowances"
               editButton={
-                (counselorCanEdit || counselorCanEditNonPPM) &&
+                counselorCanEditOrdersAndAllowances() &&
                 !isMoveLocked && (
                   <Link
                     className="usa-button usa-button--secondary"
