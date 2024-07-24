@@ -1452,7 +1452,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILEHOME",
         "PPM"
       ],
       "x-display-value": {
@@ -4961,7 +4961,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILEHOME",
         "PPM"
       ],
       "x-display-value": {

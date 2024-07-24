@@ -48,8 +48,8 @@ const MultiMovesMoveContainer = ({ moves, setFlashMessage }) => {
     if (shipmentType === 'HHG_OUTOF_NTS_DOMESTIC') {
       return 'Household Goods NTSR';
     }
-    if (shipmentType === 'MOTORHOME') {
-      return 'Motorhome';
+    if (shipmentType === 'MOBILEHOME') {
+      return 'Mobilehome';
     }
     if (shipmentType === 'BOAT_HAUL_AWAY') {
       return 'Boat Haul Away';

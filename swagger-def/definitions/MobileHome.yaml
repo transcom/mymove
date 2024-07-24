@@ -1,0 +1,69 @@
+description: A mobile home is a type of shipment that a service member moves a mobile home.
+x-nullable: true
+properties:
+  id:
+    description: Primary auto-generated unique identifier of the Mobile Home object
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  shipmentId:
+    description: The id of the parent MTOShipment object
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  make:
+    description: The make of the mobile home
+    type: string
+  model:
+    description: The model of the mobile home.
+    type: string
+  year:
+    description: The year the mobile home was made.
+    type: integer
+  length:
+    type: number
+    format: double
+  width:
+    type: number
+    format: double
+  height:
+    type: number
+    format: double
+  updatedAt:
+    description: Timestamp of when a property of this object was last updated (UTC)
+    format: date-time
+    type: string
+    readOnly: true
+  pickupAddress:
+    $ref: 'Address.yaml'
+  hasSecondaryPickupAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
+  requestedPickupDate:
+    format: date-time
+    type: string
+  pickupLocation:
+    $ref: 'Address.yaml'
+  requestedDeliveryDate:
+    format: date-time
+    type: string
+  dimensions:
+    description: The complete dimesions of a mobile home. w x l x h?
+    type: string
+  orginAddress:
+    $ref: 'Address.yaml'
+  secondaryPickupAddress:
+    allOf:
+      - $ref: 'Address.yaml'
+      - x-nullable: true
+      - x-omitempty: false
+  receivingAgent:
+    type: string
+  counselorRemarks:
+    type: string
+  customerRemarks:
+    type: string
+  
