@@ -489,10 +489,10 @@ test.describe('TOO user', () => {
 
       // await page.locator('form').within(($form) => {
       //   // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
-      //   await page.locator('input[name="proGearWeight"]').type('1999');
-      //   await page.locator('input[name="proGearWeightSpouse"]').type('499');
-      //   await page.locator('input[name="requiredMedicalEquipmentWeight"]').type('999');
-      //   await page.locator('input[name="storageInTransit"]').type('199');
+      //   await page.locator('input[name="proGearWeight"]').fill('1999');
+      //   await page.locator('input[name="proGearWeightSpouse"]').fill('499');
+      //   await page.locator('input[name="requiredMedicalEquipmentWeight"]').fill('999');
+      //   await page.locator('input[name="storageInTransit"]').fill('199');
       //   await page.locator('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
 
       //   // Edit grade and authorized weight
@@ -500,7 +500,7 @@ test.describe('TOO user', () => {
       //   await page.locator('select[name=agency]').selectOption({ label: 'Navy'});
       //   await expect(page.locator('select[name="grade"]')).toContainText('E-1');
       //   await page.locator('select[name="grade"]').selectOption({ label: 'W-2'});
-      //   await page.locator('input[name="authorizedWeight"]').type('11111');
+      //   await page.locator('input[name="authorizedWeight"]').fill('11111');
 
       //   //Edit DependentsAuthorized
       //   await page.locator('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();

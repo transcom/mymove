@@ -899,15 +899,12 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async submitExpensePage(options = { isEditExpense: false }) {
-    // await this.page.waitForLoadState('domcontentloaded');
     const expenseType = this.page.locator('select[name="expenseType"]');
-    // await expenseType.waitFor({ state: 'visible', timeout: 15000 });
     if (!options?.isEditExpense) {
       await expect(expenseType).toHaveValue('');
     }
 
     await expenseType.selectOption({ label: 'Storage' });
-    // await this.page.waitForTimeout(500);
 
     const descriptionInput = this.page.locator('input[name="description"]');
     await descriptionInput.waitFor({ state: 'visible' });
