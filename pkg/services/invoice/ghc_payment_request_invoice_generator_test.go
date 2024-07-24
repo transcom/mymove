@@ -998,7 +998,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("location names get truncated to only 60 characters in N102 section", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		truncatedDutyLocationName := truncateStr(*models.StringPointer(expectedDutyLocation.Name), 60)
 		n1 := result.Header.OriginName
