@@ -8661,7 +8661,8 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "Mobile_Home"
       ],
       "x-display-value": {
         "HHG": "HHG",
@@ -8669,6 +8670,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "Mobile_Home:": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -23216,7 +23218,8 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "Mobile_Home"
       ],
       "x-display-value": {
         "HHG": "HHG",
@@ -23224,6 +23227,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "Mobile_Home:": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"

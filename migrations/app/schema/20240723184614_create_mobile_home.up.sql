@@ -1,26 +1,29 @@
 create table mobile_home (
-	id int,
-	shipment_id int,
-	make varchar(255),
-	model varchar(255),
+	id uuid PRIMARY KEY NOT NULL,
+    shipment_id    uuid NOT NULL
+    CONSTRAINT ppm_shipment_mto_shipment_id_fkey
+    REFERENCES mto_shipments,
+	make varchar,
+	model varchar,
 	mh_year int,
 	mh_length int,
     height int,
 	width int,
 	requested_pickup_date date,
-    requested_delivery_date varchar(255),
-	pickup_address varchar(255),
-	destination_address varchar(255),
-    origin_address varchar(255),
-	updated_at date,
-	deleted_at date,
+    requested_delivery_date date,
+	pickup_address varchar,
+	destination_address varchar,
+    origin_address varchar,
+	created_at timestamp NOT NULL,
+	updated_at timestamp NOT NULL,
+	deleted_at timestamptz,
 	has_secondary_pickup_address boolean,
 	has_secondary_destination_address boolean,
-	secondary_pickup_address varchar(255),
-    secondary_destination_address varchar(255),
-	receiving_agent varchar(255),
-	counselor_remarks varchar(255),
-	customer_remarks varchar(255)
+	secondary_pickup_address varchar,
+    secondary_destination_address varchar,
+	receiving_agent varchar,
+	counselor_remarks varchar,
+	customer_remarks varchar
 );
 
 COMMENT on TABLE mobile_home IS 'Stores all mobile home shipments, and their details.';

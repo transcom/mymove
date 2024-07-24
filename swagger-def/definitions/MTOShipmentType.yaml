@@ -8,6 +8,7 @@ enum:
   - INTERNATIONAL_HHG
   - INTERNATIONAL_UB
   - PPM
+  - Mobile_Home
 x-display-value:
   HHG: HHG
   INTERNATIONAL_HHG: International HHG
@@ -15,3 +16,4 @@ x-display-value:
   HHG_INTO_NTS_DOMESTIC: NTS
   HHG_OUTOF_NTS_DOMESTIC: NTS Release
   PPM: PPM
+  Mobile_Home:: Mobile Home

@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 )
 
 type MobileHome struct {
@@ -50,6 +51,25 @@ type MobileHomes []MobileHome
 func (mh MobileHome) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: mh.ShipmentID},
+		&validators.IntIsGreaterThan{Name: "Year", Field: mh.Year, Compared: 0},
+		&validators.StringIsPresent{Name: "Make", Field: mh.Make},
+		&validators.StringIsPresent{Name: "Model", Field: mh.Model},
+		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: mh.Length, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: mh.Width, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: mh.Height, Compared: 0},
 	), nil
+}
 
+// Returns a Mobile Home Shipment for a given id
+func FetchMobileHomeShipmentByMobileHomeShipmentID(db *pop.Connection, mobileHomeShipmentID uuid.UUID) (*MobileHome, error) {
+	var mobileHome MobileHome
+	err := db.Q().Find(&mobileHome, mobileHomeShipmentID)
+
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		return nil, err
+	}
+	return &mobileHome, nil
 }
