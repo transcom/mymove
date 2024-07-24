@@ -209,6 +209,7 @@ export class OfficePage extends BaseTestPage {
     // click result to navigate to move details page
     await this.page.locator('tbody > tr').first().click();
     await this.page.waitForURL(/\/moves\/[^/]+\/details/);
+    await this.page.waitForLoadState('networkidle', { timeout: 30000 });
     await this.page.getByRole('heading', { name: 'Move details' }).waitFor();
   }
 }
