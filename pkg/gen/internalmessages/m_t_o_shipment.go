@@ -62,9 +62,6 @@ type MTOShipment struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// mobile home
-	MobileHome *MobileHome `json:"mobileHome,omitempty"`
-
 	// move task order ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
@@ -133,10 +130,6 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMobileHome(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -249,25 +242,6 @@ func (m *MTOShipment) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) validateMobileHome(formats strfmt.Registry) error {
-	if swag.IsZero(m.MobileHome) { // not required
-		return nil
-	}
-
-	if m.MobileHome != nil {
-		if err := m.MobileHome.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("mobileHome")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("mobileHome")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -493,10 +467,6 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateMobileHome(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateMoveTaskOrderID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -612,27 +582,6 @@ func (m *MTOShipment) contextValidateID(ctx context.Context, formats strfmt.Regi
 
 	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *MTOShipment) contextValidateMobileHome(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.MobileHome != nil {
-
-		if swag.IsZero(m.MobileHome) { // not required
-			return nil
-		}
-
-		if err := m.MobileHome.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("mobileHome")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("mobileHome")
-			}
-			return err
-		}
 	}
 
 	return nil

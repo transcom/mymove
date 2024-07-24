@@ -1809,8 +1809,6 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: "definitions/PPMShipment.yaml"
-      mobileHome:
-        $ref: "definitions/MobileHome.yaml"
       shipmentType:
         $ref: "#/definitions/MTOShipmentType"
       status:
