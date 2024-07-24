@@ -177,7 +177,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
       {serverError && (
         <Grid>
-          <Grid col desktop={{ col: 8 }}>
+          <Grid col desktop={{ col: 8 }} className={styles.nameFormContainer}>
             <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>
