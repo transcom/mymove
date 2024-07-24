@@ -153,7 +153,10 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
 
       await customerPpmPage.signInForPPMWithMove(move);
       await customerPpmPage.navigateFromMMDashboardToMove(move);
-      await customerPpmPage.navigateToPPMReviewPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
+      await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
+      await customerPpmPage.returnToMoveHome();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
       await customerPpmPage.navigateFromCloseoutReviewPageToAboutPage();
       await customerPpmPage.fillOutAboutPage();
       await customerPpmPage.navigateFromCloseoutReviewPageToEditWeightTicketPage();
@@ -177,20 +180,26 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
       await customerPpmPage.signInForPPMWithMove(move);
 
       await customerPpmPage.navigateFromMMDashboardToMove(move);
-      await customerPpmPage.navigateToPPMReviewPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
       await customerPpmPage.verifySaveAndContinueEnabled();
 
-      // Add incomplete weight ticket
+      // Add incomplete weight ticket and exit
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
+      await customerPpmPage.returnToMoveHome();
 
-      // Add incomplete moving expense
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
+
+      // Add incomplete moving expense and exit
       await customerPpmPage.navigateFromCloseoutReviewPageToAddExpensePage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
+      await customerPpmPage.returnToMoveHome();
 
-      // Add incomplete pro-gear weight ticket
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
+
+      // Add incomplete pro-gear weight ticket and exit
       await customerPpmPage.navigateFromCloseoutReviewPageToAddProGearPage();
-      await customerPpmPage.cancelAddLineItemAndReturnToCloseoutReviewPage(move.id);
+      await customerPpmPage.returnToMoveHome();
+
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
 
       // Now that we have incomplete line items, we cannot submit the PPM
       await customerPpmPage.verifySaveAndContinueDisabled();
@@ -218,7 +227,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
       await customerPpmPage.signInForPPMWithMove(move);
 
       await customerPpmPage.navigateFromMMDashboardToMove(move);
-      await customerPpmPage.navigateToPPMReviewPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
       await customerPpmPage.navigateFromCloseoutReviewPageToAddWeightTicketPage();
       await customerPpmPage.submitWeightTicketPage();
 
@@ -230,7 +239,7 @@ test.describe('(MultiMove) Entire PPM closeout flow (MultiMove Workflow)', () =>
         finalIncentiveAmount: '$172,795.18',
       });
       await customerPpmPage.page.getByRole('button', { name: 'Return to Homepage' }).click();
-      await customerPpmPage.navigateToPPMReviewPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
 
       await customerPpmPage.deleteWeightTicket(1, false);
       await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();

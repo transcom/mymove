@@ -45,7 +45,7 @@ const SmartCardRedirect = () => {
         <br />
         <p data-testid="contactMsg">
           If you have already authenticated with your smart card once and are still seeing this message,
-          <br /> call (800) 462-2176 choose Option 2 or{' '}
+          <br /> call (800) 462-2176 and choose Option 2 or{' '}
           <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil" className="usa-link">
             email us
           </a>
