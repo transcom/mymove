@@ -66,4 +66,3 @@ properties:
     type: string
   customerRemarks:
     type: string
-  
