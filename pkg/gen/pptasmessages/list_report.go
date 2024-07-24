@@ -95,6 +95,9 @@ type ListReport struct {
 	// entitlement weight
 	EntitlementWeight *int64 `json:"entitlementWeight,omitempty"`
 
+	// financial review flag
+	FinancialReviewFlag *bool `json:"financialReviewFlag,omitempty"`
+
 	// first name
 	// Example: Bob
 	FirstName string `json:"firstName,omitempty"`

@@ -98,6 +98,7 @@ type Report struct {
 	ActualOriginNetWeight       *unit.Pound
 	DestinationReweighNetWeight *unit.Pound
 	CounseledDate               *time.Time
+	FinancialReviewFlag         *bool
 }
 
 type Reports []Report

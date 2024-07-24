@@ -30,7 +30,7 @@ paths:
     get:
       summary: listReports
       description: >
-        Gets all reports that have been ??approved??. Based on payment requests,
+        Gets all reports that have been approved. Based on payment requests,
         includes data from Move, Shipments, Orders, and TAC/SAC.
       operationId: listReports
       tags:
@@ -683,6 +683,9 @@ definitions:
       counseledDate:
         type: string
         format: date
+      financialReviewFlag:
+        type: boolean
+        x-nullable: true
   ListReports:
     type: array
     items:
