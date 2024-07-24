@@ -158,7 +158,7 @@ type MTOShipment struct {
 	ShipmentLocator                  *string                `db:"shipment_locator"`
 	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
-	MobileHome                       *MobileHome            `db:"has_one:mobile_home" fk_id:"shipment_id"`
+	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
 }
 
 // TableName overrides the table name used by Pop.
