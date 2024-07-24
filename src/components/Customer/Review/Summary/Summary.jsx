@@ -407,7 +407,7 @@ export class Summary extends Component {
         )}
         {moveIsApproved && currentDutyLocation && (
           <p>
-            *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}{' '}
+            *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}
             {officePhone ? ` at ${officePhone}` : ''}.
           </p>
         )}
