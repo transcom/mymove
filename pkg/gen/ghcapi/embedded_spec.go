@@ -8686,9 +8686,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -23307,9 +23311,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
