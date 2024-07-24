@@ -7820,7 +7820,7 @@ definitions:
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
-      'Mobile_Home:': Mobile Home
+      Mobile_Home: Mobile Home
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
