@@ -54,9 +54,9 @@ func (mh MobileHome) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsGreaterThan{Name: "Year", Field: mh.Year, Compared: 0},
 		&validators.StringIsPresent{Name: "Make", Field: mh.Make},
 		&validators.StringIsPresent{Name: "Model", Field: mh.Model},
-		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: mh.Length, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: mh.Width, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: mh.Height, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "Length", Field: mh.Length, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "Width", Field: mh.Width, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "Height", Field: mh.Height, Compared: 0},
 	), nil
 }
 
