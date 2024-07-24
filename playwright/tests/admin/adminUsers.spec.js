@@ -154,6 +154,7 @@ test('Admin Users Edit Page', async ({ page, adminPage }) => {
   expect(page.url()).not.toContain(adminUserId);
 
   // look at admin user's page to ensure changes were saved
+  // Potentially flaky if there are multiple pages of admin users
   await page.getByText(adminUserId).click();
   await adminPage.waitForPage.adminPage();
 
