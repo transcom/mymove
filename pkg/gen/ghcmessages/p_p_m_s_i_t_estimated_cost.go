@@ -19,10 +19,11 @@ import (
 // swagger:model PPMSITEstimatedCost
 type PPMSITEstimatedCost struct {
 
-	// additional days in s i t
-	// Example: 20
-	// Required: true
-	AdditionalDaysInSIT *int64 `json:"additionalDaysInSIT"`
+	// params additional day s i t
+	ParamsAdditionalDaySIT *PPMSITEstimatedCostParamsAdditionalDaySIT `json:"paramsAdditionalDaySIT,omitempty"`
+
+	// params first day s i t
+	ParamsFirstDaySIT *PPMSITEstimatedCostParamsFirstDaySIT `json:"paramsFirstDaySIT,omitempty"`
 
 	// Price of an additional day in SIT
 	// Example: 2000
@@ -44,7 +45,11 @@ type PPMSITEstimatedCost struct {
 func (m *PPMSITEstimatedCost) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAdditionalDaysInSIT(formats); err != nil {
+	if err := m.validateParamsAdditionalDaySIT(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateParamsFirstDaySIT(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -66,10 +71,39 @@ func (m *PPMSITEstimatedCost) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPMSITEstimatedCost) validateAdditionalDaysInSIT(formats strfmt.Registry) error {
+func (m *PPMSITEstimatedCost) validateParamsAdditionalDaySIT(formats strfmt.Registry) error {
+	if swag.IsZero(m.ParamsAdditionalDaySIT) { // not required
+		return nil
+	}
 
-	if err := validate.Required("additionalDaysInSIT", "body", m.AdditionalDaysInSIT); err != nil {
-		return err
+	if m.ParamsAdditionalDaySIT != nil {
+		if err := m.ParamsAdditionalDaySIT.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("paramsAdditionalDaySIT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("paramsAdditionalDaySIT")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PPMSITEstimatedCost) validateParamsFirstDaySIT(formats strfmt.Registry) error {
+	if swag.IsZero(m.ParamsFirstDaySIT) { // not required
+		return nil
+	}
+
+	if m.ParamsFirstDaySIT != nil {
+		if err := m.ParamsFirstDaySIT.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("paramsFirstDaySIT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("paramsFirstDaySIT")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -102,8 +136,63 @@ func (m *PPMSITEstimatedCost) validateSitCost(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validates this p p m s i t estimated cost based on context it is used
+// ContextValidate validate this p p m s i t estimated cost based on the context it is used
 func (m *PPMSITEstimatedCost) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	var res []error
+
+	if err := m.contextValidateParamsAdditionalDaySIT(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateParamsFirstDaySIT(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (m *PPMSITEstimatedCost) contextValidateParamsAdditionalDaySIT(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ParamsAdditionalDaySIT != nil {
+
+		if swag.IsZero(m.ParamsAdditionalDaySIT) { // not required
+			return nil
+		}
+
+		if err := m.ParamsAdditionalDaySIT.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("paramsAdditionalDaySIT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("paramsAdditionalDaySIT")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *PPMSITEstimatedCost) contextValidateParamsFirstDaySIT(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ParamsFirstDaySIT != nil {
+
+		if swag.IsZero(m.ParamsFirstDaySIT) { // not required
+			return nil
+		}
+
+		if err := m.ParamsFirstDaySIT.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("paramsFirstDaySIT")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("paramsFirstDaySIT")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -118,6 +207,126 @@ func (m *PPMSITEstimatedCost) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *PPMSITEstimatedCost) UnmarshalBinary(b []byte) error {
 	var res PPMSITEstimatedCost
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// PPMSITEstimatedCostParamsAdditionalDaySIT p p m s i t estimated cost params additional day s i t
+//
+// swagger:model PPMSITEstimatedCostParamsAdditionalDaySIT
+type PPMSITEstimatedCostParamsAdditionalDaySIT struct {
+
+	// contract year name
+	// Example: Award Term 1
+	ContractYearName string `json:"contractYearName,omitempty"`
+
+	// escalation compounded
+	// Example: 0.53
+	EscalationCompounded string `json:"escalationCompounded,omitempty"`
+
+	// is peak
+	// Example: true
+	IsPeak string `json:"isPeak,omitempty"`
+
+	// number days s i t
+	// Example: 30
+	NumberDaysSIT *string `json:"numberDaysSIT,omitempty"`
+
+	// price rate or factor
+	// Example: 0.53
+	PriceRateOrFactor string `json:"priceRateOrFactor,omitempty"`
+
+	// service area destination
+	// Example: 252
+	ServiceAreaDestination *string `json:"serviceAreaDestination,omitempty"`
+
+	// service area origin
+	// Example: 252
+	ServiceAreaOrigin *string `json:"serviceAreaOrigin,omitempty"`
+}
+
+// Validate validates this p p m s i t estimated cost params additional day s i t
+func (m *PPMSITEstimatedCostParamsAdditionalDaySIT) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this p p m s i t estimated cost params additional day s i t based on context it is used
+func (m *PPMSITEstimatedCostParamsAdditionalDaySIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *PPMSITEstimatedCostParamsAdditionalDaySIT) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *PPMSITEstimatedCostParamsAdditionalDaySIT) UnmarshalBinary(b []byte) error {
+	var res PPMSITEstimatedCostParamsAdditionalDaySIT
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
+	return nil
+}
+
+// PPMSITEstimatedCostParamsFirstDaySIT p p m s i t estimated cost params first day s i t
+//
+// swagger:model PPMSITEstimatedCostParamsFirstDaySIT
+type PPMSITEstimatedCostParamsFirstDaySIT struct {
+
+	// contract year name
+	// Example: Award Term 1
+	ContractYearName string `json:"contractYearName,omitempty"`
+
+	// escalation compounded
+	// Example: 0.53
+	EscalationCompounded string `json:"escalationCompounded,omitempty"`
+
+	// is peak
+	// Example: true
+	IsPeak string `json:"isPeak,omitempty"`
+
+	// price rate or factor
+	// Example: 0.53
+	PriceRateOrFactor string `json:"priceRateOrFactor,omitempty"`
+
+	// service area destination
+	// Example: 252
+	ServiceAreaDestination *string `json:"serviceAreaDestination,omitempty"`
+
+	// service area origin
+	// Example: 252
+	ServiceAreaOrigin *string `json:"serviceAreaOrigin,omitempty"`
+}
+
+// Validate validates this p p m s i t estimated cost params first day s i t
+func (m *PPMSITEstimatedCostParamsFirstDaySIT) Validate(formats strfmt.Registry) error {
+	return nil
+}
+
+// ContextValidate validates this p p m s i t estimated cost params first day s i t based on context it is used
+func (m *PPMSITEstimatedCostParamsFirstDaySIT) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *PPMSITEstimatedCostParamsFirstDaySIT) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *PPMSITEstimatedCostParamsFirstDaySIT) UnmarshalBinary(b []byte) error {
+	var res PPMSITEstimatedCostParamsFirstDaySIT
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

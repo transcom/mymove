@@ -9364,11 +9364,6 @@ definitions:
         type: integer
         x-nullable: true
         x-omitempty: false
-      additionalDaysInSIT:
-        example: 20
-        type: integer
-        x-nullable: true
-        x-omitempty: false
       priceFirstDaySIT:
         example: 2000
         type: integer
@@ -9383,9 +9378,58 @@ definitions:
         title: Price of an additional day in SIT
         x-nullable: true
         x-omitempty: false
+      paramsFirstDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: true
+          escalationCompounded:
+            type: string
+            example: '0.53'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+      paramsAdditionalDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: true
+          escalationCompounded:
+            type: string
+            example: '0.53'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+          numberDaysSIT:
+            type: string
+            example: '30'
+            x-nullable: true
     required:
       - sitCost
-      - additionalDaysInSIT
       - priceFirstDaySIT
       - priceAdditionalDaySIT
   MTOServiceItemSingle:

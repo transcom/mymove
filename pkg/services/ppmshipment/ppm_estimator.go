@@ -2,6 +2,7 @@ package ppmshipment
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -462,9 +463,6 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
 
-	// This one can be removed
-	ppmSITEstimatedCostInfoData.AdditionalDaysInSIT = additionalDaysInSIT
-
 	serviceItemsToPrice := StorageServiceItems(ppmShipment.ShipmentID, *ppmShipment.SITLocation, additionalDaysInSIT)
 
 	totalPrice := unit.Cents(0)
@@ -484,12 +482,46 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 				return nil, err
 			}
 			ppmSITEstimatedCostInfoData.PriceFirstDaySIT = price
+			for _, param := range priceParams {
+				switch param.Key {
+				case models.ServiceItemParamNameServiceAreaOrigin:
+					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ServiceAreaOrigin = param.Value
+				case models.ServiceItemParamNameServiceAreaDest:
+					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ServiceAreaDestination = param.Value
+				case models.ServiceItemParamNameIsPeak:
+					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.IsPeak = param.Value
+				case models.ServiceItemParamNameContractYearName:
+					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ContractYearName = param.Value
+				case models.ServiceItemParamNamePriceRateOrFactor:
+					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.PriceRateOrFactor = param.Value
+				case models.ServiceItemParamNameEscalationCompounded:
+					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.EscalationCompounded = param.Value
+				}
+			}
 		case services.DomesticOriginAdditionalDaysSITPricer, services.DomesticDestinationAdditionalDaysSITPricer:
 			price, priceParams, err = priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT, contract)
 			if err != nil {
 				return nil, err
 			}
 			ppmSITEstimatedCostInfoData.PriceAdditionalDaySIT = price
+			for _, param := range priceParams {
+				switch param.Key {
+				case models.ServiceItemParamNameServiceAreaOrigin:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ServiceAreaOrigin = param.Value
+				case models.ServiceItemParamNameServiceAreaDest:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ServiceAreaDestination = param.Value
+				case models.ServiceItemParamNameIsPeak:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.IsPeak = param.Value
+				case models.ServiceItemParamNameContractYearName:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ContractYearName = param.Value
+				case models.ServiceItemParamNamePriceRateOrFactor:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.PriceRateOrFactor = param.Value
+				case models.ServiceItemParamNameEscalationCompounded:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.EscalationCompounded = param.Value
+				case models.ServiceItemParamNameNumberDaysSIT:
+					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.NumberDaysSIT = param.Value
+				}
+			}
 		default:
 			return nil, fmt.Errorf("unknown SIT pricer type found for service item code %s", serviceItem.ReService.Code)
 		}
@@ -498,7 +530,7 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 			return nil, err
 		}
 
-		logger.Debug(fmt.Sprintf("Price of service item %s %d", serviceItem.ReService.Code, *price, priceParams))
+		logger.Debug(fmt.Sprintf("Price of service item %s %d", serviceItem.ReService.Code, *price))
 		totalPrice += *price
 		ppmSITEstimatedCostInfoData.EstimatedSITCost = &totalPrice
 	}
@@ -589,7 +621,7 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 
 	sitDaysParam := services.PricingDisplayParam{
 		Key:   models.ServiceItemParamNameNumberDaysSIT,
-		Value: string(additionalDaysInSIT),
+		Value: strconv.Itoa(additionalDaysInSIT),
 	}
 
 	price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
