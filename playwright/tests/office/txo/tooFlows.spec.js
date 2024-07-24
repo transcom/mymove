@@ -185,6 +185,7 @@ test.describe('TOO user', () => {
       await expect(page.getByText('Approve selected')).toBeDisabled();
       await expect(page.locator('#approvalConfirmationModal [data-testid="modal"]')).not.toBeVisible();
 
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       // Redirected to Move Task Order page
@@ -252,6 +253,7 @@ test.describe('TOO user', () => {
     });
 
     test('is able to approve and reject mto service items', async ({ page }) => {
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -437,6 +439,7 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request cancellation for a shipment', async ({ page }) => {
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -588,6 +591,7 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       await page.getByTestId('MoveTaskOrder-Tab').click();

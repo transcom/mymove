@@ -17,6 +17,7 @@ test.describe('TIO user', () => {
 
     // Go to known NTS-R move
     await officePage.tioNavigateToMove(moveLocator);
+    await officePage.waitForLoading();
 
     // Verify we are on the Payment Requests page
     expect(page.url()).toContain('/payment-requests');
