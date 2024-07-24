@@ -967,4 +967,5 @@
 20240628185537_update_move_to_gbloc_to_use_ppm_address.up.sql
 20240711181909_josephdoye_cn_cac.up.sql
 20240711204446_mai_cac.up.sql
+20240716161148_create_boat_shipment_table.up.sql
 20240722134633_update_move_history_indexes.up.sql
