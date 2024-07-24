@@ -19,34 +19,23 @@ import (
 // swagger:model AvailableOfficeUser
 type AvailableOfficeUser struct {
 
-	// first name
-	FirstName string `json:"firstName,omitempty"`
+	// full name
+	FullName string `json:"fullName,omitempty"`
 
-	// id
+	// has safety privilege
+	HasSafetyPrivilege bool `json:"hasSafetyPrivilege,omitempty"`
+
+	// office user Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	ID strfmt.UUID `json:"id,omitempty"`
-
-	// last name
-	LastName string `json:"lastName,omitempty"`
-
-	// safety
-	Safety bool `json:"safety,omitempty"`
-
-	// user Id
-	// Format: uuid
-	UserID strfmt.UUID `json:"userId,omitempty"`
+	OfficeUserID strfmt.UUID `json:"officeUserId,omitempty"`
 }
 
 // Validate validates this available office user
 func (m *AvailableOfficeUser) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateUserID(formats); err != nil {
+	if err := m.validateOfficeUserID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -56,24 +45,12 @@ func (m *AvailableOfficeUser) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *AvailableOfficeUser) validateID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ID) { // not required
+func (m *AvailableOfficeUser) validateOfficeUserID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OfficeUserID) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *AvailableOfficeUser) validateUserID(formats strfmt.Registry) error {
-	if swag.IsZero(m.UserID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("userId", "body", "uuid", m.UserID.String(), formats); err != nil {
+	if err := validate.FormatOf("officeUserId", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
 		return err
 	}
 

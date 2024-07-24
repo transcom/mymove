@@ -2,7 +2,6 @@ package ghcapi
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"time"
@@ -25,8 +24,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+	factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
 	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
 		RoleType: roles.RoleTypeTOO,
 	})
@@ -94,7 +93,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 	suite.NoError(payload.Validate(strfmt.Default))
 
 	suite.Len(payload.AvailableOfficeUsers, 1)
-	suite.Equal(payload.AvailableOfficeUsers[0].ID.String(), officeUser.ID.String())
+	suite.Equal(payload.AvailableOfficeUsers[0].OfficeUserID.String(), officeUser.ID.String())
 
 	order := hhgMove.Orders
 	result := payload.QueueMoves[0]
@@ -1030,8 +1029,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
-	factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+	factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
 
 	// Default Origin Duty Location GBLOC is KKFA
 	hhgMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
@@ -1078,7 +1077,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 
 	suite.Len(payload.QueuePaymentRequests, 1)
 	suite.Len(payload.AvailableOfficeUsers, 1)
-	suite.Equal(payload.AvailableOfficeUsers[0].ID.String(), officeUser.ID.String())
+	suite.Equal(payload.AvailableOfficeUsers[0].OfficeUserID.String(), officeUser.ID.String())
 
 	paymentRequest := *payload.QueuePaymentRequests[0]
 
@@ -1276,7 +1275,7 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 }
 
 func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
-	officeUser := factory.BuildOfficeUserWithRoles(nil, nil, []roles.RoleType{roles.RoleTypeTIO})
+	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTIO})
 
 	paymentRequestListFetcher := mocks.PaymentRequestListFetcher{}
 
@@ -1305,7 +1304,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 	// Validate incoming payload: no body to validate
 
 	response := handler.Handle(params)
-	fmt.Println(response)
 	suite.IsType(&queues.GetPaymentRequestsQueueOK{}, response)
 	payload := response.(*queues.GetPaymentRequestsQueueOK).Payload
 
@@ -1329,7 +1327,7 @@ type servicesCounselingSubtestData struct {
 
 func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *servicesCounselingSubtestData) {
 	subtestData = &servicesCounselingSubtestData{}
-	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeServicesCounselor})
+	subtestData.officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
 
 	submittedAt := time.Date(2021, 03, 15, 0, 0, 0, 0, time.UTC)
 	// Default Origin Duty Location GBLOC is KKFA
@@ -1538,7 +1536,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		result2 := payload.QueueMoves[1]
 
 		suite.Len(payload.AvailableOfficeUsers, 1)
-		suite.Equal(subtestData.officeUser.ID.String(), payload.AvailableOfficeUsers[0].ID.String())
+		suite.Equal(subtestData.officeUser.ID.String(), payload.AvailableOfficeUsers[0].OfficeUserID.String())
 
 		suite.Len(payload.QueueMoves, 2)
 		suite.Equal(order.ServiceMember.ID.String(), result1.Customer.ID.String())
