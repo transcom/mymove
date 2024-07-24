@@ -512,8 +512,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               editButton={
                 (counselorCanEdit || counselorCanEditNonPPM) &&
                 !isMoveLocked && (
-                  <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
-                    <option value="">Add a new shipment</option>
+                  <ButtonDropdown
+                    ariaLabel="Add a new shipment"
+                    data-testid="addShipmentButton"
+                    onChange={handleButtonDropdownChange}
+                  >
+                    <option value="" label="Add a new shipment">
+                      Add a new shipment
+                    </option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
                       HHG
                     </option>
