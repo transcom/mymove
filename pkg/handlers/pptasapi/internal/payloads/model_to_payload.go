@@ -1,8 +1,6 @@
 package payloads
 
 import (
-	"reflect"
-
 	"github.com/go-openapi/strfmt"
 	"github.com/gofrs/uuid"
 
@@ -95,6 +93,7 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		PpmUnpacking:           report.PpmUnpacking,
 		PpmStorage:             report.PpmStorage,
 		PpmTotal:               report.PpmTotal,
+		FinancialReviewFlag:    report.FinancialReviewFlag,
 	}
 
 	if report.OrderNumber != nil {
@@ -137,47 +136,47 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		payload.TravelType = *report.TravelType
 	}
 
-	if !reflect.ValueOf(report.Appro).IsNil() {
+	if report.Appro != nil {
 		payload.Appro = report.Appro
 	}
 
-	if !reflect.ValueOf(report.Subhead).IsNil() {
+	if report.Subhead != nil {
 		payload.Subhead = report.Subhead
 	}
 
-	if !reflect.ValueOf(report.ObjClass).IsNil() {
+	if report.ObjClass != nil {
 		payload.ObjClass = report.ObjClass
 	}
 
-	if !reflect.ValueOf(report.BCN).IsNil() {
+	if report.BCN != nil {
 		payload.Bcn = report.BCN
 	}
 
-	if !reflect.ValueOf(report.SubAllotCD).IsNil() {
+	if report.SubAllotCD != nil {
 		payload.SubAllotCD = report.SubAllotCD
 	}
 
-	if !reflect.ValueOf(report.AAA).IsNil() {
+	if report.AAA != nil {
 		payload.Aaa = report.AAA
 	}
 
-	if !reflect.ValueOf(report.TravelType).IsNil() {
+	if report.TravelType != nil {
 		payload.TravelType = *report.TravelType
 	}
 
-	if !reflect.ValueOf(report.PAA).IsNil() {
+	if report.PAA != nil {
 		payload.Paa = report.PAA
 	}
 
-	if !reflect.ValueOf(report.CostCD).IsNil() {
+	if report.CostCD != nil {
 		payload.CostCD = report.CostCD
 	}
 
-	if !reflect.ValueOf(report.DDCD).IsNil() {
+	if report.DDCD != nil {
 		payload.Ddcd = report.DDCD
 	}
 
-	if !reflect.ValueOf(report.TravelClassCode).IsNil() {
+	if report.TravelClassCode != nil {
 		payload.TravelClassCode = *report.TravelClassCode
 	}
 
@@ -189,7 +188,7 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		payload.ActualOriginNetWeight = models.Float64Pointer(report.ActualOriginNetWeight.Float64())
 	}
 
-	if !reflect.ValueOf(report.DestinationReweighNetWeight).IsNil() {
+	if report.DestinationReweighNetWeight != nil {
 		payload.DestinationReweighNetWeight = models.Float64Pointer(report.DestinationReweighNetWeight.Float64())
 	}
 

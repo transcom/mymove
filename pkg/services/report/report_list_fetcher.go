@@ -2,7 +2,6 @@ package report
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 	"time"
 
@@ -68,12 +67,12 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			report.DeliveryDate = moveDate
 		}
 
-		if !reflect.ValueOf(orders.OrdersTypeDetail).IsNil() {
+		if orders.OrdersTypeDetail != nil {
 			report.ShipmentType = (*string)(orders.OrdersTypeDetail)
 			report.TravelType = (*string)(orders.OrdersTypeDetail)
 		}
 
-		if !reflect.ValueOf(move.MTOShipments[0].ActualPickupDate).IsNil() {
+		if move.MTOShipments[0].ActualPickupDate != nil {
 			report.PickupDate = move.MTOShipments[0].ActualPickupDate
 		}
 
@@ -114,45 +113,29 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			report.DDCD = tac[0].LineOfAccounting.LoaDptID
 		}
 
-		var linehaulTotal float64
-		var managementTotal float64
-		var fuelPrice float64
-		var domesticOriginTotal float64
-		var domesticDestTotal float64
-		var domesticPacking float64
-		var domesticUnpacking float64
-		var domesticCrating float64
-		var domesticUncrating float64
-		var counselingTotal float64
-		var sitPickuptotal float64
-		var sitOriginFuelSurcharge float64
-		var sitOriginShuttle float64
-		var sitOriginAddlDays float64
-		var sitOriginFirstDay float64
-		var sitDeliveryTotal float64
-		var sitDestFuelSurcharge float64
-		var sitDestShuttle float64
-		var sitDestAddlDays float64
-		var sitDestFirstDay float64
+		var linehaulTotal, managementTotal, fuelPrice, domesticOriginTotal, domesticDestTotal, domesticPacking,
+			domesticUnpacking, domesticCrating, domesticUncrating, counselingTotal, sitPickuptotal, sitOriginFuelSurcharge,
+			sitOriginShuttle, sitOriginAddlDays, sitOriginFirstDay, sitDeliveryTotal, sitDestFuelSurcharge, sitDestShuttle,
+			sitDestAddlDays, sitDestFirstDay float64
 
 		var allCrates []*pptasmessages.Crate
 
 		// this adds up all the different payment service items across all payment requests for a move
 		for _, pr := range paymentRequests {
-			for _, serviceItem := range pr.PaymentServiceItems {
-				var mtoServiceItem models.MTOServiceItem
-				msiErr := appCtx.DB().Q().EagerPreload("ReService", "Dimensions").
-					InnerJoin("re_services", "re_services.id = mto_service_items.re_service_id").
-					Where("mto_service_items.id = ?", serviceItem.MTOServiceItemID).
-					First(&mtoServiceItem)
-				if msiErr != nil {
-					return nil, apperror.NewQueryError("failed to query service items", msiErr, ".")
-				}
-
+			var paymentRequest models.PaymentRequest
+			paymentRequestID := pr.ID
+			err := appCtx.DB().Eager(
+				"PaymentServiceItems.MTOServiceItem.Dimensions",
+				"PaymentServiceItems.MTOServiceItem.ReService").
+				Find(&paymentRequest, paymentRequestID)
+			if err != nil {
+				return nil, apperror.NewQueryError("failed to query payment request", err, ".")
+			}
+			for _, serviceItem := range paymentRequest.PaymentServiceItems {
 				totalPrice := serviceItem.PriceCents.Float64()
 				sitType := ""
 
-				switch mtoServiceItem.ReService.Name {
+				switch serviceItem.MTOServiceItem.ReService.Name {
 				case "Domestic linehaul":
 				case "Domestic shorthaul":
 					linehaulTotal += totalPrice
@@ -172,7 +155,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 					domesticUncrating += totalPrice
 				// case "Domestic crating - standalone":
 				case "Domestic crating":
-					crate := buildServiceItemCrate(mtoServiceItem)
+					crate := buildServiceItemCrate(serviceItem.MTOServiceItem)
 					allCrates = append(allCrates, &crate)
 					domesticCrating += totalPrice
 				case "Domestic origin SIT pickup":
@@ -229,23 +212,18 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			sitDestFuelSurcharge + domesticCrating + domesticUncrating
 		report.InvoicePaidAmt = &invoicePaidAmt
 
-		var ppmLinehaul float64
-		var ppmFuel float64
-		var ppmOriginPrice float64
-		var ppmDestPrice float64
-		var ppmPacking float64
-		var ppmUnpacking float64
+		var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
 
 		// sharing this for loop for all MTOShipment calculations
 		for _, shipment := range move.MTOShipments {
 			// calculate total progear for entire move
 			if shipment.PPMShipment != nil {
 				var shipmentTotalProgear float64
-				if !reflect.ValueOf(shipment.PPMShipment.ProGearWeight).IsNil() {
+				if shipment.PPMShipment.ProGearWeight != nil {
 					shipmentTotalProgear += shipment.PPMShipment.ProGearWeight.Float64()
 				}
 
-				if !reflect.ValueOf(shipment.PPMShipment.SpouseProGearWeight).IsNil() {
+				if shipment.PPMShipment.SpouseProGearWeight != nil {
 					shipmentTotalProgear += shipment.PPMShipment.SpouseProGearWeight.Float64()
 				}
 
@@ -333,7 +311,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
 		}
 
-		netWeight := models.GetTotalNetWeightForMove(move)
+		netWeight := models.GetTotalNetWeightFromHHGAndPPM(move)
 
 		report.FirstName = orders.ServiceMember.FirstName
 		report.LastName = orders.ServiceMember.LastName
@@ -369,6 +347,9 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.PaidDate = paymentRequests[0].ReviewedAt
 		report.CounseledDate = move.ServiceCounselingCompletedAt
 
+		financialFlag := move.FinancialReviewFlag
+		report.FinancialReviewFlag = &financialFlag
+
 		fullreport = append(fullreport, report)
 	}
 
@@ -401,7 +382,6 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTas
 		"Orders.NewDutyLocation.TransportationOffice.Gbloc",
 		"Orders.OriginDutyLocation.Address",
 		"Orders.TAC",
-		"LockedByOfficeUser",
 	).
 		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
 		InnerJoin("payment_service_items", "payment_service_items.payment_request_id = payment_requests.id").

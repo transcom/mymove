@@ -45,7 +45,7 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
+        "description": "Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
         "produces": [
           "application/json"
         ],
@@ -467,6 +467,10 @@ func init() {
         },
         "entitlementWeight": {
           "type": "integer",
+          "x-nullable": true
+        },
+        "financialReviewFlag": {
+          "type": "boolean",
           "x-nullable": true
         },
         "firstName": {
@@ -905,7 +909,7 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all reports that have been ??approved??. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
+        "description": "Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
         "produces": [
           "application/json"
         ],
@@ -1366,6 +1370,10 @@ func init() {
         },
         "entitlementWeight": {
           "type": "integer",
+          "x-nullable": true
+        },
+        "financialReviewFlag": {
+          "type": "boolean",
           "x-nullable": true
         },
         "firstName": {

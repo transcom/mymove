@@ -412,3 +412,6 @@ properties:
   counseledDate:
     type: string
     format: date
+  financialReviewFlag:
+    type: boolean
+    x-nullable: true

@@ -428,7 +428,10 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 	}
 
-	contractDate := ppmShipment.ExpectedDepartureDate
+	var contractDate time.Time
+	if ppmShipment.ExpectedDepartureDate.IsZero() {
+		contractDate = ppmShipment.ExpectedDepartureDate
+	}
 	if ppmShipment.ActualMoveDate != nil {
 		contractDate = *ppmShipment.ActualMoveDate
 	}

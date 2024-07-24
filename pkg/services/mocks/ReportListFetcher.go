@@ -16,24 +16,24 @@ type ReportListFetcher struct {
 	mock.Mock
 }
 
-// FetchMovesForReports provides a mock function with given fields: appCtx, params
-func (_m *ReportListFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveFetcherParams) (models.Moves, error) {
+// BuildReportFromMoves provides a mock function with given fields: appCtx, params
+func (_m *ReportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
 	ret := _m.Called(appCtx, params)
 
-	var r0 models.Moves
+	var r0 models.Reports
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveFetcherParams) (models.Moves, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Reports, error)); ok {
 		return rf(appCtx, params)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveFetcherParams) models.Moves); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Reports); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(models.Moves)
+			r0 = ret.Get(0).(models.Reports)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveFetcherParams) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
 		r1 = rf(appCtx, params)
 	} else {
 		r1 = ret.Error(1)
