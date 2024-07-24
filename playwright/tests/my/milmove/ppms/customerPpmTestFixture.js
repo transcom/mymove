@@ -777,7 +777,6 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToEditExpensePage() {
     await this.page.locator('.reviewExpenses a').getByText('Edit').click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
-    await this.page.waitForLoadState('networkidle', { timeout: 60000 });
   }
 
   /**
@@ -876,7 +875,6 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToExpensesPage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
-    await this.page.waitForLoadState('networkidle', { timeout: 60000 });
   }
 
   /**
