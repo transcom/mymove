@@ -1,19 +1,19 @@
-create table mobile_home (
+CREATE TABLE IF NOT EXISTS mobile_home (
 	id uuid PRIMARY KEY NOT NULL,
     shipment_id    uuid NOT NULL
-    CONSTRAINT ppm_shipment_mto_shipment_id_fkey
-    REFERENCES mto_shipments,
-	make varchar,
-	model varchar,
-	mh_year int,
-	mh_length int,
-    height int,
-	width int,
+    CONSTRAINT mobile_home_mto_shipment_id_fkey
+    REFERENCES mto_shipments(id),
+	make varchar NOT NULL,
+	model varchar NOT NULL,
+	mh_year int NOT NULL,
+	mh_length int NOT NULL,
+    height int NOT NULL,
+	width int NOT NULL,
 	requested_pickup_date date,
     requested_delivery_date date,
-	pickup_address varchar,
+	pickup_address varchar NOT NULL,
 	destination_address varchar,
-    origin_address varchar,
+    origin_address varchar NOT NULL,
 	created_at timestamp NOT NULL,
 	updated_at timestamp NOT NULL,
 	deleted_at timestamptz,
