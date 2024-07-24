@@ -331,6 +331,7 @@ test.describe('TIO user', () => {
       await officePage.signInAsNewTIOUser();
 
       tioFlowPage = new TioFlowPage(officePage, move);
+      await tioFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(move.locator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
@@ -648,6 +649,7 @@ test.describe('TIO user', () => {
       await officePage.signInAsNewTIOUser();
 
       tioFlowPage = new TioFlowPage(officePage, move);
+      await tioFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(move.locator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
@@ -776,6 +778,7 @@ test.describe('TIO user', () => {
       await officePage.signInAsNewTIOUser();
 
       tioFlowPage = new TioFlowPage(officePage, move);
+      await tioFlowPage.waitForLoading();
       await officePage.tioNavigateToMove(move.locator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
