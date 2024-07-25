@@ -17,13 +17,17 @@ test.describe('TIO user', () => {
 
     // Go to known NTS-R move
     await officePage.tioNavigateToMove(moveLocator);
+    await officePage.waitForLoading();
 
     // Verify we are on the Payment Requests page
     expect(page.url()).toContain('/payment-requests');
     await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
 
-    await page.locator('#billable-weights').getByText('Review weights').click();
-    await page.getByRole('heading', { name: 'Review weights' }).waitFor();
+    // Review Weights
+    const reviewWeightsBtn = page.locator('#billable-weights').getByText('Review weights');
+    await reviewWeightsBtn.click();
+
+    await page.getByRole('heading', { name: 'Review weights' }).waitFor({ state: 'visible' });
 
     await page.getByRole('button', { name: 'Edit' }).click();
     await officePage.waitForLoading();
