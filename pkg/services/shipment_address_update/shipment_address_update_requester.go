@@ -245,7 +245,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
-	if shipment.ShipmentType != models.MTOShipmentTypeHHG {
+	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
@@ -436,7 +436,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 	var shipment models.MTOShipment
 	var addressUpdate models.ShipmentAddressUpdate
 
-	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err := appCtx.DB().EagerPreload("Shipment", "Shipment.MoveTaskOrder", "Shipment.MTOServiceItems", "Shipment.PickupAddress", "OriginalAddress", "NewAddress", "SitOriginalAddress", "Shipment.DestinationAddress", "Shipment.StorageFacility.Address").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment address update")
@@ -456,10 +456,19 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 		shipment.DestinationAddress = &addressUpdate.NewAddress
 		shipment.DestinationAddressID = &addressUpdate.NewAddressID
 
-		// We want to make sure the newly approved address update does not affect line haul/short haul pricing
-		haulPricingTypeHasChanged, err := f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
-		if err != nil {
-			return nil, err
+		var haulPricingTypeHasChanged bool
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+			haulPricingTypeHasChanged, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
+			if err != nil {
+				return nil, err
+			}
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			haulPricingTypeHasChanged, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, apperror.NewQueryError("ShipmentAddressUpdate", err, "")
 		}
 
 		var shipmentDetails models.MTOShipment
