@@ -54,6 +54,7 @@ type Order struct {
 	OriginDutyLocationID           *uuid.UUID                         `json:"origin_duty_location_id" db:"origin_duty_location_id"`
 	NewDutyLocationID              uuid.UUID                          `json:"new_duty_location_id" db:"new_duty_location_id"`
 	NewDutyLocation                DutyLocation                       `belongs_to:"duty_locations" fk_id:"new_duty_location_id"`
+	DestinationGBLOC               *string                            `json:"destination_duty_location_gbloc" db:"destination_gbloc"`
 	UploadedOrders                 Document                           `belongs_to:"documents" fk_id:"uploaded_orders_id"`
 	UploadedOrdersID               uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber                   *string                            `json:"orders_number" db:"orders_number"`
@@ -93,6 +94,7 @@ func (o *Order) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: o.ReportByDate, Name: "ReportByDate"},
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
 		&validators.UUIDIsPresent{Field: o.NewDutyLocationID, Name: "NewDutyLocationID"},
+		&StringIsNilOrNotBlank{Field: o.DestinationGBLOC, Name: "DestinationDutyLocationGBLOC"},
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "TransportationAccountingCode"},
 		&StringIsNilOrNotBlank{Field: o.SAC, Name: "SAC"},

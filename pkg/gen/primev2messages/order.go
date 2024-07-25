@@ -30,6 +30,10 @@ type Order struct {
 	// destination duty location
 	DestinationDutyLocation *DutyLocation `json:"destinationDutyLocation,omitempty"`
 
+	// destination duty location g b l o c
+	// Example: KKFA
+	DestinationDutyLocationGBLOC string `json:"destinationDutyLocationGBLOC,omitempty"`
+
 	// e tag
 	// Read Only: true
 	ETag string `json:"eTag,omitempty"`
