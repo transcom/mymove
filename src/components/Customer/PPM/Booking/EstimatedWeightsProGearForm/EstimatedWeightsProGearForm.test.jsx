@@ -46,7 +46,7 @@ describe('EstimatedWeightsProGearForm component', () => {
   describe('displays form', () => {
     it('renders blank form on load', async () => {
       render(<EstimatedWeightsProGearForm {...defaultProps} />);
-      expect(await screen.getByRole('heading', { level: 2, name: 'Full PPM' })).toBeInTheDocument();
+      expect(await screen.getByRole('heading', { level: 2, name: 'PPM' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Pro-gear' })).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
