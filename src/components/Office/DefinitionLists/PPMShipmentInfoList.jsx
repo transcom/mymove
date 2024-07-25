@@ -253,7 +253,8 @@ const PPMShipmentInfoList = ({
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
-      {advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && aoaPacketElement}
+      {(advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue || advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) &&
+        aoaPacketElement}
       {status === ppmShipmentStatuses.CLOSEOUT_COMPLETE && paymentPacketElement}
       {counselorRemarksElement}
     </dl>
