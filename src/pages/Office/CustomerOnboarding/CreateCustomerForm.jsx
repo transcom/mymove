@@ -176,8 +176,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       <NotificationScrollToTop dependency={serverError} />
 
       {serverError && (
-        <Grid>
-          <Grid col desktop={{ col: 8 }} className={styles.nameFormContainer}>
+        <Grid className={styles.nameFormContainer}>
+          <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
             <Alert type="error" headingLevel="h4" heading="An error occurred">
               {serverError}
             </Alert>

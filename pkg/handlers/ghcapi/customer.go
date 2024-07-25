@@ -160,17 +160,21 @@ type CreateCustomerWithOktaOptionHandler struct {
 func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.CreateCustomerWithOktaOptionParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			v := viper.New()
-			v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
-			v.AutomaticEnv()
-			// Checking the DODID validation feature flag to enforce
-			// unique DODIDs if needed
-			dodidUniqueFeatureFlag := v.GetBool(cli.FeatureFlagDODIDUnique)
-
 			payload := params.Body
 			var err error
 			var serviceMembers []models.ServiceMember
 			var edipi *string
+			var dodidUniqueFeatureFlag bool
+
+			// evaluating feature flag to see if we need to check if the DODID exists already
+			featureFlagName := "dodid_unique"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching dodid_unique feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				dodidUniqueFeatureFlag = false
+			} else {
+				dodidUniqueFeatureFlag = flag.Match
+			}
 
 			if dodidUniqueFeatureFlag {
 				if payload.Edipi == nil || *payload.Edipi == "" {
