@@ -218,6 +218,13 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
+			newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+			if err != nil {
+				err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
 			originDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), originDutyLocation.Address.PostalCode)
 			if err != nil {
 				switch err {
@@ -288,6 +295,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				&entitlement,
 				&originDutyLocationGBLOC.GBLOC,
 				packingAndShippingInstructions,
+				&newDutyLocationGBLOC.GBLOC,
 			)
 			if err != nil || verrs.HasAny() {
 				return handlers.ResponseForVErrors(appCtx.Logger(), verrs, err), err

@@ -159,23 +159,25 @@ func Order(order *models.Order) *primemessages.Order {
 	}
 
 	payload := primemessages.Order{
-		CustomerID:              strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:                Customer(&order.ServiceMember),
-		DestinationDutyLocation: destinationDutyLocation,
-		Entitlement:             Entitlement(order.Entitlement),
-		ID:                      strfmt.UUID(order.ID.String()),
-		OriginDutyLocation:      originDutyLocation,
-		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
-		OrderNumber:             order.OrdersNumber,
-		LinesOfAccounting:       order.TAC,
-		Rank:                    &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
-		ETag:                    etag.GenerateEtag(order.UpdatedAt),
-		ReportByDate:            strfmt.Date(order.ReportByDate),
-		OrdersType:              primemessages.OrdersType(order.OrdersType),
+		CustomerID:                   strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                     Customer(&order.ServiceMember),
+		DestinationDutyLocation:      destinationDutyLocation,
+		DestinationDutyLocationGBLOC: swag.StringValue(order.DestinationGBLOC),
+		Entitlement:                  Entitlement(order.Entitlement),
+		ID:                           strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:           originDutyLocation,
+		OriginDutyLocationGBLOC:      swag.StringValue(order.OriginDutyLocationGBLOC),
+		OrderNumber:                  order.OrdersNumber,
+		LinesOfAccounting:            order.TAC,
+		Rank:                         &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
+		ETag:                         etag.GenerateEtag(order.UpdatedAt),
+		ReportByDate:                 strfmt.Date(order.ReportByDate),
+		OrdersType:                   primemessages.OrdersType(order.OrdersType),
 	}
 
 	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
+		payload.DestinationDutyLocationGBLOC = "USMC"
 	}
 
 	return &payload
