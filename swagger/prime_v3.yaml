@@ -2689,6 +2689,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:
