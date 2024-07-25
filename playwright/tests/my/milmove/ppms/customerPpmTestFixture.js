@@ -107,6 +107,17 @@ export class CustomerPpmPage extends CustomerPage {
   /**
    * returns {Promise<void>}
    */
+  async navigateToPPMReviewPageWithCompletePPM() {
+    await this.clickOnUploadPPMDocumentsButton();
+
+    await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]/);
+
+    await expect(this.page.getByRole('heading', { name: 'Review' })).toBeVisible();
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
   async navigateFromPPMReviewPageToFinalCloseoutPage() {
     await this.page.locator('a').getByText('Save & Continue').click();
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/shipments\/[^/]+\/complete/);
@@ -785,6 +796,13 @@ export class CustomerPpmPage extends CustomerPage {
   async navigateFromCloseoutReviewPageToAddExpensePage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
     await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+  }
+
+  /**
+   * returns {Promise<void>}
+   */
+  async returnToMoveHome() {
+    await this.page.getByRole('button', { name: 'Return To Homepage' }).click();
   }
 
   /**
