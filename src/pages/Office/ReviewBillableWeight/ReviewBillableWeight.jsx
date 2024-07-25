@@ -2,7 +2,6 @@ import React from 'react';
 import { Button, Alert } from '@trussworks/react-uswds';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import classNames from 'classnames';
 
 import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSidebar';
 
@@ -208,7 +207,7 @@ export default function ReviewBillableWeight() {
       <div className={styles.embed}>
         <DocumentViewer files={getAllFiles()} />
       </div>
-      <div className={classNames(styles.sidebar, reviewBillableWeightStyles.sidebar)}>
+      <div className={styles.sidebar}>
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar
             title="Review weights"
