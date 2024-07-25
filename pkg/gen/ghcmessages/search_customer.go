@@ -44,7 +44,7 @@ type SearchCustomer struct {
 	// personal email
 	// Example: personalEmail@email.com
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
-	PersonalEmail string `json:"personalEmail,omitempty"`
+	PersonalEmail *string `json:"personalEmail,omitempty"`
 
 	// telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
@@ -90,7 +90,7 @@ func (m *SearchCustomer) validatePersonalEmail(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.Pattern("personalEmail", "body", m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
+	if err := validate.Pattern("personalEmail", "body", *m.PersonalEmail, `^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`); err != nil {
 		return err
 	}
 
