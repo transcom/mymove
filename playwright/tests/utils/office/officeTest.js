@@ -137,7 +137,7 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async primeSimulatorNavigateToMove(moveLocator) {
-    await this.page.locator('input[name="moveCode"]').type(moveLocator);
+    await this.page.locator('input[name="moveCode"]').fill(moveLocator);
     await this.page.locator('input[name="moveCode"]').blur();
 
     // Click the first returned row
@@ -151,7 +151,7 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async qaeSearchForAndNavigateToMove(moveLocator) {
-    await this.page.locator('input[name="searchText"]').type(moveLocator);
+    await this.page.locator('input[name="searchText"]').fill(moveLocator);
     await this.page.locator('input[name="searchText"]').blur();
 
     await this.page.getByRole('button', { name: 'Search' }).click();
@@ -172,7 +172,7 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async csrSearchForAndNavigateToMove(moveLocator) {
-    await this.page.locator('input[name="searchText"]').type(moveLocator);
+    await this.page.locator('input[name="searchText"]').fill(moveLocator);
     await this.page.locator('input[name="searchText"]').blur();
 
     await this.page.getByRole('button', { name: 'Search' }).click();
@@ -193,7 +193,7 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async tioNavigateToMove(moveLocator) {
-    await this.page.locator('#locator').type(moveLocator);
+    await this.page.locator('#locator').fill(moveLocator);
     await this.page.locator('th[data-testid="locator"]').first().click();
     await this.page.locator('[data-testid="locator-0"]').click();
   }
@@ -203,12 +203,13 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async tooNavigateToMove(moveLocator) {
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     // click result to navigate to move details page
     await this.page.locator('tbody > tr').first().click();
     await this.page.waitForURL(/\/moves\/[^/]+\/details/);
+    await this.page.waitForLoadState('networkidle', { timeout: 30000 });
     await this.page.getByRole('heading', { name: 'Move details' }).waitFor();
   }
 }

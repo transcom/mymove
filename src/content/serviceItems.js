@@ -1,4 +1,4 @@
-const serviceItemCodes = {
+export const serviceItemCodes = {
   CS: 'Counseling',
   DBHF: 'Domestic haul away boat factor',
   DBTF: 'Domestic tow away boat factor',
@@ -50,5 +50,9 @@ const serviceItemCodes = {
   NSTUB: 'Nonstandard UB',
 };
 
-export default serviceItemCodes;
-export { serviceItemCodes };
+export const nonWeightReliantServiceItems = {
+  CS: 'Counseling',
+  DCRT: 'Domestic crating',
+  DUCRT: 'Domestic uncrating',
+  MS: 'Move management',
+};
