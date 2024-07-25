@@ -99,11 +99,13 @@ describe('Shipment Heading with diversion requested shipment', () => {
 
 describe('Shipment Heading with cancelled shipment', () => {
   const wrapper = mount(
-    <ShipmentHeading
-      shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: 'CANCELED' }}
-      handleUpdateMTOShipmentStatus={jest.fn()}
-      handleShowCancellationModal={jest.fn()}
-    />,
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
+      <ShipmentHeading
+        shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: 'CANCELED' }}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />
+    </MockProviders>,
   );
 
   it('renders the cancelled tag next to the shipment type', () => {
@@ -111,25 +113,27 @@ describe('Shipment Heading with cancelled shipment', () => {
   });
 
   it('hides the request cancellation button', () => {
-    expect(wrapper.find('button').length).toBeFalsy();
+    expect(wrapper.find({ 'data-testid': 'requestCancellationBtn' }).length).toBeFalsy();
   });
 });
 
 describe('Shipment Heading with shipment cancellation requested', () => {
   const wrapper = mount(
-    <ShipmentHeading
-      shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED }}
-      handleUpdateMTOShipmentStatus={jest.fn()}
-      handleShowCancellationModal={jest.fn()}
-    />,
+    <MockProviders permissions={[permissionTypes.createShipmentCancellation, permissionTypes.updateMTOPage]}>
+      <ShipmentHeading
+        shipmentInfo={{ isDiversion: false, ...headingInfo, shipmentStatus: shipmentStatuses.CANCELLATION_REQUESTED }}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />
+    </MockProviders>,
   );
 
   it('renders the cancellation requested tag next to the shipment type', () => {
     expect(wrapper.find({ 'data-testid': 'tag' }).text()).toEqual('Cancellation Requested');
   });
 
-  it('hides the request cancellation button', () => {
-    expect(wrapper.find('button').length).toBeFalsy();
+  it('hides the request cancellation button', async () => {
+    expect(wrapper.find({ 'data-testid': 'requestCancellationBtn' }).length).toBeFalsy();
   });
 });
 
@@ -149,7 +153,7 @@ describe('Shipment Heading shows cancellation button with permissions', () => {
   });
 });
 
-describe('Shipment Heading hides cancellation button without permissions', () => {
+describe('Shipment Heading hides cancellation button without any permissions', () => {
   const wrapper = mount(
     <ShipmentHeading
       shipmentInfo={headingInfo}
@@ -158,13 +162,13 @@ describe('Shipment Heading hides cancellation button without permissions', () =>
     />,
   );
 
-  it('renders withour request shipment cancellation when user does not have permission', () => {
+  it('renders without request shipment cancellation when user does not have any permissions', () => {
     expect(wrapper.find('button').length).toBeFalsy();
   });
 });
 
-describe('Shipment Heading hides cancellation button without updateMTOPage permission', () => {
-  const wrapper = mount(
+describe('Shipment Heading hides cancellation button when user is missing permission(s)', () => {
+  let wrapper = mount(
     <MockProviders permissions={[permissionTypes.createShipmentCancellation]}>
       <ShipmentHeading
         shipmentInfo={headingInfo}
@@ -174,8 +178,22 @@ describe('Shipment Heading hides cancellation button without updateMTOPage permi
     </MockProviders>,
   );
 
-  it('renders withour request shipment cancellation when user does not have permission', () => {
-    expect(wrapper.find('button').length).toBeFalsy();
+  it('renders withour request shipment cancellation when user is missing one permissions', () => {
+    expect(wrapper.find({ 'data-testid': 'requestCancellationBtn' }).length).toBeFalsy();
+  });
+
+  wrapper = mount(
+    <MockProviders permissions={[permissionTypes.updateMTOPage]}>
+      <ShipmentHeading
+        shipmentInfo={headingInfo}
+        handleUpdateMTOShipmentStatus={jest.fn()}
+        handleShowCancellationModal={jest.fn()}
+      />
+    </MockProviders>,
+  );
+
+  it('renders withour request shipment cancellation when user does not have both permissions', () => {
+    expect(wrapper.find({ 'data-testid': 'requestCancellationBtn' }).length).toBeFalsy();
   });
 });
 
