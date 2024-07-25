@@ -59,7 +59,7 @@ class TioFlowPage extends OfficePage {
       const inputEl = serviceItemCardLocator.locator('input[data-testid="rejectRadio"]');
       const id = await inputEl.getAttribute('id');
       await this.page.locator(`label[for="${id}"]`).click();
-      await this.page.locator('textarea[data-testid="rejectionReason"]').type('This is not a valid request');
+      await this.page.locator('textarea[data-testid="rejectionReason"]').fill('This is not a valid request');
     } else {
       const inputEl = serviceItemCardLocator.locator('input[data-testid="approveRadio"]');
       const id = await inputEl.getAttribute('id');
@@ -191,7 +191,7 @@ test.describe('TIO user', () => {
     test('can search for moves using Move Code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(testMove.locator);
+      await page.getByTestId('searchText').fill(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
@@ -200,7 +200,7 @@ test.describe('TIO user', () => {
     test('can search for moves using DOD ID', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(testMove.Orders.ServiceMember.edipi);
+      await page.getByTestId('searchText').fill(testMove.Orders.ServiceMember.edipi);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
@@ -210,7 +210,7 @@ test.describe('TIO user', () => {
       const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(CustomerName);
+      await page.getByTestId('searchText').fill(CustomerName);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
@@ -219,7 +219,7 @@ test.describe('TIO user', () => {
     test('Can filter status using Payment Request Status', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchText').fill(SearchTerms[0]);
       await page.getByTestId('searchTextSubmit').click();
 
       // Check if Payment Request Status options are present
@@ -236,7 +236,7 @@ test.describe('TIO user', () => {
     test('Can select a filter status using Payment Request', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(testMove.locator);
+      await page.getByTestId('searchText').fill(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       // Check if Payment Request Status options are present
@@ -252,7 +252,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('');
+      await SearchBox.fill('');
       await SearchBox.blur();
 
       await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
@@ -263,7 +263,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('MOVE');
+      await SearchBox.fill('MOVE');
       await SearchBox.blur();
 
       await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
@@ -274,7 +274,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('ASUPERLONGMOVE');
+      await SearchBox.fill('ASUPERLONGMOVE');
       await SearchBox.blur();
 
       await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
@@ -285,7 +285,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('');
+      await SearchBox.fill('');
       await SearchBox.blur();
 
       await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
@@ -296,7 +296,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('1234567');
+      await SearchBox.fill('1234567');
       await SearchBox.blur();
 
       await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
@@ -307,7 +307,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('123456789011');
+      await SearchBox.fill('123456789011');
       await SearchBox.blur();
 
       await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
@@ -318,7 +318,7 @@ test.describe('TIO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('');
+      await SearchBox.fill('');
       await SearchBox.blur();
 
       await expect(page.getByText('Customer search must contain a value')).toBeVisible();
@@ -331,7 +331,8 @@ test.describe('TIO user', () => {
       await officePage.signInAsNewTIOUser();
 
       tioFlowPage = new TioFlowPage(officePage, move);
-      await officePage.tioNavigateToMove(move.locator);
+      await tioFlowPage.waitForLoading();
+      await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
@@ -373,9 +374,9 @@ test.describe('TIO user', () => {
 
       // Edit orders page | Make edits
       await form.locator('input[name="tac"]').clear();
-      await form.locator('input[name="tac"]').type('E15A');
+      await form.locator('input[name="tac"]').fill('E15A');
       await form.locator('input[name="sac"]').clear();
-      await form.locator('input[name="sac"]').type('4K988AS098F');
+      await form.locator('input[name="sac"]').fill('4K988AS098F');
       await form.locator('input[name="sac"]').blur();
       // Edit orders page | Save
       await page.getByRole('button', { name: 'Save' }).click();
@@ -477,7 +478,7 @@ test.describe('TIO user', () => {
 
       // search for the moveLocator in case this move doesn't show up
       // on the first page
-      await page.locator('#locator').type(tioFlowPage.moveLocator);
+      await page.locator('#locator').fill(tioFlowPage.moveLocator);
       await page.locator('#locator').blur();
       const paymentSection = page.locator(`[data-uuid="${tioFlowPage.paymentRequest.id}"]`);
       // the payment request that is now in the "Reviewed" status will no longer appear
@@ -490,9 +491,7 @@ test.describe('TIO user', () => {
       // The test starts on the move page
 
       // Payment Requests page
-      const secondPaymentRequest = tioFlowPage.findPaymentRequestBySequenceNumber(2);
-      const paymentRequestCard = page.getByText(secondPaymentRequest.payment_request_number).locator('../..');
-      await paymentRequestCard.getByText('Review service items').click();
+      await page.getByText('Review service items').last().click();
       await expect(page.getByRole('heading', { name: 'Review service items' })).toBeVisible();
 
       // Approve the first service item
@@ -529,7 +528,7 @@ test.describe('TIO user', () => {
 
       // Enter information in modal and submit
       await page.locator('label').getByText('Yes').click();
-      await page.locator('textarea').type('Something is rotten in the state of Denmark');
+      await page.locator('textarea').fill('Something is rotten in the state of Denmark');
 
       // Click save on the modal
       await page.getByRole('button', { name: 'Save' }).click();
@@ -570,8 +569,8 @@ test.describe('TIO user', () => {
       // cy.url().should('include', `/moves/NTSTIO/orders`);
 
       // await page.locator('form').within(() => {
-      //   await page.locator('input[data-testid="ntsTacInput"]').click().type('E19A');
-      //   await page.locator('input[data-testid="ntsSacInput"]').click().type('3L988AS098F');
+      //   await page.locator('input[data-testid="ntsTacInput"]').click().fill('E19A');
+      //   await page.locator('input[data-testid="ntsSacInput"]').click().fill('3L988AS098F');
       //   // Edit orders page | Save
       //   await expect(page.locator('button')).toContainText('Save').click();
       // });
@@ -648,7 +647,8 @@ test.describe('TIO user', () => {
       await officePage.signInAsNewTIOUser();
 
       tioFlowPage = new TioFlowPage(officePage, move);
-      await officePage.tioNavigateToMove(move.locator);
+      await tioFlowPage.waitForLoading();
+      await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 
@@ -739,7 +739,10 @@ test.describe('TIO user', () => {
       await expect(page.locator(prSection)).not.toContainText('Rejected');
 
       // Review Weights
-      await page.locator('#billable-weights').getByText('Review weights').click();
+      const reviewWeightsBtn = page.locator('#billable-weights').getByText('Review weights');
+      await tioFlowPage.waitForLoading();
+      await reviewWeightsBtn.click();
+
       await tioFlowPage.waitForLoading();
       await page.locator('[data-testid="closeSidebar"]').click();
 
@@ -776,7 +779,8 @@ test.describe('TIO user', () => {
       await officePage.signInAsNewTIOUser();
 
       tioFlowPage = new TioFlowPage(officePage, move);
-      await officePage.tioNavigateToMove(move.locator);
+      await tioFlowPage.waitForLoading();
+      await officePage.tioNavigateToMove(tioFlowPage.moveLocator);
       await officePage.page.getByRole('heading', { name: 'Payment Requests', exact: true }).waitFor();
     });
 

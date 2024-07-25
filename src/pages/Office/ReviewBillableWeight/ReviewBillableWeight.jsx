@@ -207,7 +207,7 @@ export default function ReviewBillableWeight() {
       <div className={styles.embed}>
         <DocumentViewer files={getAllFiles()} />
       </div>
-      <div className={styles.sidebar}>
+      <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar
             title="Review weights"
