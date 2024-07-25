@@ -15,6 +15,8 @@ export default function DocumentViewerSidebar({
   onClose,
   defaultH3,
   hyperlink,
+  titleTag,
+  subtitleTag,
 }) {
   return (
     <div
@@ -26,8 +28,16 @@ export default function DocumentViewerSidebar({
       <header className={styles.header}>
         <div>
           {supertitle && <h2 className={styles.supertitle}>{supertitle}</h2>}
-          <h1>{title}</h1>
-          {subtitle && <h2>{subtitle}</h2>}
+          <h1>
+            {title}
+            {titleTag}
+          </h1>
+          {subtitle && (
+            <h2>
+              {subtitle}
+              {subtitleTag}
+            </h2>
+          )}
           {description && <h3>{description}</h3>}
           {hyperlink && <p data-testid="hyperlink">{hyperlink}</p>}
         </div>
@@ -48,6 +58,8 @@ DocumentViewerSidebar.propTypes = {
   description: string,
   onClose: func.isRequired,
   defaultH3: bool,
+  titleTag: node,
+  subtitleTag: node,
 };
 
 DocumentViewerSidebar.defaultProps = {
@@ -55,6 +67,8 @@ DocumentViewerSidebar.defaultProps = {
   supertitle: '',
   description: '',
   defaultH3: false,
+  titleTag: null,
+  subtitleTag: null,
 };
 
 DocumentViewerSidebar.Content = function Content({ children, mainRef }) {
