@@ -12,6 +12,7 @@ properties:
   middleInitial:
     example: G
     type: string
+    x-nullable: true
   affiliation:
     $ref: 'Affiliation.yaml'
   payGrade:
