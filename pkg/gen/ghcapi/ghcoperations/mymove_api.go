@@ -239,6 +239,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesListPrimeMovesHandler: queues.ListPrimeMovesHandlerFunc(func(params queues.ListPrimeMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ListPrimeMoves has not yet been implemented")
 		}),
+		MoveMoveCancellationHandler: move.MoveCancellationHandlerFunc(func(params move.MoveCancellationParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.MoveCancellation has not yet been implemented")
+		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
@@ -510,6 +513,8 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// QueuesListPrimeMovesHandler sets the operation handler for the list prime moves operation
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
+	// MoveMoveCancellationHandler sets the operation handler for the move cancellation operation
+	MoveMoveCancellationHandler move.MoveCancellationHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
 	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
@@ -837,6 +842,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesListPrimeMovesHandler == nil {
 		unregistered = append(unregistered, "queues.ListPrimeMovesHandler")
+	}
+	if o.MoveMoveCancellationHandler == nil {
+		unregistered = append(unregistered, "move.MoveCancellationHandler")
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
@@ -1269,6 +1277,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/prime-moves"] = queues.NewListPrimeMoves(o.context, o.QueuesListPrimeMovesHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{moveID}/cancel"] = move.NewMoveCancellation(o.context, o.MoveMoveCancellationHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}

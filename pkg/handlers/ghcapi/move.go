@@ -279,6 +279,39 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 		})
 }
 
+type MoveCancellationHandler struct {
+	handlers.HandlerConfig
+	services.MoveCancellation
+}
+
+func (h MoveCancellationHandler) Handle(params moveop.MoveCancellationParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			moveID := uuid.FromStringOrNil(params.MoveID.String())
+
+			move, err := h.MoveCancellation.CancelMove(appCtx, moveID)
+			if err != nil {
+				appCtx.Logger().Error("MoveCancellationHandler error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return moveop.NewMoveCancellationNotFound(), err
+				case apperror.PreconditionFailedError:
+					return moveop.NewMoveCancellationPreconditionFailed(), err
+				case apperror.InvalidInputError:
+					return moveop.NewMoveCancellationUnprocessableEntity(), err
+				default:
+					return moveop.NewMoveCancellationInternalServerError(), err
+				}
+			}
+
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
+			return moveop.NewMoveCancellationOK().WithPayload(payload), nil
+		})
+}
+
 func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStorer, upload models.Upload, url string) (*ghcmessages.Upload, error) {
 	uploadPayload := &ghcmessages.Upload{
 		ID:          handlers.FmtUUIDValue(upload.ID),

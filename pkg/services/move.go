@@ -112,3 +112,7 @@ type SearchMovesParams struct {
 type MoveCloseoutOfficeUpdater interface {
 	UpdateCloseoutOffice(appCtx appcontext.AppContext, moveLocator string, closeoutOfficeID uuid.UUID, eTag string) (*models.Move, error)
 }
+
+type MoveCancellation interface {
+	CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error)
+}

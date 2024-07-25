@@ -404,6 +404,42 @@ paths:
         Returns counseling evaluation reports for the specified move that are
         visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  /moves/{moveID}/cancel:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCancellation
+      summary: Cancels a move
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
