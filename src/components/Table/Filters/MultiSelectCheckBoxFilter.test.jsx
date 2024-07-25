@@ -19,7 +19,7 @@ const optionsStrings = [
 
 describe('MultiSelectCheckBoxFilter', () => {
   it('renders without crashing', () => {
-    const wrapper = mount(<MultiSelectCheckBoxFilter options={[{ label: 'test', value: 'test' }]} column={{}} />);
+    const wrapper = mount(<MultiSelectCheckBoxFilter options={[{ label: 'test', value: 'test' }]} column={column} />);
     expect(wrapper.find('[data-testid="MultiSelectCheckBoxFilter"]').length).toBe(1);
     expect(wrapper.find('.MultiSelectCheckBoxFilter__placeholder').at(1).text('Select...')).toBeTruthy();
   });

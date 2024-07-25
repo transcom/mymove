@@ -390,6 +390,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -410,6 +417,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -1855,6 +1863,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -1895,6 +1910,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -3861,6 +3877,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3911,6 +3928,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -4094,6 +4117,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -4135,6 +4159,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -4228,6 +4257,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -4283,6 +4313,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -6722,6 +6757,10 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -9194,6 +9233,12 @@ func init() {
             }
           ]
         },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -11271,6 +11316,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -11342,6 +11391,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -12123,6 +12176,13 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -13504,6 +13564,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -13524,6 +13591,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -15392,6 +15460,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -15432,6 +15507,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -17941,6 +18017,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -17991,6 +18068,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -18186,6 +18269,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -18227,6 +18311,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -18326,6 +18415,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -18381,6 +18471,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -21173,6 +21268,10 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -23644,6 +23743,12 @@ func init() {
             }
           ]
         },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
           "type": "string",
@@ -25774,6 +25879,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -25845,6 +25954,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -26632,6 +26745,13 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
