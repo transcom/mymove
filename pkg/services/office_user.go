@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 )
 
 // OfficeUserFetcher is the exported interface for fetching a single office user
@@ -21,6 +22,7 @@ type OfficeUserFetcher interface {
 //go:generate mockery --name OfficeUserFetcherPop
 type OfficeUserFetcherPop interface {
 	FetchOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
+	FetchOfficeUserByRoleAndGbloc(appCtx appcontext.AppContext, role roles.RoleType, gbloc string) ([]models.OfficeUser, error)
 }
 
 // OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
