@@ -22,7 +22,7 @@ import FinancialReviewButton from 'components/Office/FinancialReviewButton/Finan
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
-import { useMoveDetailsQueries } from 'hooks/queries';
+import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
@@ -51,6 +51,13 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
+  const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
+  const documentsForViewer = Object.values(upload || {})
+    .concat(Object.values(amendedUpload || {}))
+    ?.filter((file) => {
+      return !file.deletedAt;
+    });
+  const hasDocuments = documentsForViewer?.length > 0;
 
   const { order, customerData, move, closeoutOffice, mtoShipments, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
@@ -135,7 +142,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     errorIfMissing.HHG_OUTOF_NTS_DOMESTIC.push({ fieldName: 'destinationType' });
   }
 
-  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac)
+  if (!order.department_indicator || !order.order_number || !order.order_type_detail || !order.tac || !hasDocuments)
     disableSubmitDueToMissingOrderInfo = true;
 
   if (mtoShipments) {
@@ -299,7 +306,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
   const allowancesInfo = {
     branch: customer.agency,
     grade: order.grade,
-    authorizedWeight: allowances.authorizedWeight,
+    totalWeight: allowances.totalWeight,
     progear: allowances.proGearWeight,
     spouseProgear: allowances.proGearWeightSpouse,
     storageInTransit: allowances.storageInTransit,
