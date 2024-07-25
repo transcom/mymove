@@ -81,6 +81,11 @@ type SearchCustomersBody struct {
 	// Min Length: 10
 	DodID *string `json:"dodID,omitempty"`
 
+	// EMPLID
+	// Max Length: 7
+	// Min Length: 7
+	Emplid *string `json:"emplid,omitempty"`
+
 	// order
 	// Enum: [asc desc]
 	Order *string `json:"order,omitempty"`
@@ -92,7 +97,7 @@ type SearchCustomersBody struct {
 	PerPage int64 `json:"perPage,omitempty"`
 
 	// sort
-	// Enum: [customerName dodID branch personalEmail telephone]
+	// Enum: [customerName dodID emplid branch personalEmail telephone]
 	Sort *string `json:"sort,omitempty"`
 }
 
@@ -109,6 +114,10 @@ func (o *SearchCustomersBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateDodID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEmplid(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -166,6 +175,22 @@ func (o *SearchCustomersBody) validateDodID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (o *SearchCustomersBody) validateEmplid(formats strfmt.Registry) error {
+	if swag.IsZero(o.Emplid) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("body"+"."+"emplid", "body", *o.Emplid, 7); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("body"+"."+"emplid", "body", *o.Emplid, 7); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 var searchCustomersBodyTypeOrderPropEnum []interface{}
 
 func init() {
@@ -212,7 +237,7 @@ var searchCustomersBodyTypeSortPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["customerName","dodID","branch","personalEmail","telephone"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["customerName","dodID","emplid","branch","personalEmail","telephone"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -227,6 +252,9 @@ const (
 
 	// SearchCustomersBodySortDodID captures enum value "dodID"
 	SearchCustomersBodySortDodID string = "dodID"
+
+	// SearchCustomersBodySortEmplid captures enum value "emplid"
+	SearchCustomersBodySortEmplid string = "emplid"
 
 	// SearchCustomersBodySortBranch captures enum value "branch"
 	SearchCustomersBodySortBranch string = "branch"
