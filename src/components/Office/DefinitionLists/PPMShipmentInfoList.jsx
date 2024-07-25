@@ -249,7 +249,7 @@ const PPMShipmentInfoList = ({
       )}
       data-testid="ppm-shipment-info-list"
     >
-      {(actualMoveDate === null || actualMoveDate === undefined) && expectedDepartureDateElement}
+      {!actualMoveDate && expectedDepartureDateElement}
       {actualMoveDate && actualDepartureDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
