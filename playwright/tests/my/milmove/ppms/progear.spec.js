@@ -41,7 +41,8 @@ test.describe('(MultiMove) Progear', () => {
       const move = await customerPpmPage.testHarness.buildApprovedMoveWithPPMProgearWeightTicket();
       await customerPpmPage.signInForPPMWithMove(move);
       await customerPpmPage.clickOnGoToMoveButton();
-      await customerPpmPage.navigateToProgearPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
+      await customerPpmPage.navigateFromCloseoutReviewPageToProGearPage();
     });
 
     test(`progear page loads`, async ({ customerPpmPage, page }) => {
