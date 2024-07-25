@@ -30,6 +30,8 @@ test.describe('WebhookSubscriptions Details Show Page', () => {
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
     await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
+
+    // Potentially flaky if there is more than one page of webhook subscriptions
     await page.getByText(id).click();
     await adminPage.waitForPage.adminPage();
 
@@ -60,6 +62,8 @@ test.describe('WebhookSubscriptions Details Edit Page', () => {
     await page.getByRole('menuitem', { name: 'Webhook Subscriptions' }).click();
     await adminPage.waitForPage.adminPage();
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
+
+    // Potentially flaky if there is more than one page of webhook subscriptions
     await page.getByText(id).click();
     await adminPage.waitForPage.adminPage();
 
@@ -104,9 +108,18 @@ test.describe('Webhook Subscription Create Page', () => {
     await expect(page.getByRole('heading', { name: 'Webhook Subscriptions' })).toBeVisible();
     await page.getByRole('link', { name: 'Create' }).click();
 
-    await page.getByLabel('Subscriber Id').fill(subId);
-    await page.getByLabel('Event key').fill('PaymentRequest.Update');
-    await page.getByLabel('Callback url').fill('https://test1.example.com');
+    const subscriberId = page.getByLabel('Subscriber Id');
+    await subscriberId.focus();
+    await subscriberId.fill(subId);
+
+    const eventKey = page.getByLabel('Event key');
+    await eventKey.focus();
+    await eventKey.fill('PaymentRequest.Update');
+
+    const callbackUrl = page.getByLabel('Callback url');
+    await callbackUrl.focus();
+    await callbackUrl.fill('https://test1.example.com');
+
     await page.locator('div[id="status"]').click();
     await page.locator('li[data-value="ACTIVE"]').click();
     await page.getByRole('button').filter({ hasText: 'Save' }).click();
