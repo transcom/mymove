@@ -56,15 +56,25 @@ test.describe('Office User Create Page', () => {
     const testEmail = `cy.admin_user.${Date.now()}@example.com`;
 
     // create an office user
-    await page.getByLabel('First name').fill('Cypress');
+    const firstName = page.getByLabel('First name');
+    await firstName.focus();
+    await firstName.fill('Cypress');
 
     // middle initials are not working for me in chrome outside of
     // playwright - ahobson 2022-12-29
     // await page.getByLabel('Middle initials').fill('X');
-    await page.getByLabel('Last name').fill('Test');
+    const lastName = page.getByLabel('Last name');
+    await lastName.focus();
+    await lastName.fill('Test');
 
-    await page.getByLabel('Email').fill(testEmail);
-    await page.getByLabel('Telephone').fill('222-555-1234');
+    const email = page.getByLabel('Email');
+    await email.focus();
+    await email.fill(testEmail);
+
+    const phone = page.getByLabel('Telephone');
+    await phone.focus();
+    await phone.fill('222-555-1234');
+
     await page.getByText('Services Counselor').click();
     await page.getByText('Supervisor').click();
     // The autocomplete form results in multiple matching elements, so
@@ -155,11 +165,15 @@ test.describe('Office Users Edit Page', () => {
       await expect(page.locator(`#${field}`)).toBeDisabled();
     }
 
-    await page.getByLabel('First name').clear();
-    await page.getByLabel('First name').fill('NewFirst');
+    const firstName = page.getByLabel('First name');
+    await firstName.focus();
+    await firstName.clear();
+    await firstName.fill('NewFirst');
 
-    await page.getByLabel('Last name').clear();
-    await page.getByLabel('Last name').fill('NewLast');
+    const lastName = page.getByLabel('Last name');
+    await lastName.focus();
+    await lastName.clear();
+    await lastName.fill('NewLast');
 
     // The autocomplete form results in multiple matching elements, so
     // pick the input element

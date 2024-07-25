@@ -70,26 +70,26 @@ test.describe('Prime simulator user', () => {
 
     const { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate } =
       formatRelativeDate(11);
-    await page.locator('input[name="scheduledDeliveryDate"]').type(formattedScheduledDeliveryDate);
+    await page.locator('input[name="scheduledDeliveryDate"]').fill(formattedScheduledDeliveryDate);
     await page.locator('input[name="scheduledDeliveryDate"]').blur();
     const { relativeDate: actualDeliveryDate, formattedDate: formattedActualDeliveryDate } = formatRelativeDate(12);
-    await page.locator('input[name="actualDeliveryDate"]').type(formattedActualDeliveryDate);
+    await page.locator('input[name="actualDeliveryDate"]').fill(formattedActualDeliveryDate);
     await page.locator('input[name="actualDeliveryDate"]').blur();
     // there must be sufficient time prior to the pickup dates to update the estimated weight
     const { relativeDate: scheduledPickupDate, formattedDate: formattedScheduledPickupDate } = formatRelativeDate(11);
-    await page.locator('input[name="scheduledPickupDate"]').type(formattedScheduledPickupDate);
+    await page.locator('input[name="scheduledPickupDate"]').fill(formattedScheduledPickupDate);
     await page.locator('input[name="scheduledPickupDate"]').blur();
     const { relativeDate: actualPickupDate, formattedDate: formattedActualPickupDate } = formatRelativeDate(12);
-    await page.locator('input[name="actualPickupDate"]').type(formattedActualPickupDate);
+    await page.locator('input[name="actualPickupDate"]').fill(formattedActualPickupDate);
     await page.locator('input[name="actualPickupDate"]').blur();
     // update shipment does not require these fields but we need actual weight to create a payment request, we could
     // perform multiple updates.
     await page.locator('input[name="estimatedWeight"]').type('{backspace}7500');
     await page.locator('input[name="actualWeight"]').type('{backspace}8000');
-    await page.locator('input[name="destinationAddress.streetAddress1"]').type('142 E Barrel Hoop Circle');
-    await page.locator('input[name="destinationAddress.city"]').type('Joshua Tree');
+    await page.locator('input[name="destinationAddress.streetAddress1"]').fill('142 E Barrel Hoop Circle');
+    await page.locator('input[name="destinationAddress.city"]').fill('Joshua Tree');
     await page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="destinationAddress.postalCode"]').type('92252');
+    await page.locator('input[name="destinationAddress.postalCode"]').fill('92252');
 
     await page.getByText('Save').click();
     await expect(page.getByText('Successfully updated shipment')).toHaveCount(1);
@@ -128,26 +128,26 @@ test.describe('Prime simulator user', () => {
 
     const { relativeDate: scheduledDeliveryDate, formattedDate: formattedScheduledDeliveryDate } =
       formatRelativeDate(11);
-    await page.locator('input[name="scheduledDeliveryDate"]').type(formattedScheduledDeliveryDate);
+    await page.locator('input[name="scheduledDeliveryDate"]').fill(formattedScheduledDeliveryDate);
     await page.locator('input[name="scheduledDeliveryDate"]').blur();
     const { relativeDate: actualDeliveryDate, formattedDate: formattedActualDeliveryDate } = formatRelativeDate(12);
-    await page.locator('input[name="actualDeliveryDate"]').type(formattedActualDeliveryDate);
+    await page.locator('input[name="actualDeliveryDate"]').fill(formattedActualDeliveryDate);
     await page.locator('input[name="actualDeliveryDate"]').blur();
     // there must be sufficient time prior to the pickup dates to update the estimated weight
     const { relativeDate: scheduledPickupDate, formattedDate: formattedScheduledPickupDate } = formatRelativeDate(11);
-    await page.locator('input[name="scheduledPickupDate"]').type(formattedScheduledPickupDate);
+    await page.locator('input[name="scheduledPickupDate"]').fill(formattedScheduledPickupDate);
     await page.locator('input[name="scheduledPickupDate"]').blur();
     const { relativeDate: actualPickupDate, formattedDate: formattedActualPickupDate } = formatRelativeDate(12);
-    await page.locator('input[name="actualPickupDate"]').type(formattedActualPickupDate);
+    await page.locator('input[name="actualPickupDate"]').fill(formattedActualPickupDate);
     await page.locator('input[name="actualPickupDate"]').blur();
     // update shipment does not require these fields but we need actual weight to create a payment request, we could
     // perform multiple updates.
     await page.locator('input[name="estimatedWeight"]').type('{backspace}7500');
     await page.locator('input[name="actualWeight"]').type('{backspace}8000');
-    await page.locator('input[name="destinationAddress.streetAddress1"]').type('142 E Barrel Hoop Circle');
-    await page.locator('input[name="destinationAddress.city"]').type('Joshua Tree');
+    await page.locator('input[name="destinationAddress.streetAddress1"]').fill('142 E Barrel Hoop Circle');
+    await page.locator('input[name="destinationAddress.city"]').fill('Joshua Tree');
     await page.locator('select[name="destinationAddress.state"]').selectOption({ label: 'CA' });
-    await page.locator('input[name="destinationAddress.postalCode"]').type('92252');
+    await page.locator('input[name="destinationAddress.postalCode"]').fill('92252');
     await page.getByTestId('dropdown').nth(1).selectOption('Home of record (HOR)');
 
     await page.getByText('Save').click();
@@ -250,9 +250,9 @@ test.describe('Prime simulator user', () => {
     }
 
     await expect(page.getByText(`Requested Days`)).toBeVisible();
-    await page.locator('input[name="requestedDays"]').type('12');
+    await page.locator('input[name="requestedDays"]').fill('12');
     await expect(page.getByText(`Contractor Remarks`)).toBeVisible();
-    await page.locator('textarea[name="contractorRemarks"]').type('Testing contractor remarks');
+    await page.locator('textarea[name="contractorRemarks"]').fill('Testing contractor remarks');
 
     // Submit the form
     await page.getByText('Request SIT Extension').click();
