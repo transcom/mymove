@@ -600,7 +600,9 @@ const ShipmentForm = (props) => {
               </Alert>
             )}
             {deliveryAddressUpdateRequested && (
-              <Alert type="error">Request needs review. See delivery location to proceed.</Alert>
+              <Alert type="error" className={styles.alert}>
+                Request needs review. <a href="#delivery-location">See delivery location to proceed.</a>
+              </Alert>
             )}
 
             <div className={styles.ShipmentForm}>
@@ -729,25 +731,50 @@ const ShipmentForm = (props) => {
                     </Fieldset>
 
                     {isNTSR ? (
-                      <Fieldset legend="Delivery location">
-                        <AddressFields
-                          name="delivery.address"
-                          render={(fields) => {
-                            return fields;
-                          }}
-                        />
-                        {displayDestinationType && (
-                          <DropdownInput
-                            label="Destination type"
-                            name="destinationType"
-                            options={shipmentDestinationAddressOptions}
-                            id="destinationType"
-                          />
+                      <>
+                        {deliveryAddressUpdateRequested && (
+                          <Alert type="error" slim className={styles.deliveryAddressUpdateAlert} id="delivery-location">
+                            <span className={styles.deliveryAddressUpdateAlertContent}>
+                              Pending delivery location change request needs review.{' '}
+                              <Button
+                                className={styles.reviewRequestLink}
+                                type="button"
+                                unstyled
+                                onClick={() => setIsAddressChangeModalOpen(true)}
+                                disabled={false}
+                              >
+                                Review request
+                              </Button>{' '}
+                              to proceed.
+                            </span>
+                          </Alert>
                         )}
-                      </Fieldset>
+                        <Fieldset
+                          legend="Delivery location"
+                          disabled={deliveryAddressUpdateRequested}
+                          className={classNames('usa-legend', styles.mockLegend)}
+                        >
+                          <AddressFields
+                            name="delivery.address"
+                            render={(fields) => {
+                              return fields;
+                            }}
+                          />
+                          {displayDestinationType && (
+                            <DropdownInput
+                              label="Destination type"
+                              name="destinationType"
+                              options={shipmentDestinationAddressOptions}
+                              id="destinationType"
+                            />
+                          )}
+                        </Fieldset>
+                      </>
                     ) : (
                       <>
-                        <p className={classNames('usa-legend', styles.mockLegend)}>Delivery location</p>
+                        <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
+                          Delivery location
+                        </p>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
                             <span className={styles.deliveryAddressUpdateAlertContent}>
