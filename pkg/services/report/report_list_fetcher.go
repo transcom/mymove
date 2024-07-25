@@ -216,41 +216,55 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 		// sharing this for loop for all MTOShipment calculations
 		for _, shipment := range move.MTOShipments {
+			if report.OriginAddress == nil {
+				report.OriginAddress = shipment.PickupAddress
+			}
+			if report.DestinationAddress == nil {
+				report.DestinationAddress = shipment.DestinationAddress
+			}
+
 			// calculate total progear for entire move
 			if shipment.PPMShipment != nil {
-				var shipmentTotalProgear float64
-				if shipment.PPMShipment.ProGearWeight != nil {
-					shipmentTotalProgear += shipment.PPMShipment.ProGearWeight.Float64()
-				}
-
-				if shipment.PPMShipment.SpouseProGearWeight != nil {
-					shipmentTotalProgear += shipment.PPMShipment.SpouseProGearWeight.Float64()
-				}
-
-				progear += unit.Pound(shipmentTotalProgear)
-
-				// need to determine which shipment(s) have a ppm and get the travel advances and add them up
-				if shipment.PPMShipment.AdvanceAmountReceived != nil {
-					travelAdvance += *shipment.PPMShipment.AdvanceAmountReceived
-				}
-
-				// add SIT estimated weights
-				if *shipment.PPMShipment.SITExpected {
-					sitTotal += *shipment.PPMShipment.SITEstimatedWeight
-
-					// SIT Fields
-					report.SitInDate = shipment.PPMShipment.SITEstimatedEntryDate
-					report.SitOutDate = shipment.PPMShipment.SITEstimatedDepartureDate
-				}
-
 				// query the ppmshipment for all it's child needs for the price breakdown
 				var ppmShipment models.PPMShipment
 				ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets", "Shipment").
 					InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
 					Where("ppm_shipments.id = ?", shipment.PPMShipment.ID).
+					Where("ppm_shipments.status = ?", models.PPMShipmentStatusCloseoutComplete).
 					First(&ppmShipment)
+
+					// if the ppm isn't in closeout complete status skip to the next shipment
+				if ppmQ.Error() == models.RecordNotFoundErrorString {
+					continue
+				}
+
 				if ppmQ != nil {
 					return nil, apperror.NewQueryError("failed to query ppm ", ppmQ, ".")
+				}
+
+				var shipmentTotalProgear float64
+				if ppmShipment.ProGearWeight != nil {
+					shipmentTotalProgear += ppmShipment.ProGearWeight.Float64()
+				}
+
+				if ppmShipment.SpouseProGearWeight != nil {
+					shipmentTotalProgear += ppmShipment.SpouseProGearWeight.Float64()
+				}
+
+				progear += unit.Pound(shipmentTotalProgear)
+
+				// need to determine which shipment(s) have a ppm and get the travel advances and add them up
+				if ppmShipment.AdvanceAmountReceived != nil {
+					travelAdvance += *ppmShipment.AdvanceAmountReceived
+				}
+
+				// add SIT estimated weights
+				if *ppmShipment.SITExpected {
+					sitTotal += *ppmShipment.SITEstimatedWeight
+
+					// SIT Fields
+					report.SitInDate = ppmShipment.SITEstimatedEntryDate
+					report.SitOutDate = ppmShipment.SITEstimatedDepartureDate
 				}
 
 				// do the ppm cost breakdown here
@@ -313,6 +327,10 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 		netWeight := models.GetTotalNetWeightFromHHGAndPPM(move)
 
+		if orders.ServiceMember.BackupContacts != nil {
+			report.EmailSecondary = &orders.ServiceMember.BackupContacts[0].Email
+		}
+
 		report.FirstName = orders.ServiceMember.FirstName
 		report.LastName = orders.ServiceMember.LastName
 		report.MiddleInitial = &middleInitial
@@ -322,14 +340,11 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.PhonePrimary = orders.ServiceMember.Telephone
 		report.PhoneSecondary = orders.ServiceMember.SecondaryTelephone
 		report.EmailPrimary = orders.ServiceMember.PersonalEmail
-		report.EmailSecondary = &orders.ServiceMember.BackupContacts[0].Email
 		report.OrdersType = orders.OrdersType
 		report.TravelClassCode = (*string)(&orders.OrdersType)
 		report.OrdersNumber = orders.OrdersNumber
 		report.OrdersDate = &orders.IssueDate
 		report.Address = orders.ServiceMember.ResidentialAddress
-		report.OriginAddress = move.MTOShipments[0].PickupAddress
-		report.DestinationAddress = move.MTOShipments[0].DestinationAddress
 		report.OriginGBLOC = orders.OriginDutyLocationGBLOC
 		report.DestinationGBLOC = &orders.NewDutyLocation.TransportationOffice.Gbloc
 		report.DepCD = orders.HasDependents
@@ -390,7 +405,7 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTas
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
 		LeftJoin("personally_procured_moves", "personally_procured_moves.move_id = moves.id").
 		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
-		InnerJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id, service_members.residential_address_id)").
+		LeftJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id)").
 		Where("payment_requests.status in (?)", approvedStatuses).
 		Where("service_members.affiliation = ?", models.AffiliationNAVY).
 		GroupBy("moves.id")

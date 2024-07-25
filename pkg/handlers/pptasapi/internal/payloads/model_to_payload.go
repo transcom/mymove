@@ -35,7 +35,7 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 	payload := &pptasmessages.ListReport{
 		FirstName:              *report.FirstName,
 		LastName:               *report.LastName,
-		MiddleInitial:          *report.MiddleInitial,
+		MiddleInitial:          report.MiddleInitial,
 		Affiliation:            (*pptasmessages.Affiliation)(report.Affiliation),
 		PayGrade:               (*string)(report.PayGrade),
 		Edipi:                  *report.Edipi,

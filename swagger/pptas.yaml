@@ -283,6 +283,7 @@ definitions:
       middleInitial:
         example: G
         type: string
+        x-nullable: true
       affiliation:
         $ref: '#/definitions/Affiliation'
       payGrade:

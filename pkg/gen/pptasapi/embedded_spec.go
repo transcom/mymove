@@ -506,6 +506,7 @@ func init() {
         },
         "middleInitial": {
           "type": "string",
+          "x-nullable": true,
           "example": "G"
         },
         "miles": {
@@ -1409,6 +1410,7 @@ func init() {
         },
         "middleInitial": {
           "type": "string",
+          "x-nullable": true,
           "example": "G"
         },
         "miles": {

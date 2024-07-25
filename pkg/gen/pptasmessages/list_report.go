@@ -123,7 +123,7 @@ type ListReport struct {
 
 	// middle initial
 	// Example: G
-	MiddleInitial string `json:"middleInitial,omitempty"`
+	MiddleInitial *string `json:"middleInitial,omitempty"`
 
 	// miles
 	Miles int64 `json:"miles,omitempty"`
