@@ -36,7 +36,7 @@ test.describe('TOO user', () => {
     test('can search for moves using Move Code', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(testMove.locator);
+      await page.getByTestId('searchText').fill(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
@@ -45,7 +45,7 @@ test.describe('TOO user', () => {
     test('can search for moves using DOD ID', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[1]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(testMove.Orders.ServiceMember.edipi);
+      await page.getByTestId('searchText').fill(testMove.Orders.ServiceMember.edipi);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
@@ -55,7 +55,7 @@ test.describe('TOO user', () => {
       const CustomerName = `${testMove.Orders.ServiceMember.last_name}, ${testMove.Orders.ServiceMember.first_name}`;
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[2]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(CustomerName);
+      await page.getByTestId('searchText').fill(CustomerName);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results')).toBeVisible();
@@ -64,7 +64,7 @@ test.describe('TOO user', () => {
     test('Can filter status using Move Status', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(SearchTerms[0]);
+      await page.getByTestId('searchText').fill(SearchTerms[0]);
       await page.getByTestId('searchTextSubmit').click();
 
       const StatusFilter = page.getByTestId('MultiSelectCheckBoxFilter');
@@ -80,7 +80,7 @@ test.describe('TOO user', () => {
     test('Can select a filter status using Payment Request', async ({ page }) => {
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(testMove.locator);
+      await page.getByTestId('searchText').fill(testMove.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       // Check if Payment Request Status options are present
@@ -96,7 +96,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('');
+      await SearchBox.fill('');
       await SearchBox.blur();
 
       await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
@@ -107,7 +107,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('MOVE');
+      await SearchBox.fill('MOVE');
       await SearchBox.blur();
 
       await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
@@ -118,7 +118,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('ASUPERLONGMOVE');
+      await SearchBox.fill('ASUPERLONGMOVE');
       await SearchBox.blur();
 
       await expect(page.getByText('Move Code Must be exactly 6 characters')).toBeVisible();
@@ -129,7 +129,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('');
+      await SearchBox.fill('');
       await SearchBox.blur();
 
       await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
@@ -140,7 +140,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('1234567');
+      await SearchBox.fill('1234567');
       await SearchBox.blur();
 
       await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
@@ -151,7 +151,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('123456789011');
+      await SearchBox.fill('123456789011');
       await SearchBox.blur();
 
       await expect(page.getByText('DOD ID must be exactly 10 characters')).toBeVisible();
@@ -162,7 +162,7 @@ test.describe('TOO user', () => {
       await selectedRadio.click();
 
       const SearchBox = page.getByTestId('searchText');
-      await SearchBox.type('');
+      await SearchBox.fill('');
       await SearchBox.blur();
 
       await expect(page.getByText('Customer search must contain a value')).toBeVisible();
@@ -176,7 +176,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to approve a shipment', async ({ page }) => {
@@ -185,6 +185,7 @@ test.describe('TOO user', () => {
       await expect(page.getByText('Approve selected')).toBeDisabled();
       await expect(page.locator('#approvalConfirmationModal [data-testid="modal"]')).not.toBeVisible();
 
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       // Redirected to Move Task Order page
@@ -226,7 +227,7 @@ test.describe('TOO user', () => {
 
       // Enter information in modal and submit
       await page.locator('label').getByText('Yes', { exact: true }).click();
-      await page.locator('textarea').type('Something is rotten in the state of Denmark');
+      await page.locator('textarea').fill('Something is rotten in the state of Denmark');
 
       // Click save on the modal
       await page.getByRole('button', { name: 'Save' }).click();
@@ -252,6 +253,7 @@ test.describe('TOO user', () => {
     });
 
     test('is able to approve and reject mto service items', async ({ page }) => {
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -312,7 +314,7 @@ test.describe('TOO user', () => {
       let modal = page.getByTestId('modal');
 
       await expect(modal.getByRole('button', { name: 'Submit' })).toBeDisabled();
-      await modal.getByRole('textbox').type('my very valid reason');
+      await modal.getByRole('textbox').fill('my very valid reason');
       await modal.getByRole('button', { name: 'Submit' }).click();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
@@ -342,7 +344,7 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('modal')).toBeVisible();
       modal = page.getByTestId('modal');
       await expect(modal.getByRole('button', { name: 'Submit' })).toBeDisabled();
-      await modal.getByTestId('textInput').type('changed my mind about this one');
+      await modal.getByTestId('textInput').fill('changed my mind about this one');
       await modal.getByRole('button', { name: 'Submit' }).click();
 
       await expect(page.getByTestId('modal')).not.toBeVisible();
@@ -392,18 +394,18 @@ test.describe('TOO user', () => {
       await tooFlowPage.selectDutyLocation('JB McGuire-Dix-Lakehurst', 'newDutyLocation', 5);
 
       await page.locator('input[name="issueDate"]').clear();
-      await page.locator('input[name="issueDate"]').type('16 Mar 2018');
+      await page.locator('input[name="issueDate"]').fill('16 Mar 2018');
       await page.locator('input[name="reportByDate"]').clear();
-      await page.locator('input[name="reportByDate"]').type('22 Mar 2018');
+      await page.locator('input[name="reportByDate"]').fill('22 Mar 2018');
       await page.locator('select[name="departmentIndicator"]').selectOption({ label: '21 Army' });
       await page.locator('input[name="ordersNumber"]').clear();
-      await page.locator('input[name="ordersNumber"]').type('ORDER66');
+      await page.locator('input[name="ordersNumber"]').fill('ORDER66');
       await page.locator('select[name="ordersType"]').selectOption({ label: 'Permanent Change Of Station (PCS)' });
       await page.locator('select[name="ordersTypeDetail"]').selectOption({ label: 'Shipment of HHG Permitted' });
       await page.locator('input[name="tac"]').clear();
-      await page.locator('input[name="tac"]').type('F123');
+      await page.locator('input[name="tac"]').fill('F123');
       await page.locator('input[name="sac"]').clear();
-      await page.locator('input[name="sac"]').type('4K988AS098F');
+      await page.locator('input[name="sac"]').fill('4K988AS098F');
 
       // Edit orders page | Save
       await page.getByRole('button', { name: 'Save' }).click();
@@ -437,6 +439,7 @@ test.describe('TOO user', () => {
     });
 
     test('is able to request cancellation for a shipment', async ({ page }) => {
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -486,10 +489,10 @@ test.describe('TOO user', () => {
 
       // await page.locator('form').within(($form) => {
       //   // Edit pro-gear, pro-gear spouse, RME, SIT, and OCIE fields
-      //   await page.locator('input[name="proGearWeight"]').type('1999');
-      //   await page.locator('input[name="proGearWeightSpouse"]').type('499');
-      //   await page.locator('input[name="requiredMedicalEquipmentWeight"]').type('999');
-      //   await page.locator('input[name="storageInTransit"]').type('199');
+      //   await page.locator('input[name="proGearWeight"]').fill('1999');
+      //   await page.locator('input[name="proGearWeightSpouse"]').fill('499');
+      //   await page.locator('input[name="requiredMedicalEquipmentWeight"]').fill('999');
+      //   await page.locator('input[name="storageInTransit"]').fill('199');
       //   await page.locator('input[name="organizationalClothingAndIndividualEquipment"]').siblings('label[for="ocieInput"]').click();
 
       //   // Edit grade and authorized weight
@@ -497,7 +500,7 @@ test.describe('TOO user', () => {
       //   await page.locator('select[name=agency]').selectOption({ label: 'Navy'});
       //   await expect(page.locator('select[name="grade"]')).toContainText('E-1');
       //   await page.locator('select[name="grade"]').selectOption({ label: 'W-2'});
-      //   await page.locator('input[name="authorizedWeight"]').type('11111');
+      //   await page.locator('input[name="authorizedWeight"]').fill('11111');
 
       //   //Edit DependentsAuthorized
       //   await page.locator('input[name="dependentsAuthorized"]').siblings('label[for="dependentsAuthorizedInput"]').click();
@@ -534,15 +537,15 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       // fill out some changes on the form
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').type(deliveryDate);
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
-      await page.locator('input[name="delivery.address.streetAddress1"]').type('7 q st');
+      await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[name="delivery.address.city"]').clear();
-      await page.locator('input[name="delivery.address.city"]').type('city');
+      await page.locator('input[name="delivery.address.city"]').fill('city');
       await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
       await page.locator('input[name="delivery.address.postalCode"]').clear();
-      await page.locator('input[name="delivery.address.postalCode"]').type('90210');
+      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
       await page.locator('[data-testid="submitForm"]').click();
       await expect(page.locator('[data-testid="submitForm"]')).not.toBeEnabled();
 
@@ -584,10 +587,11 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to request diversion for a shipment and receive alert msg', async ({ page }) => {
+      await tooFlowPage.waitForLoading();
       await tooFlowPage.approveAllShipments();
 
       await page.getByTestId('MoveTaskOrder-Tab').click();
@@ -605,7 +609,7 @@ test.describe('TOO user', () => {
       expect(hasValidModalTitle).toBeTruthy();
 
       // Submit the diversion request
-      await page.locator('input[name="diversionReason"]').type('reasonable reason');
+      await page.locator('input[name="diversionReason"]').fill('reasonable reason');
       await page.locator('button[data-testid="modalSubmitButton"]').click();
       await expect(page.locator('.shipment-heading')).toContainText('diversion requested');
 
@@ -639,16 +643,16 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').first().click();
       // fill out some changes on the form
       await page.locator('#requestedDeliveryDate').clear();
-      await page.locator('#requestedDeliveryDate').type(deliveryDate);
+      await page.locator('#requestedDeliveryDate').fill(deliveryDate);
       await page.locator('#requestedDeliveryDate').blur();
 
       await page.locator('input[name="delivery.address.streetAddress1"]').clear();
-      await page.locator('input[name="delivery.address.streetAddress1"]').type('7 q st');
+      await page.locator('input[name="delivery.address.streetAddress1"]').fill('7 q st');
       await page.locator('input[name="delivery.address.city"]').clear();
-      await page.locator('input[name="delivery.address.city"]').type('city');
+      await page.locator('input[name="delivery.address.city"]').fill('city');
       await page.locator('select[name="delivery.address.state"]').selectOption({ label: 'OH' });
       await page.locator('input[name="delivery.address.postalCode"]').clear();
-      await page.locator('input[name="delivery.address.postalCode"]').type('90210');
+      await page.locator('input[name="delivery.address.postalCode"]').fill('90210');
       await page.locator('select[name="destinationType"]').selectOption({ label: 'Home of selection (HOS)' });
 
       await page.locator('[data-testid="submitForm"]').click();
@@ -733,7 +737,7 @@ test.describe('TOO user', () => {
 
     // Enter information in modal and submit
     await page.getByTestId('modal').getByTestId('radio').getByText('Yes').click();
-    await page.getByTestId('modal').locator('textarea').type('The delivery address change looks good. ');
+    await page.getByTestId('modal').locator('textarea').fill('The delivery address change looks good. ');
 
     // Click save on the modal
     await page.getByTestId('modal').getByRole('button', { name: 'Save' }).click();
@@ -759,7 +763,7 @@ test.describe('TOO user', () => {
 
     await page.getByText('KKFA moves').click();
 
-    await page.locator('input[name="locator"]').type(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
+    await page.locator('input[name="locator"]').fill(shipmentAddressUpdate.Shipment.MoveTaskOrder.locator);
     await page.locator('input[name="locator"]').blur();
     // once the move is in the Move approved status, it will no longer show up in the TOO queue
     await expect(page.getByText('Move approved')).not.toBeVisible();

@@ -1,4 +1,3 @@
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import MOVE_STATUSES from 'constants/moves';
 
 const determineShipmentInfo = (move, mtoShipments) => {
@@ -8,17 +7,13 @@ const determineShipmentInfo = (move, mtoShipments) => {
 
   const mtoCount = mtoShipments?.length || 0;
 
-  const hasNTS = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTS);
-
-  const hasNTSR = mtoShipments.some((shipment) => shipment.shipmentType === SHIPMENT_OPTIONS.NTSR);
-
   const existingShipmentCount = ppmCount + mtoCount;
 
   return {
     hasShipment: existingShipmentCount > 0,
     isHHGSelectable: isMoveDraft,
-    isNTSSelectable: isMoveDraft && !hasNTS,
-    isNTSRSelectable: isMoveDraft && !hasNTSR,
+    isNTSSelectable: isMoveDraft,
+    isNTSRSelectable: isMoveDraft,
     isPPMSelectable: ppmCount === 0,
     shipmentNumber: existingShipmentCount + 1,
   };

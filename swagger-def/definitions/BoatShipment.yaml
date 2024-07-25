@@ -1,0 +1,71 @@
+x-nullable: true
+properties:
+  id:
+    description: Primary auto-generated unique identifier of the Boat shipment object
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  shipmentId:
+    description: The id of the parent MTOShipment object
+    example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+    format: uuid
+    type: string
+    readOnly: true
+  createdAt:
+    description: Timestamp of when the Boat Shipment was initially created (UTC)
+    format: date-time
+    type: string
+    readOnly: true
+  updatedAt:
+    description: Timestamp of when a property of this object was last updated (UTC)
+    format: date-time
+    type: string
+    readOnly: true
+  type:
+    type: string
+    enum:
+      - HAUL_AWAY
+      - TOW_AWAY
+  year:
+    type: integer
+    description: Year of the Boat
+  make:
+    type: string
+    description: Make of the Boat
+  model:
+    type: string
+    description: Model of the Boat
+  lengthInInches:
+    type: integer
+    description: Length of the Boat in inches
+  widthInInches:
+    type: integer
+    description: Width of the Boat in inches
+  heightInInches:
+    type: integer
+    description: Height of the Boat in inches
+  hasTrailer:
+    type: boolean
+    description: Does the boat have a trailer
+  isRoadworthy:
+    type: boolean
+    description: Is the trailer roadworthy
+    x-nullable: true
+  eTag:
+    description: A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+    type: string
+    readOnly: true
+required:
+  - id
+  - shipmentId
+  - createdAt
+  - type
+  - year
+  - make
+  - model
+  - lengthInInches
+  - widthInInches
+  - heightInInches
+  - hasTrailer
+  - eTag
