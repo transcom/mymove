@@ -110,7 +110,7 @@ class QaeFlowPage extends OfficePage {
 
   // // Fills out the first page of the Evaluation Report Form providing basic content in minimal required fields
   async fillInForm() {
-    await this.page.locator('input[name="inspectionDate"]').type('01 Oct 2022');
+    await this.page.locator('input[name="inspectionDate"]').fill('01 Oct 2022');
     await this.page.locator('input[name="inspectionDate"]').blur(); // Date of inspection
     // evaluation start and end times
     await this.page.locator('select[name="evalStartHour"]').selectOption({ label: '04' });
@@ -120,7 +120,7 @@ class QaeFlowPage extends OfficePage {
     await this.page.locator('[data-testid="radio"] [for="dataReview"]').click(); // Evaluation type
     await this.page.locator('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
     await this.page.locator('[data-testid="radio"] [for="noViolations"]').click(); // Violations observed
-    await this.page.locator('textarea[name="remarks"]').type('This is a test evaluation report'); // Evaluation remarks
+    await this.page.locator('textarea[name="remarks"]').fill('This is a test evaluation report'); // Evaluation remarks
   }
 
   /**
@@ -332,13 +332,13 @@ test.describe('Quality Evaluation Report', () => {
 
       // Evaluation location, has up to 3 conditional fields displayed dependent upon selection
       await page.locator('[data-testid="radio"] [for="destination"]').click();
-      await page.locator('input[name="observedShipmentDeliveryDate"]').type('02 Oct 2022');
+      await page.locator('input[name="observedShipmentDeliveryDate"]').fill('02 Oct 2022');
       await page.locator('input[name="observedShipmentDeliveryDate"]').blur(); // Observed delivery date
       await page.locator('[data-testid="radio"] [for="origin"]').click(); // Evaluation location
-      await page.locator('input[name="observedShipmentPhysicalPickupDate"]').type('02 Oct 2022');
+      await page.locator('input[name="observedShipmentPhysicalPickupDate"]').fill('02 Oct 2022');
       await page.locator('input[name="observedShipmentPhysicalPickupDate"]').blur(); // Observed pickup date
       await page.locator('[data-testid="radio"] [for="other"]').click(); // Evaluation location
-      await page.locator('textarea[name="otherEvaluationLocation"]').type('This is a test other location text');
+      await page.locator('textarea[name="otherEvaluationLocation"]').fill('This is a test other location text');
 
       // Go to next page of form to select violations
       await qaeFlowPage.goToFormPageTwo();
@@ -350,20 +350,20 @@ test.describe('Quality Evaluation Report', () => {
       await qaeFlowPage.selectViolation('ShipmentSchedule', '1.2.6.15 Delivery');
 
       // Fill out date fields for violations with KPIs
-      await page.locator('input[name="observedClaimsResponseDate"]').type('03 Oct 2022');
+      await page.locator('input[name="observedClaimsResponseDate"]').fill('03 Oct 2022');
       await page.locator('input[name="observedClaimsResponseDate"]').blur(); // Observed claims response date
-      await page.locator('input[name="observedPickupDate"]').type('04 Oct 2022');
+      await page.locator('input[name="observedPickupDate"]').fill('04 Oct 2022');
       await page.locator('input[name="observedPickupDate"]').blur(); // Observed pickup date
-      await page.locator('input[name="observedDeliveryDate"]').type('05 Oct 2022');
+      await page.locator('input[name="observedDeliveryDate"]').fill('05 Oct 2022');
       await page.locator('input[name="observedDeliveryDate"]').blur(); // Observed delivery date
-      await page.locator('input[name="observedPickupSpreadStartDate"]').type('06 Oct 2022');
+      await page.locator('input[name="observedPickupSpreadStartDate"]').fill('06 Oct 2022');
       await page.locator('input[name="observedPickupSpreadStartDate"]').blur(); // Observed pickup spread start date
-      await page.locator('input[name="observedPickupSpreadEndDate"]').type('07 Oct 2022');
+      await page.locator('input[name="observedPickupSpreadEndDate"]').fill('07 Oct 2022');
       await page.locator('input[name="observedPickupSpreadEndDate"]').blur(); // Observed pickup spread end date
 
       // Serious violations
       await page.locator('[data-testid="radio"] [for="yes"]').click();
-      await page.locator('[data-testid="textarea"]').type('This is a test serious violation text');
+      await page.locator('[data-testid="textarea"]').fill('This is a test serious violation text');
 
       // Review report for submission
       await qaeFlowPage.openSubmissionPreview();
