@@ -170,6 +170,7 @@ type CreateOrderHandler struct {
 func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			const SAC_LIMIT = 80
 			payload := params.CreateOrders
 
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
@@ -181,6 +182,12 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
 				err = apperror.NewBadDataError("Service member cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
+				err = apperror.NewBadDataError("SAC cannot be more than 80 characters.")
 				appCtx.Logger().Error(err.Error())
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
