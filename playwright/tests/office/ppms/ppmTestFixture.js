@@ -31,12 +31,12 @@ export class PpmPage extends ServiceCounselorPage {
     } = options;
 
     await this.page.locator('input[name="estimatedWeight"]').clear();
-    await this.page.locator('input[name="estimatedWeight"]').type(estimatedWeight);
+    await this.page.locator('input[name="estimatedWeight"]').fill(estimatedWeight);
 
     if (hasProGear) {
       await this.page.locator('label[for="hasProGearYes"]').click();
-      await this.page.locator('input[name="proGearWeight"]').type(proGearWeight);
-      await this.page.locator('input[name="spouseProGearWeight"]').type(spouseProGearWeight);
+      await this.page.locator('input[name="proGearWeight"]').fill(proGearWeight);
+      await this.page.locator('input[name="spouseProGearWeight"]').fill(spouseProGearWeight);
     } else {
       await this.page.locator('label[for="hasProGearNo"]').click();
     }
@@ -65,11 +65,11 @@ export class PpmPage extends ServiceCounselorPage {
       await this.page.locator('label[for="sitExpectedYes"]').click();
       await this.page.locator(`label[for="sitLocation${sitLocation}"]`).click();
       await this.page.locator('input[name="sitEstimatedWeight"]').clear();
-      await this.page.locator('input[name="sitEstimatedWeight"]').type(sitEstimatedWeight);
+      await this.page.locator('input[name="sitEstimatedWeight"]').fill(sitEstimatedWeight);
       await this.page.locator('input[name="sitEstimatedEntryDate"]').clear();
-      await this.page.locator('input[name="sitEstimatedEntryDate"]').type(sitEstimatedEntryDate);
+      await this.page.locator('input[name="sitEstimatedEntryDate"]').fill(sitEstimatedEntryDate);
       await this.page.locator('input[name="sitEstimatedDepartureDate"]').clear();
-      await this.page.locator('input[name="sitEstimatedDepartureDate"]').type(sitEstimatedDepartureDate);
+      await this.page.locator('input[name="sitEstimatedDepartureDate"]').fill(sitEstimatedDepartureDate);
     } else {
       await this.page.locator('label[for="sitExpectedNo"]').click();
     }
@@ -84,12 +84,12 @@ export class PpmPage extends ServiceCounselorPage {
    * @returns Promise<void>
    */
   async fillOutOriginInfo() {
-    await this.page.locator('input[name="expectedDepartureDate"]').type('09 Jun 2022');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill('09 Jun 2022');
 
-    await this.page.locator('input[name="pickup.address.streetAddress1"]').type('123 Street');
-    await this.page.locator('input[name="pickup.address.city"]').type('SomeCity - Secondary');
+    await this.page.locator('input[name="pickup.address.streetAddress1"]').fill('123 Street');
+    await this.page.locator('input[name="pickup.address.city"]').fill('SomeCity - Secondary');
     await this.page.locator('select[name="pickup.address.state"]').selectOption({ label: 'CA' });
-    await this.page.locator('input[name="pickup.address.postalCode"]').type('90210');
+    await this.page.locator('input[name="pickup.address.postalCode"]').fill('90210');
   }
 
   /**
@@ -100,9 +100,9 @@ export class PpmPage extends ServiceCounselorPage {
    * @returns Promise<void>
    */
   async fillOutDestinationInfo() {
-    await this.page.locator('input[name="destination.address.postalCode"]').type('76127');
-    await this.page.locator('input[name="destination.address.streetAddress1"]').type('123 Street');
-    await this.page.locator('input[name="destination.address.city"]').type('SomeCity');
+    await this.page.locator('input[name="destination.address.postalCode"]').fill('76127');
+    await this.page.locator('input[name="destination.address.streetAddress1"]').fill('123 Street');
+    await this.page.locator('input[name="destination.address.city"]').fill('SomeCity');
     await this.page.locator('select[name="destination.address.state"]').selectOption({ label: 'TX' });
   }
 
@@ -119,7 +119,7 @@ export class PpmPage extends ServiceCounselorPage {
     if (hasAdvance) {
       await this.page.locator('label[for="hasRequestedAdvanceYes"]').click();
       await this.page.locator('input[name="advance"]').clear();
-      await this.page.locator('input[name="advance"]').type(advance);
+      await this.page.locator('input[name="advance"]').fill(advance);
       await this.page.locator('label[for="approveAdvanceRequest"]').click();
     } else {
       await this.page.locator('label[for="hasRequestedAdvanceNo"]').click();

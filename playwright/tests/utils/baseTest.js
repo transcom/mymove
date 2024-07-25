@@ -38,7 +38,7 @@ export class BaseTestPage {
     // so select for it if provided
     const classSelector = '.duty-input-box';
     const actualClassSelector = fieldName ? `${classSelector}.${fieldName}` : classSelector;
-    await this.page.locator(`${actualClassSelector} input[type="text"]`).type(dutyLocationName);
+    await this.page.locator(`${actualClassSelector} input[type="text"]`).fill(dutyLocationName);
 
     // Click on the first presented option
     await this.page.locator(classSelector).locator('div[class*="option"]').nth(nth).click();

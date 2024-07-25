@@ -114,6 +114,14 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 			{Model: customServiceMember},
 		}, nil)
 
+		originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+			{
+				Model: models.DutyLocation{
+					Name: "This duty location name is really long so we should probably cut it short",
+				},
+			},
+		}, nil)
+
 		mto = factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
@@ -129,6 +137,11 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				Model: models.Order{
 					Grade: grade,
 				},
+			},
+			{
+				Model:    originDutyLocation,
+				LinkOnly: true,
+				Type:     &factory.DutyLocations.OriginDutyLocation,
 			},
 		}, nil)
 
@@ -838,7 +851,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		// which should match the Origin Duty location name when there is no associated transportation office.
 		n1 := result.Header.OriginName
 		suite.Equal(originDutyLocation.Name, n1.Name)
-
 	})
 
 	suite.Run("adds actual pickup date to header", func() {
@@ -868,7 +880,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		originDutyLocationGbloc := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC
 		suite.IsType(edisegment.N1{}, buyerOrg)
 		suite.Equal("BY", buyerOrg.EntityIdentifierCode)
-		suite.Equal(originDutyLocation.Name, buyerOrg.Name)
+		truncatedOriginDutyLocationName := truncateStr(*models.StringPointer(originDutyLocation.Name), 60)
+		suite.Equal(truncatedOriginDutyLocationName, buyerOrg.Name)
 		suite.Equal("92", buyerOrg.IdentificationCodeQualifier)
 		suite.Equal(*originDutyLocationGbloc, buyerOrg.IdentificationCode)
 
@@ -941,7 +954,8 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		n1 := result.Header.OriginName
 		suite.IsType(edisegment.N1{}, n1)
 		suite.Equal("SF", n1.EntityIdentifierCode)
-		suite.Equal(expectedDutyLocation.Name, n1.Name)
+		truncatedDutyLocationName := truncateStr(*models.StringPointer(expectedDutyLocation.Name), 60)
+		suite.Equal(truncatedDutyLocationName, n1.Name)
 		suite.Equal("10", n1.IdentificationCodeQualifier)
 		suite.Equal(expectedDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
 		// street address
@@ -981,6 +995,18 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		phoneExpected, phoneExpectedErr := g.getPhoneNumberDigitsOnly(originPhoneLines[0])
 		suite.NoError(phoneExpectedErr)
 		suite.Equal(phoneExpected, per.CommunicationNumber)
+	})
+
+	suite.Run("location names get truncated to only 60 characters in N102 section", func() {
+		setupTestData(nil, nil, nil, nil)
+		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
+		truncatedDutyLocationName := truncateStr(*models.StringPointer(expectedDutyLocation.Name), 60)
+		n1 := result.Header.OriginName
+		suite.IsType(edisegment.N1{}, n1)
+		suite.Equal("SF", n1.EntityIdentifierCode)
+		suite.Equal(truncatedDutyLocationName, n1.Name)
+		suite.Equal("10", n1.IdentificationCodeQualifier)
+		suite.Equal(expectedDutyLocation.TransportationOffice.Gbloc, n1.IdentificationCode)
 	})
 
 	suite.Run("adds various service item segments", func() {
@@ -1379,14 +1405,6 @@ func (suite *GHCInvoiceSuite) TestNilValues() {
 		suite.NotPanics(panicFunc)
 		nilPaymentRequest.MoveTaskOrder.ReferenceID = oldReferenceID
 	})
-
-	// TODO: Needs some additional thought since PaymentServiceItems is loaded from the DB in Generate.
-	//suite.Run("nil PriceCents does not cause panic", func() {
-	//	oldPriceCents := nilPaymentRequest.PaymentServiceItems[0].PriceCents
-	//	nilPaymentRequest.PaymentServiceItems[0].PriceCents = nil
-	//	suite.NotPanics(panicFunc)
-	//	nilPaymentRequest.PaymentServiceItems[0].PriceCents = oldPriceCents
-	//})
 }
 
 func (suite *GHCInvoiceSuite) TestNoApprovedPaymentServiceItems() {
