@@ -288,6 +288,7 @@ export const ReviewDocuments = ({ readOnly }) => {
               <>
                 {currentDocumentSet.documentSetType === DOCUMENT_TYPES.WEIGHT_TICKET && (
                   <ReviewWeightTicket
+                    key={documentSetIndex}
                     weightTicket={currentDocumentSet.documentSet}
                     ppmShipmentInfo={ppmShipmentInfo}
                     ppmNumber={1}
