@@ -106,7 +106,7 @@ RUN set -x \
 #########
 
 # hadolint ignore=DL3007
-FROM gcr.io/distroless/base-debian11@sha256:2fb55308ef768a0ca0851f294d7f5b582579dba6522d1d2162e2d5f33b876e97 as milmove
+FROM gcr.io/distroless/base-debian11@sha256:ac69aa622ea5dcbca0803ca877d47d069f51bd4282d5c96977e0390d7d256455 as milmove
 
 COPY --from=server_builder /build/bin/rds-ca-2019-root.pem /bin/rds-ca-2019-root.pem
 COPY --from=server_builder /build/bin/milmove /bin/milmove
