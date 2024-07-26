@@ -166,4 +166,20 @@ describe('PPMShipmentInfoList', () => {
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
     });
   });
+
+  it('renders actual move date', () => {
+    renderWithPermissions({
+      ppmShipment: { expectedDepartureDate: '2024-07-20T09:48:21.573Z', actualMoveDate: '2024-07-22T09:48:21.573Z' },
+    });
+    expect(screen.getByTestId('actualDepartureDate')).toBeInTheDocument();
+    expect(screen.getByText('Actual Departure date')).toBeInTheDocument();
+    expect(screen.getByText('22 Jul 2024')).toBeInTheDocument();
+  });
+
+  it('renders estimated move date', () => {
+    renderWithPermissions({ ppmShipment: { expectedDepartureDate: '2024-07-20T09:48:21.573Z' } });
+    expect(screen.getByTestId('expectedDepartureDate')).toBeInTheDocument();
+    expect(screen.getByText('Estimated Departure date')).toBeInTheDocument();
+    expect(screen.getByText('20 Jul 2024')).toBeInTheDocument();
+  });
 });

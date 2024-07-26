@@ -56,7 +56,7 @@ const EstimatedWeightsProGearForm = ({ orders, mtoShipment, onSubmit, onBack }) 
                 weightAuthorized,
               )}`}</Alert>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
-                <h2>Full PPM</h2>
+                <h2>PPM</h2>
                 <p>
                   Estimate the full weight of your PPM, including everything you plan to move. If you are moving
                   pro-gear in this PPM, include that weight in this estimate.
