@@ -1807,7 +1807,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "definitions/PPMShipmentSIT.yaml"
+            $ref: 'definitions/PPMShipmentSIT.yaml'
       responses:
         '200':
           description: Successfully finished PPM SIT update
@@ -5456,6 +5456,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6758,7 +6762,7 @@ definitions:
   GBLOCs:
     type: array
     items:
-        type: string
+      type: string
   MovePayload:
     type: object
     properties:
