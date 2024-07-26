@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"os"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/jarcoal/httpmock"
@@ -127,95 +128,177 @@ func (suite *HandlerSuite) TestUpdateCustomerHandler() {
 }
 
 func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
-	// in order to call the endpoint, we need to be an authenticated office user that's a SC
-	officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-	officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
-		RoleType: roles.RoleTypeServicesCounselor,
+	suite.Run("Successful customer creation", func() {
+		// in order to call the endpoint, we need to be an authenticated office user that's a SC
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeServicesCounselor,
+		})
+
+		// Build provider
+		provider, err := factory.BuildOktaProvider(officeProviderName)
+		suite.NoError(err)
+
+		mockAndActivateOktaEndpoints(provider)
+
+		residentialAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 New Street"),
+			City:           handlers.FmtString("Newcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02110"),
+		}
+
+		backupAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 Backup Street"),
+			City:           handlers.FmtString("Backupcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02115"),
+		}
+
+		affiliation := ghcmessages.AffiliationARMY
+
+		body := &ghcmessages.CreateCustomerPayload{
+			LastName:      "Last",
+			FirstName:     "First",
+			Telephone:     handlers.FmtString("223-455-3399"),
+			Affiliation:   &affiliation,
+			Edipi:         handlers.FmtString(""),
+			Emplid:        handlers.FmtString(""),
+			PersonalEmail: *handlers.FmtString("email@email.com"),
+			BackupContact: &ghcmessages.BackupContact{
+				Name:  handlers.FmtString("New Backup Contact"),
+				Phone: handlers.FmtString("445-345-1212"),
+				Email: handlers.FmtString("newbackup@mail.com"),
+			},
+			ResidentialAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: residentialAddress,
+			},
+			BackupMailingAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: backupAddress,
+			},
+			CreateOktaAccount: true,
+			// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
+			CacUser: false,
+		}
+
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
+
+		request := httptest.NewRequest("POST", "/customer", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := customerops.CreateCustomerWithOktaOptionParams{
+			HTTPRequest: request,
+			Body:        body,
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateCustomerWithOktaOptionHandler{
+			handlerConfig,
+		}
+
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+		suite.IsNotErrResponse(response)
+
+		suite.Assertions.IsType(&customerops.CreateCustomerWithOktaOptionOK{}, response)
+		createdCustomerResponse := response.(*customerops.CreateCustomerWithOktaOptionOK)
+		createdCustomerPayload := createdCustomerResponse.Payload
+
+		suite.NoError(createdCustomerPayload.Validate(strfmt.Default))
+
+		suite.Equal(body.FirstName, createdCustomerPayload.FirstName)
+		suite.Equal(body.LastName, createdCustomerPayload.LastName)
+		suite.Equal(body.Telephone, createdCustomerPayload.Telephone)
+		suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
+		suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
+		suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
+		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
+		suite.Equal(true, createdCustomerPayload.CacValidated)
 	})
 
-	// Build provider
-	provider, err := factory.BuildOktaProvider(officeProviderName)
-	suite.NoError(err)
+	suite.Run("Unable to create customer when using an existing DODID", func() {
+		// in order to call the endpoint, we need to be an authenticated office user that's a SC
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		officeUser.User.Roles = append(officeUser.User.Roles, roles.Role{
+			RoleType: roles.RoleTypeServicesCounselor,
+		})
 
-	mockAndActivateOktaEndpoints(provider)
+		// creating a customer so we can try and use their existing DODID
+		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
 
-	residentialAddress := ghcmessages.Address{
-		StreetAddress1: handlers.FmtString("123 New Street"),
-		City:           handlers.FmtString("Newcity"),
-		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("02110"),
-	}
+		// setting the flag to true
+		os.Setenv("FEATURE_FLAG_DODID_UNIQUE", "true")
 
-	backupAddress := ghcmessages.Address{
-		StreetAddress1: handlers.FmtString("123 Backup Street"),
-		City:           handlers.FmtString("Backupcity"),
-		State:          handlers.FmtString("MA"),
-		PostalCode:     handlers.FmtString("02115"),
-	}
+		// Build provider
+		provider, err := factory.BuildOktaProvider(officeProviderName)
+		suite.NoError(err)
 
-	affiliation := ghcmessages.AffiliationARMY
+		mockAndActivateOktaEndpoints(provider)
 
-	body := &ghcmessages.CreateCustomerPayload{
-		LastName:      "Last",
-		FirstName:     "First",
-		Telephone:     handlers.FmtString("223-455-3399"),
-		Affiliation:   &affiliation,
-		Edipi:         handlers.FmtString(""),
-		Emplid:        handlers.FmtString(""),
-		PersonalEmail: *handlers.FmtString("email@email.com"),
-		BackupContact: &ghcmessages.BackupContact{
-			Name:  handlers.FmtString("New Backup Contact"),
-			Phone: handlers.FmtString("445-345-1212"),
-			Email: handlers.FmtString("newbackup@mail.com"),
-		},
-		ResidentialAddress: struct {
-			ghcmessages.Address
-		}{
-			Address: residentialAddress,
-		},
-		BackupMailingAddress: struct {
-			ghcmessages.Address
-		}{
-			Address: backupAddress,
-		},
-		CreateOktaAccount: true,
-		// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
-		CacUser: false,
-	}
+		residentialAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 New Street"),
+			City:           handlers.FmtString("Newcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02110"),
+		}
 
-	defer goth.ClearProviders()
-	goth.UseProviders(provider)
+		backupAddress := ghcmessages.Address{
+			StreetAddress1: handlers.FmtString("123 Backup Street"),
+			City:           handlers.FmtString("Backupcity"),
+			State:          handlers.FmtString("MA"),
+			PostalCode:     handlers.FmtString("02115"),
+		}
 
-	request := httptest.NewRequest("POST", "/customer", nil)
-	request = suite.AuthenticateOfficeRequest(request, officeUser)
-	params := customerops.CreateCustomerWithOktaOptionParams{
-		HTTPRequest: request,
-		Body:        body,
-	}
-	handlerConfig := suite.HandlerConfig()
-	handler := CreateCustomerWithOktaOptionHandler{
-		handlerConfig,
-	}
+		affiliation := ghcmessages.AffiliationARMY
 
-	suite.NoError(params.Body.Validate(strfmt.Default))
+		body := &ghcmessages.CreateCustomerPayload{
+			LastName:      "Last",
+			FirstName:     "First",
+			Telephone:     handlers.FmtString("223-455-3399"),
+			Affiliation:   &affiliation,
+			Edipi:         customer.Edipi,
+			Emplid:        handlers.FmtString(""),
+			PersonalEmail: *handlers.FmtString("email@email.com"),
+			BackupContact: &ghcmessages.BackupContact{
+				Name:  handlers.FmtString("New Backup Contact"),
+				Phone: handlers.FmtString("445-345-1212"),
+				Email: handlers.FmtString("newbackup@mail.com"),
+			},
+			ResidentialAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: residentialAddress,
+			},
+			BackupMailingAddress: struct {
+				ghcmessages.Address
+			}{
+				Address: backupAddress,
+			},
+			CreateOktaAccount: true,
+			// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
+			CacUser: false,
+		}
 
-	response := handler.Handle(params)
-	suite.IsNotErrResponse(response)
+		defer goth.ClearProviders()
+		goth.UseProviders(provider)
 
-	suite.Assertions.IsType(&customerops.CreateCustomerWithOktaOptionOK{}, response)
-	createdCustomerResponse := response.(*customerops.CreateCustomerWithOktaOptionOK)
-	createdCustomerPayload := createdCustomerResponse.Payload
-
-	suite.NoError(createdCustomerPayload.Validate(strfmt.Default))
-
-	suite.Equal(body.FirstName, createdCustomerPayload.FirstName)
-	suite.Equal(body.LastName, createdCustomerPayload.LastName)
-	suite.Equal(body.Telephone, createdCustomerPayload.Telephone)
-	suite.Equal(body.BackupContact.Name, createdCustomerPayload.BackupContact.Name)
-	suite.Equal(body.BackupContact.Phone, createdCustomerPayload.BackupContact.Phone)
-	suite.Equal(body.BackupContact.Email, createdCustomerPayload.BackupContact.Email)
-	// when CacUser is false, this indicates a non-CAC user so CacValidated is set to true
-	suite.Equal(true, createdCustomerPayload.CacValidated)
+		request := httptest.NewRequest("POST", "/customer", nil)
+		request = suite.AuthenticateOfficeRequest(request, officeUser)
+		params := customerops.CreateCustomerWithOktaOptionParams{
+			HTTPRequest: request,
+			Body:        body,
+		}
+		handlerConfig := suite.HandlerConfig()
+		handler := CreateCustomerWithOktaOptionHandler{
+			handlerConfig,
+		}
+		response := handler.Handle(params)
+		suite.Assertions.IsType(&customerops.CreateCustomerWithOktaOptionUnprocessableEntity{}, response)
+	})
 }
 
 func (suite *HandlerSuite) TestSearchCustomersHandler() {
