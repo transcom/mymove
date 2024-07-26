@@ -193,9 +193,9 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async tioNavigateToMove(moveLocator) {
-    await this.page.locator('#locator').fill(moveLocator);
-    await this.page.locator('th[data-testid="locator"]').first().click();
-    await this.page.locator('[data-testid="locator-0"]').click();
+    await this.page.goto(`/moves/${moveLocator}/payment-requests/`);
+    await this.page.waitForLoadState('networkidle', { timeout: 30000 });
+    await this.page.getByRole('heading', { name: 'Payment requests' }).first().waitFor();
   }
 
   /**
@@ -203,12 +203,7 @@ export class OfficePage extends BaseTestPage {
    * @param {string} moveLocator
    */
   async tooNavigateToMove(moveLocator) {
-    await this.page.locator('input[name="locator"]').fill(moveLocator);
-    await this.page.locator('input[name="locator"]').blur();
-
-    // click result to navigate to move details page
-    await this.page.locator('tbody > tr').first().click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/details/);
+    await this.page.goto(`/moves/${moveLocator}/details/`);
     await this.page.waitForLoadState('networkidle', { timeout: 30000 });
     await this.page.getByRole('heading', { name: 'Move details' }).waitFor();
   }
