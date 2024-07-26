@@ -103,6 +103,10 @@ const PaymentRequestCard = ({
     };
   }
 
+  const uploads = paymentRequest.proofOfServiceDocs
+    ? paymentRequest.proofOfServiceDocs.flatMap((docs) => docs.uploads.flatMap((primeUploads) => primeUploads))
+    : [];
+
   const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
   const showDetailsText = showDetails ? 'Hide request details' : 'Show request details';
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
@@ -113,6 +117,8 @@ const PaymentRequestCard = ({
         View documents
       </a>
     ) : null;
+
+  const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
 
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
@@ -227,7 +233,7 @@ const PaymentRequestCard = ({
                 View orders
               </Link>
             ) : (
-              ViewDocuments
+              showViewDocuments
             ))}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (
