@@ -38,12 +38,27 @@ export async function GetIsLoggedIn() {
   return response.body;
 }
 
+// logs a user out of MilMove and Okta
+// redirects them back to their respective MilMove sign in page
 export function LogoutUser() {
   const logoutEndpoint = '/auth/logout';
   const req = {
     url: logoutEndpoint,
     method: 'POST',
     credentials: 'same-origin', // Passes through CSRF cookies
+    requestInterceptor,
+  };
+  return Swagger.http(req);
+}
+
+// logs a user out of MilMove & Okta
+// redirects them back to the Okta sign in page
+export function LogoutUserWithOktaRedirect() {
+  const logoutEndpoint = '/auth/logoutOktaRedirect';
+  const req = {
+    url: logoutEndpoint,
+    method: 'POST',
+    credentials: 'same-origin',
     requestInterceptor,
   };
   return Swagger.http(req);
