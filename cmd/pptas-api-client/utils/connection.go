@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"crypto/sha256"
 	"crypto/tls"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,13 +11,13 @@ import (
 	"pault.ag/go/pksigner"
 
 	"github.com/transcom/mymove/pkg/cli"
-	primeClient "github.com/transcom/mymove/pkg/gen/primeclient"
+	PPTASClient "github.com/transcom/mymove/pkg/gen/pptasclient"
 	supportClient "github.com/transcom/mymove/pkg/gen/supportclient"
 )
 
-// CreatePrimeClientWithCACStoreParam creates the prime api client
+// CreatePPTASClientWithCACStoreParam creates the prime api client
 // #nosec G402
-func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (*primeClient.Mymove, *pksigner.Store, error) {
+func CreatePPTASClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (*PPTASClient.Mymove, *pksigner.Store, error) {
 
 	// Use command line inputs
 	hostname := v.GetString(HostnameFlag)
@@ -85,18 +83,18 @@ func CreatePrimeClientWithCACStoreParam(v *viper.Viper, store *pksigner.Store) (
 
 	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
+	myRuntime := runtimeClient.NewWithClient(hostWithPort, PPTASClient.DefaultBasePath, []string{"https"}, httpClient)
 	myRuntime.EnableConnectionReuse()
 	myRuntime.SetDebug(verbose)
 
-	primeGateway := primeClient.New(myRuntime, nil)
+	primeGateway := PPTASClient.New(myRuntime, nil)
 
 	return primeGateway, store, nil
 }
 
 // CreatePrimeClient creates the prime api client
 // #nosec G402
-func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, error) {
+func CreatePrimeClient(v *viper.Viper) (*PPTASClient.Mymove, *pksigner.Store, error) {
 
 	// Use command line inputs
 	hostname := v.GetString(HostnameFlag)
@@ -117,13 +115,7 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		if errTLSCert != nil {
 			log.Fatal(errTLSCert)
 		}
-		var fingerprint, subject string
-		hash := sha256.Sum256(cert.Certificate[0])
-		fingerprint = hex.EncodeToString(hash[:])
-		subject = cert.Leaf.Subject.String()
-		//x509Cert, err := x509.ParseCertificate(cert.Leaf.Raw)
-		log.Output(5, fmt.Sprintf("subject: %s", subject))
-		log.Output(5, fmt.Sprintf("sha256fingerprint: %s", fingerprint))
+
 		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
 
@@ -165,11 +157,11 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 
 	verbose := cli.LogLevelIsDebug(v)
 	hostWithPort := fmt.Sprintf("%s:%d", hostname, port)
-	myRuntime := runtimeClient.NewWithClient(hostWithPort, primeClient.DefaultBasePath, []string{"https"}, httpClient)
+	myRuntime := runtimeClient.NewWithClient(hostWithPort, PPTASClient.DefaultBasePath, []string{"https"}, httpClient)
 	myRuntime.EnableConnectionReuse()
 	myRuntime.SetDebug(verbose)
 
-	primeGateway := primeClient.New(myRuntime, nil)
+	primeGateway := PPTASClient.New(myRuntime, nil)
 
 	return primeGateway, store, nil
 }
