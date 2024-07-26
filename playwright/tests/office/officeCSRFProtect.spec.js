@@ -145,7 +145,7 @@ test.describe('testing CSRF protection updating move info', () => {
     await page.getByTestId('edit-orders').click();
     await officePage.waitForLoading();
 
-    await page.getByLabel('Orders number').type('CSRFTEST');
+    await page.getByLabel('Orders number').fill('CSRFTEST');
 
     await page.getByRole('button', { name: 'Save' }).click();
     await officePage.waitForLoading();
@@ -162,7 +162,7 @@ test.describe('testing CSRF protection updating move info', () => {
     await page.getByTestId('edit-orders').click();
     await officePage.waitForLoading();
 
-    await page.getByLabel('Orders number').type('CSRFTEST');
+    await page.getByLabel('Orders number').fill('CSRFTEST');
 
     const context = page.context();
 
