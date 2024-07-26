@@ -153,7 +153,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 					domesticUnpacking += totalPrice
 				case "Domestic uncrating":
 					domesticUncrating += totalPrice
-				// case "Domestic crating - standalone":
 				case "Domestic crating":
 					crate := buildServiceItemCrate(serviceItem.MTOServiceItem)
 					allCrates = append(allCrates, &crate)
