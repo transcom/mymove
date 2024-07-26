@@ -11,16 +11,18 @@ type shipmentCreator struct {
 	checks               []shipmentValidator
 	mtoShipmentCreator   services.MTOShipmentCreator
 	ppmShipmentCreator   services.PPMShipmentCreator
+	boatShipmentCreator  services.BoatShipmentCreator
 	shipmentRouter       services.ShipmentRouter
 	moveTaskOrderUpdater services.MoveTaskOrderUpdater
 }
 
 // NewShipmentCreator creates a new shipmentCreator struct with the basic checks and service dependencies.
-func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
+func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
 	return &shipmentCreator{
 		checks:               basicShipmentChecks(),
 		mtoShipmentCreator:   mtoShipmentCreator,
 		ppmShipmentCreator:   ppmShipmentCreator,
+		boatShipmentCreator:  boatShipmentCreator,
 		shipmentRouter:       shipmentRouter,
 		moveTaskOrderUpdater: moveTaskOrderUpdater,
 	}
@@ -33,9 +35,10 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 	}
 
 	isPPMShipment := shipment.ShipmentType == models.MTOShipmentTypePPM
+	isBoatShipment := (shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway)
 
 	if shipment.Status == "" {
-		if isPPMShipment {
+		if isPPMShipment || isBoatShipment {
 			shipment.Status = models.MTOShipmentStatusDraft
 		} else {
 			// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
@@ -62,22 +65,34 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			if err != nil {
 				return err
 			}
+		}
+
+		if isPPMShipment {
+			mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
+			mtoShipment.PPMShipment.Shipment = *mtoShipment
+
+			_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
+
+			if err != nil {
+				return err
+			}
+			// Update PPMType once shipment gets created.
+			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
+
+			if err != nil {
+				return err
+			}
 			return nil
-		}
+		} else if isBoatShipment {
+			mtoShipment.BoatShipment.ShipmentID = mtoShipment.ID
+			mtoShipment.BoatShipment.Shipment = *mtoShipment
 
-		mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
-		mtoShipment.PPMShipment.Shipment = *mtoShipment
+			_, err = s.boatShipmentCreator.CreateBoatShipmentWithDefaultCheck(txnAppCtx, mtoShipment.BoatShipment)
 
-		_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
-
-		if err != nil {
-			return err
-		}
-		// Update PPMType once shipment gets created.
-		_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
-
-		if err != nil {
-			return err
+			if err != nil {
+				return err
+			}
+			return nil
 		}
 
 		return nil

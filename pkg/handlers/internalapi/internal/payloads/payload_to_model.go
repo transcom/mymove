@@ -75,10 +75,10 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		CustomerRemarks: mtoShipment.CustomerRemarks,
 		ShipmentType:    models.MTOShipmentType(*mtoShipment.ShipmentType),
 	}
-
-	// A PPM type shipment begins in DRAFT because it requires a multi-page series to complete.
-	// After move submission a PPM's status will change to SUBMITTED
-	if model.ShipmentType == models.MTOShipmentTypePPM {
+	isBoatShipment := model.ShipmentType == models.MTOShipmentTypeBoatHaulAway || model.ShipmentType == models.MTOShipmentTypeBoatTowAway
+	// PPM and Boat type shipment begins in DRAFT because it requires a multi-page series to complete.
+	// After move submission a the status will change to SUBMITTED
+	if model.ShipmentType == models.MTOShipmentTypePPM || isBoatShipment {
 		model.Status = models.MTOShipmentStatusDraft
 	} else {
 		model.Status = models.MTOShipmentStatusSubmitted
@@ -117,6 +117,9 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
 		model.PPMShipment.Shipment = *model
+	} else if mtoShipment.BoatShipment != nil {
+		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
 	}
 
 	return model
@@ -225,6 +228,87 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	return ppmModel
 }
 
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(boatShipment *internalmessages.CreateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		year = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		year = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		year = &val
+	}
+
+	model := &models.BoatShipment{
+		Type:           models.BoatShipmentType(*boatShipment.Type),
+		Year:           year,
+		Make:           handlers.FmtStringPtr(boatShipment.Make),
+		Model:          handlers.FmtStringPtr(boatShipment.Model),
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     handlers.FmtBool(*boatShipment.HasTrailer),
+		IsRoadworthy:   handlers.FmtBool(*boatShipment.IsRoadworthy),
+	}
+
+	return model
+}
+
+func UpdateBoatShipmentModel(boatShipment *internalmessages.UpdateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		year = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		year = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		year = &val
+	}
+
+	boatModel := &models.BoatShipment{
+		Type:           models.BoatShipmentType(*boatShipment.Type),
+		Year:           year,
+		Make:           handlers.FmtStringPtr(boatShipment.Make),
+		Model:          handlers.FmtStringPtr(boatShipment.Model),
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     handlers.FmtBool(*boatShipment.HasTrailer),
+		IsRoadworthy:   handlers.FmtBool(*boatShipment.IsRoadworthy),
+	}
+
+	return boatModel
+}
+
 // MTOShipmentModelFromUpdate model
 func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -285,6 +369,7 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
+	model.BoatShipment = UpdateBoatShipmentModel(mtoShipment.BoatShipment)
 
 	return model
 }

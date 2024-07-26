@@ -36,14 +36,14 @@ type BoatShipment struct {
 	CreatedAt      time.Time        `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at" db:"updated_at"`
 	DeletedAt      *time.Time       `json:"deleted_at" db:"deleted_at"`
-	Year           int              `json:"year" db:"year"`
-	Make           string           `json:"make" db:"make"`
-	Model          string           `json:"model" db:"model"`
-	LengthInInches int              `json:"length_in_inches" db:"length_in_inches"`
-	WidthInInches  int              `json:"width_in_inches" db:"width_in_inches"`
-	HeightInInches int              `json:"height_in_inches" db:"height_in_inches"`
-	HasTrailer     bool             `json:"has_trailer" db:"has_trailer"`
-	IsRoadworthy   bool             `json:"is_roadworthy" db:"is_roadworthy"`
+	Year           *int             `json:"year" db:"year"`
+	Make           *string          `json:"make" db:"make"`
+	Model          *string          `json:"model" db:"model"`
+	LengthInInches *int             `json:"length_in_inches" db:"length_in_inches"`
+	WidthInInches  *int             `json:"width_in_inches" db:"width_in_inches"`
+	HeightInInches *int             `json:"height_in_inches" db:"height_in_inches"`
+	HasTrailer     *bool            `json:"has_trailer" db:"has_trailer"`
+	IsRoadworthy   *bool            `json:"is_roadworthy" db:"is_roadworthy"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -62,13 +62,13 @@ func (b BoatShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: b.ShipmentID},
 		&OptionalTimeIsPresent{Name: "DeletedAt", Field: b.DeletedAt},
 		&validators.StringInclusion{Name: "Type", Field: string(b.Type), List: AllowedBoatShipmentTypes},
-		&validators.IntIsGreaterThan{Name: "Year", Field: b.Year, Compared: 0},
-		&validators.StringIsPresent{Name: "Make", Field: b.Make},
-		&validators.StringIsPresent{Name: "Model", Field: b.Model},
-		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: b.LengthInInches, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: b.WidthInInches, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: b.HeightInInches, Compared: 0},
-		&CannotBeTrueIfFalse{Field1: b.IsRoadworthy, Name1: "IsRoadworthy", Field2: b.HasTrailer, Name2: "HasTrailer"},
+		&validators.IntIsGreaterThan{Name: "Year", Field: *b.Year, Compared: 0},
+		&validators.StringIsPresent{Name: "Make", Field: *b.Make},
+		&validators.StringIsPresent{Name: "Model", Field: *b.Model},
+		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: *b.LengthInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: *b.WidthInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: *b.HeightInInches, Compared: 0},
+		&CannotBeTrueIfFalse{Field1: *b.IsRoadworthy, Name1: "IsRoadworthy", Field2: *b.HasTrailer, Name2: "HasTrailer"},
 	), nil
 
 }
