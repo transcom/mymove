@@ -959,5 +959,5 @@
 20240611185048_drop_unique_constraint_emplid.up.sql
 20240613192433_move_valid_loa_for_tac_col_to_lines_of_accounting_table.up.sql
 20240625144828_add_to_update_type_enum.up.sql
-20240711181909_josephdoye_cn_cac.up.sql
-20240711204446_mai_cac.up.sql
+20240726185252_mai_do_cac.up.sql
+20240726190401_joseph_doye_cn_cac.up.sql
