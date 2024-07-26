@@ -125,7 +125,6 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to view orders and amended orders', async ({ page }) => {
-      await page.getByRole('link', { name: 'Orders', exact: true }).click();
       await page.getByRole('link', { name: 'View and edit orders' }).click();
       await page.getByTestId('openMenu').click();
       await expect(page.getByTestId('DocViewerMenu').getByTestId('button')).toHaveCount(3);
@@ -145,7 +144,6 @@ test.describe('Services counselor user', () => {
     });
 
     test('is able to add and delete orders and amended orders', async ({ page, officePage }) => {
-      await page.getByRole('link', { name: 'Orders', exact: true }).click();
       await page.getByRole('link', { name: 'View and edit orders' }).click();
 
       // check initial quanity of files
@@ -570,6 +568,18 @@ test.describe('Services counselor user', () => {
       fullPpmMoveLocator = fullPpmMove.locator;
       await scPage.searchForCloseoutMove(fullPpmMoveLocator);
       await expect(page.getByTestId('ppmType-0')).toContainText('Full');
+    });
+  });
+
+  test.describe('with approved HHG move sent to Prime', () => {
+    test.beforeEach(async ({ scPage }) => {
+      const move = await scPage.testHarness.buildHHGMoveInSIT();
+      await scPage.navigateToMoveUsingMoveSearch(move.locator);
+    });
+
+    test('is unable to view/edit orders after MTO has been created(sent to prime)', async ({ page }) => {
+      await expect(page.getByTestId('view-edit-orders')).toBeHidden();
+      await expect(page.getByTestId('edit-allowances')).toBeHidden();
     });
   });
 });
