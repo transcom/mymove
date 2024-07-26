@@ -417,19 +417,21 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		destPostal = ppmShipment.DestinationAddress.PostalCode
 	}
 
-	if pickupPostal[0:3] == destPostal[0:3] {
-		serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+	if len(pickupPostal) >= 3 && len(destPostal) >= 3 && pickupPostal[:3] == destPostal[:3] {
+		if pickupPostal[0:3] == destPostal[0:3] {
+			serviceItemsToPrice[0] = models.MTOServiceItem{ReService: models.ReService{Code: models.ReServiceCodeDSH}, MTOShipmentID: &ppmShipment.ShipmentID}
+		}
 	}
 
 	// Get a list of all the pricing params needed to calculate the price for each service item
 	paramsForServiceItems, err := f.paymentRequestHelper.FetchServiceParamsForServiceItems(appCtx, serviceItemsToPrice)
 	if err != nil {
 		logger.Error("fetching PPM estimate ServiceParams failed", zap.Error(err))
-		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+		return 1, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 	}
 
 	var contractDate time.Time
-	if ppmShipment.ExpectedDepartureDate.IsZero() {
+	if ppmShipment.ExpectedDepartureDate != contractDate {
 		contractDate = ppmShipment.ExpectedDepartureDate
 	}
 	if ppmShipment.ActualMoveDate != nil {
@@ -437,7 +439,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 	}
 	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 	if err != nil {
-		return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+		return 2, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 	}
 
 	var blankPPM models.PPMShipment
@@ -455,7 +457,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		pricer, err := ghcrateengine.PricerForServiceItem(serviceItem.ReService.Code)
 		if err != nil {
 			logger.Error("unable to find pricer for service item", zap.Error(err))
-			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+			return 3, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
 
 		// For the non-accessorial service items there isn't any initialization that is going to change between lookups
@@ -471,7 +473,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		err = appCtx.DB().Find(&shipmentWithDistance, ppmShipment.ShipmentID)
 		if err != nil {
 			logger.Error("could not find shipment in the database")
-			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+			return 4, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
 		serviceItem.MTOShipment = shipmentWithDistance
 		// set this to avoid potential eTag errors because the MTOShipment.Distance field was likely updated
@@ -484,7 +486,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 			paramValue, valueErr := keyData.ServiceParamValue(appCtx, paramKey.Key)
 			if valueErr != nil {
 				logger.Error("could not calculate param value lookup", zap.Error(valueErr))
-				return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+				return 5, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 			}
 
 			// Gather all the param values for the service item to pass to the pricer's Price() method
@@ -502,7 +504,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		}
 
 		if len(paramValues) == 0 {
-			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
+			return 6, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
 		}
 
 		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
@@ -511,7 +513,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))
-			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+			return 7, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
 		}
 
 		switch serviceItem.ReService.Code {

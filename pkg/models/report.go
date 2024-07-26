@@ -90,7 +90,6 @@ type Report struct {
 	PpmDestPrice                *float64
 	PpmPacking                  *float64
 	PpmUnpacking                *float64
-	PpmStorage                  *float64
 	PpmTotal                    *float64
 	TravelType                  *string
 	TravelClassCode             *string

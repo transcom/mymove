@@ -234,7 +234,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 					First(&ppmShipment)
 
 					// if the ppm isn't in closeout complete status skip to the next shipment
-				if ppmQ.Error() == models.RecordNotFoundErrorString {
+				if ppmQ != nil && ppmQ.Error() == models.RecordNotFoundErrorString {
 					continue
 				}
 
@@ -279,7 +279,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 				ppmDestPrice += dest.Float64()
 				ppmPacking += packing.Float64()
 				ppmUnpacking += unpacking.Float64()
-
 			}
 
 			if shipment.PrimeActualWeight != nil {
