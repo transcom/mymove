@@ -135,6 +135,7 @@ export const PaymentRequestShape = PropTypes.shape({
   eTag: PropTypes.string,
   serviceItems: PropTypes.arrayOf(PropTypes.oneOfType([PropTypes.string, PaymentServiceItemShape])),
   reviewedAt: PropTypes.string,
+  sentToGexAt: PropTypes.string,
 });
 
 export const OrdersLOAShape = PropTypes.shape({
