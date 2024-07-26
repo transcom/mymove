@@ -366,6 +366,15 @@ func TransportationOffices(transportationOffices models.TransportationOffices) g
 	return payload
 }
 
+func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
+	payload := make(ghcmessages.GBLOCs, len(gblocs))
+
+	for i, gbloc := range gblocs {
+		payload[i] = string(gbloc)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
@@ -579,6 +588,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	payload := ghcmessages.Order{
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   ghcmessages.GBLOC(swag.StringValue(order.DestinationGBLOC)),
 		Entitlement:                    entitlements,
 		Grade:                          &grade,
 		OrderNumber:                    order.OrdersNumber,
@@ -1456,6 +1466,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
+		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
 	}, nil
 }
 
@@ -1824,6 +1835,22 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 		status == models.MTOShipmentStatusCancellationRequested
 }
 
+func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
+	for i, officeUser := range officeUsers {
+
+		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
+
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
+			FullName:           officeUser.LastName + ", " + officeUser.FirstName,
+			OfficeUserID:       *handlers.FmtUUID(officeUser.ID),
+			HasSafetyPrivilege: swag.BoolValue(&hasSafety),
+		}
+	}
+
+	return &availableOfficeUsers
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -2150,7 +2177,7 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
-			PersonalEmail: *customer.PersonalEmail,
+			PersonalEmail: customer.PersonalEmail,
 			Telephone:     customer.Telephone,
 		}
 	}

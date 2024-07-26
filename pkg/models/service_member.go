@@ -227,7 +227,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
-	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
+	packingAndShippingInstructions string,
+	newDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -256,6 +257,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SpouseHasProGear:               spouseHasProGear,
 			NewDutyLocationID:              newDutyLocation.ID,
 			NewDutyLocation:                newDutyLocation,
+			DestinationGBLOC:               newDutyLocationGBLOC,
 			UploadedOrders:                 uploadedOrders,
 			UploadedOrdersID:               uploadedOrders.ID,
 			Status:                         OrderStatusDRAFT,
@@ -422,7 +424,19 @@ func (s *ServiceMember) ReverseNameLineFormat() string {
 		names = append(names, *s.FirstName)
 	}
 	if s.MiddleName != nil && len(*s.MiddleName) > 0 {
-		names = append(names, *s.MiddleName)
+		middleInitialLength := 1
+		truncatedMiddleNameToMiddleInitial := truncateStr(*s.MiddleName, middleInitialLength)
+		names = append(names, truncatedMiddleNameToMiddleInitial)
 	}
 	return strings.Join(names, ", ")
+}
+
+func truncateStr(str string, cutoff int) string {
+	if len(str) >= cutoff {
+		if cutoff-3 > 0 {
+			return str[:cutoff-3] + "..."
+		}
+		return str[:cutoff]
+	}
+	return str
 }

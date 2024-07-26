@@ -318,7 +318,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	cents := unit.Cents(1000)
 	PPMShipments := []models.PPMShipment{
 		{
-			ExpectedDepartureDate:  pickupDate,
+			ActualMoveDate:         &pickupDate,
 			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
 			EstimatedWeight:        &netWeight,
 			AdvanceAmountRequested: &cents,
@@ -379,6 +379,27 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	// suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
 	// suite.Equal("$300.00", sswPage1.ActualObligationSIT)
 	// suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
+
+	// quick test when there is no PPM actual move date
+	PPMShipmentsWithoutActualMoveDate := []models.PPMShipment{
+		{
+			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+			EstimatedWeight:        &netWeight,
+			AdvanceAmountRequested: &cents,
+		},
+	}
+	ssdWithoutPPMActualMoveDate := services.ShipmentSummaryFormData{
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyLocation:     yuma,
+		NewDutyLocation:         fortGordon,
+		PPMRemainingEntitlement: 3000,
+		WeightAllotment:         wtgEntitlements,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipments:            PPMShipmentsWithoutActualMoveDate,
+	}
+	sswPage1NoActualMoveDate := FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
+	suite.Equal("N/A", sswPage1NoActualMoveDate.ShipmentPickUpDates)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {

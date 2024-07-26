@@ -10,12 +10,15 @@ const (
 	FeatureFlagServerURLFlag string = "feature-flag-server-url"
 	// FeatureFlagAPITokenFlag is the api token
 	FeatureFlagAPITokenFlag string = "feature-flag-api-token"
+	// FeatureFlagDODIDValidation
+	FeatureFlagDODIDUnique string = "feature-flag-dodid-unique"
 )
 
 // InitFeatureFlags
 func InitFeatureFlags(flag *pflag.FlagSet) {
 	flag.String(FeatureFlagServerURLFlag, "", "The endpoint of the feature flag server")
 	flag.String(FeatureFlagAPITokenFlag, "", "The api token for the feature flag server")
+	flag.Bool(FeatureFlagDODIDUnique, false, "The feature flag that determines if DODIDs need to be unique")
 }
 
 // CheckFeatureFlag validates the URL

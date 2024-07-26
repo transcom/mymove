@@ -3804,6 +3804,30 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /transportation-offices/gblocs:
+    get:
+      produces:
+        - application/json
+      summary: Returns a list of distinct GBLOCs that exist in the transportation offices table
+      description: Returns a list of distinct GBLOCs that exist in the transportation offices table
+      operationId: getTransportationOfficesGBLOCs
+      tags:
+        - transportationOffice
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/GBLOCs'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
   /uploads:
     post:
       summary: Create a new upload
@@ -4449,6 +4473,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -4920,6 +4945,8 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      destinationDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocationGBLOC:
@@ -5439,6 +5466,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6167,6 +6198,21 @@ definitions:
       eTag:
         type: string
     type: object
+  AvailableOfficeUsers:
+    type: array
+    items:
+      $ref: '#/definitions/AvailableOfficeUser'
+  AvailableOfficeUser:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      fullName:
+        type: string
+      hasSafetyPrivilege:
+        type: boolean
   QueueMoves:
     type: array
     items:
@@ -6244,6 +6290,8 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
@@ -6357,6 +6405,8 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
@@ -6738,6 +6788,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
+  GBLOCs:
+    type: array
+    items:
+      type: string
   MovePayload:
     type: object
     properties:

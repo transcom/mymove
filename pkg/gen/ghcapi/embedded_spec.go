@@ -5593,6 +5593,42 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -5960,6 +5996,28 @@ func init() {
             "format": "uuid"
           }
         }
+      }
+    },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
       }
     },
     "BackupContact": {
@@ -7293,6 +7351,12 @@ func init() {
         "XXXX"
       ]
     },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "Grade": {
       "type": "string",
       "title": "grade",
@@ -8574,9 +8638,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -9530,6 +9598,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -10424,6 +10495,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -10816,6 +10892,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -10903,6 +10982,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -11305,6 +11387,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -20054,6 +20137,57 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -20421,6 +20555,28 @@ func init() {
             "format": "uuid"
           }
         }
+      }
+    },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
       }
     },
     "BackupContact": {
@@ -21758,6 +21914,12 @@ func init() {
         "XXXX"
       ]
     },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "Grade": {
       "type": "string",
       "title": "grade",
@@ -23039,9 +23201,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -23995,6 +24161,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -24890,6 +25059,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -25284,6 +25458,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25371,6 +25548,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25823,6 +26003,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {

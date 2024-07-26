@@ -225,8 +225,9 @@ describe('SessionStorage TableQueue - react table', () => {
     render(<TableQueue {...defaultProps} />);
     const pillButton = await screen.findByTestId('remove-filters-col1');
 
-    // eslint-disable-next-line no-promise-executor-return
-    await new Promise((r) => setTimeout(r, 1100));
+    await new Promise((r) => {
+      setTimeout(r, 1100);
+    });
 
     await userEvent.click(pillButton);
     await waitFor(() => {
@@ -248,8 +249,9 @@ describe('SessionStorage TableQueue - react table', () => {
     const filter2PillButton = await screen.findByTestId(`remove-filters-col3-${MOVE_STATUS_OPTIONS[2].value}`);
     expect(filter2PillButton).toBeInTheDocument();
 
-    // eslint-disable-next-line no-promise-executor-return
-    await new Promise((r) => setTimeout(r, 1100));
+    await new Promise((r) => {
+      setTimeout(r, 1100);
+    });
 
     // delete filter 1
     await userEvent.click(filter1PillButton);

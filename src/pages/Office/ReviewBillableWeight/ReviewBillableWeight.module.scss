@@ -2,7 +2,6 @@
 @import 'shared/styles/colors';
 
 .contentContainer {
-  width: 336px;
   @include u-margin-bottom(2);
 }
 
@@ -19,4 +18,10 @@
 
 .weightSummary {
   @include u-margin-top(1.5);
+}
+
+
+.reviewWeightSideBar {
+  width: 500px;
+  box-shadow: -4px 0px 8px 0px rgba(0, 0, 0, 0.1);
 }
