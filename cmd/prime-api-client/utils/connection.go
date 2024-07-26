@@ -1,9 +1,7 @@
 package utils
 
 import (
-	"crypto/sha256"
 	"crypto/tls"
-	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
@@ -117,13 +115,7 @@ func CreatePrimeClient(v *viper.Viper) (*primeClient.Mymove, *pksigner.Store, er
 		if errTLSCert != nil {
 			log.Fatal(errTLSCert)
 		}
-		var fingerprint, subject string
-		hash := sha256.Sum256(cert.Certificate[0])
-		fingerprint = hex.EncodeToString(hash[:])
-		subject = cert.Leaf.Subject.String()
-		//x509Cert, err := x509.ParseCertificate(cert.Leaf.Raw)
-		log.Output(5, fmt.Sprintf("subject: %s", subject))
-		log.Output(5, fmt.Sprintf("sha256fingerprint: %s", fingerprint))
+
 		// must explicitly state what signature algorithms we allow as of Go 1.14 to disable RSA-PSS signatures
 		cert.SupportedSignatureAlgorithms = []tls.SignatureScheme{tls.PKCS1WithSHA256}
 
