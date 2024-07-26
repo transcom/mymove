@@ -160,11 +160,52 @@ type CreateCustomerWithOktaOptionHandler struct {
 func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.CreateCustomerWithOktaOptionParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			payload := params.Body
 			var err error
+			var serviceMembers []models.ServiceMember
+			var edipi *string
+			var dodidUniqueFeatureFlag bool
+
+			// evaluating feature flag to see if we need to check if the DODID exists already
+			featureFlagName := "dodid_unique"
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching dodid_unique feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				dodidUniqueFeatureFlag = false
+			} else {
+				dodidUniqueFeatureFlag = flag.Match
+			}
+
+			if dodidUniqueFeatureFlag {
+				if payload.Edipi == nil || *payload.Edipi == "" {
+					edipi = nil
+				} else {
+					query := `SELECT service_members.edipi
+								FROM service_members
+								WHERE service_members.edipi = $1`
+					err := appCtx.DB().RawQuery(query, payload.Edipi).All(&serviceMembers)
+					if err != nil {
+						errorMsg := apperror.NewBadDataError("error when checking for existing service member")
+						payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+						return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
+					} else if len(serviceMembers) > 0 {
+						errorMsg := apperror.NewConflictError(h.GetTraceIDFromRequest(params.HTTPRequest), "Service member with this DODID already exists. Please use a different DODID number.")
+						payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+						return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
+					}
+				}
+
+				if len(serviceMembers) == 0 {
+					edipi = params.Body.Edipi
+				}
+			} else {
+				// If the feature flag is not enabled, we will just set the dodid and continue
+				edipi = params.Body.Edipi
+			}
+
 			var newServiceMember models.ServiceMember
 			var backupContact models.BackupContact
 
-			payload := params.Body
 			email := payload.PersonalEmail
 			if email == "" {
 				badDataError := apperror.NewBadDataError("missing personal email")
@@ -207,12 +248,6 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				userID := user.ID
 				residentialAddress := addressModelFromPayload(&payload.ResidentialAddress.Address)
 				backupMailingAddress := addressModelFromPayload(&payload.BackupMailingAddress.Address)
-				var edipi *string
-				if *payload.Edipi == "" {
-					edipi = nil
-				} else {
-					edipi = payload.Edipi
-				}
 
 				var emplid *string
 				if *payload.Emplid == "" {
