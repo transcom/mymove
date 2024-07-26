@@ -49,6 +49,10 @@ type GetPaymentRequestsQueueParams struct {
 	/*
 	  In: query
 	*/
+	Emplid *string
+	/*
+	  In: query
+	*/
 	LastName *string
 	/*
 	  In: query
@@ -87,6 +91,11 @@ type GetPaymentRequestsQueueParams struct {
 	  In: query
 	*/
 	SubmittedAt *strfmt.DateTime
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+
+	  In: query
+	*/
+	ViewAsGBLOC *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -112,6 +121,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qDodID, qhkDodID, _ := qs.GetOK("dodID")
 	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
+	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -162,6 +176,11 @@ func (o *GetPaymentRequestsQueueParams) BindRequest(r *http.Request, route *midd
 
 	qSubmittedAt, qhkSubmittedAt, _ := qs.GetOK("submittedAt")
 	if err := o.bindSubmittedAt(qSubmittedAt, qhkSubmittedAt, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qViewAsGBLOC, qhkViewAsGBLOC, _ := qs.GetOK("viewAsGBLOC")
+	if err := o.bindViewAsGBLOC(qViewAsGBLOC, qhkViewAsGBLOC, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -220,6 +239,24 @@ func (o *GetPaymentRequestsQueueParams) bindDodID(rawData []string, hasKey bool,
 		return nil
 	}
 	o.DodID = &raw
+
+	return nil
+}
+
+// bindEmplid binds and validates parameter Emplid from query.
+func (o *GetPaymentRequestsQueueParams) bindEmplid(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.Emplid = &raw
 
 	return nil
 }
@@ -399,7 +436,7 @@ func (o *GetPaymentRequestsQueueParams) bindSort(rawData []string, hasKey bool, 
 // validateSort carries on validations for parameter Sort
 func (o *GetPaymentRequestsQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "age", "originDutyLocation"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "locator", "submittedAt", "branch", "status", "dodID", "emplid", "age", "originDutyLocation"}, true); err != nil {
 		return err
 	}
 
@@ -484,5 +521,23 @@ func (o *GetPaymentRequestsQueueParams) validateSubmittedAt(formats strfmt.Regis
 	if err := validate.FormatOf("submittedAt", "query", "date-time", o.SubmittedAt.String(), formats); err != nil {
 		return err
 	}
+	return nil
+}
+
+// bindViewAsGBLOC binds and validates parameter ViewAsGBLOC from query.
+func (o *GetPaymentRequestsQueueParams) bindViewAsGBLOC(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ViewAsGBLOC = &raw
+
 	return nil
 }

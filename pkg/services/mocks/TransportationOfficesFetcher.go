@@ -16,6 +16,32 @@ type TransportationOfficesFetcher struct {
 	mock.Mock
 }
 
+// GetAllGBLOCs provides a mock function with given fields: appCtx
+func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error) {
+	ret := _m.Called(appCtx)
+
+	var r0 *models.GBLOCs
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (*models.GBLOCs, error)); ok {
+		return rf(appCtx)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext) *models.GBLOCs); ok {
+		r0 = rf(appCtx)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.GBLOCs)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
+		r1 = rf(appCtx)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetTransportationOffice provides a mock function with given fields: appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices
 func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error) {
 	ret := _m.Called(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
@@ -42,25 +68,25 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 	return r0, r1
 }
 
-// GetTransportationOffices provides a mock function with given fields: appCtx, search
-func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string) (*models.TransportationOffices, error) {
-	ret := _m.Called(appCtx, search)
+// GetTransportationOffices provides a mock function with given fields: appCtx, search, forPpm
+func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
+	ret := _m.Called(appCtx, search, forPpm)
 
 	var r0 *models.TransportationOffices
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.TransportationOffices, error)); ok {
-		return rf(appCtx, search)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool) (*models.TransportationOffices, error)); ok {
+		return rf(appCtx, search, forPpm)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) *models.TransportationOffices); ok {
-		r0 = rf(appCtx, search)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, bool) *models.TransportationOffices); ok {
+		r0 = rf(appCtx, search, forPpm)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.TransportationOffices)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string) error); ok {
-		r1 = rf(appCtx, search)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, bool) error); ok {
+		r1 = rf(appCtx, search, forPpm)
 	} else {
 		r1 = ret.Error(1)
 	}

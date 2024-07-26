@@ -60,6 +60,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address",
 		"LockedByOfficeUser",
+		"ShipmentGBLOC",
 	).
 		Join("orders", "orders.id = moves.orders_id").
 		Join("service_members", "service_members.id = orders.service_member_id").
@@ -68,6 +69,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
 		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
 		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
+		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
 		Where("show = TRUE")
 
@@ -108,6 +110,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 var parameters = map[string]string{
 	"customerName":          "service_members.last_name",
 	"dodID":                 "service_members.edipi",
+	"emplid":                "service_members.emplid",
 	"branch":                "service_members.affiliation",
 	"locator":               "moves.locator",
 	"status":                "moves.status",

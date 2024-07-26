@@ -178,5 +178,7 @@ Storage.args = {
     amount: 12345,
     sitStartDate: '2022-12-15',
     sitEndDate: '2022-12-25',
+    weightStored: 2000,
+    sitLocation: 'ORIGIN',
   },
 };
