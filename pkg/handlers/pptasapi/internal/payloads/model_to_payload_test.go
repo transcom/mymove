@@ -57,7 +57,7 @@ func (suite *PayloadsSuite) TestListReport() {
 		suite.NotNil(payload)
 		suite.Equal(*report.FirstName, payload.FirstName)
 		suite.Equal(*report.LastName, payload.LastName)
-		suite.Equal("A", payload.MiddleInitial)
+		suite.Equal("A", *payload.MiddleInitial)
 		suite.Equal(*report.Edipi, payload.Edipi)
 		suite.Equal(*report.PhonePrimary, payload.PhonePrimary)
 		suite.Equal(*report.EmailPrimary, payload.EmailPrimary)

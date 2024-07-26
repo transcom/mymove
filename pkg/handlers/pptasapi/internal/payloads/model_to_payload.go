@@ -85,14 +85,6 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		MoveManagementFeeTotal: report.MoveManagementFeeTotal,
 		CounselingFeeTotal:     report.CounselingFeeTotal,
 		InvoicePaidAmt:         report.InvoicePaidAmt,
-		PpmLinehaul:            report.PpmLinehaul,
-		PpmFuelRateAdjTotal:    report.PpmFuelRateAdjTotal,
-		PpmOriginPrice:         report.PpmOriginPrice,
-		PpmDestPrice:           report.PpmDestPrice,
-		PpmPacking:             report.PpmPacking,
-		PpmUnpacking:           report.PpmUnpacking,
-		PpmStorage:             report.PpmStorage,
-		PpmTotal:               report.PpmTotal,
 		FinancialReviewFlag:    report.FinancialReviewFlag,
 	}
 
@@ -198,6 +190,35 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 
 	if report.CounseledDate != nil {
 		payload.CounseledDate = strfmt.Date(*report.CounseledDate)
+	}
+
+	emptyCost := float64(0)
+	if *report.PpmLinehaul != emptyCost {
+		payload.PpmLinehaul = report.PpmLinehaul
+	}
+
+	if *report.PpmFuelRateAdjTotal != emptyCost {
+		payload.PpmFuelRateAdjTotal = report.PpmFuelRateAdjTotal
+	}
+
+	if *report.PpmOriginPrice != emptyCost {
+		payload.PpmOriginPrice = report.PpmOriginPrice
+	}
+
+	if *report.PpmDestPrice != emptyCost {
+		payload.PpmDestPrice = report.PpmDestPrice
+	}
+
+	if *report.PpmPacking != emptyCost {
+		payload.PpmPacking = report.PpmPacking
+	}
+
+	if *report.PpmUnpacking != emptyCost {
+		payload.PpmUnpacking = report.PpmUnpacking
+	}
+
+	if *report.PpmTotal != emptyCost {
+		payload.PpmTotal = report.PpmTotal
 	}
 
 	return payload

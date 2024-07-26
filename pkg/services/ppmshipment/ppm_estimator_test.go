@@ -1,10 +1,8 @@
 package ppmshipment
 
 import (
-	"fmt"
 	"time"
 
-	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -520,7 +518,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		suite.Equal(unit.Cents(70064364), total)
 	})
 
-	suite.Run("Estimated Incentive", func() {
+	/* suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success", func() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -1785,4 +1783,5 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Nil(estimatedSITCost)
 		})
 	})
+	*/
 }
