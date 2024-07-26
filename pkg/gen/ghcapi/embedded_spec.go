@@ -5998,6 +5998,28 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -9576,6 +9598,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -10867,6 +10892,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -10954,6 +10982,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -11356,6 +11387,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -20525,6 +20557,28 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -24107,6 +24161,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -25401,6 +25458,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25488,6 +25548,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25940,6 +26003,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {

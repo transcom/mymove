@@ -33,7 +33,7 @@ test.describe('Services counselor user', () => {
     // Update page 2
     await ppmPage.fillOutIncentiveAndAdvance();
     await expect(page.locator('[data-testid="errorMessage"]')).toContainText('Required');
-    await page.locator('[data-testid="counselor-remarks"]').type('Increased incentive to max');
+    await page.locator('[data-testid="counselor-remarks"]').fill('Increased incentive to max');
     await page.locator('[data-testid="counselor-remarks"]').blur();
 
     // Submit page 2 of form
@@ -90,7 +90,7 @@ test.describe('Services counselor user', () => {
     // Fill out page two
     await ppmPage.fillOutIncentiveAndAdvance({ advance: '10000' });
     await expect(page.locator('[data-testid="errorMessage"]')).toContainText('Required');
-    await page.locator('[data-testid="counselor-remarks"]').type('Added correct incentive');
+    await page.locator('[data-testid="counselor-remarks"]').fill('Added correct incentive');
     await page.locator('[data-testid="counselor-remarks"]').blur();
 
     // Submit page two

@@ -36,7 +36,7 @@ test.describe('QAE Move Search', () => {
     // https://github.com/microsoft/playwright/issues/3688
     //
     await page.getByText('DOD ID').click();
-    await page.locator('input[name="searchText"]').type(edipi);
+    await page.locator('input[name="searchText"]').fill(edipi);
     await page.locator('input[name="searchText"]').blur();
 
     // Search for moves
@@ -73,7 +73,7 @@ test.describe('QAE Move Search', () => {
     // https://github.com/microsoft/playwright/issues/3688
     //
     await page.getByText('Customer Name').click();
-    await page.locator('input[name="searchText"]').type(lastName);
+    await page.locator('input[name="searchText"]').fill(lastName);
     await page.locator('input[name="searchText"]').blur();
 
     // Search for moves
@@ -96,7 +96,7 @@ test.describe('QAE Move Search', () => {
   test('handles searches that do not return results', async ({ page, officePage }) => {
     await officePage.signInAsNewQAEUser();
     // Search for a bad move code
-    await page.locator('input[name="searchText"]').type('BAD_ID');
+    await page.locator('input[name="searchText"]').fill('BAD_ID');
     await page.locator('input[name="searchText"]').blur();
     await page.getByRole('button', { name: 'Search' }).click();
     await officePage.waitForLoading();

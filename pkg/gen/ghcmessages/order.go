@@ -45,6 +45,9 @@ type Order struct {
 	// destination duty location
 	DestinationDutyLocation *DutyLocation `json:"destinationDutyLocation,omitempty"`
 
+	// destination duty location g b l o c
+	DestinationDutyLocationGBLOC GBLOC `json:"destinationDutyLocationGBLOC,omitempty"`
+
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
@@ -178,6 +181,10 @@ func (m *Order) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationDutyLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateDestinationDutyLocationGBLOC(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -342,6 +349,23 @@ func (m *Order) validateDestinationDutyLocation(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Order) validateDestinationDutyLocationGBLOC(formats strfmt.Registry) error {
+	if swag.IsZero(m.DestinationDutyLocationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.DestinationDutyLocationGBLOC.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationDutyLocationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationDutyLocationGBLOC")
+		}
+		return err
 	}
 
 	return nil
@@ -554,6 +578,10 @@ func (m *Order) ContextValidate(ctx context.Context, formats strfmt.Registry) er
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDestinationDutyLocationGBLOC(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateEntitlement(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -675,6 +703,24 @@ func (m *Order) contextValidateDestinationDutyLocation(ctx context.Context, form
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *Order) contextValidateDestinationDutyLocationGBLOC(ctx context.Context, formats strfmt.Registry) error {
+
+	if swag.IsZero(m.DestinationDutyLocationGBLOC) { // not required
+		return nil
+	}
+
+	if err := m.DestinationDutyLocationGBLOC.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("destinationDutyLocationGBLOC")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("destinationDutyLocationGBLOC")
+		}
+		return err
 	}
 
 	return nil

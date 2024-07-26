@@ -53,6 +53,7 @@ const ShipmentAddresses = ({
           'Authorized addresses',
           <div className={styles.rightAlignButtonWrapper}>
             {shipmentInfo.status !== shipmentStatuses.CANCELED &&
+              shipmentInfo.status !== shipmentStatuses.CANCELLATION_REQUESTED &&
               shipmentInfo.shipmentType !== SHIPMENT_OPTIONS.PPM && (
                 <Restricted to={permissionTypes.createShipmentDiversionRequest}>
                   <Restricted to={permissionTypes.updateMTOPage}>
@@ -62,7 +63,7 @@ const ShipmentAddresses = ({
                       unstyled
                       disabled={isMoveLocked}
                     >
-                      Request diversion
+                      Request Diversion
                     </Button>
                   </Restricted>
                 </Restricted>

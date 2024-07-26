@@ -72,6 +72,11 @@
     @include u-margin-bottom(5);
   }
 
+  .cardTitleContainer {
+    display: flex;
+    align-items: center;
+  }
+
   .spaceBetween {
     display: flex;
     justify-content: space-between;

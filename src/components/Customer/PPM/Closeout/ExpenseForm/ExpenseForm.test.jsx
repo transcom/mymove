@@ -103,7 +103,7 @@ describe('ExpenseForm component', () => {
 
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('heading', { level: 3, name: 'Description' })).toBeInTheDocument();
-      expect(screen.getByLabelText('What did you buy?')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText('What did you buy or rent?')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByText('Add a brief description of the expense.')).toBeInTheDocument();
       expect(screen.getByText('Did you pay with your GTCC (Government Travel Charge Card)?')).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
@@ -132,7 +132,7 @@ describe('ExpenseForm component', () => {
       render(<ExpenseForm {...defaultProps} {...expenseRequiredProps} />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('What did you buy?')).toHaveDisplayValue('bubble wrap');
+        expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
       });
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getAllByRole('option')[3].selected).toBe(true);
@@ -151,7 +151,7 @@ describe('ExpenseForm component', () => {
     it('populates edit form when reciept is missing', async () => {
       render(<ExpenseForm {...defaultProps} {...missingReceiptProps} />);
       await waitFor(() => {
-        expect(screen.getByLabelText('What did you buy?')).toHaveDisplayValue('bubble wrap');
+        expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('bubble wrap');
       });
       expect(
         screen.getByText(
@@ -163,7 +163,7 @@ describe('ExpenseForm component', () => {
     it('populates edit form with SIT values', async () => {
       render(<ExpenseForm {...defaultProps} {...sitExpenseProps} />);
       await waitFor(() => {
-        expect(screen.getByLabelText('What did you buy?')).toHaveDisplayValue('10x10 storage pod');
+        expect(screen.getByLabelText('What did you buy or rent?')).toHaveDisplayValue('10x10 storage pod');
       });
       expect(screen.getByLabelText('Select type')).toBeInstanceOf(HTMLSelectElement);
       expect(screen.getByRole('option', { name: 'Storage' }).selected).toBe(true);
