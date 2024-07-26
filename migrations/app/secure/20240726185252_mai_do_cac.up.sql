@@ -1,8 +1,3 @@
--- Local test migration.
--- This will be run on development environments.
--- It should mirror what you intend to apply on prd/stg/exp/demo
--- DO NOT include any sensitive data.
-
 -- This migration allows a CAC cert to have read/write access to all orders and the prime API.
 -- The Orders API and the Prime API use client certificate authentication. Only certificates
 -- signed by a trusted CA (such as DISA) are allowed which includes CACs.
