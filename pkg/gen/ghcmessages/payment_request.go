@@ -65,6 +65,10 @@ type PaymentRequest struct {
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
 
+	// sent to gex at
+	// Format: date-time
+	SentToGexAt *strfmt.DateTime `json:"sentToGexAt,omitempty"`
+
 	// service items
 	ServiceItems PaymentServiceItems `json:"serviceItems,omitempty"`
 
@@ -101,6 +105,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSentToGexAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -208,6 +216,18 @@ func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("reviewedAt", "body", "date-time", m.ReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateSentToGexAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.SentToGexAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sentToGexAt", "body", "date-time", m.SentToGexAt.String(), formats); err != nil {
 		return err
 	}
 
