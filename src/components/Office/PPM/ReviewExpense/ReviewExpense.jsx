@@ -375,6 +375,7 @@ export default function ReviewExpense({
                         sitStartDate={sitStartDateValue}
                         sitEndDate={sitEndDateValue}
                         weightStored={weightStoredValue}
+                        actualWeight={actualWeight}
                         useQueries={useGetPPMSITEstimatedCostQuery}
                         setEstimatedCost={setEstimatedCost}
                       />

@@ -2,10 +2,13 @@
 @import 'shared/styles/colors';
 @import 'shared/styles/variables';
 
-.SitCost {
+.SitCostBreakdown {
   @include u-padding(2);
-  background-color: $bg-white;
-  position: relative;
+  border: 1px solid $base-lighter;
+  border-radius: 3px;
+  background-color: $bg-gray;
+  max-width: fit-content;
+
 
   hr {
     @include u-margin-top(2);
@@ -64,6 +67,42 @@
   .statusOptions :global(.usa-radio__label) {
     @include u-text('bold');
   }
+
+  .flexGridSmall {
+    flex-direction: column;
+
+    .col {
+      @include u-margin-x(0);
+      @include u-padding-y(1);
+      display: grid;
+
+      .row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .value {
+        @include u-margin-left(4);
+      }
+
+      hr {
+        display: none;
+      }
+    }
+
+    .col:first-of-type {
+      @include u-padding-top(2);
+    }
+
+    .col:last-of-type {
+      @include u-margin-top(1);
+      @include u-padding-top(3);
+      @include u-padding-bottom(0);
+      border-top: 1px solid $base-lighter;
+    }
+  }
+
 }
 
 .headerContainer {
@@ -71,15 +110,14 @@
   z-index: 1;
 }
 
-.calculationsContainer {
-  @include u-margin-top(2);
-  @include u-margin-bottom(1);
-}
 
-:global(.usa-button.usa-button--unstyled).togglePPMCalculations {
-  @include u-padding(0);
-  @include u-margin-top(1);
-  @include u-margin-bottom(1);
-  @include u-font-size(body, '3xs');
-  padding-left: 0;
-}
+  .descriptionTitle {
+    @include u-font-weight('bold');
+    color: $base-darker;
+  }
+
+  .descriptionContent {
+    @include u-margin-y(0.5);
+    color: $base-darkest;
+    margin-left: 0;
+  }

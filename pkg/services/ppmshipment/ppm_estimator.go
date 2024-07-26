@@ -565,7 +565,7 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 		Value: serviceArea,
 	}
 
-	price, pricingParams, err := firstDayPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, true)
+	price, pricingParams, err := firstDayPricer.Price(appCtx, contract.Code, *ppmShipment.ActualMoveDate, *ppmShipment.SITEstimatedWeight, serviceArea, true)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -624,7 +624,7 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 		Value: strconv.Itoa(additionalDaysInSIT),
 	}
 
-	price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
+	price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, *ppmShipment.ActualMoveDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
 	if err != nil {
 		return nil, nil, err
 	}
