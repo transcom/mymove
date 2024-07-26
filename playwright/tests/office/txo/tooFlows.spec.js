@@ -633,7 +633,7 @@ test.describe('TOO user', () => {
 
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tioNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(move.locator);
     });
 
     test('is able to edit shipment for retiree', async ({ page }) => {
