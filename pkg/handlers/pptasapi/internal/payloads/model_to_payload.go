@@ -193,31 +193,31 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 	}
 
 	emptyCost := float64(0)
-	if *report.PpmLinehaul != emptyCost {
+	if report.PpmLinehaul != nil && *report.PpmLinehaul != emptyCost {
 		payload.PpmLinehaul = report.PpmLinehaul
 	}
 
-	if *report.PpmFuelRateAdjTotal != emptyCost {
+	if report.PpmFuelRateAdjTotal != nil && *report.PpmFuelRateAdjTotal != emptyCost {
 		payload.PpmFuelRateAdjTotal = report.PpmFuelRateAdjTotal
 	}
 
-	if *report.PpmOriginPrice != emptyCost {
+	if report.PpmOriginPrice != nil && *report.PpmOriginPrice != emptyCost {
 		payload.PpmOriginPrice = report.PpmOriginPrice
 	}
 
-	if *report.PpmDestPrice != emptyCost {
+	if report.PpmDestPrice != nil && *report.PpmDestPrice != emptyCost {
 		payload.PpmDestPrice = report.PpmDestPrice
 	}
 
-	if *report.PpmPacking != emptyCost {
+	if report.PpmPacking != nil && *report.PpmPacking != emptyCost {
 		payload.PpmPacking = report.PpmPacking
 	}
 
-	if *report.PpmUnpacking != emptyCost {
+	if report.PpmUnpacking != nil && *report.PpmUnpacking != emptyCost {
 		payload.PpmUnpacking = report.PpmUnpacking
 	}
 
-	if *report.PpmTotal != emptyCost {
+	if report.PpmTotal != nil && *report.PpmTotal != emptyCost {
 		payload.PpmTotal = report.PpmTotal
 	}
 
