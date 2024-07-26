@@ -90,9 +90,11 @@ BillableWeightCard.propTypes = {
       reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
+  isMoveLocked: bool,
 };
 
 BillableWeightCard.defaultProps = {
   weightRequested: null,
   actualBillableWeight: null,
+  isMoveLocked: false,
 };

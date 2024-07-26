@@ -38,7 +38,7 @@ test.describe('Services counselor user', () => {
     // Fill out page two
     await expect(page.getByText('Incentive & advance')).toBeVisible();
     await ppmPage.fillOutIncentiveAndAdvance({ advance: '5987' });
-    await page.locator('[data-testid="counselor-remarks"]').type('The requested advance amount has been added.');
+    await page.locator('[data-testid="counselor-remarks"]').fill('The requested advance amount has been added.');
     await page.locator('[data-testid="counselor-remarks"]').blur();
 
     await page.locator('[data-testid="submitForm"]').click();
