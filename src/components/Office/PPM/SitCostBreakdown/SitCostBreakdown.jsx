@@ -71,13 +71,17 @@ export default function SitCostBreakdown({
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Origin service area: {estimatedCost?.paramsFirstDaySIT.serviceAreaOrigin}</small>
+              <small>
+                {estimatedCost.paramsFirstDaySIT.serviceAreaOrigin
+                  ? `Origin service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaOrigin}`
+                  : `Destination service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaDestination}`}
+              </small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>Actual pickup date: {formatDate(ppmShipmentInfo.actualMoveDate)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Domestic peak</small>
+              <small>{estimatedCost.paramsFirstDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
@@ -90,13 +94,17 @@ export default function SitCostBreakdown({
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Origin service area: {estimatedCost?.paramsAdditionalDaySIT.serviceAreaOrigin}</small>
+              <small>
+                {estimatedCost.paramsAdditionalDaySIT.serviceAreaOrigin
+                  ? `Origin service area: ${estimatedCost?.paramsAdditionalDaySIT.serviceAreaOrigin}`
+                  : `Destination service area: ${estimatedCost?.paramsAdditionalDaySIT.serviceAreaDestination}`}
+              </small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>Actual pickup date: {formatDate(ppmShipmentInfo.actualMoveDate)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Domestic peak</small>
+              <small>{estimatedCost.paramsAdditionalDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>Additional days used: {estimatedCost?.paramsAdditionalDaySIT.numberDaysSIT}</small>
