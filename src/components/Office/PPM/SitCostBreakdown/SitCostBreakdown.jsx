@@ -3,7 +3,7 @@ import classnames from 'classnames';
 
 import styles from './SitCostBreakdown.module.scss';
 
-import { formatCents, formatDate, formatWeightCWTFromLbs, toDollarString } from 'utils/formatters';
+import { formatCents, formatDate, formatWeight, formatWeightCWTFromLbs, toDollarString } from 'utils/formatters';
 
 export default function SitCostBreakdown({
   ppmShipmentInfo,
@@ -43,28 +43,6 @@ export default function SitCostBreakdown({
           <div data-testid="column" className={styles.col}>
             <div data-testid="row" className={styles.row}>
               <small data-testid="label" className={styles.descriptionTitle}>
-                Billable weight:
-              </small>
-              <small data-testid="value" className={styles.value}>
-                {formatWeightCWTFromLbs(weightStored)}
-              </small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>Adjusted weight: {weightStored} lbs</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>Estimated SIT weight: {ppmShipmentInfo.sitEstimatedWeight} lbs</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>Actual PPM weight: {actualWeight} lbs</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>Estimated PPM weight: {ppmShipmentInfo.estimatedWeight} lbs</small>
-            </div>
-          </div>
-          <div data-testid="column" className={styles.col}>
-            <div data-testid="row" className={styles.row}>
-              <small data-testid="label" className={styles.descriptionTitle}>
                 SIT Information:
               </small>
             </div>
@@ -80,6 +58,28 @@ export default function SitCostBreakdown({
             </div>
             <div data-testid="details" className={styles.row}>
               <small>{estimatedCost.paramsFirstDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
+            </div>
+          </div>
+          <div data-testid="column" className={styles.col}>
+            <div data-testid="row" className={styles.row}>
+              <small data-testid="label" className={styles.descriptionTitle}>
+                Billable weight:
+              </small>
+              <small data-testid="value" className={styles.value}>
+                {formatWeightCWTFromLbs(weightStored)}
+              </small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>Adjusted weight: {formatWeight(weightStored)} lbs</small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>Estimated SIT weight: {formatWeight(ppmShipmentInfo.sitEstimatedWeight)}</small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>Actual PPM weight: {formatWeight(actualWeight)} lbs</small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>Estimated PPM weight: {formatWeight(ppmShipmentInfo.estimatedWeight)}</small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
@@ -108,7 +108,7 @@ export default function SitCostBreakdown({
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>SIT start date: {formatDate(sitAdditionalStartDate)} </small>
+              <small>SIT add&apos;l day start: {formatDate(sitAdditionalStartDate)} </small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>SIT end date: {formatDate(sitEndDate)}</small>
