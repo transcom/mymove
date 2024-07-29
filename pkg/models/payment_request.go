@@ -27,7 +27,7 @@ const (
 	// PaymentRequestStatusSentToGex is sent to gex
 	PaymentRequestStatusSentToGex PaymentRequestStatus = "SENT_TO_GEX"
 	// PaymentRequestStatusReceivedByGex is received by gex
-	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "RECEIVED_BY_GEX"
+	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "TPPS_RECEIVED"
 	// PaymentRequestStatusPaid is paid
 	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
 	// PaymentRequestStatusEDIError an error has occurred

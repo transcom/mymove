@@ -23,7 +23,7 @@ const paymentRequestStatusLabel = (status) => {
       return 'Needs review';
     case PAYMENT_REQUEST_STATUS.REVIEWED:
     case PAYMENT_REQUEST_STATUS.SENT_TO_GEX:
-    case PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX:
+    case PAYMENT_REQUEST_STATUS.TPPS_RECEIVED:
       return 'Reviewed';
     case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
