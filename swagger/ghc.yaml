@@ -4648,6 +4648,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -5670,6 +5671,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
