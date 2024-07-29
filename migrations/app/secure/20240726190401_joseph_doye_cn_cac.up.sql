@@ -1,15 +1,17 @@
--- Local test migration.
--- This will be run on development environments.
--- It should mirror what you intend to apply on prd/stg/exp/demo
--- DO NOT include any sensitive data.
 
+-- This migration allows a CAC cert to have read/write access to all orders and the prime API.
+-- The Orders API and the Prime API use client certificate authentication. Only certificates
+-- signed by a trusted CA (such as DISA) are allowed which includes CACs.
+-- Using a person's CAC as the certificate is a convenient way to permit a
+-- single trusted individual to interact with the Orders API and the Prime API. Eventually
+-- this CAC certificate should be removed.
 INSERT INTO users (
     id,
     okta_email,
     created_at,
     updated_at)
 VALUES (
-    'c8b3dfa8-be1b-48be-b403-c130aedb2614',
+    '458c3c7b-a047-4c79-b68b-552e6e7bba32',
     'dd28f2ed02b4ed5065e7d72817373303c8a2de424c1902c1c5afe16309956a56' || '@api.move.mil',
     now(),
     now());
@@ -23,7 +25,7 @@ INSERT INTO users_roles (
 VALUES (
     uuid_generate_v4(),
     (SELECT id FROM roles WHERE role_type = 'prime'),
-    'c8b3dfa8-be1b-48be-b403-c130aedb2614',
+    '458c3c7b-a047-4c79-b68b-552e6e7bba32',
     now(),
     now());
 
@@ -51,7 +53,7 @@ VALUES (
     'c00707e0-98d0-47a3-a65a-00f2ddfde60f',
     'dd28f2ed02b4ed5065e7d72817373303c8a2de424c1902c1c5afe16309956a56',
     'CN=joeydoyecaci2,OU=DoD+OU=PKI+OU=CONTRACTOR,O=U.S. Government,C=US',
-    'c8b3dfa8-be1b-48be-b403-c130aedb2614',
+    '458c3c7b-a047-4c79-b68b-552e6e7bba32',
     true,
     true,
 	false,
