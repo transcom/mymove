@@ -108,6 +108,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{handlerConfig}
 
 	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{handlerConfig}
+	//internalAPI.CounselingOfficesGetCounselingOfficesHandler = GetCounselingOfficesHandler{handlerConfig}
 
 	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{handlerConfig}
 
