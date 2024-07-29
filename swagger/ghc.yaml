@@ -8098,6 +8098,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELLED
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status

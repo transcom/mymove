@@ -1,0 +1,1 @@
+ALTER TYPE ppm_shipment_status ADD VALUE 'CANCELLED';
