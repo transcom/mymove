@@ -671,9 +671,19 @@ paths:
 
         after the destination address has already been approved.
 
-        If automatically approved or TOO approves, this will update the final
-        destination address values for destination SIT service items to be the
-        same as the changed destination address that was approved.
+
+        This should ONLY be used for the following shipment types:
+
+        - HHG
+
+        - NTSR
+
+
+        For HHG shipments, if automatically approved or TOO approves, this will
+        update the final destination address values for destination SIT service
+        items to be the same as the changed destination address that was
+        approved.
+
 
         Address updates will be automatically approved unless they change:
           - The service area

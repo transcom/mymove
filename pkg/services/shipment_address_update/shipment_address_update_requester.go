@@ -234,7 +234,7 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "MTOServiceItems.ReService", "DestinationAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "StorageFacility.Address", "MTOServiceItems.ReService", "DestinationAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
@@ -246,7 +246,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG shipments")
+		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTSr shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)
@@ -339,16 +339,34 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	}
 
 	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-		if err != nil {
-			return nil, err
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+			if err != nil {
+				return nil, err
+			}
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
 		}
 	}
 
 	if !updateNeedsTOOReview {
-		updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
-		if err != nil {
-			return nil, err
+		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+			if err != nil {
+				return nil, err
+			}
+		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
 		}
 	}
 
@@ -468,7 +486,7 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				return nil, err
 			}
 		} else {
-			return nil, apperror.NewQueryError("ShipmentAddressUpdate", err, "")
+			return nil, apperror.NewInvalidInputError(shipment.ID, nil, nil, "Shipment type must be either an HHG or NTSr")
 		}
 
 		var shipmentDetails models.MTOShipment
