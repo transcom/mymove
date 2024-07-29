@@ -1807,7 +1807,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "definitions/PPMShipmentSIT.yaml"
+            $ref: 'definitions/PPMShipmentSIT.yaml'
       responses:
         '200':
           description: Successfully finished PPM SIT update
@@ -4466,6 +4466,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -5456,6 +5457,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6758,7 +6763,7 @@ definitions:
   GBLOCs:
     type: array
     items:
-        type: string
+      type: string
   MovePayload:
     type: object
     properties:
