@@ -219,6 +219,22 @@ const PaymentRequestCard = ({
         </div>
       );
     }
+    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.TPPS_RECEIVED) {
+      return (
+        <div>
+          {approvedAmount > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div>
+                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                <span>Received</span>
+                <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
     return <div />;
   };
 

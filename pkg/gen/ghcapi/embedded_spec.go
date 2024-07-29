@@ -10448,6 +10448,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -24964,6 +24969,11 @@ func init() {
           "x-nullable": true,
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         },
         "rejectionReason": {
           "type": "string",

@@ -15,7 +15,7 @@ properties:
     readOnly: true
   documentId:
     description: The id of the Document that contains all file uploads for this additional document
-    type: string
+    type: stringmake s
     format: uuid
     example: c56a4180-65aa-42ec-a945-5fd21dec0538
     readOnly: true
