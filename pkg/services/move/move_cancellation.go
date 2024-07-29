@@ -27,7 +27,7 @@ func (f *moveCancellation) CancelMove(appCtx appcontext.AppContext, moveID uuid.
 
 	// get all shipments in move for cancellation
 	var shipments []models.MTOShipment
-	err = appCtx.DB().EagerPreload("Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
+	err = appCtx.DB().EagerPreload("Status", "PPMShipment", "PPMShipment.Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
 	if err != nil {
 		return nil, apperror.NewNotFoundError(moveID, "while looking for shipments")
 	}
@@ -36,6 +36,23 @@ func (f *moveCancellation) CancelMove(appCtx appcontext.AppContext, moveID uuid.
 		for _, shipment := range shipments {
 			shipmentDelta := shipment
 			shipmentDelta.Status = models.MTOShipmentStatusCanceled
+
+			if shipment.PPMShipment != nil {
+				var ppmshipment models.PPMShipment
+				qerr := appCtx.DB().Where("id = ?", shipment.PPMShipment.ID).First(&ppmshipment)
+				if qerr != nil {
+					return apperror.NewNotFoundError(ppmshipment.ID, "while looking for ppm shipment")
+				}
+
+				ppmshipment.Status = models.PPMShipmentStatusCancelled
+
+				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&ppmshipment)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")
+				} else if err != nil {
+					return apperror.NewQueryError("PPM Shipment", err, "Failed to update status for ppm shipment")
+				}
+			}
 
 			verrs, err := txnAppCtx.DB().ValidateAndUpdate(&shipmentDelta)
 			if verrs != nil && verrs.HasAny() {
