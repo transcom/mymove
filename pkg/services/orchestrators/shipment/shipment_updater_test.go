@@ -23,23 +23,28 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 	updateMTOShipmentMethodName := "UpdateMTOShipment"
 	updatePPMShipmentMethodName := "UpdatePPMShipmentWithDefaultCheck"
+	updateBoatShipmentMethodName := "UpdateBoatShipmentWithDefaultCheck"
 
 	type subtestDataObjects struct {
 		mockMTOShipmentUpdater      *mocks.MTOShipmentUpdater
 		mockPPMShipmentUpdater      *mocks.PPMShipmentUpdater
+		mockBoatShipmentUpdater     *mocks.BoatShipmentUpdater
 		shipmentUpdaterOrchestrator services.ShipmentUpdater
 
 		fakeError error
 	}
 
-	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool) (subtestData subtestDataObjects) {
+	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool) (subtestData subtestDataObjects) {
 		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
 		subtestData.mockMTOShipmentUpdater = &mockMTOShipmentUpdater
 
 		mockPPMShipmentUpdater := mocks.PPMShipmentUpdater{}
 		subtestData.mockPPMShipmentUpdater = &mockPPMShipmentUpdater
 
-		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater)
+		mockBoatShipmentUpdater := mocks.BoatShipmentUpdater{}
+		subtestData.mockBoatShipmentUpdater = &mockBoatShipmentUpdater
+
+		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
@@ -100,13 +105,45 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				)
 		}
 
+		if returnErrorForBoatShipment {
+			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Invalid input found while validating the Boat shipment.")
+
+			subtestData.mockBoatShipmentUpdater.
+				On(
+					updateBoatShipmentMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("*models.BoatShipment"),
+					mock.AnythingOfType("uuid.UUID"),
+				).
+				Return(nil, subtestData.fakeError)
+		} else {
+			subtestData.mockBoatShipmentUpdater.
+				On(
+					updateBoatShipmentMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("*models.BoatShipment"),
+					mock.AnythingOfType("uuid.UUID"),
+					mock.AnythingOfType("string"),
+				).
+				Return(
+					func(_ appcontext.AppContext, ship *models.BoatShipment, _ uuid.UUID) *models.BoatShipment {
+						updatedShip := *ship
+
+						return &updatedShip
+					},
+					func(_ appcontext.AppContext, _ *models.BoatShipment, _ uuid.UUID) error {
+						return nil
+					},
+				)
+		}
+
 		return subtestData
 	}
 
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false)
+		subtestData := makeSubtestData(false, false, false)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), nil, nil)
 
@@ -136,7 +173,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipmentType), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(false, false)
+			subtestData := makeSubtestData(false, false, false)
 
 			var shipment models.MTOShipment
 
@@ -204,7 +241,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on PPMShipment and updated PPMShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false)
+		subtestData := makeSubtestData(false, false, false)
 
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -241,20 +278,73 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.True(*mtoShipment.PPMShipment.HasReceivedAdvance)
 	})
 
+	suite.Run("Sets MTOShipment info on BoatShipment and updated BoatShipment back on MTOShipment", func() {
+		appCtx := suite.AppContextForTest()
+
+		subtestData := makeSubtestData(false, false, false)
+
+		boatShipment := factory.BuildBoatShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.BoatShipment{
+					Type:           models.BoatShipmentTypeHaulAway,
+					Year:           models.IntPointer(2000),
+					Make:           models.StringPointer("Boat Make"),
+					Model:          models.StringPointer("Boat Model"),
+					LengthInInches: models.IntPointer(300),
+					WidthInInches:  models.IntPointer(108),
+					HeightInInches: models.IntPointer(72),
+					HasTrailer:     models.BoolPointer(true),
+					IsRoadworthy:   models.BoolPointer(false),
+				},
+			},
+		}, nil)
+		shipment := boatShipment.Shipment
+
+		// set new field to update
+		shipment.BoatShipment.Year = models.IntPointer(1991)
+		shipment.BoatShipment.LengthInInches = models.IntPointer(20)
+		shipment.BoatShipment.HasTrailer = models.BoolPointer(false)
+
+		mtoShipment, err := subtestData.shipmentUpdaterOrchestrator.UpdateShipment(appCtx, &shipment, etag.GenerateEtag(shipment.UpdatedAt), "test")
+
+		suite.NoError(err)
+
+		suite.NotNil(mtoShipment)
+
+		// check that the BoatShipment has the expected MTOShipment fields
+		suite.Equal(mtoShipment.ID, mtoShipment.BoatShipment.ShipmentID)
+		suite.Equal(*mtoShipment, mtoShipment.BoatShipment.Shipment)
+
+		// check we got the latest version back
+		suite.NotEqual(&boatShipment, mtoShipment.BoatShipment)
+		suite.Equal(*mtoShipment.BoatShipment.Year, *shipment.BoatShipment.Year)
+		suite.Equal(*mtoShipment.BoatShipment.LengthInInches, *shipment.BoatShipment.LengthInInches)
+		suite.False(*mtoShipment.BoatShipment.HasTrailer)
+	})
+
 	serviceObjectErrorTestCases := map[string]struct {
-		shipmentType              models.MTOShipmentType
-		returnErrorForMTOShipment bool
-		returnErrorForPPMShipment bool
+		shipmentType               models.MTOShipmentType
+		returnErrorForMTOShipment  bool
+		returnErrorForPPMShipment  bool
+		returnErrorForBoatShipment bool
 	}{
 		"error updating MTOShipment": {
-			shipmentType:              models.MTOShipmentTypeHHG,
-			returnErrorForMTOShipment: true,
-			returnErrorForPPMShipment: false,
+			shipmentType:               models.MTOShipmentTypeHHG,
+			returnErrorForMTOShipment:  true,
+			returnErrorForPPMShipment:  false,
+			returnErrorForBoatShipment: false,
 		},
 		"error updating PPMShipment": {
-			shipmentType:              models.MTOShipmentTypePPM,
-			returnErrorForMTOShipment: false,
-			returnErrorForPPMShipment: true,
+			shipmentType:               models.MTOShipmentTypePPM,
+			returnErrorForMTOShipment:  false,
+			returnErrorForPPMShipment:  true,
+			returnErrorForBoatShipment: true,
+		},
+		"error updating BoatShipment": {
+			shipmentType:               models.MTOShipmentTypePPM,
+			returnErrorForMTOShipment:  false,
+			returnErrorForPPMShipment:  false,
+			returnErrorForBoatShipment: true,
 		},
 	}
 
@@ -265,7 +355,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Returns transaction error if there is an %s", name), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment)
+			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment)
 
 			var shipment models.MTOShipment
 
@@ -295,7 +385,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Returns error early if MTOShipment can't be updated", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(true, false)
+		subtestData := makeSubtestData(true, false, false)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{

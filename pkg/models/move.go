@@ -455,6 +455,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.SecondaryDestinationAddress",
 		"MTOShipments.PPMShipment.TertiaryPickupAddress",
 		"MTOShipments.PPMShipment.TertiaryDestinationAddress",
+		"MTOShipments.BoatShipment",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",

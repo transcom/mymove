@@ -241,29 +241,33 @@ func BoatShipmentModelFromCreate(boatShipment *internalmessages.CreateBoatShipme
 	var lengthInInches *int
 	if boatShipment.LengthInInches != nil {
 		val := int(*boatShipment.LengthInInches)
-		year = &val
+		lengthInInches = &val
 	}
 	var widthInInches *int
 	if boatShipment.WidthInInches != nil {
 		val := int(*boatShipment.WidthInInches)
-		year = &val
+		widthInInches = &val
 	}
 	var heightInInches *int
 	if boatShipment.HeightInInches != nil {
 		val := int(*boatShipment.HeightInInches)
-		year = &val
+		heightInInches = &val
 	}
 
 	model := &models.BoatShipment{
 		Type:           models.BoatShipmentType(*boatShipment.Type),
 		Year:           year,
-		Make:           handlers.FmtStringPtr(boatShipment.Make),
-		Model:          handlers.FmtStringPtr(boatShipment.Model),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
 		LengthInInches: lengthInInches,
 		WidthInInches:  widthInInches,
 		HeightInInches: heightInInches,
-		HasTrailer:     handlers.FmtBool(*boatShipment.HasTrailer),
-		IsRoadworthy:   handlers.FmtBool(*boatShipment.IsRoadworthy),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if model.HasTrailer == models.BoolPointer(false) {
+		model.IsRoadworthy = nil
 	}
 
 	return model
@@ -281,29 +285,36 @@ func UpdateBoatShipmentModel(boatShipment *internalmessages.UpdateBoatShipment) 
 	var lengthInInches *int
 	if boatShipment.LengthInInches != nil {
 		val := int(*boatShipment.LengthInInches)
-		year = &val
+		lengthInInches = &val
 	}
 	var widthInInches *int
 	if boatShipment.WidthInInches != nil {
 		val := int(*boatShipment.WidthInInches)
-		year = &val
+		widthInInches = &val
 	}
 	var heightInInches *int
 	if boatShipment.HeightInInches != nil {
 		val := int(*boatShipment.HeightInInches)
-		year = &val
+		heightInInches = &val
 	}
 
 	boatModel := &models.BoatShipment{
-		Type:           models.BoatShipmentType(*boatShipment.Type),
 		Year:           year,
-		Make:           handlers.FmtStringPtr(boatShipment.Make),
-		Model:          handlers.FmtStringPtr(boatShipment.Model),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
 		LengthInInches: lengthInInches,
 		WidthInInches:  widthInInches,
 		HeightInInches: heightInInches,
-		HasTrailer:     handlers.FmtBool(*boatShipment.HasTrailer),
-		IsRoadworthy:   handlers.FmtBool(*boatShipment.IsRoadworthy),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if boatShipment.Type != nil {
+		boatModel.Type = models.BoatShipmentType(*boatShipment.Type)
+	}
+
+	if boatShipment.HasTrailer == models.BoolPointer(false) {
+		boatModel.IsRoadworthy = nil
 	}
 
 	return boatModel
@@ -369,6 +380,15 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
+
+	// making sure both shipmentType and boatShipment.Type match
+	if mtoShipment.BoatShipment != nil && mtoShipment.BoatShipment.Type != nil {
+		if *mtoShipment.BoatShipment.Type == string(models.BoatShipmentTypeHaulAway) {
+			model.ShipmentType = models.MTOShipmentTypeBoatHaulAway
+		} else {
+			model.ShipmentType = models.MTOShipmentTypeBoatTowAway
+		}
+	}
 	model.BoatShipment = UpdateBoatShipmentModel(mtoShipment.BoatShipment)
 
 	return model

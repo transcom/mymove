@@ -90,6 +90,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	addressUpdater := address.NewAddressUpdater()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
+	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 
 	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(pdfGenerator)
 	if err != nil {
@@ -215,6 +216,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 			addressCreator,
 		),
 		ppmShipmentUpdater,
+		boatShipmentUpdater,
 	)
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{

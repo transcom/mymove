@@ -68,7 +68,6 @@ func (b BoatShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: *b.LengthInInches, Compared: 0},
 		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: *b.WidthInInches, Compared: 0},
 		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: *b.HeightInInches, Compared: 0},
-		&CannotBeTrueIfFalse{Field1: *b.IsRoadworthy, Name1: "IsRoadworthy", Field2: *b.HasTrailer, Name2: "HasTrailer"},
 	), nil
 
 }
