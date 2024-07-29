@@ -95,8 +95,12 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.Ap
 		return nil, err
 	}
 
-	contractDate := ppmShipment.ActualMoveDate // Use ActualMoveDate for SIT Calculation per Danny Mathews. Always known at this point in the process
-	contract, err := serviceparamvaluelookups.FetchContract(appCtx, *contractDate)
+	//Use actual departure date if possible, per Danny Mathews
+	contractDate := ppmShipment.ExpectedDepartureDate
+	if ppmShipment.ActualMoveDate != nil {
+		contractDate = *ppmShipment.ActualMoveDate
+	}
+	contract, err := serviceparamvaluelookups.FetchContract(appCtx, contractDate)
 	if err != nil {
 		return nil, err
 	}
