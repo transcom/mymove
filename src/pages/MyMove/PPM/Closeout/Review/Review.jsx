@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { GridContainer, Grid, Button } from '@trussworks/react-uswds';
 import { Link, useParams, generatePath } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -12,7 +12,7 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { shipmentTypes } from 'constants/shipments';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { customerRoutes, generalRoutes } from 'constants/routes';
-import { selectMTOShipmentById } from 'store/entities/selectors';
+import { selectMTOShipmentById, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import ReviewItems from 'components/Customer/PPM/Closeout/ReviewItems/ReviewItems';
 import {
   calculateTotalMovingExpensesAmount,
@@ -34,10 +34,11 @@ import {
   deleteProGearWeightTicket,
   deleteMovingExpense,
   getMTOShipmentsForMove,
+  getAllMoves,
 } from 'services/internalApi';
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import { hasCompletedAllWeightTickets, hasCompletedAllExpenses, hasCompletedAllProGear } from 'utils/shipments';
-import { updateMTOShipment } from 'store/entities/actions';
+import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 
 const ReviewDeleteCloseoutItemModal = ({ onClose, onSubmit, itemToDelete }) => {
   const deleteDetailMessage = <p>You are about to delete {itemToDelete.itemNumber}. This cannot be undone.</p>;
@@ -94,6 +95,14 @@ const Review = () => {
   const expenses = mtoShipment?.ppmShipment?.movingExpenses;
   const dispatch = useDispatch();
 
+  const serviceMember = useSelector((state) => selectServiceMemberFromLoggedInUser(state));
+  const serviceMemberId = serviceMember.id;
+
+  useEffect(() => {
+    const moves = getAllMoves(serviceMemberId);
+    dispatch(updateAllMoves(moves));
+  }, [moveId, mtoShipmentId, mtoShipment, dispatch, serviceMemberId]);
+
   if (!mtoShipment) {
     return <LoadingPlaceholder />;
   }
@@ -123,6 +132,8 @@ const Review = () => {
         getMTOShipmentsForMove(mtoShipment.moveTaskOrderID).then((moveResponse) =>
           dispatch(updateMTOShipment(moveResponse.mtoShipments[mtoShipment.id])),
         );
+        const moves = getAllMoves(serviceMemberId);
+        dispatch(updateAllMoves(moves));
       })
       .then(() => setAlert({ type: 'success', message: `${itemNumber} successfully deleted.` }))
       .catch(() => {
