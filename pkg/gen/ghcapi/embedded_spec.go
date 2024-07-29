@@ -9598,6 +9598,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -11384,6 +11387,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -24157,6 +24161,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -25996,6 +26003,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {

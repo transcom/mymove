@@ -4655,6 +4655,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -5144,6 +5145,8 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
       originDutyLocationGBLOC:
