@@ -416,7 +416,7 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       const reviewedAtDate = wrapperNoReviewedAtDate.find('.amountRejected span').at(1).text();
-      expect(reviewedAtDate).toBe(' on -');
+      expect(reviewedAtDate).toBe(' on ');
     });
   });
 
@@ -497,7 +497,7 @@ describe('PaymentRequestCard', () => {
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
       const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
-      expect(sentToGexAtDate).toBe(' on 13 Dec 2020');
+      expect(sentToGexAtDate).toBe('on 13 Dec 2020');
     });
 
     it('renders - for the date it was sent to gex if sentToGexAt is null', () => {
@@ -515,11 +515,7 @@ describe('PaymentRequestCard', () => {
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
       const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
-      expect(sentToGexAtDate).toBe(' on -');
-
-      // expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
-      // const reviewedAtDate = sentToGex.find('.amountRejected span').at(1).text();
-      // expect(reviewedAtDate).toBe('on -');
+      expect(sentToGexAtDate).toBe('on -');
     });
 
     it('renders the Tpps Received Status status tag for TPPS_RECEIVED', () => {

@@ -5470,6 +5470,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      receivedByGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:

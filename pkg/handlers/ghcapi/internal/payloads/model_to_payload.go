@@ -1467,6 +1467,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
+		ReceivedByGexAt:                 (*strfmt.DateTime)(pr.ReceivedByGexAt),
 	}, nil
 }
 
