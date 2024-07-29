@@ -11,6 +11,7 @@ export default function SitCost({
   ppmShipmentInfo,
   ppmSITLocation,
   sitStartDate,
+  sitAdditionalStartDate,
   sitEndDate,
   weightStored,
   actualWeight,
@@ -65,6 +66,7 @@ export default function SitCost({
             ppmShipmentInfo={ppmShipmentInfo}
             ppmSITLocation={ppmSITLocation}
             sitStartDate={sitStartDate}
+            sitAdditionalStartDate={sitAdditionalStartDate}
             sitEndDate={sitEndDate}
             weightStored={weightStored}
             actualWeight={actualWeight}

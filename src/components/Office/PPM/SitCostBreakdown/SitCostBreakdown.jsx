@@ -3,12 +3,13 @@ import classnames from 'classnames';
 
 import styles from './SitCostBreakdown.module.scss';
 
-import { formatCents, formatDate, toDollarString } from 'utils/formatters';
+import { formatCents, formatDate, formatWeightCWTFromLbs, toDollarString } from 'utils/formatters';
 
 export default function SitCostBreakdown({
   ppmShipmentInfo,
   ppmSITLocation,
   sitStartDate,
+  sitAdditionalStartDate,
   sitEndDate,
   weightStored,
   actualWeight,
@@ -45,20 +46,40 @@ export default function SitCostBreakdown({
                 Billable weight:
               </small>
               <small data-testid="value" className={styles.value}>
-                {weightStored}
+                {formatWeightCWTFromLbs(weightStored)}
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Adjusted weight: {weightStored}</small>
+              <small>Adjusted weight: {weightStored} lbs</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Estimated SIT weight: {ppmShipmentInfo.sitEstimatedWeight}</small>
+              <small>Estimated SIT weight: {ppmShipmentInfo.sitEstimatedWeight} lbs</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Actual PPM weight: {actualWeight}</small>
+              <small>Actual PPM weight: {actualWeight} lbs</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Estimated PPM weight: {ppmShipmentInfo.estimatedWeight}</small>
+              <small>Estimated PPM weight: {ppmShipmentInfo.estimatedWeight} lbs</small>
+            </div>
+          </div>
+          <div data-testid="column" className={styles.col}>
+            <div data-testid="row" className={styles.row}>
+              <small data-testid="label" className={styles.descriptionTitle}>
+                SIT Information:
+              </small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>
+                {estimatedCost.paramsFirstDaySIT.serviceAreaOrigin
+                  ? `Origin service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaOrigin}`
+                  : `Destination service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaDestination}`}
+              </small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>Actual move date: {formatDate(ppmShipmentInfo.actualMoveDate)}</small>
+            </div>
+            <div data-testid="details" className={styles.row}>
+              <small>{estimatedCost.paramsFirstDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
@@ -71,49 +92,32 @@ export default function SitCostBreakdown({
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>
-                {estimatedCost.paramsFirstDaySIT.serviceAreaOrigin
-                  ? `Origin service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaOrigin}`
-                  : `Destination service area: ${estimatedCost?.paramsFirstDaySIT.serviceAreaDestination}`}
-              </small>
+              <small>SIT start date: {formatDate(sitStartDate)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Actual pickup date: {formatDate(ppmShipmentInfo.actualMoveDate)}</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>{estimatedCost.paramsFirstDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
+              <small>Base price: {toDollarString(estimatedCost.paramsFirstDaySIT.priceRateOrFactor)}</small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
             <div data-testid="row" className={styles.row}>
               <small data-testid="label" className={styles.descriptionTitle}>
-                Additonal SIT price:
+                Additonal Day SIT price:
               </small>
               <small data-testid="value" className={styles.value}>
                 {toDollarString(formatCents(estimatedCost?.priceAdditionalDaySIT || 0))}
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>
-                {estimatedCost.paramsAdditionalDaySIT.serviceAreaOrigin
-                  ? `Origin service area: ${estimatedCost?.paramsAdditionalDaySIT.serviceAreaOrigin}`
-                  : `Destination service area: ${estimatedCost?.paramsAdditionalDaySIT.serviceAreaDestination}`}
-              </small>
+              <small>SIT start date: {formatDate(sitAdditionalStartDate)} </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Actual pickup date: {formatDate(ppmShipmentInfo.actualMoveDate)}</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>{estimatedCost.paramsAdditionalDaySIT.isPeak ? 'Domestic peak' : 'Domestic non-peak'}</small>
+              <small>SIT end date: {formatDate(sitEndDate)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>Additional days used: {estimatedCost?.paramsAdditionalDaySIT.numberDaysSIT}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>
-                Price per day: {toDollarString(formatCents(estimatedCost?.priceAdditionalDaySIT || 0))}/
-                {estimatedCost?.paramsAdditionalDaySIT.numberDaysSIT}
-              </small>
+              <small>Price per day: {toDollarString(estimatedCost.paramsAdditionalDaySIT.priceRateOrFactor)}/cwt</small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
