@@ -40,7 +40,8 @@ test.describe('(MultiMove) Final Closeout', () => {
     test('can see final closeout page with final estimated incentive and shipment totals', async ({
       customerPpmPage,
     }) => {
-      await customerPpmPage.navigateToFinalCloseoutPage();
+      await customerPpmPage.navigateToPPMReviewPageWithCompletePPM();
+      await customerPpmPage.navigateFromPPMReviewPageToFinalCloseoutPage();
 
       await customerPpmPage.verifyFinalIncentiveAndTotals();
     });

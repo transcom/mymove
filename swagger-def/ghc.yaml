@@ -201,6 +201,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -213,7 +219,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum: [customerName, dodID, branch, personalEmail, telephone]
+                enum: [customerName, dodID, emplid, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -1801,7 +1807,7 @@ paths:
         - in: body
           name: body
           schema:
-            $ref: "definitions/PPMShipmentSIT.yaml"
+            $ref: 'definitions/PPMShipmentSIT.yaml'
       responses:
         '200':
           description: Successfully finished PPM SIT update
@@ -3180,6 +3186,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3215,6 +3222,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3394,6 +3405,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3419,6 +3431,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3481,7 +3496,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3512,6 +3527,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: destinationDutyLocation
@@ -3585,6 +3603,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               customerName:
                 description: Customer Name
                 type: string
@@ -3630,6 +3654,7 @@ paths:
                   [
                     customerName,
                     dodID,
+                    emplid,
                     branch,
                     locator,
                     status,
@@ -4216,6 +4241,9 @@ definitions:
       cacValidated:
         type: boolean
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -4423,6 +4451,9 @@ definitions:
       dodID:
         type: string
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
       branch:
         type: string
       telephone:
@@ -4435,6 +4466,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -5425,6 +5457,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5818,6 +5854,12 @@ definitions:
           - x-nullable: true
       sitEstimatedCost:
         description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
         type: integer
         format: cents
         x-nullable: true
@@ -6409,6 +6451,9 @@ definitions:
         type: string
         format: date-time
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
   SearchMovesResult:
     type: object
     properties:
@@ -6718,7 +6763,7 @@ definitions:
   GBLOCs:
     type: array
     items:
-        type: string
+      type: string
   MovePayload:
     type: object
     properties:

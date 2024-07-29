@@ -311,6 +311,19 @@ const storageProps = {
     sitEndDate: '2022-12-25',
     weightStored: 2000,
     sitLocation: 'ORIGIN',
+    amount: 456,
+  },
+};
+
+const storagePropsLowerGovEstimate = {
+  expense: {
+    ...expenseRequiredProps.expense,
+    movingExpenseType: expenseTypes.STORAGE,
+    sitStartDate: '2022-12-15',
+    sitEndDate: '2022-12-25',
+    weightStored: 2000,
+    sitLocation: 'ORIGIN',
+    amount: 6000,
   },
 };
 
@@ -517,6 +530,11 @@ describe('ReviewExpenseForm component', () => {
 
       expect(screen.getByLabelText('Origin')).toBeChecked();
       expect(screen.getByLabelText('Destination')).not.toBeChecked();
+      expect(screen.getByText('Actual SIT Reimbursement')).toBeInTheDocument();
+      // Actual sit reimbursement is the lower of the requested values between gov estimate and user request
+      await waitFor(() => {
+        expect(screen.getByTestId('actual-sit-reimbursement')).toHaveTextContent('$4.56');
+      });
       expect(screen.getByLabelText('Weight Stored')).toHaveDisplayValue('2,000');
 
       await waitFor(() => {
@@ -531,6 +549,30 @@ describe('ReviewExpenseForm component', () => {
       expect(screen.getByText('Total days in SIT')).toBeInTheDocument();
       await waitFor(() => {
         expect(screen.getByTestId('days-in-sit')).toHaveTextContent('11');
+      });
+    });
+
+    it('actual sit reimbursement uses gov estimate when lower than user request', async () => {
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueWithOneWeightTicket);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+      await useGetPPMSITEstimatedCostQuery.mockReturnValue(useGetPPMSITEstimatedCostQueryReturnValue);
+
+      render(
+        <ReviewExpense
+          {...defaultProps}
+          {...storagePropsLowerGovEstimate}
+          {...documentSetsProps}
+          documentSetIndex={documentSetIndex}
+        />,
+        {
+          wrapper: MockProviders,
+        },
+      );
+      expect(screen.getByText('Actual SIT Reimbursement')).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('actual-sit-reimbursement')).toHaveTextContent('$50.00');
       });
     });
 
