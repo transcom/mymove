@@ -25,7 +25,7 @@ export const OrdersDocument = Template.bind({});
 OrdersDocument.args = {
   orderId: 'order-id',
   documentId: 'document-id',
-  files: [{ id: 'file-1', name: 'File 1', filename: 'file1.pdf', bytes: 1024, createdAt: '2024-07-26T23:38:00Z' }],
+  files: [{ id: 'file-1', name: 'File 1', filename: 'file1.pdf', bytes: 1024, createdAt: '2024-07-26T18:38:00Z' }],
   documentType: MOVE_DOCUMENT_TYPE.ORDERS,
 };
 
@@ -33,7 +33,7 @@ export const AmendedOrdersDocument = Template.bind({});
 AmendedOrdersDocument.args = {
   orderId: 'order-id',
   documentId: 'document-id',
-  files: [{ id: 'file-2', name: 'File 2', filename: 'file2.pdf', bytes: 2048, createdAt: '2024-07-26T23:38:00Z' }],
+  files: [{ id: 'file-2', name: 'File 2', filename: 'file2.pdf', bytes: 2048, createdAt: '2024-07-26T18:38:00Z' }],
   documentType: MOVE_DOCUMENT_TYPE.AMENDMENTS,
   updateAmendedDocument: () => {},
 };
@@ -44,8 +44,8 @@ SupportingDocuments.args = {
   orderId: 'order-id',
   documentId: 'document-id',
   files: [
-    { id: 'file-3', name: 'File 3', filename: 'file3.jpg', bytes: 512, createdAt: '2024-07-26T23:38:00Z' },
-    { id: 'file-4', name: 'File 4', filename: 'file4.png', bytes: 1024, createdAt: '2024-07-26T23:38:00Z' },
+    { id: 'file-3', name: 'File 3', filename: 'file3.jpg', bytes: 512, createdAt: '2024-07-26T18:38:00Z' },
+    { id: 'file-4', name: 'File 4', filename: 'file4.png', bytes: 1024, createdAt: '2024-07-26T18:38:00Z' },
   ],
   documentType: MOVE_DOCUMENT_TYPE.SUPPORTING,
 };
