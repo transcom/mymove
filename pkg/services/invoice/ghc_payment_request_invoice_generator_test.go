@@ -92,10 +92,22 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	var paymentServiceItems models.PaymentServiceItems
 	var result ediinvoice.Invoice858C
 
-	setupTestData := func(grade *internalmessages.OrderPayGrade) {
-		customServiceMember := models.ServiceMember{
-			ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
-			Edipi: models.StringPointer("1000011111"),
+	setupTestData := func(grade *internalmessages.OrderPayGrade, firstName *string, middleName *string, lastName *string) {
+		var customServiceMember models.ServiceMember
+
+		if firstName != nil || middleName != nil || lastName != nil {
+			customServiceMember = models.ServiceMember{
+				ID:         uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+				Edipi:      models.StringPointer("1000011111"),
+				FirstName:  firstName,
+				MiddleName: middleName,
+				LastName:   lastName,
+			}
+		} else {
+			customServiceMember = models.ServiceMember{
+				ID:    uuid.FromStringOrNil("d66d2f35-218c-4b85-b9d1-631949b9d984"),
+				Edipi: models.StringPointer("1000011111"),
+			}
 		}
 
 		serviceMember = factory.BuildExtendedServiceMember(suite.DB(), []factory.Customization{
@@ -358,13 +370,13 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test that the Interchange Control Number (ICN) is being used as the Group Control Number (GCN)
 	suite.Run("the GCN is equal to the ICN", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		suite.EqualValues(result.ISA.InterchangeControlNumber, result.IEA.InterchangeControlNumber, result.GS.GroupControlNumber, result.GE.GroupControlNumber)
 	})
 
 	// Test that the Interchange Control Number (ICN) is being saved to the db
 	suite.Run("the ICN is saved to the database", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		var pr2icn models.PaymentRequestToInterchangeControlNumber
 		err := suite.DB().Where("payment_request_id = ?", paymentRequest.ID).First(&pr2icn)
 		suite.NoError(err)
@@ -373,7 +385,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	// Test Invoice Start and End Segments
 	suite.Run("adds isa start segment", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		suite.Equal("00", result.ISA.AuthorizationInformationQualifier)
 		suite.Equal("0084182369", result.ISA.AuthorizationInformation)
 		suite.Equal("00", result.ISA.SecurityInformationQualifier)
@@ -393,7 +405,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds gs start segment", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		suite.Equal("SI", result.GS.FunctionalIdentifierCode)
 		suite.Equal("MILMOVE", result.GS.ApplicationSendersCode)
 		suite.Equal("8004171844", result.GS.ApplicationReceiversCode)
@@ -405,33 +417,33 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds st start segment", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		suite.Equal("858", result.ST.TransactionSetIdentifierCode)
 		suite.Equal("0001", result.ST.TransactionSetControlNumber)
 	})
 
 	suite.Run("se segment has correct value", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		// Will need to be updated as more service items are supported
 		suite.Equal(179, result.SE.NumberOfIncludedSegments)
 		suite.Equal("0001", result.SE.TransactionSetControlNumber)
 	})
 
 	suite.Run("adds ge end segment", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		suite.Equal(1, result.GE.NumberOfTransactionSetsIncluded)
 		suite.Equal(int64(123), result.GE.GroupControlNumber)
 	})
 
 	suite.Run("adds iea end segment", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		suite.Equal(1, result.IEA.NumberOfIncludedFunctionalGroups)
 		suite.Equal(int64(123), result.IEA.InterchangeControlNumber)
 	})
 
 	// Test Header Generation
 	suite.Run("adds bx header segment", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		bx := result.Header.ShipmentInformation
 		suite.IsType(edisegment.BX{}, bx)
 		suite.Equal("00", bx.TransactionSetPurposeCode)
@@ -444,14 +456,17 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("does not error out creating EDI from Invoice858", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		_, err := result.EDIString(suite.Logger())
 		suite.NoError(err)
 	})
 
 	suite.Run("adding to n9 header", func() {
 		grade := models.ServiceMemberGradeE1
-		setupTestData(&grade)
+		firstName := "FirstName"
+		middleName := "MiddleName"
+		lastName := "LastName"
+		setupTestData(&grade, &firstName, &middleName, &lastName)
 		testData := []struct {
 			TestName      string
 			Qualifier     string
@@ -472,11 +487,48 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 				n9 := data.ActualValue
 				suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
 				suite.Equal(data.ExpectedValue, n9.ReferenceIdentification)
+				// truncates the middle name to just the middle initial
+				if data.TestName == "service member name" {
+					suite.Equal("LastName, FirstName, M", n9.ReferenceIdentification)
+				}
 			})
 		}
 	})
+	suite.Run("truncates service member name (N9 1W segment) to 30 characters, ending in 3 trailing dots", func() {
+		grade := models.ServiceMemberGradeE1
+		firstName := "FirstNameTooLong"
+		middleName := "MiddleName"
+		lastName := "LastNameTooLong"
+		setupTestData(&grade, &firstName, &middleName, &lastName)
+		testData := []struct {
+			TestName      string
+			Qualifier     string
+			ExpectedValue string
+			ActualValue   *edisegment.N9
+		}{
+			{TestName: "payment request number", Qualifier: "CN", ExpectedValue: paymentRequest.PaymentRequestNumber, ActualValue: &result.Header.PaymentRequestNumber},
+			{TestName: "contract code", Qualifier: "CT", ExpectedValue: "TRUSS_TEST", ActualValue: &result.Header.ContractCode},
+			{TestName: "service member name", Qualifier: "1W", ExpectedValue: serviceMember.ReverseNameLineFormat(), ActualValue: &result.Header.ServiceMemberName},
+			{TestName: "order pay grade", Qualifier: "ML", ExpectedValue: string(grade), ActualValue: &result.Header.OrderPayGrade},
+			{TestName: "service member branch", Qualifier: "3L", ExpectedValue: string(*serviceMember.Affiliation), ActualValue: &result.Header.ServiceMemberBranch},
+			{TestName: "service member id", Qualifier: "4A", ExpectedValue: string(*serviceMember.Edipi), ActualValue: &result.Header.ServiceMemberID},
+			{TestName: "move code", Qualifier: "CMN", ExpectedValue: mto.Locator, ActualValue: &result.Header.MoveCode},
+		}
+		for _, data := range testData {
+			suite.Run(fmt.Sprintf("adds %s to header", data.TestName), func() {
+				suite.IsType(&edisegment.N9{}, data.ActualValue)
+				n9 := data.ActualValue
+				suite.Equal(data.Qualifier, n9.ReferenceIdentificationQualifier)
+				suite.Equal(truncateStr(data.ExpectedValue, maxServiceMemberNameLengthN9), n9.ReferenceIdentification)
+				if data.TestName == "service member name" {
+					suite.Equal("LastNameTooLong, FirstNameT...", n9.ReferenceIdentification)
+				}
+			})
+		}
+	})
+
 	suite.Run("adds currency to header", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		currency := result.Header.Currency
 		suite.IsType(edisegment.C3{}, currency)
 		suite.Equal("USD", currency.CurrencyCodeC301)
@@ -802,7 +854,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds actual pickup date to header", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		g62Requested := result.Header.RequestedPickupDate
 		suite.IsType(&edisegment.G62{}, g62Requested)
 		suite.NotNil(g62Requested)
@@ -821,7 +873,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds buyer and seller organization name", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		// buyer name
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		buyerOrg := result.Header.BuyerOrganizationName
@@ -842,7 +894,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds orders destination address", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.NewDutyLocation
 		// This used to match a duty location by name in our database and ignore the default factory values.  Now that
 		// it doesn't match a named duty location ("Fort Eisenhower"), the EDI ends up using the postal code to determine
@@ -896,7 +948,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds orders origin address", func() {
-		setupTestData(nil)
+		setupTestData(nil, nil, nil, nil)
 		// name
 		expectedDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		n1 := result.Header.OriginName
@@ -958,8 +1010,7 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 	})
 
 	suite.Run("adds various service item segments", func() {
-		setupTestData(nil)
-
+		setupTestData(nil, nil, nil, nil)
 		for idx, paymentServiceItem := range paymentServiceItems {
 			var hierarchicalNumberInt = idx + 1
 			var hierarchicalNumber = strconv.Itoa(hierarchicalNumberInt)
