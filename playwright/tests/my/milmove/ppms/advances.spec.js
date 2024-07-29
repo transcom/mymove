@@ -39,13 +39,13 @@ test.describe('About Your PPM', () => {
     const saveButton = page.getByRole('button', { name: 'Save & Continue' });
 
     await expect(saveButton).toBeDisabled();
-    await advanceInput.type('1');
+    await advanceInput.fill('1');
     await advanceInput.blur();
     await expect(page.locator('[class="usa-error-message"]')).not.toBeVisible();
 
     // advance violates min
     await advanceInput.clear();
-    await advanceInput.type('0');
+    await advanceInput.fill('0');
     await advanceInput.blur();
     await expect(errorMessage).toContainText(
       "The minimum advance request is $1. If you don't want an advance, select No.",
@@ -57,13 +57,13 @@ test.describe('About Your PPM', () => {
     await expect(saveButton).toBeDisabled();
 
     await advanceInput.clear();
-    await advanceInput.type('1');
+    await advanceInput.fill('1');
     await advanceInput.blur();
     await expect(errorMessage).not.toBeVisible();
 
     // advance violates max (over 60% of incentive)
     await advanceInput.clear();
-    await advanceInput.type('6001');
+    await advanceInput.fill('6001');
     await advanceInput.blur();
     await expect(errorMessage).toContainText('Enter an amount $6,000 or less');
     await expect(page.locator('[class="usa-error-message"] + div').locator('input')).toHaveAttribute(
@@ -72,7 +72,7 @@ test.describe('About Your PPM', () => {
     );
     await expect(saveButton).toBeDisabled();
     await advanceInput.clear();
-    await advanceInput.type('1');
+    await advanceInput.fill('1');
     await advanceInput.blur();
     await expect(errorMessage).not.toBeVisible();
   });
@@ -124,13 +124,13 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
     const saveButton = page.getByRole('button', { name: 'Save & Continue' });
 
     await expect(saveButton).toBeDisabled();
-    await advanceInput.type('1');
+    await advanceInput.fill('1');
     await advanceInput.blur();
     await expect(page.locator('[class="usa-error-message"]')).not.toBeVisible();
 
     // advance violates min
     await advanceInput.clear();
-    await advanceInput.type('0');
+    await advanceInput.fill('0');
     await advanceInput.blur();
     await expect(errorMessage).toContainText(
       "The minimum advance request is $1. If you don't want an advance, select No.",
@@ -142,13 +142,13 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
     await expect(saveButton).toBeDisabled();
 
     await advanceInput.clear();
-    await advanceInput.type('1');
+    await advanceInput.fill('1');
     await advanceInput.blur();
     await expect(errorMessage).not.toBeVisible();
 
     // advance violates max (over 60% of incentive)
     await advanceInput.clear();
-    await advanceInput.type('600001');
+    await advanceInput.fill('600001');
     await advanceInput.blur();
     await expect(errorMessage).toContainText('Enter an amount');
     await expect(page.locator('[class="usa-error-message"] + div').locator('input')).toHaveAttribute(
@@ -157,7 +157,7 @@ test.describe('(MultiMove) Workflow About Your PPM', () => {
     );
     await expect(saveButton).toBeDisabled();
     await advanceInput.clear();
-    await advanceInput.type('1');
+    await advanceInput.fill('1');
     await advanceInput.blur();
     await expect(errorMessage).not.toBeVisible();
   });
