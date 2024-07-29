@@ -26,8 +26,8 @@ const (
 	PaymentRequestStatusReviewedAllRejected PaymentRequestStatus = "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED"
 	// PaymentRequestStatusSentToGex is sent to gex
 	PaymentRequestStatusSentToGex PaymentRequestStatus = "SENT_TO_GEX"
-	// PaymentRequestStatusReceivedByGex is received by gex
-	PaymentRequestStatusReceivedByGex PaymentRequestStatus = "TPPS_RECEIVED"
+	// PaymentRequestStatusTppsReceived is received by gex
+	PaymentRequestStatusTppsReceived PaymentRequestStatus = "TPPS_RECEIVED"
 	// PaymentRequestStatusPaid is paid
 	PaymentRequestStatusPaid PaymentRequestStatus = "PAID"
 	// PaymentRequestStatusEDIError an error has occurred
@@ -56,7 +56,7 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusReviewed),
 	string(PaymentRequestStatusReviewedAllRejected),
 	string(PaymentRequestStatusSentToGex),
-	string(PaymentRequestStatusReceivedByGex),
+	string(PaymentRequestStatusTppsReceived),
 	string(PaymentRequestStatusPaid),
 	string(PaymentRequestStatusEDIError),
 	string(PaymentRequestStatusDeprecated),
