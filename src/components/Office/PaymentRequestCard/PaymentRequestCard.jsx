@@ -26,7 +26,7 @@ const paymentRequestStatusLabel = (status) => {
     case PAYMENT_REQUEST_STATUS.REVIEWED:
       return 'Reviewed';
     case PAYMENT_REQUEST_STATUS.TPPS_RECEIVED:
-      return 'TPPS_Received';
+      return 'TPPS Received';
     case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
     case PAYMENT_REQUEST_STATUS.PAID:

@@ -84,7 +84,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(params paymentrequestop.Update
 			case supportmessages.PaymentRequestStatusSENTTOGEX:
 				status = models.PaymentRequestStatusSentToGex
 				sentGexDate = time.Now()
-			case supportmessages.PaymentRequestStatusRECEIVEDBYGEX:
+			case supportmessages.PaymentRequestStatusTPPSRECEIVED:
 				status = models.PaymentRequestStatusTppsReceived
 				recGexDate = time.Now()
 			case supportmessages.PaymentRequestStatusPAID:
@@ -354,7 +354,7 @@ func (h ProcessReviewedPaymentRequestsHandler) Handle(params paymentrequestop.Pr
 						sentToGex := time.Now()
 						pr.Status = models.PaymentRequestStatusSentToGex
 						pr.SentToGexAt = &sentToGex
-					case supportmessages.PaymentRequestStatusRECEIVEDBYGEX:
+					case supportmessages.PaymentRequestStatusTPPSRECEIVED:
 						recByGex := time.Now()
 						pr.Status = models.PaymentRequestStatusTppsReceived
 						pr.ReceivedByGexAt = &recByGex

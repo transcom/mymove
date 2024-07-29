@@ -504,7 +504,7 @@ describe('PaymentRequestCard', () => {
       // expect(reviewedAtDate).toBe('on -');
     });
 
-    it('renders the reviewed status tag for TPPS_RECEIVED', () => {
+    it('renders the Tpps Received Status status tag for TPPS_RECEIVED', () => {
       const receivedByGexPaymentRequest = {
         id: '29474c6a-69b6-4501-8e08-670a12512e5f',
         createdAt: '2020-12-01T00:00:00.000Z',
@@ -539,7 +539,7 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('TPPS Received')).toBe(true);
     });
 
     it('renders the paid status tag for paid request', () => {
