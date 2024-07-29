@@ -37,7 +37,7 @@ test.describe('Expenses', () => {
       const expenseDescription = page.locator('input[name="description"]');
       await expect(expenseDescription).toHaveValue('Packing Peanuts');
       await expenseDescription.clear();
-      await expenseDescription.type('PA Turnpike EZ-Pass');
+      await expenseDescription.fill('PA Turnpike EZ-Pass');
 
       await expect(page.locator('label[for="yes-used-gtcc"]')).toBeChecked();
       await page.locator('label[for="no-did-not-use-gtcc"]').click();
@@ -45,7 +45,7 @@ test.describe('Expenses', () => {
       const expenseAmount = page.locator('input[name="amount"]');
       await expect(expenseAmount).toHaveValue('23.45');
       await expenseAmount.clear();
-      await expenseAmount.type('54.32');
+      await expenseAmount.fill('54.32');
 
       const missingReceipt = page.locator('label[for="missingReceipt"]');
       await expect(missingReceipt).not.toBeChecked();
@@ -89,7 +89,7 @@ test.describe('(MultiMove) Expenses', () => {
       const expenseDescription = page.locator('input[name="description"]');
       await expect(expenseDescription).toHaveValue('Packing Peanuts');
       await expenseDescription.clear();
-      await expenseDescription.type('PA Turnpike EZ-Pass');
+      await expenseDescription.fill('PA Turnpike EZ-Pass');
 
       await expect(page.locator('label[for="yes-used-gtcc"]')).toBeChecked();
       await page.locator('label[for="no-did-not-use-gtcc"]').click();
@@ -97,7 +97,7 @@ test.describe('(MultiMove) Expenses', () => {
       const expenseAmount = page.locator('input[name="amount"]');
       await expect(expenseAmount).toHaveValue('23.45');
       await expenseAmount.clear();
-      await expenseAmount.type('54.32');
+      await expenseAmount.fill('54.32');
 
       const missingReceipt = page.locator('label[for="missingReceipt"]');
       await expect(missingReceipt).not.toBeChecked();
