@@ -8,4 +8,5 @@ enum:
   - PAID
   - EDI_ERROR
   - DEPRECATED
+  - SEND_TO_TPPS_FAIL
 title: Payment Request Status

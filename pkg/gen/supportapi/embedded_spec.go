@@ -628,7 +628,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, DEPRECATED, or SEND_TO_TPPS_FAIL.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -2142,7 +2142,8 @@ func init() {
         "RECEIVED_BY_GEX",
         "PAID",
         "EDI_ERROR",
-        "DEPRECATED"
+        "DEPRECATED",
+        "SEND_TO_TPPS_FAIL"
       ]
     },
     "PaymentRequests": {
@@ -3401,7 +3402,7 @@ func init() {
     },
     "/payment-requests/{paymentRequestID}/status": {
       "patch": {
-        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
+        "description": "Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, DEPRECATED, or SEND_TO_TPPS_FAIL.\n\nA status of REVIEWED can optionally have a ` + "`" + `rejectionReason` + "`" + `.\n\nThis is a support endpoint and is not available in production.\n",
         "consumes": [
           "application/json"
         ],
@@ -4961,7 +4962,8 @@ func init() {
         "RECEIVED_BY_GEX",
         "PAID",
         "EDI_ERROR",
-        "DEPRECATED"
+        "DEPRECATED",
+        "SEND_TO_TPPS_FAIL"
       ]
     },
     "PaymentRequests": {

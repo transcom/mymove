@@ -2183,7 +2183,8 @@ func init() {
         "RECEIVED_BY_GEX",
         "PAID",
         "EDI_ERROR",
-        "DEPRECATED"
+        "DEPRECATED",
+        "SEND_TO_TPPS_FAIL"
       ]
     },
     "PaymentRequests": {
@@ -5610,7 +5611,8 @@ func init() {
         "RECEIVED_BY_GEX",
         "PAID",
         "EDI_ERROR",
-        "DEPRECATED"
+        "DEPRECATED",
+        "SEND_TO_TPPS_FAIL"
       ]
     },
     "PaymentRequests": {

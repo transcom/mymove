@@ -224,7 +224,7 @@ func (a *Client) RecalculatePaymentRequest(params *RecalculatePaymentRequestPara
 /*
 	UpdatePaymentRequestStatus updates payment request status
 
-	Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
+	Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, DEPRECATED, or SEND_TO_TPPS_FAIL.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 

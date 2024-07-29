@@ -23,14 +23,14 @@ import (
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 )
 
-// GexSendError is returned when there is an error sending an EDI to GEX
-type GexSendError struct {
+// TPPSSendError is returned when there is an error sending an EDI to TPPS
+type TPPSSendError struct {
 	paymentRequestID uuid.UUID
 	err              error
 }
 
-func (e GexSendError) Error() string {
-	return fmt.Sprintf("error sending the following EDI (PaymentRequest.ID: %s) to GEX: %s", e.paymentRequestID, e.err.Error())
+func (e TPPSSendError) Error() string {
+	return fmt.Sprintf("error sending the following EDI (PaymentRequest.ID: %s) to TPPS: %s", e.paymentRequestID, e.err.Error())
 }
 
 type paymentRequestReviewedProcessor struct {
@@ -132,10 +132,10 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 			zap.String("UsageIndicator (ISA-15)", edi858c.ISA.UsageIndicator),
 		)
 		// Send EDI string to Syncada
-		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
+		// If sent successfully to TPPS, update payment request status to SENT_TO_GEX.
 		err = paymentrequesthelper.SendToSyncada(txnAppCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
 		if err != nil {
-			return GexSendError{paymentRequestID: lockedPR.ID, err: err}
+			return TPPSSendError{paymentRequestID: lockedPR.ID, err: err}
 		}
 		sentToGexAt := time.Now()
 		lockedPR.SentToGexAt = &sentToGexAt
@@ -176,10 +176,15 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		}
 
 		switch transactionError.(type) {
-		case GexSendError:
+		case TPPSSendError:
 			// if we failed in sending there is nothing to do here but retry later so keep the status the same
+			pr.Status = models.PaymentRequestStatusSendToTPPSFail
 		default:
-			pr.Status = models.PaymentRequestStatusEDIError
+			appCtx.Logger().Error(
+				"error while updating payment request status",
+				zap.String("PaymentRequestID", pr.ID.String()),
+				zap.Error(err),
+			)
 		}
 		verrs, err = appCtx.DB().ValidateAndUpdate(&pr)
 		if err != nil {
