@@ -95,7 +95,7 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.Ap
 		return nil, err
 	}
 
-	//Use actual departure date if possible, per Danny Mathews
+	// Use actual departure date if possible
 	contractDate := ppmShipment.ExpectedDepartureDate
 	if ppmShipment.ActualMoveDate != nil {
 		contractDate = *ppmShipment.ActualMoveDate
@@ -109,8 +109,6 @@ func (f *estimatePPM) CalculatePPMSITEstimatedCostBreakdown(appCtx appcontext.Ap
 	if err != nil {
 		return nil, err
 	}
-
-	// Optionally add ppmshipmentActualMoveDate
 
 	return ppmSITEstimatedCostInfoData, nil
 }
@@ -625,10 +623,6 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 	if err != nil {
 		return nil, nil, err
 	}
-
-	// Weights
-	// serviceItem.EstimatedWeight
-	// serviceItem.ActualWeight
 
 	serviceAreaParam := services.PricingDisplayParam{
 		Key:   serviceAreaKey,
