@@ -67,6 +67,37 @@ const createCompleteWeightTicket = ({ serviceMemberId, creationDate } = {}, fiel
   return weightTicket;
 };
 
+const createSecondCompleteWeightTicket = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
+  const fullFieldOverrides = {
+    vehicleDescription: '2023 Honda CR-V Hybrid',
+    emptyWeight: 10000,
+    fullWeight: 12000,
+    allowableWeight: 18000,
+    ownsTrailer: false,
+    trailerMeetsCriteria: false,
+    ...fieldOverrides,
+  };
+
+  const weightTicket = createBaseWeightTicket({ serviceMemberId, creationDate }, fullFieldOverrides);
+
+  if (weightTicket.createdAt === weightTicket.updatedAt) {
+    const updatedAt = moment(weightTicket.createdAt).add(1, 'hour').toISOString();
+
+    weightTicket.updatedAt = updatedAt;
+    weightTicket.eTag = window.btoa(updatedAt);
+  }
+
+  if (weightTicket.emptyDocument.uploads.length === 0) {
+    weightTicket.emptyDocument.uploads.push(createUpload({ fileName: 'emptyDocument.pdf' }));
+  }
+
+  if (weightTicket.fullDocument.uploads.length === 0) {
+    weightTicket.fullDocument.uploads.push(createUpload({ fileName: 'fullDocument.pdf' }));
+  }
+
+  return weightTicket;
+};
+
 const createCompleteWeightTicketWithTrailer = ({ serviceMemberId, creationDate } = {}, fieldOverrides = {}) => {
   const fullFieldOverrides = {
     ownsTrailer: true,
@@ -83,4 +114,9 @@ const createCompleteWeightTicketWithTrailer = ({ serviceMemberId, creationDate }
   return weightTicket;
 };
 
-export { createBaseWeightTicket, createCompleteWeightTicket, createCompleteWeightTicketWithTrailer };
+export {
+  createBaseWeightTicket,
+  createCompleteWeightTicket,
+  createSecondCompleteWeightTicket,
+  createCompleteWeightTicketWithTrailer,
+};
