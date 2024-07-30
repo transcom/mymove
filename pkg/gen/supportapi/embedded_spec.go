@@ -1807,6 +1807,12 @@ func init() {
         "contractorID"
       ],
       "properties": {
+        "approvedAt": {
+          "description": "Indicates this MoveTaskOrder has been approved by an office user such as the Task Ordering Officer (TOO).\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
           "type": "string",
@@ -4626,6 +4632,12 @@ func init() {
         "contractorID"
       ],
       "properties": {
+        "approvedAt": {
+          "description": "Indicates this MoveTaskOrder has been approved by an office user such as the Task Ordering Officer (TOO).\n",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "description": "Indicates this MoveTaskOrder is available for Prime API handling.\n\nIn production, only MoveTaskOrders for which this is set will be available to the API.\n",
           "type": "string",

@@ -4789,6 +4789,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       billableWeightsReviewedAt:
         format: date-time
         type: string
@@ -5592,6 +5596,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -6558,6 +6566,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true

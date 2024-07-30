@@ -24,6 +24,11 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// approved at
+	// Read Only: true
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
+
 	// available to prime at
 	// Read Only: true
 	// Format: date-time
@@ -120,6 +125,8 @@ func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
+		ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
+
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 		ContractNumber string `json:"contractNumber,omitempty"`
@@ -172,6 +179,9 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	}
 
 	var result MoveTaskOrder
+
+	// approvedAt
+	result.ApprovedAt = data.ApprovedAt
 
 	// availableToPrimeAt
 	result.AvailableToPrimeAt = data.AvailableToPrimeAt
@@ -240,6 +250,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
+		ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
+
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 		ContractNumber string `json:"contractNumber,omitempty"`
@@ -276,6 +288,8 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
+
+		ApprovedAt: m.ApprovedAt,
 
 		AvailableToPrimeAt: m.AvailableToPrimeAt,
 
@@ -332,6 +346,10 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 // Validate validates this move task order
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateApprovedAt(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
@@ -392,6 +410,18 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateApprovedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -626,6 +656,10 @@ func (m *MoveTaskOrder) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateApprovedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAvailableToPrimeAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -685,6 +719,15 @@ func (m *MoveTaskOrder) ContextValidate(ctx context.Context, formats strfmt.Regi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) contextValidateApprovedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "approvedAt", "body", m.ApprovedAt); err != nil {
+		return err
+	}
+
 	return nil
 }
 
