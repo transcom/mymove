@@ -43,7 +43,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
   }
 
@@ -60,7 +60,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
   }
 
@@ -77,10 +77,33 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     // Click the first returned row
+    await this.page.getByTestId('locator-0').click();
+    await this.waitForPage.moveDetails();
+    await this.verifyMoveByLocatorCode(moveLocator);
+  }
+
+  /**
+   * Service Counselor navigate to move search tab
+   * @param {string} moveLocator
+   */
+  async navigateToMoveUsingMoveSearch(moveLocator) {
+    await this.waitForPage.counselingQueue();
+
+    // Navigate to "Move Search" tab
+    await this.page.getByRole('link', { name: 'Move Search' }).click();
+    await this.waitForPage.moveSearchTab();
+
+    // Type in move code/locator to search for.
+    // (There's no accessible or testId way to find this textbox, so we need to use .locator)
+    await this.page.locator('input[name="searchText"]').type(moveLocator);
+    await this.page.locator('input[name="searchText"]').blur();
+
+    await this.page.getByTestId('searchTextSubmit').click();
+    await this.waitForPage.moveSearchResults();
     await this.page.getByTestId('locator-0').click();
     await this.waitForPage.moveDetails();
     await this.verifyMoveByLocatorCode(moveLocator);
@@ -95,7 +118,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     // Click the first returned row

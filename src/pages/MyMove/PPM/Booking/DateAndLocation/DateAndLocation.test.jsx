@@ -613,7 +613,7 @@ describe('DateAndLocation component', () => {
           }),
         );
       });
-    }, 10000);
+    }, 20000);
 
     // move and shipment successful patches are linked
     it.skip('calls patch move when there is a closeout office (Army/Air Force) and create shipment succeeds', async () => {

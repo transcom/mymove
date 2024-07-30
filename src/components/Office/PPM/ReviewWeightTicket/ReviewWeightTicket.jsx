@@ -83,7 +83,6 @@ function ReviewWeightTicket({
       ? weightTicket.allowableWeight
       : weightTicket.fullWeight - weightTicket.emptyWeight;
     currentAllowableWeight.current = newWeight;
-    // updateAllowableWeight(newWeight);
   }
   const currentEmptyWeight = useRef(emptyWeight ? `${emptyWeight}` : `${getWeightTicketNetWeight(weightTicket)}`);
   const currentFullWeight = useRef(fullWeight ? `${fullWeight}` : `${getWeightTicketNetWeight(fullWeight)}`);
@@ -279,6 +278,7 @@ function ReviewWeightTicket({
                   name="emptyWeight"
                   label="Empty weight"
                   id="emptyWeight"
+                  data-testid="emptyWeight"
                   inputTestId="emptyWeight"
                   mask={Number}
                   description={missingEmptyWeightTicket ? 'Vehicle weight' : 'Weight tickets'}
@@ -296,6 +296,7 @@ function ReviewWeightTicket({
                   name="fullWeight"
                   label="Full weight"
                   id="fullWeight"
+                  data-testid="fullWeight"
                   inputTestId="fullWeight"
                   mask={Number}
                   description={missingFullWeightTicket ? 'Constructed weight' : 'Weight tickets'}
@@ -313,6 +314,7 @@ function ReviewWeightTicket({
                   name="allowableWeight"
                   label="Allowable weight"
                   id="allowableWeight"
+                  data-testid="allowableWeight"
                   inputTestId="allowableWeight"
                   mask={Number}
                   description="Maximum allowable weight"
