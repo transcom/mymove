@@ -15,7 +15,7 @@ const NameForm = ({ initialValues, onSubmit, onBack }) => {
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
-    preferred_name: Yup.string(),
+    preferred_name: Yup.string().matches(/^[aA-zZ\s]+$/, 'Preferred Name must only contain letters.'),
   });
 
   return (
