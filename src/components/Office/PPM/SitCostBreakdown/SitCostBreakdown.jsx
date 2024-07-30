@@ -70,13 +70,13 @@ export default function SitCostBreakdown({
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Adjusted weight: {formatWeight(weightStored)} lbs</small>
+              <small>Adjusted weight: {formatWeight(weightStored)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>Estimated SIT weight: {formatWeight(ppmShipmentInfo.sitEstimatedWeight)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Actual PPM weight: {formatWeight(actualWeight)} lbs</small>
+              <small>Actual PPM weight: {formatWeight(actualWeight)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>Estimated PPM weight: {formatWeight(ppmShipmentInfo.estimatedWeight)}</small>
@@ -88,7 +88,7 @@ export default function SitCostBreakdown({
                 First day SIT price:
               </small>
               <small data-testid="value" className={styles.value}>
-                {toDollarString(formatCents(estimatedCost?.priceFirstDaySIT || 0))}
+                {toDollarString(formatCents(estimatedCost?.priceFirstDaySIT || 0))}/cwt
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
@@ -101,7 +101,7 @@ export default function SitCostBreakdown({
           <div data-testid="column" className={styles.col}>
             <div data-testid="row" className={styles.row}>
               <small data-testid="label" className={styles.descriptionTitle}>
-                Additonal Day SIT price:
+                Additional Day SIT price:
               </small>
               <small data-testid="value" className={styles.value}>
                 {toDollarString(formatCents(estimatedCost?.priceAdditionalDaySIT || 0))}
