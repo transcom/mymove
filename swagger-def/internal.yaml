@@ -3445,7 +3445,7 @@ paths:
     get:
       summary: Returns the counseling locations in the GBLOC matching the duty location
       description: Returns the counseling locations matching the GBLOC from the selected duty location
-      operationId: searchCounselingOffices
+      operationId: showCounselingOffices
       tags:
         - counseling_offices
       parameters:
