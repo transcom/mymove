@@ -578,7 +578,6 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 
 		pricingParams = append(pricingParams, serviceAreaParam)
 
-		fmt.Println("LOOK HERE ", pricingParams)
 		appCtx.Logger().Debug(fmt.Sprintf("Pricing params for first day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
 		return &price, pricingParams, nil
@@ -590,7 +589,6 @@ func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer
 
 	pricingParams = append(pricingParams, serviceAreaParam)
 
-	fmt.Println("LOOK HERE ", pricingParams)
 	appCtx.Logger().Debug(fmt.Sprintf("Pricing params for first day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
 	return &price, pricingParams, nil
@@ -642,14 +640,27 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 		Value: strconv.Itoa(additionalDaysInSIT),
 	}
 
-	price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, *ppmShipment.ActualMoveDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
+	// Since this function may be ran before closeout, we need to account for if there's no actual move date yet.
+	if ppmShipment.ActualMoveDate != nil {
+		price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, *ppmShipment.ActualMoveDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
+		if err != nil {
+			return nil, nil, err
+		}
+
+		pricingParams = append(pricingParams, serviceAreaParam)
+		pricingParams = append(pricingParams, sitDaysParam)
+
+		appCtx.Logger().Debug(fmt.Sprintf("Pricing params for additional day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
+
+		return &price, pricingParams, nil
+	}
+	price, pricingParams, err := additionalDaysPricer.Price(appCtx, contract.Code, ppmShipment.ExpectedDepartureDate, *ppmShipment.SITEstimatedWeight, serviceArea, additionalDaysInSIT, true)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	pricingParams = append(pricingParams, serviceAreaParam)
 	pricingParams = append(pricingParams, sitDaysParam)
-	fmt.Println("LOOK HERE ", pricingParams)
 
 	appCtx.Logger().Debug(fmt.Sprintf("Pricing params for additional day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
