@@ -1418,12 +1418,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 }
 
 // PaymentRequests payload
-func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*ghcmessages.PaymentRequests, error) {
+func PaymentRequests(appCtx appcontext.AppContext, prs *models.PaymentRequests, storer storage.FileStorer) (*ghcmessages.PaymentRequests, error) {
 	payload := make(ghcmessages.PaymentRequests, len(*prs))
 
 	for i, p := range *prs {
 		paymentRequest := p
-		pr, err := PaymentRequest(&paymentRequest, storer)
+		pr, err := PaymentRequest(appCtx, &paymentRequest, storer)
 		if err != nil {
 			return nil, err
 		}
@@ -1432,8 +1432,31 @@ func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*g
 	return &payload, nil
 }
 
+func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.EdiError, error) {
+	// find any associated errors in the edi_errors table from processing the EDI 858, 824, or 997
+	var ediError []models.EdiError
+	ediErrorInfo := models.EdiError{}
+
+	if pr.Status == models.PaymentRequestStatusEDIError || pr.Status == models.PaymentRequestStatusSendToTPPSFail {
+		query := `SELECT *
+		FROM edi_errors
+		WHERE edi_errors.payment_request_id = $1`
+		error := appCtx.DB().RawQuery(query, pr.ID).All(&ediError)
+		if error != nil {
+			return ediErrorInfo, error
+		} else if len(ediError) == 0 {
+			return ediErrorInfo, nil
+		}
+		if len(ediError) > 0 {
+			ediErrorInfo = ediError[0]
+		}
+	}
+
+	return ediErrorInfo, nil
+}
+
 // PaymentRequest payload
-func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
+func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
 
 	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
@@ -1451,6 +1474,26 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		return nil, err
 	}
 
+	ediErrorInfo, err := fetchEDIErrorsForPaymentRequest(appCtx, pr)
+	var ediErrorInfoEDIType string
+	var ediErrorInfoEDICode string
+	var ediErrorInfoEDIDescription string
+	emptyString := ""
+	if err != nil {
+		ediErrorInfoEDIType = ""
+		ediErrorInfo.Code = &emptyString
+		ediErrorInfo.Description = &emptyString
+	} else if ediErrorInfo.Code == nil {
+		ediErrorInfo.Code = &emptyString
+	} else if ediErrorInfo.Description == nil {
+		ediErrorInfo.Description = &emptyString
+	} else {
+		// no errors at this point abd nil ptrs handled
+		ediErrorInfoEDIType = string(ediErrorInfo.EDIType)
+		ediErrorInfoEDICode = *ediErrorInfo.Code
+		ediErrorInfoEDIDescription = *ediErrorInfo.Description
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                              *handlers.FmtUUID(pr.ID),
 		IsFinal:                         &pr.IsFinal,
@@ -1466,6 +1509,9 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
+		EdiErrorType:                    ediErrorInfoEDIType,
+		EdiErrorCode:                    ediErrorInfoEDICode,
+		EdiErrorDescription:             ediErrorInfoEDIDescription,
 	}, nil
 }
 
