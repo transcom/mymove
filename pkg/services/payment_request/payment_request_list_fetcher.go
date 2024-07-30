@@ -21,6 +21,7 @@ type paymentRequestListFetcher struct {
 var parameters = map[string]string{
 	"lastName":           "service_members.last_name",
 	"dodID":              "service_members.edipi",
+	"emplid":             "service_members.emplid",
 	"submittedAt":        "payment_requests.created_at",
 	"branch":             "service_members.affiliation",
 	"locator":            "moves.locator",
@@ -39,10 +40,16 @@ type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-	if gblocErr != nil {
-		return &models.PaymentRequests{}, 0, gblocErr
+	var gbloc string
+	if params.ViewAsGBLOC != nil {
+		gbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		gbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return &models.PaymentRequests{}, 0, gblocErr
+		}
 	}
 
 	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -84,6 +91,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
@@ -91,7 +99,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -250,6 +258,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	return func(query *pop.Query) {
 		if dodID != nil {
 			query.Where("service_members.edipi = ?", dodID)
+		}
+	}
+}
+
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
 		}
 	}
 }

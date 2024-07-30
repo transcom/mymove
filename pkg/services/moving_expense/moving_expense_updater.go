@@ -14,18 +14,21 @@ import (
 )
 
 type movingExpenseUpdater struct {
-	checks []movingExpenseValidator
+	checks    []movingExpenseValidator
+	estimator services.PPMEstimator
 }
 
-func NewCustomerMovingExpenseUpdater() services.MovingExpenseUpdater {
+func NewCustomerMovingExpenseUpdater(estimator services.PPMEstimator) services.MovingExpenseUpdater {
 	return &movingExpenseUpdater{
-		checks: customerUpdateChecks(),
+		estimator: estimator,
+		checks:    customerUpdateChecks(),
 	}
 }
 
-func NewOfficeMovingExpenseUpdater() services.MovingExpenseUpdater {
+func NewOfficeMovingExpenseUpdater(estimator services.PPMEstimator) services.MovingExpenseUpdater {
 	return &movingExpenseUpdater{
-		checks: officeUpdateChecks(),
+		estimator: estimator,
+		checks:    officeUpdateChecks(),
 	}
 }
 
@@ -48,6 +51,7 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 		return nil, err
 	}
 
+	// we only update the submitted dates if the moving expense is updated by the Customer
 	if appCtx.Session().IsMilApp() {
 		if mergedMovingExpense.Amount != nil {
 			mergedMovingExpense.SubmittedAmount = mergedMovingExpense.Amount
@@ -64,6 +68,17 @@ func (f *movingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext,
 		if mergedMovingExpense.SITEndDate != nil {
 			mergedMovingExpense.SubmittedSITEndDate = mergedMovingExpense.SITEndDate
 		}
+	}
+
+	if *mergedMovingExpense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage &&
+		mergedMovingExpense.PPMShipment.Status == models.PPMShipmentStatusNeedsCloseout {
+		estimatedCost, err := f.estimator.CalculatePPMSITEstimatedCost(appCtx, &mergedMovingExpense.PPMShipment)
+
+		if err != nil {
+			return nil, err
+		}
+
+		mergedMovingExpense.SITEstimatedCost = estimatedCost
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
@@ -130,9 +145,15 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 		mergedMovingExpense.MovingExpenseType = &movingExpenseReceiptType
 
 		if movingExpenseReceiptType == models.MovingExpenseReceiptTypeStorage {
+			mergedMovingExpense.PPMShipment = updatedMovingExpense.PPMShipment
+			mergedMovingExpense.PPMShipment.SITEstimatedWeight = updatedMovingExpense.WeightStored
+			mergedMovingExpense.PPMShipment.SITEstimatedEntryDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITStartDate, mergedMovingExpense.PPMShipment.SITEstimatedEntryDate)
+			mergedMovingExpense.PPMShipment.SITEstimatedDepartureDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITEndDate, mergedMovingExpense.PPMShipment.SITEstimatedDepartureDate)
+			mergedMovingExpense.PPMShipment.SITLocation = updatedMovingExpense.SITLocation
 			mergedMovingExpense.SITStartDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITStartDate, mergedMovingExpense.SITStartDate)
 			mergedMovingExpense.SITEndDate = services.SetOptionalDateTimeField(updatedMovingExpense.SITEndDate, mergedMovingExpense.SITEndDate)
-
+			mergedMovingExpense.SITEstimatedCost = updatedMovingExpense.SITEstimatedCost
+			mergedMovingExpense.SITReimburseableAmount = updatedMovingExpense.SITReimburseableAmount
 			// if weightStored was omitted we check for the zero value that is passed in and don't update it since we don't want to null out
 			// a previous value
 			if *updatedMovingExpense.WeightStored != 0 {
@@ -149,6 +170,8 @@ func mergeMovingExpense(updatedMovingExpense models.MovingExpense, originalMovin
 			mergedMovingExpense.SITEndDate = nil
 			mergedMovingExpense.WeightStored = nil
 			mergedMovingExpense.SITLocation = nil
+			mergedMovingExpense.SITEstimatedCost = nil
+			mergedMovingExpense.SITReimburseableAmount = nil
 		}
 
 	} else {

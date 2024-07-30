@@ -390,6 +390,10 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 		payload.SitLocation = &sitLocation
 	}
 
+	if movingExpense.SITReimburseableAmount != nil {
+		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
+	}
+
 	return payload
 }
 
