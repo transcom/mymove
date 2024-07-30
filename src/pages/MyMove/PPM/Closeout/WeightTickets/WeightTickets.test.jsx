@@ -30,6 +30,7 @@ jest.mock('services/internalApi', () => ({
   deleteUpload: jest.fn(),
   patchWeightTicket: jest.fn(),
   getResponseError: jest.fn(),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const mockMTOShipment = {
@@ -113,10 +114,15 @@ const mockEmptyWeightTicketAndIndex = {
   index: -1,
 };
 
+const mockServiceMember = {
+  id: 'testId',
+};
+
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
   selectWeightTicketAndIndexById: jest.fn(() => mockEmptyWeightTicketAndIndex),
+  selectServiceMemberFromLoggedInUser: jest.fn(() => mockServiceMember),
 }));
 
 beforeEach(() => {
