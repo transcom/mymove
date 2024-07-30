@@ -45,7 +45,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		}
 
 		for _, pr := range move.PaymentRequests {
-			if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusReceivedByGex || pr.Status == models.PaymentRequestStatusSentToGex {
+			if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex {
 				paymentRequests = append(paymentRequests, pr)
 			}
 		}
@@ -136,7 +136,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		for _, pr := range paymentRequests {
 			for _, serviceItem := range pr.PaymentServiceItems {
 				totalPrice := serviceItem.PriceCents.Float64()
-				sitType := ""
 
 				switch serviceItem.MTOServiceItem.ReService.Name {
 				case "Domestic linehaul":
@@ -169,9 +168,8 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 				case "Domestic origin add'l SIT":
 					sitOriginAddlDays += totalPrice
 				case "Domestic origin 1st day SIT":
-					if sitType == "" {
-						sitType = "Origin"
-						report.SitType = &sitType
+					if report.SitType == nil || *report.SitType == "" {
+						report.SitType = models.StringPointer("Origin")
 					}
 					sitOriginFirstDay += totalPrice
 				case "Domestic destination SIT fuel surcharge":
@@ -183,13 +181,15 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 				case "Domestic destination add'l SIT":
 					sitDestAddlDays += totalPrice
 				case "Domestic destination 1st day SIT":
-					if sitType == "Origin" || sitType == "" {
+					if report.SitType == models.StringPointer("Origin") || report.SitType == nil {
 						sitType := "Destination"
 						report.SitType = &sitType
 					}
 					sitDestFirstDay += totalPrice
 				case "Counseling":
 					counselingTotal += totalPrice
+				default:
+					continue
 				}
 			}
 		}
@@ -379,10 +379,6 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTas
 	var moves models.Moves
 
 	query := appCtx.DB().EagerPreload(
-		// "PaymentRequests",
-		// "PaymentRequests.PaymentServiceItems",
-		// "PaymentRequests.PaymentServiceItems.PriceCents",
-		// "PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
@@ -400,8 +396,6 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTas
 		"Orders.OriginDutyLocation.Address",
 		"Orders.TAC",
 	).
-		// InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
-		// InnerJoin("payment_service_items", "payment_service_items.payment_request_id = payment_requests.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
