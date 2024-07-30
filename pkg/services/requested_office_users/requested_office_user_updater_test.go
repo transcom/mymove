@@ -27,10 +27,12 @@ func (suite *RequestedOfficeUsersServiceSuite) TestUpdateRequestedOfficeUser() {
 
 		firstName := "Jimmy"
 		lastName := "Jim"
+		status := "APPROVED"
 		payload := &adminmessages.RequestedOfficeUserUpdate{
 			FirstName:              &firstName,
 			LastName:               &lastName,
 			TransportationOfficeID: handlers.FmtUUID(transportationOffice.ID),
+			Status:                 status,
 		}
 		updatedOfficeUser, verrs, err := updater.UpdateRequestedOfficeUser(suite.AppContextForTest(), officeUser.ID, payload)
 		suite.NoError(err)
@@ -40,6 +42,8 @@ func (suite *RequestedOfficeUsersServiceSuite) TestUpdateRequestedOfficeUser() {
 		suite.NotEqual(updatedOfficeUser.TransportationOfficeID.String(), officeUser.TransportationOffice.ID.String())
 		suite.Equal(updatedOfficeUser.FirstName, firstName)
 		suite.Equal(updatedOfficeUser.LastName, lastName)
+		suite.Equal(updatedOfficeUser.Active, true)
+
 	})
 
 	// Bad office user ID

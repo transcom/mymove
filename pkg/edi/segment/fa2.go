@@ -88,7 +88,7 @@ func (s *FA2) StringArray() []string {
 func (s *FA2) Parse(elements []string) error {
 	expectedNumElements := 2
 	if len(elements) != expectedNumElements {
-		return fmt.Errorf("FA2: Wrong number of elements, expected %d, got %d", expectedNumElements, len(elements))
+		return fmt.Errorf("fA2: Wrong number of elements, expected %d, got %d", expectedNumElements, len(elements))
 	}
 
 	s.BreakdownStructureDetailCode = FA2DetailCode(elements[0])

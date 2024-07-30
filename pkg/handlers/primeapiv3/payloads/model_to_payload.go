@@ -67,6 +67,7 @@ func Customer(customer *models.ServiceMember) *primev3messages.Customer {
 		FirstName:      swag.StringValue(customer.FirstName),
 		LastName:       swag.StringValue(customer.LastName),
 		DodID:          swag.StringValue(customer.Edipi),
+		Emplid:         swag.StringValue(customer.Emplid),
 		ID:             strfmt.UUID(customer.ID.String()),
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		CurrentAddress: Address(customer.ResidentialAddress),

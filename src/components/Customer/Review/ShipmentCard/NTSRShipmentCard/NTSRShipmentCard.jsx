@@ -17,6 +17,7 @@ const NTSRShipmentCard = ({
   destinationLocation,
   destinationZIP,
   secondaryDeliveryAddress,
+  tertiaryDeliveryAddress,
   receivingAgent,
   remarks,
   requestedDeliveryDate,
@@ -75,6 +76,7 @@ const NTSRShipmentCard = ({
             destinationLocation={destinationLocation}
             destinationZIP={destinationZIP}
             secondaryDeliveryAddress={secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={tertiaryDeliveryAddress}
             receivingAgent={receivingAgent}
           />
           <div className={`${styles.row} ${styles.remarksRow}`}>
@@ -91,6 +93,7 @@ NTSRShipmentCard.propTypes = {
   destinationLocation: AddressShape,
   destinationZIP: string.isRequired,
   secondaryDeliveryAddress: AddressShape,
+  tertiaryDeliveryAddress: AddressShape,
   moveId: string.isRequired,
   onEditClick: func.isRequired,
   onDeleteClick: func.isRequired,
@@ -113,6 +116,7 @@ NTSRShipmentCard.defaultProps = {
   receivingAgent: null,
   remarks: '',
   secondaryDeliveryAddress: null,
+  tertiaryDeliveryAddress: null,
 };
 
 export default NTSRShipmentCard;

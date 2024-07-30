@@ -29,14 +29,14 @@ type GetMovesQueueHandler struct {
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the TOO or HQ user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TOO office role",
+					"user is not authenticated with TOO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetMovesQueueForbidden(), forbiddenErr
@@ -46,6 +46,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
+				Emplid:                  params.Emplid,
 				LastName:                params.LastName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
@@ -64,14 +65,17 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
 			}
 
-			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-			// for perPage.
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20 for perPage.
 			if params.Page == nil {
 				ListOrderParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(
@@ -183,9 +187,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
+					"user is not authenticated with TIO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetPaymentRequestsQueueForbidden(), forbiddenErr
@@ -195,6 +200,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
+				Emplid:                  params.Emplid,
 				LastName:                params.LastName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				Status:                  params.Status,
@@ -217,6 +223,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			// Same for perPage
 			if params.PerPage == nil {
 				listPaymentRequestParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			paymentRequests, count, err := h.FetchPaymentRequestList(
@@ -278,9 +288,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with an office role",
+					"user is not authenticated with Services Counselor or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
@@ -290,6 +300,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
+				Emplid:                  params.Emplid,
 				LastName:                params.LastName,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				DestinationDutyLocation: params.DestinationDutyLocation,
@@ -324,6 +335,10 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			// Same for perPage
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(

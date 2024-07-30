@@ -89,7 +89,12 @@ func (h SearchCustomersHandler) Handle(params customercodeop.SearchCustomersPara
 
 			if err != nil {
 				appCtx.Logger().Error("Error searching for customer", zap.Error(err))
-				return customercodeop.NewSearchCustomersInternalServerError(), err
+				switch err.(type) {
+				case apperror.ForbiddenError:
+					return customercodeop.NewSearchCustomersForbidden(), err
+				default:
+					return customercodeop.NewSearchCustomersInternalServerError(), err
+				}
 			}
 
 			searchCustomers := payloads.SearchCustomers(customers)

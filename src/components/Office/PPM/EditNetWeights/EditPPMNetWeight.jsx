@@ -210,7 +210,7 @@ const EditPPMNetWeight = ({ weightTicket, weightAllowance, shipments }) => {
   return (
     <div className={styles.main_wrapper}>
       <div>
-        <h4 className={styles.mainHeader}>PPM net weight</h4>
+        <h4 className={styles.mainHeader}>PPM Trip Weight</h4>
         {Boolean(showEditForm && hasExcessWeight) && (
           <WeightCalculationHint
             firstValue={moveWeightTotal}

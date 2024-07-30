@@ -72,10 +72,8 @@
 
       .usa-checkbox label {
         text-indent: unset;
-      }
-
-      .usa-checkbox label:before {
-        margin-top: 12px;
+        display:flex;
+        align-items:center
       }
     }
 

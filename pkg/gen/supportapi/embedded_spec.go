@@ -1750,6 +1750,12 @@ func init() {
           ],
           "readOnly": true
         },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -4562,6 +4568,12 @@ func init() {
             "DIVERSION_REQUESTED"
           ],
           "readOnly": true
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",

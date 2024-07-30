@@ -49,12 +49,12 @@ func ParseFlags(cmd *cobra.Command, v *viper.Viper, args []string) error {
 
 	errParseFlags := cmd.ParseFlags(args)
 	if errParseFlags != nil {
-		return fmt.Errorf("Could not parse args: %w", errParseFlags)
+		return fmt.Errorf("could not parse args: %w", errParseFlags)
 	}
 	flags := cmd.Flags()
 	errBindPFlags := v.BindPFlags(flags)
 	if errBindPFlags != nil {
-		return fmt.Errorf("Could not bind flags: %w", errBindPFlags)
+		return fmt.Errorf("could not bind flags: %w", errBindPFlags)
 	}
 	v.SetEnvKeyReplacer(strings.NewReplacer("-", "_"))
 	v.AutomaticEnv()
@@ -100,7 +100,7 @@ func DecodeJSONFileToPayload(filename string, isStdin bool, payload interface{})
 	if filename != "" {
 		file, err := os.Open(filepath.Clean(filename))
 		if err != nil {
-			return fmt.Errorf("File open failed: %w", err)
+			return fmt.Errorf("file open failed: %w", err)
 		}
 		reader = bufio.NewReader(file)
 	} else if isStdin { // Uses std in if "-"" is provided instead
@@ -115,7 +115,7 @@ func DecodeJSONFileToPayload(filename string, isStdin bool, payload interface{})
 	// Read the json into the mto payload
 	err := jsonDecoder.Decode(payload)
 	if err != nil {
-		return fmt.Errorf("File decode failed: %w", err)
+		return fmt.Errorf("file decode failed: %w", err)
 	}
 
 	return nil

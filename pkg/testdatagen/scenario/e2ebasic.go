@@ -77,7 +77,7 @@ func basicUserWithOfficeAccess(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	email := "officeuser1@example.com"
@@ -107,7 +107,7 @@ func userWithRoles(appCtx appcontext.AppContext) {
 	smRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeCustomer).First(&smRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeCustomer in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeCustomer in the DB: %w", err))
 	}
 	email := "role_tester@service.mil"
 	uuidStr := "3b9360a3-3304-4c60-90f4-83d687884079"
@@ -130,7 +130,7 @@ func userWithTOORole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	email := "too_role@office.mil"
@@ -170,7 +170,7 @@ func userWithTIORole(appCtx appcontext.AppContext) {
 	tioRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	email := "tio_role@office.mil"
@@ -205,7 +205,7 @@ func userWithServicesCounselorRole(appCtx appcontext.AppContext) {
 	servicesCounselorRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeServicesCounselor in the DB: %w", err))
 	}
 
 	email := "services_counselor_role@office.mil"
@@ -277,13 +277,13 @@ func userWithTOOandTIORole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
 	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	email := "too_tio_role@office.mil"
@@ -324,13 +324,13 @@ func userWithTOOandTIOandQAERole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
 	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	qaeRole := roles.Role{}
@@ -376,19 +376,19 @@ func userWithTOOandTIOandServicesCounselorRole(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
 	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	servicesCounselorRole := roles.Role{}
 	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeServicesCounselor).First(&servicesCounselorRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeServicesCounselor in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeServicesCounselor in the DB: %w", err))
 	}
 
 	email := "too_tio_services_counselor_role@office.mil"
@@ -430,7 +430,7 @@ func userWithPrimeSimulatorRole(appCtx appcontext.AppContext) {
 	primeSimulatorRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypePrimeSimulator).First(&primeSimulatorRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypePrimeSimulator in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypePrimeSimulator in the DB: %w", err))
 	}
 
 	email := "prime_simulator_role@office.mil"

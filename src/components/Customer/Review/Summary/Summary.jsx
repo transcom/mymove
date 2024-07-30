@@ -190,6 +190,7 @@ export class Summary extends Component {
             onDeleteClick={this.handleDeleteClick}
             pickupLocation={shipment.pickupAddress}
             secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
             releasingAgent={releasingAgent}
             remarks={shipment.customerRemarks}
             requestedPickupDate={shipment.requestedPickupDate}
@@ -207,6 +208,7 @@ export class Summary extends Component {
             destinationLocation={shipment?.destinationAddress}
             destinationZIP={currentOrders.new_duty_location.address.postalCode}
             secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
@@ -227,7 +229,9 @@ export class Summary extends Component {
           key={shipment.id}
           destinationZIP={currentOrders.new_duty_location.address.postalCode}
           secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+          tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
           secondaryPickupAddress={shipment?.secondaryPickupAddress}
+          tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}
