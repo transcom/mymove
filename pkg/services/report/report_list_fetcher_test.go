@@ -32,7 +32,7 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		},
 		{
 			Model: models.Order{
-				TAC: models.StringPointer("CACI"),
+				TAC: models.StringPointer("E12A"),
 			},
 		},
 	}, nil)
@@ -40,6 +40,11 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		{
 			Model:    orders,
 			LinkOnly: true,
+		},
+		{
+			Model: models.MTOShipment{
+				Status: models.MTOShipmentStatusApproved,
+			},
 		},
 	}, nil)
 

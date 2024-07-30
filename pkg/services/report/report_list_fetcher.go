@@ -36,16 +36,28 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 		orders := move.Orders
 		var paymentRequests []models.PaymentRequest
+		prQuerry := appCtx.DB().EagerPreload(
+			"PaymentServiceItems.MTOServiceItem.Dimensions",
+			"PaymentServiceItems.MTOServiceItem.ReService").
+			All(&paymentRequests)
+		if prQuerry != nil {
+			return nil, apperror.NewQueryError("failed to query payment request", err, ".")
+		}
+
 		for _, pr := range move.PaymentRequests {
 			if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusReceivedByGex || pr.Status == models.PaymentRequestStatusSentToGex {
 				paymentRequests = append(paymentRequests, pr)
 			}
 		}
 
+		if len(paymentRequests) < 1 && move.MTOShipments[0].PPMShipment == nil {
+			continue
+		}
+
 		tac := FetchTACForMmove(appCtx, orders)
 
 		var middleInitial string
-		if *orders.ServiceMember.MiddleName != "" {
+		if orders.ServiceMember.MiddleName != nil && *orders.ServiceMember.MiddleName != "" {
 			middleInitial = string([]rune(*orders.ServiceMember.MiddleName)[0])
 		}
 
@@ -122,16 +134,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 		// this adds up all the different payment service items across all payment requests for a move
 		for _, pr := range paymentRequests {
-			var paymentRequest models.PaymentRequest
-			paymentRequestID := pr.ID
-			err := appCtx.DB().Eager(
-				"PaymentServiceItems.MTOServiceItem.Dimensions",
-				"PaymentServiceItems.MTOServiceItem.ReService").
-				Find(&paymentRequest, paymentRequestID)
-			if err != nil {
-				return nil, apperror.NewQueryError("failed to query payment request", err, ".")
-			}
-			for _, serviceItem := range paymentRequest.PaymentServiceItems {
+			for _, serviceItem := range pr.PaymentServiceItems {
 				totalPrice := serviceItem.PriceCents.Float64()
 				sitType := ""
 
@@ -357,7 +360,9 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.ShipmentId = move.ID
 		report.SCAC = &scac
 		report.NetWeight = &netWeight
-		report.PaidDate = paymentRequests[0].ReviewedAt
+		if len(paymentRequests) > 0 {
+			report.PaidDate = paymentRequests[0].ReviewedAt
+		}
 		report.CounseledDate = move.ServiceCounselingCompletedAt
 
 		financialFlag := move.FinancialReviewFlag
@@ -373,12 +378,11 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
-	approvedStatuses := []string{models.PaymentRequestStatusReviewed.String(), models.PaymentRequestStatusSentToGex.String(), models.PaymentRequestStatusReceivedByGex.String()}
 	query := appCtx.DB().EagerPreload(
-		"PaymentRequests",
-		"PaymentRequests.PaymentServiceItems",
-		"PaymentRequests.PaymentServiceItems.PriceCents",
-		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
+		// "PaymentRequests",
+		// "PaymentRequests.PaymentServiceItems",
+		// "PaymentRequests.PaymentServiceItems.PriceCents",
+		// "PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
@@ -396,20 +400,20 @@ func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTas
 		"Orders.OriginDutyLocation.Address",
 		"Orders.TAC",
 	).
-		InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
-		InnerJoin("payment_service_items", "payment_service_items.payment_request_id = payment_requests.id").
+		// InnerJoin("payment_requests", "moves.id = payment_requests.move_id").
+		// InnerJoin("payment_service_items", "payment_service_items.payment_request_id = payment_requests.id").
 		InnerJoin("orders", "orders.id = moves.orders_id").
 		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
 		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		LeftJoin("personally_procured_moves", "personally_procured_moves.move_id = moves.id").
 		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
+		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 		LeftJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id)").
-		Where("payment_requests.status in (?)", approvedStatuses).
+		Where("mto_shipments.status = 'APPROVED'").
 		Where("service_members.affiliation = ?", models.AffiliationNAVY).
 		GroupBy("moves.id")
 
 	if params.Since != nil {
-		query.Where("payment_requests.updated_at >= ?", params.Since)
+		query.Where("mto_shipments.updated_at >= ?", params.Since)
 	}
 
 	err := query.All(&moves)
