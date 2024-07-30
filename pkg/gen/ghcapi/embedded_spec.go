@@ -10056,13 +10056,97 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -24719,14 +24803,170 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsAdditionalDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "numberDaysSIT": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "30"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "0.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsFirstDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "20.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
         }
       }
     },
