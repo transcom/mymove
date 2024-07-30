@@ -114,9 +114,9 @@ test('Review documents page displays correct value for Total days in SIT', async
 
   // The SIT Days should be counting the "Start date" and "End date" (i.e. Start date of 15 Apr 24 and End date of 19 Apr 24 is 5 days of Storage.
   await page.locator('[name="sitStartDate"]').clear();
-  await page.locator('[name="sitStartDate"]').type('15 Apr 2024');
+  await page.locator('[name="sitStartDate"]').fill('15 Apr 2024');
   await page.locator('[name="sitEndDate"]').clear();
-  await page.locator('[name="sitEndDate"]').type('19 Apr 2024');
+  await page.locator('[name="sitEndDate"]').fill('19 Apr 2024');
   await page.locator('[name="sitEndDate"]').press('Tab'); // Exit out of datepicker view
 
   await expect(page.locator('[data-testid="days-in-sit"]')).toContainText('5');
