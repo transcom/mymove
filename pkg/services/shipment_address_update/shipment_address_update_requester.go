@@ -214,7 +214,7 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 		Where("payment_requests.status IN ($2, $3, $4, $5)",
 			models.PaymentRequestStatusReviewed,
 			models.PaymentRequestStatusSentToGex,
-			models.PaymentRequestStatusReceivedByGex,
+			models.PaymentRequestStatusTppsReceived,
 			models.PaymentRequestStatusPaid).
 		Where("payment_service_items.status != $6", models.PaymentServiceItemStatusDenied).
 		Where("re_services.code IN ($7, $8)", models.ReServiceCodeDSH, models.ReServiceCodeDLH).

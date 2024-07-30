@@ -1,8 +1,15 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { object, text } from '@storybook/addon-knobs';
 
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const showWhenCollapsed = ['counselorRemarks'];
 const warnIfMissing = [
@@ -38,6 +45,12 @@ const shipment = {
   },
   secondaryDeliveryAddress: {
     streetAddress1: '812 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
+  tertiaryDeliveryAddress: {
+    streetAddress1: '813 S 129th St',
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
@@ -117,15 +130,19 @@ describe('NTSR Shipment Info', () => {
       ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
       ['destinationAddress', shipment.destinationAddress.streetAddress1],
       ['secondaryDeliveryAddress', shipment.secondaryDeliveryAddress.streetAddress1],
+      ['tertiaryDeliveryAddress', shipment.tertiaryDeliveryAddress.streetAddress1],
       ['receivingAgent', shipment.mtoAgents[0].email, { exact: false }],
       ['counselorRemarks', shipment.counselorRemarks],
       ['customerRemarks', shipment.customerRemarks],
       ['tacType', '1234 (HHG)'],
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      await waitFor(() => {
+        const shipmentFieldElement = screen.getByTestId(shipmentField);
+        expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      });
     });
   });
 
@@ -195,23 +212,23 @@ describe('NTSR Shipment Info', () => {
       expect(screen.queryByTestId('receivingAgent')).toBeNull();
       expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
     });
-  });
 
-  describe('NTSR Shipment Info List Destination Address Request', () => {
-    it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
-      render(
-        <NTSRShipmentInfoList
-          isExpanded
-          shipment={shipmentWithDeliveryAddressUpdate}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-        />,
-      );
+    describe('NTSR Shipment Info List Destination Address Request', () => {
+      it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+        render(
+          <NTSRShipmentInfoList
+            isExpanded
+            shipment={shipmentWithDeliveryAddressUpdate}
+            warnIfMissing={warnIfMissing}
+            errorIfMissing={errorIfMissing}
+            showWhenCollapsed={showWhenCollapsed}
+          />,
+        );
 
-      const destinationAddress = screen.getByTestId('destinationAddress');
-      expect(destinationAddress).toBeInTheDocument();
-      expect(destinationAddress).toHaveTextContent('Review required');
+        const destinationAddress = screen.getByTestId('destinationAddress');
+        expect(destinationAddress).toBeInTheDocument();
+        expect(destinationAddress).toHaveTextContent('Review required');
+      });
     });
   });
 });
