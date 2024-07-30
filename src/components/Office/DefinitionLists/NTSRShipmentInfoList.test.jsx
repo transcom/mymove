@@ -1,8 +1,15 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { object, text } from '@storybook/addon-knobs';
 
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const showWhenCollapsed = ['counselorRemarks'];
 const warnIfMissing = [
@@ -42,6 +49,12 @@ const shipment = {
     state: 'TX',
     postalCode: '78234',
   },
+  tertiaryDeliveryAddress: {
+    streetAddress1: '813 S 129th St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78234',
+  },
   mtoAgents: [
     {
       agentType: 'RECEIVING_AGENT',
@@ -69,15 +82,19 @@ describe('NTSR Shipment Info List renders all fields when provided and expanded'
     ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
     ['destinationAddress', shipment.destinationAddress.streetAddress1],
     ['secondaryDeliveryAddress', shipment.secondaryDeliveryAddress.streetAddress1],
+    ['tertiaryDeliveryAddress', shipment.tertiaryDeliveryAddress.streetAddress1],
     ['receivingAgent', shipment.mtoAgents[0].email, { exact: false }],
     ['counselorRemarks', shipment.counselorRemarks],
     ['customerRemarks', shipment.customerRemarks],
     ['tacType', '1234 (HHG)'],
     ['sacType', '1234123412 (NTS)'],
   ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
-    const shipmentFieldElement = screen.getByTestId(shipmentField);
-    expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    await waitFor(() => {
+      const shipmentFieldElement = screen.getByTestId(shipmentField);
+      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+    });
   });
 });
 
@@ -144,6 +161,7 @@ describe('NTSR Shipment Info List collapsed view', () => {
     expect(screen.queryByTestId('storageFacility')).toBeNull();
     expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
     expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
+    expect(screen.queryByTestId('tertiaryDeliveryAddress')).toBeNull();
     expect(screen.queryByTestId('receivingAgent')).toBeNull();
     expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
   });
