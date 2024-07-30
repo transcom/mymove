@@ -9407,22 +9407,16 @@ definitions:
       sitCost:
         example: 2000
         type: integer
-        x-nullable: true
-        x-omitempty: false
       priceFirstDaySIT:
         example: 2000
         type: integer
         format: cents
         title: Price of the first day in SIT
-        x-nullable: true
-        x-omitempty: false
       priceAdditionalDaySIT:
         example: 2000
         type: integer
         format: cents
         title: Price of an additional day in SIT
-        x-nullable: true
-        x-omitempty: false
       paramsFirstDaySIT:
         type: object
         properties:
@@ -9442,10 +9436,12 @@ definitions:
             type: string
             example: '252'
             x-nullable: true
+            x-omitempty: true
           serviceAreaDestination:
             type: string
             example: '252'
             x-nullable: true
+            x-omitempty: true
       paramsAdditionalDaySIT:
         type: object
         properties:
@@ -9465,14 +9461,17 @@ definitions:
             type: string
             example: '252'
             x-nullable: true
+            x-omitempty: true
           serviceAreaDestination:
             type: string
             example: '252'
             x-nullable: true
+            x-omitempty: true
           numberDaysSIT:
             type: string
             example: '30'
             x-nullable: true
+            x-omitempty: true
     required:
       - sitCost
       - priceFirstDaySIT

@@ -1,5 +1,4 @@
 import React from 'react';
-import classnames from 'classnames';
 
 import styles from './SitCostBreakdown.module.scss';
 
@@ -16,7 +15,7 @@ export default function SitCostBreakdown({
   useQueries,
   setEstimatedCost,
 }) {
-  const { estimatedCost, isLoading, isError } = useQueries(
+  const { estimatedCost } = useQueries(
     ppmShipmentInfo.id,
     ppmSITLocation,
     sitStartDate,
@@ -24,15 +23,6 @@ export default function SitCostBreakdown({
     weightStored,
     actualWeight,
   );
-
-  if (isLoading || isError) {
-    return (
-      <div data-testid="costAmount">
-        <legend className={classnames('usa-label', styles.label)}>Calculation Values</legend>
-        <div className={styles.displayValue}> {toDollarString(0)} </div>
-      </div>
-    );
-  }
 
   setEstimatedCost(estimatedCost?.sitCost || 0);
   return (

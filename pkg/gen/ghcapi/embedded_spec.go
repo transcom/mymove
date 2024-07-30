@@ -9976,6 +9976,7 @@ func init() {
             "numberDaysSIT": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "30"
             },
             "priceRateOrFactor": {
@@ -9985,11 +9986,13 @@ func init() {
             "serviceAreaDestination": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             },
             "serviceAreaOrigin": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             }
           }
@@ -10016,11 +10019,13 @@ func init() {
             "serviceAreaDestination": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             },
             "serviceAreaOrigin": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             }
           }
@@ -10029,22 +10034,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "title": "Price of an additional day in SIT",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         },
         "priceFirstDaySIT": {
           "type": "integer",
           "format": "cents",
           "title": "Price of the first day in SIT",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -24582,6 +24581,7 @@ func init() {
             "numberDaysSIT": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "30"
             },
             "priceRateOrFactor": {
@@ -24591,11 +24591,13 @@ func init() {
             "serviceAreaDestination": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             },
             "serviceAreaOrigin": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             }
           }
@@ -24622,11 +24624,13 @@ func init() {
             "serviceAreaDestination": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             },
             "serviceAreaOrigin": {
               "type": "string",
               "x-nullable": true,
+              "x-omitempty": true,
               "example": "252"
             }
           }
@@ -24635,22 +24639,16 @@ func init() {
           "type": "integer",
           "format": "cents",
           "title": "Price of an additional day in SIT",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         },
         "priceFirstDaySIT": {
           "type": "integer",
           "format": "cents",
           "title": "Price of the first day in SIT",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -24673,6 +24671,7 @@ func init() {
         "numberDaysSIT": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": true,
           "example": "30"
         },
         "priceRateOrFactor": {
@@ -24682,11 +24681,13 @@ func init() {
         "serviceAreaDestination": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": true,
           "example": "252"
         },
         "serviceAreaOrigin": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": true,
           "example": "252"
         }
       }
@@ -24713,11 +24714,13 @@ func init() {
         "serviceAreaDestination": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": true,
           "example": "252"
         },
         "serviceAreaOrigin": {
           "type": "string",
           "x-nullable": true,
+          "x-omitempty": true,
           "example": "252"
         }
       }
