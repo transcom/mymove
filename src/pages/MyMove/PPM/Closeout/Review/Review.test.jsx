@@ -232,6 +232,10 @@ const mockMTOShipmentWithExpensesDeleted = {
   },
 };
 
+const mockServiceMember = {
+  id: 'testId',
+};
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -244,11 +248,13 @@ jest.mock('services/internalApi', () => ({
   deleteProGearWeightTicket: jest.fn(() => {}),
   deleteMovingExpense: jest.fn(() => {}),
   getMTOShipmentsForMove: jest.fn(),
+  getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectMTOShipmentById: jest.fn(() => mockMTOShipment),
+  selectServiceMemberFromLoggedInUser: jest.fn(() => mockServiceMember),
 }));
 
 beforeEach(() => {
