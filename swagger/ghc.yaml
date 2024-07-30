@@ -9431,13 +9431,13 @@ definitions:
             example: Award Term 1
           priceRateOrFactor:
             type: string
-            example: '0.53'
+            example: '20.53'
           isPeak:
             type: string
-            example: true
+            example: 'true'
           escalationCompounded:
             type: string
-            example: '0.53'
+            example: '1.01'
           serviceAreaOrigin:
             type: string
             example: '252'
@@ -9457,10 +9457,10 @@ definitions:
             example: '0.53'
           isPeak:
             type: string
-            example: true
+            example: 'true'
           escalationCompounded:
             type: string
-            example: '0.53'
+            example: '1.01'
           serviceAreaOrigin:
             type: string
             example: '252'

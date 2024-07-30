@@ -9967,11 +9967,11 @@ func init() {
             },
             "escalationCompounded": {
               "type": "string",
-              "example": "0.53"
+              "example": "1.01"
             },
             "isPeak": {
               "type": "string",
-              "example": true
+              "example": "true"
             },
             "numberDaysSIT": {
               "type": "string",
@@ -10003,15 +10003,15 @@ func init() {
             },
             "escalationCompounded": {
               "type": "string",
-              "example": "0.53"
+              "example": "1.01"
             },
             "isPeak": {
               "type": "string",
-              "example": true
+              "example": "true"
             },
             "priceRateOrFactor": {
               "type": "string",
-              "example": "0.53"
+              "example": "20.53"
             },
             "serviceAreaDestination": {
               "type": "string",
@@ -24573,11 +24573,11 @@ func init() {
             },
             "escalationCompounded": {
               "type": "string",
-              "example": "0.53"
+              "example": "1.01"
             },
             "isPeak": {
               "type": "string",
-              "example": true
+              "example": "true"
             },
             "numberDaysSIT": {
               "type": "string",
@@ -24609,15 +24609,15 @@ func init() {
             },
             "escalationCompounded": {
               "type": "string",
-              "example": "0.53"
+              "example": "1.01"
             },
             "isPeak": {
               "type": "string",
-              "example": true
+              "example": "true"
             },
             "priceRateOrFactor": {
               "type": "string",
-              "example": "0.53"
+              "example": "20.53"
             },
             "serviceAreaDestination": {
               "type": "string",
@@ -24664,11 +24664,11 @@ func init() {
         },
         "escalationCompounded": {
           "type": "string",
-          "example": "0.53"
+          "example": "1.01"
         },
         "isPeak": {
           "type": "string",
-          "example": true
+          "example": "true"
         },
         "numberDaysSIT": {
           "type": "string",
@@ -24700,15 +24700,15 @@ func init() {
         },
         "escalationCompounded": {
           "type": "string",
-          "example": "0.53"
+          "example": "1.01"
         },
         "isPeak": {
           "type": "string",
-          "example": true
+          "example": "true"
         },
         "priceRateOrFactor": {
           "type": "string",
-          "example": "0.53"
+          "example": "20.53"
         },
         "serviceAreaDestination": {
           "type": "string",

@@ -224,7 +224,7 @@ type PPMSITEstimatedCostParamsAdditionalDaySIT struct {
 	ContractYearName string `json:"contractYearName,omitempty"`
 
 	// escalation compounded
-	// Example: 0.53
+	// Example: 1.01
 	EscalationCompounded string `json:"escalationCompounded,omitempty"`
 
 	// is peak
@@ -286,7 +286,7 @@ type PPMSITEstimatedCostParamsFirstDaySIT struct {
 	ContractYearName string `json:"contractYearName,omitempty"`
 
 	// escalation compounded
-	// Example: 0.53
+	// Example: 1.01
 	EscalationCompounded string `json:"escalationCompounded,omitempty"`
 
 	// is peak
@@ -294,7 +294,7 @@ type PPMSITEstimatedCostParamsFirstDaySIT struct {
 	IsPeak string `json:"isPeak,omitempty"`
 
 	// price rate or factor
-	// Example: 0.53
+	// Example: 20.53
 	PriceRateOrFactor string `json:"priceRateOrFactor,omitempty"`
 
 	// service area destination
