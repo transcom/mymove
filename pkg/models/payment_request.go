@@ -62,6 +62,7 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusPaid),
 	string(PaymentRequestStatusEDIError),
 	string(PaymentRequestStatusDeprecated),
+	string(PaymentRequestStatusSendToTPPSFail),
 }
 
 // PaymentRequest is an object representing a payment request on a move task order

@@ -135,6 +135,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		// If sent successfully to TPPS, update payment request status to SENT_TO_GEX.
 		err = paymentrequesthelper.SendToSyncada(txnAppCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
 		if err != nil {
+			lockedPR.Status = models.PaymentRequestStatusSendToTPPSFail
 			return TPPSSendError{paymentRequestID: lockedPR.ID, err: err}
 		}
 		sentToGexAt := time.Now()
@@ -175,17 +176,9 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 			)
 		}
 
-		switch transactionError.(type) {
-		case TPPSSendError:
-			// if we failed in sending there is nothing to do here but retry later so keep the status the same
-			pr.Status = models.PaymentRequestStatusSendToTPPSFail
-		default:
-			appCtx.Logger().Error(
-				"error while updating payment request status",
-				zap.String("PaymentRequestID", pr.ID.String()),
-				zap.Error(err),
-			)
-		}
+		// if we failed in sending the 858, update PR status
+		pr.Status = models.PaymentRequestStatusSendToTPPSFail
+
 		verrs, err = appCtx.DB().ValidateAndUpdate(&pr)
 		if err != nil {
 			appCtx.Logger().Error(
