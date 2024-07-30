@@ -10555,6 +10555,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -10586,7 +10591,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -25213,6 +25218,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -25244,7 +25254,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"

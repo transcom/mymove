@@ -42,7 +42,7 @@ func (suite *FactorySuite) TestBuildPaymentRequest() {
 			Show:    models.BoolPointer(true),
 		}
 		customPaymentRequest := models.PaymentRequest{
-			Status:               models.PaymentRequestStatusReceivedByGex,
+			Status:               models.PaymentRequestStatusTppsReceived,
 			IsFinal:              true,
 			RejectionReason:      models.StringPointer("custom reason"),
 			PaymentRequestNumber: "abc-2",
