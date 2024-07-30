@@ -39,12 +39,13 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		prQuerry := appCtx.DB().EagerPreload(
 			"PaymentServiceItems.MTOServiceItem.Dimensions",
 			"PaymentServiceItems.MTOServiceItem.ReService").
+			Where("payment_requests.move_id = ?", move.ID).
 			All(&paymentRequests)
 		if prQuerry != nil {
 			return nil, apperror.NewQueryError("failed to query payment request", err, ".")
 		}
 
-		for _, pr := range move.PaymentRequests {
+		for _, pr := range paymentRequests {
 			if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex {
 				paymentRequests = append(paymentRequests, pr)
 			}
