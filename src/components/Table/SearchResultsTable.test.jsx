@@ -12,9 +12,10 @@ jest.mock('utils/featureFlags', () => ({
 
 const mockTableData = [
   {
-    branch: 'ARMY',
+    branch: 'COAST_GUARD',
     destinationDutyLocationPostalCode: '30813',
     dodID: '5177210523',
+    emplid: '1526347',
     firstName: 'Felicia',
     id: '630519ab-f0ee-40ea-8414-ed5524df0386',
     lastName: 'Arnold',
@@ -99,6 +100,8 @@ describe('SearchResultsTable', () => {
     expect(results).toBeInTheDocument();
     const locator = screen.queryByText('P33YJB');
     expect(locator).toBeInTheDocument();
+    const emplid = screen.queryByText('1526347');
+    expect(emplid).toBeInTheDocument();
     const pickupDate = screen.queryByText('05 Apr 2024');
     expect(pickupDate).toBeInTheDocument();
     const deliveryDate = screen.queryByText('10 Apr 2024');
