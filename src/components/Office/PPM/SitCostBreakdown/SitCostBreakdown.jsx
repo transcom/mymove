@@ -88,14 +88,14 @@ export default function SitCostBreakdown({
                 First day SIT price:
               </small>
               <small data-testid="value" className={styles.value}>
-                {toDollarString(formatCents(estimatedCost?.priceFirstDaySIT || 0))}/cwt
+                {toDollarString(formatCents(estimatedCost?.priceFirstDaySIT || 0))}
               </small>
             </div>
             <div data-testid="details" className={styles.row}>
               <small>SIT start date: {formatDate(sitStartDate)}</small>
             </div>
             <div data-testid="details" className={styles.row}>
-              <small>Base price: {toDollarString(estimatedCost.paramsFirstDaySIT.priceRateOrFactor)}</small>
+              <small>Base price: {toDollarString(estimatedCost.paramsFirstDaySIT.priceRateOrFactor)}/cwt</small>
             </div>
           </div>
           <div data-testid="column" className={styles.col}>
