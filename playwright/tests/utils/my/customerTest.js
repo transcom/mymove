@@ -48,7 +48,7 @@ export class CustomerPage extends BaseTestPage {
    */
   async submitParameterValue() {
     const testCode = '123456';
-    await this.page.locator('[name="code"]').type(testCode);
+    await this.page.locator('[name="code"]').fill(testCode);
     await expect(this.page.getByTestId('wizardNextButton')).toBeVisible();
 
     // Regex for the path of the validation code api call

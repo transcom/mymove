@@ -54,7 +54,7 @@ export const BRANCH_OPTIONS = [
   { value: 'SPACE_FORCE', label: 'Space Force' },
 ];
 
-export const SERVICE_COUNSELING_BRANCH_OPTIONS = [
+export const BRANCH_OPTIONS_WITH_MARINE_CORPS = [
   { value: '', label: 'All' },
   { value: 'ARMY', label: 'Army' },
   { value: 'NAVY', label: 'Navy' },

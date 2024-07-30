@@ -469,6 +469,10 @@ definitions:
         allOf:
           - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
+        x-nullable: true
     required:
       - movingExpenseType
       - description

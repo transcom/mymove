@@ -106,6 +106,7 @@ func (h SearchMovesHandler) Handle(params moveop.SearchMovesParams) middleware.R
 				Branch:                params.Body.Branch,
 				Locator:               params.Body.Locator,
 				DodID:                 params.Body.DodID,
+				Emplid:                params.Body.Emplid,
 				CustomerName:          params.Body.CustomerName,
 				DestinationPostalCode: params.Body.DestinationPostalCode,
 				OriginPostalCode:      params.Body.OriginPostalCode,

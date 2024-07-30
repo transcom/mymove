@@ -55,6 +55,8 @@ const MoveHistory = ({ moveCode }) => {
         title="Move history"
         handleClick={() => {}}
         useQueries={useGetMoveHistoryQuery}
+        sessionStorageKey="MoveHistory"
+        key="MoveHistory"
       />
     </div>
   );
