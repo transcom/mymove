@@ -6302,6 +6302,11 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
+        },
         "residentialAddress": {
           "allOf": [
             {
@@ -6727,6 +6732,11 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
+        },
         "residentialAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -6818,6 +6828,11 @@ func init() {
         },
         "phoneIsPreferred": {
           "type": "boolean"
+        },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
         },
         "secondaryTelephone": {
           "type": "string",
@@ -12134,6 +12149,11 @@ func init() {
         },
         "phoneIsPreferred": {
           "type": "boolean"
+        },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
         },
         "secondaryTelephone": {
           "type": "string",
@@ -20865,6 +20885,11 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
+        },
         "residentialAddress": {
           "allOf": [
             {
@@ -21290,6 +21315,11 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
+        },
         "residentialAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -21381,6 +21411,11 @@ func init() {
         },
         "phoneIsPreferred": {
           "type": "boolean"
+        },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
         },
         "secondaryTelephone": {
           "type": "string",
@@ -26756,6 +26791,11 @@ func init() {
         },
         "phoneIsPreferred": {
           "type": "boolean"
+        },
+        "preferredName": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Allen"
         },
         "secondaryTelephone": {
           "type": "string",

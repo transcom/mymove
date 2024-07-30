@@ -68,6 +68,10 @@ type CreateCustomerPayload struct {
 	// phone is preferred
 	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
 
+	// preferred name
+	// Example: Allen
+	PreferredName *string `json:"preferredName,omitempty"`
+
 	// residential address
 	ResidentialAddress struct {
 		Address

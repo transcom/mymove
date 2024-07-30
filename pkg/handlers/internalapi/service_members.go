@@ -54,6 +54,7 @@ func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember model
 		IsProfileComplete:    handlers.FmtBool(serviceMember.IsProfileComplete()),
 		WeightAllotment:      weightAllotment,
 		CacValidated:         serviceMember.CacValidated,
+		PreferredName:        serviceMember.PreferredName,
 	}
 	return &serviceMemberPayload
 }
@@ -88,6 +89,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 				EmailIsPreferred:     params.CreateServiceMemberPayload.EmailIsPreferred,
 				ResidentialAddress:   residentialAddress,
 				BackupMailingAddress: backupMailingAddress,
+				PreferredName:        params.CreateServiceMemberPayload.PreferredName,
 			}
 			smVerrs, err := models.SaveServiceMember(appCtx, &newServiceMember)
 			if smVerrs.HasAny() || err != nil {
@@ -104,6 +106,10 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			}
 			if newServiceMember.LastName != nil {
 				appCtx.Session().LastName = *(newServiceMember.LastName)
+
+			}
+			if newServiceMember.PreferredName != nil {
+				appCtx.Session().PreferredName = *(newServiceMember.PreferredName)
 			}
 			// And return
 			serviceMemberPayload := payloadForServiceMemberModel(h.FileStorer(), newServiceMember)
@@ -225,6 +231,9 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	}
 	if payload.MiddleName != nil {
 		serviceMember.MiddleName = payload.MiddleName
+	}
+	if payload.PreferredName != nil {
+		serviceMember.PreferredName = payload.PreferredName
 	}
 	if payload.LastName != nil {
 		serviceMember.LastName = payload.LastName

@@ -15,6 +15,7 @@ const NameForm = ({ initialValues, onSubmit, onBack }) => {
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
     suffix: Yup.string(),
+    preferred_name: Yup.string(),
   });
 
   return (
@@ -28,6 +29,7 @@ const NameForm = ({ initialValues, onSubmit, onBack }) => {
               <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
               <TextField label="Last name" name="last_name" id="lastName" required />
               <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+              <TextField label="Preferred name" name="preferred_name" id="preferred" labelHint="Optional" />
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation

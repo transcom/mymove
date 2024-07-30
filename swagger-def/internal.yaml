@@ -685,6 +685,11 @@ definitions:
         example: L.
         x-nullable: true
         title: Middle name
+      preferred_name:
+        type: string
+        example: Jon
+        x-nullable: true
+        title: Preferred Name
       last_name:
         type: string
         example: Donut
@@ -784,6 +789,11 @@ definitions:
         example: Donut
         x-nullable: true
         title: Last name
+      preferred_name:
+        type: string
+        example: Jon
+        x-nullable: true
+        title: Preferred Name
       suffix:
         type: string
         example: Jr.
@@ -868,6 +878,11 @@ definitions:
         example: Donut
         x-nullable: true
         title: Last name
+      preferred_name: #Jon S edits
+        type: string
+        example: Jon
+        x-nullable: true
+        title: Preferred Name
       suffix:
         type: string
         example: Jr.

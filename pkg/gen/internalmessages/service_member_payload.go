@@ -90,6 +90,10 @@ type ServiceMemberPayload struct {
 	// Telephone
 	PhoneIsPreferred *bool `json:"phone_is_preferred,omitempty"`
 
+	// Preferred Name
+	// Example: Jon
+	PreferredName *string `json:"preferred_name,omitempty"`
+
 	// Residential Address
 	ResidentialAddress *Address `json:"residential_address,omitempty"`
 

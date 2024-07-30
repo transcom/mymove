@@ -9,6 +9,7 @@ import { BackupContactShape } from 'types/customerShapes';
 import descriptionListStyles from 'styles/descriptionList.module.scss';
 
 const ContactInfoDisplay = ({
+  preferredName,
   telephone,
   secondaryTelephone,
   personalEmail,
@@ -41,6 +42,11 @@ const ContactInfoDisplay = ({
 
       <div className={styles.contactInfoSection}>
         <dl className={descriptionListStyles.descriptionList}>
+          <div className={descriptionListStyles.row}>
+            <dt>Preferred Name</dt>
+            <dd>{preferredName}</dd>
+          </div>
+
           <div className={descriptionListStyles.row}>
             <dt>Best contact phone</dt>
             <dd>{telephone}</dd>

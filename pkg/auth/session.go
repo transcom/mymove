@@ -226,6 +226,7 @@ type Session struct {
 	FirstName       string
 	Middle          string
 	LastName        string
+	PreferredName   string
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
 	AdminUserID     uuid.UUID

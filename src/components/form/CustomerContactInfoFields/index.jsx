@@ -8,13 +8,19 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField } from 'components/form/fields';
 
-export const CustomerContactInfoFields = ({ legend, className, render }) => {
+export const CustomerContactInfoFields = ({ legend, className, render, signIn }) => {
   const CustomerContactInfoFieldsUUID = useRef(uuidv4());
-
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
+          {signIn && (
+            <TextField
+              label="Preferred Name"
+              id={`perferredName_${CustomerContactInfoFieldsUUID.current}`}
+              name="preferred_name"
+            />
+          )}
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
