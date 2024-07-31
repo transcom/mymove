@@ -461,7 +461,7 @@ func CalculateSITCost(appCtx appcontext.AppContext, ppmShipment *models.PPMShipm
 func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment, contract models.ReContract) (*models.PPMSITEstimatedCostInfo, error) {
 	logger := appCtx.Logger()
 
-	ppmSITEstimatedCostInfoData := models.PPMSITEstimatedCostInfo{}
+	ppmSITEstimatedCostInfoData := &models.PPMSITEstimatedCostInfo{}
 
 	additionalDaysInSIT := additionalDaysInSIT(*ppmShipment.SITEstimatedEntryDate, *ppmShipment.SITEstimatedDepartureDate)
 
@@ -476,54 +476,11 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 		}
 
 		var price *unit.Cents
-		var priceParams services.PricingDisplayParams
 		switch serviceItemPricer := pricer.(type) {
 		case services.DomesticOriginFirstDaySITPricer, services.DomesticDestinationFirstDaySITPricer:
-			price, priceParams, err = priceFirstDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract)
-			if err != nil {
-				return nil, err
-			}
-			ppmSITEstimatedCostInfoData.PriceFirstDaySIT = price
-			for _, param := range priceParams {
-				switch param.Key {
-				case models.ServiceItemParamNameServiceAreaOrigin:
-					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ServiceAreaOrigin = param.Value
-				case models.ServiceItemParamNameServiceAreaDest:
-					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ServiceAreaDestination = param.Value
-				case models.ServiceItemParamNameIsPeak:
-					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.IsPeak = param.Value
-				case models.ServiceItemParamNameContractYearName:
-					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ContractYearName = param.Value
-				case models.ServiceItemParamNamePriceRateOrFactor:
-					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.PriceRateOrFactor = param.Value
-				case models.ServiceItemParamNameEscalationCompounded:
-					ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.EscalationCompounded = param.Value
-				}
-			}
+			price, ppmSITEstimatedCostInfoData, err = calculateFirstDaySITCostBreakdown(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract, ppmSITEstimatedCostInfoData)
 		case services.DomesticOriginAdditionalDaysSITPricer, services.DomesticDestinationAdditionalDaysSITPricer:
-			price, priceParams, err = priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT, contract)
-			if err != nil {
-				return nil, err
-			}
-			ppmSITEstimatedCostInfoData.PriceAdditionalDaySIT = price
-			for _, param := range priceParams {
-				switch param.Key {
-				case models.ServiceItemParamNameServiceAreaOrigin:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ServiceAreaOrigin = param.Value
-				case models.ServiceItemParamNameServiceAreaDest:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ServiceAreaDestination = param.Value
-				case models.ServiceItemParamNameIsPeak:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.IsPeak = param.Value
-				case models.ServiceItemParamNameContractYearName:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ContractYearName = param.Value
-				case models.ServiceItemParamNamePriceRateOrFactor:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.PriceRateOrFactor = param.Value
-				case models.ServiceItemParamNameEscalationCompounded:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.EscalationCompounded = param.Value
-				case models.ServiceItemParamNameNumberDaysSIT:
-					ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.NumberDaysSIT = param.Value
-				}
-			}
+			price, ppmSITEstimatedCostInfoData, err = calculateAdditionalDaySITCostBreakdown(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract, additionalDaysInSIT, ppmSITEstimatedCostInfoData)
 		default:
 			return nil, fmt.Errorf("unknown SIT pricer type found for service item code %s", serviceItem.ReService.Code)
 		}
@@ -532,12 +489,62 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 			return nil, err
 		}
 
-		logger.Debug(fmt.Sprintf("Price of service item %s %d", serviceItem.ReService.Code, *price))
+		logger.Debug(fmt.Sprintf("Price of service item %s %d", serviceItem.ReService.Code, price))
 		totalPrice += *price
 		ppmSITEstimatedCostInfoData.EstimatedSITCost = &totalPrice
 	}
 
-	return &ppmSITEstimatedCostInfoData, nil
+	return ppmSITEstimatedCostInfoData, nil
+}
+
+func calculateFirstDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItemPricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract, ppmSITEstimatedCostInfoData *models.PPMSITEstimatedCostInfo) (*unit.Cents, *models.PPMSITEstimatedCostInfo, error) {
+	price, priceParams, err := priceFirstDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract)
+	if err != nil {
+		return nil, nil, err
+	}
+	ppmSITEstimatedCostInfoData.PriceFirstDaySIT = price
+	for _, param := range priceParams {
+		switch param.Key {
+		case models.ServiceItemParamNameServiceAreaOrigin:
+			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ServiceAreaOrigin = param.Value
+		case models.ServiceItemParamNameServiceAreaDest:
+			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ServiceAreaDestination = param.Value
+		case models.ServiceItemParamNameIsPeak:
+			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.IsPeak = param.Value
+		case models.ServiceItemParamNameContractYearName:
+			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.ContractYearName = param.Value
+		case models.ServiceItemParamNamePriceRateOrFactor:
+			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.PriceRateOrFactor = param.Value
+		case models.ServiceItemParamNameEscalationCompounded:
+			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.EscalationCompounded = param.Value
+		}
+	}
+	return price, ppmSITEstimatedCostInfoData, nil
+}
+
+func calculateAdditionalDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItemPricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract, additionalDaysInSIT int, ppmSITEstimatedCostInfoData *models.PPMSITEstimatedCostInfo) (*unit.Cents, *models.PPMSITEstimatedCostInfo, error) {
+	price, priceParams, err := priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT, contract)
+	if err != nil {
+		return nil, nil, err
+	}
+	ppmSITEstimatedCostInfoData.PriceAdditionalDaySIT = price
+	for _, param := range priceParams {
+		switch param.Key {
+		case models.ServiceItemParamNameServiceAreaOrigin:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ServiceAreaOrigin = param.Value
+		case models.ServiceItemParamNameServiceAreaDest:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ServiceAreaDestination = param.Value
+		case models.ServiceItemParamNameIsPeak:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.IsPeak = param.Value
+		case models.ServiceItemParamNameContractYearName:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.ContractYearName = param.Value
+		case models.ServiceItemParamNamePriceRateOrFactor:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.PriceRateOrFactor = param.Value
+		case models.ServiceItemParamNameEscalationCompounded:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.EscalationCompounded = param.Value
+		}
+	}
+	return price, ppmSITEstimatedCostInfoData, nil
 }
 
 func priceFirstDaySIT(appCtx appcontext.AppContext, pricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract) (*unit.Cents, services.PricingDisplayParams, error) {
