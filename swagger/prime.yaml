@@ -672,7 +672,7 @@ paths:
         after the destination address has already been approved.
 
 
-        This should ONLY be used for the following shipment types:
+        This endpoint and operation only supports the following shipment types:
 
         - HHG
 
