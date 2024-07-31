@@ -542,6 +542,8 @@ func calculateAdditionalDaySITCostBreakdown(appCtx appcontext.AppContext, servic
 			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.PriceRateOrFactor = param.Value
 		case models.ServiceItemParamNameEscalationCompounded:
 			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.EscalationCompounded = param.Value
+		case models.ServiceItemParamNameNumberDaysSIT:
+			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.NumberDaysSIT = param.Value
 		}
 	}
 	return price, ppmSITEstimatedCostInfoData, nil
