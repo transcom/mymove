@@ -884,7 +884,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC).",
         "consumes": [
           "application/json"
         ],
@@ -898,7 +898,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -7287,7 +7287,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -14237,7 +14238,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC).",
         "consumes": [
           "application/json"
         ],
@@ -14251,7 +14252,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -21835,7 +21836,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
