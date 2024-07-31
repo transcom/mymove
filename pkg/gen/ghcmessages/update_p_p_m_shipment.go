@@ -82,6 +82,12 @@ type UpdatePPMShipment struct {
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
+	// has tertiary destination address
+	HasTertiaryDestinationAddress *bool `json:"hasTertiaryDestinationAddress"`
+
+	// has tertiary pickup address
+	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
 	// pickup address
 	PickupAddress struct {
 		Address
@@ -120,6 +126,16 @@ type UpdatePPMShipment struct {
 
 	// spouse pro gear weight
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
+
+	// tertiary destination address
+	TertiaryDestinationAddress struct {
+		Address
+	} `json:"tertiaryDestinationAddress,omitempty"`
+
+	// tertiary pickup address
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
 
 	// w2 address
 	W2Address *Address `json:"w2Address,omitempty"`
@@ -174,6 +190,14 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -329,6 +353,22 @@ func (m *UpdatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdatePPMShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 func (m *UpdatePPMShipment) validateW2Address(formats strfmt.Registry) error {
 	if swag.IsZero(m.W2Address) { // not required
 		return nil
@@ -373,6 +413,14 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -444,6 +492,16 @@ func (m *UpdatePPMShipment) contextValidateSitLocation(ctx context.Context, form
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
