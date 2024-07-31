@@ -3882,7 +3882,7 @@ paths:
       summary: Fetch line of accounting
       description: >-
         Fetches a line of accounting based on provided service member
-        affiliation, order issue date, and Transportation Accounting Code (TAC).
+        affiliation, effective date, and Transportation Accounting Code (TAC).
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
@@ -3893,7 +3893,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Service member affiliation, order issue date, and TAC code.
+          description: Service member affiliation, effective date, and TAC code.
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
@@ -4596,7 +4596,11 @@ definitions:
     properties:
       serviceMemberAffiliation:
         $ref: '#/definitions/Affiliation'
-      ordersIssueDate:
+      effectiveDate:
+        description: >-
+          The effective date for the Line Of Accounting (LOA) being fetched. Eg,
+          the orders issue date or the Non-Temporary Storage (NTS) Move Task
+          Order (MTO) approval date
         type: string
         format: date
         example: '2023-01-01'

@@ -34,7 +34,7 @@ func NewRequestLineOfAccounting(ctx *middleware.Context, handler RequestLineOfAc
 
 # Fetch line of accounting
 
-Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).
+Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC).
 */
 type RequestLineOfAccounting struct {
 	Context *middleware.Context

@@ -19,10 +19,10 @@ import (
 // swagger:model FetchLineOfAccountingPayload
 type FetchLineOfAccountingPayload struct {
 
-	// orders issue date
+	// The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date
 	// Example: 2023-01-01
 	// Format: date
-	OrdersIssueDate strfmt.Date `json:"ordersIssueDate,omitempty"`
+	EffectiveDate strfmt.Date `json:"effectiveDate,omitempty"`
 
 	// service member affiliation
 	ServiceMemberAffiliation *Affiliation `json:"serviceMemberAffiliation,omitempty"`
@@ -38,7 +38,7 @@ type FetchLineOfAccountingPayload struct {
 func (m *FetchLineOfAccountingPayload) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateOrdersIssueDate(formats); err != nil {
+	if err := m.validateEffectiveDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -56,12 +56,12 @@ func (m *FetchLineOfAccountingPayload) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *FetchLineOfAccountingPayload) validateOrdersIssueDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.OrdersIssueDate) { // not required
+func (m *FetchLineOfAccountingPayload) validateEffectiveDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.EffectiveDate) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("ordersIssueDate", "body", "date", m.OrdersIssueDate.String(), formats); err != nil {
+	if err := validate.FormatOf("effectiveDate", "body", "date", m.EffectiveDate.String(), formats); err != nil {
 		return err
 	}
 
