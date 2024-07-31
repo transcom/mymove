@@ -2345,14 +2345,6 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE(appCtx a
 		},
 	}, nil)
 
-	// // for soft deleted proof of service docs
-	// factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
-	// 	{
-	// 		Model:    paymentRequestHHG,
-	// 		LinkOnly: true,
-	// 	},
-	// }, []factory.Trait{factory.GetTraitPrimeUploadDeleted})
-
 	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
 		{
 			Model:    paymentRequestHHG,
@@ -2756,6 +2748,27 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE(appCtx a
 			LinkOnly: true,
 		},
 	}, nil)
+
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	posImage2 := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	primeContractor2 := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+
+	// Creates custom test.jpg prime upload
+	file2 := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage2.ID, primeContractor2, uploader.File{File: file2}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
 
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
