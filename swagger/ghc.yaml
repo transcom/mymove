@@ -7952,15 +7952,12 @@ definitions:
       year:
         description: The year the mobile home was made.
         type: integer
-      length:
-        type: number
-        format: double
-      width:
-        type: number
-        format: double
-      height:
-        type: number
-        format: double
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
       updatedAt:
         description: Timestamp of when a property of this object was last updated (UTC)
         format: date-time

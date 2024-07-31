@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS mobile_homes (
 	length_in_inches int NOT NULL,
     height_in_inches int NOT NULL,
 	widthInInches int NOT NULL,
-	created_at timestamp NOT NULL, 
+	created_at timestamp NOT NULL,
 	updated_at timestamp NOT NULL,
 	deleted_at timestamp NOT NULL,
 );

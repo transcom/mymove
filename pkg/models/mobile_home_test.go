@@ -7,6 +7,9 @@ import (
 )
 
 func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
+	length := 200
+	height := 84
+	width := 96
 	testCases := map[string]struct {
 		mobileHome   models.MobileHome
 		expectedErrs map[string][]string
@@ -17,9 +20,9 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 				Make:       "Mobile Home Make",
 				Model:      "Mobile Home Model",
 				Year:       1996,
-				Length:     200,
-				Height:     84,
-				Width:      96,
+				LengthInInches:     &length,
+				HeightInInches:     &height,
+				WidthInInches:      &width,
 			},
 			expectedErrs: nil,
 		},

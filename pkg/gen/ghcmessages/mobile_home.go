@@ -22,8 +22,8 @@ type MobileHome struct {
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
-	// height
-	Height float64 `json:"height,omitempty"`
+	// height in inches
+	HeightInInches int64 `json:"heightInInches,omitempty"`
 
 	// Primary auto-generated unique identifier of the Mobile Home object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -31,8 +31,8 @@ type MobileHome struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// length
-	Length float64 `json:"length,omitempty"`
+	// length in inches
+	LengthInInches int64 `json:"lengthInInches,omitempty"`
 
 	// The make of the mobile home
 	Make string `json:"make,omitempty"`
@@ -71,8 +71,8 @@ type MobileHome struct {
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 
-	// width
-	Width float64 `json:"width,omitempty"`
+	// width in inches
+	WidthInInches int64 `json:"widthInInches,omitempty"`
 
 	// The year the mobile home was made.
 	Year int64 `json:"year,omitempty"`

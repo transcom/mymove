@@ -8745,9 +8745,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "height": {
-          "type": "number",
-          "format": "double"
+        "heightInInches": {
+          "type": "integer"
         },
         "id": {
           "description": "Primary auto-generated unique identifier of the Mobile Home object",
@@ -8756,9 +8755,8 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "length": {
-          "type": "number",
-          "format": "double"
+        "lengthInInches": {
+          "type": "integer"
         },
         "make": {
           "description": "The make of the mobile home",
@@ -8811,9 +8809,8 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "width": {
-          "type": "number",
-          "format": "double"
+        "widthInInches": {
+          "type": "integer"
         },
         "year": {
           "description": "The year the mobile home was made.",
@@ -23499,9 +23496,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "height": {
-          "type": "number",
-          "format": "double"
+        "heightInInches": {
+          "type": "integer"
         },
         "id": {
           "description": "Primary auto-generated unique identifier of the Mobile Home object",
@@ -23510,9 +23506,8 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
-        "length": {
-          "type": "number",
-          "format": "double"
+        "lengthInInches": {
+          "type": "integer"
         },
         "make": {
           "description": "The make of the mobile home",
@@ -23565,9 +23560,8 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
-        "width": {
-          "type": "number",
-          "format": "double"
+        "widthInInches": {
+          "type": "integer"
         },
         "year": {
           "description": "The year the mobile home was made.",
