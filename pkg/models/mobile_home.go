@@ -9,20 +9,20 @@ import (
 )
 
 type MobileHome struct {
-	ID         uuid.UUID   `json:"id" db:"id"`
-	ShipmentID uuid.UUID   `json:"shipment_id" db:"shipment_id"`
-	Shipment   MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
-	Make       string      `json:"make" db:"make"`
-	Model      string      `json:"model" db:"model"`
-	Year       int         `json:"mh_year" db:"mh_year"`
-	Length     int         `json:"mh_length" db:"mh_length"`
-	Height     int         `json:"height" db:"height"`
-	Width      int         `json:"width" db:"width"`
+	ID             uuid.UUID   `json:"id" db:"id"`
+	ShipmentID     uuid.UUID   `json:"shipment_id" db:"shipment_id"`
+	Shipment       MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
+	Make           string      `json:"make" db:"make"`
+	Model          string      `json:"model" db:"model"`
+	Year           int         `json:"year" db:"year"`
+	LengthInInches *int        `json:"length_in_inches" db:"length_in_inches"`
+	HeightInInches *int        `json:"height_in_inches" db:"height_in_inches"`
+	WidthInInches  *int        `json:"width_in_inches" db:"width_in_inches"`
 }
 
 // TableName overrides the table name used by Pop.
 func (mh MobileHome) TableName() string {
-	return "mobile_home"
+	return "mobile_homes"
 }
 
 // A list of Mobile homes
@@ -37,9 +37,9 @@ func (mh MobileHome) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Name: "Make", Field: mh.Make},
 		&validators.StringIsPresent{Name: "Model", Field: mh.Model},
 		&validators.IntIsGreaterThan{Name: "Year", Field: mh.Year, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "Length", Field: mh.Length, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "Height", Field: mh.Height, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "Width", Field: mh.Width, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "Length", Field: *mh.LengthInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "Height", Field: *mh.HeightInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "Width", Field: *mh.WidthInInches, Compared: 0},
 	), nil
 }
 
