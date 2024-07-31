@@ -26,9 +26,12 @@ import { getResponseError } from 'services/internalApi';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import departmentIndicators from 'constants/departmentIndicators';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
+  const [showEmplid, setShowEmplid] = useState(false);
+  const [isSafetyMove, setIsSafetyMove] = useState(false);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -93,13 +96,13 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
   const onSubmit = async (values) => {
     // Convert strings to booleans to satisfy swagger
-    const isSafetyMove = values.is_safety_move === 'true';
     const createOktaAccount = values.create_okta_account === 'true';
     const cacUser = values.cac_user === 'true';
 
     const body = {
       affiliation: values.affiliation,
       edipi: values.edipi,
+      emplid: values.emplid || '',
       firstName: values.first_name,
       middleName: values.middle_name,
       lastName: values.last_name,
@@ -118,24 +121,23 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       },
       createOktaAccount,
       cacUser,
-      isSafetyMove,
     };
 
     return createCustomerWithOktaOption({ body })
       .then((res) => {
         const customerId = Object.keys(res.createdCustomer)[0];
-        const isSafetyMoveSelected = values.is_safety_move === 'true';
         setFlashMessage('CUSTOMER_CREATE_SUCCESS', 'success', `Customer created successfully.`);
         navigate(
           generatePath(servicesCounselingRoutes.BASE_CUSTOMERS_ORDERS_ADD_PATH, {
             customerId,
           }),
-          { state: { isSafetyMoveSelected } },
+          { state: { isSafetyMoveSelected: isSafetyMove } },
         );
       })
       .catch((e) => {
-        const { response } = e;
-        const errorMessage = getResponseError(response, 'failed to create service member due to server error');
+        let errorMessage;
+        if (e.status === 409) errorMessage = 'This EMPLID is already in use';
+        else errorMessage = getResponseError(e?.response, 'failed to create service member due to server error');
         setServerError(errorMessage);
       });
   };
@@ -143,6 +145,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
     edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
+    emplid: Yup.string()
+      .notRequired()
+      .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number'),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
@@ -161,14 +166,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     [residentialAddressName]: requiredAddressSchema.required(),
     [backupAddressName]: requiredAddressSchema.required(),
     [backupContactName]: backupContactInfoSchema.required(),
-    create_okta_account: Yup.boolean().when('is_safety_move', {
-      is: false,
-      then: (schema) => schema.required('Required'),
-    }),
-    cac_user: Yup.boolean().when('is_safety_move', {
-      is: false,
-      then: (schema) => schema.required('Required'),
-    }),
+    create_okta_account: isSafetyMove ? '' : Yup.boolean().required('Required'),
+    cac_user: isSafetyMove ? '' : Yup.boolean().required('Required'),
     is_safety_move: isSafetyMoveFF ? Yup.boolean().required('Required') : '',
   });
 
@@ -189,18 +188,33 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
       <Grid className={styles.nameFormContainer}>
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-            {({ isValid, handleSubmit, setValues, values }) => {
+            {({ isValid, handleSubmit, setValues, values, handleChange }) => {
               const handleIsSafetyMove = (e) => {
-                const { checked } = e.target;
-                if (checked) {
-                  // clear out DoDID and OKTA fields
+                const { value } = e.target;
+                if (value === 'true') {
+                  setIsSafetyMove(true);
+                  // clear out DoDID, emplid, and OKTA fields
                   setValues({
                     ...values,
                     edipi: '',
+                    emplid: '',
                     create_okta_account: '',
                     cac_user: 'true',
                     is_safety_move: 'true',
                   });
+                } else if (value === 'false') {
+                  setIsSafetyMove(false);
+                  setValues({
+                    ...values,
+                    is_safety_move: 'false',
+                  });
+                }
+              };
+              const handleBranchChange = (e) => {
+                if (e.target.value === departmentIndicators.COAST_GUARD) {
+                  setShowEmplid(true);
+                } else {
+                  setShowEmplid(false);
                 }
               };
               return (
@@ -228,6 +242,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             name="is_safety_move"
                             value="false"
                             data-testid="is-safety-move-no"
+                            onChange={handleIsSafetyMove}
                           />
                         </div>
                       </Fieldset>
@@ -237,6 +252,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       name="affiliation"
                       id="affiliation"
                       required
+                      onChange={(e) => {
+                        handleChange(e);
+                        handleBranchChange(e);
+                      }}
                       options={branchOptions}
                     />
                     <TextField
@@ -245,8 +264,20 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       id="edipi"
                       labelHint="Optional"
                       maxLength="10"
-                      isDisabled={values.is_safety_move === 'true'}
+                      isDisabled={isSafetyMove}
                     />
+                    {showEmplid && (
+                      <TextField
+                        label="EMPLID"
+                        name="emplid"
+                        id="emplid"
+                        maxLength="7"
+                        labelHint="Optional"
+                        inputMode="numeric"
+                        pattern="[0-9]{7}"
+                        isDisabled={isSafetyMove}
+                      />
+                    )}
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Name</h3>
