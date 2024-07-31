@@ -506,7 +506,7 @@ func (a *Client) UpdateReweigh(params *UpdateReweighParams, opts ...ClientOption
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
 after the destination address has already been approved.
 
-This should ONLY be used for the following shipment types:
+This endpoint and operation only supports the following shipment types:
 - HHG
 - NTSR
 
