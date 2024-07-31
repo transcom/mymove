@@ -439,6 +439,59 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.NotEmpty(createdShipment.Agents[0].ID)
 	})
 
+	suite.Run("Successful POST - Integration Test - Boat", func() {
+		subtestData := makeCreateSubtestData()
+
+		params := subtestData.params
+
+		boatShipmentType := internalmessages.MTOShipmentTypeBOATHAULAWAY
+
+		boatShipment := &internalmessages.CreateBoatShipment{
+			Type:           stringPtr(string(models.BoatShipmentTypeHaulAway)),
+			Year:           models.Int64Pointer(1000),
+			Make:           models.StringPointer("Boat Make"),
+			Model:          models.StringPointer("Boat Model"),
+			LengthInInches: models.Int64Pointer(300),
+			WidthInInches:  models.Int64Pointer(108),
+			HeightInInches: models.Int64Pointer(72),
+			HasTrailer:     models.BoolPointer(true),
+			IsRoadworthy:   models.BoolPointer(false),
+		}
+		params.Body.ShipmentType = &boatShipmentType
+		params.Body.BoatShipment = boatShipment
+
+		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+
+		response := subtestData.handler.Handle(subtestData.params)
+
+		suite.IsType(&mtoshipmentops.CreateMTOShipmentOK{}, response)
+
+		createdShipment := response.(*mtoshipmentops.CreateMTOShipmentOK).Payload
+
+		suite.NotEmpty(createdShipment.ID.String())
+
+		suite.Equal(boatShipmentType, createdShipment.ShipmentType)
+		suite.Equal(models.MTOShipmentStatusDraft, models.MTOShipmentStatus(createdShipment.Status))
+		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
+		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
+		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Nil(createdShipment.RequestedPickupDate)
+		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
+
+		suite.Equal(*params.Body.BoatShipment.Type, *createdShipment.BoatShipment.Type)
+		suite.Equal(*params.Body.BoatShipment.Year, *createdShipment.BoatShipment.Year)
+		suite.Equal(*params.Body.BoatShipment.Make, *createdShipment.BoatShipment.Make)
+		suite.Equal(*params.Body.BoatShipment.Model, *createdShipment.BoatShipment.Model)
+		suite.Equal(*params.Body.BoatShipment.LengthInInches, *createdShipment.BoatShipment.LengthInInches)
+		suite.Equal(*params.Body.BoatShipment.WidthInInches, *createdShipment.BoatShipment.WidthInInches)
+		suite.Equal(*params.Body.BoatShipment.HeightInInches, *createdShipment.BoatShipment.HeightInInches)
+		suite.Equal(*params.Body.BoatShipment.HasTrailer, *createdShipment.BoatShipment.HasTrailer)
+		suite.Equal(*params.Body.BoatShipment.IsRoadworthy, *createdShipment.BoatShipment.IsRoadworthy)
+
+	})
+
 	suite.Run("POST failure - 400 - invalid input, missing pickup address", func() {
 		subtestData := makeCreateSubtestData()
 
@@ -1473,7 +1526,9 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 		},
 	}, nil)
 
-	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment}
+	boatShipment := factory.BuildBoatShipment(suite.DB(), nil, nil)
+
+	subtestData.shipments = models.MTOShipments{mtoShipment, mtoShipment2, ppmShipment.Shipment, ppmShipment2.Shipment, ppmShipment3.Shipment, boatShipment.Shipment}
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/moves/%s/mto_shipments", mto.ID.String()), nil)
 	req = suite.AuthenticateRequest(req, mto.Orders.ServiceMember)
@@ -1536,6 +1591,21 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 				}
 
 				continue // PPM Shipments won't have the rest of the fields below.
+			}
+
+			if expectedShipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || expectedShipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+				suite.EqualUUID(expectedShipment.BoatShipment.ID, returnedShipment.BoatShipment.ID)
+				suite.EqualUUID(expectedShipment.BoatShipment.ShipmentID, returnedShipment.BoatShipment.ShipmentID)
+				suite.EqualDateTime(expectedShipment.BoatShipment.CreatedAt, returnedShipment.BoatShipment.CreatedAt)
+				suite.Equal(string(expectedShipment.BoatShipment.Type), string(*returnedShipment.BoatShipment.Type))
+				suite.Equal(expectedShipment.BoatShipment.Year, *returnedShipment.BoatShipment.Year)
+				suite.Equal(expectedShipment.BoatShipment.Make, *returnedShipment.BoatShipment.Make)
+				suite.Equal(expectedShipment.BoatShipment.Model, *returnedShipment.BoatShipment.Model)
+				suite.Equal(expectedShipment.BoatShipment.LengthInInches, *returnedShipment.BoatShipment.LengthInInches)
+				suite.Equal(expectedShipment.BoatShipment.WidthInInches, *returnedShipment.BoatShipment.WidthInInches)
+				suite.Equal(expectedShipment.BoatShipment.HeightInInches, *returnedShipment.BoatShipment.HeightInInches)
+				suite.Equal(expectedShipment.BoatShipment.HasTrailer, *returnedShipment.BoatShipment.HasTrailer)
+				suite.Equal(expectedShipment.BoatShipment.IsRoadworthy, *returnedShipment.BoatShipment.IsRoadworthy)
 			}
 
 			suite.EqualDatePtr(expectedShipment.RequestedPickupDate, returnedShipment.RequestedPickupDate)

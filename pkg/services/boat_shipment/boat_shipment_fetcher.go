@@ -180,7 +180,7 @@ func FindBoatShipment(appCtx appcontext.AppContext, id uuid.UUID) (*models.BoatS
 func FetchBoatShipmentFromMTOShipmentID(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (*models.BoatShipment, error) {
 	var boatShipment models.BoatShipment
 
-	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment", "W2Address", "WeightTickets").
+	err := appCtx.DB().Scope(utilities.ExcludeDeletedScope()).EagerPreload("Shipment").
 		Where("boat_shipments.shipment_id = ?", mtoShipmentID).
 		First(&boatShipment)
 
