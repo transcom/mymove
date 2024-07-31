@@ -106,6 +106,21 @@
   }
 }
 
+.ediErrorDetails {
+  @include u-margin-top(2);
+  align-items: center;
+  td {
+    vertical-align: top;
+  }
+  dt {
+    display: inline;
+    font-weight: bold;
+
+    &:not(:first-of-type) {
+      @include u-margin-left(4);
+    }
+  }
+}
 .footer {
   @include u-display(flex);
   @include u-margin-top(2);

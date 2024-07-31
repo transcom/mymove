@@ -52,6 +52,13 @@ const PaymentRequestCard = ({
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
 
+  // do not show error details by default
+  const defaultShowErrorDetails = false;
+  // only show button in reviewed/paid
+  const showErrorDetailsButton = !defaultShowErrorDetails;
+  // state to toggle between showing details or not
+  const [showErrorDetails, setShowErrorDetails] = useState(defaultShowErrorDetails);
+
   // show/hide AccountingCodesModal
   const [showModal, setShowModal] = useState(false);
   const [modalShipment, setModalShipment] = useState({});
@@ -117,6 +124,14 @@ const PaymentRequestCard = ({
       </a>
     ) : null;
 
+  const showErrorDetailsChevron = showErrorDetails ? 'chevron-up' : 'chevron-down';
+  const showErrorDetailsText = showErrorDetails ? 'Hide EDI error details' : 'Show EDI error details';
+  const handleToggleErrorDetails = () => setShowErrorDetails((prevState) => !prevState);
+  const errorsExistForPaymentRequest =
+    paymentRequest.ediErrorCode !== '' ||
+    paymentRequest.ediErrorDescription !== '' ||
+    paymentRequest.ediErrorType !== '';
+
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
 
@@ -164,6 +179,66 @@ const PaymentRequestCard = ({
         </div>
       </Restricted>
     );
+  };
+
+  const renderEDIErrorDetails = (paymentRequestEDI) => {
+    if (errorsExistForPaymentRequest) {
+      return (
+        <div className={styles.summary}>
+          <div className={styles.footer}>
+            <dl>
+              <dt>EDI error details:</dt>
+            </dl>
+            <div className={styles.toggleDrawer}>
+              {showErrorDetailsButton && (
+                <Button
+                  aria-expanded={showErrorDetails}
+                  data-testid="showErrorDetailsButton"
+                  type="button"
+                  unstyled
+                  onClick={handleToggleErrorDetails}
+                  disabled={isMoveLocked}
+                >
+                  <FontAwesomeIcon icon={showErrorDetailsChevron} /> {showErrorDetailsText}
+                </Button>
+              )}
+            </div>
+          </div>
+          {showErrorDetails && (
+            <div data-testid="toggleDrawer" className={styles.drawer}>
+              <table className="table--stacked">
+                <colgroup>
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '60%' }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>EDI Type</th>
+                    <th className="align-left">Error Code</th>
+                    <th className="align-left">Error Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-testid="paymentRequestEDIErrorType" className={styles.ediErrorDetails}>
+                      {paymentRequest.ediErrorType && <div>{paymentRequestEDI.ediErrorType}</div>}
+                    </td>
+                    <td data-testid="paymentRequestEDIErrorCode" align="top">
+                      {paymentRequest.ediErrorCode && <div>{paymentRequestEDI.ediErrorCode}</div>}
+                    </td>
+                    <td data-testid="paymentRequestEDIErrorDescription" align="top">
+                      {paymentRequest.ediErrorDescription && <div>{paymentRequestEDI.ediErrorDescription}</div>}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return <div />;
   };
 
   const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
@@ -245,6 +320,9 @@ const PaymentRequestCard = ({
         <div className={styles.totalReviewed}>
           <div>{paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}</div>
           {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
+        </div>
+        <div className={styles.totalReviewed}>
+          {errorsExistForPaymentRequest && renderEDIErrorDetails(paymentRequest)}
         </div>
         <div className={styles.footer}>
           <dl>
