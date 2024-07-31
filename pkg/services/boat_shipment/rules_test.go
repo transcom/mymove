@@ -221,11 +221,24 @@ func (suite *BoatShipmentSuite) TestValidationRules() {
 						Model:          models.StringPointer("Boat Model"),
 						WidthInInches:  models.IntPointer(108),
 						HeightInInches: models.IntPointer(72),
-						LengthInInches: models.IntPointer(-1),
+						LengthInInches: nil,
 					},
 					"lengthInInches",
 					"cannot be a zero or a negative value",
 				},
+				{
+					"Invalid LengthInInches Expected value",
+					models.BoatShipment{
+						ShipmentID:     shipmentID,
+						Year:           models.IntPointer(2000),
+						Make:           models.StringPointer("Boat Make"),
+						Model:          models.StringPointer("Boat Model"),
+						LengthInInches: models.IntPointer(10),
+						WidthInInches:  models.IntPointer(10),
+						HeightInInches: models.IntPointer(10),
+					},
+					"lengthInInches",
+					"One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
 				{
 					"Missing WidthInInches Expected value",
 					models.BoatShipment{
@@ -235,10 +248,23 @@ func (suite *BoatShipmentSuite) TestValidationRules() {
 						Model:          models.StringPointer("Boat Model"),
 						LengthInInches: models.IntPointer(300),
 						HeightInInches: models.IntPointer(72),
-						WidthInInches:  models.IntPointer(-1),
+						WidthInInches:  nil,
 					},
 					"widthInInches",
 					"cannot be a zero or a negative value"},
+				{
+					"Invalid WidthInInches Expected value",
+					models.BoatShipment{
+						ShipmentID:     shipmentID,
+						Year:           models.IntPointer(2000),
+						Make:           models.StringPointer("Boat Make"),
+						Model:          models.StringPointer("Boat Model"),
+						LengthInInches: models.IntPointer(10),
+						WidthInInches:  models.IntPointer(10),
+						HeightInInches: models.IntPointer(10),
+					},
+					"widthInInches",
+					"One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
 				{
 					"Missing HeightInInches Expected value",
 					models.BoatShipment{
@@ -252,6 +278,19 @@ func (suite *BoatShipmentSuite) TestValidationRules() {
 					},
 					"heightInInches",
 					"cannot be a zero or a negative value"},
+				{
+					"Invalid HeightInInches Expected value",
+					models.BoatShipment{
+						ShipmentID:     shipmentID,
+						Year:           models.IntPointer(2000),
+						Make:           models.StringPointer("Boat Make"),
+						Model:          models.StringPointer("Boat Model"),
+						LengthInInches: models.IntPointer(10),
+						WidthInInches:  models.IntPointer(10),
+						HeightInInches: models.IntPointer(10),
+					},
+					"heightInInches",
+					"One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
 			}
 
 			for _, tc := range testCases {
@@ -261,12 +300,16 @@ func (suite *BoatShipmentSuite) TestValidationRules() {
 
 					switch verr := err.(type) {
 					case *validate.Errors:
-						suite.Equal(1, verr.Count())
 
 						errorMsg, hasErrKey := verr.Errors[tc.errorKey]
 
 						suite.True(hasErrKey)
 						suite.Equal(tc.errorMsg, strings.Join(errorMsg, ""))
+						if tc.desc == "Invalid LengthInInches Expected value" || tc.desc == "Invalid WidthInInches Expected value" || tc.desc == "Invalid HeightInInches Expected value" {
+							suite.Equal(3, verr.Count())
+						} else {
+							suite.Equal(1, verr.Count())
+						}
 					default:
 						suite.Failf("expected *validate.Errs", "%v", err)
 					}

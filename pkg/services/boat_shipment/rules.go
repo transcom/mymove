@@ -76,7 +76,13 @@ func checkRequiredFields() boatShipmentValidator {
 		if newBoatShipment.HeightInInches == nil || *newBoatShipment.HeightInInches <= 0 {
 			verrs.Add("heightInInches", "cannot be a zero or a negative value")
 		}
-
+		if newBoatShipment.HeightInInches != nil && newBoatShipment.LengthInInches != nil && newBoatShipment.WidthInInches != nil {
+			if *newBoatShipment.LengthInInches <= 168 && *newBoatShipment.WidthInInches <= 82 && *newBoatShipment.HeightInInches <= 77 {
+				verrs.Add("heightInInches", "One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
+				verrs.Add("widthInInches", "One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
+				verrs.Add("lengthInInches", "One of these criteria must be met for it to be a boat shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
+			}
+		}
 		return verrs
 	})
 }
