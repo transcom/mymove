@@ -44,6 +44,8 @@ const dateFormat = "20060102"
 const isaDateFormat = "060102"
 const timeFormat = "1504"
 const maxCityLength = 30
+const maxLocationlength = 60
+const maxServiceMemberNameLengthN9 = 30
 
 // Generate method takes a payment request and returns an Invoice858C
 func (g ghcPaymentRequestInvoiceGenerator) Generate(appCtx appcontext.AppContext, paymentRequest models.PaymentRequest, sendProductionInvoice bool) (ediinvoice.Invoice858C, error) {
@@ -314,7 +316,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createServiceMemberDetailSegments(pay
 	// name
 	header.ServiceMemberName = edisegment.N9{
 		ReferenceIdentificationQualifier: "1W",
-		ReferenceIdentification:          serviceMember.ReverseNameLineFormat(),
+		ReferenceIdentification:          truncateStr(serviceMember.ReverseNameLineFormat(), maxServiceMemberNameLengthN9),
 	}
 
 	// branch
@@ -428,10 +430,11 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	header.BuyerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "BY",
-		Name:                        originDutyLocation.Name,
+		Name:                        truncateStr(originDutyLocation.Name, maxLocationlength),
 		IdentificationCodeQualifier: "92",
 		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
 	}
+
 	// seller organization name
 	header.SellerOrganizationName = edisegment.N1{
 		EntityIdentifierCode:        "SE",
@@ -463,7 +466,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 	// destination name
 	header.DestinationName = edisegment.N1{
 		EntityIdentifierCode:        "ST",
-		Name:                        destinationDutyLocation.Name,
+		Name:                        truncateStr(destinationDutyLocation.Name, maxLocationlength),
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, destPostalCodeToGbloc.GBLOC),
 	}
@@ -524,7 +527,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createOriginAndDestinationSegments(ap
 
 	header.OriginName = edisegment.N1{
 		EntityIdentifierCode:        "SF",
-		Name:                        originDutyLocation.Name,
+		Name:                        truncateStr(originDutyLocation.Name, maxLocationlength),
 		IdentificationCodeQualifier: "10",
 		IdentificationCode:          modifyGblocIfMarines(*orders.ServiceMember.Affiliation, *orders.OriginDutyLocationGBLOC),
 	}
