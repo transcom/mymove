@@ -195,7 +195,7 @@ IEA*1*000000995
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.NoError(err)
-		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+		suite.Equal(models.PaymentRequestStatusTppsReceived, updatedPR.Status)
 	})
 
 	suite.Run("can handle 997 and 858 with same ICN", func() {
@@ -249,7 +249,7 @@ IEA*1*000000995
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.FatalNoError(err)
-		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+		suite.Equal(models.PaymentRequestStatusTppsReceived, updatedPR.Status)
 	})
 
 	suite.Run("does not error out if edi with same icn is processed for the same payment request", func() {
@@ -303,7 +303,7 @@ IEA*1*000000995
 		var updatedPR models.PaymentRequest
 		err = suite.DB().Where("id = ?", paymentRequest.ID).First(&updatedPR)
 		suite.FatalNoError(err)
-		suite.Equal(models.PaymentRequestStatusReceivedByGex, updatedPR.Status)
+		suite.Equal(models.PaymentRequestStatusTppsReceived, updatedPR.Status)
 	})
 
 	suite.Run("doesn't update a payment request status after processing an invalid EDI997", func() {
