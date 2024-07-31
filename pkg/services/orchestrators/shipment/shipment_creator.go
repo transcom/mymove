@@ -37,6 +37,15 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 	isPPMShipment := shipment.ShipmentType == models.MTOShipmentTypePPM
 	isBoatShipment := (shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway)
 
+	if isBoatShipment {
+		// Match boatShipment.Type with shipmentType incase they are different
+		if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway && shipment.BoatShipment.Type != models.BoatShipmentTypeHaulAway {
+			shipment.BoatShipment.Type = models.BoatShipmentTypeHaulAway
+		} else if shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway && shipment.BoatShipment.Type != models.BoatShipmentTypeTowAway {
+			shipment.BoatShipment.Type = models.BoatShipmentTypeTowAway
+		}
+	}
+
 	if shipment.Status == "" {
 		if isPPMShipment || isBoatShipment {
 			shipment.Status = models.MTOShipmentStatusDraft
