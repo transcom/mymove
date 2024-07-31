@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 )
 
@@ -53,6 +54,34 @@ func (o *officeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext,
 	}
 
 	return officeUser, err
+}
+
+// Fetch office users of the same role within a gbloc, for assignment purposes
+func (o *officeUserFetcherPop) FetchOfficeUserByRoleAndGbloc(appCtx appcontext.AppContext, role roles.RoleType, gbloc string) ([]models.OfficeUser, error) {
+	var officeUsers []models.OfficeUser
+
+	err := appCtx.DB().EagerPreload(
+		"User",
+		"User.Roles",
+		"User.Privileges",
+		"TransportationOffice",
+		"TransportationOffice.Gbloc",
+	).
+		Join("users", "users.id = office_users.user_id").
+		Join("users_roles", "users.id = users_roles.user_id").
+		Join("roles", "users_roles.role_id = roles.id").
+		Join("transportation_offices", "office_users.transportation_office_id = transportation_offices.id").
+		Where("gbloc = ?", gbloc).
+		Where("role_type = ?", role).
+		Where("office_users.active = TRUE").
+		Order("last_name asc").
+		All(&officeUsers)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return officeUsers, nil
 }
 
 // NewOfficeUserFetcherPop return an implementation of the OfficeUserFetcherPop interface
