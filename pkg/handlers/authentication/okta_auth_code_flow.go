@@ -155,3 +155,27 @@ func logoutOktaUserURL(provider *okta.Provider, idToken string, redirectURL stri
 
 	return oktaLogoutURL, err
 }
+
+// logging a user out of okta requires calling Okta's /logout Users API endpoint
+// it is a GET request and clears the browser session
+// the URL will need to be built using the ID token and a redirect URI
+// this function differs from the one above because we are redirecting the user BACK to the Okta sign in page
+// this will be called when a customer is required to authenticate with CAC for the first time and clicks the "Sign Out" on the page
+func logoutOktaUserURLWithRedirect(provider *okta.Provider, idToken string, redirectURL string) (string, error) {
+	baseURL := provider.GetLogoutURL()
+
+	logoutURL, err := url.Parse(baseURL)
+	if err != nil {
+		return "Failed to parse logout URL", err
+	}
+
+	params := logoutURL.Query()
+	params.Set("id_token_hint", idToken)
+	params.Set("post_logout_redirect_uri", redirectURL+"auth/okta")
+
+	logoutURL.RawQuery = params.Encode()
+
+	oktaLogoutURL := logoutURL.String()
+
+	return oktaLogoutURL, err
+}
