@@ -545,5 +545,14 @@ export class TestHarness {
   async bulidHHGMoveWithAddressChangeRequest() {
     return this.buildDefault('HHGMoveWithAddressChangeRequest');
   }
+
+  /**
+   *
+   * @returns {Promise<Object>}
+   */
+
+  async bulidNTSRMoveWithAddressChangeRequest() {
+    return this.buildDefault('NTSRMoveWithAddressChangeRequest');
+  }
 }
 export default TestHarness;
