@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS mobile_homes (
 	width_in_inches int NOT NULL,
 	created_at timestamp NOT NULL,
 	updated_at timestamp NOT NULL,
-	deleted_at timestamp NOT NULL,
+	deleted_at timestamp NOT NULL
 );
 
 COMMENT on TABLE mobile_homes IS 'Stores all mobile home shipments, and their details.';
