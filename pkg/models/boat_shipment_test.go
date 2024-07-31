@@ -31,7 +31,14 @@ func (suite *ModelSuite) TestBoatShipmentValidation() {
 			expectedErrs: nil,
 		},
 		"Missing Required Fields": {
-			boatShipment: models.BoatShipment{},
+			boatShipment: models.BoatShipment{
+				Year:           models.IntPointer(0),
+				Make:           models.StringPointer(""),
+				Model:          models.StringPointer(""),
+				LengthInInches: models.IntPointer(0),
+				WidthInInches:  models.IntPointer(0),
+				HeightInInches: models.IntPointer(0),
+			},
 			expectedErrs: map[string][]string{
 				"shipment_id":      {"ShipmentID can not be blank."},
 				"type":             {fmt.Sprintf("Type is not in the list [%s].", validBoatShipmentTypes)},

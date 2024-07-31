@@ -25,7 +25,7 @@ func (suite *BoatShipmentSuite) TestUpdateBoatShipment() {
 			Year:           models.IntPointer(1999),
 			Make:           models.StringPointer("Fake Make"),
 			Model:          models.StringPointer("Fake Model"),
-			LengthInInches: models.IntPointer(2),
+			LengthInInches: models.IntPointer(200),
 			WidthInInches:  models.IntPointer(11),
 			HeightInInches: models.IntPointer(1),
 			HasTrailer:     models.BoolPointer(false),

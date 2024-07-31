@@ -338,10 +338,10 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 			shipmentType:               models.MTOShipmentTypePPM,
 			returnErrorForMTOShipment:  false,
 			returnErrorForPPMShipment:  true,
-			returnErrorForBoatShipment: true,
+			returnErrorForBoatShipment: false,
 		},
 		"error updating BoatShipment": {
-			shipmentType:               models.MTOShipmentTypePPM,
+			shipmentType:               models.MTOShipmentTypeBoatHaulAway,
 			returnErrorForMTOShipment:  false,
 			returnErrorForPPMShipment:  false,
 			returnErrorForBoatShipment: true,
@@ -359,10 +359,16 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 
 			var shipment models.MTOShipment
 
+			isBoatShipmentType := tc.shipmentType == models.MTOShipmentTypeBoatHaulAway || tc.shipmentType == models.MTOShipmentTypeBoatTowAway
+
 			if tc.shipmentType == models.MTOShipmentTypePPM {
 				ppmShipment := factory.BuildPPMShipment(appCtx.DB(), nil, nil)
 
 				shipment = ppmShipment.Shipment
+			} else if isBoatShipmentType {
+				boatShipment := factory.BuildBoatShipment(appCtx.DB(), nil, nil)
+
+				shipment = boatShipment.Shipment
 			} else {
 				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 					{

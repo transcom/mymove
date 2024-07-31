@@ -23,6 +23,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
+	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -2769,8 +2770,9 @@ func (suite *HandlerSuite) TestApproveSITExtensionHandler() {
 		ppmEstimator := mocks.PPMEstimator{}
 
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
+		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 
-		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+		sitExtensionShipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater)
 
 		handler := ApproveSITExtensionHandler{
 			handlerConfig,

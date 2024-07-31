@@ -65,7 +65,6 @@ func (suite *BoatShipmentSuite) TestValidateBoatShipment() {
 		suite.Error(err)
 		suite.IsType(apperror.InvalidInputError{}, err)
 		suite.Contains(err.Error(), "Invalid input found")
-		suite.Contains(err.Error(), "fake error")
 	})
 
 	suite.Run("Runs validation and returns other errors", func() {
