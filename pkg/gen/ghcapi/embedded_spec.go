@@ -6841,9 +6841,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emplid": {
-          "type": "string"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -7845,6 +7842,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -8741,6 +8744,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -9150,6 +9158,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -21503,9 +21516,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emplid": {
-          "type": "string"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -22507,6 +22517,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -23403,6 +23419,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -23812,6 +23833,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",

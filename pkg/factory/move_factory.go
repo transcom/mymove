@@ -229,6 +229,7 @@ func GetTraitApprovalsRequestedMove() []Customization {
 		{
 			Model: models.Move{
 				AvailableToPrimeAt:   &availableToPrime,
+				ApprovedAt:           &availableToPrime,
 				ApprovalsRequestedAt: &now,
 				Status:               models.MoveStatusAPPROVALSREQUESTED,
 			},
@@ -242,6 +243,7 @@ func GetTraitAvailableToPrimeMove() []Customization {
 		{
 			Model: models.Move{
 				AvailableToPrimeAt: &now,
+				ApprovedAt:         &now,
 				Status:             models.MoveStatusAPPROVED,
 			},
 		},

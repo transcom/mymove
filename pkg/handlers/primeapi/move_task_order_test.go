@@ -189,7 +189,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotNil(movePayload.ApprovedAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+		suite.NotEmpty(movePayload.ApprovedAt)         // checks that the date is not 0001-01-01
 	})
 
 	suite.Run("Success with Prime-available move by Locator", func() {
@@ -218,6 +220,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+		suite.NotNil(movePayload.ApprovedAt)
+		suite.NotEmpty(movePayload.ApprovedAt) // checks that the date is not 0001-01-01
 	})
 
 	suite.Run("Success returns reweighs on shipments if they exist", func() {
@@ -259,6 +263,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(movePayload.ID.String(), successMove.ID.String())
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt)
+		suite.NotNil(movePayload.ApprovedAt)
+		suite.NotEmpty(movePayload.ApprovedAt)
 		suite.Equal(strfmt.UUID(reweigh.ID.String()), reweighPayload.ID)
 		suite.Equal(reweigh.RequestedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(&reweighPayload.RequestedAt).Format(time.RFC3339))
 		suite.Equal(string(reweigh.RequestedBy), string(reweighPayload.RequestedBy))
@@ -532,6 +538,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.NotNil(movePayload.AvailableToPrimeAt)
 		suite.NotEmpty(movePayload.AvailableToPrimeAt) // checks that the date is not 0001-01-01
+		suite.NotNil(movePayload.ApprovedAt)
+		suite.NotEmpty(movePayload.ApprovedAt) // checks that the date is not 0001-01-01
 	})
 
 	suite.Run("Success - returns all the fields associated with StorageFacility within MtoShipments", func() {
@@ -681,6 +689,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successMove.OrdersID.String(), movePayload.OrderID.String())
 		suite.Equal(*successMove.ReferenceID, movePayload.ReferenceID)
 		suite.Equal(successMove.AvailableToPrimeAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.AvailableToPrimeAt).Format(time.RFC3339))
+		suite.Equal(successMove.ApprovedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.ApprovedAt).Format(time.RFC3339))
 		suite.Equal(successMove.PrimeCounselingCompletedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.PrimeCounselingCompletedAt).Format(time.RFC3339))
 		suite.Equal(*successMove.PPMType, movePayload.PpmType)
 		suite.Equal(successMove.ExcessWeightQualifiedAt.Format(time.RFC3339), handlers.FmtDateTimePtrToPop(movePayload.ExcessWeightQualifiedAt).Format(time.RFC3339))

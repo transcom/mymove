@@ -4405,8 +4405,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
         type: string
-      emplid:
-        type: string
       userID:
         type: string
         format: uuid
@@ -4793,6 +4791,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -5601,6 +5603,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -6634,6 +6640,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
