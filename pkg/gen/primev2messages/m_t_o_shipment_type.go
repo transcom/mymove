@@ -21,6 +21,8 @@ import (
 //   - `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
 //   - `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
 //   - `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
+//   - `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
+//   - `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
 //
 // Example: HHG
 //
