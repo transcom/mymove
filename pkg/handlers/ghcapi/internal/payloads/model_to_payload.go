@@ -1438,19 +1438,19 @@ func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.Pa
 	var ediError []models.EdiError
 	ediErrorInfo := models.EdiError{}
 
-	if pr.Status == models.PaymentRequestStatusEDIError || pr.Status == models.PaymentRequestStatusSendToTPPSFail {
-		query := `SELECT *
-		FROM edi_errors
-		WHERE edi_errors.payment_request_id = $1`
-		error := appCtx.DB().RawQuery(query, pr.ID).All(&ediError)
-		if error != nil {
-			return ediErrorInfo, error
-		} else if len(ediError) == 0 {
-			return ediErrorInfo, nil
-		}
-		if len(ediError) > 0 {
-			ediErrorInfo = ediError[0]
-		}
+	// regardless of PR status, find any associated edi_errors
+	// 997s could have edi_errors logged but not have a status of EDI_ERROR
+	query := `SELECT *
+	FROM edi_errors
+	WHERE edi_errors.payment_request_id = $1`
+	error := appCtx.DB().RawQuery(query, pr.ID).All(&ediError)
+	if error != nil {
+		return ediErrorInfo, error
+	} else if len(ediError) == 0 {
+		return ediErrorInfo, nil
+	}
+	if len(ediError) > 0 {
+		ediErrorInfo = ediError[0]
 	}
 
 	return ediErrorInfo, nil
@@ -1475,24 +1475,20 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		return nil, err
 	}
 
+	ediErrorInfoEDIType := ""
+	ediErrorInfoEDICode := ""
+	ediErrorInfoEDIDescription := ""
 	ediErrorInfo, err := fetchEDIErrorsForPaymentRequest(appCtx, pr)
-	var ediErrorInfoEDIType string
-	var ediErrorInfoEDICode string
-	var ediErrorInfoEDIDescription string
-	emptyString := ""
-	if err != nil {
-		ediErrorInfoEDIType = ""
-		ediErrorInfo.Code = &emptyString
-		ediErrorInfo.Description = &emptyString
-	} else if ediErrorInfo.Code == nil {
-		ediErrorInfo.Code = &emptyString
-	} else if ediErrorInfo.Description == nil {
-		ediErrorInfo.Description = &emptyString
-	} else {
-		// no errors at this point abd nil ptrs handled
-		ediErrorInfoEDIType = string(ediErrorInfo.EDIType)
-		ediErrorInfoEDICode = *ediErrorInfo.Code
-		ediErrorInfoEDIDescription = *ediErrorInfo.Description
+	if err == nil {
+		if ediErrorInfo.EDIType != "" {
+			ediErrorInfoEDIType = string(ediErrorInfo.EDIType)
+		}
+		if ediErrorInfo.Code != nil {
+			ediErrorInfoEDICode = *ediErrorInfo.Code
+		}
+		if ediErrorInfo.Description != nil {
+			ediErrorInfoEDIDescription = *ediErrorInfo.Description
+		}
 	}
 
 	return &ghcmessages.PaymentRequest{
