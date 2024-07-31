@@ -491,9 +491,9 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 
 		logger.Debug(fmt.Sprintf("Price of service item %s %d", serviceItem.ReService.Code, price))
 		totalPrice += *price
-		ppmSITEstimatedCostInfoData.EstimatedSITCost = &totalPrice
 	}
 
+	ppmSITEstimatedCostInfoData.EstimatedSITCost = &totalPrice
 	return ppmSITEstimatedCostInfoData, nil
 }
 
