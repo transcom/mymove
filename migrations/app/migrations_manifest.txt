@@ -966,3 +966,4 @@
 20240718021218_add_assigned_cols_to_moves.up.sql
 20240719192106_add_destination_gbloc_to_orders.up.sql
 20240722134633_update_move_history_indexes.up.sql
+20240731205120_add_preferred_name_to_service_member.up.sql

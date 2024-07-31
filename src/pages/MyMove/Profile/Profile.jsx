@@ -97,6 +97,7 @@ const Profile = ({ serviceMember, currentOrders, currentBackupContacts, moveIsIn
           )}
           <SectionWrapper className={formStyles.formSection}>
             <ContactInfoDisplay
+              preferredName={serviceMember?.preferred_name || ''}
               telephone={serviceMember?.telephone || ''}
               secondaryTelephone={serviceMember?.secondary_telephone || ''}
               personalEmail={serviceMember?.personal_email || ''}

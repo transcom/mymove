@@ -23,6 +23,7 @@ export const Name = ({ serviceMember, updateServiceMember }) => {
     middle_name: serviceMember?.middle_name || '',
     last_name: serviceMember?.last_name || '',
     suffix: serviceMember?.suffix || '',
+    preferred_name: serviceMember?.preferred_name || '',
   };
 
   const handleNext = () => {
@@ -40,6 +41,7 @@ export const Name = ({ serviceMember, updateServiceMember }) => {
       middle_name: values.middle_name,
       last_name: values.last_name,
       suffix: values.suffix,
+      preferred_name: values.preferred_name,
     };
 
     return patchServiceMember(payload)

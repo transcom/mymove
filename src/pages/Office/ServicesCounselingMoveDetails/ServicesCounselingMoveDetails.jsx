@@ -303,6 +303,7 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     currentAddress: customer.current_address,
     backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
+    preferredName: customer.preferredName,
   };
 
   const allowancesInfo = {

@@ -32,6 +32,7 @@ export const EditContactInfo = ({
   const [serverError, setServerError] = useState(null);
 
   const initialValues = {
+    preferred_name: serviceMember?.preferred_name || '',
     telephone: serviceMember?.telephone || '',
     secondary_telephone: serviceMember?.secondary_telephone || '',
     personal_email: serviceMember?.personal_email || '',
@@ -71,6 +72,7 @@ export const EditContactInfo = ({
       email_is_preferred: values?.email_is_preferred,
       residential_address: values[residentialAddressName.toString()],
       backup_mailing_address: values[backupAddressName.toString()],
+      preferred_name: values?.preferred_name,
     };
 
     if (values?.secondary_telephone) {

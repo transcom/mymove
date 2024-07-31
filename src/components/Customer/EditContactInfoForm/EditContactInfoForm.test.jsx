@@ -12,6 +12,7 @@ describe('EditContactInfoForm component', () => {
       personal_email: 'mm@example.com',
       phone_is_preferred: false,
       email_is_preferred: true,
+      preferred_name: 'Alex',
       residential_address: {
         streetAddress1: '235 Prospect Valley Road SE',
         streetAddress2: '#125',
@@ -156,6 +157,11 @@ describe('EditContactInfoForm component', () => {
 
     expect(emailTextField).toBeInstanceOf(HTMLInputElement);
     expect(emailTextField).toHaveValue(testProps.initialValues.backup_contact.email);
+
+    const preferredNameInput = await screen.findByLabelText('Preferred Name');
+
+    expect(preferredNameInput).toBeInstanceOf(HTMLInputElement);
+    expect(preferredNameInput).toHaveValue(testProps.initialValues.preferred_name);
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {

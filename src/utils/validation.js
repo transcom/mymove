@@ -108,6 +108,7 @@ const validatePreferredContactMethod = (value, testContext) => {
 };
 
 export const contactInfoSchema = Yup.object().shape({
+  preferred_name: Yup.string().matches(/^[aA-zZ\s]+$/, 'Preferred Name must only contain letters.'),
   telephone: phoneSchema.required('Required'),
   secondary_telephone: phoneSchema,
   personal_email: emailSchema.required('Required'),
