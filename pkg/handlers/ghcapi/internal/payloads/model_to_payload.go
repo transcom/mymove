@@ -503,6 +503,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 		CacValidated:       &customer.CacValidated,
+		Emplid:             customer.Emplid,
 	}
 	return &payload
 }
@@ -1465,6 +1466,7 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
+		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
 	}, nil
 }
 
@@ -2094,6 +2096,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
 			DodID:                             customer.Edipi,
+			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
 			ID:                                *handlers.FmtUUID(move.ID),
@@ -2156,9 +2159,10 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
 			DodID:         customer.Edipi,
+			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
-			PersonalEmail: *customer.PersonalEmail,
+			PersonalEmail: customer.PersonalEmail,
 			Telephone:     customer.Telephone,
 		}
 	}

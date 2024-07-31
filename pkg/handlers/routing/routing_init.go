@@ -633,6 +633,7 @@ func mountAuthRoutes(appCtx appcontext.AppContext, routingConfig *Config, site c
 		r.Method("GET", "/okta", authentication.NewRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.UseSecureCookie()))
 		r.Method("GET", "/okta/callback", authentication.NewCallbackHandler(routingConfig.AuthContext, routingConfig.HandlerConfig, routingConfig.HandlerConfig.NotificationSender()))
 		r.Method("POST", "/logout", authentication.NewLogoutHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
+		r.Method("POST", "/logoutOktaRedirect", authentication.NewLogoutOktaRedirectHandler(routingConfig.AuthContext, routingConfig.HandlerConfig))
 	})
 
 	if routingConfig.ServeDevlocalAuth {

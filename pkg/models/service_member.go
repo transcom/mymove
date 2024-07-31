@@ -301,7 +301,23 @@ func UpdateServiceMemberDoDID(db *pop.Connection, serviceMember *ServiceMember, 
 	if verrs.HasAny() {
 		return verrs
 	} else if err != nil {
-		err = errors.Wrap(err, "Unable to update service member")
+		err = errors.Wrap(err, "Unable to update service member edipi")
+		return err
+	}
+
+	return nil
+}
+
+// UpdateServiceMemberEMPLID is called if Safety Move order is created to clear out the EMPLID
+func UpdateServiceMemberEMPLID(db *pop.Connection, serviceMember *ServiceMember, emplid *string) error {
+
+	serviceMember.Emplid = emplid
+
+	verrs, err := db.ValidateAndUpdate(serviceMember)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update service member emplid")
 		return err
 	}
 
@@ -408,7 +424,19 @@ func (s *ServiceMember) ReverseNameLineFormat() string {
 		names = append(names, *s.FirstName)
 	}
 	if s.MiddleName != nil && len(*s.MiddleName) > 0 {
-		names = append(names, *s.MiddleName)
+		middleInitialLength := 1
+		truncatedMiddleNameToMiddleInitial := truncateStr(*s.MiddleName, middleInitialLength)
+		names = append(names, truncatedMiddleNameToMiddleInitial)
 	}
 	return strings.Join(names, ", ")
+}
+
+func truncateStr(str string, cutoff int) string {
+	if len(str) >= cutoff {
+		if cutoff-3 > 0 {
+			return str[:cutoff-3] + "..."
+		}
+		return str[:cutoff]
+	}
+	return str
 }

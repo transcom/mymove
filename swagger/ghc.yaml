@@ -74,6 +74,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -221,6 +223,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -236,6 +244,7 @@ paths:
                 enum:
                   - customerName
                   - dodID
+                  - emplid
                   - branch
                   - personalEmail
                   - telephone
@@ -3299,6 +3308,7 @@ paths:
           enum:
             - lastName
             - dodID
+            - emplid
             - branch
             - locator
             - status
@@ -3335,6 +3345,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3542,6 +3556,7 @@ paths:
           enum:
             - lastName
             - dodID
+            - emplid
             - branch
             - locator
             - status
@@ -3568,6 +3583,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3641,6 +3659,7 @@ paths:
             - branch
             - status
             - dodID
+            - emplid
             - age
             - originDutyLocation
           description: field that results should be sorted by
@@ -3677,6 +3696,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: destinationDutyLocation
@@ -3753,6 +3775,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               customerName:
                 description: Customer Name
                 type: string
@@ -3797,6 +3825,7 @@ paths:
                 enum:
                   - customerName
                   - dodID
+                  - emplid
                   - branch
                   - locator
                   - status
@@ -4396,6 +4425,9 @@ definitions:
       cacValidated:
         type: boolean
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -4512,6 +4544,11 @@ definitions:
         type: string
         example: John
         x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
+        x-nullable: true
       firstName:
         type: string
         example: John
@@ -4603,6 +4640,9 @@ definitions:
       dodID:
         type: string
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
       branch:
         type: string
       telephone:
@@ -4615,6 +4655,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -5639,6 +5680,10 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6682,6 +6727,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   SearchMovesResult:
     type: object
@@ -7757,6 +7805,8 @@ definitions:
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
       - PPM
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -7764,6 +7814,8 @@ definitions:
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
+      BOAT_HAUL_AWAY: Boat Haul-Away
+      BOAT_TOW_AWAY: Boat Tow-Away
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
