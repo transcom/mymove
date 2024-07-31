@@ -18,4 +18,6 @@ x-display-value:
   HHG_INTO_NTS_DOMESTIC: NTS
   HHG_OUTOF_NTS_DOMESTIC: NTS Release
   PPM: PPM
+  BOAT_HAUL_AWAY: Boat Haul-Away
+  BOAT_TOW_AWAY: Boat Tow-Away
   MOBILE_HOME: Mobile Home
