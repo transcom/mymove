@@ -972,3 +972,4 @@
 20240718021218_add_assigned_cols_to_moves.up.sql
 20240722134633_update_move_history_indexes.up.sql
 20240723184614_create_mobile_home.up.sql
+20240731151118_alter_mto_shipment_type_motorhome.up.sql

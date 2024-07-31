@@ -51,7 +51,7 @@ type CreateMTOShipment struct {
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
 	// mobile home
-	MobileHome *CreateMobileHome `json:"mobileHome,omitempty"`
+	MobileHome *MobileHome `json:"mobileHome,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054

@@ -6227,7 +6227,7 @@ definitions:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
       mobileHome:
-        $ref: '#/definitions/CreateMobileHome'
+        $ref: '#/definitions/MobileHome'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
     required:
@@ -6235,59 +6235,7 @@ definitions:
       - shipmentType
   CreateMobileHome:
     description: A mobile home shipment that the prime moves for a service member.
-    properties:
-      make:
-        description: The make of the mobile home.
-        type: string
-      model:
-        description: The model of the mobile home.
-        type: string
-      year:
-        type: string
-      length:
-        type: number
-        format: double
-      height:
-        type: number
-        format: double
-      width:
-        type: number
-        format: double
-      requestedPickupDate:
-        format: date
-        type: string
-        x-nullable: true
-      requestedDeliveryDate:
-        format: date
-        type: string
-        x-nullable: true
-      pickupAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-      hasSecondaryPickupAddress:
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      secondaryPickupAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-      destinationAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-      hasSecondaryDestinationAddress:
-        type: boolean
-        x-nullable: true
-        x-omitempty: false
-      secondaryDestinationAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-      originAddress:
-        allOf:
-          - $ref: '#/definitions/Address'
-      receivingAgent:
-        type: string
-      customerRemarks:
-        type: string
+    $ref: '#/definitions/MobileHome'
   CreatePPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -7880,7 +7828,7 @@ definitions:
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
-      - Mobile_Home
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -7888,7 +7836,7 @@ definitions:
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
-      Mobile_Home: Mobile Home
+      MOBILE_HOME: Mobile Home
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -7924,6 +7872,68 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      length:
+        type: number
+        format: double
+      width:
+        type: number
+        format: double
+      height:
+        type: number
+        format: double
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      pickupAddress:
+        $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      requestedPickupDate:
+        format: date-time
+        type: string
+      pickupLocation:
+        $ref: '#/definitions/Address'
+      requestedDeliveryDate:
+        format: date-time
+        type: string
+      originAddress:
+        $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+          - x-nullable: true
+          - x-omitempty: false
   SITLocationType:
     description: The list of SIT location types.
     type: string

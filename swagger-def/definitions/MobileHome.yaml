@@ -50,19 +50,10 @@ properties:
   requestedDeliveryDate:
     format: date-time
     type: string
-  dimensions:
-    description: The complete dimesions of a mobile home. w x l x h?
-    type: string
-  orginAddress:
+  originAddress:
     $ref: 'Address.yaml'
   secondaryPickupAddress:
     allOf:
       - $ref: 'Address.yaml'
       - x-nullable: true
       - x-omitempty: false
-  receivingAgent:
-    type: string
-  counselorRemarks:
-    type: string
-  customerRemarks:
-    type: string

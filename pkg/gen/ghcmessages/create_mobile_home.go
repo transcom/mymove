@@ -11,177 +11,41 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/go-openapi/validate"
 )
 
 // CreateMobileHome A mobile home shipment that the prime moves for a service member.
 //
 // swagger:model CreateMobileHome
 type CreateMobileHome struct {
+	MobileHome
+}
 
-	// customer remarks
-	CustomerRemarks string `json:"customerRemarks,omitempty"`
+// UnmarshalJSON unmarshals this object from a JSON structure
+func (m *CreateMobileHome) UnmarshalJSON(raw []byte) error {
+	// AO0
+	var aO0 MobileHome
+	if err := swag.ReadJSON(raw, &aO0); err != nil {
+		return err
+	}
+	m.MobileHome = aO0
 
-	// destination address
-	DestinationAddress struct {
-		Address
-	} `json:"destinationAddress,omitempty"`
+	return nil
+}
 
-	// has secondary destination address
-	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
+// MarshalJSON marshals this object to a JSON structure
+func (m CreateMobileHome) MarshalJSON() ([]byte, error) {
+	_parts := make([][]byte, 0, 1)
 
-	// has secondary pickup address
-	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
-
-	// height
-	Height float64 `json:"height,omitempty"`
-
-	// length
-	Length float64 `json:"length,omitempty"`
-
-	// The make of the mobile home.
-	Make string `json:"make,omitempty"`
-
-	// The model of the mobile home.
-	Model string `json:"model,omitempty"`
-
-	// origin address
-	OriginAddress struct {
-		Address
-	} `json:"originAddress,omitempty"`
-
-	// pickup address
-	PickupAddress struct {
-		Address
-	} `json:"pickupAddress,omitempty"`
-
-	// receiving agent
-	ReceivingAgent string `json:"receivingAgent,omitempty"`
-
-	// requested delivery date
-	// Format: date
-	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
-
-	// requested pickup date
-	// Format: date
-	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
-
-	// secondary destination address
-	SecondaryDestinationAddress struct {
-		Address
-	} `json:"secondaryDestinationAddress,omitempty"`
-
-	// secondary pickup address
-	SecondaryPickupAddress struct {
-		Address
-	} `json:"secondaryPickupAddress,omitempty"`
-
-	// width
-	Width float64 `json:"width,omitempty"`
-
-	// year
-	Year string `json:"year,omitempty"`
+	aO0, err := swag.WriteJSON(m.MobileHome)
+	if err != nil {
+		return nil, err
+	}
+	_parts = append(_parts, aO0)
+	return swag.ConcatJSON(_parts...), nil
 }
 
 // Validate validates this create mobile home
 func (m *CreateMobileHome) Validate(formats strfmt.Registry) error {
-	var res []error
-
-	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOriginAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedDeliveryDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedPickupDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSecondaryPickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
-	}
-	return nil
-}
-
-func (m *CreateMobileHome) validateDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationAddress) { // not required
-		return nil
-	}
-
-	return nil
-}
-
-func (m *CreateMobileHome) validateOriginAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginAddress) { // not required
-		return nil
-	}
-
-	return nil
-}
-
-func (m *CreateMobileHome) validatePickupAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.PickupAddress) { // not required
-		return nil
-	}
-
-	return nil
-}
-
-func (m *CreateMobileHome) validateRequestedDeliveryDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedDeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requestedDeliveryDate", "body", "date", m.RequestedDeliveryDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateMobileHome) validateRequestedPickupDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedPickupDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requestedPickupDate", "body", "date", m.RequestedPickupDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *CreateMobileHome) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
-		return nil
-	}
-
-	return nil
-}
-
-func (m *CreateMobileHome) validateSecondaryPickupAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryPickupAddress) { // not required
-		return nil
-	}
-
 	return nil
 }
 
@@ -189,71 +53,13 @@ func (m *CreateMobileHome) validateSecondaryPickupAddress(formats strfmt.Registr
 func (m *CreateMobileHome) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateOriginAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+	// validation for a type composition with MobileHome
+	if err := m.MobileHome.ContextValidate(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *CreateMobileHome) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	return nil
-}
-
-func (m *CreateMobileHome) contextValidateOriginAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	return nil
-}
-
-func (m *CreateMobileHome) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	return nil
-}
-
-func (m *CreateMobileHome) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	return nil
-}
-
-func (m *CreateMobileHome) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *CreateMobileHome) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *CreateMobileHome) UnmarshalBinary(b []byte) error {
-	var res CreateMobileHome
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
 	return nil
 }
