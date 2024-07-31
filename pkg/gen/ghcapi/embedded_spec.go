@@ -6392,6 +6392,26 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "mobileHome": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -6444,6 +6464,22 @@ func init() {
             }
           ]
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
@@ -6462,6 +6498,22 @@ func init() {
             },
             {
               "x-nullable": true
+            }
+          ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
             }
           ]
         },
@@ -8476,6 +8528,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -8612,6 +8674,14 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -9690,6 +9760,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -10574,6 +10647,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -10605,7 +10683,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -11476,6 +11554,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -12506,6 +12585,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -12563,6 +12652,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "w2Address": {
           "x-nullable": true,
@@ -21043,6 +21146,26 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "mobileHome": {
           "$ref": "#/definitions/MobileHome"
         },
@@ -21095,6 +21218,22 @@ func init() {
             }
           ]
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
@@ -21113,6 +21252,22 @@ func init() {
             },
             {
               "x-nullable": true
+            }
+          ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
             }
           ]
         },
@@ -23127,6 +23282,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -23263,6 +23428,14 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -24341,6 +24514,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -25226,6 +25402,11 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
@@ -25257,7 +25438,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -26180,6 +26361,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -27216,6 +27398,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -27273,6 +27465,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "w2Address": {
           "x-nullable": true,

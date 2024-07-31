@@ -671,9 +671,19 @@ paths:
 
         after the destination address has already been approved.
 
-        If automatically approved or TOO approves, this will update the final
-        destination address values for destination SIT service items to be the
-        same as the changed destination address that was approved.
+
+        This endpoint and operation only supports the following shipment types:
+
+        - HHG
+
+        - NTSR
+
+
+        For HHG shipments, if automatically approved or TOO approves, this will
+        update the final destination address values for destination SIT service
+        items to be the same as the changed destination address that was
+        approved.
+
 
         Address updates will be automatically approved unless they change:
           - The service area
@@ -3180,6 +3190,9 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationGBLOC:
+        type: string
+        example: KKFA
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
       originDutyLocationGBLOC:
@@ -3207,7 +3220,7 @@ definitions:
       - REVIEWED
       - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
-      - RECEIVED_BY_GEX
+      - TPPS_RECEIVED
       - PAID
       - EDI_ERROR
       - DEPRECATED

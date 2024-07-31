@@ -1830,6 +1830,10 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -2182,7 +2186,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -5259,6 +5263,10 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -5611,7 +5619,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"

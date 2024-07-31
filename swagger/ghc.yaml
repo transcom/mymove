@@ -4655,6 +4655,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -5144,6 +5145,8 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
       originDutyLocationGBLOC:
@@ -5681,6 +5684,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      receivedByGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5748,7 +5755,7 @@ definitions:
       - REVIEWED
       - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
-      - RECEIVED_BY_GEX
+      - TPPS_RECEIVED
       - PAID
       - EDI_ERROR
       - DEPRECATED
@@ -5956,6 +5963,20 @@ definitions:
         x-nullable: true
         x-omitempty: false
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -6192,6 +6213,38 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -9181,6 +9234,20 @@ definitions:
         x-omitempty: false
         x-nullable: true
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
