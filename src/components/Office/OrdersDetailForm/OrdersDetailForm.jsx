@@ -116,6 +116,7 @@ const OrdersDetailForm = ({
           id="hhgSacInput"
           data-testid="hhgSacInput"
           isDisabled={formIsDisabled}
+          maxLength="80"
           optional
         />
       )}
@@ -155,6 +156,7 @@ const OrdersDetailForm = ({
           id="ntsSacInput"
           isDisabled={formIsDisabled}
           data-testid="ntsSacInput"
+          maxLength="80"
           optional
         />
       )}
