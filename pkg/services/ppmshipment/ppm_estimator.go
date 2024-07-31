@@ -650,8 +650,7 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 			return nil, nil, err
 		}
 
-		pricingParams = append(pricingParams, serviceAreaParam)
-		pricingParams = append(pricingParams, sitDaysParam)
+		pricingParams = append(pricingParams, serviceAreaParam, sitDaysParam)
 
 		appCtx.Logger().Debug(fmt.Sprintf("Pricing params for additional day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
@@ -662,8 +661,7 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 		return nil, nil, err
 	}
 
-	pricingParams = append(pricingParams, serviceAreaParam)
-	pricingParams = append(pricingParams, sitDaysParam)
+	pricingParams = append(pricingParams, serviceAreaParam, sitDaysParam)
 
 	appCtx.Logger().Debug(fmt.Sprintf("Pricing params for additional day SIT %+v", pricingParams), zap.String("shipmentId", ppmShipment.ShipmentID.String()))
 
