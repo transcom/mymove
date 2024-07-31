@@ -21,7 +21,7 @@ describe('when a payment request has an update', () => {
     tableName: 'payment_requests',
     eventName: '',
     changedValues: {
-      status: 'RECEIVED_BY_GEX',
+      status: 'TPPS_RECEIVED',
     },
     oldValues: {
       payment_request_number: '4462-6355-3',
