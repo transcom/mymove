@@ -40,6 +40,14 @@ func (f *boatShipmentCreator) createBoatShipment(appCtx appcontext.AppContext, b
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Must have a HAUL_AWAY or TOW_AWAY type associated with Boat shipment")
 		}
 
+		if boatShipment.Shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway && boatShipment.Type != models.BoatShipmentTypeHaulAway {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTO shipment type must match Boat shipment type")
+		}
+
+		if boatShipment.Shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway && boatShipment.Type != models.BoatShipmentTypeTowAway {
+			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "MTO shipment type must match Boat shipment type")
+		}
+
 		// Validate the boatShipment, and return an error
 		if err := validateBoatShipment(txnAppCtx, *boatShipment, nil, &boatShipment.Shipment, checks...); err != nil {
 			return err
