@@ -16,6 +16,7 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const NTSRShipmentInfoList = ({
@@ -49,6 +50,7 @@ const NTSRShipmentInfoList = ({
     sacType,
     tac,
     sac,
+    deliveryAddressUpdate,
   } = shipment;
 
   const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
@@ -194,7 +196,11 @@ const NTSRShipmentInfoList = ({
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Delivery address</dt>
-      <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '—'}</dd>
+      <dd data-testid="destinationAddress">
+        {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
+          ? 'Review required'
+          : (destinationAddress && formatAddress(destinationAddress)) || '—'}
+      </dd>
     </div>
   );
 
