@@ -964,3 +964,4 @@
 20240625144828_add_to_update_type_enum.up.sql
 20240722134633_update_move_history_indexes.up.sql
 20240729200347_add_mto_approved_at_timestamp.up.sql
+20240731125005_retroactively_update_approve_at_column_based_on_available_to_prime.up.sql
