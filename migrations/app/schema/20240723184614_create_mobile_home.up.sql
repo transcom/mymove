@@ -19,9 +19,9 @@ COMMENT on COLUMN mobile_homes.shipment_id IS 'MTO shipment ID associated with t
 COMMENT on COLUMN mobile_homes.make IS 'Make of the Mobile Home shipment.';
 COMMENT on COLUMN mobile_homes.model IS 'Model of the Mobile Home shipment.';
 COMMENT on COLUMN mobile_homes.year IS 'Year of the Mobile Home shipment.';
-COMMENT on COLUMN mobile_homes.lengthInInches IS 'Length(in) of the Mobile Home shipment.';
-COMMENT on COLUMN mobile_homes.heightInInches IS 'Height(in) of the Mobile Home shipment.';
-COMMENT on COLUMN mobile_homes.widthInInches IS 'Width(in) of the Mobile Home shipment.';
+COMMENT on COLUMN mobile_homes.length_in_inches IS 'Length(in) of the Mobile Home shipment.';
+COMMENT on COLUMN mobile_homes.height_in_inches IS 'Height(in) of the Mobile Home shipment.';
+COMMENT on COLUMN mobile_homes.width_in_inches IS 'Width(in) of the Mobile Home shipment.';
 COMMENT on COLUMN mobile_homes.created_at IS 'Date that Mobile Home shipment was created.';
 COMMENT on COLUMN mobile_homes.updated_at IS 'Date that Mobile Home shipment was updated.';
 COMMENT on COLUMN mobile_homes.deleted_at IS 'Date that the Mobile Home shipment was soft deleted.';
