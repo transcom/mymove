@@ -316,6 +316,9 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	eTag string,
 ) (*models.MTOServiceItem, error) {
 	updatedServiceItem, err := p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
+	if err != nil {
+		return nil, err
+	}
 
 	if updatedServiceItem != nil {
 		code := updatedServiceItem.ReService.Code
@@ -325,6 +328,28 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		if (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
 			updatedServiceItem.Status == models.MTOServiceItemStatusApproved {
 			err = calculateSITDates(appCtx, mtoServiceItem, shipment, planner)
+		}
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	move := &models.Move{}
+	query := appCtx.DB().EagerPreload(
+		"MTOServiceItems",
+		"MTOShipments",
+		"MTOShipments.SITDurationUpdates",
+		"MTOShipments.DeliveryAddressUpdate",
+		"Orders",
+	)
+	query.Where("id = $1", shipment.MoveTaskOrder.ID)
+	err = query.First(move)
+
+	// if the service item is being changed to SUBMITTED status, we want the TOO to know so they can review
+	if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+		_, err = p.moveRouter.ApproveOrRequestApproval(appCtx, *move)
+		if err != nil {
+			return nil, err
 		}
 	}
 

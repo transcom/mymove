@@ -1010,6 +1010,32 @@ paths:
         items, the office users will not have as much attention to those values.
 
         To create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
+
+        * Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from
+        REJECTED to SUBMITTED. Please provide the `requestedApprovalsRequestedStatus: true` when resubmitting as this will give attention to the TOO to
+        review the resubmitted SIT service item. Another note, `updateReason` must have a different value than the current `reason` value on the service item.
+        If this value is not updated, then an error will be sent back.
+
+        The following SIT service items can be resubmitted following a rejection:
+        - DDASIT
+        - DDDSIT
+        - DDFSIT
+        - DOASIT
+        - DOPSIT
+        - DOFSIT
+        - DDSFSC
+        - DOSFSC
+
+        At a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:
+        ```json
+        {
+          "reServiceCode": "DDFSIT",
+          "updateReason": "A reason that differs from the previous reason",
+          "modelType": "UpdateMTOServiceItemSIT",
+          "requestApprovalsRequestedStatus": true
+        }
+        ```
+
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -1817,9 +1843,13 @@ definitions:
     description: |
       Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
+        * DDFSIT - UpdateMTOServiceItemSIT
+        * DDASIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
         * DOASIT - UpdateMTOServiceItemSIT
         * DOFSIT - UpdateMTOServiceItemSIT
+        * DOSFSC - UpdateMTOServiceItemSIT
+        * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -1855,7 +1885,7 @@ definitions:
               - DOSHUT # Domestic Origin Shuttle
   UpdateMTOServiceItemSIT: # spectral oas2-unused-definition is OK here due to polymorphism
     description: |
-      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
+      Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.
     allOf:
       - $ref: '#/definitions/UpdateMTOServiceItem'
       - type: object
@@ -1866,9 +1896,12 @@ definitions:
             enum:
               - DDDSIT # Domestic Destination SIT Delivery
               - DDASIT # Domestic Destination Add'l Days SIT
+              - DDFSIT # Domestic Destination 1st Day SIT
+              - DDSFSC # Domestic Destination Fuel Surcharge
               - DOPSIT # Domestic Origin SIT Pickup
               - DOASIT # Domestic Origin Add'l Days SIT
               - DOFSIT # Domestic Origin 1st Day SIT
+              - DOSFSC # Domestic Origin Fuel Surcharge
           sitDepartureDate:
             format: date
             type: string
