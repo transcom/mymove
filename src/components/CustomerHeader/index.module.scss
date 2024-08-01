@@ -23,7 +23,11 @@
     align-items: center;
     h2 {
       @include u-margin(0);
-      margin-right: 20px;
+      margin-right: 10px;
+      line-height: 1.1;
+    }
+    span {
+      margin-right: 5px;
     }
   }
   .verticalBar {
@@ -34,15 +38,15 @@
 
   p {
     @include u-margin(0);
-    @include u-margin-top('05');
+    @include u-margin-top('2px');
     @include u-font-size('body', '3xs');
   }
   .infoBlock {
     display: flex;
     div {
       border-left: 4px solid $mm-periwinkle;
-      @include u-padding-left(2);
-      @include u-padding-right(7);
+      @include u-padding-left(1);
+      @include u-padding-right('205');
       &:last-child {
         @include u-padding-right(0);
       }
@@ -53,19 +57,28 @@
     }
     h4 {
       font-weight: bold;
+      text-wrap: balance;
     }
     p {
       @include u-text('base-lighter');
       @include u-font-size('body', '3xs');
       margin-bottom: 7px;
+      text-wrap: nowrap;
     }
   }
   .specialMovesLabel {
-    margin: 20px;
+    @include u-margin-left(2);
+    @include u-margin-right(2);
 
     p {
-      font-size: 2.67rem;
+      font-size: 2.33rem;
       color: red;
+      line-height: 1;
+      text-align: center;
+
+      @media screen and (max-width: 1600px) {
+        width: min-content;
+      }
     }
   }
 }
