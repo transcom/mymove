@@ -105,6 +105,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           loa: data,
           longLineOfAccounting: longLoa,
           isValid,
+          loaType: LOA_TYPE.HHG,
         },
       });
     },
@@ -135,7 +136,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       validateLoa({
         tacCode: tac,
         serviceMemberAffiliation: departmentIndicator,
-        ordersIssueDate: formatSwaggerDate(issueDate),
+        effectiveDate: formatSwaggerDate(issueDate),
       });
     }
   };
@@ -251,13 +252,14 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           const hhgTacWarning = tacValidationState[LOA_TYPE.HHG].isValid ? '' : tacWarningMsg;
           const ntsTacWarning = tacValidationState[LOA_TYPE.NTS].isValid ? '' : tacWarningMsg;
           // Conditionally set the LOA warning message based on off if it is missing or just invalid
-          const isHHGLoaMissing = loaValidationState.loa === null || loaValidationState.loa === undefined;
+          const isHHGLoaMissing =
+            loaValidationState[LOA_TYPE.HHG].loa === null || loaValidationState[LOA_TYPE.HHG].loa === undefined;
           let hhgLoaWarning = '';
           // Making a nested ternary here goes against linter rules
           // The primary warning should be if it is missing, the other warning should be if it is invalid
           if (isHHGLoaMissing) {
             hhgLoaWarning = loaMissingWarningMsg;
-          } else if (!loaValidationState.isValid) {
+          } else if (!loaValidationState[LOA_TYPE.HHG].isValid) {
             hhgLoaWarning = loaInvalidWarningMsg;
           }
 
@@ -312,7 +314,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     } /* loa validation requires access to the formik values scope */
                     validateNTSTac={handleNTSTacValidation}
                     payGradeOptions={payGradeDropdownOptions}
-                    hhgLongLineOfAccounting={loaValidationState.longLineOfAccounting}
+                    hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                   />
                 </div>
                 <div className={styles.bottom}>
