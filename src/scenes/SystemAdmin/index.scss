@@ -6,6 +6,10 @@ body {
   margin-top: 0;
 }
 
+#app-root {
+  width: fit-content;
+}
+
 .adminCUIHeader {
   position: sticky;
   z-index: 10;
