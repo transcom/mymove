@@ -265,6 +265,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")
 		})
 	}
+	if api.TransportationOfficesShowCounselingOfficesHandler == nil {
+		api.TransportationOfficesShowCounselingOfficesHandler = transportation_offices.ShowCounselingOfficesHandlerFunc(func(params transportation_offices.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.ShowCounselingOffices has not yet been implemented")
+		})
+	}
 	if api.DocumentsShowDocumentHandler == nil {
 		api.DocumentsShowDocumentHandler = documents.ShowDocumentHandlerFunc(func(params documents.ShowDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.ShowDocument has not yet been implemented")

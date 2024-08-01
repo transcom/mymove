@@ -61,3 +61,26 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 			return transportationofficeop.NewGetTransportationOfficesOK().WithPayload(returnPayload), nil
 		})
 }
+
+// ShowCounselingOfficesHandler returns the counseling offices for a duty location ID
+type ShowCounselingOfficesHandler struct {
+	handlers.HandlerConfig
+}
+
+// Handle retrieves the counseling office in the system for a given duty location ID
+func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowCounselingOfficesParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			dutyLocationID, _ := uuid.FromString(params.DutyLocationID.String())
+			counselingOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), dutyLocationID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			counselingOfficePayload := payloads.TransportationOffice(counselingOffice)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(counselingOfficePayload), nil
+		})
+}

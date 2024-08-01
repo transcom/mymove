@@ -184,6 +184,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CalendarShowAvailableMoveDatesHandler: calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")
 		}),
+		TransportationOfficesShowCounselingOfficesHandler: transportation_offices.ShowCounselingOfficesHandlerFunc(func(params transportation_offices.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.ShowCounselingOffices has not yet been implemented")
+		}),
 		DocumentsShowDocumentHandler: documents.ShowDocumentHandlerFunc(func(params documents.ShowDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.ShowDocument has not yet been implemented")
 		}),
@@ -393,6 +396,8 @@ type MymoveAPI struct {
 	AddressesShowAddressHandler addresses.ShowAddressHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
 	CalendarShowAvailableMoveDatesHandler calendar.ShowAvailableMoveDatesHandler
+	// TransportationOfficesShowCounselingOfficesHandler sets the operation handler for the show counseling offices operation
+	TransportationOfficesShowCounselingOfficesHandler transportation_offices.ShowCounselingOfficesHandler
 	// DocumentsShowDocumentHandler sets the operation handler for the show document operation
 	DocumentsShowDocumentHandler documents.ShowDocumentHandler
 	// TransportationOfficesShowDutyLocationTransportationOfficeHandler sets the operation handler for the show duty location transportation office operation
@@ -648,6 +653,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CalendarShowAvailableMoveDatesHandler == nil {
 		unregistered = append(unregistered, "calendar.ShowAvailableMoveDatesHandler")
+	}
+	if o.TransportationOfficesShowCounselingOfficesHandler == nil {
+		unregistered = append(unregistered, "transportation_offices.ShowCounselingOfficesHandler")
 	}
 	if o.DocumentsShowDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.ShowDocumentHandler")
@@ -981,6 +989,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/calendar/available_move_dates"] = calendar.NewShowAvailableMoveDates(o.context, o.CalendarShowAvailableMoveDatesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation_offices/{dutyLocationId}/counseling_offices"] = transportation_offices.NewShowCounselingOffices(o.context, o.TransportationOfficesShowCounselingOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

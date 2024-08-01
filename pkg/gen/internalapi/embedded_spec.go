@@ -442,7 +442,7 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "transportation office not found"
+            "description": "counseling office not found"
           },
           "500": {
             "description": "internal server error"
@@ -2994,6 +2994,49 @@ func init() {
           },
           "500": {
             "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the counseling office for a duty location",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "matching counseling office not found"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }
@@ -8101,7 +8144,7 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "transportation office not found"
+            "description": "counseling office not found"
           },
           "500": {
             "description": "internal server error"
@@ -11085,6 +11128,49 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Error"
             }
+          }
+        }
+      }
+    },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the counseling office for a duty location",
+            "schema": {
+              "$ref": "#/definitions/TransportationOffices"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "403": {
+            "description": "user is not authorized"
+          },
+          "404": {
+            "description": "matching counseling office not found"
+          },
+          "500": {
+            "description": "internal server error"
           }
         }
       }

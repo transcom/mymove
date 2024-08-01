@@ -3441,24 +3441,25 @@ paths:
           description: matching duty location not found
         "500":
           description: internal server error
-  /duty_locations/{dutyLocationId}/counseling_offices:
+  /transportation_offices/{dutyLocationId}/counseling_offices:
     get:
       summary: Returns the counseling locations in the GBLOC matching the duty location
       description: Returns the counseling locations matching the GBLOC from the selected duty location
       operationId: showCounselingOffices
       tags:
-        - counseling_offices
+        - transportation_offices
       parameters:
         - in: path
           name: dutyLocationId
-          type: uuid
+          format: uuid
+          type: string
           required: true
           description: UUID of the duty location
       responses:
         "200":
           description: the instance of the counseling office for a duty location
           schema:
-            $ref: "#/definitions/TransportationOffice.yaml"
+            $ref: "#/definitions/TransportationOffices"
         "400":
           description: invalid request
         "401":
@@ -3466,7 +3467,7 @@ paths:
         "403":
           description: user is not authorized
         "404":
-          description: matching duty location not found
+          description: matching counseling office not found
         "500":
           description: internal server error
   /duty_locations/{dutyLocationId}/transportation_office:
