@@ -279,19 +279,19 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 		})
 }
 
-type MoveCancellationHandler struct {
+type MoveCancelationHandler struct {
 	handlers.HandlerConfig
 	services.MoveCancelation
 }
 
-func (h MoveCancellationHandler) Handle(params moveop.MoveCancelationParams) middleware.Responder {
+func (h MoveCancelationHandler) Handle(params moveop.MoveCancelationParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
 			move, err := h.MoveCancelation.CancelMove(appCtx, moveID)
 			if err != nil {
-				appCtx.Logger().Error("MoveCancellationHandler error", zap.Error(err))
+				appCtx.Logger().Error("MoveCancelationHandler error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
 					return moveop.NewMoveCancelationNotFound(), err
