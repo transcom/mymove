@@ -400,7 +400,7 @@ paths:
       tags:
         - move
       description: cancels a move
-      operationId: moveCancellation
+      operationId: moveCancelation
       summary: Cancels a move
   '/counseling/orders/{orderID}':
     parameters:
