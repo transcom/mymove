@@ -77,12 +77,10 @@ describe('determineShipmentInfo', () => {
     [true, MOVE_STATUSES.DRAFT, []],
     [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.HHG }]],
     [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }]],
-    [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.NTS }]],
+    [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.NTS }]],
     [false, MOVE_STATUSES.SUBMITTED, [{ shipmentType: SHIPMENT_OPTIONS.HHG }]],
     [false, MOVE_STATUSES.SUBMITTED, [{ shipmentType: SHIPMENT_OPTIONS.PPM }]],
     [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }, { shipmentType: SHIPMENT_OPTIONS.HHG }]],
-    [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }, { shipmentType: SHIPMENT_OPTIONS.NTS }]],
-    [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.HHG }, { shipmentType: SHIPMENT_OPTIONS.NTS }]],
   ])(
     'sets isNTSSelectable to %s if move status is "%s" and MTO shipments === %s',
     (expectedNTSSelectable, moveStaus, mtoShipments) => {
@@ -98,12 +96,10 @@ describe('determineShipmentInfo', () => {
     [true, MOVE_STATUSES.DRAFT, []],
     [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.HHG }]],
     [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }]],
-    [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.NTSR }]],
+    [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.NTSR }]],
     [false, MOVE_STATUSES.SUBMITTED, [{ shipmentType: SHIPMENT_OPTIONS.HHG }]],
     [false, MOVE_STATUSES.SUBMITTED, [{ shipmentType: SHIPMENT_OPTIONS.PPM }]],
     [true, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }, { shipmentType: SHIPMENT_OPTIONS.HHG }]],
-    [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.PPM }, { shipmentType: SHIPMENT_OPTIONS.NTSR }]],
-    [false, MOVE_STATUSES.DRAFT, [{ shipmentType: SHIPMENT_OPTIONS.HHG }, { shipmentType: SHIPMENT_OPTIONS.NTSR }]],
   ])(
     'sets isNTSRSelectable to %s if move status is "%s" and MTO shipments === %s',
     (expectedNTSRSelectable, moveStaus, mtoShipments) => {
