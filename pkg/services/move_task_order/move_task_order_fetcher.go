@@ -125,6 +125,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
+		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 		"ShipmentGBLOC",
@@ -238,6 +239,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		loadedServiceItems = append(loadedServiceItems, mto.MTOServiceItems[i])
 	}
 	mto.MTOServiceItems = loadedServiceItems
+
+	if mto.Orders.DestinationGBLOC == nil {
+		newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
+		if err != nil {
+			err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+			appCtx.Logger().Error(err.Error())
+			return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+		}
+		mto.Orders.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+	}
 
 	return mto, nil
 }

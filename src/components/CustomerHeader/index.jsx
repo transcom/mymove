@@ -14,8 +14,10 @@ import {
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import MOVE_STATUSES from 'constants/moves';
 import { roleTypes } from 'constants/userRoles';
+import departmentIndicators from 'constants/departmentIndicators';
 
 const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
+  const isCoastGuard = customer.agency === departmentIndicators.COAST_GUARD;
   // eslint-disable-next-line camelcase
   const { order_type: orderType } = order;
 
@@ -56,6 +58,14 @@ const CustomerHeader = ({ customer, order, moveCode, move, userRole }) => {
             <span data-testid="dodId" className={styles.details}>
               DoD ID {customer.dodID}
             </span>
+            {isCoastGuard && (
+              <>
+                <span className={styles.verticalBar}>|</span>
+                <span data-testid="emplid" className={styles.details}>
+                  EMPLID {customer.emplid}
+                </span>
+              </>
+            )}
           </p>
         </div>
       </div>
