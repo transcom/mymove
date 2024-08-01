@@ -1059,7 +1059,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -2667,7 +2667,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -2678,7 +2678,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILE_HOME",
         "PPM"
       ],
       "x-display-value": {
@@ -6036,7 +6036,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -7774,7 +7774,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -7785,7 +7785,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILE_HOME",
         "PPM"
       ],
       "x-display-value": {

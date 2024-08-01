@@ -356,6 +356,34 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			// Find the move with the latest CreatedAt Date. That one will be the current move
 			var nilTime time.Time
 			for _, move := range movesList {
+
+				/** Feature Flag - Boat Shipment **/
+				isBoatFeatureOn := false
+				flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagBoat, map[string]string{})
+				if err != nil {
+					appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagBoat), zap.Error(err))
+					isBoatFeatureOn = false
+				} else {
+					isBoatFeatureOn = flag.Match
+				}
+
+				// Remove Boat shipments if Boat FF is off
+				if !isBoatFeatureOn {
+					var filteredShipments models.MTOShipments
+					if move.MTOShipments != nil {
+						filteredShipments = models.MTOShipments{}
+					}
+					for i, shipment := range move.MTOShipments {
+						if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+							continue
+						}
+
+						filteredShipments = append(filteredShipments, move.MTOShipments[i])
+					}
+					move.MTOShipments = filteredShipments
+				}
+				/** End of Feature Flag **/
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break
