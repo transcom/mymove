@@ -19,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
+	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
@@ -334,7 +335,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	moveTaskOrderID, _ := uuid.NewV4()
@@ -777,7 +779,8 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(builder, fetcher, planner, moveRouter, moveWeights, mockSender, paymentRequestShipmentRecalculator, addressUpdater, addressCreator)
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater)
+	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	suite.Run("200 - success response", func() {
