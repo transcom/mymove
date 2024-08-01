@@ -22,11 +22,3 @@ export default {
   getEventNameDisplay: () => 'Updated shipment',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />,
 };
-
-// export default {
-//   action: a.UPDATE,
-//   eventName: o.updateMTOPostCounselingInformation,
-//   tableName: t.ppm_shipments,
-//   getEventNameDisplay: () => 'Updated Shipment',
-//   getDetails: () => <> Prime Counseling Completed for PPM Shipment </>,
-// };
