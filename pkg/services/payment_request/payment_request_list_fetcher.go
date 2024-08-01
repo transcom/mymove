@@ -316,7 +316,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
-						models.PaymentRequestStatusReceivedByGex.String())
+						models.PaymentRequestStatusTppsReceived.String())
 				} else if strings.EqualFold(status, "Rejected") || strings.EqualFold(status, "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewedAllRejected.String())
