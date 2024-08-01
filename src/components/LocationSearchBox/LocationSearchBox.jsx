@@ -87,6 +87,7 @@ export const LocationSearchBoxComponent = ({
   hint,
   placeholder,
   isDisabled,
+  handleOnChange,
 }) => {
   const { value, onChange, name: inputName } = input;
 
@@ -150,6 +151,7 @@ export const LocationSearchBoxComponent = ({
     }
 
     onChange(selectedValue);
+    handleOnChange(selectedValue);
     return selectedValue;
   };
 
@@ -238,6 +240,7 @@ LocationSearchBoxContainer.propTypes = {
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   searchLocations: PropTypes.func,
+  handleOnChange: PropTypes.func,
 };
 
 LocationSearchBoxContainer.defaultProps = {
@@ -253,6 +256,7 @@ LocationSearchBoxContainer.defaultProps = {
   placeholder: 'Start typing a duty location...',
   isDisabled: false,
   searchLocations: SearchDutyLocations,
+  handleOnChange: null,
 };
 
 LocationSearchBoxComponent.propTypes = {

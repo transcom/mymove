@@ -18,6 +18,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
+  const zipCityEnabled = true; // TODO: NEED TO DETERMINE WHICH USER/PAGES TO DETERMINE IF THIS IS ENABLED
 
   return (
     <Formik
@@ -37,6 +38,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 name={formFieldsName}
                 validators={validators}
                 formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                zipCityEnabled={zipCityEnabled}
               />
             </SectionWrapper>
 
