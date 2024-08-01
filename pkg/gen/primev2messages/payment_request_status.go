@@ -53,9 +53,6 @@ const (
 
 	// PaymentRequestStatusDEPRECATED captures enum value "DEPRECATED"
 	PaymentRequestStatusDEPRECATED PaymentRequestStatus = "DEPRECATED"
-
-	// PaymentRequestStatusSENDTOTPPSFAIL captures enum value "SEND_TO_TPPS_FAIL"
-	PaymentRequestStatusSENDTOTPPSFAIL PaymentRequestStatus = "SEND_TO_TPPS_FAIL"
 )
 
 // for schema
@@ -63,7 +60,7 @@ var paymentRequestStatusEnum []interface{}
 
 func init() {
 	var res []PaymentRequestStatus
-	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID","EDI_ERROR","DEPRECATED","SEND_TO_TPPS_FAIL"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["PENDING","REVIEWED","REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED","SENT_TO_GEX","RECEIVED_BY_GEX","PAID","EDI_ERROR","DEPRECATED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

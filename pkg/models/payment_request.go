@@ -34,8 +34,6 @@ const (
 	PaymentRequestStatusEDIError PaymentRequestStatus = "EDI_ERROR"
 	// PaymentRequestStatusDeprecated is deprecated
 	PaymentRequestStatusDeprecated PaymentRequestStatus = "DEPRECATED"
-	// PaymentRequestStatusDeprecated the send to TPPS failed
-	PaymentRequestStatusSendToTPPSFail PaymentRequestStatus = "SEND_TO_TPPS_FAIL"
 )
 
 const (
@@ -62,7 +60,6 @@ var validPaymentRequestStatus = []string{
 	string(PaymentRequestStatusPaid),
 	string(PaymentRequestStatusEDIError),
 	string(PaymentRequestStatusDeprecated),
-	string(PaymentRequestStatusSendToTPPSFail),
 }
 
 // PaymentRequest is an object representing a payment request on a move task order
