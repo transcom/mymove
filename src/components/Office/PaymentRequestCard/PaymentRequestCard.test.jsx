@@ -568,13 +568,13 @@ describe('PaymentRequestCard', () => {
       expect(sentToGex.find({ 'data-testid': 'sentToGexDetails' }).exists()).toBe(true);
     });
 
-    it('renders the reviewed status tag for received_by_gex', () => {
+    it('renders the Tpps Received Status status tag for TPPS_RECEIVED', () => {
       const receivedByGexPaymentRequest = {
         id: '29474c6a-69b6-4501-8e08-670a12512e5f',
         createdAt: '2020-12-01T00:00:00.000Z',
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
-        status: 'RECEIVED_BY_GEX',
+        status: 'TPPS_RECEIVED',
         moveTaskOrder: move,
         serviceItems: [
           {
@@ -603,7 +603,7 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('TPPS Received')).toBe(true);
     });
 
     it('renders the paid status tag for paid request', () => {

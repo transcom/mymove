@@ -5684,6 +5684,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      receivedByGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
       ediErrorType:
         description: >-
           Type of EDI reporting or causing the issue. Can be EDI 997, 824, and
@@ -5762,7 +5766,7 @@ definitions:
       - REVIEWED
       - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
-      - RECEIVED_BY_GEX
+      - TPPS_RECEIVED
       - PAID
       - EDI_ERROR
       - DEPRECATED

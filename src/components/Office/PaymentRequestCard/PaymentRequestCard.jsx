@@ -24,8 +24,9 @@ const paymentRequestStatusLabel = (status) => {
     case PAYMENT_REQUEST_STATUS.SENT_TO_GEX:
       return 'Sent to GEX';
     case PAYMENT_REQUEST_STATUS.REVIEWED:
-    case PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX:
       return 'Reviewed';
+    case PAYMENT_REQUEST_STATUS.TPPS_RECEIVED:
+      return 'TPPS Received';
     case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
     case PAYMENT_REQUEST_STATUS.PAID:
@@ -250,6 +251,26 @@ const PaymentRequestCard = ({
   };
 
   const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.TPPS_RECEIVED ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      paymentRequest.receivedByGexAt
+    ) {
+      return (
+        <div>
+          {approvedAmount > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div>
+                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                <span>Received</span>
+                <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
     if (
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED ||
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED ||

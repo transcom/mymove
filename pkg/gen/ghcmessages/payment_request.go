@@ -66,6 +66,10 @@ type PaymentRequest struct {
 	// Format: uuid
 	RecalculationOfPaymentRequestID *strfmt.UUID `json:"recalculationOfPaymentRequestID,omitempty"`
 
+	// received by gex at
+	// Format: date-time
+	ReceivedByGexAt *strfmt.DateTime `json:"receivedByGexAt,omitempty"`
+
 	// rejection reason
 	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -110,6 +114,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRecalculationOfPaymentRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReceivedByGexAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -213,6 +221,18 @@ func (m *PaymentRequest) validateRecalculationOfPaymentRequestID(formats strfmt.
 	}
 
 	if err := validate.FormatOf("recalculationOfPaymentRequestID", "body", "uuid", m.RecalculationOfPaymentRequestID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateReceivedByGexAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ReceivedByGexAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("receivedByGexAt", "body", "date-time", m.ReceivedByGexAt.String(), formats); err != nil {
 		return err
 	}
 

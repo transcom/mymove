@@ -1508,6 +1508,7 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
+		ReceivedByGexAt:                 (*strfmt.DateTime)(pr.ReceivedByGexAt),
 		EdiErrorType:                    ediErrorInfoEDIType,
 		EdiErrorCode:                    ediErrorInfoEDICode,
 		EdiErrorDescription:             ediErrorInfoEDIDescription,
@@ -2018,7 +2019,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 
 	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
 	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
-		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
+		paymentRequest.Status == models.PaymentRequestStatusTppsReceived ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
 		return models.QueuePaymentRequestReviewed
 	}

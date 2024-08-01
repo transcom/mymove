@@ -5470,6 +5470,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      receivedByGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
       ediErrorType:
         description: Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
         type: string
