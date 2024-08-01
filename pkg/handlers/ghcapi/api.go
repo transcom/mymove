@@ -658,7 +658,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ghcAPI.MoveMoveCancellationHandler = MoveCancellationHandler{
 		handlerConfig,
-		move.NewMoveCancellation(),
+		move.NewMoveCancelation(),
 	}
 
 	return ghcAPI
