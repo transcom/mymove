@@ -79,7 +79,7 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
   BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
   BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
-  MOTOR_HOME: 'MOTOR_HOME',
+  MOBILE_HOME: 'MOBILE_HOME',
 };
 
 // These constants are used for forming URLs that have the shipment type in
