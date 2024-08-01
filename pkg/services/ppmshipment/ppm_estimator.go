@@ -386,7 +386,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	return &totalPrice, nil
 }
 
-// returns the price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
+// returns the final price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
 func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	logger := appCtx.Logger()
 
@@ -507,9 +507,7 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 			return 6, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, fmt.Errorf("no params were found for service item %s", serviceItem.ReService.Code)
 		}
 
-		centsValue, paymentParams, err := pricer.PriceUsingParams(appCtx, paramValues)
-		logger.Debug(fmt.Sprintf("Service item price %s %d", serviceItem.ReService.Code, centsValue))
-		logger.Debug(fmt.Sprintf("Payment service item params %+v", paymentParams))
+		centsValue, _, err := pricer.PriceUsingParams(appCtx, paramValues)
 
 		if err != nil {
 			logger.Error("unable to calculate service item price", zap.Error(err))

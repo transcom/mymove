@@ -25,12 +25,12 @@ func (suite *PayloadsSuite) TestInternalServerError() {
 	suite.Equal(traceID.String(), detailError.Instance.String())
 }
 
-func (suite *PayloadsSuite) TestListReport() {
+func (suite *PayloadsSuite) TestReport() {
 	appCtx := suite.AppContextForTest()
 	now := time.Now()
 
 	// Setup data
-	report := models.Report{
+	report := models.PPTASReport{
 		FirstName:     models.StringPointer("John"),
 		LastName:      models.StringPointer("Doe"),
 		MiddleInitial: models.StringPointer("A"),
@@ -52,7 +52,7 @@ func (suite *PayloadsSuite) TestListReport() {
 	}
 
 	suite.Run("valid report", func() {
-		payload := ListReport(appCtx, &report)
+		payload := PPTASReport(appCtx, &report)
 
 		suite.NotNil(payload)
 		suite.Equal(*report.FirstName, payload.FirstName)
@@ -67,7 +67,7 @@ func (suite *PayloadsSuite) TestListReport() {
 	})
 
 	suite.Run("nil report", func() {
-		payload := ListReport(appCtx, nil)
+		payload := PPTASReport(appCtx, nil)
 
 		suite.Nil(payload)
 	})

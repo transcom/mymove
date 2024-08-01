@@ -9,8 +9,11 @@ import (
 	pptasops "github.com/transcom/mymove/pkg/gen/pptasapi/pptasoperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
+	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
+	"github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	report "github.com/transcom/mymove/pkg/services/report"
+	report "github.com/transcom/mymove/pkg/services/pptas_report"
+	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 )
 
 func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
@@ -22,9 +25,13 @@ func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
 	pptasAPI.ServeError = handlers.ServeCustomError
 
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
-	pptasAPI.MovesListReportsHandler = ListReportsHandler{
-		HandlerConfig:     handlerConfig,
-		ReportListFetcher: report.NewReportListFetcher(ppmEstimator),
+	moveFetcher := move.NewMoveFetcher()
+	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
+	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
+
+	pptasAPI.MovesPptasReportsHandler = PPTASReportsHandler{
+		HandlerConfig:          handlerConfig,
+		PPTASReportListFetcher: report.NewPPTASReportListFetcher(ppmEstimator, moveFetcher, tacFetcher, loaFetcher),
 	}
 
 	return pptasAPI

@@ -1,6 +1,6 @@
 description: >
-      An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to
-      fetch a list of reports more efficiently.
+      Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments,
+      and Payment Requests.
 type: object
 properties:
   firstName:
@@ -107,58 +107,14 @@ properties:
     $ref: 'Address.yaml'
   originGbloc:
     type: string
-    enum:
-      - AGFM
-      - APAT
-      - BGAC
-      - BGNC
-      - BKAS
-      - CFMQ
-      - CLPK
-      - CNNQ
-      - DMAT
-      - GSAT
-      - HAFC
-      - HBAT
-      - JEAT
-      - JENQ
-      - KKFA
-      - LHNQ
-      - LKNQ
-      - MAPK
-      - MAPS
-      - MBFL
-      - MLNQ
-      - XXXX
+    pattern: '^[A-Z]{4}$'
     x-nullable: true
   destinationGbloc:
     type: string
-    enum:
-      - AGFM
-      - APAT
-      - BGAC
-      - BGNC
-      - BKAS
-      - CFMQ
-      - CLPK
-      - CNNQ
-      - DMAT
-      - GSAT
-      - HAFC
-      - HBAT
-      - JEAT
-      - JENQ
-      - KKFA
-      - LHNQ
-      - LKNQ
-      - MAPK
-      - MAPS
-      - MBFL
-      - MLNQ
-      - XXXX
+    pattern: '^[A-Z]{4}$'
     x-nullable: true
   depCD:
-    description: Department Code
+    description: Dependent Code
     type: boolean
     x-nullable: true
   travelAdvance:
@@ -181,30 +137,39 @@ properties:
     type: string
     x-nullable: true
   subhead:
+    description: LoaObjClsID in lines_of_accounting
     type: string
     x-nullable: true
   objClass:
+    description: LoaAlltSnID in lines_of_accounting
     type: string
     x-nullable: true
   bcn:
+    description: LoaSbaltmtRcpntID in lines_of_accounting
     type: string
     x-nullable: true
   subAllotCD:
+    description: LoaInstlAcntgActID in lines_of_accounting
     type: string
     x-nullable: true
   aaa:
+    description: LoaTrnsnID in lines_of_accounting
     type: string
     x-nullable: true
   typeCD:
+    description: LoaJbOrdNm in lines_of_accounting
     type: string
     x-nullable: true
   paa:
+    description: LoaDocID in lines_of_accounting
     type: string
     x-nullable: true
   costCD:
+    description: LoaPgmElmntID in lines_of_accounting
     type: string
     x-nullable: true
   ddcd:
+    description: LoaDptID in lines_of_accounting
     type: string
     x-nullable: true
   shipmentNum:
@@ -242,6 +207,7 @@ properties:
     example: '030-00362'
     x-nullable: true
   loa:
+    description: Line of Accounting
     type: string
     x-nullable: true
   shipmentType:
@@ -261,14 +227,17 @@ properties:
     type: string
     format: date
   sitInDate:
+    description: Storage in Transit In Date
     type: string
     format: date
     x-nullable: true
   sitOutDate:
+    description: Storage in Transit Out Date
     type: string
     format: date
     x-nullable: true
   sitType:
+    description: Storage in Transit type
     example: Destination
     type: string
     x-nullable: true
@@ -301,34 +270,42 @@ properties:
     format: double
     x-nullable: true
   sitOriginFirstDayTotal:
+    description: First day of Origin Storage in Transit cost
     type: number
     format: double
     x-nullable: true
   sitOriginAddlDaysTotal:
+    description: Additional day of Origin Storage in Transit cost
     type: number
     format: double
     x-nullable: true
   sitDestFirstDayTotal:
+    description: First day of Destination Storage in Transit cost
     type: number
     format: double
     x-nullable: true
   sitDestAddlDaysTotal:
+    description: Additional day of Destination Storage in Transit cost
     type: number
     format: double
     x-nullable: true
   sitPickupTotal:
+    description: Storage in Transit pickup total cost
     type: number
     format: double
     x-nullable: true
   sitDeliveryTotal:
+    description: Storage in Transit delivery total cost
     type: number
     format: double
     x-nullable: true
   sitOriginFuelSurcharge:
+    description: Storage in Transit origin fuel total cost
     type: number
     format: double
     x-nullable: true
   sitDestFuelSurcharge:
+    description: Storage in Transit destination total cost
     type: number
     format: double
     x-nullable: true
@@ -357,14 +334,17 @@ properties:
     format: double
     x-nullable: true
   invoicePaidAmt:
+    description: Invoice Paid Amounts
     type: number
     format: double
     x-nullable: true
   ppmLinehaul:
+    description: Personally Procured Move Linehaul total cost
     type: number
     format: double
     x-nullable: true
   ppmFuelRateAdjTotal:
+    description: Personally Procured Move Fuel Rate Adjusted total cost
     type: number
     format: double
     x-nullable: true

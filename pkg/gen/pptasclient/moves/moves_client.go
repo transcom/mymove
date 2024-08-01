@@ -30,30 +30,30 @@ type ClientOption func(*runtime.ClientOperation)
 
 // ClientService is the interface for Client methods
 type ClientService interface {
-	ListReports(params *ListReportsParams, opts ...ClientOption) (*ListReportsOK, error)
+	PptasReports(params *PptasReportsParams, opts ...ClientOption) (*PptasReportsOK, error)
 
 	SetTransport(transport runtime.ClientTransport)
 }
 
 /*
-ListReports lists reports
+PptasReports ps p t a s reports
 
-Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.
+Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and Transportation Accounting Codes and Lines of Accounting.
 */
-func (a *Client) ListReports(params *ListReportsParams, opts ...ClientOption) (*ListReportsOK, error) {
+func (a *Client) PptasReports(params *PptasReportsParams, opts ...ClientOption) (*PptasReportsOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
-		params = NewListReportsParams()
+		params = NewPptasReportsParams()
 	}
 	op := &runtime.ClientOperation{
-		ID:                 "listReports",
+		ID:                 "pptasReports",
 		Method:             "GET",
 		PathPattern:        "/moves",
 		ProducesMediaTypes: []string{"application/json"},
 		ConsumesMediaTypes: []string{"application/json"},
 		Schemes:            []string{"http"},
 		Params:             params,
-		Reader:             &ListReportsReader{formats: a.formats},
+		Reader:             &PptasReportsReader{formats: a.formats},
 		Context:            params.Context,
 		Client:             params.HTTPClient,
 	}
@@ -65,13 +65,13 @@ func (a *Client) ListReports(params *ListReportsParams, opts ...ClientOption) (*
 	if err != nil {
 		return nil, err
 	}
-	success, ok := result.(*ListReportsOK)
+	success, ok := result.(*PptasReportsOK)
 	if ok {
 		return success, nil
 	}
 	// unexpected success response
 	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for listReports: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	msg := fmt.Sprintf("unexpected success response for pptasReports: API contract not enforced by server. Client expected to get an error, but got: %T", result)
 	panic(msg)
 }
 

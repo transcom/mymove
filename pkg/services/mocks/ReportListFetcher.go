@@ -16,20 +16,20 @@ type ReportListFetcher struct {
 	mock.Mock
 }
 
-// BuildReportFromMoves provides a mock function with given fields: appCtx, params
-func (_m *ReportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
+// BuildReportsFromMoves provides a mock function with given fields: appCtx, params
+func (_m *ReportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.PPTASReports, error) {
 	ret := _m.Called(appCtx, params)
 
-	var r0 models.Reports
+	var r0 models.PPTASReports
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Reports, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.PPTASReports, error)); ok {
 		return rf(appCtx, params)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Reports); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.PPTASReports); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(models.Reports)
+			r0 = ret.Get(0).(models.PPTASReports)
 		}
 	}
 
