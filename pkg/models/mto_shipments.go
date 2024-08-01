@@ -34,8 +34,8 @@ const (
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
 	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
-	// MTOShipmentTypeMobilehome is a Shipment Type for Mobilehome
-	MTOShipmentTypeMobilehome MTOShipmentType = "MOBILE_HOME"
+	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
+	MTOShipmentTypeMobileHome MTOShipmentType = "MOBILE_HOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
 	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
 	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away

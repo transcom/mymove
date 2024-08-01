@@ -7,9 +7,6 @@ import (
 )
 
 func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
-	length := 200
-	height := 84
-	width := 96
 	testCases := map[string]struct {
 		mobileHome   models.MobileHome
 		expectedErrs map[string][]string
@@ -20,22 +17,22 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 				Make:           "Mobile Home Make",
 				Model:          "Mobile Home Model",
 				Year:           1996,
-				LengthInInches: &length,
-				HeightInInches: &height,
-				WidthInInches:  &width,
+				LengthInInches: 200,
+				HeightInInches: 84,
+				WidthInInches:  96,
 			},
 			expectedErrs: nil,
 		},
 		"Missing Required Fields": {
 			mobileHome: models.MobileHome{},
 			expectedErrs: map[string][]string{
-				"shipment_id": {"ShipmentID can not be blank."},
-				"make":        {"Make can not be blank."},
-				"model":       {"Model can not be blank."},
-				"year":        {"0 is not greater than 0."},
-				"length":      {"0 is not greater than 0."},
-				"height":      {"0 is not greater than 0."},
-				"width":       {"0 is not greater than 0."},
+				"shipment_id":      {"ShipmentID can not be blank."},
+				"make":             {"Make can not be blank."},
+				"model":            {"Model can not be blank."},
+				"year":             {"0 is not greater than 0."},
+				"length_in_inches": {"0 is not greater than 0."},
+				"height_in_inches": {"0 is not greater than 0."},
+				"width_in_inches":  {"0 is not greater than 0."},
 			},
 		},
 	}

@@ -15,9 +15,9 @@ type MobileHome struct {
 	Make           string      `json:"make" db:"make"`
 	Model          string      `json:"model" db:"model"`
 	Year           int         `json:"year" db:"year"`
-	LengthInInches *int        `json:"length_in_inches" db:"length_in_inches"`
-	HeightInInches *int        `json:"height_in_inches" db:"height_in_inches"`
-	WidthInInches  *int        `json:"width_in_inches" db:"width_in_inches"`
+	LengthInInches int         `json:"length_in_inches" db:"length_in_inches"`
+	HeightInInches int         `json:"height_in_inches" db:"height_in_inches"`
+	WidthInInches  int         `json:"width_in_inches" db:"width_in_inches"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -37,9 +37,9 @@ func (mh MobileHome) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Name: "Make", Field: mh.Make},
 		&validators.StringIsPresent{Name: "Model", Field: mh.Model},
 		&validators.IntIsGreaterThan{Name: "Year", Field: mh.Year, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "Length", Field: *mh.LengthInInches, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "Height", Field: *mh.HeightInInches, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "Width", Field: *mh.WidthInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: mh.LengthInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: mh.HeightInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: mh.WidthInInches, Compared: 0},
 	), nil
 }
 
