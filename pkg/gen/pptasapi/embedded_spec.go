@@ -52,8 +52,8 @@ func init() {
         "tags": [
           "moves"
         ],
-        "summary": "Reports",
-        "operationId": "reports",
+        "summary": "PPTASReports",
+        "operationId": "pptasReports",
         "parameters": [
           {
             "type": "string",
@@ -67,7 +67,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/Reports"
+              "$ref": "#/definitions/PPTASReports"
             }
           },
           "401": {
@@ -359,7 +359,7 @@ func init() {
         }
       }
     },
-    "Report": {
+    "PPTASReport": {
       "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
@@ -849,10 +849,10 @@ func init() {
         }
       }
     },
-    "Reports": {
+    "PPTASReports": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Report"
+        "$ref": "#/definitions/PPTASReport"
       }
     }
   },
@@ -911,8 +911,8 @@ func init() {
         "tags": [
           "moves"
         ],
-        "summary": "Reports",
-        "operationId": "reports",
+        "summary": "PPTASReports",
+        "operationId": "pptasReports",
         "parameters": [
           {
             "type": "string",
@@ -926,7 +926,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/Reports"
+              "$ref": "#/definitions/PPTASReports"
             }
           },
           "401": {
@@ -1227,7 +1227,7 @@ func init() {
         }
       }
     },
-    "Report": {
+    "PPTASReport": {
       "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
@@ -1717,10 +1717,10 @@ func init() {
         }
       }
     },
-    "Reports": {
+    "PPTASReports": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/Report"
+        "$ref": "#/definitions/PPTASReport"
       }
     }
   },

@@ -30,7 +30,7 @@ func (suite *PayloadsSuite) TestReport() {
 	now := time.Now()
 
 	// Setup data
-	report := models.Report{
+	report := models.PPTASReport{
 		FirstName:     models.StringPointer("John"),
 		LastName:      models.StringPointer("Doe"),
 		MiddleInitial: models.StringPointer("A"),
@@ -52,7 +52,7 @@ func (suite *PayloadsSuite) TestReport() {
 	}
 
 	suite.Run("valid report", func() {
-		payload := Report(appCtx, &report)
+		payload := PPTASReport(appCtx, &report)
 
 		suite.NotNil(payload)
 		suite.Equal(*report.FirstName, payload.FirstName)
@@ -67,7 +67,7 @@ func (suite *PayloadsSuite) TestReport() {
 	})
 
 	suite.Run("nil report", func() {
-		payload := Report(appCtx, nil)
+		payload := PPTASReport(appCtx, nil)
 
 		suite.Nil(payload)
 	})

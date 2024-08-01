@@ -14,7 +14,7 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 	tacFetcher := mocks.TransportationAccountingCodeFetcher{}
 	loaFetcher := mocks.LineOfAccountingFetcher{}
 
-	reportListFetcher := NewReportListFetcher(&ppmEstimator, &moveFetcher, &tacFetcher, &loaFetcher)
+	reportListFetcher := NewPPTASReportListFetcher(&ppmEstimator, &moveFetcher, &tacFetcher, &loaFetcher)
 	defaultSearchParams := services.MoveTaskOrderFetcherParams{}
 
 	appCtx := suite.AppContextForTest()
@@ -92,7 +92,7 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 	factory.BuildMove(suite.DB(), nil, nil)
 
 	suite.Run("successfully return only navy moves with an approved payment request", func() {
-		reports, err := reportListFetcher.BuildReportsFromMoves(appCtx, &defaultSearchParams)
+		reports, err := reportListFetcher.BuildPPTASReportsFromMoves(appCtx, &defaultSearchParams)
 		suite.NoError(err)
 
 		suite.Equal(1, len(reports))

@@ -11,15 +11,15 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-type reportListFetcher struct {
+type pptasReportListFetcher struct {
 	estimator   services.PPMEstimator
 	moveFetcher services.MoveFetcher
 	tacFetcher  services.TransportationAccountingCodeFetcher
 	loaFetcher  services.LineOfAccountingFetcher
 }
 
-func NewReportListFetcher(estimator services.PPMEstimator, moveFetcher services.MoveFetcher, tacFetcher services.TransportationAccountingCodeFetcher, loaFetcher services.LineOfAccountingFetcher) services.ReportListFetcher {
-	return &reportListFetcher{
+func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher services.MoveFetcher, tacFetcher services.TransportationAccountingCodeFetcher, loaFetcher services.LineOfAccountingFetcher) services.PPTASReportListFetcher {
+	return &pptasReportListFetcher{
 		estimator:   estimator,
 		moveFetcher: moveFetcher,
 		tacFetcher:  tacFetcher,
@@ -28,8 +28,8 @@ func NewReportListFetcher(estimator services.PPMEstimator, moveFetcher services.
 }
 
 // Builds a list of reports for PPTAS
-func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
-	var fullreport models.Reports
+func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.PPTASReports, error) {
+	var fullreport models.PPTASReports
 	moves, err := f.moveFetcher.FetchMovesForReports(appCtx, params)
 
 	if err != nil {
@@ -37,7 +37,7 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 	}
 
 	for _, move := range moves {
-		var report models.Report
+		var report models.PPTASReport
 		report.ShipmentId = move.ID
 
 		orders := move.Orders
@@ -117,96 +117,8 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 
 		report.EntitlementWeight = &totalWeight
 
-		var linehaulTotal, managementTotal, fuelPrice, domesticOriginTotal, domesticDestTotal, domesticPacking,
-			domesticUnpacking, domesticCrating, domesticUncrating, counselingTotal, sitPickuptotal, sitOriginFuelSurcharge,
-			sitOriginShuttle, sitOriginAddlDays, sitOriginFirstDay, sitDeliveryTotal, sitDestFuelSurcharge, sitDestShuttle,
-			sitDestAddlDays, sitDestFirstDay float64
-
-		var allCrates []*pptasmessages.Crate
-
-		// this adds up all the different payment service items across all payment requests for a move
-		for _, pr := range paymentRequests {
-			for _, serviceItem := range pr.PaymentServiceItems {
-				totalPrice := serviceItem.PriceCents.Float64()
-
-				switch serviceItem.MTOServiceItem.ReService.Name {
-				case "Domestic linehaul":
-				case "Domestic shorthaul":
-					linehaulTotal += totalPrice
-				case "Move management":
-					managementTotal += totalPrice
-				case "Fuel surcharge":
-					fuelPrice += totalPrice
-				case "Domestic origin price":
-					domesticOriginTotal += totalPrice
-				case "Domestic destination price":
-					domesticDestTotal += totalPrice
-				case "Domestic packing":
-					domesticPacking += totalPrice
-				case "Domestic unpacking":
-					domesticUnpacking += totalPrice
-				case "Domestic uncrating":
-					domesticUncrating += totalPrice
-				case "Domestic crating":
-					crate := buildServiceItemCrate(serviceItem.MTOServiceItem)
-					allCrates = append(allCrates, &crate)
-					domesticCrating += totalPrice
-				case "Domestic origin SIT pickup":
-					sitPickuptotal += totalPrice
-				case "Domestic origin SIT fuel surcharge":
-					sitOriginFuelSurcharge += totalPrice
-				case "Domestic origin shuttle service":
-					sitOriginShuttle += totalPrice
-				case "Domestic origin add'l SIT":
-					sitOriginAddlDays += totalPrice
-				case "Domestic origin 1st day SIT":
-					if report.SitType == nil || *report.SitType == "" {
-						report.SitType = models.StringPointer("Origin")
-					}
-					sitOriginFirstDay += totalPrice
-				case "Domestic destination SIT fuel surcharge":
-					sitDestFuelSurcharge += totalPrice
-				case "Domestic destination SIT delivery":
-					sitDeliveryTotal += totalPrice
-				case "Domestic destination shuttle service":
-					sitDestShuttle += totalPrice
-				case "Domestic destination add'l SIT":
-					sitDestAddlDays += totalPrice
-				case "Domestic destination 1st day SIT":
-					if report.SitType == models.StringPointer("Origin") || report.SitType == nil {
-						sitType := "Destination"
-						report.SitType = &sitType
-					}
-					sitDestFirstDay += totalPrice
-				case "Counseling":
-					counselingTotal += totalPrice
-				default:
-					continue
-				}
-			}
-		}
-
-		shuttleTotal := sitOriginShuttle + sitDestShuttle
-		report.LinehaulTotal = &linehaulTotal
-		report.LinehaulFuelTotal = &fuelPrice
-		report.OriginPrice = &domesticOriginTotal
-		report.DestinationPrice = &domesticDestTotal
-		report.PackingPrice = &domesticPacking
-		report.UnpackingPrice = &domesticUnpacking
-		report.CratingTotal = &domesticCrating
-		report.UncratingTotal = &domesticUncrating
-		report.ShuttleTotal = &shuttleTotal
-		report.MoveManagementFeeTotal = &managementTotal
-		report.CounselingFeeTotal = &counselingTotal
-		report.CratingDimensions = allCrates
-
-		// calculate total invoice cost
-		invoicePaidAmt := shuttleTotal + linehaulTotal + fuelPrice + domesticOriginTotal + domesticDestTotal + domesticPacking + domesticUnpacking +
-			sitOriginFirstDay + sitOriginAddlDays + sitDestFirstDay + sitDestAddlDays + sitPickuptotal + sitDeliveryTotal + sitOriginFuelSurcharge +
-			sitDestFuelSurcharge + domesticCrating + domesticUncrating
-		report.InvoicePaidAmt = &invoicePaidAmt
-
 		var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
+		hasSIT := false
 
 		// sharing this for loop for all MTOShipment calculations
 		for _, shipment := range move.MTOShipments {
@@ -217,7 +129,7 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 				report.DestinationAddress = shipment.DestinationAddress
 			}
 
-			// calculate total progear for entire move
+			// calculate total progear, gets SIT dates, and ppm price breakdown
 			if shipment.PPMShipment != nil {
 				// query the ppmshipment for all it's child needs for the price breakdown
 				var ppmShipment models.PPMShipment
@@ -259,6 +171,7 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 					// SIT Fields
 					report.SitInDate = ppmShipment.SITEstimatedEntryDate
 					report.SitOutDate = ppmShipment.SITEstimatedDepartureDate
+					hasSIT = true
 				}
 
 				// do the ppm cost breakdown here
@@ -280,17 +193,6 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 			}
 		}
 
-		if report.SitInDate != nil || report.SitOutDate != nil {
-			report.SITOriginFirstDayTotal = &sitOriginFirstDay
-			report.SITOriginAddlDaysTotal = &sitOriginAddlDays
-			report.SITDestFirstDayTotal = &sitDestFirstDay
-			report.SITDestAddlDaysTotal = &sitDestAddlDays
-			report.SITPickupTotal = &sitPickuptotal
-			report.SITDeliveryTotal = &sitDeliveryTotal
-			report.SITOriginFuelSurcharge = &sitOriginFuelSurcharge
-			report.SITDestFuelSurcharge = &sitDestFuelSurcharge
-		}
-
 		report.PpmLinehaul = &ppmLinehaul
 		report.PpmFuelRateAdjTotal = &ppmFuel
 		report.PpmOriginPrice = &ppmOriginPrice
@@ -299,6 +201,8 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 		report.PpmUnpacking = &ppmUnpacking
 		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
 		report.PpmTotal = &ppmTotal
+
+		inputPaymentRequestFields(&report, paymentRequests, hasSIT)
 
 		report.ActualOriginNetWeight = &originActualWeight
 		report.PBPAndE = &progear
@@ -365,6 +269,151 @@ func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, 
 	return fullreport, nil
 }
 
+func calculateTotalWeightEstimate(shipments models.MTOShipments) *unit.Pound {
+	var weightEstimate unit.Pound
+	for _, shipment := range shipments {
+		if shipment.PPMShipment != nil {
+			weightEstimate += *shipment.PPMShipment.EstimatedWeight
+		}
+
+		if shipment.PrimeEstimatedWeight != nil {
+			weightEstimate += *shipment.PrimeEstimatedWeight
+		}
+	}
+
+	return &weightEstimate
+}
+
+// inputs all TAC related fields and builds full line of accounting string
+func inputReportTAC(report *models.PPTASReport, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
+	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
+	if err != nil {
+		return err
+	} else if len(tac) < 1 {
+		return apperror.NewNotFoundError(orders.ID, "No valid TAC found")
+	}
+
+	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)
+
+	report.LOA = &longLoa
+	report.FiscalYear = tac[0].TacFyTxt
+	report.Appro = tac[0].LineOfAccounting.LoaBafID
+	report.Subhead = tac[0].LineOfAccounting.LoaObjClsID
+	report.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
+	report.BCN = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
+	report.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
+	report.AAA = tac[0].LineOfAccounting.LoaTrnsnID
+	report.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
+	report.PAA = tac[0].LineOfAccounting.LoaDocID
+	report.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
+	report.DDCD = tac[0].LineOfAccounting.LoaDptID
+
+	return nil
+}
+
+// iterates through all approved payment requests and their respective service items to add up totals for pptas report payment fields
+func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests models.PaymentRequests, hasSIT bool) {
+	var linehaulTotal, managementTotal, fuelPrice, domesticOriginTotal, domesticDestTotal, domesticPacking,
+		domesticUnpacking, domesticCrating, domesticUncrating, counselingTotal, sitPickuptotal, sitOriginFuelSurcharge,
+		sitOriginShuttle, sitOriginAddlDays, sitOriginFirstDay, sitDeliveryTotal, sitDestFuelSurcharge, sitDestShuttle,
+		sitDestAddlDays, sitDestFirstDay float64
+
+	var allCrates []*pptasmessages.Crate
+
+	// this adds up all the different payment service items across all payment requests for a move
+	for _, pr := range paymentRequests {
+		for _, serviceItem := range pr.PaymentServiceItems {
+			totalPrice := serviceItem.PriceCents.Float64()
+
+			switch serviceItem.MTOServiceItem.ReService.Name {
+			case "Domestic linehaul":
+			case "Domestic shorthaul":
+				linehaulTotal += totalPrice
+			case "Move management":
+				managementTotal += totalPrice
+			case "Fuel surcharge":
+				fuelPrice += totalPrice
+			case "Domestic origin price":
+				domesticOriginTotal += totalPrice
+			case "Domestic destination price":
+				domesticDestTotal += totalPrice
+			case "Domestic packing":
+				domesticPacking += totalPrice
+			case "Domestic unpacking":
+				domesticUnpacking += totalPrice
+			case "Domestic uncrating":
+				domesticUncrating += totalPrice
+			case "Domestic crating":
+				crate := buildServiceItemCrate(serviceItem.MTOServiceItem)
+				allCrates = append(allCrates, &crate)
+				domesticCrating += totalPrice
+			case "Domestic origin SIT pickup":
+				sitPickuptotal += totalPrice
+			case "Domestic origin SIT fuel surcharge":
+				sitOriginFuelSurcharge += totalPrice
+			case "Domestic origin shuttle service":
+				sitOriginShuttle += totalPrice
+			case "Domestic origin add'l SIT":
+				sitOriginAddlDays += totalPrice
+			case "Domestic origin 1st day SIT":
+				if report.SitType == nil || *report.SitType == "" {
+					report.SitType = models.StringPointer("Origin")
+				}
+				sitOriginFirstDay += totalPrice
+			case "Domestic destination SIT fuel surcharge":
+				sitDestFuelSurcharge += totalPrice
+			case "Domestic destination SIT delivery":
+				sitDeliveryTotal += totalPrice
+			case "Domestic destination shuttle service":
+				sitDestShuttle += totalPrice
+			case "Domestic destination add'l SIT":
+				sitDestAddlDays += totalPrice
+			case "Domestic destination 1st day SIT":
+				if report.SitType == models.StringPointer("Origin") || report.SitType == nil {
+					sitType := "Destination"
+					report.SitType = &sitType
+				}
+				sitDestFirstDay += totalPrice
+			case "Counseling":
+				counselingTotal += totalPrice
+			default:
+				continue
+			}
+		}
+	}
+
+	shuttleTotal := sitOriginShuttle + sitDestShuttle
+	report.LinehaulTotal = &linehaulTotal
+	report.LinehaulFuelTotal = &fuelPrice
+	report.OriginPrice = &domesticOriginTotal
+	report.DestinationPrice = &domesticDestTotal
+	report.PackingPrice = &domesticPacking
+	report.UnpackingPrice = &domesticUnpacking
+	report.CratingTotal = &domesticCrating
+	report.UncratingTotal = &domesticUncrating
+	report.ShuttleTotal = &shuttleTotal
+	report.MoveManagementFeeTotal = &managementTotal
+	report.CounselingFeeTotal = &counselingTotal
+	report.CratingDimensions = allCrates
+
+	// calculate total invoice cost
+	invoicePaidAmt := shuttleTotal + linehaulTotal + fuelPrice + domesticOriginTotal + domesticDestTotal + domesticPacking + domesticUnpacking +
+		sitOriginFirstDay + sitOriginAddlDays + sitDestFirstDay + sitDestAddlDays + sitPickuptotal + sitDeliveryTotal + sitOriginFuelSurcharge +
+		sitDestFuelSurcharge + domesticCrating + domesticUncrating
+	report.InvoicePaidAmt = &invoicePaidAmt
+
+	if hasSIT {
+		report.SITOriginFirstDayTotal = &sitOriginFirstDay
+		report.SITOriginAddlDaysTotal = &sitOriginAddlDays
+		report.SITDestFirstDayTotal = &sitDestFirstDay
+		report.SITDestAddlDaysTotal = &sitDestAddlDays
+		report.SITPickupTotal = &sitPickuptotal
+		report.SITDeliveryTotal = &sitDeliveryTotal
+		report.SITOriginFuelSurcharge = &sitOriginFuelSurcharge
+		report.SITDestFuelSurcharge = &sitDestFuelSurcharge
+	}
+}
+
 func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crate {
 	var newServiceItemCrate pptasmessages.Crate
 	var newCrateDimensions pptasmessages.MTOServiceItemDimension
@@ -390,46 +439,4 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 	newServiceItemCrate.Description = *serviceItem.Description
 
 	return newServiceItemCrate
-}
-
-func calculateTotalWeightEstimate(shipments models.MTOShipments) *unit.Pound {
-	var weightEstimate unit.Pound
-	for _, shipment := range shipments {
-		if shipment.PPMShipment != nil {
-			weightEstimate += *shipment.PPMShipment.EstimatedWeight
-		}
-
-		if shipment.PrimeEstimatedWeight != nil {
-			weightEstimate += *shipment.PrimeEstimatedWeight
-		}
-	}
-
-	return &weightEstimate
-}
-
-// inputs all TAC related fields and builds full line of accounting string
-func inputReportTAC(report *models.Report, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
-	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
-	if err != nil {
-		return err
-	} else if len(tac) < 1 {
-		return apperror.NewNotFoundError(orders.ID, "No valid TAC found")
-	}
-
-	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)
-
-	report.LOA = &longLoa
-	report.FiscalYear = tac[0].TacFyTxt
-	report.Appro = tac[0].LineOfAccounting.LoaBafID
-	report.Subhead = tac[0].LineOfAccounting.LoaObjClsID
-	report.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
-	report.BCN = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
-	report.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
-	report.AAA = tac[0].LineOfAccounting.LoaTrnsnID
-	report.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
-	report.PAA = tac[0].LineOfAccounting.LoaDocID
-	report.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
-	report.DDCD = tac[0].LineOfAccounting.LoaDptID
-
-	return nil
 }

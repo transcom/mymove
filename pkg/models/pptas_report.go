@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// PPTAS Report
-type Report struct {
+// PPTAS PPTASReport
+type PPTASReport struct {
 	FirstName                   *string
 	LastName                    *string
 	MiddleInitial               *string
@@ -101,4 +101,4 @@ type Report struct {
 	FinancialReviewFlag         *bool
 }
 
-type Reports []Report
+type PPTASReports []PPTASReport

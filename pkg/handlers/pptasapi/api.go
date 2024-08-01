@@ -13,7 +13,7 @@ import (
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	"github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
-	report "github.com/transcom/mymove/pkg/services/report"
+	report "github.com/transcom/mymove/pkg/services/pptas_report"
 	transportationaccountingcode "github.com/transcom/mymove/pkg/services/transportation_accounting_code"
 )
 
@@ -31,9 +31,9 @@ func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)
 
-	pptasAPI.MovesReportsHandler = ReportsHandler{
-		HandlerConfig:     handlerConfig,
-		ReportListFetcher: report.NewReportListFetcher(ppmEstimator, moveFetcher, tacFetcher, loaFetcher),
+	pptasAPI.MovesPptasReportsHandler = PPTASReportsHandler{
+		HandlerConfig:          handlerConfig,
+		PPTASReportListFetcher: report.NewPPTASReportListFetcher(ppmEstimator, moveFetcher, tacFetcher, loaFetcher),
 	}
 
 	return pptasAPI.Serve(nil)
