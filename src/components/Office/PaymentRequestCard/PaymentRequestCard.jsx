@@ -221,13 +221,21 @@ const PaymentRequestCard = ({
                   <tbody>
                     <tr>
                       <td data-testid="paymentRequestEDIErrorType">
-                        {paymentRequest.ediErrorType && <div>{paymentRequestEDI.ediErrorType}</div>}
+                        {paymentRequest.ediErrorType && (
+                          <div data-testid="paymentRequestEDIErrorTypeText">{paymentRequestEDI.ediErrorType}</div>
+                        )}
                       </td>
                       <td data-testid="paymentRequestEDIErrorCode" align="top">
-                        {paymentRequest.ediErrorCode && <div>{paymentRequestEDI.ediErrorCode}</div>}
+                        {paymentRequest.ediErrorCode && (
+                          <div data-testid="paymentRequestEDIErrorCodeText">{paymentRequestEDI.ediErrorCode}</div>
+                        )}
                       </td>
                       <td data-testid="paymentRequestEDIErrorDescription" align="top">
-                        {paymentRequest.ediErrorDescription && <div>{paymentRequestEDI.ediErrorDescription}</div>}
+                        {paymentRequest.ediErrorDescription && (
+                          <div data-testid="paymentRequestEDIErrorDescriptionText">
+                            {paymentRequestEDI.ediErrorDescription}
+                          </div>
+                        )}
                       </td>
                     </tr>
                   </tbody>
@@ -273,12 +281,11 @@ const PaymentRequestCard = ({
       );
     }
     if (
-      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
-        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
-      approvedAmount > 0
+      paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR && approvedAmount > 0)
     ) {
       return (
-        <div className={styles.amountAccepted}>
+        <div className={styles.amountAccepted} data-testid="sentToGexDetails">
           <FontAwesomeIcon icon="check" />
           <div>
             <h2>{toDollarString(formatCents(approvedAmount))}</h2>
