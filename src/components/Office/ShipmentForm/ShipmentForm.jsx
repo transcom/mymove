@@ -625,7 +625,9 @@ const ShipmentForm = (props) => {
               </Alert>
             )}
             {deliveryAddressUpdateRequested && (
-              <Alert type="error">Request needs review. See delivery location to proceed.</Alert>
+              <Alert type="error" className={styles.alert}>
+                Request needs review. <a href="#delivery-location">See delivery location to proceed.</a>
+              </Alert>
             )}
 
             <div className={styles.ShipmentForm}>
@@ -789,87 +791,112 @@ const ShipmentForm = (props) => {
                     </Fieldset>
 
                     {isNTSR ? (
-                      <Fieldset legend="Delivery location">
-                        <AddressFields
-                          name="delivery.address"
-                          render={(fields) => {
-                            return fields;
-                          }}
-                        />
-                        <h4>Second delivery location</h4>
-                        <FormGroup>
-                          <p>Do you want the movers to deliver any belongings to a second address?</p>
-                          <div className={formStyles.radioGroup}>
-                            <Field
-                              as={Radio}
-                              data-testid="has-secondary-delivery"
-                              id="has-secondary-delivery"
-                              label="Yes"
-                              name="hasSecondaryDelivery"
-                              value="yes"
-                              title="Yes, I have a second destination location"
-                              checked={hasSecondaryDelivery === 'yes'}
-                            />
-                            <Field
-                              as={Radio}
-                              data-testid="no-secondary-delivery"
-                              id="no-secondary-delivery"
-                              label="No"
-                              name="hasSecondaryDelivery"
-                              value="no"
-                              title="No, I do not have a second destination location"
-                              checked={hasSecondaryDelivery !== 'yes'}
-                            />
-                          </div>
-                        </FormGroup>
-                        {hasSecondaryDelivery === 'yes' && (
-                          <>
-                            <AddressFields name="secondaryDelivery.address" />
-                            {isTertiaryAddressEnabled && (
-                              <>
-                                <h4>Third delivery location</h4>
-                                <FormGroup>
-                                  <p>Do you want the movers to deliver any belongings from a third address?</p>
-                                  <div className={formStyles.radioGroup}>
-                                    <Field
-                                      as={Radio}
-                                      id="has-tertiary-delivery"
-                                      data-testid="has-tertiary-delivery"
-                                      label="Yes"
-                                      name="hasTertiaryDelivery"
-                                      value="yes"
-                                      title="Yes, I have a third delivery location"
-                                      checked={hasTertiaryDelivery === 'yes'}
-                                    />
-                                    <Field
-                                      as={Radio}
-                                      id="no-tertiary-delivery"
-                                      data-testid="no-tertiary-delivery"
-                                      label="No"
-                                      name="hasTertiaryDelivery"
-                                      value="no"
-                                      title="No, I do not have a third delivery location"
-                                      checked={hasTertiaryDelivery !== 'yes'}
-                                    />
-                                  </div>
-                                </FormGroup>
-                                {hasTertiaryDelivery === 'yes' && <AddressFields name="tertiaryDelivery.address" />}
-                              </>
-                            )}
-                          </>
+                      <>
+                        {deliveryAddressUpdateRequested && (
+                          <Alert type="error" slim className={styles.deliveryAddressUpdateAlert} id="delivery-location">
+                            <span className={styles.deliveryAddressUpdateAlertContent}>
+                              Pending delivery location change request needs review.{' '}
+                              <Button
+                                className={styles.reviewRequestLink}
+                                type="button"
+                                unstyled
+                                onClick={() => setIsAddressChangeModalOpen(true)}
+                                disabled={false}
+                              >
+                                Review request
+                              </Button>{' '}
+                              to proceed.
+                            </span>
+                          </Alert>
                         )}
-                        {displayDestinationType && (
-                          <DropdownInput
-                            label="Destination type"
-                            name="destinationType"
-                            options={shipmentDestinationAddressOptions}
-                            id="destinationType"
+                        <Fieldset
+                          legend="Delivery location"
+                          disabled={deliveryAddressUpdateRequested}
+                          className={classNames('usa-legend', styles.mockLegend)}
+                        >
+                          <AddressFields
+                            name="delivery.address"
+                            render={(fields) => {
+                              return fields;
+                            }}
                           />
-                        )}
-                      </Fieldset>
+                          <h4>Second delivery location</h4>
+                          <FormGroup>
+                            <p>Do you want the movers to deliver any belongings to a second address?</p>
+                            <div className={formStyles.radioGroup}>
+                              <Field
+                                as={Radio}
+                                data-testid="has-secondary-delivery"
+                                id="has-secondary-delivery"
+                                label="Yes"
+                                name="hasSecondaryDelivery"
+                                value="yes"
+                                title="Yes, I have a second destination location"
+                                checked={hasSecondaryDelivery === 'yes'}
+                              />
+                              <Field
+                                as={Radio}
+                                data-testid="no-secondary-delivery"
+                                id="no-secondary-delivery"
+                                label="No"
+                                name="hasSecondaryDelivery"
+                                value="no"
+                                title="No, I do not have a second destination location"
+                                checked={hasSecondaryDelivery !== 'yes'}
+                              />
+                            </div>
+                          </FormGroup>
+                          {hasSecondaryDelivery === 'yes' && (
+                            <>
+                              <AddressFields name="secondaryDelivery.address" />
+                              {isTertiaryAddressEnabled && (
+                                <>
+                                  <h4>Third delivery location</h4>
+                                  <FormGroup>
+                                    <p>Do you want the movers to deliver any belongings from a third address?</p>
+                                    <div className={formStyles.radioGroup}>
+                                      <Field
+                                        as={Radio}
+                                        id="has-tertiary-delivery"
+                                        data-testid="has-tertiary-delivery"
+                                        label="Yes"
+                                        name="hasTertiaryDelivery"
+                                        value="yes"
+                                        title="Yes, I have a third delivery location"
+                                        checked={hasTertiaryDelivery === 'yes'}
+                                      />
+                                      <Field
+                                        as={Radio}
+                                        id="no-tertiary-delivery"
+                                        data-testid="no-tertiary-delivery"
+                                        label="No"
+                                        name="hasTertiaryDelivery"
+                                        value="no"
+                                        title="No, I do not have a third delivery location"
+                                        checked={hasTertiaryDelivery !== 'yes'}
+                                      />
+                                    </div>
+                                  </FormGroup>
+                                  {hasTertiaryDelivery === 'yes' && <AddressFields name="tertiaryDelivery.address" />}
+                                </>
+                              )}
+                            </>
+                          )}
+                          {displayDestinationType && (
+                            <DropdownInput
+                              label="Destination type"
+                              name="destinationType"
+                              options={shipmentDestinationAddressOptions}
+                              id="destinationType"
+                            />
+                          )}
+                        </Fieldset>
+                      </>
                     ) : (
                       <>
-                        <p className={classNames('usa-legend', styles.mockLegend)}>Delivery location</p>
+                        <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
+                          Delivery location
+                        </p>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert}>
                             <span className={styles.deliveryAddressUpdateAlertContent}>
