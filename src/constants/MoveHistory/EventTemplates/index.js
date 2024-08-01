@@ -46,6 +46,8 @@ export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceIte
 export { default as updateMoveEstimatedExcessWeight } from './UpdateMTOShipment/updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateMTOStatusServiceCounselingCompleted } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompleted';
 export { default as updateMTOStatusServiceCounselingCompletedPPM } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompletedPPM';
+export { default as updateMTOStatusPrimeCounselingCompleted } from './UpdateMTOPostCounselingInformation/updateMTOStatusPrimeCounselingCompleted';
+export { default as updateMTOStatusPrimeCounselingCompletedPPM } from './UpdateMTOPostCounselingInformation/updateMTOStatusPrimeCounselingCompletedPPM';
 export { default as updateAllowanceByCounselor } from './UpdateAllowances/updateAllowanceByCounselor';
 export { default as updateServiceMemberByCounselor } from './UpdateServiceMember/updateServiceMemberByCounselor';
 export { default as updateServiceMemberByTOO } from './UpdateServiceMember/updateServiceMemberByTOO';
