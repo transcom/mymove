@@ -98,14 +98,14 @@ export class TooFlowPage extends OfficePage {
 
     const form = this.page.locator('form');
     await form.locator('select[name="departmentIndicator"]').selectOption({ label: '21 Army' });
-    await form.locator('input[name="ordersNumber"]').type('ORDER66');
+    await form.locator('input[name="ordersNumber"]').fill('ORDER66');
     await form.locator('select[name="ordersType"]').selectOption({ label: 'Permanent Change Of Station (PCS)' });
     await form.locator('select[name="ordersTypeDetail"]').selectOption({ label: 'Shipment of HHG Permitted' });
 
-    await form.locator('[data-testid="hhgTacInput"]').type('E15A');
-    await form.locator('[data-testid="hhgSacInput"]').type('4K988AS098F');
-    await form.locator('[data-testid="ntsTacInput"]').type('F123');
-    await form.locator('[data-testid="ntsSacInput"]').type('3L988AS098F');
+    await form.locator('[data-testid="hhgTacInput"]').fill('E15A');
+    await form.locator('[data-testid="hhgSacInput"]').fill('4K988AS098F');
+    await form.locator('[data-testid="ntsTacInput"]').fill('F123');
+    await form.locator('[data-testid="ntsSacInput"]').fill('3L988AS098F');
     // Edit orders page | Save
     await form.getByRole('button', { name: 'Save' }).click();
     await this.waitForLoading();

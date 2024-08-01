@@ -246,6 +246,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -5995,6 +5998,28 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -6248,6 +6273,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
@@ -8608,9 +8639,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -9564,6 +9599,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -10458,6 +10496,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -10850,6 +10893,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -10937,6 +10983,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -11338,6 +11387,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -13374,6 +13424,12 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
             "schema": {
               "$ref": "#/definitions/Error"
             }
@@ -20501,6 +20557,28 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -20758,6 +20836,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
@@ -23118,9 +23202,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -24074,6 +24162,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -24969,6 +25060,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "sentToGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "serviceItems": {
           "$ref": "#/definitions/PaymentServiceItems"
         },
@@ -25363,6 +25459,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25450,6 +25549,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25901,6 +26003,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
