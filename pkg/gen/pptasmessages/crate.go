@@ -19,13 +19,13 @@ import (
 type Crate struct {
 
 	// crate dimensions
-	CrateDimensions *CrateCrateDimensions `json:"crateDimensions,omitempty"`
+	CrateDimensions *MTOServiceItemDimension `json:"crateDimensions,omitempty"`
 
 	// description
 	Description string `json:"description,omitempty"`
 
 	// item dimensions
-	ItemDimensions *CrateItemDimensions `json:"itemDimensions,omitempty"`
+	ItemDimensions *MTOServiceItemDimension `json:"itemDimensions,omitempty"`
 }
 
 // Validate validates this crate
@@ -155,92 +155,6 @@ func (m *Crate) MarshalBinary() ([]byte, error) {
 // UnmarshalBinary interface implementation
 func (m *Crate) UnmarshalBinary(b []byte) error {
 	var res Crate
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// CrateCrateDimensions crate crate dimensions
-//
-// swagger:model CrateCrateDimensions
-type CrateCrateDimensions struct {
-
-	// height
-	Height float64 `json:"height,omitempty"`
-
-	// length
-	Length float64 `json:"length,omitempty"`
-
-	// width
-	Width float64 `json:"width,omitempty"`
-}
-
-// Validate validates this crate crate dimensions
-func (m *CrateCrateDimensions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this crate crate dimensions based on context it is used
-func (m *CrateCrateDimensions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *CrateCrateDimensions) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *CrateCrateDimensions) UnmarshalBinary(b []byte) error {
-	var res CrateCrateDimensions
-	if err := swag.ReadJSON(b, &res); err != nil {
-		return err
-	}
-	*m = res
-	return nil
-}
-
-// CrateItemDimensions crate item dimensions
-//
-// swagger:model CrateItemDimensions
-type CrateItemDimensions struct {
-
-	// height
-	Height float64 `json:"height,omitempty"`
-
-	// length
-	Length float64 `json:"length,omitempty"`
-
-	// width
-	Width float64 `json:"width,omitempty"`
-}
-
-// Validate validates this crate item dimensions
-func (m *CrateItemDimensions) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validates this crate item dimensions based on context it is used
-func (m *CrateItemDimensions) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	return nil
-}
-
-// MarshalBinary interface implementation
-func (m *CrateItemDimensions) MarshalBinary() ([]byte, error) {
-	if m == nil {
-		return nil, nil
-	}
-	return swag.WriteJSON(m)
-}
-
-// UnmarshalBinary interface implementation
-func (m *CrateItemDimensions) UnmarshalBinary(b []byte) error {
-	var res CrateItemDimensions
 	if err := swag.ReadJSON(b, &res); err != nil {
 		return err
 	}

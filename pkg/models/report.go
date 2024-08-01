@@ -10,6 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// PPTAS Report
 type Report struct {
 	FirstName                   *string
 	LastName                    *string

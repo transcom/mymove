@@ -16,8 +16,8 @@ type ReportListFetcher struct {
 	mock.Mock
 }
 
-// BuildReportFromMoves provides a mock function with given fields: appCtx, params
-func (_m *ReportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
+// BuildReportsFromMoves provides a mock function with given fields: appCtx, params
+func (_m *ReportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
 	ret := _m.Called(appCtx, params)
 
 	var r0 models.Reports

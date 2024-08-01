@@ -1,8 +1,6 @@
 package report
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -14,18 +12,25 @@ import (
 )
 
 type reportListFetcher struct {
-	estimator services.PPMEstimator
+	estimator   services.PPMEstimator
+	moveFetcher services.MoveFetcher
+	tacFetcher  services.TransportationAccountingCodeFetcher
+	loaFetcher  services.LineOfAccountingFetcher
 }
 
-func NewReportListFetcher(estimator services.PPMEstimator) services.ReportListFetcher {
+func NewReportListFetcher(estimator services.PPMEstimator, moveFetcher services.MoveFetcher, tacFetcher services.TransportationAccountingCodeFetcher, loaFetcher services.LineOfAccountingFetcher) services.ReportListFetcher {
 	return &reportListFetcher{
-		estimator: estimator,
+		estimator:   estimator,
+		moveFetcher: moveFetcher,
+		tacFetcher:  tacFetcher,
+		loaFetcher:  loaFetcher,
 	}
 }
 
-func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
+// Builds a list of reports for PPTAS
+func (f *reportListFetcher) BuildReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Reports, error) {
 	var fullreport models.Reports
-	moves, err := FetchMovesForReports(appCtx, params)
+	moves, err := f.moveFetcher.FetchMovesForReports(appCtx, params)
 
 	if err != nil {
 		return nil, err
@@ -33,6 +38,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 
 	for _, move := range moves {
 		var report models.Report
+		report.ShipmentId = move.ID
 
 		orders := move.Orders
 		var paymentRequests []models.PaymentRequest
@@ -55,7 +61,10 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			continue
 		}
 
-		tac := FetchTACForMmove(appCtx, orders)
+		tacErr := inputReportTAC(&report, orders, appCtx, f.tacFetcher, f.loaFetcher)
+		if tacErr != nil {
+			return nil, tacErr
+		}
 
 		var middleInitial string
 		if orders.ServiceMember.MiddleName != nil && *orders.ServiceMember.MiddleName != "" {
@@ -107,24 +116,6 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		}
 
 		report.EntitlementWeight = &totalWeight
-
-		var longLoa string
-		if len(tac) > 0 {
-			longLoa = buildFullLineOfAccountingString(tac[0].LineOfAccounting)
-
-			report.LOA = &longLoa
-			report.FiscalYear = tac[0].TacFyTxt
-			report.Appro = tac[0].LineOfAccounting.LoaBafID
-			report.Subhead = tac[0].LineOfAccounting.LoaObjClsID
-			report.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
-			report.BCN = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
-			report.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
-			report.AAA = tac[0].LineOfAccounting.LoaTrnsnID
-			report.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
-			report.PAA = tac[0].LineOfAccounting.LoaDocID
-			report.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
-			report.DDCD = tac[0].LineOfAccounting.LoaDptID
-		}
 
 		var linehaulTotal, managementTotal, fuelPrice, domesticOriginTotal, domesticDestTotal, domesticPacking,
 			domesticUnpacking, domesticCrating, domesticUncrating, counselingTotal, sitPickuptotal, sitOriginFuelSurcharge,
@@ -327,7 +318,7 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
 		}
 
-		netWeight := models.GetTotalNetWeightFromHHGAndPPM(move)
+		netWeight := models.GetTotalNetWeightFromMTO(move)
 
 		if orders.ServiceMember.BackupContacts != nil {
 			report.EmailSecondary = &orders.ServiceMember.BackupContacts[0].Email
@@ -358,10 +349,9 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 		report.TransmitCd = &transmitCd
 		report.DD2278IssueDate = move.ServiceCounselingCompletedAt
 		report.Miles = move.MTOShipments[0].Distance
-		report.ShipmentId = move.ID
 		report.SCAC = &scac
 		report.NetWeight = &netWeight
-		if len(paymentRequests) > 0 {
+		if len(paymentRequests) > 0 && paymentRequests[0].ReviewedAt != nil {
 			report.PaidDate = paymentRequests[0].ReviewedAt
 		}
 		report.CounseledDate = move.ServiceCounselingCompletedAt
@@ -375,226 +365,24 @@ func (f *reportListFetcher) BuildReportFromMoves(appCtx appcontext.AppContext, p
 	return fullreport, nil
 }
 
-// Fetch Moves with an approved Payment Request for Navy service members and ignore TIO and GBLOC rules
-func FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
-	var moves models.Moves
-
-	query := appCtx.DB().EagerPreload(
-		"MTOShipments.DestinationAddress",
-		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.SecondaryPickupAddress",
-		"MTOShipments.MTOAgents",
-		"MTOShipments.Reweigh",
-		"MTOShipments.PPMShipment",
-		"Orders.ServiceMember",
-		"Orders.ServiceMember.ResidentialAddress",
-		"Orders.ServiceMember.BackupContacts",
-		"Orders.Entitlement",
-		"Orders.Entitlement.WeightAllotted",
-		"Orders.NewDutyLocation.Address",
-		"Orders.NewDutyLocation.TransportationOffice.Gbloc",
-		"Orders.OriginDutyLocation.Address",
-		"Orders.TAC",
-	).
-		InnerJoin("orders", "orders.id = moves.orders_id").
-		InnerJoin("entitlements", "entitlements.id = orders.entitlement_id").
-		InnerJoin("service_members", "orders.service_member_id = service_members.id").
-		InnerJoin("mto_shipments", "mto_shipments.move_id = moves.id").
-		LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-		LeftJoin("addresses", "addresses.id in (mto_shipments.pickup_address_id, mto_shipments.destination_address_id)").
-		Where("mto_shipments.status = 'APPROVED'").
-		Where("service_members.affiliation = ?", models.AffiliationNAVY).
-		GroupBy("moves.id")
-
-	if params.Since != nil {
-		query.Where("mto_shipments.updated_at >= ?", params.Since)
-	}
-
-	err := query.All(&moves)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return moves, nil
-}
-
-func FetchTACForMmove(appCtx appcontext.AppContext, orders models.Order) []models.TransportationAccountingCode {
-	var tac []models.TransportationAccountingCode
-
-	tacQueryError := appCtx.DB().Q().
-		EagerPreload(
-			"LineOfAccounting",
-			"LineOfAccounting.LoaTrsySfxTx",
-			"LineOfAccounting.LoaObjClsID",
-			"LineOfAccounting.LoaAlltSnID",
-			"LineOfAccounting.LoaSbaltmtRcpntID",
-			"LineOfAccounting.LoaInstlAcntgActID",
-			"LineOfAccounting.LoaTrnsnID",
-			"LineOfAccounting.LoaJbOrdNm",
-			"LineOfAccounting.LoaDocID",
-			"LineOfAccounting.LoaPgmElmntID",
-			"LineOfAccounting.LoaDptID",
-		).
-		Join("lines_of_accounting loa", "loa.loa_sys_id = transportation_accounting_codes.loa_sys_id").
-		Where("transportation_accounting_codes.tac = ?", orders.TAC).
-		Where("? BETWEEN transportation_accounting_codes.trnsprtn_acnt_bgn_dt AND transportation_accounting_codes.trnsprtn_acnt_end_dt", orders.IssueDate).
-		Where("? BETWEEN loa.loa_bgn_dt AND loa.loa_end_dt", orders.IssueDate).
-		Where("loa.loa_hs_gds_cd != ?", models.LineOfAccountingHouseholdGoodsCodeNTS).
-		All(&tac)
-
-	if tacQueryError != nil {
-		return nil
-	}
-
-	return tac
-}
-
-func buildFullLineOfAccountingString(loa *models.LineOfAccounting) string {
-	emptyString := ""
-	var fiscalYear string
-	if fmt.Sprint(*loa.LoaBgFyTx) != "" && fmt.Sprint(*loa.LoaEndFyTx) != "" {
-		fiscalYear = fmt.Sprint(*loa.LoaBgFyTx) + fmt.Sprint(*loa.LoaEndFyTx)
-	} else {
-		fiscalYear = ""
-	}
-
-	if loa.LoaDptID == nil {
-		loa.LoaDptID = &emptyString
-	}
-	if loa.LoaTnsfrDptNm == nil {
-		loa.LoaTnsfrDptNm = &emptyString
-	}
-	if loa.LoaBafID == nil {
-		loa.LoaBafID = &emptyString
-	}
-	if loa.LoaTrsySfxTx == nil {
-		loa.LoaTrsySfxTx = &emptyString
-	}
-	if loa.LoaMajClmNm == nil {
-		loa.LoaMajClmNm = &emptyString
-	}
-	if loa.LoaOpAgncyID == nil {
-		loa.LoaOpAgncyID = &emptyString
-	}
-	if loa.LoaAlltSnID == nil {
-		loa.LoaAlltSnID = &emptyString
-	}
-	if loa.LoaUic == nil {
-		loa.LoaUic = &emptyString
-	}
-	if loa.LoaPgmElmntID == nil {
-		loa.LoaPgmElmntID = &emptyString
-	}
-	if loa.LoaTskBdgtSblnTx == nil {
-		loa.LoaTskBdgtSblnTx = &emptyString
-	}
-	if loa.LoaDfAgncyAlctnRcpntID == nil {
-		loa.LoaDfAgncyAlctnRcpntID = &emptyString
-	}
-	if loa.LoaJbOrdNm == nil {
-		loa.LoaJbOrdNm = &emptyString
-	}
-	if loa.LoaSbaltmtRcpntID == nil {
-		loa.LoaSbaltmtRcpntID = &emptyString
-	}
-	if loa.LoaWkCntrRcpntNm == nil {
-		loa.LoaWkCntrRcpntNm = &emptyString
-	}
-	if loa.LoaMajRmbsmtSrcID == nil {
-		loa.LoaMajRmbsmtSrcID = &emptyString
-	}
-	if loa.LoaDtlRmbsmtSrcID == nil {
-		loa.LoaDtlRmbsmtSrcID = &emptyString
-	}
-	if loa.LoaCustNm == nil {
-		loa.LoaCustNm = &emptyString
-	}
-	if loa.LoaObjClsID == nil {
-		loa.LoaObjClsID = &emptyString
-	}
-	if loa.LoaSrvSrcID == nil {
-		loa.LoaSrvSrcID = &emptyString
-	}
-	if loa.LoaSpclIntrID == nil {
-		loa.LoaSpclIntrID = &emptyString
-	}
-	if loa.LoaBdgtAcntClsNm == nil {
-		loa.LoaBdgtAcntClsNm = &emptyString
-	}
-	if loa.LoaDocID == nil {
-		loa.LoaDocID = &emptyString
-	}
-	if loa.LoaClsRefID == nil {
-		loa.LoaClsRefID = &emptyString
-	}
-	if loa.LoaInstlAcntgActID == nil {
-		loa.LoaInstlAcntgActID = &emptyString
-	}
-	if loa.LoaLclInstlID == nil {
-		loa.LoaLclInstlID = &emptyString
-	}
-	if loa.LoaTrnsnID == nil {
-		loa.LoaTrnsnID = &emptyString
-	}
-	if loa.LoaFmsTrnsactnID == nil {
-		loa.LoaFmsTrnsactnID = &emptyString
-	}
-
-	LineOfAccountingDfasElementOrder := []string{
-		*loa.LoaDptID,               // "LoaDptID"
-		*loa.LoaTnsfrDptNm,          // "LoaTnsfrDptNm",
-		fiscalYear,                  // "LoaEndFyTx",
-		*loa.LoaBafID,               // "LoaBafID",
-		*loa.LoaTrsySfxTx,           // "LoaTrsySfxTx",
-		*loa.LoaMajClmNm,            // "LoaMajClmNm",
-		*loa.LoaOpAgncyID,           // "LoaOpAgncyID",
-		*loa.LoaAlltSnID,            // "LoaAlltSnID",
-		*loa.LoaUic,                 // "LoaUic",
-		*loa.LoaPgmElmntID,          // "LoaPgmElmntID",
-		*loa.LoaTskBdgtSblnTx,       // "LoaTskBdgtSblnTx",
-		*loa.LoaDfAgncyAlctnRcpntID, // "LoaDfAgncyAlctnRcpntID",
-		*loa.LoaJbOrdNm,             // "LoaJbOrdNm",
-		*loa.LoaSbaltmtRcpntID,      // "LoaSbaltmtRcpntID",
-		*loa.LoaWkCntrRcpntNm,       // "LoaWkCntrRcpntNm",
-		*loa.LoaMajRmbsmtSrcID,      // "LoaMajRmbsmtSrcID",
-		*loa.LoaDtlRmbsmtSrcID,      // "LoaDtlRmbsmtSrcID",
-		*loa.LoaCustNm,              // "LoaCustNm",
-		*loa.LoaObjClsID,            // "LoaObjClsID",
-		*loa.LoaSrvSrcID,            // "LoaSrvSrcID",
-		*loa.LoaSpclIntrID,          // "LoaSpcLIntrID",
-		*loa.LoaBdgtAcntClsNm,       // "LoaBdgtAcntCLsNm",
-		*loa.LoaDocID,               // "LoaDocID",
-		*loa.LoaClsRefID,            // "LoaCLsRefID",
-		*loa.LoaInstlAcntgActID,     // "LoaInstLAcntgActID",
-		*loa.LoaLclInstlID,          // "LoaLcLInstLID",
-		*loa.LoaTrnsnID,             // "LoaTrnsnID",
-		*loa.LoaFmsTrnsactnID,       // "LoaFmsTrnsactnID",
-	}
-
-	longLoa := strings.Join(LineOfAccountingDfasElementOrder, "*")
-	longLoa = strings.ReplaceAll(longLoa, " *", "*")
-
-	return longLoa
-}
-
 func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crate {
 	var newServiceItemCrate pptasmessages.Crate
-	var newCrateDimensions pptasmessages.CrateCrateDimensions
-	var newItemDimensions pptasmessages.CrateItemDimensions
+	var newCrateDimensions pptasmessages.MTOServiceItemDimension
+	var newItemDimensions pptasmessages.MTOServiceItemDimension
 
 	for dimensionIndex := range serviceItem.Dimensions {
 		if serviceItem.Dimensions[dimensionIndex].Type == "ITEM" {
-			newItemDimensions.Height = serviceItem.Dimensions[dimensionIndex].Height.ToInches()
-			newItemDimensions.Length = serviceItem.Dimensions[dimensionIndex].Length.ToInches()
-			newItemDimensions.Width = serviceItem.Dimensions[dimensionIndex].Width.ToInches()
+			newItemDimensions.Type = pptasmessages.DimensionTypeITEM
+			newItemDimensions.Height = int32(serviceItem.Dimensions[dimensionIndex].Height)
+			newItemDimensions.Length = int32(serviceItem.Dimensions[dimensionIndex].Length)
+			newItemDimensions.Width = int32(serviceItem.Dimensions[dimensionIndex].Width)
 			newServiceItemCrate.ItemDimensions = &newItemDimensions
 		}
 		if serviceItem.Dimensions[dimensionIndex].Type == "CRATE" {
-			newCrateDimensions.Height = serviceItem.Dimensions[dimensionIndex].Height.ToInches()
-			newCrateDimensions.Length = serviceItem.Dimensions[dimensionIndex].Length.ToInches()
-			newCrateDimensions.Width = serviceItem.Dimensions[dimensionIndex].Width.ToInches()
+			newCrateDimensions.Type = pptasmessages.DimensionTypeCRATE
+			newCrateDimensions.Height = int32(serviceItem.Dimensions[dimensionIndex].Height)
+			newCrateDimensions.Length = int32(serviceItem.Dimensions[dimensionIndex].Length)
+			newCrateDimensions.Width = int32(serviceItem.Dimensions[dimensionIndex].Width)
 			newServiceItemCrate.CrateDimensions = &newCrateDimensions
 		}
 	}
@@ -617,4 +405,31 @@ func calculateTotalWeightEstimate(shipments models.MTOShipments) *unit.Pound {
 	}
 
 	return &weightEstimate
+}
+
+// inputs all TAC related fields and builds full line of accounting string
+func inputReportTAC(report *models.Report, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
+	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
+	if err != nil {
+		return err
+	} else if len(tac) < 1 {
+		return apperror.NewNotFoundError(orders.ID, "No valid TAC found")
+	}
+
+	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)
+
+	report.LOA = &longLoa
+	report.FiscalYear = tac[0].TacFyTxt
+	report.Appro = tac[0].LineOfAccounting.LoaBafID
+	report.Subhead = tac[0].LineOfAccounting.LoaObjClsID
+	report.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
+	report.BCN = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
+	report.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
+	report.AAA = tac[0].LineOfAccounting.LoaTrnsnID
+	report.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
+	report.PAA = tac[0].LineOfAccounting.LoaDocID
+	report.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
+	report.DDCD = tac[0].LineOfAccounting.LoaDptID
+
+	return nil
 }

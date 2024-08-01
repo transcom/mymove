@@ -25,7 +25,7 @@ func (suite *PayloadsSuite) TestInternalServerError() {
 	suite.Equal(traceID.String(), detailError.Instance.String())
 }
 
-func (suite *PayloadsSuite) TestListReport() {
+func (suite *PayloadsSuite) TestReport() {
 	appCtx := suite.AppContextForTest()
 	now := time.Now()
 
@@ -52,7 +52,7 @@ func (suite *PayloadsSuite) TestListReport() {
 	}
 
 	suite.Run("valid report", func() {
-		payload := ListReport(appCtx, &report)
+		payload := Report(appCtx, &report)
 
 		suite.NotNil(payload)
 		suite.Equal(*report.FirstName, payload.FirstName)
@@ -67,7 +67,7 @@ func (suite *PayloadsSuite) TestListReport() {
 	})
 
 	suite.Run("nil report", func() {
-		payload := ListReport(appCtx, nil)
+		payload := Report(appCtx, nil)
 
 		suite.Nil(payload)
 	})

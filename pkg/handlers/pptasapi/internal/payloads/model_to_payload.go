@@ -26,32 +26,24 @@ func InternalServerError(detail *string, traceID uuid.UUID) *pptasmessages.Clien
 	return &payload
 }
 
-// ListReport payload
-func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessages.ListReport {
+// Report payload
+func Report(appCtx appcontext.AppContext, report *models.Report) *pptasmessages.Report {
 	if report == nil {
 		return nil
 	}
 
-	payload := &pptasmessages.ListReport{
-		FirstName:              *report.FirstName,
-		LastName:               *report.LastName,
+	payload := &pptasmessages.Report{
 		MiddleInitial:          report.MiddleInitial,
-		Affiliation:            (*pptasmessages.Affiliation)(report.Affiliation),
-		PayGrade:               (*string)(report.PayGrade),
-		Edipi:                  *report.Edipi,
-		PhonePrimary:           *report.PhonePrimary,
 		PhoneSecondary:         report.PhoneSecondary,
-		EmailPrimary:           *report.EmailPrimary,
 		EmailSecondary:         report.EmailSecondary,
 		OrdersType:             string(report.OrdersType),
-		OrdersNumber:           *report.OrdersNumber,
-		OrdersDate:             strfmt.DateTime(*report.OrdersDate),
+		PayGrade:               (*string)(report.PayGrade),
 		OriginAddress:          Address(report.OriginAddress),
 		DestinationAddress:     Address(report.DestinationAddress),
 		OriginGbloc:            report.OriginGBLOC,
 		DestinationGbloc:       report.DestinationGBLOC,
 		DepCD:                  &report.DepCD,
-		MoveDate:               (*strfmt.Date)(report.MoveDate),
+		Affiliation:            (*pptasmessages.Affiliation)(report.Affiliation),
 		Tac:                    report.TAC,
 		FiscalYear:             report.FiscalYear,
 		ShipmentNum:            int64(report.ShipmentNum),
@@ -60,16 +52,17 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		ShipmentID:             strfmt.UUID(report.ShipmentId.String()),
 		Scac:                   report.SCAC,
 		Loa:                    report.LOA,
-		SitInDate:              (*strfmt.Date)(report.SitInDate),
-		SitOutDate:             (*strfmt.Date)(report.SitOutDate),
 		SitType:                report.SitType,
-		PaidDate:               (*strfmt.Date)(report.PaidDate),
 		LinehaulTotal:          report.LinehaulTotal,
 		LinehaulFuelTotal:      report.LinehaulFuelTotal,
 		OriginPrice:            report.OriginPrice,
 		DestinationPrice:       report.DestinationPrice,
 		PackingPrice:           report.PackingPrice,
 		UnpackingPrice:         report.UnpackingPrice,
+		PaidDate:               (*strfmt.Date)(report.PaidDate),
+		MoveDate:               (*strfmt.Date)(report.MoveDate),
+		SitInDate:              (*strfmt.Date)(report.SitInDate),
+		SitOutDate:             (*strfmt.Date)(report.SitOutDate),
 		SitOriginFirstDayTotal: report.SITOriginFirstDayTotal,
 		SitOriginAddlDaysTotal: report.SITOriginAddlDaysTotal,
 		SitDestFirstDayTotal:   report.SITDestFirstDayTotal,
@@ -86,6 +79,34 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 		CounselingFeeTotal:     report.CounselingFeeTotal,
 		InvoicePaidAmt:         report.InvoicePaidAmt,
 		FinancialReviewFlag:    report.FinancialReviewFlag,
+	}
+
+	if report.FirstName != nil {
+		payload.FirstName = *report.FirstName
+	}
+
+	if report.LastName != nil {
+		payload.LastName = *report.LastName
+	}
+
+	if report.OrdersDate != nil {
+		payload.OrdersDate = strfmt.DateTime(*report.OrdersDate)
+	}
+
+	if report.Edipi != nil {
+		payload.Edipi = *report.Edipi
+	}
+
+	if report.PhonePrimary != nil {
+		payload.PhonePrimary = *report.PhonePrimary
+	}
+
+	if report.EmailPrimary != nil {
+		payload.EmailPrimary = *report.EmailPrimary
+	}
+
+	if report.OrdersNumber != nil {
+		payload.OrdersNumber = *report.OrdersNumber
 	}
 
 	if report.OrderNumber != nil {
@@ -224,13 +245,13 @@ func ListReport(appCtx appcontext.AppContext, report *models.Report) *pptasmessa
 	return payload
 }
 
-// ListReports payload
-func ListReports(appCtx appcontext.AppContext, reports *models.Reports) []*pptasmessages.ListReport {
-	payload := make(pptasmessages.ListReports, len(*reports))
+// Reports payload
+func Reports(appCtx appcontext.AppContext, reports *models.Reports) []*pptasmessages.Report {
+	payload := make(pptasmessages.Reports, len(*reports))
 
 	for i, report := range *reports {
 		copyOfReport := report // Make copy to avoid implicit memory aliasing of items from a range statement.
-		payload[i] = ListReport(appCtx, &copyOfReport)
+		payload[i] = Report(appCtx, &copyOfReport)
 	}
 	return payload
 }

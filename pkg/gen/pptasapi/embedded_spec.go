@@ -45,15 +45,15 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
+        "description": "Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and Transportation Accounting Codes and Lines of Accounting.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "listReports",
-        "operationId": "listReports",
+        "summary": "Reports",
+        "operationId": "reports",
         "parameters": [
           {
             "type": "string",
@@ -67,7 +67,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/ListReports"
+              "$ref": "#/definitions/Reports"
             }
           },
           "401": {
@@ -308,46 +308,63 @@ func init() {
       "type": "object",
       "properties": {
         "crateDimensions": {
-          "type": "object",
-          "properties": {
-            "height": {
-              "type": "number"
-            },
-            "length": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            }
-          },
-          "x-nullable": true
+          "$ref": "#/definitions/MTOServiceItemDimension"
         },
         "description": {
           "type": "string"
         },
         "itemDimensions": {
-          "type": "object",
-          "properties": {
-            "height": {
-              "type": "number"
-            },
-            "length": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            }
-          },
-          "x-nullable": true
+          "$ref": "#/definitions/MTOServiceItemDimension"
         }
       },
       "x-nullable": true
     },
-    "ListReport": {
-      "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
+      "type": "object",
+      "properties": {
+        "height": {
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "length": {
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
+        },
+        "width": {
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        }
+      }
+    },
+    "Report": {
+      "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
         "aaa": {
+          "description": "LoaTrnsnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -368,10 +385,12 @@ func init() {
           "x-nullable": true
         },
         "bcn": {
+          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
         "costCD": {
+          "description": "LoaPgmElmntID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -401,6 +420,7 @@ func init() {
           "format": "date"
         },
         "ddcd": {
+          "description": "LoaDptID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -409,7 +429,7 @@ func init() {
           "format": "date"
         },
         "depCD": {
-          "description": "Department Code",
+          "description": "Dependent Code",
           "type": "boolean",
           "x-nullable": true
         },
@@ -418,30 +438,7 @@ func init() {
         },
         "destinationGbloc": {
           "type": "string",
-          "enum": [
-            "AGFM",
-            "APAT",
-            "BGAC",
-            "BGNC",
-            "BKAS",
-            "CFMQ",
-            "CLPK",
-            "CNNQ",
-            "DMAT",
-            "GSAT",
-            "HAFC",
-            "HBAT",
-            "JEAT",
-            "JENQ",
-            "KKFA",
-            "LHNQ",
-            "LKNQ",
-            "MAPK",
-            "MAPS",
-            "MBFL",
-            "MLNQ",
-            "XXXX"
-          ],
+          "pattern": "^[A-Z]{4}$",
           "x-nullable": true
         },
         "destinationPrice": {
@@ -482,6 +479,7 @@ func init() {
           "x-nullable": true
         },
         "invoicePaidAmt": {
+          "description": "Invoice Paid Amounts",
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -501,6 +499,7 @@ func init() {
           "x-nullable": true
         },
         "loa": {
+          "description": "Line of Accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -527,6 +526,7 @@ func init() {
           "x-nullable": true
         },
         "objClass": {
+          "description": "LoaAlltSnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -551,30 +551,7 @@ func init() {
         },
         "originGbloc": {
           "type": "string",
-          "enum": [
-            "AGFM",
-            "APAT",
-            "BGAC",
-            "BGNC",
-            "BKAS",
-            "CFMQ",
-            "CLPK",
-            "CNNQ",
-            "DMAT",
-            "GSAT",
-            "HAFC",
-            "HBAT",
-            "JEAT",
-            "JENQ",
-            "KKFA",
-            "LHNQ",
-            "LKNQ",
-            "MAPK",
-            "MAPS",
-            "MBFL",
-            "MLNQ",
-            "XXXX"
-          ],
+          "pattern": "^[A-Z]{4}$",
           "x-nullable": true
         },
         "originPrice": {
@@ -583,6 +560,7 @@ func init() {
           "x-nullable": true
         },
         "paa": {
+          "description": "LoaDocID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -686,11 +664,13 @@ func init() {
           "x-nullable": true
         },
         "ppmFuelRateAdjTotal": {
+          "description": "Personally Procured Move Fuel Rate Adjusted total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "ppmLinehaul": {
+          "description": "Personally Procured Move Linehaul total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -742,65 +722,78 @@ func init() {
           "x-nullable": true
         },
         "sitDeliveryTotal": {
+          "description": "Storage in Transit delivery total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitDestAddlDaysTotal": {
+          "description": "Additional day of Destination Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitDestFirstDayTotal": {
+          "description": "First day of Destination Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitDestFuelSurcharge": {
+          "description": "Storage in Transit destination total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitInDate": {
+          "description": "Storage in Transit In Date",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitOriginAddlDaysTotal": {
+          "description": "Additional day of Origin Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitOriginFirstDayTotal": {
+          "description": "First day of Origin Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitOriginFuelSurcharge": {
+          "description": "Storage in Transit origin fuel total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitOutDate": {
+          "description": "Storage in Transit Out Date",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitPickupTotal": {
+          "description": "Storage in Transit pickup total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitType": {
+          "description": "Storage in Transit type",
           "type": "string",
           "x-nullable": true,
           "example": "Destination"
         },
         "subAllotCD": {
+          "description": "LoaInstlAcntgActID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
         "subhead": {
+          "description": "LoaObjClsID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -829,6 +822,7 @@ func init() {
           "example": "Shipment of HHG Permitted"
         },
         "typeCD": {
+          "description": "LoaJbOrdNm in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -855,10 +849,10 @@ func init() {
         }
       }
     },
-    "ListReports": {
+    "Reports": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ListReport"
+        "$ref": "#/definitions/Report"
       }
     }
   },
@@ -910,15 +904,15 @@ func init() {
   "paths": {
     "/moves": {
       "get": {
-        "description": "Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and TAC/SAC.\n",
+        "description": "Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and Transportation Accounting Codes and Lines of Accounting.\n",
         "produces": [
           "application/json"
         ],
         "tags": [
           "moves"
         ],
-        "summary": "listReports",
-        "operationId": "listReports",
+        "summary": "Reports",
+        "operationId": "reports",
         "parameters": [
           {
             "type": "string",
@@ -932,7 +926,7 @@ func init() {
           "200": {
             "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
             "schema": {
-              "$ref": "#/definitions/ListReports"
+              "$ref": "#/definitions/Reports"
             }
           },
           "401": {
@@ -1182,76 +1176,63 @@ func init() {
       "type": "object",
       "properties": {
         "crateDimensions": {
-          "type": "object",
-          "properties": {
-            "height": {
-              "type": "number"
-            },
-            "length": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            }
-          },
-          "x-nullable": true
+          "$ref": "#/definitions/MTOServiceItemDimension"
         },
         "description": {
           "type": "string"
         },
         "itemDimensions": {
-          "type": "object",
-          "properties": {
-            "height": {
-              "type": "number"
-            },
-            "length": {
-              "type": "number"
-            },
-            "width": {
-              "type": "number"
-            }
-          },
-          "x-nullable": true
+          "$ref": "#/definitions/MTOServiceItemDimension"
         }
       },
       "x-nullable": true
     },
-    "CrateCrateDimensions": {
+    "DimensionType": {
+      "description": "Describes a dimension type for a MTOServiceItemDimension.",
+      "type": "string",
+      "enum": [
+        "ITEM",
+        "CRATE"
+      ]
+    },
+    "MTOServiceItemDimension": {
+      "description": "Describes a dimension object for the MTOServiceItem.",
       "type": "object",
       "properties": {
         "height": {
-          "type": "number"
+          "description": "Height in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
         "length": {
-          "type": "number"
+          "description": "Length in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
+        },
+        "type": {
+          "$ref": "#/definitions/DimensionType"
         },
         "width": {
-          "type": "number"
+          "description": "Width in thousandth inches. 1000 thou = 1 inch.",
+          "type": "integer",
+          "format": "int32",
+          "example": 1000
         }
-      },
-      "x-nullable": true
+      }
     },
-    "CrateItemDimensions": {
-      "type": "object",
-      "properties": {
-        "height": {
-          "type": "number"
-        },
-        "length": {
-          "type": "number"
-        },
-        "width": {
-          "type": "number"
-        }
-      },
-      "x-nullable": true
-    },
-    "ListReport": {
-      "description": "An abbreviated definition for a report, without all the nested information (shipments, service items, etc). Used to fetch a list of reports more efficiently.\n",
+    "Report": {
+      "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
         "aaa": {
+          "description": "LoaTrnsnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1272,10 +1253,12 @@ func init() {
           "x-nullable": true
         },
         "bcn": {
+          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
         "costCD": {
+          "description": "LoaPgmElmntID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1305,6 +1288,7 @@ func init() {
           "format": "date"
         },
         "ddcd": {
+          "description": "LoaDptID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1313,7 +1297,7 @@ func init() {
           "format": "date"
         },
         "depCD": {
-          "description": "Department Code",
+          "description": "Dependent Code",
           "type": "boolean",
           "x-nullable": true
         },
@@ -1322,30 +1306,7 @@ func init() {
         },
         "destinationGbloc": {
           "type": "string",
-          "enum": [
-            "AGFM",
-            "APAT",
-            "BGAC",
-            "BGNC",
-            "BKAS",
-            "CFMQ",
-            "CLPK",
-            "CNNQ",
-            "DMAT",
-            "GSAT",
-            "HAFC",
-            "HBAT",
-            "JEAT",
-            "JENQ",
-            "KKFA",
-            "LHNQ",
-            "LKNQ",
-            "MAPK",
-            "MAPS",
-            "MBFL",
-            "MLNQ",
-            "XXXX"
-          ],
+          "pattern": "^[A-Z]{4}$",
           "x-nullable": true
         },
         "destinationPrice": {
@@ -1386,6 +1347,7 @@ func init() {
           "x-nullable": true
         },
         "invoicePaidAmt": {
+          "description": "Invoice Paid Amounts",
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -1405,6 +1367,7 @@ func init() {
           "x-nullable": true
         },
         "loa": {
+          "description": "Line of Accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1431,6 +1394,7 @@ func init() {
           "x-nullable": true
         },
         "objClass": {
+          "description": "LoaAlltSnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1455,30 +1419,7 @@ func init() {
         },
         "originGbloc": {
           "type": "string",
-          "enum": [
-            "AGFM",
-            "APAT",
-            "BGAC",
-            "BGNC",
-            "BKAS",
-            "CFMQ",
-            "CLPK",
-            "CNNQ",
-            "DMAT",
-            "GSAT",
-            "HAFC",
-            "HBAT",
-            "JEAT",
-            "JENQ",
-            "KKFA",
-            "LHNQ",
-            "LKNQ",
-            "MAPK",
-            "MAPS",
-            "MBFL",
-            "MLNQ",
-            "XXXX"
-          ],
+          "pattern": "^[A-Z]{4}$",
           "x-nullable": true
         },
         "originPrice": {
@@ -1487,6 +1428,7 @@ func init() {
           "x-nullable": true
         },
         "paa": {
+          "description": "LoaDocID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1590,11 +1532,13 @@ func init() {
           "x-nullable": true
         },
         "ppmFuelRateAdjTotal": {
+          "description": "Personally Procured Move Fuel Rate Adjusted total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "ppmLinehaul": {
+          "description": "Personally Procured Move Linehaul total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
@@ -1646,65 +1590,78 @@ func init() {
           "x-nullable": true
         },
         "sitDeliveryTotal": {
+          "description": "Storage in Transit delivery total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitDestAddlDaysTotal": {
+          "description": "Additional day of Destination Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitDestFirstDayTotal": {
+          "description": "First day of Destination Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitDestFuelSurcharge": {
+          "description": "Storage in Transit destination total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitInDate": {
+          "description": "Storage in Transit In Date",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitOriginAddlDaysTotal": {
+          "description": "Additional day of Origin Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitOriginFirstDayTotal": {
+          "description": "First day of Origin Storage in Transit cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitOriginFuelSurcharge": {
+          "description": "Storage in Transit origin fuel total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitOutDate": {
+          "description": "Storage in Transit Out Date",
           "type": "string",
           "format": "date",
           "x-nullable": true
         },
         "sitPickupTotal": {
+          "description": "Storage in Transit pickup total cost",
           "type": "number",
           "format": "double",
           "x-nullable": true
         },
         "sitType": {
+          "description": "Storage in Transit type",
           "type": "string",
           "x-nullable": true,
           "example": "Destination"
         },
         "subAllotCD": {
+          "description": "LoaInstlAcntgActID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
         "subhead": {
+          "description": "LoaObjClsID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1733,6 +1690,7 @@ func init() {
           "example": "Shipment of HHG Permitted"
         },
         "typeCD": {
+          "description": "LoaJbOrdNm in lines_of_accounting",
           "type": "string",
           "x-nullable": true
         },
@@ -1759,10 +1717,10 @@ func init() {
         }
       }
     },
-    "ListReports": {
+    "Reports": {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/ListReport"
+        "$ref": "#/definitions/Report"
       }
     }
   },

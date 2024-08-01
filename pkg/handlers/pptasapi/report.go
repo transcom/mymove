@@ -11,14 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-// ListReportsHandler lists reports with the option to filter since a particular date. Optimized ver.
-type ListReportsHandler struct {
+// ReportsHandler lists reports with the option to filter since a particular date. Optimized ver.
+type ReportsHandler struct {
 	handlers.HandlerConfig
 	services.ReportListFetcher
 }
 
 // Handle fetches all reports with the option to filter since a particular date. Optimized version.
-func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.Responder {
+func (h ReportsHandler) Handle(params pptasop.ReportsParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			var searchParams services.MoveTaskOrderFetcherParams
@@ -27,14 +27,14 @@ func (h ListReportsHandler) Handle(params pptasop.ListReportsParams) middleware.
 				searchParams.Since = &since
 			}
 
-			movesForReport, err := h.BuildReportFromMoves(appCtx, &searchParams)
+			movesForReport, err := h.BuildReportsFromMoves(appCtx, &searchParams)
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching reports:", zap.Error(err))
-				return pptasop.NewListReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				return pptasop.NewReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.ListReports(appCtx, &movesForReport)
+			payload := payloads.Reports(appCtx, &movesForReport)
 
-			return pptasop.NewListReportsOK().WithPayload(payload), nil
+			return pptasop.NewReportsOK().WithPayload(payload), nil
 		})
 }

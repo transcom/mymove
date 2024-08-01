@@ -597,7 +597,8 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 
 }
 
-func GetTotalNetWeightFromHHGAndPPM(m Move) unit.Pound {
+// gets total weight from all ppm and hhg shipments within a move
+func GetTotalNetWeightFromMTO(m Move) unit.Pound {
 	totalNetWeight := unit.Pound(0)
 	for _, shipment := range m.MTOShipments {
 		if shipment.ShipmentType == MTOShipmentTypePPM && shipment.PPMShipment != nil {

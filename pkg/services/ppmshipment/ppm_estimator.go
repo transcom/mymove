@@ -386,7 +386,7 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 	return &totalPrice, nil
 }
 
-// returns the price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
+// returns the final price breakdown of a ppm into linehaul, fuel, packing, unpacking, destination, and origin costs
 func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	logger := appCtx.Logger()
 

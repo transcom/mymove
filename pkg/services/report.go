@@ -9,5 +9,5 @@ import (
 //
 //go:generate mockery --name ReportListFetcher
 type ReportListFetcher interface {
-	BuildReportFromMoves(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Reports, error)
+	BuildReportsFromMoves(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Reports, error)
 }
