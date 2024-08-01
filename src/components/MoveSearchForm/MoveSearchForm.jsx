@@ -118,6 +118,21 @@ const MoveSearchForm = ({ onSubmit }) => {
                   formik.setFieldTouched('searchText', false, false);
                 }}
               />
+              <Field
+                as={Radio}
+                id="radio-picked-paymentRequestCode"
+                data-testid="paymentRequestCode"
+                type="radio"
+                name="searchType"
+                value="paymentRequestCode"
+                title="Payment Request Number"
+                label="Payment Request Number"
+                onChange={(e) => {
+                  formik.setFieldValue('searchType', e.target.value);
+                  formik.setFieldValue('searchText', '', false); // Clear TextField
+                  formik.setFieldTouched('searchText', false, false);
+                }}
+              />
             </div>
             <div className={styles.searchBar}>
               <TextField
