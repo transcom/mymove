@@ -31,7 +31,7 @@ const paymentRequestStatusLabel = (status) => {
     case PAYMENT_REQUEST_STATUS.PAID:
       return 'Paid';
     case PAYMENT_REQUEST_STATUS.EDI_ERROR:
-      return 'Error';
+      return 'EDI Error';
     default:
       return status;
   }
@@ -127,10 +127,8 @@ const PaymentRequestCard = ({
   const showErrorDetailsChevron = showErrorDetails ? 'chevron-up' : 'chevron-down';
   const showErrorDetailsText = showErrorDetails ? 'Hide EDI error details' : 'Show EDI error details';
   const handleToggleErrorDetails = () => setShowErrorDetails((prevState) => !prevState);
-  const errorsExistForPaymentRequest =
-    paymentRequest.ediErrorCode !== '' ||
-    paymentRequest.ediErrorDescription !== '' ||
-    paymentRequest.ediErrorType !== '';
+  const ediErrorsExistForPaymentRequest =
+    paymentRequest.ediErrorCode || paymentRequest.ediErrorDescription || paymentRequest.ediErrorType;
 
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
@@ -182,59 +180,61 @@ const PaymentRequestCard = ({
   };
 
   const renderEDIErrorDetails = (paymentRequestEDI) => {
-    if (errorsExistForPaymentRequest) {
+    if (paymentRequestEDI) {
       return (
-        <div className={styles.summary}>
-          <div className={styles.footer}>
-            <dl>
-              <dt>EDI error details:</dt>
-            </dl>
-            <div className={styles.toggleDrawer}>
-              {showErrorDetailsButton && (
-                <Button
-                  aria-expanded={showErrorDetails}
-                  data-testid="showErrorDetailsButton"
-                  type="button"
-                  unstyled
-                  onClick={handleToggleErrorDetails}
-                  disabled={isMoveLocked}
-                >
-                  <FontAwesomeIcon icon={showErrorDetailsChevron} /> {showErrorDetailsText}
-                </Button>
-              )}
+        <div className={styles.ediErrorDetailsExpand}>
+          <div className={styles.summary}>
+            <div className={styles.footer}>
+              <dl>
+                <dt>EDI error details:</dt>
+              </dl>
+              <div className={styles.toggleDrawer}>
+                {showErrorDetailsButton && (
+                  <Button
+                    aria-expanded={showErrorDetails}
+                    data-testid="showErrorDetailsButton"
+                    type="button"
+                    unstyled
+                    onClick={handleToggleErrorDetails}
+                    disabled={isMoveLocked}
+                  >
+                    <FontAwesomeIcon icon={showErrorDetailsChevron} /> {showErrorDetailsText}
+                  </Button>
+                )}
+              </div>
             </div>
+            {showErrorDetails && (
+              <div data-testid="toggleDrawer" className={styles.drawer}>
+                <table className="table--stacked">
+                  <colgroup>
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '20%' }} />
+                    <col style={{ width: '60%' }} />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>EDI Type</th>
+                      <th className="align-left">Error Code</th>
+                      <th className="align-left">Error Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td data-testid="paymentRequestEDIErrorType">
+                        {paymentRequest.ediErrorType && <div>{paymentRequestEDI.ediErrorType}</div>}
+                      </td>
+                      <td data-testid="paymentRequestEDIErrorCode" align="top">
+                        {paymentRequest.ediErrorCode && <div>{paymentRequestEDI.ediErrorCode}</div>}
+                      </td>
+                      <td data-testid="paymentRequestEDIErrorDescription" align="top">
+                        {paymentRequest.ediErrorDescription && <div>{paymentRequestEDI.ediErrorDescription}</div>}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          {showErrorDetails && (
-            <div data-testid="toggleDrawer" className={styles.drawer}>
-              <table className="table--stacked">
-                <colgroup>
-                  <col style={{ width: '20%' }} />
-                  <col style={{ width: '20%' }} />
-                  <col style={{ width: '60%' }} />
-                </colgroup>
-                <thead>
-                  <tr>
-                    <th>EDI Type</th>
-                    <th className="align-left">Error Code</th>
-                    <th className="align-left">Error Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td data-testid="paymentRequestEDIErrorType" className={styles.ediErrorDetails}>
-                      {paymentRequest.ediErrorType && <div>{paymentRequestEDI.ediErrorType}</div>}
-                    </td>
-                    <td data-testid="paymentRequestEDIErrorCode" align="top">
-                      {paymentRequest.ediErrorCode && <div>{paymentRequestEDI.ediErrorCode}</div>}
-                    </td>
-                    <td data-testid="paymentRequestEDIErrorDescription" align="top">
-                      {paymentRequest.ediErrorDescription && <div>{paymentRequestEDI.ediErrorDescription}</div>}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          )}
         </div>
       );
     }
@@ -321,9 +321,7 @@ const PaymentRequestCard = ({
           <div>{paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}</div>
           {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
         </div>
-        <div className={styles.totalReviewed}>
-          {errorsExistForPaymentRequest && renderEDIErrorDetails(paymentRequest)}
-        </div>
+        {ediErrorsExistForPaymentRequest && renderEDIErrorDetails(paymentRequest)}
         <div className={styles.footer}>
           <dl>
             <dt>Contract number:</dt>
