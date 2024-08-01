@@ -478,9 +478,9 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 		var price *unit.Cents
 		switch serviceItemPricer := pricer.(type) {
 		case services.DomesticOriginFirstDaySITPricer, services.DomesticDestinationFirstDaySITPricer:
-			price, ppmSITEstimatedCostInfoData, err = calculateFirstDaySITCostBreakdown(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract, ppmSITEstimatedCostInfoData)
+			price, ppmSITEstimatedCostInfoData, err = calculateFirstDaySITCostBreakdown(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract, ppmSITEstimatedCostInfoData, logger)
 		case services.DomesticOriginAdditionalDaysSITPricer, services.DomesticDestinationAdditionalDaysSITPricer:
-			price, ppmSITEstimatedCostInfoData, err = calculateAdditionalDaySITCostBreakdown(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract, additionalDaysInSIT, ppmSITEstimatedCostInfoData)
+			price, ppmSITEstimatedCostInfoData, err = calculateAdditionalDaySITCostBreakdown(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract, additionalDaysInSIT, ppmSITEstimatedCostInfoData, logger)
 		default:
 			return nil, fmt.Errorf("unknown SIT pricer type found for service item code %s", serviceItem.ReService.Code)
 		}
@@ -497,7 +497,7 @@ func CalculateSITCostBreakdown(appCtx appcontext.AppContext, ppmShipment *models
 	return ppmSITEstimatedCostInfoData, nil
 }
 
-func calculateFirstDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItemPricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract, ppmSITEstimatedCostInfoData *models.PPMSITEstimatedCostInfo) (*unit.Cents, *models.PPMSITEstimatedCostInfo, error) {
+func calculateFirstDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItemPricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract, ppmSITEstimatedCostInfoData *models.PPMSITEstimatedCostInfo, logger *zap.Logger) (*unit.Cents, *models.PPMSITEstimatedCostInfo, error) {
 	price, priceParams, err := priceFirstDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, contract)
 	if err != nil {
 		return nil, nil, err
@@ -517,12 +517,14 @@ func calculateFirstDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItem
 			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.PriceRateOrFactor = param.Value
 		case models.ServiceItemParamNameEscalationCompounded:
 			ppmSITEstimatedCostInfoData.ParamsFirstDaySIT.EscalationCompounded = param.Value
+		default:
+			logger.Debug(fmt.Sprintf("Unexpected ServiceItemParam in PPM First Day SIT: %s, %s", param.Key, param.Value))
 		}
 	}
 	return price, ppmSITEstimatedCostInfoData, nil
 }
 
-func calculateAdditionalDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItemPricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract, additionalDaysInSIT int, ppmSITEstimatedCostInfoData *models.PPMSITEstimatedCostInfo) (*unit.Cents, *models.PPMSITEstimatedCostInfo, error) {
+func calculateAdditionalDaySITCostBreakdown(appCtx appcontext.AppContext, serviceItemPricer services.ParamsPricer, serviceItem models.MTOServiceItem, ppmShipment *models.PPMShipment, contract models.ReContract, additionalDaysInSIT int, ppmSITEstimatedCostInfoData *models.PPMSITEstimatedCostInfo, logger *zap.Logger) (*unit.Cents, *models.PPMSITEstimatedCostInfo, error) {
 	price, priceParams, err := priceAdditionalDaySIT(appCtx, serviceItemPricer, serviceItem, ppmShipment, additionalDaysInSIT, contract)
 	if err != nil {
 		return nil, nil, err
@@ -544,6 +546,8 @@ func calculateAdditionalDaySITCostBreakdown(appCtx appcontext.AppContext, servic
 			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.EscalationCompounded = param.Value
 		case models.ServiceItemParamNameNumberDaysSIT:
 			ppmSITEstimatedCostInfoData.ParamsAdditionalDaySIT.NumberDaysSIT = param.Value
+		default:
+			logger.Debug(fmt.Sprintf("Unexpected ServiceItemParam in PPM Additional Day SIT: %s, %s", param.Key, param.Value))
 		}
 	}
 	return price, ppmSITEstimatedCostInfoData, nil
