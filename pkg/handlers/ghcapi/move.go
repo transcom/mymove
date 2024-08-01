@@ -281,7 +281,7 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 
 type MoveCancellationHandler struct {
 	handlers.HandlerConfig
-	services.MoveCancellation
+	services.MoveCancelation
 }
 
 func (h MoveCancellationHandler) Handle(params moveop.MoveCancellationParams) middleware.Responder {
@@ -289,7 +289,7 @@ func (h MoveCancellationHandler) Handle(params moveop.MoveCancellationParams) mi
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
-			move, err := h.MoveCancellation.CancelMove(appCtx, moveID)
+			move, err := h.MoveCancelation.CancelMove(appCtx, moveID)
 			if err != nil {
 				appCtx.Logger().Error("MoveCancellationHandler error", zap.Error(err))
 				switch err.(type) {

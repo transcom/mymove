@@ -6,7 +6,7 @@ import (
 )
 
 func (suite *MoveServiceSuite) TestCancelMove() {
-	moveCancellation := NewMoveCancellation()
+	moveCancellation := NewMoveCancelation()
 
 	suite.Run("successfully cancels a move", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)

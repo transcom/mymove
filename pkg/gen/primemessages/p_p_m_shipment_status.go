@@ -54,8 +54,8 @@ const (
 	// PPMShipmentStatusCLOSEOUTCOMPLETE captures enum value "CLOSEOUT_COMPLETE"
 	PPMShipmentStatusCLOSEOUTCOMPLETE PPMShipmentStatus = "CLOSEOUT_COMPLETE"
 
-	// PPMShipmentStatusCANCELLED captures enum value "CANCELLED"
-	PPMShipmentStatusCANCELLED PPMShipmentStatus = "CANCELLED"
+	// PPMShipmentStatusCANCELED captures enum value "CANCELED"
+	PPMShipmentStatusCANCELED PPMShipmentStatus = "CANCELED"
 )
 
 // for schema
@@ -63,7 +63,7 @@ var pPMShipmentStatusEnum []interface{}
 
 func init() {
 	var res []PPMShipmentStatus
-	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_CLOSEOUT","CLOSEOUT_COMPLETE","CANCELLED"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DRAFT","SUBMITTED","WAITING_ON_CUSTOMER","NEEDS_ADVANCE_APPROVAL","NEEDS_CLOSEOUT","CLOSEOUT_COMPLETE","CANCELED"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

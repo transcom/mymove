@@ -9,13 +9,13 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-type moveCancellation struct{}
+type moveCancelation struct{}
 
-func NewMoveCancellation() services.MoveCancellation {
-	return &moveCancellation{}
+func NewMoveCancelation() services.MoveCancelation {
+	return &moveCancelation{}
 }
 
-func (f *moveCancellation) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error) {
+func (f *moveCancelation) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error) {
 	move := &models.Move{}
 	err := appCtx.DB().Find(move, moveID)
 	if err != nil {

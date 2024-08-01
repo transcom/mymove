@@ -2161,7 +2161,7 @@ func init() {
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
-        "CANCELLED"
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -5675,7 +5675,7 @@ func init() {
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
         "CLOSEOUT_COMPLETE",
-        "CANCELLED"
+        "CANCELED"
       ],
       "readOnly": true
     },

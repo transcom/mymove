@@ -2238,7 +2238,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
-      - CANCELLED
+      - CANCELED
   SITLocationType:
     description: The list of SIT location types.
     type: string
