@@ -588,7 +588,7 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequest() {
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), pr.ID)
 		suite.NoError(err)
 		suite.Nil(paymentRequest.SentToGexAt)
-		suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
+		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
 
 		var ediProcessing models.EDIProcessing
 		err = suite.DB().Where("edi_type = ?", models.EDIType858).Order("process_ended_at desc").First(&ediProcessing)
@@ -713,6 +713,6 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		fetcher := NewPaymentRequestFetcher()
 		paymentRequest, err := fetcher.FetchPaymentRequest(suite.AppContextForTest(), prs[0].ID)
 		suite.NoError(err)
-		suite.Equal(models.PaymentRequestStatusEDIError, paymentRequest.Status)
+		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
 	})
 }
