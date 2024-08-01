@@ -242,7 +242,11 @@ const PaymentRequestCard = ({
   };
 
   const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
-    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX) {
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      approvedAmount > 0
+    ) {
       return (
         <div className={styles.amountAccepted}>
           <FontAwesomeIcon icon="check" />
@@ -256,7 +260,11 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING) {
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      requestedAmount > 0
+    ) {
       return (
         <div className={styles.amountRequested}>
           <h2>{toDollarString(formatCents(requestedAmount))}</h2>
@@ -266,7 +274,8 @@ const PaymentRequestCard = ({
     }
     if (
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED ||
-      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED ||
+      paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR
     ) {
       return (
         <div>
