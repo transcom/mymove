@@ -1442,7 +1442,8 @@ func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.Pa
 	// 997s could have edi_errors logged but not have a status of EDI_ERROR
 	query := `SELECT *
 	FROM edi_errors
-	WHERE edi_errors.payment_request_id = $1`
+	WHERE edi_errors.payment_request_id = $1
+	ORDER BY created_at DESC`
 	error := appCtx.DB().RawQuery(query, pr.ID).All(&ediError)
 	if error != nil {
 		return ediErrorInfo, error
@@ -1450,6 +1451,7 @@ func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.Pa
 		return ediErrorInfo, nil
 	}
 	if len(ediError) > 0 {
+		// since we ordered by created_at desc, the first result will be the most recent error we want to grab
 		ediErrorInfo = ediError[0]
 	}
 
