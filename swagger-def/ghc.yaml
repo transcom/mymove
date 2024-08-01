@@ -4223,8 +4223,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
         type: string
-      emplid:
-        type: string
       userID:
         type: string
         format: uuid
@@ -5474,6 +5472,15 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      ediErrorType:
+        description: Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
+        type: string
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
     type: object
   PaymentRequests:
     items:

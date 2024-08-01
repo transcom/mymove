@@ -10677,6 +10677,18 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string"
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string"
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -25493,6 +25505,18 @@ func init() {
           "format": "date-time"
         },
         "eTag": {
+          "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string"
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string"
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
           "type": "string"
         },
         "id": {

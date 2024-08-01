@@ -51,6 +51,26 @@
   text-align: right;
 }
 
+.ediErrorDetailsExpand {
+  @include u-padding-bottom(2);
+  border-bottom: 1px solid #dcdee0;
+
+  .amountAccepted {
+    @include u-display(flex);
+    align-items: center;
+    margin-right: 6em;
+
+    svg {
+      @include u-margin-right(2);
+      height: 24px;
+      width: 24px;
+      path {
+        fill: $success;
+      }
+    }
+  }
+}
+
 .totalReviewed {
   @include u-display(flex);
   @include u-padding-bottom(3);
