@@ -315,6 +315,11 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 	shipment models.MTOShipment,
 	eTag string,
 ) (*models.MTOServiceItem, error) {
+	checkMoveStatus := false
+	if mtoServiceItem.RequestedApprovalsRequestedStatus != nil {
+		checkMoveStatus = *mtoServiceItem.RequestedApprovalsRequestedStatus
+	}
+
 	updatedServiceItem, err := p.UpdateMTOServiceItem(appCtx, mtoServiceItem, eTag, UpdateMTOServiceItemPrimeValidator)
 	if err != nil {
 		return nil, err
@@ -334,22 +339,27 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		}
 	}
 
-	move := &models.Move{}
-	query := appCtx.DB().EagerPreload(
-		"MTOServiceItems",
-		"MTOShipments",
-		"MTOShipments.SITDurationUpdates",
-		"MTOShipments.DeliveryAddressUpdate",
-		"Orders",
-	)
-	query.Where("id = $1", shipment.MoveTaskOrder.ID)
-	err = query.First(move)
-
-	// if the service item is being changed to SUBMITTED status, we want the TOO to know so they can review
-	if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
-		_, err = p.moveRouter.ApproveOrRequestApproval(appCtx, *move)
+	if checkMoveStatus {
+		move := &models.Move{}
+		query := appCtx.DB().EagerPreload(
+			"MTOServiceItems",
+			"MTOShipments",
+			"MTOShipments.SITDurationUpdates",
+			"MTOShipments.DeliveryAddressUpdate",
+			"Orders",
+		)
+		query.Where("id = $1", shipment.MoveTaskOrder.ID)
+		err = query.First(move)
 		if err != nil {
 			return nil, err
+		}
+
+		// if the service item is being changed to SUBMITTED status, we want the TOO to know so they can review
+		if move.Status == models.MoveStatusAPPROVALSREQUESTED || move.Status == models.MoveStatusAPPROVED {
+			_, err = p.moveRouter.ApproveOrRequestApproval(appCtx, *move)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
