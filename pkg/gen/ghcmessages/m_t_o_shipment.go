@@ -45,6 +45,9 @@ type MTOShipment struct {
 	// Example: more weight than expected
 	BillableWeightJustification *string `json:"billableWeightJustification,omitempty"`
 
+	// boat shipment
+	BoatShipment *BoatShipment `json:"boatShipment,omitempty"`
+
 	// calculated billable weight
 	// Example: 2000
 	// Read Only: true
@@ -246,6 +249,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBoatShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -407,6 +414,25 @@ func (m *MTOShipment) validateApprovedDate(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("approvedDate", "body", "date-time", m.ApprovedDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateBoatShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.BoatShipment) { // not required
+		return nil
+	}
+
+	if m.BoatShipment != nil {
+		if err := m.BoatShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -911,6 +937,10 @@ func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateBoatShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCalculatedBillableWeight(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -998,6 +1028,27 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MTOShipment) contextValidateBoatShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BoatShipment != nil {
+
+		if swag.IsZero(m.BoatShipment) { // not required
+			return nil
+		}
+
+		if err := m.BoatShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
