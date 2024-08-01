@@ -138,7 +138,7 @@ func customerNameSearch(customerName *string) QueryOption {
 }
 
 var parameters = map[string]string{
-	"customerName":  "distinct_customers.last_name, distinct_customers.first_name",
+	"customerName":  "distinct_customers.last_name",
 	"dodID":         "distinct_customers.edipi",
 	"emplid":        "distinct_customers.emplid",
 	"branch":        "distinct_customers.affiliation",
