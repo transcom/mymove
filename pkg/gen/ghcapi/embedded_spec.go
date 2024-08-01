@@ -6392,6 +6392,9 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "mobileHome": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -6468,6 +6471,10 @@ func init() {
           "example": false
         }
       }
+    },
+    "CreateMobileHome": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "$ref": "#/definitions/MobileHome"
     },
     "CreateOrders": {
       "type": "object",
@@ -8641,7 +8648,8 @@ func init() {
         "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY"
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -8651,6 +8659,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -8660,6 +8669,88 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOShipment"
       }
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "originAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupLocation": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "Move": {
       "properties": {
@@ -20960,6 +21051,9 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
+        "mobileHome": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
           "type": "string",
@@ -21036,6 +21130,10 @@ func init() {
           "example": false
         }
       }
+    },
+    "CreateMobileHome": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "$ref": "#/definitions/MobileHome"
     },
     "CreateOrders": {
       "type": "object",
@@ -23209,7 +23307,8 @@ func init() {
         "INTERNATIONAL_UB",
         "PPM",
         "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY"
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -23219,6 +23318,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -23228,6 +23328,88 @@ func init() {
       "items": {
         "$ref": "#/definitions/MTOShipment"
       }
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "originAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "pickupLocation": {
+          "$ref": "#/definitions/Address"
+        },
+        "requestedDeliveryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "requestedPickupDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "secondaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "Move": {
       "properties": {
