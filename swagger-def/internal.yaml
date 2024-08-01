@@ -3455,6 +3455,8 @@ paths:
           type: string
           required: true
           description: UUID of the duty location
+      produces:
+        - application/json
       responses:
         "200":
           description: the instance of the counseling office for a duty location

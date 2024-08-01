@@ -177,3 +177,31 @@ func FetchDutyLocationsByPostalCode(tx *pop.Connection, postalCode string) (Duty
 
 	return locations, nil
 }
+
+// FetchDutyLocationCounselingOffices loads a duty location's associated transportation office and its first listed office phone number.
+func FetchDutyLocationCounselingOffices(db *pop.Connection, dutyLocationID uuid.UUID) (TransportationOffice, error) {
+	var dutyLocation DutyLocation
+
+	query := `SELECT to2.*
+		FROM postal_code_to_gblocs pctg
+		JOIN addresses a on pctg.postal_code = a.postal_code
+		JOIN duty_locations dl on a.id = dl.address_id
+		JOIN transportation_offices to2 on pctg.gbloc = to2.gbloc
+		WHERE dl.provides_services_counseling = true and dl.id = $1
+		ORDER BY to2."name" asc`
+	err := db.RawQuery(query, dutyLocationID).All(&dutyLocation)
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			// Non-installation duty locations do not have transportation offices
+			// so we can't look up their information. This isn't an error.
+			return TransportationOffice{}, nil
+		default:
+			return TransportationOffice{}, err
+		}
+	} else if dutyLocation.TransportationOfficeID == nil {
+		return TransportationOffice{}, ErrFetchNotFound
+	}
+
+	return dutyLocation.TransportationOffice, nil
+}

@@ -3001,6 +3001,9 @@ func init() {
     "/transportation_offices/{dutyLocationId}/counseling_offices": {
       "get": {
         "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_offices"
         ],
@@ -11135,6 +11138,9 @@ func init() {
     "/transportation_offices/{dutyLocationId}/counseling_offices": {
       "get": {
         "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
         "tags": [
           "transportation_offices"
         ],

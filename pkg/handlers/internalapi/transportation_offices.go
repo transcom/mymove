@@ -72,15 +72,13 @@ func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowC
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			dutyLocationID, _ := uuid.FromString(params.DutyLocationID.String())
-			counselingOffice, err := models.FetchDutyLocationTransportationOffice(appCtx.DB(), dutyLocationID)
+			counselingOffice, err := models.FetchDutyLocationCounselingOffices(appCtx.DB(), dutyLocationID)
 			if err != nil {
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
 			counselingOfficePayload := payloads.TransportationOffice(counselingOffice)
-			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
-			}
+
 			return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(counselingOfficePayload), nil
 		})
 }
