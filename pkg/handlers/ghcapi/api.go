@@ -662,7 +662,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewOrderUpdater(moveRouter),
 	}
 
-	ghcAPI.MoveMoveCancellationHandler = MoveCancellationHandler{
+	ghcAPI.MoveMoveCancelationHandler = MoveCancellationHandler{
 		handlerConfig,
 		move.NewMoveCancelation(),
 	}
