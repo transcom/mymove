@@ -88,28 +88,32 @@ export default function SitCostBreakdown({
               <small>Base price: {toDollarString(estimatedCost.paramsFirstDaySIT.priceRateOrFactor)}/cwt</small>
             </div>
           </div>
-          <div data-testid="column" className={styles.col}>
-            <div data-testid="row" className={styles.row}>
-              <small data-testid="label" className={styles.descriptionTitle}>
-                Additional Day SIT price:
-              </small>
-              <small data-testid="value" className={styles.value}>
-                {toDollarString(formatCents(estimatedCost?.priceAdditionalDaySIT || 0))}
-              </small>
+          {estimatedCost?.paramsAdditionalDaySIT.numberDaysSIT && (
+            <div data-testid="column" className={styles.col}>
+              <div data-testid="row" className={styles.row}>
+                <small data-testid="label" className={styles.descriptionTitle}>
+                  Additional Day SIT price:
+                </small>
+                <small data-testid="value" className={styles.value}>
+                  {toDollarString(formatCents(estimatedCost?.priceAdditionalDaySIT || 0))}
+                </small>
+              </div>
+              <div data-testid="details" className={styles.row}>
+                <small>SIT add&apos;l day start: {formatDate(sitAdditionalStartDate)} </small>
+              </div>
+              <div data-testid="details" className={styles.row}>
+                <small>SIT end date: {formatDate(sitEndDate)}</small>
+              </div>
+              <div data-testid="details" className={styles.row}>
+                <small>Additional days used: {estimatedCost?.paramsAdditionalDaySIT.numberDaysSIT}</small>
+              </div>
+              <div data-testid="details" className={styles.row}>
+                <small>
+                  Price per day: {toDollarString(estimatedCost.paramsAdditionalDaySIT.priceRateOrFactor)}/cwt
+                </small>
+              </div>
             </div>
-            <div data-testid="details" className={styles.row}>
-              <small>SIT add&apos;l day start: {formatDate(sitAdditionalStartDate)} </small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>SIT end date: {formatDate(sitEndDate)}</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>Additional days used: {estimatedCost?.paramsAdditionalDaySIT.numberDaysSIT}</small>
-            </div>
-            <div data-testid="details" className={styles.row}>
-              <small>Price per day: {toDollarString(estimatedCost.paramsAdditionalDaySIT.priceRateOrFactor)}/cwt</small>
-            </div>
-          </div>
+          )}
           <div data-testid="column" className={styles.col}>
             <div data-testid="row" className={styles.row}>
               <small data-testid="label" className={styles.descriptionTitle}>
