@@ -29,6 +29,7 @@ test.describe('Onboarding', () => {
     await customerPage.waitForPage.onboardingName();
     await page.getByLabel('First name').fill('Leo');
     await page.getByLabel('Last name').fill('Spacemen');
+    await page.getByLabel('Preferred name').fill('Lee');
     await customerPage.navigateForward();
 
     // Contact info section

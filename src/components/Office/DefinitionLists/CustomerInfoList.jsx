@@ -14,6 +14,11 @@ const CustomerInfoList = ({ customerInfo }) => {
     <div className={styles.OfficeDefinitionLists}>
       <dl className={descriptionListStyles.descriptionList}>
         <div className={descriptionListStyles.row}>
+          <dt>Preferred Name</dt>
+          <dd data-testid="preferred_name">{customerInfo.preferredName ? `${customerInfo.preferredName}` : '—'}</dd>
+        </div>
+
+        <div className={descriptionListStyles.row}>
           <dt>Name</dt>
           <dd data-testid="name">{customerInfo.name}</dd>
         </div>

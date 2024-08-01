@@ -11,6 +11,7 @@ const info = {
   phone: '999-999-9999',
   altPhone: '888-888-8888',
   email: 'ksmith@email.com',
+  preferredName: 'Alex',
   currentAddress: {
     streetAddress1: '812 S 129th St',
     city: 'San Antonio',

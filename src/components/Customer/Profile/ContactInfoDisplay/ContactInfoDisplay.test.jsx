@@ -16,6 +16,7 @@ describe('ContactInfoDisplay component', () => {
     telephone: '703-555-4578',
     personalEmail: 'test@example.com',
     emailIsPreferred: true,
+    preferredName: 'Alex',
     residentialAddress: {
       streetAddress1: '1292 Orchard Terrace',
       streetAddress2: 'Building C, Unit 10',
@@ -94,6 +95,12 @@ describe('ContactInfoDisplay component', () => {
     expect(backupPhoneTerm).toBeInTheDocument();
 
     expect(backupPhoneTerm.nextElementSibling.textContent).toBe(testProps.backupContact.telephone);
+
+    const preferredNameTerm = screen.getByText('Preferred Name');
+
+    expect(preferredNameTerm).toBeInTheDocument();
+
+    expect(preferredNameTerm.nextElementSibling.textContent).toBe(testProps.preferredName);
   });
 
   it.each([

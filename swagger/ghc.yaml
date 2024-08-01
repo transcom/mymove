@@ -4395,6 +4395,10 @@ definitions:
         type: string
         example: David
         x-nullable: true
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       current_address:
         $ref: '#/definitions/Address'
       backup_contact:
@@ -4456,6 +4460,10 @@ definitions:
         type: string
         example: David
         x-nullable: true
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       residentialAddress:
         $ref: '#/definitions/Address'
       backupContact:
@@ -4515,6 +4523,10 @@ definitions:
         type: string
         example: David
         x-nullable: true
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       current_address:
         allOf:
           - $ref: '#/definitions/Address'
@@ -4558,6 +4570,10 @@ definitions:
       lastName:
         type: string
         example: Doe
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       suffix:
         type: string
         example: Jr.

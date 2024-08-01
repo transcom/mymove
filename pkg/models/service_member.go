@@ -65,6 +65,7 @@ type ServiceMember struct {
 	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
 	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
 	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
+	PreferredName          *string                   `json:"preferred_name" db:"preferred_name"`
 }
 
 // TableName overrides the table name used by Pop.

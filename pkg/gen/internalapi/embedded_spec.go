@@ -3687,6 +3687,12 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
+        "preferred_name": {
+          "type": "string",
+          "title": "Preferred Name",
+          "x-nullable": true,
+          "example": "Jon"
+        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -6021,6 +6027,12 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
+        "preferred_name": {
+          "type": "string",
+          "title": "Preferred Name",
+          "x-nullable": true,
+          "example": "Jon"
+        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -6495,6 +6507,12 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "preferred_name": {
+          "type": "string",
+          "title": "Preferred Name",
+          "x-nullable": true,
+          "example": "Jon"
         },
         "residential_address": {
           "title": "Residential Address",
@@ -11778,6 +11796,12 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
+        "preferred_name": {
+          "type": "string",
+          "title": "Preferred Name",
+          "x-nullable": true,
+          "example": "Jon"
+        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -14116,6 +14140,12 @@ func init() {
           "title": "Phone",
           "x-nullable": true
         },
+        "preferred_name": {
+          "type": "string",
+          "title": "Preferred Name",
+          "x-nullable": true,
+          "example": "Jon"
+        },
         "residential_address": {
           "$ref": "#/definitions/Address"
         },
@@ -14592,6 +14622,12 @@ func init() {
           "type": "boolean",
           "title": "Telephone",
           "x-nullable": true
+        },
+        "preferred_name": {
+          "type": "string",
+          "title": "Preferred Name",
+          "x-nullable": true,
+          "example": "Jon"
         },
         "residential_address": {
           "title": "Residential Address",

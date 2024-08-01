@@ -30,7 +30,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
   });
 
   const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
-
+  const signIn = true;
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
       {({ isValid, isSubmitting, handleSubmit }) => {
@@ -41,7 +41,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Your contact info</h2>
 
-              <CustomerContactInfoFields />
+              <CustomerContactInfoFields signIn={signIn} />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>

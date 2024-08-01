@@ -4213,6 +4213,10 @@ definitions:
         type: string
         example: David
         x-nullable: true
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       current_address:
         $ref: 'definitions/Address.yaml'
       backup_contact:
@@ -4274,6 +4278,10 @@ definitions:
         type: string
         example: David
         x-nullable: true
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       residentialAddress:
         $ref: 'definitions/Address.yaml'
       backupContact:
@@ -4333,6 +4341,10 @@ definitions:
         type: string
         example: David
         x-nullable: true
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       current_address:
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -4376,6 +4388,10 @@ definitions:
       lastName:
         type: string
         example: Doe
+      preferredName:
+        type: string
+        example: Allen
+        x-nullable: true
       suffix:
         type: string
         example: Jr.

@@ -56,6 +56,7 @@ describe('EditContactInfo page', () => {
         state: 'TX',
         postalCode: '79936',
       },
+      preferred_name: '',
     },
     setFlashMessage: jest.fn(),
     updateBackupContact: jest.fn(),
@@ -201,8 +202,13 @@ describe('EditContactInfo page', () => {
 
   it('saves service member info when the save button is clicked', async () => {
     const secondaryPhone = '915-555-9753';
+    const preferredName = 'Alex';
 
-    const expectedPayload = { ...testProps.serviceMember, secondary_telephone: secondaryPhone };
+    const expectedPayload = {
+      ...testProps.serviceMember,
+      secondary_telephone: secondaryPhone,
+      preferred_name: preferredName,
+    };
 
     const patchResponse = {
       ...expectedPayload,
@@ -220,9 +226,15 @@ describe('EditContactInfo page', () => {
 
     const secondaryPhoneInput = await screen.findByLabelText(/Alt. phone/);
 
+    const preferredNameInput = await screen.findByLabelText('Preferred Name');
+
     await userEvent.clear(secondaryPhoneInput);
 
     await userEvent.type(secondaryPhoneInput, secondaryPhone);
+
+    await userEvent.clear(preferredNameInput);
+
+    await userEvent.type(preferredNameInput, preferredName);
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 

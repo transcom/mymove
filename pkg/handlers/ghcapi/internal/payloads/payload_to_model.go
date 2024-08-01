@@ -78,6 +78,7 @@ func CustomerToServiceMember(payload ghcmessages.UpdateCustomerPayload) models.S
 		EmailIsPreferred:     &payload.EmailIsPreferred,
 		BackupMailingAddress: backupAddress,
 		CacValidated:         payload.CacValidated,
+		PreferredName:        payload.PreferredName,
 	}
 }
 

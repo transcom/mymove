@@ -61,6 +61,10 @@ type UpdateCustomerPayload struct {
 	// phone is preferred
 	PhoneIsPreferred bool `json:"phoneIsPreferred,omitempty"`
 
+	// preferred name
+	// Example: Allen
+	PreferredName *string `json:"preferredName,omitempty"`
+
 	// secondary telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
 	SecondaryTelephone *string `json:"secondaryTelephone,omitempty"`

@@ -10,6 +10,7 @@ import formStyles from 'styles/form.module.scss';
 import { contactInfoSchema } from 'utils/validation';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
+  const signIn = false;
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={contactInfoSchema} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit }) => {
@@ -18,7 +19,7 @@ const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
             <h1>Your contact info</h1>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
-                <CustomerContactInfoFields />
+                <CustomerContactInfoFields signIn={signIn} />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>

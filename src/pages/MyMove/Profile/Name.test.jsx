@@ -62,6 +62,7 @@ describe('Name page', () => {
       middle_name: 'Star',
       last_name: 'Spaceman',
       suffix: 'Mr.',
+      preferred_name: 'Alex',
     };
 
     patchServiceMember.mockImplementation(() => Promise.resolve(testServiceMemberValues));
