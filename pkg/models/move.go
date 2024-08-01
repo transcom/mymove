@@ -92,6 +92,12 @@ type Move struct {
 	LockExpiresAt                *time.Time            `json:"lock_expires_at" db:"lock_expires_at"`
 	AdditionalDocumentsID        *uuid.UUID            `json:"additional_documents_id" db:"additional_documents_id"`
 	AdditionalDocuments          *Document             `belongs_to:"documents" fk_id:"additional_documents_id"`
+	SCAssignedID                 *uuid.UUID            `json:"sc_assigned_id" db:"sc_assigned_id"`
+	SCAssignedUser               *OfficeUser           `belongs_to:"office_users" fk_id:"sc_assigned_id"`
+	TOOAssignedID                *uuid.UUID            `json:"too_assigned_id" db:"too_assigned_id"`
+	TOOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
+	TIOAssignedID                *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
+	TIOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
 }
 
 // TableName overrides the table name used by Pop.

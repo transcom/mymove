@@ -43,7 +43,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
   }
 
@@ -60,7 +60,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
   }
 
@@ -77,7 +77,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     // Click the first returned row
@@ -118,7 +118,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Type in move code/locator to search for.
     // (There's no accessible or testId way to find this textbox, so we need to use .locator)
-    await this.page.locator('input[name="locator"]').type(moveLocator);
+    await this.page.locator('input[name="locator"]').fill(moveLocator);
     await this.page.locator('input[name="locator"]').blur();
 
     // Click the first returned row

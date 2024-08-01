@@ -226,11 +226,11 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async fillOutWeightTicketPage(options) {
     const { hasTrailer = false, ownTrailer = false, useConstructedWeight = false } = options;
-    await this.page.locator('input[name="vehicleDescription"]').type('Kia Forte');
+    await this.page.locator('input[name="vehicleDescription"]').fill('Kia Forte');
     await this.page.locator('input[name="vehicleDescription"]').blur();
 
     await this.page.getByLabel('Empty weight').clear();
-    await this.page.getByLabel('Empty weight').type('1000');
+    await this.page.getByLabel('Empty weight').fill('1000');
     await this.page.getByLabel('Empty weight').blur();
     if (useConstructedWeight) {
       // this page has multiple labels with the same text, grab the
@@ -254,7 +254,7 @@ export class CustomerPpmPage extends CustomerPage {
       ).toBeVisible();
 
       await this.page.getByLabel('Full weight').clear();
-      await this.page.getByLabel('Full weight').type('3000');
+      await this.page.getByLabel('Full weight').fill('3000');
 
       // this page has multiple labels with the same text, grab the
       // second one for Full Weight. Not sure why getByLabel does not work
@@ -291,7 +291,7 @@ export class CustomerPpmPage extends CustomerPage {
       ).toBeVisible();
 
       await this.page.getByLabel('Full Weight').clear();
-      await this.page.getByLabel('Full Weight').type('3000');
+      await this.page.getByLabel('Full Weight').fill('3000');
 
       // find the label, then find the filepond wrapper. Not sure why
       // getByLabel doesn't work
@@ -396,21 +396,21 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async navigateFromDateAndLocationPageToEstimatedWeightsPage() {
-    await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').type('123 Street');
-    await this.page.locator('input[name="pickupAddress.address.city"]').type('SomeCity - Secondary');
+    await this.page.locator('input[name="pickupAddress.address.streetAddress1"]').fill('123 Street');
+    await this.page.locator('input[name="pickupAddress.address.city"]').fill('SomeCity - Secondary');
     await this.page.locator('select[name="pickupAddress.address.state"]').selectOption({ label: 'CA' });
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="pickupAddress.address.postalCode"]').type('90210');
+    await this.page.locator('input[name="pickupAddress.address.postalCode"]').fill('90210');
     await this.page.locator('input[name="pickupAddress.address.postalCode"]').blur();
 
     await this.page.locator('input[name="destinationAddress.address.postalCode"]').clear();
-    await this.page.locator('input[name="destinationAddress.address.postalCode"]').type('76127');
-    await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').type('123 Street');
-    await this.page.locator('input[name="destinationAddress.address.city"]').type('SomeCity');
+    await this.page.locator('input[name="destinationAddress.address.postalCode"]').fill('76127');
+    await this.page.locator('input[name="destinationAddress.address.streetAddress1"]').fill('123 Street');
+    await this.page.locator('input[name="destinationAddress.address.city"]').fill('SomeCity');
     await this.page.locator('select[name="destinationAddress.address.state"]').selectOption({ label: 'TX' });
 
     await this.page.locator('input[name="expectedDepartureDate"]').clear();
-    await this.page.locator('input[name="expectedDepartureDate"]').type('01 Feb 2022');
+    await this.page.locator('input[name="expectedDepartureDate"]').fill('01 Feb 2022');
     await this.page.locator('input[name="expectedDepartureDate"]').blur();
 
     // Select closeout office
@@ -427,17 +427,17 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async submitsEstimatedWeightsAndProGear() {
     await this.page.locator('input[name="estimatedWeight"]').clear();
-    await this.page.locator('input[name="estimatedWeight"]').type('4000');
+    await this.page.locator('input[name="estimatedWeight"]').fill('4000');
 
     await this.page.locator('label[for="hasProGearYes"]').click();
 
     // seems to need to click then clear
     await this.page.locator('input[name="proGearWeight"]').click();
     await this.page.locator('input[name="proGearWeight"]').clear();
-    await this.page.locator('input[name="proGearWeight"]').type('500');
+    await this.page.locator('input[name="proGearWeight"]').fill('500');
 
     await this.page.locator('input[name="spouseProGearWeight"]').clear();
-    await this.page.locator('input[name="spouseProGearWeight"]').type('400');
+    await this.page.locator('input[name="spouseProGearWeight"]').fill('400');
 
     await expect(this.page.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
@@ -449,7 +449,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async submitsEstimatedWeights() {
     await this.page.locator('input[name="estimatedWeight"]').clear();
-    await this.page.locator('input[name="estimatedWeight"]').type('4000');
+    await this.page.locator('input[name="estimatedWeight"]').fill('4000');
     await expect(this.page.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
 
     await this.navigateFromEstimatedWeightsPageToEstimatedIncentivePage();
@@ -510,7 +510,7 @@ export class CustomerPpmPage extends CustomerPage {
       // not sure why, but need to click then clear
       await this.page.locator('input[name="advanceAmountRequested"]').click();
       await this.page.locator('input[name="advanceAmountRequested"]').clear();
-      await this.page.locator('input[name="advanceAmountRequested"]').type('4000');
+      await this.page.locator('input[name="advanceAmountRequested"]').fill('4000');
       await this.page.locator('input[name="advanceAmountRequested"]').blur();
 
       await this.page.locator('label[for="agreeToTerms"]').click();
@@ -610,7 +610,7 @@ export class CustomerPpmPage extends CustomerPage {
     await expect(this.page).toHaveURL(/\/moves\/[^/]+\/agreement/);
     await expect(this.page.getByRole('heading', { name: 'Now for the official part…' })).toBeVisible();
 
-    await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
+    await this.page.locator('input[name="signature"]').fill('Sofía Clark-Nuñez');
     await expect(this.page.getByRole('button', { name: 'Complete' })).toBeEnabled();
   }
 
@@ -856,15 +856,15 @@ export class CustomerPpmPage extends CustomerPage {
     await this.page.locator(progearTypeSelector).click();
 
     await this.page.locator('[name="description"]').clear();
-    await this.page.locator('[name="description"]').type('Radio equipment');
+    await this.page.locator('[name="description"]').fill('Radio equipment');
 
     // need to click before clear for some reason
     await this.page.locator('[name="weight"]').click();
     await this.page.locator('[name="weight"]').clear();
     if (options?.belongsToSelf) {
-      await this.page.locator('[name="weight"]').type(options?.weight || '2000');
+      await this.page.locator('[name="weight"]').fill(options?.weight || '2000');
     } else {
-      await this.page.locator('[name="weight"]').type(options?.weight || '500');
+      await this.page.locator('[name="weight"]').fill(options?.weight || '500');
     }
 
     let uploadFilename = 'sampleWeightTicket.jpg';
@@ -919,15 +919,18 @@ export class CustomerPpmPage extends CustomerPage {
     if (!options?.isEditExpense) {
       await expect(expenseType).toHaveValue('');
     }
+
     await expenseType.selectOption({ label: 'Storage' });
 
-    await this.page.locator('input[name="description"]').type('Cloud storage');
+    const descriptionInput = this.page.locator('input[name="description"]');
+    await descriptionInput.waitFor({ state: 'visible' });
+    await descriptionInput.fill('Cloud storage');
     await this.page.locator('label[for="sitLocationDestination"]').click();
-    await this.page.locator('input[name="sitWeight"]').type('100');
+    await this.page.locator('input[name="sitWeight"]').fill('100');
     await this.page.locator('input[name="sitWeight"]').blur();
     await this.page.locator('label[for="yes-used-gtcc"]').click();
     await this.page.locator('input[name="amount"]').clear();
-    await this.page.locator('input[name="amount"]').type(options?.amount || '675.99');
+    await this.page.locator('input[name="amount"]').fill(options?.amount || '675.99');
 
     // find the label, then find the filepond wrapper. Not sure why
     // getByLabel doesn't work
@@ -942,9 +945,9 @@ export class CustomerPpmPage extends CustomerPage {
       fullFilepond.locator('../..').locator('p').getByText('sampleWeightTicket.jpg', { exact: true }),
     ).toBeVisible();
 
-    await this.page.locator('input[name="sitStartDate"]').type('14 Aug 2022');
+    await this.page.locator('input[name="sitStartDate"]').fill('14 Aug 2022');
     await this.page.locator('input[name="sitStartDate"]').blur();
-    await this.page.locator('input[name="sitEndDate"]').type('20 Aug 2022');
+    await this.page.locator('input[name="sitEndDate"]').fill('20 Aug 2022');
     await this.page.locator('input[name="sitEndDate"]').blur();
 
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
@@ -987,7 +990,7 @@ export class CustomerPpmPage extends CustomerPage {
    * returns {Promise<void>}
    */
   async signCloseoutAgreement(moveId) {
-    await this.page.locator('input[name="signature"]').type('Sofía Clark-Nuñez');
+    await this.page.locator('input[name="signature"]').fill('Sofía Clark-Nuñez');
 
     // calculate the home url to wait for it after click
     const url = new URL(this.page.url());
