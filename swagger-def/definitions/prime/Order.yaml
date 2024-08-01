@@ -18,6 +18,9 @@ properties:
     $ref: 'Entitlements.yaml'
   destinationDutyLocation:
     $ref: 'DutyLocation.yaml'
+  destinationDutyLocationGBLOC:
+    type: string
+    example: 'KKFA'
   originDutyLocation:
     $ref: 'DutyLocation.yaml'
   originDutyLocationGBLOC:

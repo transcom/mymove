@@ -15,7 +15,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to see the SIT Departure Date', async ({ page }) => {
@@ -136,7 +136,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to convert a SIT to customer expense', async ({ page }) => {
@@ -167,7 +167,7 @@ test.describe('TOO user', () => {
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
-      await officePage.tooNavigateToMove(move.locator);
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to approve the SIT extension request', async ({ page }) => {
