@@ -243,36 +243,6 @@ const PaymentRequestCard = ({
 
   const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
     if (
-      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
-        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
-      approvedAmount > 0
-    ) {
-      return (
-        <div className={styles.amountAccepted}>
-          <FontAwesomeIcon icon="check" />
-          <div>
-            <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-            <span>Sent to GEX </span>
-            <span data-testid="sentToGexDate">
-              on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
-            </span>
-          </div>
-        </div>
-      );
-    }
-    if (
-      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING ||
-        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
-      requestedAmount > 0
-    ) {
-      return (
-        <div className={styles.amountRequested}>
-          <h2>{toDollarString(formatCents(requestedAmount))}</h2>
-          <span>Requested</span>
-        </div>
-      );
-    }
-    if (
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED ||
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED ||
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR
@@ -299,6 +269,36 @@ const PaymentRequestCard = ({
               </div>
             </div>
           )}
+        </div>
+      );
+    }
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      approvedAmount > 0
+    ) {
+      return (
+        <div className={styles.amountAccepted}>
+          <FontAwesomeIcon icon="check" />
+          <div>
+            <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+            <span>Sent to GEX </span>
+            <span data-testid="sentToGexDate">
+              on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      requestedAmount > 0
+    ) {
+      return (
+        <div className={styles.amountRequested}>
+          <h2>{toDollarString(formatCents(requestedAmount))}</h2>
+          <span>Requested</span>
         </div>
       );
     }
