@@ -33,3 +33,8 @@ properties:
     format: date-time
     type: string
     readOnly: true
+  createdAt:
+    description: Timestamp of when a property of this object was created (UTC)
+    format: date-time
+    type: string
+    readOnly: true
