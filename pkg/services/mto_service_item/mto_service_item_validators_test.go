@@ -251,12 +251,12 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		// Under test:  checkSITDeparture checks that the service item is a
 		//			    DDDSIT, DOPSIT, DOASIT or DOFSIT if the user is trying to update the
 		// 			    SITDepartureDate
-		// Set up:      Create any non DDDSIT, DOPSIT, DOASIT, DOFSIT service item
+		// Set up:      Create any non DOPSIT, DOASIT, DOFSIT service item
 		// Expected outcome: Conflict Error
 		oldDDFSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 			{
 				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
+					Code: models.ReServiceCodeDDSHUT,
 				},
 			},
 			{
@@ -277,7 +277,9 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
-		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
+		suite.Contains(err.Error(), fmt.Sprintf("SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s, %s, %s, %s, %s",
+			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT,
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOSFSC))
 	})
 
 	// Test successful check for service item w/out payment request
@@ -330,6 +332,65 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.NoVerrs(serviceItemData.verrs) // this check doesn't add a validation error
 		suite.Contains(err.Error(), "this service item has an existing payment request and can no longer be updated")
+	})
+
+	// Test unsuccessful check service item when the reason isn't being updated
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - failure", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: ConflictError
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusRejected
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+
+		newServiceItem.Reason = models.StringPointer("same reason")
+		oldServiceItem.Reason = models.StringPointer("same reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.NoVerrs(serviceItemData.verrs)
+		suite.Contains(err.Error(), "- please provide a new reason when resubmitting a previously rejected SIT service item")
+	})
+
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - success", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: No errors
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusRejected
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+
+		newServiceItem.Reason = models.StringPointer("one reason")
+		oldServiceItem.Reason = models.StringPointer("another reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.NoError(err)
+		suite.NoVerrs(serviceItemData.verrs)
 	})
 
 	// Test getVerrs for successful example
@@ -672,9 +733,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
 
-		suite.NoError(err)
-		suite.True(serviceItemData.verrs.HasAny())
-		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationFinalAddress")
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("checkSITDestinationFinalAddress - invalid input failure: updating SITDestinationFinalAddress for DDDSIT ", func() {
@@ -707,9 +767,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
 
-		suite.NoError(err)
-		suite.True(serviceItemData.verrs.HasAny())
-		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationFinalAddress")
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("checkSITDestinationFinalAddress - invalid input failure: updating SITDestinationFinalAddress for DDFSIT ", func() {
@@ -742,9 +801,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
 
-		suite.NoError(err)
-		suite.True(serviceItemData.verrs.HasAny())
-		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationFinalAddress")
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("checkSITDestinationFinalAddress - invalid input failure: updating SITDestinationFinalAddress for DDSFSC ", func() {
@@ -777,9 +835,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		err := serviceItemData.checkSITDestinationFinalAddress(suite.AppContextForTest())
 
-		suite.NoError(err)
-		suite.True(serviceItemData.verrs.HasAny())
-		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationFinalAddress")
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("checkSITDestinationOriginalAddress - invalid input failure: adding SITDestinationOriginalAddress", func() {
@@ -808,9 +865,8 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		err := serviceItemData.checkSITDestinationOriginalAddress(suite.AppContextForTest())
 
-		suite.NoError(err)
-		suite.True(serviceItemData.verrs.HasAny())
-		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationOriginalAddress")
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 
 	suite.Run("checkSITDestinationOriginalAddress - invalid input failure: updating SITDestinationOriginalAddress", func() {
@@ -843,8 +899,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 		err := serviceItemData.checkSITDestinationOriginalAddress(suite.AppContextForTest())
 
-		suite.NoError(err)
-		suite.True(serviceItemData.verrs.HasAny())
-		suite.Contains(serviceItemData.verrs.Keys(), "SITDestinationOriginalAddress")
+		suite.Error(err)
+		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 }
