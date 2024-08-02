@@ -50,10 +50,21 @@
   flex: 1;
   text-align: right;
 }
+.ediErrorDetailsCondensed {
+  border-bottom: 1px solid #dcdee0;
+  @include u-padding-bottom(2);
+}
 
 .ediErrorDetailsExpand {
-  @include u-padding-bottom(2);
   border-bottom: 1px solid #dcdee0;
+
+  .ediHeaders {
+    @include u-font-size('body', '3xs');
+    color: $base;
+    th {
+      font-weight: bolder;
+    }
+  }
 
   .amountAccepted {
     @include u-display(flex);
