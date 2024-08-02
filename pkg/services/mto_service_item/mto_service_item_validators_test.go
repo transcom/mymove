@@ -342,7 +342,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		oldServiceItem, newServiceItem := setupTestData()
 
 		// only checks rejected SIT service items
-		newServiceItem.Status = models.MTOServiceItemStatusRejected
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
 		oldServiceItem.Status = models.MTOServiceItemStatusRejected
 
 		// This only checks SIT service items
@@ -365,6 +365,68 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.Contains(err.Error(), "- please provide a new reason when resubmitting a previously rejected SIT service item")
 	})
 
+	// Test unsuccessful check service item when the reason isn't being updated
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - failure when empty string", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: ConflictError
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+
+		newServiceItem.Reason = models.StringPointer("")
+		oldServiceItem.Reason = models.StringPointer("a reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.NoVerrs(serviceItemData.verrs)
+		suite.Contains(err.Error(), "- reason cannot be empty when resubmitting a previously rejected SIT service item")
+	})
+
+	// Test unsuccessful check service item when the reason isn't being updated
+	suite.Run("checkReasonWasUpdatedOnRejectedSIT - failure when no reason is provided", func() {
+		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
+		// Set up:      Create any SIT service item
+		// Expected outcome: ConflictError
+		oldServiceItem, newServiceItem := setupTestData()
+
+		// only checks rejected SIT service items
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
+		oldServiceItem.Status = models.MTOServiceItemStatusRejected
+
+		// This only checks SIT service items
+		newServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+		oldServiceItem.ReService.Code = models.ReServiceCodeDDFSIT
+
+		newServiceItem.Reason = nil
+		oldServiceItem.Reason = models.StringPointer("a reason")
+
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newServiceItem,
+			oldServiceItem:     oldServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkReasonWasUpdatedOnRejectedSIT(suite.AppContextForTest())
+
+		suite.Error(err)
+		suite.IsType(apperror.ConflictError{}, err)
+		suite.NoVerrs(serviceItemData.verrs)
+		suite.Contains(err.Error(), "- you must provide a new reason when resubmitting a previously rejected SIT service item")
+	})
+
 	suite.Run("checkReasonWasUpdatedOnRejectedSIT - success", func() {
 		// Under test:  checkReasonWasUpdatedOnRejectedSIT ensures that the reason value is being updated
 		// Set up:      Create any SIT service item
@@ -372,7 +434,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		oldServiceItem, newServiceItem := setupTestData()
 
 		// only checks rejected SIT service items
-		newServiceItem.Status = models.MTOServiceItemStatusRejected
+		newServiceItem.Status = models.MTOServiceItemStatusSubmitted
 		oldServiceItem.Status = models.MTOServiceItemStatusRejected
 
 		// This only checks SIT service items

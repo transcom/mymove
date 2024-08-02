@@ -310,7 +310,15 @@ func (v *updateMTOServiceItemData) checkReasonWasUpdatedOnRejectedSIT(_ appconte
 		if v.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
 			return nil
 		}
-		if v.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
+		if v.oldServiceItem.Status == models.MTOServiceItemStatusRejected && v.updatedServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+			if v.updatedServiceItem.Reason == nil {
+				return apperror.NewConflictError(v.oldServiceItem.ID,
+					"- you must provide a new reason when resubmitting a previously rejected SIT service item")
+			}
+			if *v.updatedServiceItem.Reason == "" {
+				return apperror.NewConflictError(v.oldServiceItem.ID,
+					"- reason cannot be empty when resubmitting a previously rejected SIT service item")
+			}
 			if v.updatedServiceItem.Reason != nil && *v.updatedServiceItem.Reason == *v.oldServiceItem.Reason {
 				return apperror.NewConflictError(v.oldServiceItem.ID,
 					"- please provide a new reason when resubmitting a previously rejected SIT service item")
