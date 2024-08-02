@@ -34,7 +34,7 @@ func NewUpdatePaymentRequestStatus(ctx *middleware.Context, handler UpdatePaymen
 
 updatePaymentRequestStatus
 
-Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
+Updates status of a payment request to REVIEWED, SENT_TO_GEX, TPPS_RECEIVED, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
 A status of REVIEWED can optionally have a `rejectionReason`.
 

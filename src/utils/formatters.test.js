@@ -230,8 +230,8 @@ describe('formatters', () => {
       expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.SENT_TO_GEX)).toEqual('Sent to GEX');
     });
 
-    it('returns expected string for RECEIVED_BY_GEX', () => {
-      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX)).toEqual('Received');
+    it('returns expected string for TPPS_RECEIVED', () => {
+      expect(formatters.paymentRequestStatusReadable(PAYMENT_REQUEST_STATUS.TPPS_RECEIVED)).toEqual('Received');
     });
 
     it('returns expected string for PAID', () => {
