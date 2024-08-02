@@ -96,8 +96,7 @@ jest.mock('services/ghcApi', () => ({
     }
     if (tacCode === '3333') {
       // 200 OK, but the LOA found is invalid
-      const invalidLoa = mockLoa;
-      invalidLoa.validHhgProgramCodeForLoa = false;
+      const invalidLoa = { ...mockLoa, validHhgProgramCodeForLoa: false };
       return Promise.resolve(invalidLoa);
     }
     // Default to no LOA
@@ -141,6 +140,9 @@ const useOrdersDocumentQueriesReturnValue = {
       ntsTac: '1111',
       ntsSac: '2222',
     },
+  },
+  move: {
+    approved_at: '2018-03-15',
   },
 };
 const ordersMockProps = {
@@ -279,8 +281,7 @@ describe('Orders page', () => {
           ).not.toBeInTheDocument();
         });
       });
-
-      it('validates an invalid LOA', async () => {
+      it('validates an invalid HHG LOA', async () => {
         const hhgTacInput = screen.getByTestId('hhgTacInput');
         await userEvent.clear(hhgTacInput);
         await userEvent.type(hhgTacInput, '3333');
@@ -288,14 +289,33 @@ describe('Orders page', () => {
         // TAC is found and valid
         // LOA is found and NOT valid
         await waitFor(() => {
-          expect(
-            screen.getByText(/The LOA identified based on the provided details appears to be invalid/),
-          ).toBeInTheDocument();
-          expect(screen.queryByText(/Unable to find a LOA based on the provided details/)).not.toBeInTheDocument();
+          const loaInvalidWarnings = screen.queryAllByText(
+            /The LOA identified based on the provided details appears to be invalid/,
+          );
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(loaInvalidWarnings.length).toBe(1); // HHG is invalid
+          expect(loaMissingWarnings.length).toBe(0); // NTS is valid based on useEffect hook and default passed in TAC
+        });
+      });
+      it('validates an invalid NTS LOA', async () => {
+        const ntsTacInput = screen.getByTestId('ntsTacInput');
+        await userEvent.clear(ntsTacInput);
+        await userEvent.type(ntsTacInput, '3333');
+
+        // TAC is found and valid
+        // LOA is found and NOT valid
+        await waitFor(() => {
+          const loaInvalidWarnings = screen.queryAllByText(
+            /The LOA identified based on the provided details appears to be invalid/,
+          );
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(loaInvalidWarnings.length).toBe(1); // NTS is invalid
+          expect(loaMissingWarnings.length).toBe(0); // HHG is valid based on useEffect hook and default passed in TAC
         });
       });
     });
   });
+
   describe('LOA concatenation', () => {
     it('concatenates the LOA string correctly', async () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);

@@ -20,6 +20,7 @@ const OrdersDetailForm = ({
   validateHHGTac,
   validateNTSTac,
   validateHHGLoa,
+  validateNTSLoa,
   showDepartmentIndicator,
   showOrdersNumber,
   showOrdersTypeDetail,
@@ -170,6 +171,7 @@ const OrdersDetailForm = ({
           inputTestId="ntsLoaTextField"
           warning={ntsLoaWarning}
           data-testid="ntsLoaTextField"
+          validate={validateNTSLoa}
           value={ntsLongLineOfAccounting}
           isDisabled
         />
@@ -199,6 +201,8 @@ OrdersDetailForm.propTypes = {
   ntsLoaWarning: string,
   validateHHGTac: func,
   validateNTSTac: func,
+  validateHHGLoa: func,
+  validateNTSLoa: func,
   showDepartmentIndicator: bool,
   showOrdersNumber: bool,
   showOrdersTypeDetail: bool,
@@ -226,6 +230,8 @@ OrdersDetailForm.defaultProps = {
   ordersTypeDetailOptions: null,
   validateHHGTac: null,
   validateNTSTac: null,
+  validateHHGLoa: null,
+  validateNTSLoa: null,
   showDepartmentIndicator: true,
   showOrdersNumber: true,
   showOrdersTypeDetail: true,
