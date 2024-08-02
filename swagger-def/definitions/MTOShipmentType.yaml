@@ -10,6 +10,7 @@ enum:
   - PPM
   - BOAT_HAUL_AWAY
   - BOAT_TOW_AWAY
+  - MOBILE_HOME
 x-display-value:
   HHG: HHG
   INTERNATIONAL_HHG: International HHG
@@ -19,3 +20,4 @@ x-display-value:
   PPM: PPM
   BOAT_HAUL_AWAY: Boat Haul-Away
   BOAT_TOW_AWAY: Boat Tow-Away
+  MOBILE_HOME: Mobile Home

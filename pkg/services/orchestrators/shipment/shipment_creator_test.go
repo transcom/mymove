@@ -26,6 +26,7 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 	type subtestDataObjects struct {
 		mockMTOShipmentCreator      *mocks.MTOShipmentCreator
 		mockPPMShipmentCreator      *mocks.PPMShipmentCreator
+		mockBoatShipmentCreator     *mocks.BoatShipmentCreator
 		mockMoveTaskOrderUpdater    *mocks.MoveTaskOrderUpdater
 		shipmentCreatorOrchestrator services.ShipmentCreator
 		fakeError                   error
@@ -38,10 +39,13 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
 		subtestData.mockPPMShipmentCreator = &mockPPMShipmentCreator
 
+		mockBoatShipmentCreator := mocks.BoatShipmentCreator{}
+		subtestData.mockBoatShipmentCreator = &mockBoatShipmentCreator
+
 		mockMoveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
 		subtestData.mockMoveTaskOrderUpdater = &mockMoveTaskOrderUpdater
 
-		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater)
+		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
