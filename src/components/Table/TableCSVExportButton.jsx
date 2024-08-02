@@ -61,7 +61,7 @@ const TableCSVExportButton = ({
 
   return (
     <p>
-      <Link className={className} onClick={handleCsvExport} data-test-id="csv-export-btn-visible" tabIndex={0}>
+      <Link className={className} onClick={handleCsvExport} data-test-id="csv-export-btn-visible">
         <span data-test-id="csv-export-btn-text">{labelText}</span>{' '}
         <FontAwesomeIcon icon={isLoading ? 'spinner' : 'download'} spin={isLoading} />
       </Link>
@@ -70,7 +70,6 @@ const TableCSVExportButton = ({
         filename={`${filePrefix}-${moment().toISOString()}.csv`}
         data={csvRows}
         className="hidden"
-        tabIndex="-1"
       >
         <span ref={csvLinkRef} />
       </CSVLink>
