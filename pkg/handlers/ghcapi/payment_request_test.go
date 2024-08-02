@@ -331,7 +331,7 @@ func (suite *HandlerSuite) TestUpdatePaymentRequestStatusHandler() {
 		officeUser := setupTestData()
 		nonApprovedPRStatuses := [...]ghcmessages.PaymentRequestStatus{
 			ghcmessages.PaymentRequestStatusSENTTOGEX,
-			ghcmessages.PaymentRequestStatusRECEIVEDBYGEX,
+			ghcmessages.PaymentRequestStatusTPPSRECEIVED,
 			ghcmessages.PaymentRequestStatusPAID,
 			ghcmessages.PaymentRequestStatusEDIERROR,
 			ghcmessages.PaymentRequestStatusPENDING,
