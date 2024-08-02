@@ -506,6 +506,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 		CacValidated:       &customer.CacValidated,
+		Emplid:             customer.Emplid,
 	}
 	return &payload
 }
@@ -1161,12 +1162,41 @@ func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
 	return payload
 }
 
-func PPMSITEstimatedCost(ppmSITEstimatedCost *unit.Cents) *ghcmessages.PPMSITEstimatedCost {
+func PPMSITEstimatedCostParamsFirstDaySIT(ppmSITFirstDayParams models.PPMSITEstimatedCostParams) *ghcmessages.PPMSITEstimatedCostParamsFirstDaySIT {
+	payload := &ghcmessages.PPMSITEstimatedCostParamsFirstDaySIT{
+		ContractYearName:       ppmSITFirstDayParams.ContractYearName,
+		PriceRateOrFactor:      ppmSITFirstDayParams.PriceRateOrFactor,
+		IsPeak:                 ppmSITFirstDayParams.IsPeak,
+		EscalationCompounded:   ppmSITFirstDayParams.EscalationCompounded,
+		ServiceAreaOrigin:      &ppmSITFirstDayParams.ServiceAreaOrigin,
+		ServiceAreaDestination: &ppmSITFirstDayParams.ServiceAreaDestination,
+	}
+	return payload
+}
+
+func PPMSITEstimatedCostParamsAdditionalDaySIT(ppmSITAdditionalDayParams models.PPMSITEstimatedCostParams) *ghcmessages.PPMSITEstimatedCostParamsAdditionalDaySIT {
+	payload := &ghcmessages.PPMSITEstimatedCostParamsAdditionalDaySIT{
+		ContractYearName:       ppmSITAdditionalDayParams.ContractYearName,
+		PriceRateOrFactor:      ppmSITAdditionalDayParams.PriceRateOrFactor,
+		IsPeak:                 ppmSITAdditionalDayParams.IsPeak,
+		EscalationCompounded:   ppmSITAdditionalDayParams.EscalationCompounded,
+		ServiceAreaOrigin:      &ppmSITAdditionalDayParams.ServiceAreaOrigin,
+		ServiceAreaDestination: &ppmSITAdditionalDayParams.ServiceAreaDestination,
+		NumberDaysSIT:          &ppmSITAdditionalDayParams.NumberDaysSIT,
+	}
+	return payload
+}
+
+func PPMSITEstimatedCost(ppmSITEstimatedCost *models.PPMSITEstimatedCostInfo) *ghcmessages.PPMSITEstimatedCost {
 	if ppmSITEstimatedCost == nil {
 		return nil
 	}
 	payload := &ghcmessages.PPMSITEstimatedCost{
-		SitCost: handlers.FmtCost(ppmSITEstimatedCost),
+		SitCost:                handlers.FmtCost(ppmSITEstimatedCost.EstimatedSITCost),
+		PriceFirstDaySIT:       handlers.FmtCost(ppmSITEstimatedCost.PriceFirstDaySIT),
+		PriceAdditionalDaySIT:  handlers.FmtCost(ppmSITEstimatedCost.PriceAdditionalDaySIT),
+		ParamsFirstDaySIT:      PPMSITEstimatedCostParamsFirstDaySIT(ppmSITEstimatedCost.ParamsFirstDaySIT),
+		ParamsAdditionalDaySIT: PPMSITEstimatedCostParamsAdditionalDaySIT(ppmSITEstimatedCost.ParamsAdditionalDaySIT),
 	}
 
 	return payload

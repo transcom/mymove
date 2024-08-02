@@ -3812,6 +3812,7 @@ definitions:
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
         * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
         * `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
+        * `MOBILE_HOME` = Mobile Home shipment that a customer may move.
     type: string
     example: HHG
     enum:
@@ -3822,7 +3823,7 @@ definitions:
       - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
-      - MOTORHOME
+      - MOBILE_HOME
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)

@@ -1,0 +1,73 @@
+@import 'shared/styles/_basics';
+@import 'shared/styles/colors';
+@import 'shared/styles/variables';
+
+.SitCostBreakdown {
+  @include u-padding(2);
+  border: 1px solid $base-lighter;
+  border-radius: 3px;
+  background-color: $bg-gray;
+  max-width: fit-content;
+
+  .label {
+    @include u-margin-bottom(1);
+  }
+
+  .displayValue {
+    @include u-margin-bottom(2);
+  }
+
+  :global(.usa-legend) {
+    @include u-margin-bottom(1);
+    @include u-margin-top(1);
+  }
+
+  .flexGridSmall {
+    flex-direction: column;
+
+    .col {
+      @include u-margin-x(0);
+      @include u-padding-y(1);
+      display: grid;
+
+      .row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+
+      .value {
+        @include u-margin-left(4);
+      }
+    }
+
+    .col:first-of-type {
+      @include u-padding-top(2);
+    }
+
+    .col:last-of-type {
+      @include u-margin-top(1);
+      @include u-padding-top(3);
+      @include u-padding-bottom(0);
+      border-top: 1px solid $base-lighter;
+    }
+  }
+
+}
+
+.headerContainer {
+  @include u-padding-bottom(0);
+  z-index: 1;
+}
+
+
+  .descriptionTitle {
+    @include u-font-weight('bold');
+    color: $base-darker;
+  }
+
+  .descriptionContent {
+    @include u-margin-y(0.5);
+    color: $base-darkest;
+    margin-left: 0;
+  }
