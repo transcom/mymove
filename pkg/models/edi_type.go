@@ -12,6 +12,8 @@ const (
 	EDIType858 EDIType = "858"
 	// EDIType997 captures enum value "997"
 	EDIType997 EDIType = "997"
+	// TODO (maybe put this somewhere else as TPPS paid report is not an EDI type)
+	TPPSPaidInvoiceReport EDIType = "TPPSPaidInvoiceReport"
 )
 
 var allowedEDITypes = []string{
@@ -19,6 +21,7 @@ var allowedEDITypes = []string{
 	string(EDIType824),
 	string(EDIType858),
 	string(EDIType997),
+	string(TPPSPaidInvoiceReport),
 }
 
 // String returns a string representation of the admin role

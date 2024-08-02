@@ -41,6 +41,12 @@ const (
 	GEXSFTP824PickupDirectory string = "gex-sftp-824-pickup-directory"
 )
 
+// Set of flags used for SFTPTPPSPaid
+const (
+	// SFTPTPPSPaidInvoiceReportPickupDirectory is the ENV var for the directory where TPPS delivers the TPPS paid invoice report
+	SFTPTPPSPaidInvoiceReportPickupDirectory string = "pending"
+)
+
 // InitGEXSFTPFlags initializes GEX SFTP command line flags
 func InitGEXSFTPFlags(flag *pflag.FlagSet) {
 	flag.Int(GEXSFTPPortFlag, 22, "GEX SFTP Port")
