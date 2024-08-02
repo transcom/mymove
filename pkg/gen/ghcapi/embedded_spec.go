@@ -6302,7 +6302,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -6784,7 +6784,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -6851,9 +6851,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emplid": {
-          "type": "string"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -6881,7 +6878,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -12225,7 +12222,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -20984,7 +20981,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -21466,7 +21463,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -21533,9 +21530,6 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emplid": {
-          "type": "string"
-        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -21563,7 +21557,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -26966,7 +26960,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"

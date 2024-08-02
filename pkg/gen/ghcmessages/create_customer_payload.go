@@ -70,7 +70,7 @@ type CreateCustomerPayload struct {
 
 	// preferred name
 	// Example: Allen
-	PreferredName *string `json:"preferredName,omitempty"`
+	PreferredName *string `json:"preferred_name,omitempty"`
 
 	// residential address
 	ResidentialAddress struct {

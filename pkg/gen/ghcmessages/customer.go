@@ -47,9 +47,6 @@ type Customer struct {
 	// email is preferred
 	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
 
-	// emplid
-	Emplid string `json:"emplid,omitempty"`
-
 	// first name
 	// Example: John
 	FirstName string `json:"first_name,omitempty"`
@@ -76,7 +73,7 @@ type Customer struct {
 
 	// preferred name
 	// Example: Allen
-	PreferredName *string `json:"preferredName,omitempty"`
+	PreferredName *string `json:"preferred_name,omitempty"`
 
 	// secondary telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$
