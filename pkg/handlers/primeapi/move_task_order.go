@@ -21,6 +21,8 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
+const featureFlagBoat = "BOAT"
+
 // ListMovesHandler lists moves with the option to filter since a particular date. Optimized ver.
 type ListMovesHandler struct {
 	handlers.HandlerConfig
@@ -86,6 +88,34 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 						payloads.InternalServerError(handlers.FmtString(err.Error()), h.GetTraceIDFromRequest(params.HTTPRequest))), err
 				}
 			}
+
+			/** Feature Flag - Boat Shipment **/
+			isBoatFeatureOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagBoat, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagBoat), zap.Error(err))
+				isBoatFeatureOn = false
+			} else {
+				isBoatFeatureOn = flag.Match
+			}
+
+			// Remove Boat shipments if Boat FF is off
+			if !isBoatFeatureOn {
+				var filteredShipments models.MTOShipments
+				if mto.MTOShipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range mto.MTOShipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, mto.MTOShipments[i])
+				}
+				mto.MTOShipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
 			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
