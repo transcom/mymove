@@ -76,7 +76,7 @@ type Customer struct {
 
 	// preferred name
 	// Example: Allen
-	PreferredName *string `json:"preferredName,omitempty"`
+	PreferredName *string `json:"preferred_name,omitempty"`
 
 	// secondary telephone
 	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$|^$

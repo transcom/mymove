@@ -131,6 +131,14 @@ func (s *customerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag stri
 			}
 		}
 
+		if customer.PreferredName != nil {
+			if len(*customer.MiddleName) == 0 {
+				existingCustomer.PreferredName = nil
+			} else {
+				existingCustomer.PreferredName = customer.PreferredName
+			}
+		}
+
 		if customer.CacValidated != existingCustomer.CacValidated {
 			existingCustomer.CacValidated = customer.CacValidated
 		}

@@ -57,6 +57,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       customerAddress,
       suffix,
       middleName,
+      preferredName,
       name,
       email,
       telephone,
@@ -74,6 +75,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
       current_address: customerAddress,
       suffix,
       middle_name: middleName,
+      preferred_name: preferredName,
       backup_contact: {
         name,
         email,
@@ -93,6 +95,7 @@ const CustomerInfo = ({ customer, isLoading, isError, ordersId, onUpdate }) => {
     lastName: customer.last_name,
     middleName: customer.middle_name || '',
     suffix: customer.suffix || '',
+    preferredName: customer.preferred_name || '',
     customerTelephone: customer.phone,
     customerEmail: customer.email,
     name: customer.backup_contact.name,

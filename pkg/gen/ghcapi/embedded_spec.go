@@ -6302,7 +6302,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -6732,7 +6732,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -6830,7 +6830,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -12150,7 +12150,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -20885,7 +20885,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -21315,7 +21315,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -21413,7 +21413,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"
@@ -26792,7 +26792,7 @@ func init() {
         "phoneIsPreferred": {
           "type": "boolean"
         },
-        "preferredName": {
+        "preferred_name": {
           "type": "string",
           "x-nullable": true,
           "example": "Allen"

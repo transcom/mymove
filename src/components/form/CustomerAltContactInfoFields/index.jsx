@@ -27,6 +27,9 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
             <div className="grid-col-6">
               <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
             </div>
+            <div className="grid-col-12">
+              <TextField label="Preferred name" name="preferredName" id="preferredName" labelHint="Optional" />
+            </div>
           </div>
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">

@@ -4213,7 +4213,7 @@ definitions:
         type: string
         example: David
         x-nullable: true
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
@@ -4279,7 +4279,7 @@ definitions:
         type: string
         example: David
         x-nullable: true
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
@@ -4342,7 +4342,7 @@ definitions:
         type: string
         example: David
         x-nullable: true
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
@@ -4389,7 +4389,7 @@ definitions:
       lastName:
         type: string
         example: Doe
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
