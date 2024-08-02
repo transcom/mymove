@@ -10,6 +10,7 @@ describe('CustomerContactInfoForm Component', () => {
     middleName: '',
     lastName: '',
     suffix: '',
+    preferredName: '',
     customerTelephone: '',
     customerEmail: '',
     customerAddress: {
@@ -35,6 +36,7 @@ describe('CustomerContactInfoForm Component', () => {
     middleName: 'bob',
     lastName: 'bob',
     suffix: 'jr',
+    preferredName: 'Alex',
     customerTelephone: '855-222-1111',
     customerEmail: 'joebob@gmail.com',
     customerAddress: {
@@ -70,6 +72,8 @@ describe('CustomerContactInfoForm Component', () => {
       expect(screen.getByLabelText('Last name')).toBeRequired();
 
       expect(screen.getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
+
+      expect(screen.getByLabelText(/Preferred name/)).toBeInstanceOf(HTMLInputElement);
 
       expect(screen.getAllByLabelText('Phone')[0]).toBeInstanceOf(HTMLInputElement);
       expect(screen.getAllByLabelText('Phone')[0]).toBeRequired();

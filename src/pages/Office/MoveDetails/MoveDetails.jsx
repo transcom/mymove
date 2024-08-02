@@ -292,6 +292,7 @@ const MoveDetails = ({
     currentAddress: customer.current_address,
     backupAddress: customerData.backupAddress,
     backupContact: customer.backup_contact,
+    preferredName: customer.preferred_name,
   };
 
   const requiredOrdersInfo = {

@@ -42,6 +42,7 @@ const mockCustomer = {
   last_name: 'Doe',
   middle_name: 'Quincey',
   suffix: 'Jr.',
+  preferred_name: 'Alex',
   phone: '223-444-3434',
   secondaryTelephone: '234-567-8901',
   cacValidated: true,
@@ -111,6 +112,7 @@ describe('CustomerInfo', () => {
       expect(screen.getByLabelText(/Middle name/i).value).toEqual(mockCustomer.middle_name);
       expect(screen.getByLabelText('Last name').value).toEqual(mockCustomer.last_name);
       expect(screen.getByLabelText(/Suffix/i).value).toEqual(mockCustomer.suffix);
+      expect(screen.getByLabelText(/Preferred name/i).value).toEqual(mockCustomer.preferred_name);
       // to get around the two inputs labeled "Phone" on the screen
       expect(screen.getByDisplayValue(mockCustomer.phone).value).toEqual(mockCustomer.phone);
       expect(screen.getByDisplayValue(mockCustomer.backup_contact.phone).value).toEqual(

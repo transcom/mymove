@@ -22,6 +22,8 @@ describe('CustomerAltContactInfoFields component', () => {
 
     expect(screen.getByLabelText(/Suffix/)).toBeInstanceOf(HTMLInputElement);
 
+    expect(screen.getByLabelText(/Preferred name/)).toBeInstanceOf(HTMLInputElement);
+
     expect(screen.getAllByText('Phone')).toBeInstanceOf(Array);
     expect(screen.getAllByText('Email')).toBeInstanceOf(Array);
     expect(screen.getByLabelText(/Alternate Phone/)).toBeInstanceOf(HTMLInputElement);

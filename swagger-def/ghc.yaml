@@ -4213,7 +4213,7 @@ definitions:
         type: string
         example: David
         x-nullable: true
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
@@ -4226,8 +4226,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
-        type: string
-      emplid:
         type: string
       userID:
         type: string
@@ -4278,7 +4276,7 @@ definitions:
         type: string
         example: David
         x-nullable: true
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
@@ -4341,7 +4339,7 @@ definitions:
         type: string
         example: David
         x-nullable: true
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
@@ -4388,7 +4386,7 @@ definitions:
       lastName:
         type: string
         example: Doe
-      preferredName:
+      preferred_name:
         type: string
         example: Allen
         x-nullable: true
