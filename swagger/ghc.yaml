@@ -9626,10 +9626,75 @@ definitions:
       sitCost:
         example: 2000
         type: integer
-        x-nullable: true
-        x-omitempty: false
+      priceFirstDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of the first day in SIT
+      priceAdditionalDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of an additional day in SIT
+      paramsFirstDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '20.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+      paramsAdditionalDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          numberDaysSIT:
+            type: string
+            example: '30'
+            x-nullable: true
+            x-omitempty: true
     required:
       - sitCost
+      - priceFirstDaySIT
+      - priceAdditionalDaySIT
   MTOServiceItemSingle:
     type: object
     properties:
