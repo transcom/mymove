@@ -43,7 +43,6 @@ export const customerRoutes = {
   SHIPMENT_PPM_FEEDBACK_PATH: '/moves/:moveId/shipments/:mtoShipmentId/feedback',
   MOVE_REVIEW_PATH: '/moves/:moveId/review',
   MOVE_AGREEMENT_PATH: '/moves/:moveId/agreement',
-  EDIT_PROFILE_PATH: '/moves/review/edit-profile',
   EDIT_OKTA_PROFILE_PATH: '/moves/review/edit-okta-profile',
   PROFILE_PATH: '/service-member/profile',
   SERVICE_INFO_EDIT_PATH: '/moves/review/edit-service-info',
