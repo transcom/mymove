@@ -435,7 +435,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			DistanceMilesLower: 1,
 			DistanceMilesUpper: 2000,
 		}
-		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		_, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.NoError(err)
 
 		// build rejected SIT service items & update them with new reasons or else we will get an error
 		for _, code := range serviceItemCodes {
@@ -504,7 +505,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 			DistanceMilesLower: 1,
 			DistanceMilesUpper: 2000,
 		}
-		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		_, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.NoError(err)
 
 		// build rejected SIT service items & update them with new reasons or else we will get an error
 		for _, code := range serviceItemCodes {
