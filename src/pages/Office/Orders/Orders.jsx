@@ -102,18 +102,19 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
   };
 
   const { mutate: validateLoa } = useMutation(getLoa, {
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+      const { loaType } = variables;
       // The server decides if this is a valid LOA or not
       const isValid = (data?.validHhgProgramCodeForLoa ?? false) && (data?.validLoaForTac ?? false);
       // Construct the long line of accounting string
-      const longLoa = data ? buildFullLineOfAccountingString(data) : '';
+      const longLineOfAccounting = data ? buildFullLineOfAccountingString(data) : '';
       loaValidationDispatch({
         type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
         payload: {
           loa: data,
-          longLineOfAccounting: longLoa,
+          longLineOfAccounting,
           isValid,
-          loaType: LOA_TYPE.HHG,
+          loaType,
         },
       });
     },
@@ -135,16 +136,35 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     }
   };
 
-  const handleLoaValidation = (formikValues) => {
+  const handleHHGLoaValidation = (formikValues) => {
     // LOA is not a field that can be interacted with
     // Validation is based on the scope of the form
     const { tac, issueDate, departmentIndicator } = formikValues;
-    // Only run validation if a 4 length TAC is present, and department and issue date are also present
     if (tac && tac.length === 4 && departmentIndicator && issueDate) {
+      // Only run validation if a 4 length TAC is present, and department and issue date are also present
       validateLoa({
         tacCode: tac,
         serviceMemberAffiliation: departmentIndicator,
         effectiveDate: formatSwaggerDate(issueDate),
+        loaType: LOA_TYPE.HHG,
+      });
+    }
+  };
+
+  const handleNTSLoaValidation = (formikValues) => {
+    // LOA is not a field that can be interacted with
+    // Validation is based on the scope of the form
+    const { ntsTac, departmentIndicator } = formikValues;
+    if (ntsTac && ntsTac.length === 4 && departmentIndicator) {
+      // Only run validation if a 4 length NTS TAC and department are present
+      // The effective date for an NTS LOA should be either the approved_at date of the
+      // move, or the current time of review (Post review it will save as the approved_at)
+      const effectiveDate = move?.approved_at || Date.now();
+      validateLoa({
+        tacCode: ntsTac,
+        serviceMemberAffiliation: departmentIndicator,
+        effectiveDate: formatSwaggerDate(effectiveDate),
+        loaType: LOA_TYPE.NTS,
       });
     }
   };
@@ -186,19 +206,28 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
       });
     };
 
-    // Validate LOA on load of form, loading it into state
-    // Need TAC, department indicator, and date issued present
-    if (
-      ((order?.tac && order.tac.length === 4) || (order?.ntsTac && order.tac.length === 4)) &&
-      order?.department_indicator &&
-      order?.date_issued
-    ) {
+    const checkHHGLoa = () => {
+      // Only run validation if a 4 length TAC is present, and department and issue date are also present
       validateLoa({
         tacCode: order?.tac,
-        effectiveDate: formatSwaggerDate(order?.date_issued),
         serviceMemberAffiliation: order?.department_indicator,
+        effectiveDate: formatSwaggerDate(order?.date_issued),
+        loaType: LOA_TYPE.HHG,
       });
-    }
+    };
+
+    const checkNTSLoa = () => {
+      // Only run validation if a 4 length NTS TAC and department are present
+      // The effective date for an NTS LOA should be either the approved_at date of the
+      // move, or the current time of review (Post review it will save as the approved_at)
+      const effectiveDate = move?.approved_at || Date.now();
+      validateLoa({
+        tacCode: order?.ntsTac,
+        serviceMemberAffiliation: order?.department_indicator,
+        effectiveDate: formatSwaggerDate(effectiveDate),
+        loaType: LOA_TYPE.NTS,
+      });
+    };
 
     const checkNTSTac = async () => {
       const response = await getTacValid({ tac: order.ntsTac });
@@ -216,7 +245,22 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
     if (order?.ntsTac && order.ntsTac.length === 4) {
       checkNTSTac();
     }
-  }, [order?.tac, order?.ntsTac, order?.date_issued, order?.department_indicator, isLoading, isError, validateLoa]);
+    if (order?.tac && order.tac.length === 4 && order?.department_indicator && order?.date_issued) {
+      checkHHGLoa();
+    }
+    if (order?.ntsTac && order?.ntsTac.length === 4 && order?.department_indicator) {
+      checkNTSLoa();
+    }
+  }, [
+    order?.tac,
+    order?.ntsTac,
+    order?.date_issued,
+    order?.department_indicator,
+    move?.approved_at,
+    isLoading,
+    isError,
+    validateLoa,
+  ]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -342,10 +386,10 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                         validateHHGTac={handleHHGTacValidation}
                         validateNTSTac={handleNTSTacValidation}
                         hhgLoaWarning={hhgLoaWarning}
-                        validateHHGLoa={() =>
-                          handleLoaValidation(formik.values)
-                        } /* loa validation requires access to the formik values scope */
+                        validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
+                        validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
                         hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
+                        ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
                         showOrdersAcknowledgement={hasAmendedOrders}
                         ordersType={order.order_type}
                         setFieldValue={formik.setFieldValue}
@@ -363,10 +407,10 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       validateHHGTac={handleHHGTacValidation}
                       validateNTSTac={handleNTSTacValidation}
                       hhgLoaWarning={hhgLoaWarning}
-                      validateHHGLoa={() =>
-                        handleLoaValidation(formik.values)
-                      } /* loa validation requires access to the formik values scope */
+                      validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
+                      validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
                       hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
+                      ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
                       showOrdersAcknowledgement={hasAmendedOrders}
                       ordersType={order.order_type}
                       setFieldValue={formik.setFieldValue}
