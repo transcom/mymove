@@ -65,6 +65,7 @@ func (h GetTransportationOfficesHandler) Handle(params transportationofficeop.Ge
 // ShowCounselingOfficesHandler returns the counseling offices for a duty location ID
 type ShowCounselingOfficesHandler struct {
 	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
 }
 
 // Handle retrieves the counseling office in the system for a given duty location ID
@@ -72,13 +73,23 @@ func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowC
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			dutyLocationID, _ := uuid.FromString(params.DutyLocationID.String())
-			counselingOffice, err := models.FetchDutyLocationCounselingOffices(appCtx.DB(), dutyLocationID)
+
+			counselingOffices, err := h.TransportationOfficesFetcher.GetCounselingOffices(appCtx, dutyLocationID)
 			if err != nil {
-				return handlers.ResponseForError(appCtx.Logger(), err), err
+				appCtx.Logger().Error("Error searching for Counseling Offices: ", zap.Error(err))
+				return transportationofficeop.NewGetTransportationOfficesInternalServerError(), err
 			}
 
-			counselingOfficePayload := payloads.TransportationOffice(counselingOffice)
+			returnPayload := payloads.TransportationOffices(*counselingOffices)
+			return transportationofficeop.NewGetTransportationOfficesOK().WithPayload(returnPayload), nil
 
-			return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(counselingOfficePayload), nil
+			// counselingOffice, err := models.FetchDutyLocationCounselingOffices(appCtx.DB(), dutyLocationID)
+			// if err != nil {
+			// 	return handlers.ResponseForError(appCtx.Logger(), err), err
+			// }
+
+			// counselingOfficePayload := payloads.TransportationOffice(counselingOffice)
+
+			// return transportationofficeop.NewShowDutyLocationTransportationOfficeOK().WithPayload(counselingOfficePayload), nil
 		})
 }
