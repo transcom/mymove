@@ -1834,6 +1834,10 @@ func init() {
           "type": "string",
           "example": "KKFA"
         },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true

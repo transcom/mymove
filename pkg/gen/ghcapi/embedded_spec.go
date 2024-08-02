@@ -6938,7 +6938,7 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emplid": {
+		"emplid": {
           "type": "string"
         },
         "first_name": {
@@ -21755,7 +21755,7 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
-        "emplid": {
+		"emplid": {
           "type": "string"
         },
         "first_name": {
