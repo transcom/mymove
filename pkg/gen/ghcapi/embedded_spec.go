@@ -6938,6 +6938,10 @@ func init() {
         "emailIsPreferred": {
           "type": "boolean"
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "first_name": {
           "type": "string",
           "example": "John"
@@ -21751,6 +21755,10 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
