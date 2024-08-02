@@ -42,15 +42,14 @@
 
   p {
     @include u-margin(0);
-    @include u-margin-top('2px');
     @include u-font-size('body', '3xs');
   }
   .infoBlock {
     display: flex;
     div {
       border-left: 4px solid $mm-periwinkle;
-      @include u-padding-left(1);
-      @include u-padding-right('205');
+      @include u-padding-left(2);
+      @include u-padding-right(3);
       &:last-child {
         @include u-padding-right(0);
       }
@@ -79,9 +78,11 @@
       color: red;
       line-height: 1;
       text-align: center;
+      text-wrap: nowrap;
 
       @media screen and (max-width: 1600px) {
         width: min-content;
+        font-size: 1.67rem;
       }
     }
   }
