@@ -18,6 +18,9 @@ import (
 // swagger:model QueuePaymentRequestsResult
 type QueuePaymentRequestsResult struct {
 
+	// available office users
+	AvailableOfficeUsers AvailableOfficeUsers `json:"availableOfficeUsers,omitempty"`
+
 	// page
 	Page int64 `json:"page,omitempty"`
 
@@ -35,6 +38,10 @@ type QueuePaymentRequestsResult struct {
 func (m *QueuePaymentRequestsResult) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAvailableOfficeUsers(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateQueuePaymentRequests(formats); err != nil {
 		res = append(res, err)
 	}
@@ -42,6 +49,23 @@ func (m *QueuePaymentRequestsResult) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueuePaymentRequestsResult) validateAvailableOfficeUsers(formats strfmt.Registry) error {
+	if swag.IsZero(m.AvailableOfficeUsers) { // not required
+		return nil
+	}
+
+	if err := m.AvailableOfficeUsers.Validate(formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("availableOfficeUsers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availableOfficeUsers")
+		}
+		return err
+	}
+
 	return nil
 }
 
@@ -66,6 +90,10 @@ func (m *QueuePaymentRequestsResult) validateQueuePaymentRequests(formats strfmt
 func (m *QueuePaymentRequestsResult) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAvailableOfficeUsers(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateQueuePaymentRequests(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -73,6 +101,20 @@ func (m *QueuePaymentRequestsResult) ContextValidate(ctx context.Context, format
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *QueuePaymentRequestsResult) contextValidateAvailableOfficeUsers(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := m.AvailableOfficeUsers.ContextValidate(ctx, formats); err != nil {
+		if ve, ok := err.(*errors.Validation); ok {
+			return ve.ValidateName("availableOfficeUsers")
+		} else if ce, ok := err.(*errors.CompositeError); ok {
+			return ce.ValidateName("availableOfficeUsers")
+		}
+		return err
+	}
+
 	return nil
 }
 

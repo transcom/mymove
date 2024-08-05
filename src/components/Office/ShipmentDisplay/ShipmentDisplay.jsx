@@ -87,24 +87,30 @@ const ShipmentDisplay = ({
           {allowApproval && !isSubmitted && (
             <FontAwesomeIcon icon={['far', 'circle-check']} className={styles.approved} />
           )}
-          <div className={classnames(styles.headingTagWrapper, styles.serviceCounselingShipments)}>
-            <div className={styles.typeLocator}>
+          <div className={styles.headerContainer}>
+            <div className={styles.shipmentTypeHeader}>
               <h3>
                 <label id={`shipment-display-label-${shipmentId}`}>{displayInfo.heading}</label>
               </h3>
+              <div>
+                {displayInfo.isDiversion && <Tag>diversion</Tag>}
+                {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && (
+                  <Tag className="usa-tag--red">cancelled</Tag>
+                )}
+                {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
+                {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
+                  <Tag>cancellation requested</Tag>
+                )}
+                {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
+                {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
+                  displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
+                  <Tag className={styles.ppmStatus}>packet ready for download</Tag>
+                )}
+              </div>
+            </div>
+            <div className={styles.shipmentLocator}>
               <h5>#{displayInfo.shipmentLocator}</h5>
             </div>
-            {displayInfo.isDiversion && <Tag>diversion</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.CANCELED && <Tag className="usa-tag--red">cancelled</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.DIVERSION_REQUESTED && <Tag>diversion requested</Tag>}
-            {displayInfo.shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED && (
-              <Tag>cancellation requested</Tag>
-            )}
-            {displayInfo.usesExternalVendor && <Tag>external vendor</Tag>}
-            {(displayInfo.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE ||
-              displayInfo.ppmShipment?.status === ppmShipmentStatuses.WAITING_ON_CUSTOMER) && (
-              <Tag className={styles.ppmStatus}>packet ready for download</Tag>
-            )}
           </div>
 
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />

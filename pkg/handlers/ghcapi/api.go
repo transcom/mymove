@@ -509,6 +509,8 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		order.NewOrderFetcher(),
 		movelocker.NewMoveUnlocker(),
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	ghcAPI.QueuesListPrimeMovesHandler = ListPrimeMovesHandler{
@@ -520,12 +522,16 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		handlerConfig,
 		paymentrequest.NewPaymentRequestListFetcher(),
 		movelocker.NewMoveUnlocker(),
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	ghcAPI.QueuesGetServicesCounselingQueueHandler = GetServicesCounselingQueueHandler{
 		handlerConfig,
 		order.NewOrderFetcher(),
 		movelocker.NewMoveUnlocker(),
+		officeusercreator.NewOfficeUserFetcherPop(),
+		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	ghcAPI.QueuesGetServicesCounselingOriginListHandler = GetServicesCounselingOriginListHandler{
