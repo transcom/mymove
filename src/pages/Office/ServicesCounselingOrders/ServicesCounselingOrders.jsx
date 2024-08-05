@@ -285,8 +285,10 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
 
   const tacWarningMsg =
     'This TAC does not appear in TGET, so it might not be valid. Make sure it matches what‘s on the orders before you continue.';
-  const loaMissingWarningMsg =
+  const hhgLoaMissingWarningMsg =
     'Unable to find a LOA based on the provided details. Please ensure an orders issue date, department indicator, and TAC are present on this form.';
+  const ntsLoaMissingWarningMsg =
+    'Unable to find a LOA based on the provided details. Please ensure a department indicator and TAC are present on this form.';
   const loaInvalidWarningMsg = 'The LOA identified based on the provided details appears to be invalid.';
 
   return (
@@ -305,12 +307,12 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           // Making a nested ternary here goes against linter rules
           // The primary warning should be if it is missing, the other warning should be if it is invalid
           if (isHHGLoaMissing) {
-            hhgLoaWarning = loaMissingWarningMsg;
+            hhgLoaWarning = hhgLoaMissingWarningMsg;
           } else if (!loaValidationState[LOA_TYPE.HHG].isValid) {
             hhgLoaWarning = loaInvalidWarningMsg;
           }
           if (isNTSLoaMissing) {
-            ntsLoaWarning = loaMissingWarningMsg;
+            ntsLoaWarning = ntsLoaMissingWarningMsg;
           } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
             ntsLoaWarning = loaInvalidWarningMsg;
           }
