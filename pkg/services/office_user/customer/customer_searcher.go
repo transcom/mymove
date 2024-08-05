@@ -70,9 +70,8 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		service_members.suffix,
 		service_members.telephone,
 		service_members.updated_at,
-		service_members.user_id,
-        service_member.preferred_name
-	FROM service_members AS service_members
+		service_members.user_id
+		FROM service_members AS service_members
 		JOIN users ON users.id = service_members.user_id
 		LEFT JOIN orders ON orders.service_member_id = service_members.id`
 
