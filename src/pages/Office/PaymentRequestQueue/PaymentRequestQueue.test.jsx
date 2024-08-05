@@ -38,8 +38,9 @@ jest.mock('hooks/queries', () => ({
           {
             age: 0.8477863,
             customer: {
-              agency: 'ARMY',
+              agency: 'COAST_GUARD',
               dodID: '3305957632',
+              emplid: '1253694',
               eTag: 'MjAyMC0xMC0xNVQyMzo0ODozNC41ODQxOTZa',
               email: 'leo_spaceman_sm@example.com',
               first_name: 'Leo',
@@ -48,7 +49,7 @@ jest.mock('hooks/queries', () => ({
               phone: '555-555-5555',
               userID: 'c4d59e2b-bff0-4fce-a31f-26a19b1ad34a',
             },
-            departmentIndicator: 'AIR_AND_SPACE_FORCE',
+            departmentIndicator: 'COAST_GUARD',
             id: 'a2c34dba-015f-4f96-a38b-0c0b9272e208',
             locator: 'R993T7',
             moveID: '5d4b25bb-eb04-4c03-9a81-ee0398cb779e',
@@ -132,11 +133,12 @@ describe('PaymentRequestQueue', () => {
     );
     expect(screen.getByRole('cell', { name: 'Spacemen, Leo' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '3305957632' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: '1253694' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Payment requested' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Less than 1 day' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '15 Oct 2020' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'R993T7' })).toBeInTheDocument();
-    expect(screen.getByRole('cell', { name: 'Army' })).toBeInTheDocument();
+    expect(screen.getByRole('cell', { name: 'Coast Guard' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'LKNQ' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: 'Scott AFB' })).toBeInTheDocument();
   });

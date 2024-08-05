@@ -14,7 +14,8 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveInSIT();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to see the SIT Departure Date', async ({ page }) => {
@@ -134,7 +135,8 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveInSITEndsToday();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to convert a SIT to customer expense', async ({ page }) => {
@@ -164,7 +166,8 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveInSITWithPendingExtension();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('is able to approve the SIT extension request', async ({ page }) => {

@@ -41,6 +41,20 @@ export class WaitForOfficePage extends WaitForPage {
   /**
    * @returns {Promise<void>}
    */
+  async moveSearchTab() {
+    await base.expect(this.page.getByRole('link', { name: 'Move Search' })).toHaveClass('usa-current');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
+  async moveSearchResults() {
+    await base.expect(this.page.getByRole('heading', { level: 2 })).toHaveText('Results (1)');
+  }
+
+  /**
+   * @returns {Promise<void>}
+   */
   async editNTSShipment() {
     await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Edit shipment details');
     await base.expect(this.page.getByTestId('tag')).toHaveText('NTS');

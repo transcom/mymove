@@ -246,6 +246,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -390,6 +393,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -410,6 +420,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -1855,6 +1866,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -1895,6 +1913,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -3532,6 +3551,66 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/ppm-sit": {
+      "patch": {
+        "description": "Updates a PPM shipment's SIT values\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's SIT values",
+        "operationId": "updatePPMSIT",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/PPMShipmentSIT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished PPM SIT update",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -3595,6 +3674,82 @@ func init() {
         },
         {
           "$ref": "#/parameters/proGearWeightTicketId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
+      "get": {
+        "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the SIT estimated cost for a PPM shipment",
+        "operationId": "getPPMSITEstimatedCost",
+        "responses": {
+          "200": {
+            "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMSITEstimatedCost"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ],
+          "type": "string",
+          "format": "string",
+          "description": "location of sit",
+          "name": "sitLocation",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date entered into SIT",
+          "name": "sitEntryDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date departed SIT",
+          "name": "sitDepartureDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "integer",
+          "description": "Weight stored in SIT",
+          "name": "weightStored",
+          "in": "query",
+          "required": true
         }
       ]
     },
@@ -3725,6 +3880,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3775,6 +3931,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -3958,6 +4120,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3999,6 +4162,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -4092,6 +4260,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -4147,6 +4316,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -5824,6 +5998,28 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -6077,6 +6273,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
@@ -6638,6 +6840,10 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -8503,9 +8709,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -9108,6 +9318,13 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -9120,6 +9337,12 @@ func init() {
               "x-omitempty": false
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -9445,6 +9668,9 @@ func init() {
         },
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "eTag": {
           "type": "string"
@@ -9828,6 +10054,20 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMSITEstimatedCost": {
+      "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
+      "required": [
+        "sitCost"
+      ],
+      "properties": {
+        "sitCost": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -10146,6 +10386,34 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMShipmentSIT": {
+      "description": "SIT related items for a PPM shipment",
+      "required": [
+        "sitLocation"
+      ],
+      "properties": {
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      },
+      "x-nullable": true
+    },
     "PPMShipmentStatus": {
       "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
@@ -10288,12 +10556,22 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
         "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sentToGexAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -10314,7 +10592,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -10690,6 +10968,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -10777,6 +11058,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -11156,6 +11440,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -11174,6 +11462,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -11227,6 +11516,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -11992,6 +12285,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -12001,6 +12301,13 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -13220,6 +13527,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -13406,6 +13719,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -13426,6 +13746,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -15294,6 +15615,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -15334,6 +15662,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -17388,6 +17717,89 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/ppm-sit": {
+      "patch": {
+        "description": "Updates a PPM shipment's SIT values\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's SIT values",
+        "operationId": "updatePPMSIT",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/PPMShipmentSIT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished PPM SIT update",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -17485,6 +17897,103 @@ func init() {
           "description": "UUID of the pro-gear weight ticket",
           "name": "proGearWeightTicketId",
           "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
+      "get": {
+        "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the SIT estimated cost for a PPM shipment",
+        "operationId": "getPPMSITEstimatedCost",
+        "responses": {
+          "200": {
+            "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMSITEstimatedCost"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ],
+          "type": "string",
+          "format": "string",
+          "description": "location of sit",
+          "name": "sitLocation",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date entered into SIT",
+          "name": "sitEntryDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date departed SIT",
+          "name": "sitDepartureDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "minimum": 0,
+          "type": "integer",
+          "description": "Weight stored in SIT",
+          "name": "weightStored",
+          "in": "query",
           "required": true
         }
       ]
@@ -17663,6 +18172,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -17713,6 +18223,12 @@ func init() {
             "type": "string",
             "description": "filters to match the unique service member's DoD ID",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -17908,6 +18424,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -17949,6 +18466,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -18048,6 +18570,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -18103,6 +18626,11 @@ func init() {
           {
             "type": "string",
             "name": "dodID",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "name": "emplid",
             "in": "query"
           },
           {
@@ -20128,6 +20656,28 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "fullName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -20385,6 +20935,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
@@ -20946,6 +21502,10 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -22811,9 +23371,13 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
@@ -23416,6 +23980,13 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -23428,6 +23999,12 @@ func init() {
               "x-omitempty": false
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -23753,6 +24330,9 @@ func init() {
         },
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
         },
         "eTag": {
           "type": "string"
@@ -24137,6 +24717,20 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMSITEstimatedCost": {
+      "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
+      "required": [
+        "sitCost"
+      ],
+      "properties": {
+        "sitCost": {
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 2000
+        }
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -24455,6 +25049,34 @@ func init() {
       },
       "x-nullable": true
     },
+    "PPMShipmentSIT": {
+      "description": "SIT related items for a PPM shipment",
+      "required": [
+        "sitLocation"
+      ],
+      "properties": {
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      },
+      "x-nullable": true
+    },
     "PPMShipmentStatus": {
       "description": "Status of the PPM Shipment:\n  * **DRAFT**: The customer has created the PPM shipment but has not yet submitted their move for counseling.\n  * **SUBMITTED**: The shipment belongs to a move that has been submitted by the customer or has been created by a Service Counselor or Prime Contractor for a submitted move.\n  * **WAITING_ON_CUSTOMER**: The PPM shipment has been approved and the customer may now provide their actual move closeout information and documentation required to get paid.\n  * **NEEDS_ADVANCE_APPROVAL**: The shipment was counseled by the Prime Contractor and approved but an advance was requested so will need further financial approval from the government.\n  * **NEEDS_CLOSEOUT**: The customer has provided their closeout weight tickets, receipts, and expenses and certified it for the Service Counselor to approve, exclude or reject.\n  * **CLOSEOUT_COMPLETE**: The Service Counselor has reviewed all of the customer's PPM closeout documentation and authorizes the customer can download and submit their finalized SSW packet.\n",
       "type": "string",
@@ -24597,12 +25219,22 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
         "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sentToGexAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -24623,7 +25255,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -25001,6 +25633,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25088,6 +25723,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -25517,6 +26155,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -25535,6 +26177,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -25588,6 +26231,10 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": 1234567890
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "firstName": {
           "type": "string",
@@ -26359,6 +27006,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -26368,6 +27022,13 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",

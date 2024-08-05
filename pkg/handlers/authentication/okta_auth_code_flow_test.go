@@ -38,3 +38,34 @@ func TestLogoutOktaUserURL(t *testing.T) {
 		t.Errorf("Expected post_logout_redirect_uri parameter to be '%s', got '%s'", expectedRedirectURL, postLogoutRedirectURI)
 	}
 }
+
+func TestLogoutOktaUserURLWithRedirect(t *testing.T) {
+	provider := &okta.Provider{}
+	idToken := "mockIDToken"
+	redirectURL := "https://example.com/"
+
+	logoutURL, err := logoutOktaUserURLWithRedirect(provider, idToken, redirectURL)
+
+	if err != nil {
+		t.Errorf("Expected no error, got: %v", err)
+	}
+
+	// Parse the returned URL to verify the query parameters
+	parsedURL, err := url.Parse(logoutURL)
+	if err != nil {
+		t.Errorf("Failed to parse logout URL: %v", err)
+	}
+
+	// Check id_token_hint parameter
+	idTokenHint := parsedURL.Query().Get("id_token_hint")
+	if idTokenHint != idToken {
+		t.Errorf("Expected id_token_hint parameter to be '%s', got '%s'", idToken, idTokenHint)
+	}
+
+	// Check post_logout_redirect_uri parameter
+	postLogoutRedirectURI := parsedURL.Query().Get("post_logout_redirect_uri")
+	expectedRedirectURL := redirectURL + "auth/okta"
+	if postLogoutRedirectURI != expectedRedirectURL {
+		t.Errorf("Expected post_logout_redirect_uri parameter to be '%s', got '%s'", expectedRedirectURL, postLogoutRedirectURI)
+	}
+}

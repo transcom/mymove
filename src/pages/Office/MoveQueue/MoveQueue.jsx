@@ -73,6 +73,10 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
       return row.customer.dodID;
     },
   }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
+  }),
   createHeader(
     'Status',
     (row) => {
@@ -271,6 +275,8 @@ const MoveQueue = () => {
           csvExportFileNamePrefix="Task-Order-Queue"
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

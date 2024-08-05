@@ -88,6 +88,11 @@ type SearchMovesBody struct {
 	// Min Length: 10
 	DodID *string `json:"dodID,omitempty"`
 
+	// EMPLID
+	// Max Length: 7
+	// Min Length: 7
+	Emplid *string `json:"emplid,omitempty"`
+
 	// Move locator
 	// Max Length: 6
 	// Min Length: 6
@@ -114,7 +119,7 @@ type SearchMovesBody struct {
 	ShipmentsCount *int64 `json:"shipmentsCount,omitempty"`
 
 	// sort
-	// Enum: [customerName dodID branch locator status originPostalCode destinationPostalCode shipmentsCount]
+	// Enum: [customerName dodID emplid branch locator status originPostalCode destinationPostalCode shipmentsCount]
 	Sort *string `json:"sort,omitempty"`
 
 	// Filtering for the status.
@@ -135,6 +140,10 @@ func (o *SearchMovesBody) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := o.validateDodID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := o.validateEmplid(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -198,6 +207,22 @@ func (o *SearchMovesBody) validateDodID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.MaxLength("body"+"."+"dodID", "body", *o.DodID, 10); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (o *SearchMovesBody) validateEmplid(formats strfmt.Registry) error {
+	if swag.IsZero(o.Emplid) { // not required
+		return nil
+	}
+
+	if err := validate.MinLength("body"+"."+"emplid", "body", *o.Emplid, 7); err != nil {
+		return err
+	}
+
+	if err := validate.MaxLength("body"+"."+"emplid", "body", *o.Emplid, 7); err != nil {
 		return err
 	}
 
@@ -278,7 +303,7 @@ var searchMovesBodyTypeSortPropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["customerName","dodID","branch","locator","status","originPostalCode","destinationPostalCode","shipmentsCount"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["customerName","dodID","emplid","branch","locator","status","originPostalCode","destinationPostalCode","shipmentsCount"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {
@@ -293,6 +318,9 @@ const (
 
 	// SearchMovesBodySortDodID captures enum value "dodID"
 	SearchMovesBodySortDodID string = "dodID"
+
+	// SearchMovesBodySortEmplid captures enum value "emplid"
+	SearchMovesBodySortEmplid string = "emplid"
 
 	// SearchMovesBodySortBranch captures enum value "branch"
 	SearchMovesBodySortBranch string = "branch"

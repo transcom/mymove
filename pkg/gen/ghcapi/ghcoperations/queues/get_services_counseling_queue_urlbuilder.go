@@ -21,6 +21,7 @@ type GetServicesCounselingQueueURL struct {
 	CloseoutLocation        *string
 	DestinationDutyLocation *string
 	DodID                   *string
+	Emplid                  *string
 	LastName                *string
 	Locator                 *string
 	NeedsPPMCloseout        *bool
@@ -110,6 +111,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if dodIDQ != "" {
 		qs.Set("dodID", dodIDQ)
+	}
+
+	var emplidQ string
+	if o.Emplid != nil {
+		emplidQ = *o.Emplid
+	}
+	if emplidQ != "" {
+		qs.Set("emplid", emplidQ)
 	}
 
 	var lastNameQ string

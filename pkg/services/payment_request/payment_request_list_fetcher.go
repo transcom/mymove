@@ -21,6 +21,7 @@ type paymentRequestListFetcher struct {
 var parameters = map[string]string{
 	"lastName":           "service_members.last_name",
 	"dodID":              "service_members.edipi",
+	"emplid":             "service_members.emplid",
 	"submittedAt":        "payment_requests.created_at",
 	"branch":             "service_members.affiliation",
 	"locator":            "moves.locator",
@@ -90,6 +91,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
@@ -97,7 +99,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -260,6 +262,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	}
 }
 
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
+		}
+	}
+}
+
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
@@ -306,7 +316,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
-						models.PaymentRequestStatusReceivedByGex.String())
+						models.PaymentRequestStatusTppsReceived.String())
 				} else if strings.EqualFold(status, "Rejected") || strings.EqualFold(status, "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewedAllRejected.String())
