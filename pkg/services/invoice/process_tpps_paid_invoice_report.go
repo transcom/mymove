@@ -25,10 +25,12 @@ func (e *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 	tppsPaidInvoiceReport := tppsReponse.EDI{}
 
 	// TODO instead of _, use the return value here as it will contain the struct with tpps paid data
-	_, err := tppsPaidInvoiceReport.Parse(stringTPPSPaidInvoiceReport)
+	tppsData, err := tppsPaidInvoiceReport.Parse(stringTPPSPaidInvoiceReport)
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")
+	} else {
+		appCtx.Logger().Info("Successfully parsed TPPS Paid Invoice Report and found ", zap.Int("entries", len(tppsData)))
 	}
 
 	return nil

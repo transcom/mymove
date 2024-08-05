@@ -1,9 +1,8 @@
 package tppspaidinvoicereport
 
 import (
-	"encoding/csv"
-	"os"
-	"path/filepath"
+	"bufio"
+	"strings"
 )
 
 // TPPSData represents TPPS paid invoice report data
@@ -15,8 +14,8 @@ type TPPSData struct {
 	LineDescription         string
 	ProductDescription      string
 	LineBillingUnits        string
-	LineUnitPrice           string // convert to int
-	LineNetCharge           string // convert to int
+	LineUnitPrice           string
+	LineNetCharge           string
 	POTCN                   string
 	LineNumber              string
 	FirstNoteCode           string
@@ -33,54 +32,53 @@ type TPPSData struct {
 	ThirdNoteMessage        string
 }
 
-// Parse takes in a string representation of a TPPS paid invoice report and reads it into a TPPS paid invoice report struct
+func ProcessTPPSReportEntryForOnePaymentRequest(tppsReportEntryForOnePaymentRequest []string) TPPSData {
+	var tppsData TPPSData
+	if len(tppsReportEntryForOnePaymentRequest) > 0 {
+		tppsData.InvoiceNumber = tppsReportEntryForOnePaymentRequest[0]
+		tppsData.TPPSCreatedDocumentDate = tppsReportEntryForOnePaymentRequest[1]
+		tppsData.SellerPaidDate = tppsReportEntryForOnePaymentRequest[2]
+		tppsData.InvoiceTotalCharges = tppsReportEntryForOnePaymentRequest[3]
+		tppsData.LineDescription = tppsReportEntryForOnePaymentRequest[4]
+		tppsData.ProductDescription = tppsReportEntryForOnePaymentRequest[5]
+		tppsData.LineBillingUnits = tppsReportEntryForOnePaymentRequest[6]
+		tppsData.LineUnitPrice = tppsReportEntryForOnePaymentRequest[7]
+		tppsData.LineNetCharge = tppsReportEntryForOnePaymentRequest[8]
+		tppsData.POTCN = tppsReportEntryForOnePaymentRequest[9]
+		tppsData.LineNumber = tppsReportEntryForOnePaymentRequest[10]
+		tppsData.FirstNoteCode = tppsReportEntryForOnePaymentRequest[11]
+		tppsData.FirstNoteDescription = tppsReportEntryForOnePaymentRequest[12]
+		tppsData.FirstNoteTo = tppsReportEntryForOnePaymentRequest[13]
+		tppsData.FirstNoteMessage = tppsReportEntryForOnePaymentRequest[14]
+		tppsData.SecondNoteCode = tppsReportEntryForOnePaymentRequest[15]
+		tppsData.SecondNoteDescription = tppsReportEntryForOnePaymentRequest[16]
+		tppsData.SecondNoteTo = tppsReportEntryForOnePaymentRequest[17]
+		tppsData.SecondNoteMessage = tppsReportEntryForOnePaymentRequest[18]
+		tppsData.ThirdNoteCode = tppsReportEntryForOnePaymentRequest[19]
+		tppsData.ThirdNoteDescription = tppsReportEntryForOnePaymentRequest[20]
+		tppsData.ThirdNoteTo = tppsReportEntryForOnePaymentRequest[21]
+		tppsData.ThirdNoteMessage = tppsReportEntryForOnePaymentRequest[22]
+	}
+	return tppsData
+}
+
+// Parse takes in a string representation of a 997 EDI file and reads it into a 997 EDI struct
 func (e *EDI) Parse(stringTPPSPaidInvoiceReport string) ([]TPPSData, error) {
-	// var err error
-	// counter := counterData{}
+	var tppsDataFile []TPPSData
 
-	// scanner := bufio.NewScanner(strings.NewReader(stringTPPSPaidInvoiceReport))
-
-	var tppsData []TPPSData
-
-	csvFile, err := os.Open(filepath.Clean(stringTPPSPaidInvoiceReport))
-	if err != nil {
-		return tppsData, err
-	}
-	r := csv.NewReader(csvFile)
-
-	// Skip the first header row
-	dataRows, err := r.ReadAll()
-	if err != nil {
-		return tppsData, err
-	}
-	for _, row := range dataRows[1:] {
-		parsed := TPPSData{
-			InvoiceNumber:           row[0],
-			TPPSCreatedDocumentDate: row[1],
-			SellerPaidDate:          row[2],
-			InvoiceTotalCharges:     row[3],
-			LineDescription:         row[4],
-			ProductDescription:      row[5],
-			LineBillingUnits:        row[6],
-			LineUnitPrice:           row[7],
-			LineNetCharge:           row[8],
-			POTCN:                   row[9],
-			LineNumber:              row[10],
-			FirstNoteCode:           row[11],
-			FirstNoteDescription:    row[12],
-			FirstNoteTo:             row[13],
-			FirstNoteMessage:        row[14],
-			SecondNoteCode:          row[15],
-			SecondNoteDescription:   row[16],
-			SecondNoteTo:            row[17],
-			SecondNoteMessage:       row[18],
-			ThirdNoteCode:           row[19],
-			ThirdNoteDescription:    row[20],
-			ThirdNoteTo:             row[21],
-			ThirdNoteMessage:        row[22],
+	scanner := bufio.NewScanner(strings.NewReader(stringTPPSPaidInvoiceReport))
+	for scanner.Scan() {
+		row := strings.Split(scanner.Text(), "\n")
+		if row != nil {
+			rowSplitIntoColumns := strings.Split(row[0], "\t")
+			if rowSplitIntoColumns[0] == "Invoice Number From Invoice" {
+				// move past the header row to the actual TPPS data
+				continue
+			}
+			tppsReportEntryForOnePaymentRequest := ProcessTPPSReportEntryForOnePaymentRequest(rowSplitIntoColumns)
+			tppsDataFile = append(tppsDataFile, tppsReportEntryForOnePaymentRequest)
 		}
-		tppsData = append(tppsData, parsed)
 	}
 
-	return tppsData, nil
+	return tppsDataFile, nil
 }
