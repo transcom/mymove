@@ -356,6 +356,10 @@ definitions:
         type: boolean
       allowNavyOrdersWrite:
         type: boolean
+      allowSpaceForceOrdersRead:
+        type: boolean
+      allowSpaceForceOrdersWrite:
+        type: boolean
       allowPrime:
         type: boolean
       allowPPTAS:
@@ -401,6 +405,10 @@ definitions:
       allowNavyOrdersRead:
         type: boolean
       allowNavyOrdersWrite:
+        type: boolean
+      allowSpaceForceOrdersRead:
+        type: boolean
+      allowSpaceForceOrdersWrite:
         type: boolean
       allowPrime:
         type: boolean
@@ -449,6 +457,12 @@ definitions:
         type: boolean
         x-nullable: true
       allowNavyOrdersWrite:
+        type: boolean
+        x-nullable: true
+      allowSpaceForceOrdersRead:
+        type: boolean
+        x-nullable: true
+      allowSpaceForceOrdersWrite:
         type: boolean
         x-nullable: true
       allowPrime:

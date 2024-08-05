@@ -2088,6 +2088,12 @@ func init() {
         "allowPrime": {
           "type": "boolean"
         },
+        "allowSpaceForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowSpaceForceOrdersWrite": {
+          "type": "boolean"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -2165,6 +2171,12 @@ func init() {
         "allowPrime": {
           "type": "boolean"
         },
+        "allowSpaceForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowSpaceForceOrdersWrite": {
+          "type": "boolean"
+        },
         "email": {
           "type": "string",
           "example": "user@example.com"
@@ -2235,6 +2247,14 @@ func init() {
           "x-nullable": true
         },
         "allowPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowSpaceForceOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowSpaceForceOrdersWrite": {
           "type": "boolean",
           "x-nullable": true
         },
@@ -5436,6 +5456,12 @@ func init() {
         "allowPrime": {
           "type": "boolean"
         },
+        "allowSpaceForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowSpaceForceOrdersWrite": {
+          "type": "boolean"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -5513,6 +5539,12 @@ func init() {
         "allowPrime": {
           "type": "boolean"
         },
+        "allowSpaceForceOrdersRead": {
+          "type": "boolean"
+        },
+        "allowSpaceForceOrdersWrite": {
+          "type": "boolean"
+        },
         "email": {
           "type": "string",
           "example": "user@example.com"
@@ -5583,6 +5615,14 @@ func init() {
           "x-nullable": true
         },
         "allowPrime": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowSpaceForceOrdersRead": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowSpaceForceOrdersWrite": {
           "type": "boolean",
           "x-nullable": true
         },

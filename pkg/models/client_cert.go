@@ -30,6 +30,8 @@ type ClientCert struct {
 	AllowNavyOrdersWrite        bool      `db:"allow_navy_orders_write"`
 	AllowPrime                  bool      `db:"allow_prime"`
 	AllowPPTAS                  bool      `db:"allow_pptas"`
+	AllowSpaceForceOrdersRead   bool      `db:"allow_space_force_orders_read"`
+	AllowSpaceForceOrdersWrite  bool      `db:"allow_space_force_orders_write"`
 	UserID                      uuid.UUID `db:"user_id"`
 }
 

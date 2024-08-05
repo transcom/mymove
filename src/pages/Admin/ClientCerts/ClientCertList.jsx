@@ -64,6 +64,8 @@ const ClientCertList = (props) => {
         />
         <BooleanField cellClassName={classes.tableCell} source="allowNavyOrdersRead" label="Navy Orders Read" />
         <BooleanField cellClassName={classes.tableCell} source="allowNavyOrdersWrite" label="Navy Orders Write" />
+        <BooleanField cellClassName={classes.tableCell} source="allowSpaceForceOrdersRead" label="USSF Orders Read" />
+        <BooleanField cellClassName={classes.tableCell} source="allowSpaceForceOrdersWrite" label="USSF Orders Write" />
       </Datagrid>
     </List>
   );

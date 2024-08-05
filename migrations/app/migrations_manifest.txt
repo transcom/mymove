@@ -976,3 +976,4 @@
 20240729164930_mai_do_cac.up.sql
 20240730161630_remove-boat-shipments-index.up.sql
 20240731151118_alter_mto_shipment_type_motorhome.up.sql
+20240801170446_add_space_force_read_write_client_cert.up.sql
