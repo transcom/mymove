@@ -198,6 +198,7 @@ export class Summary extends Component {
             shipmentType={shipment.shipmentType}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            shipmentLocator={shipment.shipmentLocator}
           />
         );
       }
@@ -220,6 +221,7 @@ export class Summary extends Component {
             shipmentType={shipment.shipmentType}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            shipmentLocator={shipment.shipmentLocator}
           />
         );
       }

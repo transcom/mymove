@@ -96,7 +96,7 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 			sortTerm := parameters[*params.Sort]
 			rawquery += ` ORDER BY ` + sortTerm + ` ` + *params.Order
 		} else {
-			rawquery += ` ORDER BY distinct_customers.last_name ASC`
+			rawquery += ` ORDER BY f_unaccent(lower($1)) <-> searchable_full_name(first_name, last_name) `
 		}
 		query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
 	}
@@ -138,7 +138,7 @@ func customerNameSearch(customerName *string) QueryOption {
 }
 
 var parameters = map[string]string{
-	"customerName":  "distinct_customers.last_name, distinct_customers.first_name",
+	"customerName":  "distinct_customers.last_name",
 	"dodID":         "distinct_customers.edipi",
 	"emplid":        "distinct_customers.emplid",
 	"branch":        "distinct_customers.affiliation",
