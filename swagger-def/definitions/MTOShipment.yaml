@@ -193,6 +193,8 @@ properties:
     $ref: 'StorageFacility.yaml'
   ppmShipment:
     $ref: 'PPMShipment.yaml'
+  boatShipment:
+    $ref: 'BoatShipment.yaml'
   deliveryAddressUpdate:
     $ref: 'ShipmentAddressUpdate.yaml'
   shipmentLocator:

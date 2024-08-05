@@ -393,10 +393,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	if searchParams.ID != nil {
 		query.Where("moves.id = ?", *searchParams.ID)
 	}
-	// if there is an error returned we will just return no moves
-	if err != nil {
-		return []models.Move{}, 0, err
-	}
 	// adding pagination and all moves returned with built query
 	// if there are no moves then it will return.. no moves
 	err = query.EagerPreload("Orders.OrdersType").Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
@@ -404,15 +400,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 		return []models.Move{}, 0, err
 	}
 	count = query.Paginator.TotalEntriesSize
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
-
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
 
 	return moveTaskOrders, count, nil
 }
