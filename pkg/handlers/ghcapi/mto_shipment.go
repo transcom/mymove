@@ -187,6 +187,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
+			}
+
 			var err error
 			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
@@ -310,6 +315,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
+
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
+			}
+
 			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc")
 			if err != nil {
 				return handleError(err)
