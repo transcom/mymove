@@ -85,7 +85,7 @@ func (h GetLocationByZipCityHandler) Handle(params addressop.GetLocationByZipCit
 
 			locationList, err := h.GetLocationsByZipCity(appCtx, params.ZipCity)
 			if err != nil {
-				appCtx.Logger().Error("Error searching for Transportation Offices: ", zap.Error(err))
+				appCtx.Logger().Error("Error searching for Zip/City: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityInternalServerError(), err
 			}
 
