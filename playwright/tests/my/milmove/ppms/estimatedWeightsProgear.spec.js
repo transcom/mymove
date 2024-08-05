@@ -34,7 +34,7 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
     );
 
     // estimated weight violates min
-    await page.locator('input[name="estimatedWeight"]').type('0');
+    await page.locator('input[name="estimatedWeight"]').fill('0');
     await page.locator('input[name="estimatedWeight"]').blur();
     await expect(errorMessage).toContainText('Enter a weight greater than 0 lbs');
     await expect(page.locator('[class="usa-error-message"] + div').locator('input')).toHaveAttribute(
@@ -42,13 +42,13 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
       'estimatedWeight',
     );
 
-    await page.locator('input[name="estimatedWeight"]').type('500');
+    await page.locator('input[name="estimatedWeight"]').fill('500');
     await page.locator('input[name="estimatedWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
     // a warning is displayed when estimated weight is greater than the SM's weight allowance
     await page.locator('input[name="estimatedWeight"]').clear();
-    await page.locator('input[name="estimatedWeight"]').type('17000');
+    await page.locator('input[name="estimatedWeight"]').fill('17000');
     const warningMessage = page.locator('[data-testid="textInputWarning"]');
     await expect(warningMessage).toContainText(
       'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.',
@@ -58,18 +58,19 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
       'estimatedWeight',
     );
     await page.locator('input[name="estimatedWeight"]').clear();
-    await page.locator('input[name="estimatedWeight"]').type('500');
+    await page.locator('input[name="estimatedWeight"]').fill('500');
+    await page.locator('input[name="estimatedWeight"]').blur();
     await expect(warningMessage).not.toBeVisible();
 
     // pro gear violates max
     await page.locator('label[for="hasProGearYes"]').click();
 
     await page.locator('input[name="proGearWeight"]').clear();
-    await page.locator('input[name="proGearWeight"]').type('5000');
+    await page.locator('input[name="proGearWeight"]').fill('5000');
     await page.locator('input[name="proGearWeight"]').blur();
     await expect(errorMessage).toContainText('Enter a weight 2,000 lbs or less');
     await page.locator('input[name="proGearWeight"]').clear();
-    await page.locator('input[name="proGearWeight"]').type('500');
+    await page.locator('input[name="proGearWeight"]').fill('500');
     await page.locator('input[name="proGearWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
@@ -80,18 +81,18 @@ test.describe('PPM Onboarding - Add Estimated  Weight and Pro-gear', () => {
       "Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.",
     );
     await page.locator('input[name="proGearWeight"]').clear();
-    await page.locator('input[name="proGearWeight"]').type('500');
+    await page.locator('input[name="proGearWeight"]').fill('500');
     await page.locator('input[name="proGearWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
     // spouse pro gear max violation
     await page.locator('input[name="spouseProGearWeight"]').clear();
-    await page.locator('input[name="spouseProGearWeight"]').type('1000');
+    await page.locator('input[name="spouseProGearWeight"]').fill('1000');
     await page.locator('input[name="spouseProGearWeight"]').blur();
     await expect(errorMessage).toContainText('Enter a weight 500 lbs or less');
 
     await page.locator('input[name="spouseProGearWeight"]').clear();
-    await page.locator('input[name="spouseProGearWeight"]').type('100');
+    await page.locator('input[name="spouseProGearWeight"]').fill('100');
     await page.locator('input[name="spouseProGearWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
   });
@@ -132,7 +133,7 @@ test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear',
     );
 
     // estimated weight violates min
-    await page.locator('input[name="estimatedWeight"]').type('0');
+    await page.locator('input[name="estimatedWeight"]').fill('0');
     await page.locator('input[name="estimatedWeight"]').blur();
     await expect(errorMessage).toContainText('Enter a weight greater than 0 lbs');
     await expect(page.locator('[class="usa-error-message"] + div').locator('input')).toHaveAttribute(
@@ -140,13 +141,13 @@ test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear',
       'estimatedWeight',
     );
 
-    await page.locator('input[name="estimatedWeight"]').type('500');
+    await page.locator('input[name="estimatedWeight"]').fill('500');
     await page.locator('input[name="estimatedWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
     // a warning is displayed when estimated weight is greater than the SM's weight allowance
     await page.locator('input[name="estimatedWeight"]').clear();
-    await page.locator('input[name="estimatedWeight"]').type('17000');
+    await page.locator('input[name="estimatedWeight"]').fill('17000');
     const warningMessage = page.locator('[data-testid="textInputWarning"]');
     await expect(warningMessage).toContainText(
       'This weight is more than your weight allowance. Talk to your counselor about what that could mean for your move.',
@@ -156,18 +157,18 @@ test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear',
       'estimatedWeight',
     );
     await page.locator('input[name="estimatedWeight"]').clear();
-    await page.locator('input[name="estimatedWeight"]').type('500');
+    await page.locator('input[name="estimatedWeight"]').fill('500');
     await expect(warningMessage).not.toBeVisible();
 
     // pro gear violates max
     await page.locator('label[for="hasProGearYes"]').click();
 
     await page.locator('input[name="proGearWeight"]').clear();
-    await page.locator('input[name="proGearWeight"]').type('5000');
+    await page.locator('input[name="proGearWeight"]').fill('5000');
     await page.locator('input[name="proGearWeight"]').blur();
     await expect(errorMessage).toContainText('Enter a weight 2,000 lbs or less');
     await page.locator('input[name="proGearWeight"]').clear();
-    await page.locator('input[name="proGearWeight"]').type('500');
+    await page.locator('input[name="proGearWeight"]').fill('500');
     await page.locator('input[name="proGearWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
@@ -178,18 +179,18 @@ test.describe('(MultiMove) PPM Onboarding - Add Estimated  Weight and Pro-gear',
       "Enter a weight into at least one pro-gear field. If you won't have pro-gear, select No above.",
     );
     await page.locator('input[name="proGearWeight"]').clear();
-    await page.locator('input[name="proGearWeight"]').type('500');
+    await page.locator('input[name="proGearWeight"]').fill('500');
     await page.locator('input[name="proGearWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
 
     // spouse pro gear max violation
     await page.locator('input[name="spouseProGearWeight"]').clear();
-    await page.locator('input[name="spouseProGearWeight"]').type('1000');
+    await page.locator('input[name="spouseProGearWeight"]').fill('1000');
     await page.locator('input[name="spouseProGearWeight"]').blur();
     await expect(errorMessage).toContainText('Enter a weight 500 lbs or less');
 
     await page.locator('input[name="spouseProGearWeight"]').clear();
-    await page.locator('input[name="spouseProGearWeight"]').type('100');
+    await page.locator('input[name="spouseProGearWeight"]').fill('100');
     await page.locator('input[name="spouseProGearWeight"]').blur();
     await expect(errorMessage).not.toBeVisible();
   });

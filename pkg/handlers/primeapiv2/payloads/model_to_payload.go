@@ -105,6 +105,7 @@ func Order(order *models.Order) *primev2messages.Order {
 		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                       Customer(&order.ServiceMember),
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   swag.StringValue(order.DestinationGBLOC),
 		Entitlement:                    Entitlement(order.Entitlement),
 		ID:                             strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:             originDutyLocation,
