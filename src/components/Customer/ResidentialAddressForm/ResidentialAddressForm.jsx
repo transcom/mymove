@@ -18,7 +18,6 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
-  const zipCityEnabled = true; // TODO: NEED TO DETERMINE WHICH USER/PAGES TO DETERMINE IF THIS IS ENABLED
 
   return (
     <Formik
@@ -28,7 +27,19 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
+      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched, values, setValues }) => {
+        const handleZipCityChange = (value) => {
+          setValues({
+            ...values,
+            current_residence: {
+              city: value.address.city,
+              state: value.address.state,
+              county: value.address.county,
+              postalCode: value.address.postalCode,
+            },
+          });
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Current address</h1>
@@ -38,7 +49,8 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
                 name={formFieldsName}
                 validators={validators}
                 formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
-                zipCityEnabled={zipCityEnabled}
+                zipCityEnabled
+                handleZipCityChange={handleZipCityChange}
               />
             </SectionWrapper>
 

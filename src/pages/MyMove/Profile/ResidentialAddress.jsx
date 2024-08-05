@@ -49,7 +49,6 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
       state: serviceMember.residential_address?.state || '',
       postalCode: serviceMember.residential_address?.postalCode || '',
       county: serviceMember.residential_address?.county || '',
-      zipCity: '',
     },
   };
 

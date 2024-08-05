@@ -610,6 +610,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/TransportationOffice'
+  UsPostRegionCities:
+    type: array
+    items:
+      $ref: '#/definitions/UsPostRegionCity'
   OfficeUser:
     type: object
     properties:
@@ -3580,7 +3584,7 @@ definitions:
       RENTAL_EQUIPMENT: Rental equipment
       TOLLS: Tolls
       WEIGHING_FEE: Weighing fee
-  ZipCityLookup:
+  UsPostRegionCity:
     description: A postal code and city lookup
     type: object
     properties:
@@ -5735,7 +5739,7 @@ paths:
         '200':
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: '#/definitions/ZipCityLookup'
+            $ref: '#/definitions/UsPostRegionCities'
         '400':
           description: invalid request
         '403':

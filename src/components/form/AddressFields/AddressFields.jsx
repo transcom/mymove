@@ -29,6 +29,7 @@ export const AddressFields = ({
   render,
   validators,
   zipCityEnabled,
+  handleZipCityChange,
   formikFunctionsToValidatePostalCodeOnChange,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
@@ -88,10 +89,6 @@ export const AddressFields = ({
       />
     );
   }
-
-  const handleZipCityChange = (value) => {
-    console.log(value);
-  };
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -162,6 +159,7 @@ AddressFields.propTypes = {
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
   zipCityEnabled: PropTypes.bool,
+  handleZipCityChange: PropTypes.func,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
@@ -180,6 +178,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   zipCityEnabled: false,
+  handleZipCityChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
 };

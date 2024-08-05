@@ -589,6 +589,10 @@ definitions:
     type: array
     items:
       $ref: "definitions/TransportationOffice.yaml"
+  UsPostRegionCities:
+    type: array
+    items:
+      $ref: "definitions/UsPostRegionCity.yaml"
   OfficeUser:
     type: object
     properties:
@@ -4164,7 +4168,7 @@ paths:
         "200":
           description: the requested list of city, state, county, and postal code matches
           schema:
-            $ref: "definitions/ZipCityLookup.yaml"
+            $ref: "#/definitions/UsPostRegionCities"
         "400":
           description: invalid request
         "403":
