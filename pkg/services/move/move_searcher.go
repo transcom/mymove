@@ -28,9 +28,9 @@ type QueryOption func(*pop.Query)
 
 // SearchMoves returns a list of results for a QAE/CSR move search query
 func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services.SearchMovesParams) (models.Moves, int, error) {
-	if params.Locator == nil && params.DodID == nil && params.CustomerName == nil {
+	if params.Locator == nil && params.DodID == nil && params.CustomerName == nil && params.PaymentRequestCode == nil {
 		verrs := validate.NewErrors()
-		verrs.Add("search key", "move locator, DOD ID, or customer name must be provided")
+		verrs.Add("search key", "move locator, DOD ID, customer name, or payment request number must be provided")
 		return models.Moves{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 	if params.Locator != nil && params.DodID != nil {
@@ -68,6 +68,7 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
 		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
+		Join("payment_requests", "payment_requests.move_id = moves.id").
 		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
@@ -87,10 +88,11 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 	shipmentsCountQuery := shipmentsCountFilter(params.ShipmentsCount)
 	scheduledPickupDateQuery := scheduledPickupDateFilter(params.PickupDate)
 	scheduledDeliveryDateQuery := scheduledDeliveryDateFilter(params.DeliveryDate)
-	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName)
+	orderQuery := sortOrder(params.Sort, params.Order, params.CustomerName, params.PaymentRequestCode)
+	paymentRequestQuery := paymentRequestCodeFilter(params.PaymentRequestCode)
 
-	options := [11]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
-		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery}
+	options := [12]QueryOption{customerNameQuery, locatorQuery, dodIDQuery, branchQuery, orderQuery, originPostalCodeQuery,
+		destinationPostalCodeQuery, statusQuery, shipmentsCountQuery, scheduledPickupDateQuery, scheduledDeliveryDateQuery, paymentRequestQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -182,6 +184,14 @@ func shipmentsCountFilter(shipmentsCount *int64) QueryOption {
 	}
 }
 
+func paymentRequestCodeFilter(paymentRequestCode *string) QueryOption {
+	return func(query *pop.Query) {
+		if paymentRequestCode != nil {
+			query.Where("payment_requests.payment_request_number % (?)", *paymentRequestCode)
+		}
+	}
+}
+
 func scheduledPickupDateFilter(pickupDate *time.Time) QueryOption {
 	return func(query *pop.Query) {
 		if pickupDate != nil {
@@ -202,7 +212,7 @@ func scheduledDeliveryDateFilter(deliveryDate *time.Time) QueryOption {
 	}
 }
 
-func sortOrder(sort *string, order *string, customerNameSearch *string) QueryOption {
+func sortOrder(sort *string, order *string, customerNameSearch *string, paymentRequestSearch *string) QueryOption {
 	return func(query *pop.Query) {
 		if sort != nil && order != nil {
 			sortTerm := parameters[*sort]
@@ -213,6 +223,8 @@ func sortOrder(sort *string, order *string, customerNameSearch *string) QueryOpt
 			}
 		} else if customerNameSearch != nil {
 			query.Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) DESC", *customerNameSearch)
+		} else if paymentRequestSearch != nil {
+			query.Order("similarity(payment_requests.payment_request_number, ?)")
 		} else {
 			query.Order("moves.created_at DESC")
 		}
