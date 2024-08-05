@@ -53,6 +53,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 			"SecondaryDeliveryAddress",
 			"TertiaryDeliveryAddress",
 			"MTOServiceItems.Dimensions",
+			"BoatShipment",
 			"PPMShipment.W2Address",
 			"PPMShipment.WeightTickets",
 			"PPMShipment.MovingExpenses",

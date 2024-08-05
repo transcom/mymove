@@ -26,6 +26,8 @@ import (
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
+const featureFlagBoat = "BOAT"
+
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerConfig
@@ -60,6 +62,33 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			}
 
 			shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
+
+			/** Feature Flag - Boat Shipment **/
+			isBoatFeatureOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagBoat, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagBoat), zap.Error(err))
+				isBoatFeatureOn = false
+			} else {
+				isBoatFeatureOn = flag.Match
+			}
+
+			// Remove Boat shipments if Boat FF is off
+			if !isBoatFeatureOn {
+				var filteredShipments models.MTOShipments
+				if shipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range shipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, shipments[i])
+				}
+				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
 
 			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses, h.FileStorer())
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments), sitStatusPayload)
