@@ -151,7 +151,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       // Only run validation if a 4 length NTS TAC and department are present
       // The effective date for an NTS LOA should be either the approved_at date of the
       // move, or the current time of review (Post review it will save as the approved_at)
-      const effectiveDate = move?.approved_at || Date.now();
+      const effectiveDate = move?.approvedAt || Date.now();
       validateLoa({
         tacCode: ntsTac,
         serviceMemberAffiliation: departmentIndicator,
@@ -214,7 +214,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       // Only run validation if a 4 length NTS TAC and department are present
       // The effective date for an NTS LOA should be either the approved_at date of the
       // move, or the current time of review (Post review it will save as the approved_at)
-      const effectiveDate = move?.approved_at || Date.now();
+      const effectiveDate = move?.approvedAt || Date.now();
       validateLoa({
         tacCode: order?.ntsTac,
         serviceMemberAffiliation: order?.department_indicator,
@@ -240,7 +240,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
     order?.ntsTac,
     order?.date_issued,
     order?.department_indicator,
-    move?.approved_at,
+    move?.approvedAt,
     isLoading,
     isError,
     validateLoa,
