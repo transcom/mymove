@@ -90,7 +90,7 @@ flags:
       key: mil-app
       value: true
 - key: boat
-  name: NTSR feature flag
+  name: Boat feature flag
   type: BOOLEAN_FLAG_TYPE
   enabled: true
   rollouts:
