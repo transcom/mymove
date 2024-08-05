@@ -62,7 +62,7 @@ func ProcessTPPSReportEntryForOnePaymentRequest(tppsReportEntryForOnePaymentRequ
 	return tppsData
 }
 
-// Parse takes in a string representation of a 997 EDI file and reads it into a 997 EDI struct
+// Parse takes in a string representation of a TPPS paid invoice report file and reads it into a TPPSData struct
 func (e *EDI) Parse(stringTPPSPaidInvoiceReport string) ([]TPPSData, error) {
 	var tppsDataFile []TPPSData
 
