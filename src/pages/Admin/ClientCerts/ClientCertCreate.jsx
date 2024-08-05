@@ -111,6 +111,20 @@ const ClientCertCreate = (props) => (
           { id: false, name: 'No' },
         ]}
       />
+      <SelectInput
+        source="allowSpaceForceOrdersRead"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
+      <SelectInput
+        source="allowSpaceForceOrdersWrite"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
     </SimpleForm>
   </Create>
 );

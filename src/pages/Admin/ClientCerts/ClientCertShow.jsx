@@ -37,6 +37,8 @@ const ClientCertShow = (props) => {
         <BooleanField source="allowMarineCorpsOrdersWrite" />
         <BooleanField source="allowNavyOrdersRead" />
         <BooleanField source="allowNavyOrdersWrite" />
+        <BooleanField source="allowSpaceForceOrdersRead" />
+        <BooleanField source="allowSpaceForceOrdersWrite" />
         <BooleanField source="allowPrime" />
         <DateField source="createdAt" showTime addLabel />
         <DateField source="updatedAt" showTime addLabel />
