@@ -266,7 +266,7 @@ describe('Orders page', () => {
     });
 
     describe('validates on user input', () => {
-      it('validates with a valid TAC and no LOA', async () => {
+      it('validates HHG with a valid TAC and no LOA', async () => {
         const hhgTacInput = screen.getByTestId('hhgTacInput');
         await userEvent.clear(hhgTacInput);
         await userEvent.type(hhgTacInput, '2222');
@@ -276,6 +276,36 @@ describe('Orders page', () => {
         await waitFor(() => {
           expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
           expect(screen.getByText(/Unable to find a LOA based on the provided details/)).toBeInTheDocument();
+          expect(
+            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).not.toBeInTheDocument();
+        });
+      });
+      it('validates NTS with a valid TAC and no LOA', async () => {
+        // Empty HHG from having a good useEffect TAC
+        const hhgTacInput = screen.getByTestId('hhgTacInput');
+        await userEvent.clear(hhgTacInput);
+        const ntsTacInput = screen.getByTestId('ntsTacInput');
+        await userEvent.clear(ntsTacInput);
+        await userEvent.type(ntsTacInput, '2222');
+
+        // TAC is found and valid
+        // LOA is NOT found
+        await waitFor(() => {
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
+          expect(loaMissingWarnings.length).toBe(2); // Both HHG and NTS LOAs are missing now
+          expect(
+            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).not.toBeInTheDocument();
+        });
+
+        // Make HHG good and re-verify that the NTS errors remained
+        await userEvent.type(hhgTacInput, '1111');
+        await waitFor(() => {
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
+          expect(loaMissingWarnings.length).toBe(1); // Only NTS is missing
           expect(
             screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
           ).not.toBeInTheDocument();
@@ -310,7 +340,7 @@ describe('Orders page', () => {
           );
           const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
           expect(loaInvalidWarnings.length).toBe(1); // NTS is invalid
-          expect(loaMissingWarnings.length).toBe(0); // HHG is valid based on useEffect hook and default passed in TAC
+          expect(loaMissingWarnings.length).toBe(1); // HHG is valid based on useEffect hook and default passed in TAC
         });
       });
     });
