@@ -73,7 +73,7 @@ export const ShipmentListItem = ({
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>
-      )}{' '}
+      )}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
         <div className={styles.shipmentWeight}>
