@@ -79,7 +79,9 @@ INSERT INTO public.client_certs (
     allow_marine_corps_orders_read,
     allow_marine_corps_orders_write,
     allow_navy_orders_read,
-    allow_navy_orders_write)
+    allow_navy_orders_write,
+	allow_space_force_orders_read,
+    allow_space_force_orders_write)
 VALUES (
     '{{.ID}}',
     '{{.Fingerprint}}',
@@ -99,6 +101,8 @@ VALUES (
     true,
     true,
     true,
+    true,
+	true,
     true);
 `
 	// template for updating client certificates
