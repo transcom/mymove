@@ -363,68 +363,10 @@ func init() {
       "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
-        "aaa": {
-          "description": "LoaTrnsnID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "actualOriginNetWeight": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
         },
-        "appro": {
-          "description": "Appropriation",
-          "type": "string",
-          "x-nullable": true
-        },
-        "bcn": {
-          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "costCD": {
-          "description": "LoaPgmElmntID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
         "counseledDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "counselingFeeTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "cratingDimensions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Crate"
-          }
-        },
-        "cratingTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "dd2278IssueDate": {
-          "description": "Counseling Date",
-          "type": "string",
-          "format": "date"
-        },
-        "ddcd": {
-          "description": "LoaDptID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "deliveryDate": {
           "type": "string",
           "format": "date"
         },
@@ -433,22 +375,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationGbloc": {
           "type": "string",
           "pattern": "^[A-Z]{4}$",
-          "x-nullable": true
-        },
-        "destinationPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "destinationReweighNetWeight": {
-          "type": "number",
-          "format": "double",
           "x-nullable": true
         },
         "edipi": {
@@ -466,75 +395,18 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
-        "financialReviewFlag": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "firstName": {
           "type": "string",
           "example": "Bob"
-        },
-        "fiscalYear": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "invoicePaidAmt": {
-          "description": "Invoice Paid Amounts",
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
         },
         "lastName": {
           "type": "string",
           "example": "Job"
         },
-        "linehaulFuelTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "linehaulTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "loa": {
-          "description": "Line of Accounting",
-          "type": "string",
-          "x-nullable": true
-        },
         "middleInitial": {
           "type": "string",
           "x-nullable": true,
           "example": "G"
-        },
-        "miles": {
-          "type": "integer"
-        },
-        "moveDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "moveManagementFeeTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "netWeight": {
-          "type": "integer",
-          "x-nullable": true
-        },
-        "objClass": {
-          "description": "LoaAlltSnID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "orderNumber": {
-          "description": "not to be confused with Orders Number",
-          "type": "string",
-          "x-nullable": true,
-          "example": "030-00362"
         },
         "ordersDate": {
           "type": "string",
@@ -546,32 +418,9 @@ func init() {
         "ordersType": {
           "type": "string"
         },
-        "originAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "originGbloc": {
           "type": "string",
           "pattern": "^[A-Z]{4}$",
-          "x-nullable": true
-        },
-        "originPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "paa": {
-          "description": "LoaDocID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "packingPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "paidDate": {
-          "type": "string",
-          "format": "date",
           "x-nullable": true
         },
         "payGrade": {
@@ -641,17 +490,209 @@ func init() {
           },
           "x-nullable": true
         },
-        "pbpAnde": {
-          "description": "Pro Gear",
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "phonePrimary": {
           "type": "string"
         },
         "phoneSecondary": {
           "type": "string",
+          "x-nullable": true
+        },
+        "scac": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "AGFM"
+        },
+        "shipmentNum": {
+          "description": "Number of shipments",
+          "type": "integer"
+        },
+        "shipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PPTASShipment"
+          }
+        },
+        "tac": {
+          "description": "Transportation Accounting Code",
+          "type": "string",
+          "x-nullable": true
+        },
+        "transmitCD": {
+          "description": "Transmit Code",
+          "type": "string",
+          "x-nullable": true
+        },
+        "weightAuthorized": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        }
+      }
+    },
+    "PPTASReports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PPTASReport"
+      }
+    },
+    "PPTASShipment": {
+      "description": "Shipment definition used for PPTAS reports.\n",
+      "properties": {
+        "aaa": {
+          "description": "LoaTrnsnID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "actualOriginNetWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "appro": {
+          "description": "Appropriation",
+          "type": "string",
+          "x-nullable": true
+        },
+        "bcn": {
+          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "costCD": {
+          "description": "LoaPgmElmntID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingFeeTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "cratingDimensions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Crate"
+          }
+        },
+        "cratingTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "dd2278IssueDate": {
+          "description": "Counseling Date",
+          "type": "string",
+          "format": "date"
+        },
+        "ddcd": {
+          "description": "LoaDptID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "deliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "destinationReweighNetWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "financialReviewFlag": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "fiscalYear": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "invoicePaidAmt": {
+          "description": "Invoice Paid Amounts",
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "linehaulFuelTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "linehaulTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "loa": {
+          "description": "Line of Accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "miles": {
+          "type": "integer"
+        },
+        "moveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "moveManagementFeeTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "objClass": {
+          "description": "LoaAlltSnID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "orderNumber": {
+          "description": "not to be confused with Orders Number",
+          "type": "string",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "originAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "paa": {
+          "description": "LoaDocID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "packingPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "paidDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pbpAnde": {
+          "description": "Pro Gear",
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "pickupDate": {
@@ -700,18 +741,9 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "scac": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "AGFM"
-        },
         "shipmentId": {
           "type": "string",
           "format": "uuid"
-        },
-        "shipmentNum": {
-          "description": "Number of shipments",
-          "type": "integer"
         },
         "shipmentType": {
           "type": "string"
@@ -797,24 +829,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "tac": {
-          "description": "Transportation Accounting Code",
-          "type": "string",
-          "x-nullable": true
-        },
-        "transmitCD": {
-          "description": "Transmit Code",
-          "type": "string",
-          "x-nullable": true
-        },
         "travelAdvance": {
           "type": "number",
           "format": "double",
           "x-nullable": true
-        },
-        "travelClassCode": {
-          "type": "string",
-          "example": "PCS"
         },
         "travelType": {
           "description": "Travel Type",
@@ -836,23 +854,12 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "weightAuthorized": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "weightEstimate": {
           "description": "Total weight estimate",
           "type": "number",
           "format": "double",
           "x-nullable": true
         }
-      }
-    },
-    "PPTASReports": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PPTASReport"
       }
     }
   },
@@ -1231,68 +1238,10 @@ func init() {
       "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
-        "aaa": {
-          "description": "LoaTrnsnID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "actualOriginNetWeight": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
         },
-        "appro": {
-          "description": "Appropriation",
-          "type": "string",
-          "x-nullable": true
-        },
-        "bcn": {
-          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "costCD": {
-          "description": "LoaPgmElmntID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
         "counseledDate": {
-          "type": "string",
-          "format": "date"
-        },
-        "counselingFeeTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "cratingDimensions": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Crate"
-          }
-        },
-        "cratingTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "dd2278IssueDate": {
-          "description": "Counseling Date",
-          "type": "string",
-          "format": "date"
-        },
-        "ddcd": {
-          "description": "LoaDptID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "deliveryDate": {
           "type": "string",
           "format": "date"
         },
@@ -1301,22 +1250,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true
         },
-        "destinationAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "destinationGbloc": {
           "type": "string",
           "pattern": "^[A-Z]{4}$",
-          "x-nullable": true
-        },
-        "destinationPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "destinationReweighNetWeight": {
-          "type": "number",
-          "format": "double",
           "x-nullable": true
         },
         "edipi": {
@@ -1334,75 +1270,18 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
-        "financialReviewFlag": {
-          "type": "boolean",
-          "x-nullable": true
-        },
         "firstName": {
           "type": "string",
           "example": "Bob"
-        },
-        "fiscalYear": {
-          "type": "string",
-          "x-nullable": true
-        },
-        "invoicePaidAmt": {
-          "description": "Invoice Paid Amounts",
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
         },
         "lastName": {
           "type": "string",
           "example": "Job"
         },
-        "linehaulFuelTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "linehaulTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "loa": {
-          "description": "Line of Accounting",
-          "type": "string",
-          "x-nullable": true
-        },
         "middleInitial": {
           "type": "string",
           "x-nullable": true,
           "example": "G"
-        },
-        "miles": {
-          "type": "integer"
-        },
-        "moveDate": {
-          "type": "string",
-          "format": "date",
-          "x-nullable": true
-        },
-        "moveManagementFeeTotal": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "netWeight": {
-          "type": "integer",
-          "x-nullable": true
-        },
-        "objClass": {
-          "description": "LoaAlltSnID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "orderNumber": {
-          "description": "not to be confused with Orders Number",
-          "type": "string",
-          "x-nullable": true,
-          "example": "030-00362"
         },
         "ordersDate": {
           "type": "string",
@@ -1414,32 +1293,9 @@ func init() {
         "ordersType": {
           "type": "string"
         },
-        "originAddress": {
-          "$ref": "#/definitions/Address"
-        },
         "originGbloc": {
           "type": "string",
           "pattern": "^[A-Z]{4}$",
-          "x-nullable": true
-        },
-        "originPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "paa": {
-          "description": "LoaDocID in lines_of_accounting",
-          "type": "string",
-          "x-nullable": true
-        },
-        "packingPrice": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
-        "paidDate": {
-          "type": "string",
-          "format": "date",
           "x-nullable": true
         },
         "payGrade": {
@@ -1509,17 +1365,209 @@ func init() {
           },
           "x-nullable": true
         },
-        "pbpAnde": {
-          "description": "Pro Gear",
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "phonePrimary": {
           "type": "string"
         },
         "phoneSecondary": {
           "type": "string",
+          "x-nullable": true
+        },
+        "scac": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "AGFM"
+        },
+        "shipmentNum": {
+          "description": "Number of shipments",
+          "type": "integer"
+        },
+        "shipments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PPTASShipment"
+          }
+        },
+        "tac": {
+          "description": "Transportation Accounting Code",
+          "type": "string",
+          "x-nullable": true
+        },
+        "transmitCD": {
+          "description": "Transmit Code",
+          "type": "string",
+          "x-nullable": true
+        },
+        "weightAuthorized": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        }
+      }
+    },
+    "PPTASReports": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/PPTASReport"
+      }
+    },
+    "PPTASShipment": {
+      "description": "Shipment definition used for PPTAS reports.\n",
+      "properties": {
+        "aaa": {
+          "description": "LoaTrnsnID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "actualOriginNetWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
+        "appro": {
+          "description": "Appropriation",
+          "type": "string",
+          "x-nullable": true
+        },
+        "bcn": {
+          "description": "LoaSbaltmtRcpntID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "costCD": {
+          "description": "LoaPgmElmntID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingFeeTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "cratingDimensions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Crate"
+          }
+        },
+        "cratingTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "dd2278IssueDate": {
+          "description": "Counseling Date",
+          "type": "string",
+          "format": "date"
+        },
+        "ddcd": {
+          "description": "LoaDptID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "deliveryDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "destinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "destinationPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "destinationReweighNetWeight": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "financialReviewFlag": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "fiscalYear": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "invoicePaidAmt": {
+          "description": "Invoice Paid Amounts",
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "linehaulFuelTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "linehaulTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "loa": {
+          "description": "Line of Accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "miles": {
+          "type": "integer"
+        },
+        "moveDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "moveManagementFeeTotal": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "netWeight": {
+          "type": "integer",
+          "x-nullable": true
+        },
+        "objClass": {
+          "description": "LoaAlltSnID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "orderNumber": {
+          "description": "not to be confused with Orders Number",
+          "type": "string",
+          "x-nullable": true,
+          "example": "030-00362"
+        },
+        "originAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "paa": {
+          "description": "LoaDocID in lines_of_accounting",
+          "type": "string",
+          "x-nullable": true
+        },
+        "packingPrice": {
+          "type": "number",
+          "format": "double",
+          "x-nullable": true
+        },
+        "paidDate": {
+          "type": "string",
+          "format": "date",
+          "x-nullable": true
+        },
+        "pbpAnde": {
+          "description": "Pro Gear",
+          "type": "number",
+          "format": "double",
           "x-nullable": true
         },
         "pickupDate": {
@@ -1568,18 +1616,9 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "scac": {
-          "type": "string",
-          "x-nullable": true,
-          "example": "AGFM"
-        },
         "shipmentId": {
           "type": "string",
           "format": "uuid"
-        },
-        "shipmentNum": {
-          "description": "Number of shipments",
-          "type": "integer"
         },
         "shipmentType": {
           "type": "string"
@@ -1665,24 +1704,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
-        "tac": {
-          "description": "Transportation Accounting Code",
-          "type": "string",
-          "x-nullable": true
-        },
-        "transmitCD": {
-          "description": "Transmit Code",
-          "type": "string",
-          "x-nullable": true
-        },
         "travelAdvance": {
           "type": "number",
           "format": "double",
           "x-nullable": true
-        },
-        "travelClassCode": {
-          "type": "string",
-          "example": "PCS"
         },
         "travelType": {
           "description": "Travel Type",
@@ -1704,23 +1729,12 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "weightAuthorized": {
-          "type": "number",
-          "format": "double",
-          "x-nullable": true
-        },
         "weightEstimate": {
           "description": "Total weight estimate",
           "type": "number",
           "format": "double",
           "x-nullable": true
         }
-      }
-    },
-    "PPTASReports": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/PPTASReport"
       }
     }
   },

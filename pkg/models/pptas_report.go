@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/unit"
@@ -12,28 +11,41 @@ import (
 
 // PPTAS PPTASReport
 type PPTASReport struct {
-	FirstName                   *string
-	LastName                    *string
-	MiddleInitial               *string
-	Affiliation                 *ServiceMemberAffiliation
-	PayGrade                    *internalmessages.OrderPayGrade
-	Edipi                       *string
-	PhonePrimary                *string
-	PhoneSecondary              *string
-	EmailPrimary                *string
-	EmailSecondary              *string
-	OrdersType                  internalmessages.OrdersType
-	OrdersNumber                *string
-	OrdersDate                  *time.Time
+	FirstName         *string
+	LastName          *string
+	MiddleInitial     *string
+	Affiliation       *ServiceMemberAffiliation
+	PayGrade          *internalmessages.OrderPayGrade
+	Edipi             *string
+	PhonePrimary      *string
+	PhoneSecondary    *string
+	EmailPrimary      *string
+	EmailSecondary    *string
+	OrdersType        internalmessages.OrdersType
+	OrdersNumber      *string
+	OrdersDate        *time.Time
+	TravelClassCode   *string
+	OriginGBLOC       *string
+	DestinationGBLOC  *string
+	DepCD             bool
+	TAC               *string
+	ShipmentNum       int
+	TransmitCd        *string
+	SCAC              *string
+	CounseledDate     *time.Time
+	WeightAuthorized  *unit.Pound
+	EntitlementWeight *unit.Pound
+	Shipments         []*pptasmessages.PPTASShipment
+}
+
+type PPTASReports []PPTASReport
+
+type PPTASShipment struct {
 	Address                     *Address
 	OriginAddress               *Address
 	DestinationAddress          *Address
-	OriginGBLOC                 *string
-	DestinationGBLOC            *string
-	DepCD                       bool
 	TravelAdvance               *unit.Cents
 	MoveDate                    *time.Time
-	TAC                         *string
 	FiscalYear                  *string
 	Appro                       *string
 	Subhead                     *string
@@ -45,18 +57,13 @@ type PPTASReport struct {
 	PAA                         *string
 	CostCD                      *string
 	DDCD                        *string
-	ShipmentNum                 int
 	WeightEstimate              *unit.Pound
-	TransmitCd                  *string
 	DD2278IssueDate             *time.Time
 	Miles                       *unit.Miles
-	WeightAuthorized            *unit.Pound
 	ShipmentId                  uuid.UUID
-	SCAC                        *string
 	OrderNumber                 *string
 	LOA                         *string
 	ShipmentType                *string
-	EntitlementWeight           *unit.Pound
 	NetWeight                   *unit.Pound
 	PBPAndE                     *unit.Pound
 	PickupDate                  *time.Time
@@ -93,12 +100,8 @@ type PPTASReport struct {
 	PpmUnpacking                *float64
 	PpmTotal                    *float64
 	TravelType                  *string
-	TravelClassCode             *string
 	DeliveryDate                *time.Time
 	ActualOriginNetWeight       *unit.Pound
 	DestinationReweighNetWeight *unit.Pound
-	CounseledDate               *time.Time
 	FinancialReviewFlag         *bool
 }
-
-type PPTASReports []PPTASReport
