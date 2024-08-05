@@ -298,13 +298,21 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
           // Conditionally set the LOA warning message based on off if it is missing or just invalid
           const isHHGLoaMissing =
             loaValidationState[LOA_TYPE.HHG].loa === null || loaValidationState[LOA_TYPE.HHG].loa === undefined;
+          const isNTSLoaMissing =
+            loaValidationState[LOA_TYPE.NTS].loa === null || loaValidationState[LOA_TYPE.NTS].loa === undefined;
           let hhgLoaWarning = '';
+          let ntsLoaWarning = '';
           // Making a nested ternary here goes against linter rules
           // The primary warning should be if it is missing, the other warning should be if it is invalid
           if (isHHGLoaMissing) {
             hhgLoaWarning = loaMissingWarningMsg;
           } else if (!loaValidationState[LOA_TYPE.HHG].isValid) {
             hhgLoaWarning = loaInvalidWarningMsg;
+          }
+          if (isNTSLoaMissing) {
+            ntsLoaWarning = loaMissingWarningMsg;
+          } else if (!loaValidationState[LOA_TYPE.NTS].isValid) {
+            ntsLoaWarning = loaInvalidWarningMsg;
           }
 
           return (
@@ -352,6 +360,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     hhgTacWarning={hhgTacWarning}
                     ntsTacWarning={ntsTacWarning}
                     hhgLoaWarning={hhgLoaWarning}
+                    ntsLoaWarning={ntsLoaWarning}
                     validateHHGTac={handleHHGTacValidation}
                     validateHHGLoa={() => handleHHGLoaValidation(formik.values)}
                     validateNTSLoa={() => handleNTSLoaValidation(formik.values)}
