@@ -26,9 +26,6 @@ type PPTASShipment struct {
 	// actual origin net weight
 	ActualOriginNetWeight *float64 `json:"actualOriginNetWeight,omitempty"`
 
-	// address
-	Address *Address `json:"address,omitempty"`
-
 	// Appropriation
 	Appro *string `json:"appro,omitempty"`
 
@@ -100,10 +97,6 @@ type PPTASShipment struct {
 
 	// LoaAlltSnID in lines_of_accounting
 	ObjClass *string `json:"objClass,omitempty"`
-
-	// not to be confused with Orders Number
-	// Example: 030-00362
-	OrderNumber *string `json:"orderNumber,omitempty"`
 
 	// origin address
 	OriginAddress *Address `json:"originAddress,omitempty"`
@@ -228,10 +221,6 @@ type PPTASShipment struct {
 func (m *PPTASShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.validateAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateCratingDimensions(formats); err != nil {
 		res = append(res, err)
 	}
@@ -279,25 +268,6 @@ func (m *PPTASShipment) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PPTASShipment) validateAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.Address) { // not required
-		return nil
-	}
-
-	if m.Address != nil {
-		if err := m.Address.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -465,10 +435,6 @@ func (m *PPTASShipment) validateSitOutDate(formats strfmt.Registry) error {
 func (m *PPTASShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	if err := m.contextValidateAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateCratingDimensions(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -484,27 +450,6 @@ func (m *PPTASShipment) ContextValidate(ctx context.Context, formats strfmt.Regi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *PPTASShipment) contextValidateAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.Address != nil {
-
-		if swag.IsZero(m.Address) { // not required
-			return nil
-		}
-
-		if err := m.Address.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("address")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("address")
-			}
-			return err
-		}
-	}
-
 	return nil
 }
 

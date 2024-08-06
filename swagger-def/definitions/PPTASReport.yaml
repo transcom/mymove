@@ -92,6 +92,8 @@ properties:
   emailSecondary:
     type: string
     x-nullable: true
+  address:
+    $ref: 'Address.yaml'
   ordersType:
     type: string
   ordersNumber:
@@ -136,6 +138,11 @@ properties:
   counseledDate:
     type: string
     format: date
+  orderNumber:
+    description: not to be confused with Orders Number
+    type: string
+    example: '030-00362'
+    x-nullable: true
   shipments: 
     type: array
     items: 

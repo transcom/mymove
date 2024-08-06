@@ -1,8 +1,6 @@
 description: >
   Shipment definition used for PPTAS reports.
 properties:
-  address:
-    $ref: 'Address.yaml'
   originAddress:
     $ref: 'Address.yaml'
   destinationAddress:
@@ -72,11 +70,6 @@ properties:
   shipmentId:
     type: string
     format: uuid
-  orderNumber:
-    description: not to be confused with Orders Number
-    type: string
-    example: '030-00362'
-    x-nullable: true
   loa:
     description: Line of Accounting
     type: string

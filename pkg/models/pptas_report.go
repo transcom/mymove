@@ -21,6 +21,7 @@ type PPTASReport struct {
 	PhoneSecondary    *string
 	EmailPrimary      *string
 	EmailSecondary    *string
+	Address           *Address
 	OrdersType        internalmessages.OrdersType
 	OrdersNumber      *string
 	OrdersDate        *time.Time
@@ -35,13 +36,13 @@ type PPTASReport struct {
 	CounseledDate     *time.Time
 	WeightAuthorized  *unit.Pound
 	EntitlementWeight *unit.Pound
+	OrderNumber       *string
 	Shipments         []*pptasmessages.PPTASShipment
 }
 
 type PPTASReports []PPTASReport
 
 type PPTASShipment struct {
-	Address                     *Address
 	OriginAddress               *Address
 	DestinationAddress          *Address
 	TravelAdvance               *unit.Cents
@@ -61,7 +62,6 @@ type PPTASShipment struct {
 	DD2278IssueDate             *time.Time
 	Miles                       *unit.Miles
 	ShipmentId                  uuid.UUID
-	OrderNumber                 *string
 	LOA                         *string
 	ShipmentType                *string
 	NetWeight                   *unit.Pound

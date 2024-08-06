@@ -287,8 +287,6 @@ definitions:
     description: |
       Shipment definition used for PPTAS reports.
     properties:
-      address:
-        $ref: '#/definitions/Address'
       originAddress:
         $ref: '#/definitions/Address'
       destinationAddress:
@@ -358,11 +356,6 @@ definitions:
       shipmentId:
         type: string
         format: uuid
-      orderNumber:
-        description: not to be confused with Orders Number
-        type: string
-        example: 030-00362
-        x-nullable: true
       loa:
         description: Line of Accounting
         type: string
@@ -639,6 +632,8 @@ definitions:
       emailSecondary:
         type: string
         x-nullable: true
+      address:
+        $ref: '#/definitions/Address'
       ordersType:
         type: string
       ordersNumber:
@@ -683,6 +678,11 @@ definitions:
       counseledDate:
         type: string
         format: date
+      orderNumber:
+        description: not to be confused with Orders Number
+        type: string
+        example: 030-00362
+        x-nullable: true
       shipments:
         type: array
         items:

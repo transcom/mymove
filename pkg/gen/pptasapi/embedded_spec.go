@@ -363,6 +363,9 @@ func init() {
       "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -407,6 +410,12 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "G"
+        },
+        "orderNumber": {
+          "description": "not to be confused with Orders Number",
+          "type": "string",
+          "x-nullable": true,
+          "example": "030-00362"
         },
         "ordersDate": {
           "type": "string",
@@ -548,9 +557,6 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "appro": {
           "description": "Appropriation",
           "type": "string",
@@ -659,12 +665,6 @@ func init() {
           "description": "LoaAlltSnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
-        },
-        "orderNumber": {
-          "description": "not to be confused with Orders Number",
-          "type": "string",
-          "x-nullable": true,
-          "example": "030-00362"
         },
         "originAddress": {
           "$ref": "#/definitions/Address"
@@ -1238,6 +1238,9 @@ func init() {
       "description": "Report for Navy PPTAS, contains information about Service Members, Orders, Move Task Orders, Shipments, and Payment Requests.\n",
       "type": "object",
       "properties": {
+        "address": {
+          "$ref": "#/definitions/Address"
+        },
         "affiliation": {
           "$ref": "#/definitions/Affiliation"
         },
@@ -1282,6 +1285,12 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "G"
+        },
+        "orderNumber": {
+          "description": "not to be confused with Orders Number",
+          "type": "string",
+          "x-nullable": true,
+          "example": "030-00362"
         },
         "ordersDate": {
           "type": "string",
@@ -1423,9 +1432,6 @@ func init() {
           "format": "double",
           "x-nullable": true
         },
-        "address": {
-          "$ref": "#/definitions/Address"
-        },
         "appro": {
           "description": "Appropriation",
           "type": "string",
@@ -1534,12 +1540,6 @@ func init() {
           "description": "LoaAlltSnID in lines_of_accounting",
           "type": "string",
           "x-nullable": true
-        },
-        "orderNumber": {
-          "description": "not to be confused with Orders Number",
-          "type": "string",
-          "x-nullable": true,
-          "example": "030-00362"
         },
         "originAddress": {
           "$ref": "#/definitions/Address"
