@@ -19,8 +19,10 @@ import (
 // swagger:model MobileHome
 type MobileHome struct {
 
-	// has secondary pickup address
-	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+	// Timestamp of when a property of this object was created (UTC)
+	// Read Only: true
+	// Format: date-time
+	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
 	// height in inches
 	HeightInInches int64 `json:"heightInInches,omitempty"`
@@ -39,26 +41,6 @@ type MobileHome struct {
 
 	// The model of the mobile home.
 	Model string `json:"model,omitempty"`
-
-	// origin address
-	OriginAddress *Address `json:"originAddress,omitempty"`
-
-	// pickup address
-	PickupAddress *Address `json:"pickupAddress,omitempty"`
-
-	// pickup location
-	PickupLocation *Address `json:"pickupLocation,omitempty"`
-
-	// requested delivery date
-	// Format: date-time
-	RequestedDeliveryDate strfmt.DateTime `json:"requestedDeliveryDate,omitempty"`
-
-	// requested pickup date
-	// Format: date-time
-	RequestedPickupDate strfmt.DateTime `json:"requestedPickupDate,omitempty"`
-
-	// secondary pickup address
-	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
 	// The id of the parent MTOShipment object
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -82,31 +64,11 @@ type MobileHome struct {
 func (m *MobileHome) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateCreatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateOriginAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePickupAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePickupLocation(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedDeliveryDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateRequestedPickupDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSecondaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -124,6 +86,18 @@ func (m *MobileHome) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MobileHome) validateCreatedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.CreatedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *MobileHome) validateID(formats strfmt.Registry) error {
 	if swag.IsZero(m.ID) { // not required
 		return nil
@@ -131,106 +105,6 @@ func (m *MobileHome) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (m *MobileHome) validateOriginAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginAddress) { // not required
-		return nil
-	}
-
-	if m.OriginAddress != nil {
-		if err := m.OriginAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MobileHome) validatePickupAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.PickupAddress) { // not required
-		return nil
-	}
-
-	if m.PickupAddress != nil {
-		if err := m.PickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pickupAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MobileHome) validatePickupLocation(formats strfmt.Registry) error {
-	if swag.IsZero(m.PickupLocation) { // not required
-		return nil
-	}
-
-	if m.PickupLocation != nil {
-		if err := m.PickupLocation.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pickupLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MobileHome) validateRequestedDeliveryDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedDeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requestedDeliveryDate", "body", "date-time", m.RequestedDeliveryDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MobileHome) validateRequestedPickupDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.RequestedPickupDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("requestedPickupDate", "body", "date-time", m.RequestedPickupDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MobileHome) validateSecondaryPickupAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryPickupAddress) { // not required
-		return nil
-	}
-
-	if m.SecondaryPickupAddress != nil {
-		if err := m.SecondaryPickupAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryPickupAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("secondaryPickupAddress")
-			}
-			return err
-		}
 	}
 
 	return nil
@@ -264,23 +138,11 @@ func (m *MobileHome) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *MobileHome) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateOriginAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidatePickupLocation(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -298,94 +160,19 @@ func (m *MobileHome) ContextValidate(ctx context.Context, formats strfmt.Registr
 	return nil
 }
 
-func (m *MobileHome) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
+func (m *MobileHome) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *MobileHome) contextValidateOriginAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MobileHome) contextValidateID(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.OriginAddress != nil {
-
-		if swag.IsZero(m.OriginAddress) { // not required
-			return nil
-		}
-
-		if err := m.OriginAddress.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MobileHome) contextValidatePickupAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.PickupAddress != nil {
-
-		if swag.IsZero(m.PickupAddress) { // not required
-			return nil
-		}
-
-		if err := m.PickupAddress.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pickupAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MobileHome) contextValidatePickupLocation(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.PickupLocation != nil {
-
-		if swag.IsZero(m.PickupLocation) { // not required
-			return nil
-		}
-
-		if err := m.PickupLocation.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("pickupLocation")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("pickupLocation")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *MobileHome) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.SecondaryPickupAddress != nil {
-
-		if swag.IsZero(m.SecondaryPickupAddress) { // not required
-			return nil
-		}
-
-		if err := m.SecondaryPickupAddress.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryPickupAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("secondaryPickupAddress")
-			}
-			return err
-		}
+	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
+		return err
 	}
 
 	return nil

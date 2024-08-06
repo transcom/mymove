@@ -8673,10 +8673,11 @@ func init() {
     "MobileHome": {
       "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
       "properties": {
-        "hasSecondaryPickupAddress": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "heightInInches": {
           "type": "integer"
@@ -8698,36 +8699,6 @@ func init() {
         "model": {
           "description": "The model of the mobile home.",
           "type": "string"
-        },
-        "originAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "pickupLocation": {
-          "$ref": "#/definitions/Address"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "secondaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",
@@ -23332,10 +23303,11 @@ func init() {
     "MobileHome": {
       "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
       "properties": {
-        "hasSecondaryPickupAddress": {
-          "type": "boolean",
-          "x-nullable": true,
-          "x-omitempty": false
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         },
         "heightInInches": {
           "type": "integer"
@@ -23357,36 +23329,6 @@ func init() {
         "model": {
           "description": "The model of the mobile home.",
           "type": "string"
-        },
-        "originAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "pickupAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "pickupLocation": {
-          "$ref": "#/definitions/Address"
-        },
-        "requestedDeliveryDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "requestedPickupDate": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "secondaryPickupAddress": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            },
-            {
-              "x-nullable": true
-            },
-            {
-              "x-omitempty": false
-            }
-          ]
         },
         "shipmentId": {
           "description": "The id of the parent MTOShipment object",

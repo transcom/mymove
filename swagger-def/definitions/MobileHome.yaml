@@ -33,24 +33,8 @@ properties:
     format: date-time
     type: string
     readOnly: true
-  pickupAddress:
-    $ref: 'Address.yaml'
-  hasSecondaryPickupAddress:
-    type: boolean
-    x-omitempty: false
-    x-nullable: true
-  requestedPickupDate:
+  createdAt:
+    description: Timestamp of when a property of this object was created (UTC)
     format: date-time
     type: string
-  pickupLocation:
-    $ref: 'Address.yaml'
-  requestedDeliveryDate:
-    format: date-time
-    type: string
-  originAddress:
-    $ref: 'Address.yaml'
-  secondaryPickupAddress:
-    allOf:
-      - $ref: 'Address.yaml'
-      - x-nullable: true
-      - x-omitempty: false
+    readOnly: true
