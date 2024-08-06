@@ -1439,6 +1439,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 					SITEntryDate:     models.TimePointer(time.Now()),
 					SITDepartureDate: &timeNow,
 					Status:           "REJECTED",
+					Reason:           models.StringPointer("reason"),
 				},
 			},
 			{
@@ -1471,6 +1472,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			SitCustomerContacted:            handlers.FmtDate(time.Now()),
 			SitRequestedDelivery:            handlers.FmtDate(time.Now().AddDate(0, 0, 3)),
 			RequestApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+			UpdateReason:                    models.StringPointer("reason for updating"),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1682,6 +1684,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 				Model: models.MTOServiceItem{
 					SITEntryDate: models.TimePointer(time.Now()),
 					Status:       models.MTOServiceItemStatusRejected,
+					Reason:       models.StringPointer("reason"),
 				},
 			},
 			{
@@ -1696,6 +1699,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			ReServiceCode:                   models.ReServiceCodeDOPSIT.String(),
 			SitDepartureDate:                *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			RequestApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+			UpdateReason:                    models.StringPointer("a new reason"),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dopsit.ID.String()))
 		planner := &routemocks.Planner{}
