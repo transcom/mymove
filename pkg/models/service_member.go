@@ -67,12 +67,43 @@ type ServiceMember struct {
 	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
 }
 
+// This model should be used whenever the customer name search is used. Had to create new struct so that Pop is aware of the "total_sim" field used in search queries.
+// Since this isn't an actual column, but one created by a subquery, couldn't add it to original ServiceMember struct without errors.
+type ServiceMemberSearchResult struct {
+	ID                     uuid.UUID                 `json:"id" db:"id"`
+	CreatedAt              time.Time                 `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time                 `json:"updated_at" db:"updated_at"`
+	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
+	User                   User                      `belongs_to:"user" fk_id:"user_id"`
+	Edipi                  *string                   `json:"edipi" db:"edipi"`
+	Emplid                 *string                   `json:"emplid" db:"emplid"`
+	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
+	FirstName              *string                   `json:"first_name" db:"first_name"`
+	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
+	LastName               *string                   `json:"last_name" db:"last_name"`
+	Suffix                 *string                   `json:"suffix" db:"suffix"`
+	Telephone              *string                   `json:"telephone" db:"telephone"`
+	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
+	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
+	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
+	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
+	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
+	ResidentialAddress     *Address                  `belongs_to:"address" fk_id:"residential_address_id"`
+	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
+	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
+	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
+	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
+	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
+	TotalSim               *float32                  `db:"total_sim"`
+}
+
 // TableName overrides the table name used by Pop.
 func (s ServiceMember) TableName() string {
 	return "service_members"
 }
 
 type ServiceMembers []ServiceMember
+type ServiceMemberSearchResults []ServiceMemberSearchResult
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
