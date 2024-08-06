@@ -7,6 +7,7 @@ import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
 
 import BoatShipmentForm from 'components/Customer/BoatShipment/BoatShipmentForm/BoatShipmentForm';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import scrollToTop from 'shared/scrollToTop';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { boatShipmentTypes } from 'constants/shipments';
@@ -152,8 +153,13 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
       }
     } else {
       // Redirect to HHG shipment
-      const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId });
-      navigate(`${createShipmentPath}?type=${SHIPMENT_TYPES.HHG}`);
+      setShowBoatConfirmationModal(false);
+      setIsSubmitting(false);
+      setTimeout(() => {
+        scrollToTop();
+        const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId });
+        navigate(`${createShipmentPath}?type=${SHIPMENT_TYPES.HHG}`);
+      }, 100);
     }
   };
   // open confirmation modal to validate boat shipment
