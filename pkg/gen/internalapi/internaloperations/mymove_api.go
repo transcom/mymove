@@ -936,7 +936,7 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
-	o.handlers["GET"]["/addresses/zip_city_lookup/{zip_city}"] = addresses.NewGetLocationByZipCity(o.context, o.AddressesGetLocationByZipCityHandler)
+	o.handlers["GET"]["/addresses/zip_city_lookup/{search}"] = addresses.NewGetLocationByZipCity(o.context, o.AddressesGetLocationByZipCityHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

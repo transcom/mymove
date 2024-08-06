@@ -34,7 +34,7 @@ type GetLocationByZipCityParams struct {
 	  Required: true
 	  In: path
 	*/
-	ZipCity string
+	Search string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -46,8 +46,8 @@ func (o *GetLocationByZipCityParams) BindRequest(r *http.Request, route *middlew
 
 	o.HTTPRequest = r
 
-	rZipCity, rhkZipCity, _ := route.Params.GetOK("zip_city")
-	if err := o.bindZipCity(rZipCity, rhkZipCity, route.Formats); err != nil {
+	rSearch, rhkSearch, _ := route.Params.GetOK("search")
+	if err := o.bindSearch(rSearch, rhkSearch, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -56,8 +56,8 @@ func (o *GetLocationByZipCityParams) BindRequest(r *http.Request, route *middlew
 	return nil
 }
 
-// bindZipCity binds and validates parameter ZipCity from path.
-func (o *GetLocationByZipCityParams) bindZipCity(rawData []string, hasKey bool, formats strfmt.Registry) error {
+// bindSearch binds and validates parameter Search from path.
+func (o *GetLocationByZipCityParams) bindSearch(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
 	if len(rawData) > 0 {
 		raw = rawData[len(rawData)-1]
@@ -65,7 +65,7 @@ func (o *GetLocationByZipCityParams) bindZipCity(rawData []string, hasKey bool, 
 
 	// Required: true
 	// Parameter is provided by construction from the route
-	o.ZipCity = raw
+	o.Search = raw
 
 	return nil
 }

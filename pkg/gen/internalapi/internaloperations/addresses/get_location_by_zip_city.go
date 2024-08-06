@@ -30,7 +30,7 @@ func NewGetLocationByZipCity(ctx *middleware.Context, handler GetLocationByZipCi
 }
 
 /*
-	GetLocationByZipCity swagger:route GET /addresses/zip_city_lookup/{zip_city} addresses getLocationByZipCity
+	GetLocationByZipCity swagger:route GET /addresses/zip_city_lookup/{search} addresses getLocationByZipCity
 
 Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string
 

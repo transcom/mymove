@@ -39,7 +39,7 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
-    "/addresses/zip_city_lookup/{zip_city}": {
+    "/addresses/zip_city_lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.",
         "tags": [
@@ -50,7 +50,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "name": "zip_city",
+            "name": "search",
             "in": "path",
             "required": true
           }
@@ -7867,7 +7867,7 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
-    "/addresses/zip_city_lookup/{zip_city}": {
+    "/addresses/zip_city_lookup/{search}": {
       "get": {
         "description": "Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.",
         "tags": [
@@ -7878,7 +7878,7 @@ func init() {
         "parameters": [
           {
             "type": "string",
-            "name": "zip_city",
+            "name": "search",
             "in": "path",
             "required": true
           }

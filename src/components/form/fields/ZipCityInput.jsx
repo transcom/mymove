@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 
 import './DropdownInput.module.scss';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
-import { searchTransportationOffices } from 'services/internalApi';
+import { searchLocationByZipCity } from 'services/internalApi';
 
 export const ZipCityInput = (props) => {
   const { label, name, displayAddress, hint, placeholder, isDisabled, handleZipCityChange } = props;
@@ -25,7 +25,7 @@ export const ZipCityInput = (props) => {
       hint={hint}
       placeholder={placeholder}
       isDisabled={isDisabled}
-      searchLocations={searchTransportationOffices}
+      searchLocations={searchLocationByZipCity}
       handleOnChange={handleZipCityChange}
     />
   );

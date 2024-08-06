@@ -5718,7 +5718,7 @@ paths:
           description: not found
         '500':
           description: server error
-  /addresses/zip_city_lookup/{zip_city}:
+  /addresses/zip_city_lookup/{search}:
     get:
       summary: >-
         Returns City, State, Postal Code, and County associated with the
@@ -5732,7 +5732,7 @@ paths:
         - addresses
       parameters:
         - in: path
-          name: zip_city
+          name: search
           type: string
           required: true
       responses:

@@ -83,7 +83,7 @@ func (h GetLocationByZipCityHandler) Handle(params addressop.GetLocationByZipCit
 				return addressop.NewGetLocationByZipCityForbidden(), noServiceMemberIDErr
 			}
 
-			locationList, err := h.GetLocationsByZipCity(appCtx, params.ZipCity)
+			locationList, err := h.GetLocationsByZipCity(appCtx, params.Search)
 			if err != nil {
 				appCtx.Logger().Error("Error searching for Zip/City: ", zap.Error(err))
 				return addressop.NewGetLocationByZipCityInternalServerError(), err

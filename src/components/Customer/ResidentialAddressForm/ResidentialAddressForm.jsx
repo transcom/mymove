@@ -32,10 +32,10 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
           setValues({
             ...values,
             current_residence: {
-              city: value.address.city,
-              state: value.address.state,
-              county: value.address.county,
-              postalCode: value.address.postalCode,
+              city: value.city,
+              state: value.state,
+              county: value.county,
+              postalCode: value.postalCode,
             },
           });
         };

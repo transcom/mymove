@@ -24,7 +24,7 @@ const formatOptionLabel = (option, input) => {
   const searchIndex = optionLabel.toLowerCase().indexOf(inputText.toLowerCase());
 
   if (searchIndex === -1) {
-    return <span>{optionLabel}</span>;
+    return <span>{option.city}</span>;
   }
 
   return (
@@ -32,6 +32,26 @@ const formatOptionLabel = (option, input) => {
       {optionLabel.substr(0, searchIndex)}
       <mark>{optionLabel.substr(searchIndex, inputText.length)}</mark>
       {optionLabel.substr(searchIndex + inputText.length)}
+    </span>
+  );
+};
+
+const formatZipCity = (option, input) => {
+  const { inputValue } = input;
+  const outputLabel = `${option.city}, ${option.state} ${option.postalCode} (${option.county})`;
+  const inputText = inputValue || '';
+
+  const searchIndex = outputLabel.toLowerCase().indexOf(inputText.toLowerCase());
+
+  if (searchIndex === -1) {
+    return <span>{outputLabel}</span>;
+  }
+
+  return (
+    <span>
+      {outputLabel.substr(0, searchIndex)}
+      <mark>{outputLabel.substr(searchIndex, inputText.length)}</mark>
+      {outputLabel.substr(searchIndex + inputText.length)}
     </span>
   );
 };
@@ -139,7 +159,7 @@ export const LocationSearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    if (!selectedValue.address) {
+    if (!selectedValue.address && !handleOnChange) {
       const address = await showAddress(selectedValue.address_id);
       const newValue = {
         ...selectedValue,
@@ -151,7 +171,10 @@ export const LocationSearchBoxComponent = ({
     }
 
     onChange(selectedValue);
-    handleOnChange(selectedValue);
+
+    if (handleOnChange !== null) {
+      handleOnChange(selectedValue);
+    }
     return selectedValue;
   };
 
@@ -197,7 +220,7 @@ export const LocationSearchBoxComponent = ({
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions
-          formatOptionLabel={formatOptionLabel}
+          formatOptionLabel={handleOnChange ? formatZipCity : formatOptionLabel}
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
           onChange={selectOption}

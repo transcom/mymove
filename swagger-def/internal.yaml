@@ -4152,7 +4152,7 @@ paths:
           description: not found
         "500":
           description: server error
-  /addresses/zip_city_lookup/{zip_city}:
+  /addresses/zip_city_lookup/{search}:
     get:
       summary: Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string
       description: Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.
@@ -4161,7 +4161,7 @@ paths:
         - addresses
       parameters:
       - in: path
-        name: zip_city
+        name: search
         type: string
         required: true
       responses:

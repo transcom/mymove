@@ -14,7 +14,7 @@ import (
 
 // GetLocationByZipCityURL generates an URL for the get location by zip city operation
 type GetLocationByZipCityURL struct {
-	ZipCity string
+	Search string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -40,13 +40,13 @@ func (o *GetLocationByZipCityURL) SetBasePath(bp string) {
 func (o *GetLocationByZipCityURL) Build() (*url.URL, error) {
 	var _result url.URL
 
-	var _path = "/addresses/zip_city_lookup/{zip_city}"
+	var _path = "/addresses/zip_city_lookup/{search}"
 
-	zipCity := o.ZipCity
-	if zipCity != "" {
-		_path = strings.Replace(_path, "{zip_city}", zipCity, -1)
+	search := o.Search
+	if search != "" {
+		_path = strings.Replace(_path, "{search}", search, -1)
 	} else {
-		return nil, errors.New("zipCity is required on GetLocationByZipCityURL")
+		return nil, errors.New("search is required on GetLocationByZipCityURL")
 	}
 
 	_basePath := o._basePath
