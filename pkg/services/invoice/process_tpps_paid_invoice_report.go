@@ -14,13 +14,13 @@ import (
 type tppsPaidInvoiceReportProcessor struct {
 }
 
-// NewEDITPPSInvoiceProcessor returns a new TPPS paid invoice report processor
+// NewTPPSPaidInvoiceReportProcessor returns a new TPPS paid invoice report processor
 func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 
 	return &tppsPaidInvoiceReportProcessor{}
 }
 
-// ProcessFile parses an TPPS paid invoice report response and updates the payment request status
+// ProcessFile parses a TPPS paid invoice report response and updates the payment request status
 func (e *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, _ string, stringTPPSPaidInvoiceReport string) error {
 	tppsPaidInvoiceReport := tppsReponse.EDI{}
 

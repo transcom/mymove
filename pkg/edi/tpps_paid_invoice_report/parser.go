@@ -134,7 +134,7 @@ func (e *EDI) Parse(stringTPPSPaidInvoiceReport string) ([]TPPSData, error) {
 	for scanner.Scan() {
 		rowIsHeader := false
 		row := strings.Split(scanner.Text(), "\n")
-		// if we have reached a NULL at the end of the file and, return the tppsData
+		// If we have reached a NULL at the end of the file, do not continue parsing
 		if row[0] == "\x00" {
 			endOfFile = true
 		}
@@ -144,7 +144,7 @@ func (e *EDI) Parse(stringTPPSPaidInvoiceReport string) ([]TPPSData, error) {
 				rowIsHeader = true
 				headersAreCorrect = VerifyHeadersParsedCorrectly(tppsReportEntryForOnePaymentRequest)
 			}
-			if !rowIsHeader && headersAreCorrect { // don't append the header row to result set
+			if !rowIsHeader && headersAreCorrect { // No need to append the header row to result set
 				tppsDataFile = append(tppsDataFile, tppsReportEntryForOnePaymentRequest)
 			}
 		}
