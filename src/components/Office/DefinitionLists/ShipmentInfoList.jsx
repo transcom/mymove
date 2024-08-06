@@ -61,8 +61,8 @@ const ShipmentInfoList = ({
     const fetchData = async () => {
       setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
     };
-    fetchData();
-  }, []);
+    if (!isForEvaluationReport) fetchData();
+  }, [isForEvaluationReport]);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
