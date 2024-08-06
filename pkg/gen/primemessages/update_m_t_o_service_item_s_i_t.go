@@ -16,7 +16,7 @@ import (
 	"github.com/go-openapi/validate"
 )
 
-// UpdateMTOServiceItemSIT Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.
+// UpdateMTOServiceItemSIT Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.
 //
 // swagger:model UpdateMTOServiceItemSIT
 type UpdateMTOServiceItemSIT struct {
@@ -39,7 +39,7 @@ type UpdateMTOServiceItemSIT struct {
 	FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 	// Service code allowed for this model type.
-	// Enum: [DDDSIT DDASIT DOPSIT DOASIT DOFSIT]
+	// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC]
 	ReServiceCode string `json:"reServiceCode,omitempty"`
 
 	// Indicates if "Approvals Requested" status is being requested.
@@ -123,7 +123,7 @@ func (m *UpdateMTOServiceItemSIT) UnmarshalJSON(raw []byte) error {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DDASIT DOPSIT DOASIT DOFSIT]
+		// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
@@ -242,7 +242,7 @@ func (m UpdateMTOServiceItemSIT) MarshalJSON() ([]byte, error) {
 		FirstAvailableDeliveryDate2 *strfmt.Date `json:"firstAvailableDeliveryDate2,omitempty"`
 
 		// Service code allowed for this model type.
-		// Enum: [DDDSIT DDASIT DOPSIT DOASIT DOFSIT]
+		// Enum: [DDDSIT DDASIT DDFSIT DDSFSC DOPSIT DOASIT DOFSIT DOSFSC]
 		ReServiceCode string `json:"reServiceCode,omitempty"`
 
 		// Indicates if "Approvals Requested" status is being requested.
@@ -471,7 +471,7 @@ var updateMTOServiceItemSITTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DDDSIT","DDASIT","DOPSIT","DOASIT","DOFSIT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DDDSIT","DDASIT","DDFSIT","DDSFSC","DOPSIT","DOASIT","DOFSIT","DOSFSC"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

@@ -4223,8 +4223,6 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
         type: string
-      emplid:
-        type: string
       userID:
         type: string
         format: uuid
@@ -4244,6 +4242,9 @@ definitions:
         $ref: 'definitions/Address.yaml'
       cacValidated:
         type: boolean
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   CreatedCustomer:
     type: object
@@ -6028,11 +6029,16 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
+      mobileHome:
+        $ref: '#/definitions/CreateMobileHome'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
       - shipmentType
+  CreateMobileHome:
+    description: A mobile home shipment that the prime moves for a service member.
+    $ref: 'definitions/MobileHome.yaml'
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
