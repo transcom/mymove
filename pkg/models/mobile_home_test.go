@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -20,6 +22,7 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 				LengthInInches: models.IntPointer(200),
 				HeightInInches: models.IntPointer(84),
 				WidthInInches:  models.IntPointer(96),
+				CreatedAt:      time.Now(),
 			},
 			expectedErrs: nil,
 		},

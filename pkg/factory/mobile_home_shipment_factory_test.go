@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"time"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -15,6 +17,7 @@ func (suite *FactorySuite) TestBuildMobileHomeShipment() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
+			CreatedAt:      time.Now(),
 		}
 
 		mobileHomeShipment := BuildMobileHomeShipment(suite.DB(), nil, nil)
@@ -25,6 +28,7 @@ func (suite *FactorySuite) TestBuildMobileHomeShipment() {
 		suite.Equal(defaultBoat.LengthInInches, mobileHomeShipment.LengthInInches)
 		suite.Equal(defaultBoat.WidthInInches, mobileHomeShipment.WidthInInches)
 		suite.Equal(defaultBoat.HeightInInches, mobileHomeShipment.HeightInInches)
+		suite.Equal(defaultBoat.CreatedAt, mobileHomeShipment.CreatedAt)
 	})
 
 	suite.Run("Successful creation of customized mobileHomeShipment", func() {
