@@ -28,4 +28,7 @@
   &.NTS-release {
     @include u-bg('violet-30');
   }
+  &.Boat {
+    background-color: $accent-boat;
+  }
 }
