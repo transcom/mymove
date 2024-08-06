@@ -873,6 +873,8 @@ commands:
             export FEATURE_FLAG_SAFETY_MOVE=false
             export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
+            export FEATURE_FLAG_QUEUE_MANAGEMENT=false
+
             # disable for speed, playwright tests can fail otherwise
             export DB_DEBUG=false
 
@@ -908,6 +910,7 @@ commands:
             FEATURE_FLAG_SAFETY_MOVE: 'false'
             FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
             FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
+            FEATURE_FLAG_QUEUE_MANAGEMENT: 'false'
           command: |
             SHARD=$((${CIRCLE_NODE_INDEX}+1))
             PLAYWRIGHT_JUNIT_OUTPUT_NAME=playwright-results.xml \

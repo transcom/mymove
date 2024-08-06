@@ -59,6 +59,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -4360,6 +4362,11 @@ definitions:
         type: string
         example: John
         x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
+        x-nullable: true
       firstName:
         type: string
         example: John
@@ -4938,6 +4945,8 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      destinationDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocationGBLOC:
@@ -5458,6 +5467,10 @@ definitions:
         format: date-time
         type: string
       sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      receivedByGexAt:
         format: date-time
         type: string
         x-nullable: true
@@ -6189,6 +6202,21 @@ definitions:
       eTag:
         type: string
     type: object
+  AvailableOfficeUsers:
+    type: array
+    items:
+      $ref: '#/definitions/AvailableOfficeUser'
+  AvailableOfficeUser:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      fullName:
+        type: string
+      hasSafetyPrivilege:
+        type: boolean
   QueueMoves:
     type: array
     items:
@@ -6266,6 +6294,8 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
@@ -6379,6 +6409,8 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested

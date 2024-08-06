@@ -243,7 +243,7 @@ func (suite *PaymentRequestServiceSuite) TestFetchPaymentRequestListStatusFilter
 			},
 			{
 				Model: models.PaymentRequest{
-					Status: models.PaymentRequestStatusReceivedByGex,
+					Status: models.PaymentRequestStatusTppsReceived,
 				},
 			},
 		}, nil)
