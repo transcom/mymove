@@ -79,7 +79,7 @@ func ProcessTPPSReportEntryForOneRow(row []string) TPPSData {
 			if tppsReportEntryForOnePaymentRequest[indexOfOneEntry] != "" {
 				// Remove any NULL characters
 				entryWithoutNulls := strings.Split(tppsReportEntryForOnePaymentRequest[indexOfOneEntry], "\x00")
-				for indexCleanedUp := range len(entryWithoutNulls) {
+				for indexCleanedUp := range entryWithoutNulls {
 					// Clean up extra characters
 					cleanedUpEntryString := strings.Split(entryWithoutNulls[indexCleanedUp], ("\xff\xfe"))
 					for index := range cleanedUpEntryString {
