@@ -7,10 +7,19 @@ import {
   StorageFacilityAddressSchema,
 } from './validationSchemas';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
 
 const hhgShipmentSchema = Yup.object().shape({
+  pickup: RequiredPlaceSchema,
+  delivery: OptionalPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
+  secondaryDelivery: AdditionalAddressSchema,
+  customerRemarks: Yup.string(),
+  counselorRemarks: Yup.string(),
+});
+
+const boatShipmentLocationInfoSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   delivery: OptionalPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
@@ -64,6 +73,14 @@ function getShipmentOptions(shipmentType, userRole) {
     case SHIPMENT_OPTIONS.HHG:
       return {
         schema: hhgShipmentSchema,
+        showPickupFields: true,
+        showDeliveryFields: true,
+      };
+
+    case SHIPMENT_TYPES.BOAT_HAUL_AWAY:
+    case SHIPMENT_TYPES.BOAT_TOW_AWAY:
+      return {
+        schema: boatShipmentLocationInfoSchema,
         showPickupFields: true,
         showDeliveryFields: true,
       };
