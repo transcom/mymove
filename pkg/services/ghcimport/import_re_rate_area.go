@@ -120,7 +120,7 @@ func (gre *GHCRateEngineImporter) importDomesticRateAreas(appCtx appcontext.AppC
 			rateArea, err := models.FetchReRateAreaItem(appCtx.DB(), gre.ContractID, ra.DestinationDomesticPriceAreaCode)
 			if err != nil {
 				if err.Error() != models.RecordNotFoundErrorString {
-					return nil, fmt.Errorf("Failed importing re_rate_area from StageOconusToConusPrice with code <%s> error: %w", ra.DestinationDomesticPriceAreaCode, err)
+					return nil, fmt.Errorf("failed importing re_rate_area from StageOconusToConusPrice with code <%s> error: %w", ra.DestinationDomesticPriceAreaCode, err)
 				}
 			}
 

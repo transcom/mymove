@@ -179,7 +179,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticShorthaul() {
 		)
 
 		suite.Error(err)
-		suite.Equal("Could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
+		suite.Equal("could not lookup Domestic Service Area Price: "+models.RecordNotFoundErrorString, err.Error())
 		suite.Nil(rateEngineParams)
 	})
 

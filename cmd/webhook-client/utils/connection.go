@@ -113,7 +113,7 @@ func (wr *WebhookRuntime) Post(data []byte, url string) (*http.Response, []byte,
 
 	defer func() {
 		if closeErr := resp.Body.Close(); closeErr != nil {
-			fmt.Println(fmt.Errorf("Failed to close connection: %w", closeErr).Error())
+			fmt.Println(fmt.Errorf("failed to close connection: %w", closeErr).Error())
 		}
 	}()
 

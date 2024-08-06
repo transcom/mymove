@@ -51,6 +51,7 @@ const MoveSearchForm = ({ onSubmit }) => {
       initialValues={{ searchType: 'moveCode', searchText: '' }}
       onSubmit={onSubmit}
       validateOnChange
+      data-testid="move-search-form"
       // adding a return will break the validation
       // RA Validator Status: RA Accepted
       // eslint-disable-next-line consistent-return

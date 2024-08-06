@@ -17,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
@@ -24,19 +25,21 @@ type GetMovesQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
 	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+	services.OfficeUserGblocFetcher
 }
 
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
 type FilterOption func(*pop.Query)
 
-// Handle returns the paginated list of moves for the TOO user
+// Handle returns the paginated list of moves for the TOO or HQ user
 func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTOO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TOO office role",
+					"user is not authenticated with TOO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetMovesQueueForbidden(), forbiddenErr
@@ -46,6 +49,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
+				Emplid:                  params.Emplid,
 				LastName:                params.LastName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				OriginDutyLocation:      params.OriginDutyLocation,
@@ -64,14 +68,17 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				ListOrderParams.Status = []string{string(models.MoveStatusServiceCounselingCompleted), string(models.MoveStatusAPPROVALSREQUESTED), string(models.MoveStatusSUBMITTED)}
 			}
 
-			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20
-			// for perPage.
+			// Let's set default values for page and perPage if we don't get arguments for them. We'll use 1 for page and 20 for perPage.
 			if params.Page == nil {
 				ListOrderParams.Page = models.Int64Pointer(1)
 			}
 			// Same for perPage
 			if params.PerPage == nil {
 				ListOrderParams.PerPage = models.Int64Pointer(20)
+			}
+
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
 			}
 
 			moves, count, err := h.OrderFetcher.ListOrders(
@@ -82,6 +89,25 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetMovesQueueInternalServerError(), err
+			}
+
+			var gblocErr error
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+			if gblocErr != nil {
+				return queues.NewGetMovesQueueInternalServerError(), gblocErr
+			}
+
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+				appCtx,
+				roles.RoleTypeTOO,
+				officeUserGbloc,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
@@ -107,12 +133,14 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
+			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:       *ListOrderParams.Page,
-				PerPage:    *ListOrderParams.PerPage,
-				TotalCount: int64(count),
-				QueueMoves: *queueMoves,
+				Page:                 *ListOrderParams.Page,
+				PerPage:              *ListOrderParams.PerPage,
+				TotalCount:           int64(count),
+				QueueMoves:           *queueMoves,
+				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetMovesQueueOK().WithPayload(result), nil
@@ -175,6 +203,8 @@ type GetPaymentRequestsQueueHandler struct {
 	handlers.HandlerConfig
 	services.PaymentRequestListFetcher
 	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+	services.OfficeUserGblocFetcher
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
@@ -183,9 +213,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 ) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			if !appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) {
+			if !appCtx.Session().IsOfficeUser() ||
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeTIO) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with TIO office role",
+					"user is not authenticated with TIO or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetPaymentRequestsQueueForbidden(), forbiddenErr
@@ -195,6 +226,7 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
+				Emplid:                  params.Emplid,
 				LastName:                params.LastName,
 				DestinationDutyLocation: params.DestinationDutyLocation,
 				Status:                  params.Status,
@@ -219,6 +251,10 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				listPaymentRequestParams.PerPage = models.Int64Pointer(20)
 			}
 
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				listPaymentRequestParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
 			paymentRequests, count, err := h.FetchPaymentRequestList(
 				appCtx,
 				appCtx.Session().OfficeUserID,
@@ -227,6 +263,25 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().
 					Error("payment requests queue", zap.String("office_user_id", appCtx.Session().OfficeUserID.String()), zap.Error(err))
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
+			}
+
+			var gblocErr error
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+			if gblocErr != nil {
+				return queues.NewGetPaymentRequestsQueueInternalServerError(), gblocErr
+			}
+
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+				appCtx,
+				roles.RoleTypeTIO,
+				officeUserGbloc,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
 				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
@@ -252,12 +307,14 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 			}
 
 			queuePaymentRequests := payloads.QueuePaymentRequests(paymentRequests)
+			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueuePaymentRequestsResult{
 				TotalCount:           int64(count),
 				Page:                 int64(*listPaymentRequestParams.Page),
 				PerPage:              int64(*listPaymentRequestParams.PerPage),
 				QueuePaymentRequests: *queuePaymentRequests,
+				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetPaymentRequestsQueueOK().WithPayload(result), nil
@@ -269,6 +326,8 @@ type GetServicesCounselingQueueHandler struct {
 	handlers.HandlerConfig
 	services.OrderFetcher
 	services.MoveUnlocker
+	services.OfficeUserFetcherPop
+	services.OfficeUserGblocFetcher
 }
 
 // Handle returns the paginated list of moves for the services counselor
@@ -278,9 +337,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			if !appCtx.Session().IsOfficeUser() ||
-				!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) {
+				(!appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ)) {
 				forbiddenErr := apperror.NewForbiddenError(
-					"user is not authenticated with an office role",
+					"user is not authenticated with Services Counselor or HQ office role",
 				)
 				appCtx.Logger().Error(forbiddenErr.Error())
 				return queues.NewGetServicesCounselingQueueForbidden(), forbiddenErr
@@ -290,6 +349,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				Branch:                  params.Branch,
 				Locator:                 params.Locator,
 				DodID:                   params.DodID,
+				Emplid:                  params.Emplid,
 				LastName:                params.LastName,
 				OriginDutyLocation:      params.OriginDutyLocation,
 				DestinationDutyLocation: params.DestinationDutyLocation,
@@ -326,6 +386,10 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				ListOrderParams.PerPage = models.Int64Pointer(20)
 			}
 
+			if params.ViewAsGBLOC != nil && appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
+				ListOrderParams.ViewAsGBLOC = params.ViewAsGBLOC
+			}
+
 			moves, count, err := h.OrderFetcher.ListOrders(
 				appCtx,
 				appCtx.Session().OfficeUserID,
@@ -334,6 +398,25 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			if err != nil {
 				appCtx.Logger().
 					Error("error fetching list of moves for office user", zap.Error(err))
+				return queues.NewGetServicesCounselingQueueInternalServerError(), err
+			}
+
+			var gblocErr error
+			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
+			if gblocErr != nil {
+				return queues.NewGetServicesCounselingQueueInternalServerError(), gblocErr
+			}
+
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+				appCtx,
+				roles.RoleTypeServicesCounselor,
+				officeUserGbloc,
+			)
+
+			if err != nil {
+				appCtx.Logger().
+					Error("error fetching office users", zap.Error(err))
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
@@ -359,12 +442,14 @@ func (h GetServicesCounselingQueueHandler) Handle(
 			}
 
 			queueMoves := payloads.QueueMoves(moves)
+			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
-				Page:       *ListOrderParams.Page,
-				PerPage:    *ListOrderParams.PerPage,
-				TotalCount: int64(count),
-				QueueMoves: *queueMoves,
+				Page:                 *ListOrderParams.Page,
+				PerPage:              *ListOrderParams.PerPage,
+				TotalCount:           int64(count),
+				QueueMoves:           *queueMoves,
+				AvailableOfficeUsers: *availableOfficeUsers,
 			}
 
 			return queues.NewGetServicesCounselingQueueOK().WithPayload(result), nil

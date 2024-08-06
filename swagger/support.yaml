@@ -304,8 +304,8 @@ paths:
       summary: updatePaymentRequestStatus
       description: >
         Updates status of a payment request to REVIEWED, SENT_TO_GEX,
-        RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID,
-        EDI_ERROR, or DEPRECATED.
+        TPPS_RECEIVED, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR,
+        or DEPRECATED.
 
 
         A status of REVIEWED can optionally have a `rejectionReason`.
@@ -1538,6 +1538,10 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
         $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        $ref: '#/definitions/Address'
       eTag:
         type: string
         readOnly: true
@@ -1797,7 +1801,7 @@ definitions:
       - REVIEWED
       - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
-      - RECEIVED_BY_GEX
+      - TPPS_RECEIVED
       - PAID
       - EDI_ERROR
       - DEPRECATED

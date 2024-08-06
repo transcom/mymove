@@ -51,7 +51,7 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	// look up rate for shorthaul
 	domServiceAreaPrice, err := fetchDomServiceAreaPrice(appCtx, contractCode, models.ReServiceCodeDSH, serviceArea, isPeakPeriod)
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup Domestic Service Area Price: %w", err)
+		return 0, nil, fmt.Errorf("could not lookup Domestic Service Area Price: %w", err)
 	}
 
 	basePrice := domServiceAreaPrice.PriceCents.Float64()

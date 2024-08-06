@@ -97,7 +97,7 @@ const shipmentInfo = [
   },
 ];
 const moveCode = 'AF7K1P';
-
+const dateRegex = /\d{2} [A-Za-z]{3} \d{4}/; // Regex match for DD MMM YYYY
 describe('PaymentRequestCard', () => {
   const order = {
     sac: '1234456',
@@ -337,7 +337,9 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountAccepted span').at(1).text().includes('01 Dec 2020')).toBe(true);
+      const reviewedAtDate = wrapper.find('.amountAccepted span').at(1).text();
+      const reviewedAtDateResult = dateRegex.test(reviewedAtDate);
+      expect(reviewedAtDateResult).toBe(true);
     });
 
     it('sums the rejected service items total', () => {
@@ -345,7 +347,9 @@ describe('PaymentRequestCard', () => {
     });
 
     it('displays the reviewed at date', () => {
-      expect(wrapper.find('.amountRejected span').at(1).text().includes('01 Dec 2020')).toBe(true);
+      const reviewedAtDate = wrapper.find('.amountRejected span').at(1).text();
+      const reviewedAtDateResult = dateRegex.test(reviewedAtDate);
+      expect(reviewedAtDateResult).toBe(true);
     });
 
     it('displays the payment request details ', () => {
@@ -381,16 +385,31 @@ describe('PaymentRequestCard', () => {
 
       expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
     });
+
+    it('renders - for the date it was reviewed at if reviewedAt is null', () => {
+      reviewedPaymentRequest.reviewedAt = '';
+      const wrapperNoReviewedAtDate = mount(
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={reviewedPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
+        </MockProviders>,
+      );
+      const reviewedAtDate = wrapperNoReviewedAtDate.find('.amountRejected span').at(1).text();
+      expect(reviewedAtDate).toBe(' on ');
+    });
   });
 
   describe('payment request gex statuses', () => {
-    it('renders the reviewed status tag for sent_to_gex', () => {
+    it('renders the Error status tag for edi_error', () => {
       const sentToGexPaymentRequest = {
         id: '29474c6a-69b6-4501-8e08-670a12512e5f',
         createdAt: '2020-12-01T00:00:00.000Z',
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
-        status: 'SENT_TO_GEX',
+        status: 'EDI_ERROR',
         moveTaskOrder: move,
         serviceItems: [
           {
@@ -419,16 +438,75 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Error')).toBe(true);
     });
 
-    it('renders the reviewed status tag for received_by_gex', () => {
+    const sentToGexPaymentRequest = {
+      id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+      createdAt: '2020-12-01T00:00:00.000Z',
+      moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+      paymentRequestNumber: '1843-9061-2',
+      status: 'SENT_TO_GEX',
+      moveTaskOrder: move,
+      serviceItems: [
+        {
+          id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 2000001,
+          status: 'DENIED',
+        },
+        {
+          id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 4000001,
+          status: 'DENIED',
+          rejectionReason: 'duplicate charge',
+        },
+      ],
+      sentToGexAt: '2020-12-13T00:00:00.000Z',
+    };
+    it('renders the Sent to GEX status tag and the date it was sent to gex for sent_to_gex', () => {
+      const sentToGex = mount(
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={sentToGexPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
+        </MockProviders>,
+      );
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
+      const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
+      expect(sentToGexAtDate).toBe('on 13 Dec 2020');
+    });
+
+    it('renders - for the date it was sent to gex if sentToGexAt is null', () => {
+      sentToGexPaymentRequest.sentToGexAt = '';
+      sentToGexPaymentRequest.reviewedAt = '';
+
+      const sentToGex = mount(
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={sentToGexPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
+        </MockProviders>,
+      );
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
+      const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
+      expect(sentToGexAtDate).toBe('on -');
+    });
+
+    it('renders the Tpps Received Status status tag for TPPS_RECEIVED', () => {
       const receivedByGexPaymentRequest = {
         id: '29474c6a-69b6-4501-8e08-670a12512e5f',
         createdAt: '2020-12-01T00:00:00.000Z',
         moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
         paymentRequestNumber: '1843-9061-2',
-        status: 'RECEIVED_BY_GEX',
+        status: 'TPPS_RECEIVED',
         moveTaskOrder: move,
         serviceItems: [
           {
@@ -457,7 +535,7 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('Reviewed')).toBe(true);
+      expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('TPPS Received')).toBe(true);
     });
 
     it('renders the paid status tag for paid request', () => {

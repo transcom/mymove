@@ -223,6 +223,8 @@ func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 		DestinationAddress:       Address(mtoShipment.DestinationAddress),
 		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
 		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDeliveryAddress),
+		TertiaryPickupAddress:    Address(mtoShipment.TertiaryPickupAddress),
+		TertiaryDeliveryAddress:  Address(mtoShipment.TertiaryDeliveryAddress),
 		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
 		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),

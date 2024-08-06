@@ -3038,6 +3038,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dodID:
         type: string
+      emplid:
+        type: string
       userID:
         type: string
         format: uuid
@@ -3178,6 +3180,9 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationGBLOC:
+        type: string
+        example: KKFA
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
       originDutyLocationGBLOC:
@@ -3205,7 +3210,7 @@ definitions:
       - REVIEWED
       - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
-      - RECEIVED_BY_GEX
+      - TPPS_RECEIVED
       - PAID
       - EDI_ERROR
       - DEPRECATED
@@ -3785,6 +3790,8 @@ definitions:
         * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
         * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
+        * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
+        * `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
     type: string
     example: HHG
     enum:
@@ -3802,6 +3809,10 @@ definitions:
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
+      BOAT_HAUL_AWAY: >-
+        Boat shipment that requires additional equipment to haul it to it's
+        destination
+      BOAT_TOW_AWAY: Boat shipment that has a road-worthy trailer
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:

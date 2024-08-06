@@ -67,6 +67,7 @@ func Customer(customer *models.ServiceMember) *primev3messages.Customer {
 		FirstName:      swag.StringValue(customer.FirstName),
 		LastName:       swag.StringValue(customer.LastName),
 		DodID:          swag.StringValue(customer.Edipi),
+		Emplid:         swag.StringValue(customer.Emplid),
 		ID:             strfmt.UUID(customer.ID.String()),
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		CurrentAddress: Address(customer.ResidentialAddress),
@@ -104,6 +105,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                       Customer(&order.ServiceMember),
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   swag.StringValue(order.DestinationGBLOC),
 		Entitlement:                    Entitlement(order.Entitlement),
 		ID:                             strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:             originDutyLocation,
@@ -122,6 +124,7 @@ func Order(order *models.Order) *primev3messages.Order {
 
 	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
+		payload.DestinationDutyLocationGBLOC = "USMC"
 	}
 
 	return &payload

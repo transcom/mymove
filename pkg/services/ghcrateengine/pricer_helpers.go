@@ -43,7 +43,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 
 	domOtherPrice, err := fetchDomOtherPrice(appCtx, contractCode, domOtherPriceCode, servicesSchedule, isPeakPeriod)
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup domestic other price: %w", err)
+		return 0, nil, fmt.Errorf("could not lookup domestic other price: %w", err)
 	}
 
 	finalWeight := weight
@@ -82,7 +82,7 @@ func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models
 	if packUnpackCode == models.ReServiceCodeDNPK {
 		shipmentTypePrice, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDNPK, models.MarketConus)
 		if err != nil {
-			return 0, nil, fmt.Errorf("Could not lookup shipment type price: %w", err)
+			return 0, nil, fmt.Errorf("could not lookup shipment type price: %w", err)
 		}
 		escalatedPrice = escalatedPrice * shipmentTypePrice.Factor
 
@@ -352,7 +352,7 @@ func priceDomesticShuttling(appCtx appcontext.AppContext, shuttlingCode models.R
 	// look up rate for domestic accessorial price
 	domAccessorialPrice, err := fetchAccessorialPrice(appCtx, contractCode, shuttlingCode, serviceSchedule)
 	if err != nil {
-		return 0, nil, fmt.Errorf("Could not lookup Domestic Accessorial Area Price: %w", err)
+		return 0, nil, fmt.Errorf("could not lookup Domestic Accessorial Area Price: %w", err)
 	}
 
 	basePrice := domAccessorialPrice.PerUnitCents.Float64()

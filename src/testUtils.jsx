@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { configureStore } from 'shared/store';
 import PermissionProvider from 'components/Restricted/PermissionProvider';
+import SelectedGblocProvider from 'components/Office/GblocSwitcher/SelectedGblocProvider';
 
 /** Helper function to create a react-router `MemoryRouter` with the provided options */
 const createMockRouter = ({ path, params, routes, children }) => {
@@ -81,9 +82,11 @@ export const MockProviders = ({
   return (
     <ReactQueryWrapper client={client}>
       <PermissionProvider permissions={permissions} currentUserId={currentUserId}>
-        <Provider store={mockStore.store}>
-          <RouterProvider router={mockRouter} />
-        </Provider>
+        <SelectedGblocProvider>
+          <Provider store={mockStore.store}>
+            <RouterProvider router={mockRouter} />
+          </Provider>
+        </SelectedGblocProvider>
       </PermissionProvider>
     </ReactQueryWrapper>
   );

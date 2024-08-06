@@ -19,6 +19,7 @@ const NTSShipmentCard = ({
   onDeleteClick,
   pickupLocation,
   secondaryPickupAddress,
+  tertiaryPickupAddress,
   releasingAgent,
   remarks,
   requestedPickupDate,
@@ -75,6 +76,7 @@ const NTSShipmentCard = ({
             requestedPickupDate={requestedPickupDate}
             pickupLocation={pickupLocation}
             secondaryPickupAddress={secondaryPickupAddress}
+            tertiaryPickupAddress={tertiaryPickupAddress}
             releasingAgent={releasingAgent}
           />
           <div className={`${styles.row} ${styles.remarksRow}`}>
@@ -98,6 +100,7 @@ NTSShipmentCard.propTypes = {
   requestedPickupDate: string.isRequired,
   pickupLocation: AddressShape.isRequired,
   secondaryPickupAddress: AddressShape,
+  tertiaryPickupAddress: AddressShape,
   releasingAgent: shape({
     firstName: string,
     lastName: string,
@@ -113,6 +116,7 @@ NTSShipmentCard.defaultProps = {
   remarks: '',
   shipmentNumber: 0,
   secondaryPickupAddress: null,
+  tertiaryPickupAddress: null,
 };
 
 export default NTSShipmentCard;
