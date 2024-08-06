@@ -14,8 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 )
 
-const featureFlagBoat = "BOAT"
-
 // GetMoveTaskOrderHandler returns the details for a particular move
 type GetMoveTaskOrderHandler struct {
 	handlers.HandlerConfig
@@ -53,10 +51,11 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 
 			/** Feature Flag - Boat Shipment **/
+			featureFlagName := "boat"
 			isBoatFeatureOn := false
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagBoat, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagBoat), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 				isBoatFeatureOn = false
 			} else {
 				isBoatFeatureOn = flag.Match

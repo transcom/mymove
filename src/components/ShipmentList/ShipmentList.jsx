@@ -152,7 +152,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
-    const { shipmentType } = shipment;
+    const shipmentType = shipmentTypes[shipment?.shipmentType];
     if (shipmentCountByType[shipmentType]) {
       shipmentCountByType[shipmentType] += 1;
     } else {
@@ -163,7 +163,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
   return (
     <div>
       {shipments.map((shipment) => {
-        const { shipmentType } = shipment;
+        const shipmentType = shipmentTypes[shipment?.shipmentType];
         if (shipmentNumbersByType[shipmentType]) {
           shipmentNumbersByType[shipmentType] += 1;
         } else {
