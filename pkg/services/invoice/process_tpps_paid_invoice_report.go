@@ -24,7 +24,6 @@ func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 func (e *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, _ string, stringTPPSPaidInvoiceReport string) error {
 	tppsPaidInvoiceReport := tppsReponse.EDI{}
 
-	// TODO instead of _, use the return value here as it will contain the struct with tpps paid data
 	tppsData, err := tppsPaidInvoiceReport.Parse(stringTPPSPaidInvoiceReport)
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
