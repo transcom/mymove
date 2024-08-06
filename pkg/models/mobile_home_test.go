@@ -14,12 +14,12 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 		"Successful Minimal Validation": {
 			mobileHome: models.MobileHome{
 				ShipmentID:     uuid.Must(uuid.NewV4()),
-				Make:           "Mobile Home Make",
-				Model:          "Mobile Home Model",
-				Year:           1996,
-				LengthInInches: 200,
-				HeightInInches: 84,
-				WidthInInches:  96,
+				Make:           models.StringPointer("Mobile Home Make"),
+				Model:          models.StringPointer("Mobile Home Model"),
+				Year:           models.IntPointer(1996),
+				LengthInInches: models.IntPointer(200),
+				HeightInInches: models.IntPointer(84),
+				WidthInInches:  models.IntPointer(96),
 			},
 			expectedErrs: nil,
 		},
