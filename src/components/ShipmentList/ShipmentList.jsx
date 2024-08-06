@@ -180,7 +180,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
           canEditOrDelete = false;
           showNumber = false;
           switch (shipmentType) {
-            case SHIPMENT_OPTIONS.NTSR:
+            case shipmentTypes[SHIPMENT_OPTIONS.NTSR]:
               // don't want “Over weight” or “Missing weight” warnings for NTSR
               break;
             default:
@@ -203,7 +203,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             isOverweight={isOverweight}
             showIncomplete={ppmIsIncomplete}
             isMissingWeight={isMissingWeight}
-            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
+            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipment?.shipmentType)}
             onDeleteClick={() => onDeleteClick(shipment.id)}
             shipment={shipment}
           />
