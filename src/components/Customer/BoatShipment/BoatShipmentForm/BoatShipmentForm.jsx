@@ -285,7 +285,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     checked={values.hasTrailer === 'false'}
                   />
                   {values.hasTrailer === 'true' && (
-                    <div className={styles.formFieldContainer}>
+                    <Fieldset className={styles.formFieldContainer}>
                       <legend className="usa-label">Is the trailer roadworthy?</legend>
                       <Field
                         as={Radio}
@@ -305,7 +305,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                         value="false"
                         checked={values.isRoadworthy === 'false'}
                       />
-                    </div>
+                    </Fieldset>
                   )}
                 </Fieldset>
               </SectionWrapper>
