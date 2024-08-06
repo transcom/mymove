@@ -1,4 +1,4 @@
-import { React, useEffect } from 'react';
+import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
