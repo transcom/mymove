@@ -10,6 +10,7 @@ import styles from './MoveSearchForm.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
+import { roleTypes } from 'constants/userRoles';
 
 const baseSchema = Yup.object().shape({
   searchType: Yup.string().required('searchtype error'),
@@ -44,7 +45,7 @@ const paymentRequestCodeSchema = baseSchema.concat(
   }),
 );
 
-const MoveSearchForm = ({ onSubmit }) => {
+const MoveSearchForm = ({ onSubmit, role }) => {
   const getValidationSchema = (values) => {
     switch (values.searchType) {
       case 'moveCode':
@@ -134,21 +135,23 @@ const MoveSearchForm = ({ onSubmit }) => {
                   formik.setFieldTouched('searchText', false, false);
                 }}
               />
-              <Field
-                as={Radio}
-                id="radio-picked-paymentRequestCode"
-                data-testid="paymentRequestCode"
-                type="radio"
-                name="searchType"
-                value="paymentRequestCode"
-                title="Payment Request Number"
-                label="Payment Request Number"
-                onChange={(e) => {
-                  formik.setFieldValue('searchType', e.target.value);
-                  formik.setFieldValue('searchText', '', false); // Clear TextField
-                  formik.setFieldTouched('searchText', false, false);
-                }}
-              />
+              {role !== roleTypes.SERVICES_COUNSELOR && (
+                <Field
+                  as={Radio}
+                  id="radio-picked-paymentRequestCode"
+                  data-testid="paymentRequestCode"
+                  type="radio"
+                  name="searchType"
+                  value="paymentRequestCode"
+                  title="Payment Request Number"
+                  label="Payment Request Number"
+                  onChange={(e) => {
+                    formik.setFieldValue('searchType', e.target.value);
+                    formik.setFieldValue('searchText', '', false); // Clear TextField
+                    formik.setFieldTouched('searchText', false, false);
+                  }}
+                />
+              )}
             </div>
             <div className={styles.searchBar}>
               <TextField

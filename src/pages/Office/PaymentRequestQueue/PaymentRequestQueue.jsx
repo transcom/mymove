@@ -175,7 +175,7 @@ const PaymentRequestQueue = () => {
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
       } else if (values.searchType === 'paymentRequestCode') {
-        payload.paymentRequestCode = values.paymentRequestCode.trim();
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
     setSearch(payload);
