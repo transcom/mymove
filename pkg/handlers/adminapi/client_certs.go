@@ -37,6 +37,8 @@ func payloadForClientCertModel(o models.ClientCert) *adminmessages.ClientCertifi
 		AllowMarineCorpsOrdersWrite: o.AllowMarineCorpsOrdersWrite,
 		AllowNavyOrdersRead:         o.AllowNavyOrdersRead,
 		AllowNavyOrdersWrite:        o.AllowNavyOrdersWrite,
+		AllowSpaceForceOrdersRead:   o.AllowSpaceForceOrdersRead,
+		AllowSpaceForceOrdersWrite:  o.AllowSpaceForceOrdersWrite,
 		AllowPrime:                  o.AllowPrime,
 	}
 	return payload
@@ -147,6 +149,8 @@ func (h CreateClientCertHandler) Handle(params clientcertop.CreateClientCertific
 				AllowMarineCorpsOrdersWrite: payload.AllowMarineCorpsOrdersWrite,
 				AllowNavyOrdersRead:         payload.AllowNavyOrdersRead,
 				AllowNavyOrdersWrite:        payload.AllowNavyOrdersWrite,
+				AllowSpaceForceOrdersRead:   payload.AllowSpaceForceOrdersRead,
+				AllowSpaceForceOrdersWrite:  payload.AllowSpaceForceOrdersWrite,
 				AllowPrime:                  payload.AllowPrime,
 			}
 

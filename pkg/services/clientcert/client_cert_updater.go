@@ -67,6 +67,12 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 	if payload.AllowNavyOrdersWrite != nil {
 		foundClientCert.AllowNavyOrdersWrite = *payload.AllowNavyOrdersWrite
 	}
+	if payload.AllowSpaceForceOrdersRead != nil {
+		foundClientCert.AllowSpaceForceOrdersRead = *payload.AllowSpaceForceOrdersRead
+	}
+	if payload.AllowSpaceForceOrdersWrite != nil {
+		foundClientCert.AllowSpaceForceOrdersWrite = *payload.AllowSpaceForceOrdersWrite
+	}
 	if payload.AllowPrime != nil {
 		foundClientCert.AllowPrime = *payload.AllowPrime
 	}

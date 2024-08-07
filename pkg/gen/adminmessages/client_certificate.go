@@ -58,6 +58,12 @@ type ClientCertificate struct {
 	// allow prime
 	AllowPrime bool `json:"allowPrime,omitempty"`
 
+	// allow space force orders read
+	AllowSpaceForceOrdersRead bool `json:"allowSpaceForceOrdersRead,omitempty"`
+
+	// allow space force orders write
+	AllowSpaceForceOrdersWrite bool `json:"allowSpaceForceOrdersWrite,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time

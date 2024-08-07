@@ -61,6 +61,8 @@ func makeAllPowerfulClientCert() *models.ClientCert {
 		AllowMarineCorpsOrdersWrite: true,
 		AllowNavyOrdersRead:         true,
 		AllowNavyOrdersWrite:        true,
+		AllowSpaceForceOrdersRead:   true,
+		AllowSpaceForceOrdersWrite:  true,
 		AllowOrdersAPI:              true,
 	}
 }

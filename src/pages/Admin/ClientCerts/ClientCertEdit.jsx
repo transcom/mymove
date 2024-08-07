@@ -93,6 +93,20 @@ const ClientCertEdit = (props) => (
         ]}
       />
       <SelectInput
+        source="allowSpaceForceOrdersRead"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
+      <SelectInput
+        source="allowSpaceForceOrdersWrite"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
+      <SelectInput
         source="allowPrime"
         choices={[
           { id: true, name: 'Yes' },

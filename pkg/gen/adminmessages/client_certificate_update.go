@@ -56,6 +56,12 @@ type ClientCertificateUpdate struct {
 	// allow prime
 	AllowPrime *bool `json:"allowPrime,omitempty"`
 
+	// allow space force orders read
+	AllowSpaceForceOrdersRead *bool `json:"allowSpaceForceOrdersRead,omitempty"`
+
+	// allow space force orders write
+	AllowSpaceForceOrdersWrite *bool `json:"allowSpaceForceOrdersWrite,omitempty"`
+
 	// sha256 digest
 	// Example: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
 	Sha256Digest string `json:"sha256Digest,omitempty"`
