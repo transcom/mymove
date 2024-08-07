@@ -229,7 +229,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 	suite.Run("Successful customer search by DOD ID", func() {
 		req := setupTestData()
 		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
-		customers := models.ServiceMembers{customer}
+		customers := models.ServiceMemberSearchResults{customer.ToSearchResult()}
 
 		mockSearcher := mocks.CustomerSearcher{}
 
@@ -264,7 +264,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 	suite.Run("Successful customer search by name", func() {
 		req := setupTestData()
 		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
-		customers := models.ServiceMembers{customer}
+		customers := models.ServiceMemberSearchResults{customer.ToSearchResult()}
 
 		mockSearcher := mocks.CustomerSearcher{}
 
