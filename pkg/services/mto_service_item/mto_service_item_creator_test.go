@@ -1149,7 +1149,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		return contacts
 	}
 
-	sitEntryDate := time.Now()
+	sitEntryDate := time.Now().AddDate(0, 0, 1)
 	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
 	attemptedContact := time.Now()
 
@@ -1305,6 +1305,31 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), fmt.Sprintf("A service item with reServiceCode %s already exists for this move and/or shipment.", models.ReServiceCodeDDFSIT))
+	})
+
+	suite.Run("Failure - SIT entry date is before FADD for DDFSIT creation", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		sitEntryDateBeforeToday := time.Now().AddDate(0, 0, -1)
+
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDateBeforeToday,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		// Make a second attempt to add a DDFSIT
+		serviceItem, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(serviceItem)
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		suite.Contains(err.Error(), "the SIT Entry Date cannot be before the First Available Delivery Date")
 	})
 
 	// Successful creation of DDASIT service item
