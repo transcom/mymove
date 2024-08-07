@@ -37,7 +37,13 @@ updateShipmentDestinationAddress
 ### Functionality
 This endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,
 after the destination address has already been approved.
-If automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.
+
+This endpoint and operation only supports the following shipment types:
+- HHG
+- NTSR
+
+For HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.
+
 Address updates will be automatically approved unless they change:
   - The service area
   - Mileage bracket for direct delivery
