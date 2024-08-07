@@ -519,10 +519,6 @@ definitions:
         type: number
         format: double
         x-nullable: true
-      travelType:
-        description: Travel Type
-        example: Shipment of HHG Permitted
-        type: string
       deliveryDate:
         type: string
         format: date
@@ -683,6 +679,13 @@ definitions:
         type: string
         example: 030-00362
         x-nullable: true
+      travelType:
+        description: Travel Type
+        example: Shipment of HHG Permitted
+        type: string
+      travelClassCode:
+        example: PCS
+        type: string
       shipments:
         type: array
         items:

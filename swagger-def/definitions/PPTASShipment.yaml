@@ -233,13 +233,6 @@ properties:
     type: number
     format: double
     x-nullable: true
-  travelType:
-    description: Travel Type
-    example: Shipment of HHG Permitted
-    type: string
-  # travelClassCode:
-  #   example: PCS
-  #   type: string
   deliveryDate:
     type: string
     format: date
@@ -251,7 +244,7 @@ properties:
     type: number
     format: double
     x-nullable: true
-  
+
   financialReviewFlag:
     type: boolean
     x-nullable: true

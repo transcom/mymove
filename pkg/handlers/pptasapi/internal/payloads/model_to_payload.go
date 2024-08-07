@@ -50,166 +50,57 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 
 	payload.Shipments = pptasReport.Shipments
 
-	// if pptasReport.FirstName != nil {
-	// 	payload.FirstName = *pptasReport.FirstName
-	// }
+	if pptasReport.FirstName != nil {
+		payload.FirstName = *pptasReport.FirstName
+	}
 
-	// if pptasReport.LastName != nil {
-	// 	payload.LastName = *pptasReport.LastName
-	// }
+	if pptasReport.LastName != nil {
+		payload.LastName = *pptasReport.LastName
+	}
 
-	// if pptasReport.OrdersDate != nil {
-	// 	payload.OrdersDate = strfmt.DateTime(*pptasReport.OrdersDate)
-	// }
+	if pptasReport.OrdersDate != nil {
+		payload.OrdersDate = strfmt.DateTime(*pptasReport.OrdersDate)
+	}
 
-	// if pptasReport.Edipi != nil {
-	// 	payload.Edipi = *pptasReport.Edipi
-	// }
+	if pptasReport.Edipi != nil {
+		payload.Edipi = *pptasReport.Edipi
+	}
 
-	// if pptasReport.PhonePrimary != nil {
-	// 	payload.PhonePrimary = *pptasReport.PhonePrimary
-	// }
+	if pptasReport.PhonePrimary != nil {
+		payload.PhonePrimary = *pptasReport.PhonePrimary
+	}
 
-	// if pptasReport.EmailPrimary != nil {
-	// 	payload.EmailPrimary = *pptasReport.EmailPrimary
-	// }
+	if pptasReport.EmailPrimary != nil {
+		payload.EmailPrimary = *pptasReport.EmailPrimary
+	}
 
-	// if pptasReport.OrdersNumber != nil {
-	// 	payload.OrdersNumber = *pptasReport.OrdersNumber
-	// }
+	if pptasReport.OrdersNumber != nil {
+		payload.OrdersNumber = *pptasReport.OrdersNumber
+	}
 
-	// if pptasReport.OrderNumber != nil {
-	// 	payload.OrderNumber = pptasReport.OrderNumber
-	// }
+	if pptasReport.OrderNumber != nil {
+		payload.OrderNumber = pptasReport.OrderNumber
+	}
 
-	// if pptasReport.PickupDate != nil {
-	// 	payload.PickupDate = strfmt.Date(*pptasReport.PickupDate)
-	// }
+	if pptasReport.Address != nil {
+		payload.Address = Address(pptasReport.Address)
+	}
 
-	// if pptasReport.PBPAndE != nil {
-	// 	payload.PbpAnde = models.Float64Pointer(pptasReport.PBPAndE.Float64())
-	// }
+	if pptasReport.EntitlementWeight != nil {
+		payload.EntitlementWeight = models.Int64Pointer(pptasReport.EntitlementWeight.Int64())
+	}
 
-	// if pptasReport.TravelAdvance != nil {
-	// 	payload.TravelAdvance = models.Float64Pointer(pptasReport.TravelAdvance.Float64())
-	// }
+	if pptasReport.TravelType != nil {
+		payload.TravelType = *pptasReport.TravelType
+	}
 
-	// if pptasReport.NetWeight != nil {
-	// 	payload.NetWeight = models.Int64Pointer(pptasReport.NetWeight.Int64())
-	// }
+	if pptasReport.TravelClassCode != nil {
+		payload.TravelClassCode = *pptasReport.TravelClassCode
+	}
 
-	// if pptasReport.EntitlementWeight != nil {
-	// 	payload.EntitlementWeight = models.Int64Pointer(pptasReport.EntitlementWeight.Int64())
-	// }
-
-	// if pptasReport.Miles != nil {
-	// 	payload.Miles = int64(*pptasReport.Miles)
-	// }
-
-	// if pptasReport.Address != nil {
-	// 	payload.Address = Address(pptasReport.Address)
-	// }
-
-	// if pptasReport.ShipmentType != nil {
-	// 	payload.ShipmentType = *pptasReport.ShipmentType
-	// }
-
-	// if pptasReport.TravelType != nil {
-	// 	payload.TravelType = *pptasReport.TravelType
-	// }
-
-	// if pptasReport.Appro != nil {
-	// 	payload.Appro = pptasReport.Appro
-	// }
-
-	// if pptasReport.Subhead != nil {
-	// 	payload.Subhead = pptasReport.Subhead
-	// }
-
-	// if pptasReport.ObjClass != nil {
-	// 	payload.ObjClass = pptasReport.ObjClass
-	// }
-
-	// if pptasReport.BCN != nil {
-	// 	payload.Bcn = pptasReport.BCN
-	// }
-
-	// if pptasReport.SubAllotCD != nil {
-	// 	payload.SubAllotCD = pptasReport.SubAllotCD
-	// }
-
-	// if pptasReport.AAA != nil {
-	// 	payload.Aaa = pptasReport.AAA
-	// }
-
-	// if pptasReport.TravelType != nil {
-	// 	payload.TravelType = *pptasReport.TravelType
-	// }
-
-	// if pptasReport.PAA != nil {
-	// 	payload.Paa = pptasReport.PAA
-	// }
-
-	// if pptasReport.CostCD != nil {
-	// 	payload.CostCD = pptasReport.CostCD
-	// }
-
-	// if pptasReport.DDCD != nil {
-	// 	payload.Ddcd = pptasReport.DDCD
-	// }
-
-	// if pptasReport.TravelClassCode != nil {
-	// 	payload.TravelClassCode = *pptasReport.TravelClassCode
-	// }
-
-	// if pptasReport.WeightEstimate != nil {
-	// 	payload.WeightEstimate = models.Float64Pointer(pptasReport.WeightEstimate.Float64())
-	// }
-
-	// if pptasReport.ActualOriginNetWeight != nil {
-	// 	payload.ActualOriginNetWeight = models.Float64Pointer(pptasReport.ActualOriginNetWeight.Float64())
-	// }
-
-	// if pptasReport.DestinationReweighNetWeight != nil {
-	// 	payload.DestinationReweighNetWeight = models.Float64Pointer(pptasReport.DestinationReweighNetWeight.Float64())
-	// }
-
-	// if pptasReport.DeliveryDate != nil {
-	// 	payload.DeliveryDate = strfmt.Date(*pptasReport.DeliveryDate)
-	// }
-
-	// if pptasReport.CounseledDate != nil {
-	// 	payload.CounseledDate = strfmt.Date(*pptasReport.CounseledDate)
-	// }
-
-	// emptyCost := float64(0)
-	// if pptasReport.PpmLinehaul != nil && *pptasReport.PpmLinehaul != emptyCost {
-	// 	payload.PpmLinehaul = pptasReport.PpmLinehaul
-	// }
-
-	// if pptasReport.PpmFuelRateAdjTotal != nil && *pptasReport.PpmFuelRateAdjTotal != emptyCost {
-	// 	payload.PpmFuelRateAdjTotal = pptasReport.PpmFuelRateAdjTotal
-	// }
-
-	// if pptasReport.PpmOriginPrice != nil && *pptasReport.PpmOriginPrice != emptyCost {
-	// 	payload.PpmOriginPrice = pptasReport.PpmOriginPrice
-	// }
-
-	// if pptasReport.PpmDestPrice != nil && *pptasReport.PpmDestPrice != emptyCost {
-	// 	payload.PpmDestPrice = pptasReport.PpmDestPrice
-	// }
-
-	// if pptasReport.PpmPacking != nil && *pptasReport.PpmPacking != emptyCost {
-	// 	payload.PpmPacking = pptasReport.PpmPacking
-	// }
-
-	// if pptasReport.PpmUnpacking != nil && *pptasReport.PpmUnpacking != emptyCost {
-	// 	payload.PpmUnpacking = pptasReport.PpmUnpacking
-	// }
-
-	// if pptasReport.PpmTotal != nil && *pptasReport.PpmTotal != emptyCost {
-	// 	payload.PpmTotal = pptasReport.PpmTotal
-	// }
+	if pptasReport.CounseledDate != nil {
+		payload.CounseledDate = strfmt.Date(*pptasReport.CounseledDate)
+	}
 
 	return payload
 }

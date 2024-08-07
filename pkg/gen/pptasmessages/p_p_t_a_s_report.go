@@ -107,6 +107,14 @@ type PPTASReport struct {
 	// Transmit Code
 	TransmitCD *string `json:"transmitCD,omitempty"`
 
+	// travel class code
+	// Example: PCS
+	TravelClassCode string `json:"travelClassCode,omitempty"`
+
+	// Travel Type
+	// Example: Shipment of HHG Permitted
+	TravelType string `json:"travelType,omitempty"`
+
 	// weight authorized
 	WeightAuthorized *float64 `json:"weightAuthorized,omitempty"`
 }

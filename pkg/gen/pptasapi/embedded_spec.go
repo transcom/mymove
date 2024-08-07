@@ -531,6 +531,15 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "travelClassCode": {
+          "type": "string",
+          "example": "PCS"
+        },
+        "travelType": {
+          "description": "Travel Type",
+          "type": "string",
+          "example": "Shipment of HHG Permitted"
+        },
         "weightAuthorized": {
           "type": "number",
           "format": "double",
@@ -833,11 +842,6 @@ func init() {
           "type": "number",
           "format": "double",
           "x-nullable": true
-        },
-        "travelType": {
-          "description": "Travel Type",
-          "type": "string",
-          "example": "Shipment of HHG Permitted"
         },
         "typeCD": {
           "description": "LoaJbOrdNm in lines_of_accounting",
@@ -1406,6 +1410,15 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "travelClassCode": {
+          "type": "string",
+          "example": "PCS"
+        },
+        "travelType": {
+          "description": "Travel Type",
+          "type": "string",
+          "example": "Shipment of HHG Permitted"
+        },
         "weightAuthorized": {
           "type": "number",
           "format": "double",
@@ -1708,11 +1721,6 @@ func init() {
           "type": "number",
           "format": "double",
           "x-nullable": true
-        },
-        "travelType": {
-          "description": "Travel Type",
-          "type": "string",
-          "example": "Shipment of HHG Permitted"
         },
         "typeCD": {
           "description": "LoaJbOrdNm in lines_of_accounting",

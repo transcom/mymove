@@ -143,9 +143,15 @@ properties:
     type: string
     example: '030-00362'
     x-nullable: true
-  shipments: 
+  travelType:
+    description: Travel Type
+    example: Shipment of HHG Permitted
+    type: string
+  travelClassCode:
+    example: PCS
+    type: string
+  shipments:
     type: array
-    items: 
+    items:
       $ref: 'PPTASShipment.yaml'
 
-  

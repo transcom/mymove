@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/unit"
@@ -37,6 +38,7 @@ type PPTASReport struct {
 	WeightAuthorized  *unit.Pound
 	EntitlementWeight *unit.Pound
 	OrderNumber       *string
+	TravelType        *string
 	Shipments         []*pptasmessages.PPTASShipment
 }
 
@@ -99,7 +101,6 @@ type PPTASShipment struct {
 	PpmPacking                  *float64
 	PpmUnpacking                *float64
 	PpmTotal                    *float64
-	TravelType                  *string
 	DeliveryDate                *time.Time
 	ActualOriginNetWeight       *unit.Pound
 	DestinationReweighNetWeight *unit.Pound

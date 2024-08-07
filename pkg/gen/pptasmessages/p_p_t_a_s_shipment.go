@@ -200,10 +200,6 @@ type PPTASShipment struct {
 	// travel advance
 	TravelAdvance *float64 `json:"travelAdvance,omitempty"`
 
-	// Travel Type
-	// Example: Shipment of HHG Permitted
-	TravelType string `json:"travelType,omitempty"`
-
 	// LoaJbOrdNm in lines_of_accounting
 	TypeCD *string `json:"typeCD,omitempty"`
 
