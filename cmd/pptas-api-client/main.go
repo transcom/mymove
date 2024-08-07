@@ -44,7 +44,6 @@ func main() {
 	pptas.InitListMovesFlags(listMovesCommand.Flags())
 	root.AddCommand(listMovesCommand)
 
-
 	if err := root.Execute(); err != nil {
 		panic(err)
 	}
