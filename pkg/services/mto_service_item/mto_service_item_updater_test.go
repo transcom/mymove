@@ -21,8 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route/mocks"
-	routemocks "github.com/transcom/mymove/pkg/route/mocks"
+	mocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/address"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -40,7 +39,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	planner := &routemocks.Planner{}
+	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -337,6 +336,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 					SITEntryDate:         &aMonthAgo,
 					SITCustomerContacted: &now,
 					SITRequestedDelivery: &sitRequestedDelivery,
+					Status:               models.MTOServiceItemStatusRejected,
 				},
 			},
 		}, nil)
@@ -384,6 +384,146 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		invalidInputError := err.(apperror.InvalidInputError)
 		suite.True(invalidInputError.ValidationErrors.HasAny())
 		suite.Contains(invalidInputError.ValidationErrors.Keys(), "SITDestinationFinalAddress")
+	})
+
+	suite.Run("Successful Prime update - resubmitting all rejected origin and destination SIT service item", func() {
+		now := time.Now()
+		requestApprovalsRequestedStatus := false
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		reason := "this is why the service item was created"
+
+		// going to create and test all of these service items
+		serviceItemCodes := []models.ReServiceCode{
+			models.ReServiceCodeDDFSIT,
+			models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDDDSIT,
+			models.ReServiceCodeDDSFSC,
+			models.ReServiceCodeDOASIT,
+			models.ReServiceCodeDOPSIT,
+			models.ReServiceCodeDOFSIT,
+			models.ReServiceCodeDOSFSC,
+		}
+
+		shipmentSITAllowance := 90
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.NoError(err)
+
+		// build rejected SIT service items & update them with new reasons or else we will get an error
+		for _, code := range serviceItemCodes {
+			serviceItem := buildRejectedServiceItem(suite, code, reason, contactDatePlusGracePeriod, aMonthAgo, now, sitRequestedDelivery, requestApprovalsRequestedStatus)
+			eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+			updatedServiceItem := serviceItem
+			updatedServiceItem.Reason = models.StringPointer("this is a new reason")
+			updatedServiceItem.RequestedApprovalsRequestedStatus = models.BoolPointer(true)
+			updatedServiceItem.Status = models.MTOServiceItemStatusSubmitted
+
+			updatedServiceItemResult, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &updatedServiceItem, planner, shipment, eTag)
+
+			suite.NoError(err)
+			suite.NotNil(updatedServiceItemResult)
+			suite.IsType(models.MTOServiceItem{}, *updatedServiceItemResult)
+		}
+	})
+
+	suite.Run("Unsuccessful Prime update - resubmitting all rejected origin and destination SIT service without updating the reason", func() {
+		now := time.Now()
+		requestApprovalsRequestedStatus := false
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		reason := "this is why the service item was created"
+
+		// going to create and test all of these service items
+		serviceItemCodes := []models.ReServiceCode{
+			models.ReServiceCodeDDFSIT,
+			models.ReServiceCodeDDASIT,
+			models.ReServiceCodeDDDSIT,
+			models.ReServiceCodeDDSFSC,
+			models.ReServiceCodeDOASIT,
+			models.ReServiceCodeDOPSIT,
+			models.ReServiceCodeDOFSIT,
+			models.ReServiceCodeDOSFSC,
+		}
+
+		shipmentSITAllowance := 90
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+
+		planner := &mocks.Planner{}
+		planner.On("ZipTransitDistance",
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.Anything,
+			mock.Anything,
+		).Return(1234, nil)
+
+		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
+			MaxDaysTransitTime: 12,
+			WeightLbsLower:     0,
+			WeightLbsUpper:     10000,
+			DistanceMilesLower: 1,
+			DistanceMilesUpper: 2000,
+		}
+		_, err := suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
+		suite.NoError(err)
+
+		// build rejected SIT service items & update them with new reasons or else we will get an error
+		for _, code := range serviceItemCodes {
+			serviceItem := buildRejectedServiceItem(suite, code, reason, contactDatePlusGracePeriod, aMonthAgo, now, sitRequestedDelivery, requestApprovalsRequestedStatus)
+			eTag := etag.GenerateEtag(serviceItem.UpdatedAt)
+
+			updatedServiceItem := serviceItem
+			updatedServiceItem.RequestedApprovalsRequestedStatus = models.BoolPointer(true)
+			updatedServiceItem.Status = models.MTOServiceItemStatusSubmitted
+
+			updatedServiceItemResult, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &updatedServiceItem, planner, shipment, eTag)
+
+			// we should get an error back since the reason MUST be changed
+			suite.Nil(updatedServiceItemResult)
+			suite.Error(err)
+			suite.IsType(apperror.ConflictError{}, err)
+		}
 	})
 
 	suite.Run("Unsuccessful basic update - adding SITDestinationOriginalAddress", func() {
@@ -1028,7 +1168,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	planner := &routemocks.Planner{}
+	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -1620,4 +1760,30 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
 	})
+}
+
+// Helper function to create a rejected service item
+func buildRejectedServiceItem(suite *MTOServiceItemServiceSuite, reServiceCode models.ReServiceCode, reason string, contactDatePlusGracePeriod, aMonthAgo, now, sitRequestedDelivery time.Time, requestApprovalsRequestedStatus bool) models.MTOServiceItem {
+	return factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		{
+			Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				Code: reServiceCode,
+			},
+		},
+		{
+			Model: models.MTOServiceItem{
+				SITDepartureDate:                  &contactDatePlusGracePeriod,
+				SITEntryDate:                      &aMonthAgo,
+				SITCustomerContacted:              &now,
+				SITRequestedDelivery:              &sitRequestedDelivery,
+				Status:                            models.MTOServiceItemStatusRejected,
+				RequestedApprovalsRequestedStatus: &requestApprovalsRequestedStatus,
+				Reason:                            &reason,
+			},
+		},
+	}, nil)
 }
