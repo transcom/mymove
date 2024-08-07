@@ -665,6 +665,29 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 
 	})
 
+	suite.Run("SITDepartureDate - errors when service item is missing a shipment ID", func() {
+
+		oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
+		newSITServiceItem := oldSITServiceItem
+		newSITServiceItem.SITDepartureDate = &later
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newSITServiceItem,
+			oldServiceItem:     oldSITServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+		suite.Error(err)
+		suite.IsType(apperror.InternalServerError{}, err)
+		suite.False(serviceItemData.verrs.HasAny())
+		suite.Contains(err.Error(), "did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data")
+	})
+
 	suite.Run("checkSITDestinationFinalAddress - adding SITDestinationFinalAddress for origin SIT service item", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
