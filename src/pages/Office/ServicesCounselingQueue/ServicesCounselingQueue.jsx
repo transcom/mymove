@@ -413,7 +413,7 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
     navigate(generatePath(servicesCounselingRoutes.CREATE_CUSTOMER_PATH));
   };
 
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const counselorMoveCreateFeatureFlag = isBooleanFlagEnabled('counselor_move_create');
 
@@ -422,6 +422,7 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -430,6 +431,8 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
         payload.dodID = values.searchText;
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.paymentRequestCode.trim();
       }
     }
 
@@ -525,6 +528,7 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
+            paymentRequestCode={search.paymentRequestCode}
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
             searchType="move"
@@ -613,6 +617,7 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
             handleClick={handleCustomerSearchClick}
             useQueries={useCustomerSearchQueries}
             dodID={search.dodID}
+            paymentRequestCode={search.paymentRequestCode}
             customerName={search.customerName}
             roleType={roleTypes.SERVICES_COUNSELOR}
             searchType="customer"

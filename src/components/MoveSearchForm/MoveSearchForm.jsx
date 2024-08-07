@@ -29,6 +29,20 @@ const customerNameSchema = baseSchema.concat(
     searchText: Yup.string().trim().min(1, 'Customer search must contain a value'),
   }),
 );
+const paymentRequestCodeSchema = baseSchema.concat(
+  Yup.object().shape({
+    searchText: Yup.string()
+      .trim()
+      .length(
+        11,
+        'Payment request number must be a 11 character string (9 numbers with hyphens after every 4th number, e.g. 1234-5678-9)',
+      )
+      .matches(/(\d{4})(-{1})(\d{4})(-{1})(\d{1})/g, {
+        message:
+          'Payment request number must be a 11 character string (9 numbers with hyphens after every 4th number, e.g. 1234-5678-9)',
+      }),
+  }),
+);
 
 const MoveSearchForm = ({ onSubmit }) => {
   const getValidationSchema = (values) => {
@@ -39,6 +53,8 @@ const MoveSearchForm = ({ onSubmit }) => {
         return dodIDSchema;
       case 'customerName':
         return customerNameSchema;
+      case 'paymentRequestCode':
+        return paymentRequestCodeSchema;
       default:
         return Yup.object().shape({
           searchType: Yup.string().required('Search option must be selected'),

@@ -33,8 +33,8 @@ const QAECSRMoveSearch = () => {
         payload.dodID = values.searchText;
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
-      } else if (values.searchType === 'paymentRequest') {
-        payload.paymentRequestCode = values.searchText;
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
 

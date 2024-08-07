@@ -141,7 +141,7 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
 const PaymentRequestQueue = () => {
   const { queueType } = useParams();
   const navigate = useNavigate();
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
 
@@ -165,6 +165,7 @@ const PaymentRequestQueue = () => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -173,6 +174,8 @@ const PaymentRequestQueue = () => {
         payload.dodID = values.searchText;
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.paymentRequestCode.trim();
       }
     }
     setSearch(payload);
@@ -237,6 +240,7 @@ const PaymentRequestQueue = () => {
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
+            paymentRequestCode={search.paymentRequestCode}
             customerName={search.customerName}
             roleType={roleTypes.TIO}
           />

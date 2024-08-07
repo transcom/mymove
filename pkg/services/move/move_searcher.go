@@ -68,7 +68,6 @@ func (s moveSearcher) SearchMoves(appCtx appcontext.AppContext, params *services
 		Join("addresses as origin_addresses", "origin_addresses.id = origin_duty_locations.address_id").
 		Join("duty_locations as new_duty_locations", "new_duty_locations.id = orders.new_duty_location_id").
 		Join("addresses as new_addresses", "new_addresses.id = new_duty_locations.address_id").
-		Join("payment_requests", "payment_requests.move_id = moves.id").
 		LeftJoin("mto_shipments", "mto_shipments.move_id = moves.id AND mto_shipments.status <> 'DRAFT'").
 		LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 		GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id").
@@ -187,7 +186,9 @@ func shipmentsCountFilter(shipmentsCount *int64) QueryOption {
 func paymentRequestCodeFilter(paymentRequestCode *string) QueryOption {
 	return func(query *pop.Query) {
 		if paymentRequestCode != nil {
-			query.Where("payment_requests.payment_request_number % (?)", *paymentRequestCode)
+			query.Join("payment_requests", "payment_requests.move_id = moves.id")
+			query.Where("payment_requests.payment_request_number = ?", *paymentRequestCode)
+			query.GroupBy("moves.id", "service_members.id", "origin_addresses.id", "new_addresses.id", "payment_requests.id")
 		}
 	}
 }
@@ -224,7 +225,7 @@ func sortOrder(sort *string, order *string, customerNameSearch *string, paymentR
 		} else if customerNameSearch != nil {
 			query.Order("similarity(searchable_full_name(first_name, last_name), f_unaccent(lower(?))) DESC", *customerNameSearch)
 		} else if paymentRequestSearch != nil {
-			query.Order("similarity(payment_requests.payment_request_number, ?)")
+			query.Order("similarity(payment_requests.payment_request_number, ?)", paymentRequestSearch)
 		} else {
 			query.Order("moves.created_at DESC")
 		}
