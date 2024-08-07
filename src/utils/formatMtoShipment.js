@@ -504,6 +504,11 @@ export function getMtoShipmentLabel({ context }) {
   return mtoShipmentLabels;
 }
 
+// Convert feet and inches to all inches for Boat & Mobile Homes
+export function toTotalInches(feet, inches) {
+  return (Number(feet) || 0) * 12 + (Number(inches) || 0);
+}
+
 export default {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
@@ -511,4 +516,5 @@ export default {
   formatStorageFacilityForAPI,
   removeEtag,
   getMtoShipmentLabel,
+  toTotalInches,
 };

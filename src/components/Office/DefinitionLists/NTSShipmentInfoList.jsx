@@ -63,8 +63,8 @@ const NTSShipmentInfoList = ({
     const fetchData = async () => {
       setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
     };
-    fetchData();
-  }, []);
+    if (!isForEvaluationReport) fetchData();
+  }, [isForEvaluationReport]);
 
   const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
 
