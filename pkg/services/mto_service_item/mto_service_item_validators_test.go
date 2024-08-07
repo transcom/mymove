@@ -613,6 +613,58 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 	})
 
+	suite.Run("SITDepartureDate - errors when set after the authorized end date", func() {
+		// Under test:  checkSITDepartureDate checks that
+		//				the SITDepartureDate is not later than the authorized end date
+		// Set up:      Create an old and new DOPSIT and DDDSIT, with a date later than the
+		// 				shipment and try to update.
+		// Expected outcome: ERROR if departure date comes after the end date
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeDOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &later
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.Error(err)
+			suite.IsType(apperror.InvalidInputError{}, err)
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set after the authorized end date.")
+			suite.Contains(err.Error(), "Invalid input found while validating the service item")
+		}
+
+	})
+
 	suite.Run("checkSITDestinationFinalAddress - adding SITDestinationFinalAddress for origin SIT service item", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
