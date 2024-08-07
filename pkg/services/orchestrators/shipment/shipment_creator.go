@@ -8,23 +8,25 @@ import (
 
 // shipmentCreator is the concrete struct implementing the services.ShipmentCreator interface
 type shipmentCreator struct {
-	checks               []shipmentValidator
-	mtoShipmentCreator   services.MTOShipmentCreator
-	ppmShipmentCreator   services.PPMShipmentCreator
-	boatShipmentCreator  services.BoatShipmentCreator
-	shipmentRouter       services.ShipmentRouter
-	moveTaskOrderUpdater services.MoveTaskOrderUpdater
+	checks                    []shipmentValidator
+	mtoShipmentCreator        services.MTOShipmentCreator
+	ppmShipmentCreator        services.PPMShipmentCreator
+	boatShipmentCreator       services.BoatShipmentCreator
+	mobileHomeShipmentCreator services.MobileHomeShipmentCreator
+	shipmentRouter            services.ShipmentRouter
+	moveTaskOrderUpdater      services.MoveTaskOrderUpdater
 }
 
 // NewShipmentCreator creates a new shipmentCreator struct with the basic checks and service dependencies.
-func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
+func NewShipmentCreator(mtoShipmentCreator services.MTOShipmentCreator, ppmShipmentCreator services.PPMShipmentCreator, boatShipmentCreator services.BoatShipmentCreator, mobileHomeShipmentCreator services.MobileHomeShipmentCreator, shipmentRouter services.ShipmentRouter, moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentCreator {
 	return &shipmentCreator{
-		checks:               basicShipmentChecks(),
-		mtoShipmentCreator:   mtoShipmentCreator,
-		ppmShipmentCreator:   ppmShipmentCreator,
-		boatShipmentCreator:  boatShipmentCreator,
-		shipmentRouter:       shipmentRouter,
-		moveTaskOrderUpdater: moveTaskOrderUpdater,
+		checks:                    basicShipmentChecks(),
+		mtoShipmentCreator:        mtoShipmentCreator,
+		ppmShipmentCreator:        ppmShipmentCreator,
+		boatShipmentCreator:       boatShipmentCreator,
+		mobileHomeShipmentCreator: mobileHomeShipmentCreator,
+		shipmentRouter:            shipmentRouter,
+		moveTaskOrderUpdater:      moveTaskOrderUpdater,
 	}
 }
 
@@ -36,6 +38,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 
 	isPPMShipment := shipment.ShipmentType == models.MTOShipmentTypePPM
 	isBoatShipment := (shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway)
+	isMobileHomeShipment := shipment.ShipmentType == models.MTOShipmentTypeMobileHome
 
 	if isBoatShipment {
 		// Match boatShipment.Type with shipmentType incase they are different
@@ -47,7 +50,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 	}
 
 	if shipment.Status == "" {
-		if isPPMShipment || isBoatShipment {
+		if isPPMShipment || isBoatShipment || isMobileHomeShipment{
 			shipment.Status = models.MTOShipmentStatusDraft
 		} else {
 			// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page
@@ -97,6 +100,16 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			mtoShipment.BoatShipment.Shipment = *mtoShipment
 
 			_, err = s.boatShipmentCreator.CreateBoatShipmentWithDefaultCheck(txnAppCtx, mtoShipment.BoatShipment)
+
+			if err != nil {
+				return err
+			}
+			return nil
+		} else if isMobileHomeShipment {
+			mtoShipment.MobileHome.ShipmentID = mtoShipment.ID
+			mtoShipment.MobileHome.Shipment = *mtoShipment
+
+			_, err = s.mobileHomeShipmentCreator.CreateMobileHomeShipmentWithDefaultCheck(txnAppCtx, mtoShipment.MobileHome)
 
 			if err != nil {
 				return err

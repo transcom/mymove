@@ -45,6 +45,7 @@ func (f mtoShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveI
 	var shipments []models.MTOShipment
 	err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).
 		EagerPreload(
+			"MobileHome",
 			"MTOServiceItems.ReService",
 			"PickupAddress",
 			"SecondaryPickupAddress",

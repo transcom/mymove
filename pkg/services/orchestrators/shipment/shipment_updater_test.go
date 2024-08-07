@@ -24,17 +24,19 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	updateMTOShipmentMethodName := "UpdateMTOShipment"
 	updatePPMShipmentMethodName := "UpdatePPMShipmentWithDefaultCheck"
 	updateBoatShipmentMethodName := "UpdateBoatShipmentWithDefaultCheck"
+	updateMobileHomeShipmentMethodName := "UpdateMobileHomeShipmentWithDefaultCheck"
 
 	type subtestDataObjects struct {
-		mockMTOShipmentUpdater      *mocks.MTOShipmentUpdater
-		mockPPMShipmentUpdater      *mocks.PPMShipmentUpdater
-		mockBoatShipmentUpdater     *mocks.BoatShipmentUpdater
-		shipmentUpdaterOrchestrator services.ShipmentUpdater
+		mockMTOShipmentUpdater        *mocks.MTOShipmentUpdater
+		mockPPMShipmentUpdater        *mocks.PPMShipmentUpdater
+		mockBoatShipmentUpdater       *mocks.BoatShipmentUpdater
+		mockMobileHomeShipmentUpdater *mocks.MobileHomeShipmentUpdater
+		shipmentUpdaterOrchestrator   services.ShipmentUpdater
 
 		fakeError error
 	}
 
-	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool) (subtestData subtestDataObjects) {
+	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool, returnErrorForBoatShipment bool, returnErrorForMobileHomeShipment bool) (subtestData subtestDataObjects) {
 		mockMTOShipmentUpdater := mocks.MTOShipmentUpdater{}
 		subtestData.mockMTOShipmentUpdater = &mockMTOShipmentUpdater
 
@@ -44,7 +46,10 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		mockBoatShipmentUpdater := mocks.BoatShipmentUpdater{}
 		subtestData.mockBoatShipmentUpdater = &mockBoatShipmentUpdater
 
-		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater)
+		mockMobileHomeShipmentUpdater := mocks.MobileHomeShipmentUpdater{}
+		subtestData.mockMobileHomeShipmentUpdater = &mockMobileHomeShipmentUpdater
+
+		subtestData.shipmentUpdaterOrchestrator = NewShipmentUpdater(subtestData.mockMTOShipmentUpdater, subtestData.mockPPMShipmentUpdater, subtestData.mockBoatShipmentUpdater, subtestData.mockMobileHomeShipmentUpdater)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")
@@ -137,13 +142,45 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				)
 		}
 
+		if returnErrorForMobileHomeShipment {
+			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Invalid input found while validating the Mobile Home shipment.")
+
+			subtestData.mockMobileHomeShipmentUpdater.
+				On(
+					updateMobileHomeShipmentMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("*models.MobileHome"),
+					mock.AnythingOfType("uuid.UUID"),
+				).
+				Return(nil, subtestData.fakeError)
+		} else {
+			subtestData.mockMobileHomeShipmentUpdater.
+				On(
+					updateMobileHomeShipmentMethodName,
+					mock.AnythingOfType("*appcontext.appContext"),
+					mock.AnythingOfType("*models.MobileHome"),
+					mock.AnythingOfType("uuid.UUID"),
+					mock.AnythingOfType("string"),
+				).
+				Return(
+					func(_ appcontext.AppContext, ship *models.MobileHome, _ uuid.UUID) *models.MobileHome {
+						updatedShip := *ship
+
+						return &updatedShip
+					},
+					func(_ appcontext.AppContext, _ *models.MobileHome, _ uuid.UUID) error {
+						return nil
+					},
+				)
+		}
+
 		return subtestData
 	}
 
 	suite.Run("Returns an InvalidInputError if there is an error with the shipment info that was input", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false)
+		subtestData := makeSubtestData(false, false, false, false)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), nil, nil)
 
@@ -173,7 +210,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Calls necessary service objects for %s shipments", shipmentType), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(false, false, false)
+			subtestData := makeSubtestData(false, false, false, false)
 
 			var shipment models.MTOShipment
 
@@ -241,7 +278,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on PPMShipment and updated PPMShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false)
+		subtestData := makeSubtestData(false, false, false, false)
 
 		ppmShipment := factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -281,7 +318,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Sets MTOShipment info on BoatShipment and updated BoatShipment back on MTOShipment", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(false, false, false)
+		subtestData := makeSubtestData(false, false, false, false)
 
 		boatShipment := factory.BuildBoatShipment(appCtx.DB(), []factory.Customization{
 			{
@@ -327,6 +364,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		returnErrorForMTOShipment  bool
 		returnErrorForPPMShipment  bool
 		returnErrorForBoatShipment bool
+		returnErrorForMobileHomeShipment bool
 	}{
 		"error updating MTOShipment": {
 			shipmentType:               models.MTOShipmentTypeHHG,
@@ -355,7 +393,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 		suite.Run(fmt.Sprintf("Returns transaction error if there is an %s", name), func() {
 			appCtx := suite.AppContextForTest()
 
-			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment)
+			subtestData := makeSubtestData(tc.returnErrorForMTOShipment, tc.returnErrorForPPMShipment, tc.returnErrorForBoatShipment, tc.returnErrorForMobileHomeShipment)
 
 			var shipment models.MTOShipment
 
@@ -369,6 +407,10 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 				boatShipment := factory.BuildBoatShipment(appCtx.DB(), nil, nil)
 
 				shipment = boatShipment.Shipment
+			} else if tc.shipmentType == models.MTOShipmentTypeMobileHome {
+				mobileHomeShipment := factory.BuildMobileHomeShipment(appCtx.DB(), nil, nil)
+
+				shipment = mobileHomeShipment.Shipment
 			} else {
 				shipment = factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 					{
@@ -391,7 +433,7 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	suite.Run("Returns error early if MTOShipment can't be updated", func() {
 		appCtx := suite.AppContextForTest()
 
-		subtestData := makeSubtestData(true, false, false)
+		subtestData := makeSubtestData(true, false, false, false)
 
 		shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 			{

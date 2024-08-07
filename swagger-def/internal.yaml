@@ -1767,6 +1767,7 @@ definitions:
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -1774,6 +1775,7 @@ definitions:
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1815,6 +1817,8 @@ definitions:
         $ref: "definitions/PPMShipment.yaml"
       boatShipment:
         $ref: "definitions/BoatShipment.yaml"
+      mobileHome:
+        $ref: "definitions/MobileHome.yaml"
       shipmentType:
         $ref: "#/definitions/MTOShipmentType"
       status:
@@ -1887,6 +1891,8 @@ definitions:
         $ref: "#/definitions/CreatePPMShipment"
       boatShipment:
         $ref: "#/definitions/CreateBoatShipment"
+      mobilehome:
+        $ref: "#/definitions/CreateMobileHome"
       requestedPickupDate:
         format: date
         type: string
@@ -2059,6 +2065,12 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+  CreateMobileHome:
+    description: Mobile Home shipment information for the move.
+    $ref: "definitions/MobileHome.yaml"
+  UpdateMobileHome:
+    type: object
+    $ref: "definitions/MobileHome.yaml"
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -2153,6 +2165,8 @@ definitions:
         $ref: "#/definitions/UpdatePPMShipment"
       boatShipment:
         $ref: "#/definitions/UpdateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/UpdateMobileHome"
       requestedPickupDate:
         format: date
         type: string

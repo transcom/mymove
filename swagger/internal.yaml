@@ -1794,6 +1794,7 @@ definitions:
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -1801,6 +1802,7 @@ definitions:
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1842,6 +1844,8 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
         $ref: '#/definitions/BoatShipment'
+      mobileHome:
+        $ref: '#/definitions/MobileHome'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       status:
@@ -1914,6 +1918,8 @@ definitions:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
         $ref: '#/definitions/CreateBoatShipment'
+      mobilehome:
+        $ref: '#/definitions/MobileHome'
       requestedPickupDate:
         format: date
         type: string
@@ -2092,6 +2098,12 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+  CreateMobileHome:
+    description: Mobile Home shipment information for the move.
+    $ref: '#/definitions/MobileHome'
+  UpdateMobileHome:
+    type: object
+    $ref: '#/definitions/MobileHome'
   CreateBoatShipment:
     description: Boat shipment information for the move.
     properties:
@@ -2186,6 +2198,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       requestedPickupDate:
         format: date
         type: string
@@ -3717,6 +3731,49 @@ definitions:
       - heightInInches
       - hasTrailer
       - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
   PpmID:
     description: |
       The PPM Shipment ID to associate with the assigned certificate.

@@ -12,15 +12,17 @@ type shipmentUpdater struct {
 	mtoShipmentUpdater  services.MTOShipmentUpdater
 	ppmShipmentUpdater  services.PPMShipmentUpdater
 	boatShipmentUpdater services.BoatShipmentUpdater
+	mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater
 }
 
 // NewShipmentUpdater creates a new shipmentUpdater struct with the basic checks and service dependencies.
-func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater) services.ShipmentUpdater {
+func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater) services.ShipmentUpdater {
 	return &shipmentUpdater{
 		checks:              basicShipmentChecks(),
 		mtoShipmentUpdater:  mtoShipmentUpdater,
 		ppmShipmentUpdater:  ppmShipmentUpdater,
 		boatShipmentUpdater: boatShipmentUpdater,
+		mobileHomeShipmentUpdater: mobileHomeShipmentUpdater,
 	}
 }
 
@@ -76,6 +78,21 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 			// Update variables with latest versions
 			mtoShipment = &boatShipment.Shipment
 			mtoShipment.BoatShipment = boatShipment
+
+			return nil
+		}  else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+			shipment.MobileHome.ShipmentID = mtoShipment.ID
+			shipment.MobileHome.Shipment = *mtoShipment
+
+			mobileHomeShipment, err := s.mobileHomeShipmentUpdater.UpdateMobileHomeShipmentWithDefaultCheck(txnAppCtx, shipment.MobileHome, mtoShipment.ID)
+
+			if err != nil {
+				return err
+			}
+
+			// Update variables with latest versions
+			mtoShipment = &mobileHomeShipment.Shipment
+			mtoShipment.MobileHome = mobileHomeShipment
 
 			return nil
 		}

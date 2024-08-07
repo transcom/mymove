@@ -32,6 +32,9 @@ type CreateShipment struct {
 	// destination address
 	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
+	// mobilehome
+	Mobilehome *MobileHome `json:"mobilehome,omitempty"`
+
 	// move task order ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
@@ -82,6 +85,10 @@ func (m *CreateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMobilehome(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -178,6 +185,25 @@ func (m *CreateShipment) validateDestinationAddress(formats strfmt.Registry) err
 				return ve.ValidateName("destinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateShipment) validateMobilehome(formats strfmt.Registry) error {
+	if swag.IsZero(m.Mobilehome) { // not required
+		return nil
+	}
+
+	if m.Mobilehome != nil {
+		if err := m.Mobilehome.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobilehome")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobilehome")
 			}
 			return err
 		}
@@ -377,6 +403,10 @@ func (m *CreateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMobilehome(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -459,6 +489,27 @@ func (m *CreateShipment) contextValidateDestinationAddress(ctx context.Context, 
 				return ve.ValidateName("destinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateShipment) contextValidateMobilehome(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.Mobilehome != nil {
+
+		if swag.IsZero(m.Mobilehome) { // not required
+			return nil
+		}
+
+		if err := m.Mobilehome.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobilehome")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobilehome")
 			}
 			return err
 		}
