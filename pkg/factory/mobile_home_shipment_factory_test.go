@@ -17,7 +17,7 @@ func (suite *FactorySuite) TestBuildMobileHomeShipment() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
-			CreatedAt:      time.Now(),
+			CreatedAt:      time.Now().Local(),
 		}
 
 		mobileHomeShipment := BuildMobileHomeShipment(suite.DB(), nil, nil)

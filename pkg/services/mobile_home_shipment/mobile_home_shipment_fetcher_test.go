@@ -191,7 +191,7 @@ func (suite *MobileHomeShipmentSuite) TestFetchMobileHomeShipment() {
 		suite.Error(err)
 
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found while looking for MobileHomeShipment", badID), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for MobileHome", badID), err.Error())
 	})
 
 	suite.Run("FindMobileHomeShipment - returns not found for deleted shipment", func() {
@@ -204,7 +204,7 @@ func (suite *MobileHomeShipmentSuite) TestFetchMobileHomeShipment() {
 		suite.Error(err)
 
 		suite.IsType(apperror.NotFoundError{}, err)
-		suite.Equal(fmt.Sprintf("ID: %s not found while looking for MobileHomeShipment", mobileHomeShipment.ID), err.Error())
+		suite.Equal(fmt.Sprintf("ID: %s not found while looking for MobileHome", mobileHomeShipment.ID), err.Error())
 	})
 
 	suite.Run("FetchMobileHomeShipmentFromMTOShipmentID - finds records", func() {
