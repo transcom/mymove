@@ -102,6 +102,35 @@ func (s ServiceMember) TableName() string {
 	return "service_members"
 }
 
+// Convenience function to convert to search result type, used in go tests
+func (s ServiceMember) ToSearchResult() ServiceMemberSearchResult {
+	return ServiceMemberSearchResult{
+		ID:                     s.ID,
+		CreatedAt:              s.CreatedAt,
+		UpdatedAt:              s.UpdatedAt,
+		UserID:                 s.UserID,
+		User:                   s.User,
+		Edipi:                  s.Edipi,
+		Emplid:                 s.Emplid,
+		Affiliation:            s.Affiliation,
+		FirstName:              s.FirstName,
+		LastName:               s.LastName,
+		Suffix:                 s.Suffix,
+		Telephone:              s.Telephone,
+		SecondaryTelephone:     s.SecondaryTelephone,
+		PersonalEmail:          s.PersonalEmail,
+		EmailIsPreferred:       s.EmailIsPreferred,
+		ResidentialAddressID:   s.ResidentialAddressID,
+		ResidentialAddress:     s.ResidentialAddress,
+		BackupMailingAddressID: s.BackupMailingAddressID,
+		BackupMailingAddress:   s.BackupMailingAddress,
+		Orders:                 s.Orders,
+		BackupContacts:         s.BackupContacts,
+		CacValidated:           s.CacValidated,
+		TotalSim:               nil,
+	}
+}
+
 type ServiceMembers []ServiceMember
 type ServiceMemberSearchResults []ServiceMemberSearchResult
 
