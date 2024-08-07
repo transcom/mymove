@@ -10,6 +10,7 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { nonWeightReliantServiceItems } from 'content/serviceItems';
 import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
@@ -24,8 +25,9 @@ const paymentRequestStatusLabel = (status) => {
     case PAYMENT_REQUEST_STATUS.SENT_TO_GEX:
       return 'Sent to GEX';
     case PAYMENT_REQUEST_STATUS.REVIEWED:
-    case PAYMENT_REQUEST_STATUS.RECEIVED_BY_GEX:
       return 'Reviewed';
+    case PAYMENT_REQUEST_STATUS.TPPS_RECEIVED:
+      return 'TPPS Received';
     case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
     case PAYMENT_REQUEST_STATUS.PAID:
@@ -124,6 +126,12 @@ const PaymentRequestCard = ({
     navigate(`/moves/${locator}/orders`);
   };
 
+  const nonWeightRelatedServiceItemsOnly = () => {
+    return paymentRequest.serviceItems.every((serviceItem) =>
+      Object.prototype.hasOwnProperty.call(nonWeightReliantServiceItems, serviceItem.mtoServiceItemCode),
+    );
+  };
+
   const renderReviewServiceItemsBtnForTOO = () => {
     return (
       <Restricted to={permissionTypes.readPaymentServiceItemStatus}>
@@ -132,7 +140,7 @@ const PaymentRequestCard = ({
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
             Review service items
           </Button>
-          {hasBillableWeightIssues && (
+          {hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly() && (
             <span className={styles.errorText} data-testid="errorTxt">
               Resolve billable weight before reviewing service items.
             </span>
@@ -150,13 +158,13 @@ const PaymentRequestCard = ({
           <Button
             style={{ maxWidth: '225px' }}
             onClick={handleClick}
-            disabled={hasBillableWeightIssues || isMoveLocked}
+            disabled={(hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly()) || isMoveLocked}
             data-testid="reviewBtn"
           >
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
             Review service items
           </Button>
-          {hasBillableWeightIssues && (
+          {hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly() && (
             <span className={styles.errorText} data-testid="errorTxt">
               Resolve billable weight before reviewing service items.
             </span>
@@ -164,6 +172,77 @@ const PaymentRequestCard = ({
         </div>
       </Restricted>
     );
+  };
+
+  const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
+    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX) {
+      return (
+        <div className={styles.amountAccepted}>
+          <FontAwesomeIcon icon="check" />
+          <div>
+            <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+            <span>Sent to GEX </span>
+            <span data-testid="sentToGexDate">
+              on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING) {
+      return (
+        <div className={styles.amountRequested}>
+          <h2>{toDollarString(formatCents(requestedAmount))}</h2>
+          <span>Requested</span>
+        </div>
+      );
+    }
+    if (
+      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED ||
+      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
+    ) {
+      return (
+        <div>
+          {approvedAmount > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div>
+                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                <span>Accepted</span>
+                <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+          {rejectedAmount > 0 && (
+            <div className={styles.amountRejected}>
+              <FontAwesomeIcon icon="times" />
+              <div>
+                <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
+                <span>Rejected</span>
+                <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.TPPS_RECEIVED) {
+      return (
+        <div>
+          {approvedAmount > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div>
+                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                <span>Received</span>
+                <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return <div />;
   };
 
   return (
@@ -188,64 +267,8 @@ const PaymentRequestCard = ({
           </span>
         </div>
         <div className={styles.totalReviewed}>
-          {paymentRequest.status === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ? (
-            <div className={styles.amountAccepted}>
-              <FontAwesomeIcon icon="check" />
-              <div>
-                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                <span>Sent to GEX</span>
-                <span data-testid="sentToGexDate">
-                  {' '}
-                  on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <>
-              {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING ? (
-                <div className={styles.amountRequested}>
-                  <h2>{toDollarString(formatCents(requestedAmount))}</h2>
-                  <span>Requested</span>
-                </div>
-              ) : (
-                <>
-                  {approvedAmount > 0 && (
-                    <div className={styles.amountAccepted}>
-                      <FontAwesomeIcon icon="check" />
-                      <div>
-                        <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                        <span>Accepted</span>
-                        <span>
-                          {' '}
-                          on{' '}
-                          {paymentRequest?.reviewedAt
-                            ? formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')
-                            : '-'}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                  {rejectedAmount > 0 && (
-                    <div className={styles.amountRejected}>
-                      <FontAwesomeIcon icon="times" />
-                      <div>
-                        <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
-                        <span>Rejected</span>
-                        <span>
-                          {' '}
-                          on{' '}
-                          {paymentRequest?.reviewedAt
-                            ? formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')
-                            : '-'}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-              {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
-            </>
-          )}
+          <div>{paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}</div>
+          {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
         </div>
         <div className={styles.footer}>
           <dl>

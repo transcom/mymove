@@ -23,7 +23,8 @@ function formatDestinationAddress(address) {
 function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLocked }) {
   const { shipmentStatus } = shipmentInfo;
   // cancelation modal is visible if shipment is not already canceled, AND if shipment cancellation hasn't already been requested
-  const isCancelModalVisible = shipmentStatus !== shipmentStatuses.CANCELED || shipmentStatuses.CANCELLATION_REQUESTED;
+  const showRequestCancellation =
+    shipmentStatus !== shipmentStatuses.CANCELED && shipmentStatus !== shipmentStatuses.CANCELLATION_REQUESTED;
   const isCancellationRequested = shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED;
 
   return (
@@ -44,7 +45,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
           {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
         ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
         </small>
-        {isCancelModalVisible && (
+        {showRequestCancellation && (
           <Restricted to={permissionTypes.createShipmentCancellation}>
             <Restricted to={permissionTypes.updateMTOPage}>
               <Button
