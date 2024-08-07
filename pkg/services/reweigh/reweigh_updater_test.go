@@ -48,6 +48,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
+					ApprovedAt:         &currentTime,
 				},
 			},
 		}, nil)
@@ -88,6 +89,7 @@ func (suite *ReweighSuite) TestReweighUpdater() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
+					ApprovedAt:         &currentTime,
 				},
 			},
 		}, nil)
