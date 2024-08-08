@@ -38,6 +38,13 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDOSFSC,
 }
 
+var destSITServiceItems = []models.ReServiceCode{
+	models.ReServiceCodeDDDSIT,
+	models.ReServiceCodeDDASIT,
+	models.ReServiceCodeDDFSIT,
+	models.ReServiceCodeDDSFSC,
+}
+
 type updateMTOServiceItemValidator interface {
 	validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error
 }
@@ -387,24 +394,27 @@ func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) er
 			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOSFSC))
 }
 
-// checkSITEntryDateAndFADD checks that the SIT entry date occurs after the FADD
+// checkSITEntryDateAndFADD checks that the SIT entry date occurs after the FADD for destination SIT
 func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppContext) error {
-	// if they are attempting to update the SIT entry date
-	if v.updatedServiceItem.SITEntryDate != nil {
-		var contacts models.MTOServiceItemCustomerContacts
-		if v.updatedServiceItem.CustomerContacts != nil {
-			contacts = v.updatedServiceItem.CustomerContacts
-		} else if v.oldServiceItem.CustomerContacts != nil {
-			contacts = v.oldServiceItem.CustomerContacts
-		}
+	if slices.Contains(destSITServiceItems, v.oldServiceItem.ReService.Code) {
+		// if they are attempting to update the SIT entry date
+		if v.updatedServiceItem.SITEntryDate != nil {
+			var contacts models.MTOServiceItemCustomerContacts
+			if v.updatedServiceItem.CustomerContacts != nil {
+				contacts = v.updatedServiceItem.CustomerContacts
+			} else if v.oldServiceItem.CustomerContacts != nil {
+				contacts = v.oldServiceItem.CustomerContacts
+			}
 
-		for _, contact := range contacts {
-			if !contact.FirstAvailableDeliveryDate.IsZero() &&
-				v.updatedServiceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
-				return apperror.NewUnprocessableEntityError(
-					"the SIT Entry Date cannot be before the First Available Delivery Date")
+			for _, contact := range contacts {
+				if !contact.FirstAvailableDeliveryDate.IsZero() &&
+					v.updatedServiceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
+					return apperror.NewUnprocessableEntityError(
+						"the SIT Entry Date cannot be before the First Available Delivery Date")
+				}
 			}
 		}
+		return nil
 	}
 	return nil
 }
