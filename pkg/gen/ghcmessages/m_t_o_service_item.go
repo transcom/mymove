@@ -72,6 +72,9 @@ type MTOServiceItem struct {
 	// Format: uuid
 	ID *strfmt.UUID `json:"id"`
 
+	// locked price cents
+	LockedPriceCents *int64 `json:"lockedPriceCents,omitempty"`
+
 	// move task order ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
