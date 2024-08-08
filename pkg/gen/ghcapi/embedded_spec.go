@@ -8065,6 +8065,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -22694,6 +22699,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
         },
         "moveTaskOrderID": {
           "type": "string",

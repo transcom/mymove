@@ -7763,6 +7763,10 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      lockedPriceCents:
+        type: integer
+        format: cents
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array

@@ -196,6 +196,29 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 	return 0, nil
 }
 
+func fetchCurrentTaskOrderFee(appCtx appcontext.AppContext, serviceCode models.ReServiceCode) (models.ReTaskOrderFee, error) {
+	currTime := time.Now()
+	contractCode, err := FetchContractCode(appCtx, currTime)
+	if err != nil {
+		return models.ReTaskOrderFee{}, err
+	}
+	var taskOrderFee models.ReTaskOrderFee
+	err = appCtx.DB().Q().
+		Join("re_contract_years cy", "re_task_order_fees.contract_year_id = cy.id").
+		Join("re_contracts c", "cy.contract_id = c.id").
+		Join("re_services s", "re_task_order_fees.service_id = s.id").
+		Where("c.code = $1", contractCode).
+		Where("s.code = $2", serviceCode).
+		Where("$3 between cy.start_date and cy.end_date", currTime).
+		First(&taskOrderFee)
+
+	if err != nil {
+		return models.ReTaskOrderFee{}, err
+	}
+
+	return taskOrderFee, nil
+}
+
 func FetchContractCode(appCtx appcontext.AppContext, date time.Time) (string, error) {
 	var contractYear models.ReContractYear
 	err := appCtx.DB().EagerPreload("Contract").Where("? between start_date and end_date", date).
@@ -355,6 +378,11 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	if serviceItem.MTOShipmentID == nil {
 		if serviceItem.ReService.Code == models.ReServiceCodeMS || serviceItem.ReService.Code == models.ReServiceCodeCS {
 			serviceItem.Status = "APPROVED"
+			taskOrderFee, err := fetchCurrentTaskOrderFee(appCtx, serviceItem.ReService.Code)
+			if err != nil {
+				return nil, nil, err
+			}
+			serviceItem.LockedPriceCents = &taskOrderFee.PriceCents
 		}
 		verrs, err = o.builder.CreateOne(appCtx, serviceItem)
 		if verrs != nil {
