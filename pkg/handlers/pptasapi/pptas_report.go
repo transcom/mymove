@@ -27,13 +27,19 @@ func (h PPTASReportsHandler) Handle(params pptasop.PptasReportsParams) middlewar
 				searchParams.Since = &since
 			}
 
-			movesForPPTASReport, err := h.BuildPPTASReportsFromMoves(appCtx, &searchParams)
+			movesForReport, err := h.GetMovesForReportBuilder(appCtx, &searchParams)
+			if err != nil {
+				appCtx.Logger().Error("Unexpected error while fetching moves:", zap.Error(err))
+				return pptasop.NewPptasReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			pptasReports, err := h.BuildPPTASReportsFromMoves(appCtx, movesForReport)
 			if err != nil {
 				appCtx.Logger().Error("Unexpected error while fetching reports:", zap.Error(err))
 				return pptasop.NewPptasReportsInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
 			}
 
-			payload := payloads.PPTASReports(appCtx, &movesForPPTASReport)
+			payload := payloads.PPTASReports(appCtx, &pptasReports)
 
 			return pptasop.NewPptasReportsOK().WithPayload(payload), nil
 		})

@@ -30,14 +30,19 @@ func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher serv
 	}
 }
 
-// Builds a list of reports for PPTAS
-func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.PPTASReports, error) {
-	var fullreport models.PPTASReports
-	moves, err := f.moveFetcher.FetchMovesForReports(appCtx, params)
+func (f *pptasReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	moves, err := f.moveFetcher.FetchMovesForPPTASReports(appCtx, params)
 
 	if err != nil {
 		return nil, err
 	}
+
+	return moves, err
+}
+
+// Builds a list of reports for PPTAS
+func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, moves models.Moves) (models.PPTASReports, error) {
+	var fullreport models.PPTASReports
 
 	for _, move := range moves {
 		var report models.PPTASReport
@@ -135,10 +140,11 @@ func populateShipmentFields(
 		var moveDate *time.Time
 		if shipment.ActualPickupDate != nil {
 			moveDate = shipment.ActualPickupDate
+			pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
 		}
 
-		if moveDate != nil {
-			pptasShipment.DeliveryDate = strfmt.Date(*moveDate)
+		if moveDate != nil && shipment.ActualDeliveryDate != nil {
+			pptasShipment.DeliveryDate = strfmt.Date(*shipment.ActualDeliveryDate)
 		}
 
 		if shipment.ActualPickupDate != nil {
@@ -207,11 +213,6 @@ func populateShipmentFields(
 
 		pptasShipments = append(pptasShipments, &pptasShipment)
 	}
-
-	// not sure how the navy wants the paid date
-	// if len(paymentRequests) > 0 && paymentRequests[0].ReviewedAt != nil {
-	// 	pptasShipment.PaidDate = paymentRequests[0].ReviewedAt
-	// }
 
 	report.Shipments = pptasShipments
 
@@ -313,6 +314,15 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 				continue
 			}
 		}
+
+		// Paid date is the earliest payment request date
+		if pr.PaidAt != nil && pptasShipment.PaidDate == nil {
+			paidDate := strfmt.Date(*pr.PaidAt)
+			pptasShipment.PaidDate = &paidDate
+		} else if pr.PaidAt != nil && !pr.PaidAt.After(time.Time(*pptasShipment.PaidDate)) {
+			paidDate := strfmt.Date(*pr.PaidAt)
+			pptasShipment.PaidDate = &paidDate
+		}
 	}
 
 	shuttleTotal := sitOriginShuttle + sitDestShuttle
@@ -374,6 +384,8 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 
 		moveDate := &shipment.PPMShipment.ExpectedDepartureDate
 		pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
+
+		pptasShipment.DeliveryDate = strfmt.Date(*ppmShipment.ActualMoveDate)
 
 		ppmNetWeight := calculatePPMNetWeight(ppmShipment)
 		pptasShipment.ActualOriginNetWeight = models.Float64Pointer(ppmNetWeight)
@@ -471,7 +483,7 @@ func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Or
 	if err != nil {
 		return err
 	} else if len(tac) < 1 {
-		return apperror.NewNotFoundError(orders.ID, "No valid TAC found")
+		return nil
 	}
 
 	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)

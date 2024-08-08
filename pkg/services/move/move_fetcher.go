@@ -61,7 +61,7 @@ func (f moveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, sea
 }
 
 // Fetches moves for Navy servicemembers with approved shipments. Ignores gbloc rules
-func (f moveFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	var moves models.Moves
 
 	query := appCtx.DB().EagerPreload(

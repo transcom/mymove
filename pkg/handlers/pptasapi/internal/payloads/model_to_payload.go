@@ -48,7 +48,9 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 		Scac:             pptasReport.SCAC,
 	}
 
-	payload.Shipments = pptasReport.Shipments
+	if len(pptasReport.Shipments) > 0 {
+		payload.Shipments = pptasReport.Shipments
+	}
 
 	if pptasReport.FirstName != nil {
 		payload.FirstName = *pptasReport.FirstName
