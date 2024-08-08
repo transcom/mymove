@@ -71,6 +71,10 @@ type SearchMove struct {
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
 
+	// payment request code
+	// Example: 9551-6199-2
+	PaymentRequestCode *string `json:"paymentRequestCode,omitempty"`
+
 	// requested delivery date
 	// Format: date
 	RequestedDeliveryDate *strfmt.Date `json:"requestedDeliveryDate,omitempty"`
