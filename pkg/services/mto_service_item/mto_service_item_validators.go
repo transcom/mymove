@@ -30,8 +30,8 @@ var UpdateMTOServiceItemValidators = map[string]updateMTOServiceItemValidator{
 
 // Manual updates to SIT Departure dates are allowed for these service items
 var (
-	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
-	OriginReServiceCodesAllowedForSITDepartureDateUpdate      = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
+	OriginReServiceCodesAllowedForSITDepartureDateUpdate      = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
 	ReServiceCodesAllowedForSITDepartureDateUpdate            = append(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, OriginReServiceCodesAllowedForSITDepartureDateUpdate...)
 )
 
