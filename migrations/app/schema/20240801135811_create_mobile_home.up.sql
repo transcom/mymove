@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS mobile_homes (
 	id uuid PRIMARY KEY NOT NULL,
-    shipment_id  uuid NOT NULL
+    shipment_id    uuid NOT NULL
     CONSTRAINT mobile_home_mto_shipment_id_fkey
     REFERENCES mto_shipments(id)
 	ON DELETE CASCADE,
