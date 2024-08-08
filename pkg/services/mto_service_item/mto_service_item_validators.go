@@ -383,13 +383,13 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppCo
 	}
 
 	if v.updatedServiceItem.SITDepartureDate != nil {
-		if *v.updatedServiceItem.MTOShipmentID == uuid.Nil {
+		if v.oldServiceItem.MTOShipmentID == nil || *v.oldServiceItem.MTOShipmentID == uuid.Nil {
 			// If we are updating the SIT departure date, there must be an attached MTO shipment to this service item
 			// Otherwise, authorized end dates cannot be calculated or validated properly
 			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data.", v.updatedServiceItem.ID))
 		}
 
-		shipment, err := retrieveShipment(appCtx, *v.updatedServiceItem.MTOShipmentID)
+		shipment, err := retrieveShipment(appCtx, *v.oldServiceItem.MTOShipmentID)
 		if err != nil {
 			return err
 		}
