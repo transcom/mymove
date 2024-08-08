@@ -19,7 +19,7 @@ test.describe('Boat shipment', () => {
     await customerPage.waitForPage.selectShipmentType();
 
     // Create an Boat shipment
-    await page.getByText('Move a Boat').click();
+    await page.getByText('Move a boat').click();
     await customerPage.navigateForward();
 
     // Fill in form to create Boat shipment
@@ -63,7 +63,7 @@ test.describe('Boat shipment', () => {
     await customerPage.waitForPage.selectShipmentType();
 
     // Create an Boat shipment
-    await page.getByText('Move a Boat').click();
+    await page.getByText('Move a boat').click();
     await customerPage.navigateForward();
 
     // Fill in form to create Boat shipment
@@ -105,7 +105,7 @@ test.describe('Boat shipment', () => {
     await customerPage.waitForPage.selectShipmentType();
 
     // Create an Boat shipment
-    await page.getByText('Move a Boat').click();
+    await page.getByText('Move a boat').click();
     await customerPage.navigateForward();
 
     // Fill in form to create Boat shipment
@@ -149,7 +149,7 @@ test.describe('(MultiMove) Boat shipment', () => {
     await customerPage.waitForPage.selectShipmentType();
 
     // Create an Boat shipment
-    await page.getByText('Move a Boat').click();
+    await page.getByText('Move a boat').click();
     await customerPage.navigateForward();
 
     // Fill in form to create Boat shipment
@@ -195,7 +195,7 @@ test.describe('(MultiMove) Boat shipment', () => {
     await customerPage.waitForPage.selectShipmentType();
 
     // Create an Boat shipment
-    await page.getByText('Move a Boat').click();
+    await page.getByText('Move a boat').click();
     await customerPage.navigateForward();
 
     // Fill in form to create Boat shipment
@@ -240,7 +240,7 @@ test.describe('(MultiMove) Boat shipment', () => {
     await customerPage.waitForPage.selectShipmentType();
 
     // Create an Boat shipment
-    await page.getByText('Move a Boat').click();
+    await page.getByText('Move a boat').click();
     await customerPage.navigateForward();
 
     // Fill in form to create Boat shipment

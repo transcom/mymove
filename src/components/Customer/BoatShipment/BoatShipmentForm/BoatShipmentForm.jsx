@@ -17,8 +17,11 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 
+const currentYear = new Date().getFullYear();
+const maxYear = currentYear + 2;
+
 const validationShape = {
-  year: Yup.number().required('Required').min(0),
+  year: Yup.number().required('Required').min(1700, 'Invalid year').max(maxYear, 'Invalid year'),
   make: Yup.string().required('Required'),
   model: Yup.string().required('Required'),
   lengthFeet: Yup.number()
@@ -73,7 +76,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
   const height = convertInchesToFeetAndInches(heightInInches);
 
   const initialValues = {
-    year: year?.toString(),
+    year: year?.toString() || null,
     make: make || '',
     model: model || '',
     lengthFeet: length.feet,
@@ -92,11 +95,9 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
       initialValues={initialValues}
       validationSchema={Yup.object().shape(validationShape)}
       onSubmit={onSubmit}
-      validateOnBlur
       validateOnMount
-      validateOnChange
     >
-      {({ isValid, handleSubmit, values, errors, touched, setFieldTouched }) => {
+      {({ isValid, handleSubmit, values, errors, touched, setFieldTouched, setFieldError, validateForm }) => {
         const lengthHasError = !!(
           (touched.lengthFeet && errors.lengthFeet) ||
           (touched.lengthInches && errors.lengthFeet)
@@ -115,6 +116,10 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
         if (touched.heightInches && !touched.heightFeet) {
           setFieldTouched('heightFeet', true);
         }
+        // manually turn off 'required' error when page loads if field is empty.
+        if (values.year === null && !touched.year && errors.year === 'Required') {
+          setFieldError('year', null);
+        }
         return (
           <div className={styles.formContainer}>
             <Form className={formStyles.form}>
@@ -129,9 +134,17 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                       id="year"
                       maxLength={4}
                       mask={Number}
-                      scale={0} // digits after point, 0 for integers
-                      signed="false" // disallow negative
-                      lazy={false} // immediate masking evaluation
+                      scale={0}
+                      signed="false"
+                      lazy={false}
+                      onChange={() => {
+                        setFieldError('year', null);
+                      }}
+                      onBlur={() => {
+                        setFieldTouched('year', true);
+                        setFieldError('year', null);
+                        validateForm();
+                      }}
                       required
                     />
                   </div>
