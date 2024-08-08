@@ -151,6 +151,7 @@ type MTOShipment struct {
 	TACType                          *LOAType               `db:"tac_type"`
 	SACType                          *LOAType               `db:"sac_type"`
 	PPMShipment                      *PPMShipment           `has_one:"ppm_shipment" fk_id:"shipment_id"`
+	BoatShipment                     *BoatShipment          `has_one:"boat_shipment" fk_id:"shipment_id"`
 	DeliveryAddressUpdate            *ShipmentAddressUpdate `has_one:"shipment_address_update" fk_id:"shipment_id"`
 	CreatedAt                        time.Time              `db:"created_at"`
 	UpdatedAt                        time.Time              `db:"updated_at"`
