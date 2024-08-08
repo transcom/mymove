@@ -362,6 +362,10 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
+			if weight == nil {
+				return nil, apperror.NewNotFoundError(shipment.ID, fmt.Sprintf(
+					"failed to find transit time for shipment of nil lbs weight and %d mile distance", distance))
+			}
 			return nil, apperror.NewNotFoundError(shipment.ID, fmt.Sprintf(
 				"failed to find transit time for shipment of %d lbs weight and %d mile distance", weight.Int(), distance))
 		default:
