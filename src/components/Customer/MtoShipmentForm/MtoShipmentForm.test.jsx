@@ -8,7 +8,12 @@ import { v4 as uuidv4 } from 'uuid';
 import MtoShipmentForm from './MtoShipmentForm';
 
 import { customerRoutes } from 'constants/routes';
-import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
+import {
+  createMTOShipment,
+  getResponseError,
+  patchMTOShipment,
+  dateSelectionIsWeekendHoliday,
+} from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { renderWithRouter } from 'testUtils';
 import { ORDERS_TYPE } from 'constants/orders';
@@ -24,6 +29,7 @@ jest.mock('services/internalApi', () => ({
   createMTOShipment: jest.fn(),
   getResponseError: jest.fn(),
   patchMTOShipment: jest.fn(),
+  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
 
 const moveId = uuidv4();
@@ -35,6 +41,7 @@ const defaultProps = {
   showLoggedInUser: jest.fn(),
   createMTOShipment: jest.fn(),
   updateMTOShipment: jest.fn(),
+  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
   newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -334,7 +341,15 @@ describe('MtoShipmentForm component', () => {
       };
 
       createMTOShipment.mockImplementation(() => Promise.resolve(expectedCreateResponse));
-
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: false,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm();
 
       const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
@@ -388,7 +403,15 @@ describe('MtoShipmentForm component', () => {
       const errorResponse = { response: { errorMessage } };
       createMTOShipment.mockImplementation(() => Promise.reject(errorResponse));
       getResponseError.mockImplementation(() => errorMessage);
-
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm();
 
       const pickupDateInput = await screen.findByLabelText('Preferred pickup date');
@@ -458,8 +481,16 @@ describe('MtoShipmentForm component', () => {
     };
 
     it('renders the HHG shipment form with pre-filled values', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-
       expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
       expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
@@ -479,6 +510,17 @@ describe('MtoShipmentForm component', () => {
           'Are there things about this shipment that your counselor or movers should discuss with you?',
         ),
       ).toHaveValue('mock remarks');
+
+      expect(
+        screen.getByText(
+          /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+        ),
+      ).toHaveClass('usa-alert__text');
+      expect(
+        screen.getAllByText(
+          'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+        ),
+      ).toHaveLength(1);
     });
 
     it('renders the HHG shipment form with pre-filled secondary addresses', async () => {
@@ -499,7 +541,15 @@ describe('MtoShipmentForm component', () => {
           postalCode: mockMtoShipment.destinationAddress.postalCode,
         },
       };
-
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: shipment });
 
       expect(await screen.findByTitle('Yes, I have a second pickup location')).toBeChecked();
@@ -543,6 +593,15 @@ describe('MtoShipmentForm component', () => {
     ])(
       'does not allow the user to save the form if the %s field on a secondary addreess is the only one filled out',
       async (fieldName, text) => {
+        const expectedDateSelectionIsWeekendHolidayResponse = {
+          country_code: 'US',
+          country_name: 'United States',
+          is_weekend: false,
+          is_holiday: false,
+        };
+        dateSelectionIsWeekendHoliday.mockImplementation(() =>
+          Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+        );
         renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
         // Verify that the form is good to submit by checking that the save button is not disabled.
@@ -581,6 +640,15 @@ describe('MtoShipmentForm component', () => {
     // Similar test as above, but with the state input.
     // Extracted out since the state field is not a text input.
     it('does not allow the user to save the form if the state field on a secondary addreess is the only one filled out', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: false,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
       // Verify that the form is good to submit by checking that the save button is not disabled.
@@ -616,6 +684,15 @@ describe('MtoShipmentForm component', () => {
     });
 
     it('goes back when the cancel button is clicked', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
       const cancelButton = await screen.findByRole('button', { name: 'Cancel' });
@@ -671,7 +748,15 @@ describe('MtoShipmentForm component', () => {
       };
 
       patchMTOShipment.mockImplementation(() => Promise.resolve(expectedUpdateResponse));
-
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
       const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
@@ -721,7 +806,15 @@ describe('MtoShipmentForm component', () => {
       const errorResponse = { response: { errorMessage } };
       patchMTOShipment.mockImplementation(() => Promise.reject(errorResponse));
       getResponseError.mockImplementation(() => errorMessage);
-
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
 
       const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
@@ -757,6 +850,152 @@ describe('MtoShipmentForm component', () => {
       );
 
       expect(await screen.findByText(errorMessage)).toBeInTheDocument();
+    });
+
+    it('renders the HHG shipment form with pre-filled values', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
+      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
+      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(
+        screen.getByLabelText(
+          'Are there things about this shipment that your counselor or movers should discuss with you?',
+        ),
+      ).toHaveValue('mock remarks');
+    });
+
+    it('renders the HHG shipment with date validaton alerts for weekend and holiday', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United of States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United of States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Preferred delivery date 11 Aug 2021 is on a holiday and weekend in the United of States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('renders the HHG shipment with date validaton alerts for weekend', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Preferred pickup date 01 Aug 2021 is on a weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Preferred delivery date 11 Aug 2021 is on a weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('renders the HHG shipment with date validaton alerts for holiday', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: false,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('renders the HHG shipment with no date validaton alerts for pickup/delivery', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: false,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(
+        screen.getByLabelText(
+          'Are there things about this shipment that your counselor or movers should discuss with you?',
+        ),
+      ).toHaveValue('mock remarks');
+
+      await waitFor(() => {
+        expect(
+          screen.queryAllByText(
+            'Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+          ),
+        ).toHaveLength(0);
+        expect(
+          screen.queryAllByText(
+            'Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+          ),
+        ).toHaveLength(0);
+      });
     });
   });
 
@@ -822,6 +1061,58 @@ describe('MtoShipmentForm component', () => {
         expect(queryByTestId('nts-what-to-expect')).toBeInTheDocument();
       });
     });
+
+    it('renders NTS with preferred pickup date alert for holiday and weekend', async () => {
+      const updatedAt = '2021-06-11T18:12:11.918Z';
+      const mockMtoShipment = {
+        id: uuidv4(),
+        eTag: window.btoa(updatedAt),
+        createdAt: '2021-06-11T18:12:11.918Z',
+        updatedAt,
+        moveTaskOrderId: moveId,
+        customerRemarks: 'mock remarks',
+        requestedPickupDate: '2021-08-01',
+        requestedDeliveryDate: '2021-08-11',
+        pickupAddress: {
+          id: uuidv4(),
+          streetAddress1: '812 S 129th St',
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+        },
+        destinationAddress: {
+          id: uuidv4(),
+          streetAddress1: '441 SW Rio de la Plata Drive',
+          city: 'Tacoma',
+          state: 'WA',
+          postalCode: '98421',
+        },
+      };
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, shipmentType: SHIPMENT_OPTIONS.NTS, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      await waitFor(() => {
+        // only pickup date is available. delivery alert will never be present.
+        expect(
+          screen.getByText(
+            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.queryAllByText(
+            'Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+          ),
+        ).toHaveLength(0);
+      });
+    });
   });
 
   describe('creating a new NTS-release shipment', () => {
@@ -881,6 +1172,58 @@ describe('MtoShipmentForm component', () => {
 
       await waitFor(() => {
         expect(queryByTestId('nts-what-to-expect')).not.toBeInTheDocument();
+      });
+    });
+
+    it('renders NTSR with preferred delivery date alert for holiday and weekend', async () => {
+      const updatedAt = '2021-06-11T18:12:11.918Z';
+      const mockMtoShipment = {
+        id: uuidv4(),
+        eTag: window.btoa(updatedAt),
+        createdAt: '2021-06-11T18:12:11.918Z',
+        updatedAt,
+        moveTaskOrderId: moveId,
+        customerRemarks: 'mock remarks',
+        requestedPickupDate: '2021-08-01',
+        requestedDeliveryDate: '2021-08-11',
+        pickupAddress: {
+          id: uuidv4(),
+          streetAddress1: '812 S 129th St',
+          city: 'San Antonio',
+          state: 'TX',
+          postalCode: '78234',
+        },
+        destinationAddress: {
+          id: uuidv4(),
+          streetAddress1: '441 SW Rio de la Plata Drive',
+          city: 'Tacoma',
+          state: 'WA',
+          postalCode: '98421',
+        },
+      };
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderMtoShipmentForm({ isCreatePage: false, shipmentType: SHIPMENT_OPTIONS.NTSR, mtoShipment: mockMtoShipment });
+      expect(await screen.findByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      await waitFor(() => {
+        // only delivery date is available. pickup alert will never be present.
+        expect(
+          screen.queryAllByText(
+            'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+          ),
+        ).toHaveLength(0);
+        expect(
+          screen.getByText(
+            /Preferred delivery date 11 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
       });
     });
   });

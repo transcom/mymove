@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { bool, func, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router-dom';
@@ -30,7 +30,12 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { shipmentForm } from 'content/shipments';
-import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
+import {
+  createMTOShipment,
+  getResponseError,
+  patchMTOShipment,
+  dateSelectionIsWeekendHoliday,
+} from 'services/internalApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -42,6 +47,7 @@ import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { dateSelectionWeekendHolidayCheck } from 'shared/calendar';
 
 const blankAddress = {
   address: {
@@ -92,6 +98,7 @@ class MtoShipmentForm extends Component {
       mtoShipment,
       updateMTOShipment,
     } = this.props;
+
     const { moveId } = params;
 
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
@@ -170,6 +177,7 @@ class MtoShipmentForm extends Component {
       currentResidence,
       router: { params, navigate },
     } = this.props;
+
     const { moveId } = params;
     const { isTertiaryAddressEnabled } = this.state;
     const { errorMessage } = this.state;
@@ -199,6 +207,8 @@ class MtoShipmentForm extends Component {
             hasSecondaryDelivery,
             hasTertiaryPickup,
             hasTertiaryDelivery,
+            pickup,
+            delivery,
           } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
@@ -234,6 +244,54 @@ class MtoShipmentForm extends Component {
             }
           };
 
+          const [isPreferredPickupDateAlertVisible, setIsPreferredPickupDateAlertVisible] = useState(false);
+          const [isPreferredDeliveryDateAlertVisible, setIsPreferredDeliveryDateAlertVisible] = useState(false);
+          const [preferredPickupDateAlertMessage, setPreferredPickupDateAlertMessage] = useState('');
+          const [preferredDeliveryDateAlertMessage, setPreferredDeliveryDateAlertMessage] = useState('');
+          const DEFAULT_COUNTRY_CODE = 'US';
+
+          const onDateSelectionErrorHandler = (e) => {
+            const { response } = e;
+            const msg = getResponseError(response, 'failed to retrieve date selection weekend/holiday info');
+            this.setState({ errorMessage: msg });
+          };
+
+          useEffect(() => {
+            if (pickup?.requestedDate !== '') {
+              const preferredPickupDateSelectionHandler = (countryCode, date) => {
+                dateSelectionWeekendHolidayCheck(
+                  dateSelectionIsWeekendHoliday,
+                  countryCode,
+                  date,
+                  'Preferred pickup date',
+                  setPreferredPickupDateAlertMessage,
+                  setIsPreferredPickupDateAlertVisible,
+                  onDateSelectionErrorHandler,
+                );
+              };
+              const dateSelection = new Date(pickup.requestedDate);
+              preferredPickupDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
+            }
+          }, [pickup.requestedDate]);
+
+          useEffect(() => {
+            if (delivery?.requestedDate !== '') {
+              const preferredDeliveryDateSelectionHandler = (countryCode, date) => {
+                dateSelectionWeekendHolidayCheck(
+                  dateSelectionIsWeekendHoliday,
+                  countryCode,
+                  date,
+                  'Preferred delivery date',
+                  setPreferredDeliveryDateAlertMessage,
+                  setIsPreferredDeliveryDateAlertVisible,
+                  onDateSelectionErrorHandler,
+                );
+              };
+              const dateSelection = new Date(delivery.requestedDate);
+              preferredDeliveryDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
+            }
+          }, [delivery.requestedDate]);
+
           return (
             <GridContainer>
               <Grid row>
@@ -265,6 +323,11 @@ class MtoShipmentForm extends Component {
                               pickup/load date should be your latest preferred pickup/load date, or the date you need to
                               be out of your origin residence.
                             </Hint>
+                            {isPreferredPickupDateAlertVisible && (
+                              <Alert type="info" headingLevel="h4">
+                                {preferredPickupDateAlertMessage}
+                              </Alert>
+                            )}
                             <DatePickerInput
                               name="pickup.requestedDate"
                               label="Preferred pickup date"
@@ -379,6 +442,11 @@ class MtoShipmentForm extends Component {
                               You will finalize an actual delivery date later by talking with your Customer Care
                               Representative once the shipment is underway.
                             </Hint>
+                            {isPreferredDeliveryDateAlertVisible && (
+                              <Alert type="info" headingLevel="h4">
+                                {preferredDeliveryDateAlertMessage}
+                              </Alert>
+                            )}
                             <DatePickerInput
                               name="delivery.requestedDate"
                               label="Preferred delivery date"
