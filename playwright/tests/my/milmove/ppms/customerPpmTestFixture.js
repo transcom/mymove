@@ -793,10 +793,7 @@ export class CustomerPpmPage extends CustomerPage {
       if (reviewHeading) {
         await this.page.locator('.reviewExpenses a').getByText('Edit').click();
       }
-      await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
     }
-
-    await this.page.locator('.reviewExpenses a').getByText('Edit').click();
     await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
