@@ -34,8 +34,8 @@ const (
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
 	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
-	// MTOShipmentTypeMotorhome is a Shipment Type for Motorhome
-	MTOShipmentTypeMotorhome MTOShipmentType = "MOTORHOME"
+	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
+	MTOShipmentTypeMobileHome MTOShipmentType = "MOBILE_HOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
 	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
 	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away
@@ -159,6 +159,7 @@ type MTOShipment struct {
 	ShipmentLocator                  *string                `db:"shipment_locator"`
 	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
+	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
 }
 
 // TableName overrides the table name used by Pop.
