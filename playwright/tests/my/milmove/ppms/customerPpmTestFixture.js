@@ -787,7 +787,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
     await this.page.locator('.reviewExpenses a').getByText('Edit').click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
@@ -795,7 +795,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToAddExpensePage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
