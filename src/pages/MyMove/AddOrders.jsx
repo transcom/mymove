@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
-import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
+import { GridContainer, Grid, Alert, Button } from '@trussworks/react-uswds';
 import { useNavigate } from 'react-router';
 
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
 import OrdersInfoForm from 'components/Customer/OrdersInfoForm/OrdersInfoForm';
-import { getServiceMember, createOrders, getResponseError } from 'services/internalApi';
+import { getServiceMember, createOrders, getResponseError, showCounselingOffices } from 'services/internalApi';
 import {
   updateOrders as updateOrdersAction,
   updateServiceMember as updateServiceMemberAction,
@@ -24,6 +24,14 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
 
   const handleBack = () => {
     navigate(generalRoutes.HOME_PATH);
+  };
+
+  const showCounseling = () => {
+    showCounselingOffices('62c1454f-97c2-417b-9c75-274f0bac02e3').then((res) => {
+      console.log(res);
+      debugger;
+      return null;
+    });
   };
 
   const submitOrders = async (values) => {
@@ -74,6 +82,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
   return (
     <GridContainer data-testid="main-container">
       <NotificationScrollToTop dependency={serverError} />
+      <Button onClick={showCounseling}>Hello</Button>
 
       {serverError && (
         <Grid row>

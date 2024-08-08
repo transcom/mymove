@@ -133,28 +133,26 @@ func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.App
 	return &officeList, nil
 }
 
+// return all the transportation offices in the GBLOC of the given duty location
 func FindCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
 
-	sqlQuery := `SELECT to2.*
-		FROM postal_code_to_gblocs pctg
-		JOIN addresses a on pctg.postal_code = a.postal_code
-		JOIN duty_locations dl on a.id = dl.address_id
-		JOIN transportation_offices to2 on pctg.gbloc = to2.gbloc
-		WHERE dl.provides_services_counseling = true and dl.id = $1
-		ORDER BY to2."name" asc`
+	// TO DOS:
+	// determine proper way to figure out counseling office
+	// do I need to update return to have less data?
+	// cleanup code
+	err := appCtx.DB().Q().
+		EagerPreload("Address").
+		Join("postal_code_to_gblocs", "postal_code_to_gblocs.gbloc = transportation_offices.gbloc").
+		Join("addresses", "postal_code_to_gblocs.postal_code = addresses.postal_code").
+		Join("duty_locations", "addresses.id = duty_locations.address_id").
+		Where("duty_locations.provides_services_counseling = true AND transportation_offices.name not like 'JPPSO%' AND transportation_offices.name not like 'CPPSO%' AND duty_locations.id = ?", (dutyLocationID)).
+		Order("transportation_offices.name asc").
+		All(&officeList)
 
-	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
-	if err := query.All(&officeList); err != nil {
-		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
-			return officeList, err
-		}
+	if err != nil {
+		return nil, err
 	}
-	for i := range officeList {
-		err := appCtx.DB().Load(&officeList[i], "Address")
-		if err != nil {
-			return officeList, err
-		}
-	}
+
 	return officeList, nil
 }

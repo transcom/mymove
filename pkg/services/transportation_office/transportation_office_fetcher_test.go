@@ -3,6 +3,7 @@ package transportationoffice
 import (
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -91,4 +92,57 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 	suite.Equal(transportationOffice3.Name, office[2].Name)
 	suite.Equal(transportationOffice3.ProvidesCloseout, true)
 
+}
+
+func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
+	factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "JPPSO",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	transportationOffice1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Holloman AFB - USAF",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Hill AFB - USAF",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	customAddress := models.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+
+	offices, err := FindCounselingOffice(suite.AppContextForTest(), destDutyLocation.ID)
+
+	suite.NoError(err)
+
+	// return should not include any JPPSO
+	suite.Len(offices, 2)
+
+	// return should be ordered by name asc
+	suite.Equal(transportationOffice2.Name, offices[0].Name)
+	suite.Equal(transportationOffice1.Name, offices[1].Name)
 }

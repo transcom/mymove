@@ -537,3 +537,7 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeInternalRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
+
+export async function showCounselingOffices(dutyLocationId) {
+  return makeInternalRequestRaw('transportation_offices.showCounselingOffices', { dutyLocationId });
+}

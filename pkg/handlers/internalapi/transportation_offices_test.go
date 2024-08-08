@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
@@ -119,4 +120,41 @@ func (suite *HandlerSuite) TestGetTransportationOfficesHandlerForbidden() {
 
 	response := handler.Handle(params)
 	suite.Assertions.IsType(&transportationofficeop.GetTransportationOfficesForbidden{}, response)
+}
+
+func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
+	user := factory.BuildDefaultUser(suite.DB())
+
+	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
+
+	customAddress := models.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
+
+	req := httptest.NewRequest("GET", "/transportation_offices/{dutyLocationId}/counseling_offices", nil)
+	req = suite.AuthenticateUserRequest(req, user)
+	params := transportationofficeop.ShowCounselingOfficesParams{
+		HTTPRequest:    req,
+		DutyLocationID: strfmt.UUID(destDutyLocation.ID.String()),
+	}
+
+	handler := ShowCounselingOfficesHandler{
+		HandlerConfig:                suite.HandlerConfig(),
+		TransportationOfficesFetcher: fetcher}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&transportationofficeop.ShowCounselingOfficesOK{}, response)
+	responsePayload := response.(*transportationofficeop.ShowCounselingOfficesOK)
+
+	// Validate outgoing payload
+	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
 }
