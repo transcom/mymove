@@ -34,7 +34,7 @@ func NewRequestLineOfAccounting(ctx *middleware.Context, handler RequestLineOfAc
 
 # Fetch line of accounting
 
-Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).
+Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find "Active" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.
 */
 type RequestLineOfAccounting struct {
 	Context *middleware.Context

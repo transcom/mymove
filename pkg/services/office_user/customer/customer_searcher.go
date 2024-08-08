@@ -22,21 +22,21 @@ func NewCustomerSearcher() services.CustomerSearcher {
 
 type QueryOption func(*pop.Query)
 
-func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *services.SearchCustomersParams) (models.ServiceMembers, int, error) {
+func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *services.SearchCustomersParams) (models.ServiceMemberSearchResults, int, error) {
 	if params.DodID == nil && params.CustomerName == nil {
 		verrs := validate.NewErrors()
 		verrs.Add("search key", "DOD ID or customer name must be provided")
-		return models.ServiceMembers{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+		return models.ServiceMemberSearchResults{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
 	if params.CustomerName != nil && params.DodID != nil {
 		verrs := validate.NewErrors()
 		verrs.Add("search key", "search by multiple keys is not supported")
-		return models.ServiceMembers{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
+		return models.ServiceMemberSearchResults{}, 0, apperror.NewInvalidInputError(uuid.Nil, nil, verrs, "")
 	}
 
 	if !appCtx.Session().Roles.HasRole(roles.RoleTypeServicesCounselor) && !appCtx.Session().Roles.HasRole(roles.RoleTypeHQ) {
-		return models.ServiceMembers{}, 0, apperror.NewForbiddenError("not authorized to preform this search")
+		return models.ServiceMemberSearchResults{}, 0, apperror.NewForbiddenError("not authorized to preform this search")
 	}
 
 	err := appCtx.DB().RawQuery("SET pg_trgm.similarity_threshold = 0.1").Exec()
@@ -70,7 +70,8 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		service_members.suffix,
 		service_members.telephone,
 		service_members.updated_at,
-		service_members.user_id
+		service_members.user_id,
+		similarity(service_members.last_name, f_unaccent(lower($1))) + similarity(service_members.first_name, f_unaccent(lower($1))) as total_sim
 	FROM service_members AS service_members
 		JOIN users ON users.id = service_members.user_id
 		LEFT JOIN orders ON orders.service_member_id = service_members.id`
@@ -91,12 +92,10 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		}
 		query = appCtx.DB().RawQuery(rawquery, params.DodID)
 	} else {
-		rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name)) ) distinct_customers`
+		rawquery += ` f_unaccent(lower($1)) % searchable_full_name(first_name, last_name)) ) distinct_customers ORDER BY total_sim DESC`
 		if params.Sort != nil && params.Order != nil {
 			sortTerm := parameters[*params.Sort]
-			rawquery += ` ORDER BY ` + sortTerm + ` ` + *params.Order
-		} else {
-			rawquery += ` ORDER BY f_unaccent(lower($1)) <-> searchable_full_name(first_name, last_name) `
+			rawquery += `, ` + sortTerm + ` ` + *params.Order
 		}
 		query = appCtx.DB().RawQuery(rawquery, params.CustomerName)
 	}
@@ -111,11 +110,11 @@ func (s customerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *
 		}
 	}
 
-	var customers models.ServiceMembers
+	var customers models.ServiceMemberSearchResults
 	err = query.Paginate(int(params.Page), int(params.PerPage)).All(&customers)
 
 	if err != nil {
-		return models.ServiceMembers{}, 0, apperror.NewQueryError("Customer", err, "")
+		return models.ServiceMemberSearchResults{}, 0, apperror.NewQueryError("Customer", err, "")
 	}
 
 	return customers, query.Paginator.TotalEntriesSize, nil
