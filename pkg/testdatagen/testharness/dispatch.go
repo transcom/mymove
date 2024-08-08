@@ -125,6 +125,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithServiceItemsandPaymentRequestReviewedForQAE": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE(appCtx)
 	},
+	"HHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE(appCtx)
+	},
 	"HHGMoveInSITWithAddressChangeRequestOver50Miles": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx)
 	},
