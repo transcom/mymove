@@ -973,6 +973,7 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
 	now := time.Now()
+	sitStatusService := sitstatus.NewShipmentSITStatus()
 
 	// Test with bad string key
 	suite.Run("bad validatorKey - failure", func() {
@@ -1161,9 +1162,60 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test that when an approved DDDSIT sitDestination is updated the serviceItem stays approved
 	suite.Run("UpdateMTOServiceItemPrimeValidator - Successfully Update Approved ServiceItem sitDepartureDate", func() {
+		year, month, day := now.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+		// We need to create a destination first day sit in order to properly calculate authorized end date
+		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate:     &contactDatePlusGracePeriod,
+					SITEntryDate:         &aMonthAgo,
+					SITCustomerContacted: &now,
+					SITRequestedDelivery: &sitRequestedDelivery,
+					Status:               "APPROVED",
+				},
+			},
+		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
 				LinkOnly: true,
 			},
 			{
@@ -1192,6 +1244,14 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
 		}
+		// Set shipment SIT status
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
+		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
+		suite.MustSave(&shipmentWithCalculatedStatus)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
+
+		// Update MTO service item
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.NoError(err)
@@ -1199,47 +1259,6 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 		suite.Equal(updatedServiceItem.Status, models.MTOServiceItemStatusApproved)
 	})
-
-	// // Test that
-	// suite.Run("UpdateMTOServiceItemPrimeValidator - Successfully Update Approved ServiceItem sitDepartureDate", func() {
-	// 	oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
-	// 			LinkOnly: true,
-	// 		},
-	// 		{
-	// 			Model: models.ReService{
-	// 				Code: models.ReServiceCodeDDDSIT,
-	// 			},
-	// 		},
-	// 		{
-	// 			Model: models.MTOServiceItem{
-	// 				SITDepartureDate: &now,
-	// 				Status:           models.MTOServiceItemStatusApproved,
-	// 			},
-	// 		},
-	// 	}, nil)
-
-	// 	newServiceItemPrime := oldServiceItemPrime
-	// 	newServiceItemPrime.RequestedApprovalsRequestedStatus = nil
-
-	// 	// Change sitDepartureDate:
-	// 	newDate := time.Now().AddDate(0, 0, 5)
-	// 	newServiceItemPrime.SITDepartureDate = &newDate
-
-	// 	serviceItemData := updateMTOServiceItemData{
-	// 		updatedServiceItem:  newServiceItemPrime,
-	// 		oldServiceItem:      oldServiceItemPrime,
-	// 		verrs:               validate.NewErrors(),
-	// 		availabilityChecker: checker,
-	// 	}
-	// 	updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
-
-	// 	suite.NoError(err)
-	// 	suite.NotNil(updatedServiceItem)
-	// 	suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
-	// 	suite.Equal(updatedServiceItem.Status, models.MTOServiceItemStatusApproved)
-	// })
 }
 
 func (suite *MTOServiceItemServiceSuite) createServiceItem() (string, models.MTOServiceItem, models.Move) {
