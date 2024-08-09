@@ -168,7 +168,7 @@ test.describe('Customer Support User Flows', () => {
     });
 
     test('is able to access view documents in payment request page', async ({ page, officePage }) => {
-      const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE();
+      const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE();
       const moveLocator = move.locator;
 
       await officePage.signInAsNewCustomerServiceRepresentativeUser();
@@ -180,6 +180,18 @@ test.describe('Customer Support User Flows', () => {
 
       // should see `Review service items` header if page loaded successfully
       await expect(page.getByText('Review service items')).toBeVisible();
+    });
+
+    test('is able to see no documents provided text in payment request page', async ({ page, officePage }) => {
+      const move = await officePage.testHarness.buildHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE();
+      const moveLocator = move.locator;
+
+      await officePage.signInAsNewCustomerServiceRepresentativeUser();
+      await officePage.csrSearchForAndNavigateToMove(moveLocator);
+
+      await page.getByText('Payment requests').click();
+
+      await expect(page.getByText('No documents provided')).toBeVisible();
     });
   });
 });
