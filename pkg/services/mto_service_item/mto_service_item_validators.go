@@ -107,7 +107,9 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
-	// Checks that the SITDepartureDate is not later than the authorized end date
+	// Checks that the SITDepartureDate
+	// - is not later than the authorized end date
+	// - is not before the current entry date
 	err = serviceItemData.checkSITDepartureDate(appCtx)
 	if err != nil {
 		return err
@@ -376,7 +378,9 @@ func retrieveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*mode
 	return &shipment, nil
 }
 
-// checkSITDepartureDate checks that the SITDepartureDate is not later than the authorized end date
+// checkSITDepartureDate checks that the SITDepartureDate:
+// - is not later than the authorized end date
+// - is not before the current entry date
 func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
@@ -394,6 +398,18 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppCo
 			return err
 		}
 
+		// Set the SIT entry date we are going to use for comparison
+		if v.updatedServiceItem.SITEntryDate == nil && v.oldServiceItem.SITEntryDate == nil {
+			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have a SIT entry date attached.", v.updatedServiceItem.ID))
+		}
+		SITEntryDate := v.oldServiceItem.SITEntryDate
+		if v.updatedServiceItem.SITEntryDate != nil {
+			SITEntryDate = v.updatedServiceItem.SITEntryDate
+		}
+		// Check that departure date is not before the current entry date
+		if v.updatedServiceItem.SITDepartureDate.Before(*SITEntryDate) {
+			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before the SIT entry date.")
+		}
 		// SITDepartureDate case for origin SIT handling
 		if slices.Contains(OriginReServiceCodesAllowedForSITDepartureDateUpdate, v.oldServiceItem.ReService.Code) {
 			if shipment.OriginSITAuthEndDate == nil {
@@ -401,8 +417,6 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppCo
 			}
 			if v.updatedServiceItem.SITDepartureDate.After(*shipment.OriginSITAuthEndDate) {
 				v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set after the authorized end date.")
-				return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
-					"Invalid input found while validating the service item")
 			}
 		}
 		// SITDepartureDate case for destination SIT handling
@@ -412,8 +426,6 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppCo
 			}
 			if v.updatedServiceItem.SITDepartureDate.After(*shipment.DestinationSITAuthEndDate) {
 				v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set after the authorized end date.")
-				return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
-					"Invalid input found while validating the service item")
 			}
 		}
 	}

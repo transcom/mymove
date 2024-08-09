@@ -972,6 +972,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
+	before := time.Now().AddDate(0, 0, -3)
 	now := time.Now()
 	sitStatusService := sitstatus.NewShipmentSITStatus()
 
@@ -1226,12 +1227,14 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			{
 				Model: models.MTOServiceItem{
 					SITDepartureDate: &now,
+					SITEntryDate:     &before,
 					Status:           models.MTOServiceItemStatusApproved,
 				},
 			},
 		}, nil)
 
 		newServiceItemPrime := oldServiceItemPrime
+		newServiceItemPrime.SITEntryDate = nil
 		newServiceItemPrime.RequestedApprovalsRequestedStatus = nil
 
 		// Change sitDepartureDate:

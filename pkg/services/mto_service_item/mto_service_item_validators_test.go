@@ -20,6 +20,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
 	now := time.Now()
+	before := now.AddDate(0, 0, -3)
 	later := now.AddDate(0, 0, 3)
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
 		// Create a service item to serve as the old object
@@ -646,6 +647,11 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 					Model:    mtoShipment,
 					LinkOnly: true,
 				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &before,
+					},
+				},
 			}, nil)
 			newSITServiceItem := oldSITServiceItem
 			newSITServiceItem.SITDepartureDate = &later
@@ -655,12 +661,59 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 				verrs:              validate.NewErrors(),
 			}
 			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
-			suite.Error(err)
-			suite.IsType(apperror.InvalidInputError{}, err)
+			suite.NoError(err) // Just verrs
 			suite.True(serviceItemData.verrs.HasAny())
 			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
 			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set after the authorized end date.")
-			suite.Contains(err.Error(), "Invalid input found while validating the service item")
+		}
+
+	})
+	suite.Run("SITDepartureDate - errors when set before the SIT entry date", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeDOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &later,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &before
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err) // Just verrs
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before the SIT entry date.")
 		}
 
 	})
