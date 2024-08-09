@@ -4,126 +4,126 @@
 
 
 .container {
-    max-width: 960px;
-    @include u-padding-left(0);
-    @include u-padding-right(0);
-    margin-top: -3vh;
-  }
+  max-width: 960px;
+  @include u-padding-left(0);
+  @include u-padding-right(0);
+  margin-top: 1.5vh;
+}
 
 .tabContent {
-    background: $bg-gray;
-    scroll-behavior: smooth;
-    flex-grow: 1;
+  background: $bg-gray;
+  scroll-behavior: smooth;
+  flex-grow: 1;
 
-    h1,
-    h2,
-    h3 {
-      color: $mm-blue;
-    }
-    h1 {
-      @include u-margin-bottom(3);
-    }
-    h2 {
-      @include u-margin-top(0.5);
-      @include u-margin-bottom(2);
-    }
-    h3 {
-      @include u-margin-top(4);
-      @include u-margin-bottom(1.5);
-    }
-
-    @include u-padding-top(8);
-
-    .pageHeader {
-      @include u-margin-y(3);
-
-      h1 {
-        @include u-margin(0);
-      }
-    }
-
-    h1:first-child,
-    .pageHeader:first-child,
-    nav,
-    .emptyMessage p {
-      @include u-margin-top(0);
-    }
-
-    h1 {
-      @include u-margin-bottom(4);
-    }
-
-    .tooMoveDetailsHeadingFlexbox {
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .tooMoveDetailsH1 {
-      @include u-margin-bottom(0);
-    }
-
-    .gridContainer {
-      .shipmentCard {
-        @include u-padding-left(4);
-      }
-    }
-
-    .alertWithButton {
-      span:first-child {
-        display: flex;
-        button {
-          padding-left: 0;
-        }
-      }
-      :nth-child(2) {
-        button {
-          padding-right: 0;
-          color: $base-darker;
-        }
-      }
-    }
+  h1,
+  h2,
+  h3 {
+    color: $mm-blue;
+  }
+  h1 {
+    @include u-margin-bottom(3);
+  }
+  h2 {
+    @include u-margin-top(0.5);
+    @include u-margin-bottom(2);
+  }
+  h3 {
+    @include u-margin-top(4);
+    @include u-margin-bottom(1.5);
   }
 
-  .section {
-    background: $bg-white;
-    @include u-margin-top(2);
-    @include u-padding(5);
-    @include u-radius('05');
-    @include u-border('base-lighter');
-    @include u-border('1px');
-    h2 {
-      @include u-margin(0);
-    }
-    h3 {
-      @include u-margin-top(1);
-    }
-    dl {
+  @include u-padding-bottom(2);
+
+  .pageHeader {
+    @include u-margin-y(3);
+
+    h1 {
       @include u-margin(0);
     }
   }
 
-  .sideBySideDetails {
+  h1:first-child,
+  .pageHeader:first-child,
+  nav,
+  .emptyMessage p {
+    @include u-margin-top(0);
+  }
+
+  h1 {
+    @include u-margin-bottom(4);
+  }
+
+  .tooMoveDetailsHeadingFlexbox {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
+    align-items: baseline;
   }
 
-  .detailsRight {
-    @include u-margin-bottom(3);
+  .tooMoveDetailsH1 {
+    @include u-margin-bottom(0);
   }
 
-  .detailsLeft {
-    @include u-margin-right(2);
-    @include u-margin-bottom(3);
+  .gridContainer {
+    .shipmentCard {
+      @include u-padding-left(4);
+    }
   }
 
-  .qaeRemarks {
-    width: 711px;
+  .alertWithButton {
+    span:first-child {
+      display: flex;
+      button {
+        padding-left: 0;
+      }
+    }
+    :nth-child(2) {
+      button {
+        padding-right: 0;
+        color: $base-darker;
+      }
+    }
   }
+}
 
-  .label {
-    width: 200px !important;
-    @include u-padding-x(1 !important);
-    @include u-padding-y(1.5 !important);
+.section {
+  background: $bg-white;
+  @include u-margin-top(2);
+  @include u-padding(5);
+  @include u-radius('05');
+  @include u-border('base-lighter');
+  @include u-border('1px');
+  h2 {
+    @include u-margin(0);
   }
+  h3 {
+    @include u-margin-top(1);
+  }
+  dl {
+    @include u-margin(0);
+  }
+}
+
+.sideBySideDetails {
+  display: flex;
+  justify-content: space-between;
+}
+
+.detailsRight {
+  @include u-margin-bottom(3);
+}
+
+.detailsLeft {
+  @include u-margin-right(2);
+  @include u-margin-bottom(3);
+}
+
+.qaeRemarks {
+  width: 711px;
+}
+
+.label {
+  width: 200px !important;
+  @include u-padding-x(1 !important);
+  @include u-padding-y(1.5 !important);
+}

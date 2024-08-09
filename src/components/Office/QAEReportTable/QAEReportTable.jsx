@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button, Tag } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import styles from './QAEReportTable.module.scss';
 
@@ -27,6 +27,7 @@ const QAEReportTable = ({
   const location = useLocation();
   const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
   const [reportToView, setReportToView] = useState(undefined);
+  const navigate = useNavigate();
 
   // whether or not the delete report modal is displaying
   const toggleDeleteReportModal = (reportID) => {
@@ -34,9 +35,13 @@ const QAEReportTable = ({
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const handleViewReportClick = (report) => {
-    setReportToView(report);
-    setIsViewReportModalVisible(true);
+  // const handleViewReportClick = (report) => {
+  //   setReportToView(report);
+  //   setIsViewReportModalVisible(true);
+  // };
+
+  const handleViewReportClick = (reportID) => {
+    navigate(`/moves/${moveCode}/evaluation-report/${reportID}`);
   };
 
   // this handles the close button at the bottom of the view report modal
@@ -78,11 +83,20 @@ const QAEReportTable = ({
         </td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
+            // <Button
+            //   type="button"
+            //   id={report.id}
+            //   className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
+            //   onClick={() => handleViewReportClick(report)}
+            //   data-testid="viewReport"
+            // >
+            //   View report
+            // </Button>
             <Button
               type="button"
               id={report.id}
               className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
-              onClick={() => handleViewReportClick(report)}
+              onClick={() => handleViewReportClick(report.id)}
               data-testid="viewReport"
             >
               View report
