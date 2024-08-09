@@ -1329,7 +1329,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Nil(serviceItem)
 		suite.Error(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
-		suite.Contains(err.Error(), "the SIT Entry Date cannot be before the First Available Delivery Date")
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+			serviceItemDDFSIT.SITEntryDate.Format("2006-01-02"),
+			serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
 	})
 
 	// Successful creation of DDASIT service item

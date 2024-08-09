@@ -409,8 +409,8 @@ func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppCont
 			for _, contact := range contacts {
 				if !contact.FirstAvailableDeliveryDate.IsZero() &&
 					v.updatedServiceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
-					return apperror.NewUnprocessableEntityError(
-						"the SIT Entry Date cannot be before the First Available Delivery Date")
+					return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+						v.updatedServiceItem.SITEntryDate.Format("2006-01-02"), contact.FirstAvailableDeliveryDate.Format("2006-01-02")))
 				}
 			}
 		}
@@ -690,7 +690,8 @@ func (o *mtoServiceItemCreator) checkSITEntryDateAndFADD(serviceItem *models.MTO
 	for _, contact := range serviceItem.CustomerContacts {
 		if !contact.FirstAvailableDeliveryDate.IsZero() &&
 			serviceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
-			return apperror.NewUnprocessableEntityError("the SIT Entry Date cannot be before the First Available Delivery Date")
+			return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+				serviceItem.SITEntryDate.Format("2006-01-02"), contact.FirstAvailableDeliveryDate.Format("2006-01-02")))
 		}
 	}
 

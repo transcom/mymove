@@ -1010,6 +1010,12 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemValidators() {
 
 		suite.Error(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
-		suite.Contains(err.Error(), "the SIT Entry Date cannot be before the First Available Delivery Date")
+		// Format the dates as "YYYY-MM-DD" to match the error message
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+			serviceItem.SITEntryDate.Format("2006-01-02"),
+			serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
 	})
 }
