@@ -67,7 +67,7 @@ func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
 }
 
 // ProcessTPPSReportEntryForOneRow takes one data row, cleans it, and parses it into a string representation of the TPPSData struct
-func ProcessTPPSReportEntryForOneRow(row []string) TPPSData {
+func ParseTPPSReportEntryForOneRow(row []string) TPPSData {
 	tppsReportEntryForOnePaymentRequest := strings.Split(row[0], "\t")
 	var tppsData TPPSData
 	var processedTPPSReportEntryForOnePaymentRequest []string
@@ -89,6 +89,7 @@ func ProcessTPPSReportEntryForOneRow(row []string) TPPSData {
 					}
 				}
 			}
+			processedEntry = strings.TrimSpace(processedEntry)
 			// After we have fully processed an entry and have built a string, store it
 			processedTPPSReportEntryForOnePaymentRequest = append(processedTPPSReportEntryForOnePaymentRequest, processedEntry)
 		}
@@ -139,7 +140,7 @@ func (e *EDI) Parse(stringTPPSPaidInvoiceReport string) ([]TPPSData, error) {
 			endOfFile = true
 		}
 		if row != nil && !endOfFile {
-			tppsReportEntryForOnePaymentRequest := ProcessTPPSReportEntryForOneRow(row)
+			tppsReportEntryForOnePaymentRequest := ParseTPPSReportEntryForOneRow(row)
 			if tppsReportEntryForOnePaymentRequest.InvoiceNumber == "Invoice Number From Invoice" {
 				rowIsHeader = true
 				headersAreCorrect = VerifyHeadersParsedCorrectly(tppsReportEntryForOnePaymentRequest)
