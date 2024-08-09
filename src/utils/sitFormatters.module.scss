@@ -27,3 +27,10 @@ input.approvedDaysInput {
     margin-top: -10px;
     margin-left: -5px;
 }
+
+.label {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
