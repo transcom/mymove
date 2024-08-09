@@ -97,6 +97,7 @@ type SearchMovesParams struct {
 	DodID                 *string
 	Emplid                *string
 	CustomerName          *string
+	PaymentRequestCode    *string
 	DestinationPostalCode *string
 	OriginPostalCode      *string
 	Status                []string
