@@ -38,7 +38,7 @@ describe('SubmitSITExtensionModal', () => {
     await act(() => userEvent.type(officeRemarksInput, 'Approved!'));
     await act(() => userEvent.click(submitBtn));
 
-    const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days'));
+    const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days').subtract(1, 'day'));
     await waitFor(() => {
       expect(mockOnSubmit).toHaveBeenCalled();
       expect(mockOnSubmit).toHaveBeenCalledWith({
@@ -76,7 +76,7 @@ describe('SubmitSITExtensionModal', () => {
     await act(() => userEvent.clear(daysApprovedInput));
     await act(() => userEvent.type(daysApprovedInput, '280'));
 
-    const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days'));
+    const expectedEndDate = formatDateForDatePicker(moment().add(220, 'days').subtract(1, 'day'));
     expect(sitEndDateInput.value).toBe(expectedEndDate);
   });
 
@@ -85,7 +85,7 @@ describe('SubmitSITExtensionModal', () => {
     await render(<SubmitSITExtensionModal onSubmit={mockOnSubmit} onClose={() => {}} {...defaultValues} />);
     const sitEndDateInput = screen.getByPlaceholderText('DD MMM YYYY');
     await act(() => userEvent.clear(sitEndDateInput));
-    const newEndDate = formatDateForDatePicker(moment().add(220, 'days'));
+    const newEndDate = formatDateForDatePicker(moment().add(220, 'days').subtract(1, 'day'));
     await act(() => userEvent.type(sitEndDateInput, newEndDate));
     await fireEvent.blur(sitEndDateInput);
     const daysApprovedInput = screen.getByTestId('daysApproved');
