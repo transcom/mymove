@@ -27,7 +27,7 @@ func (suite *ModelSuite) TestInvalidUsPostRegionCity() {
 		"uspost_region_city_nm":        {"USPostRegionCityNm can not be blank."},
 		"usprc_prfd_lst_line_ctyst_nm": {"UsprcPrfdLstLineCtystNm can not be blank."},
 		"usprc_county_nm":              {"UsprcCountyNm can not be blank."},
-		"state":                        {"State can not be blank"},
+		"state":                        {"State can not be blank."},
 	}
 
 	suite.verifyValidationErrors(&usPostRegionCity, expErrors)
