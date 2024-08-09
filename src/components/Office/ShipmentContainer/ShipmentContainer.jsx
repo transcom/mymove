@@ -14,7 +14,7 @@ const ShipmentContainer = ({ id, className, children, shipmentType }) => {
       'container--accent--default':
         shipmentType === null ||
         shipmentType === SHIPMENT_OPTIONS.BOAT ||
-        shipmentType === SHIPMENT_OPTIONS.MOTOR_HOME ||
+        shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME ||
         !Object.values(SHIPMENT_OPTIONS).includes(shipmentType),
       'container--accent--hhg': shipmentType === SHIPMENT_OPTIONS.HHG,
       'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,

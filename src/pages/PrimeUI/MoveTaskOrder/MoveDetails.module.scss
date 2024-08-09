@@ -52,6 +52,12 @@
   :global(.usa-select) {
     width: 20%;
   }
+
+  .editButton {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 2px #005ea2;
+    color: #005ea2;
+  }
 }
 
 .specialMovesLabel {
