@@ -17,4 +17,17 @@ func (suite *MoveServiceSuite) TestMoveCanceler() {
 		suite.NoError(err)
 		suite.Equal(m.Status, models.MoveStatusCANCELED)
 	})
+
+	suite.Run("fails to cancel move with approved hhg shipment", func() {
+		move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusApproved,
+				},
+			},
+		}, nil)
+
+		_, err := moveCanceler.CancelMove(suite.AppContextForTest(), move.ID)
+		suite.Error(err)
+	})
 }
