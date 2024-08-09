@@ -179,6 +179,14 @@ const usePaymentRequestQueriesReturnValue = {
   isSuccess: true,
 };
 
+const usePaymentRequestQueriesReturnNoDocs = {
+  ...usePaymentRequestQueriesReturnValue,
+  paymentRequest: {
+    ...usePaymentRequestQueriesReturnValue.paymentRequest,
+    proofOfServiceDocs: [],
+  },
+};
+
 const usePaymentRequestQueriesReturnValuePending = {
   ...usePaymentRequestQueriesReturnValue,
   paymentRequest: {
@@ -259,6 +267,18 @@ describe('PaymentRequestReview', () => {
     });
   });
 
+  describe('with data loaded and no docs', () => {
+    it('renders text instead of the DocumentViewer', () => {
+      usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnNoDocs);
+      render(
+        <ReactQueryWrapper>
+          <PaymentRequestReview {...requiredProps} />
+        </ReactQueryWrapper>,
+      );
+      const h2 = screen.getByRole('heading', { name: 'No documents provided' });
+      expect(h2).toBeInTheDocument();
+    });
+  });
   describe('with data loaded', () => {
     usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnValue);
     const wrapper = mount(
