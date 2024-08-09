@@ -53,10 +53,10 @@ func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 }
 
 // ProcessFile parses a TPPS paid invoice report response and updates the payment request status
-func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, _ string, stringTPPSPaidInvoiceReport string) error {
+func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, TPPSPaidInvoiceReportFilePath string, stringTPPSPaidInvoiceReport string) error {
 	tppsPaidInvoiceReport := tppsReponse.EDI{}
 
-	tppsData, err := tppsPaidInvoiceReport.Parse(stringTPPSPaidInvoiceReport)
+	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath)
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")
@@ -67,7 +67,7 @@ func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContex
 	appCtx.Logger().Info("RECEIVED: TPPS Paid Invoice Report Processor received a TPPS Paid Invoice Report")
 
 	if tppsData != nil {
-		verrs, errs := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData, "", stringTPPSPaidInvoiceReport)
+		verrs, errs := t.StoreTPPSPaidInvoiceReportInDatabase(appCtx, tppsData)
 		if err != nil {
 			return errs
 		}
@@ -117,26 +117,20 @@ func priceToMillicents(rawPrice string) (int, error) {
 		return 0, fmt.Errorf("could not parse price [%s]: %w", rawPrice, err)
 	}
 	var millicents int
-	if expectedDecimalPlaces == 0 {
-		// . cents = 0 millicents
-		millicents = (integerPart * 100000)
-	} else if expectedDecimalPlaces == 1 {
-		// .5 cents = 50000 millicents
-		millicents = (integerPart * 100000) + (fractionalPart * 10000)
+	millicents = (integerPart * 100000)
+	if expectedDecimalPlaces == 1 {
+		millicents += (fractionalPart * 10000)
 	} else if expectedDecimalPlaces == 2 {
-		// .25 cents = 25000 millicents
-		millicents = (integerPart * 100000) + (fractionalPart * 1000)
+		millicents += (fractionalPart * 1000)
 	} else if expectedDecimalPlaces == 3 {
-		// .025 cents = 25000 millicents
-		millicents = (integerPart * 100000) + (fractionalPart * 100)
+		millicents += (fractionalPart * 100)
 	} else if expectedDecimalPlaces == 4 {
-		// .0025 cents = 250 millicents
-		millicents = (integerPart * 100000) + (fractionalPart * 10)
+		millicents += (fractionalPart * 10)
 	}
 	return millicents, nil
 }
 
-func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(appCtx appcontext.AppContext, tppsData []tppsReponse.TPPSData, _ string, stringTPPSPaidInvoiceReport string) (*validate.Errors, error) {
+func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(appCtx appcontext.AppContext, tppsData []tppsReponse.TPPSData) (*validate.Errors, error) {
 	var verrs *validate.Errors
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {

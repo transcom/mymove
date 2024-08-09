@@ -122,12 +122,10 @@ func ParseTPPSReportEntryForOneRow(row []string) TPPSData {
 }
 
 // Parse takes in a TPPS paid invoice report file and parses it into an array of TPPSData structs
-func (e *EDI) Parse(stringTPPSPaidInvoiceReport string) ([]TPPSData, error) {
+func (e *EDI) Parse(stringTPPSPaidInvoiceReportFilePath string) ([]TPPSData, error) {
 	var tppsDataFile []TPPSData
 
-	filename := "/Users/m.traskowsky_cn/Desktop/MILMOVE-en20240731.csv" // test file 1
-	// filename := "/Users/m.traskowsky_cn/Desktop/MILMOVE-en20240801.csv" // test file 2
-	csvFile, _ := os.Open(filepath.Clean(filename))
+	csvFile, _ := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
 	endOfFile := false
 	headersAreCorrect := false
 

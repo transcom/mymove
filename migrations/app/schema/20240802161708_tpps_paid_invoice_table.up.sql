@@ -1,12 +1,11 @@
 CREATE TABLE IF NOT EXISTS tpps_paid_invoice_reports (
      id uuid NOT NULL,
-     -- payment_request_id uuid,
      invoice_number varchar not null,
      tpps_created_doc_date timestamp,
      seller_paid_date timestamp,
      invoice_total_charges_in_millicents integer,
-     line_description varchar, -- service item code IE (DOP, DUPK, DLH, FSC, DDP)
-     product_description varchar,  -- same values as above for line desciprtion service item code IE (DOP, DUPK, DLH, FSC, DDP)
+     line_description varchar,
+     product_description varchar,
      line_billing_units integer,
      line_unit_price_in_millicents integer,
      line_net_charge_in_millicents integer,
@@ -29,6 +28,27 @@ CREATE TABLE IF NOT EXISTS tpps_paid_invoice_reports (
 );
 
 COMMENT on COLUMN tpps_paid_invoice_reports.invoice_number IS 'Invoice number from the report that should match a payment_request_number';
-
+COMMENT on COLUMN tpps_paid_invoice_reports.tpps_created_doc_date IS 'Date that TPPS created the invoice report';
+COMMENT on COLUMN tpps_paid_invoice_reports.seller_paid_date IS 'Seller paid date';
+COMMENT on COLUMN tpps_paid_invoice_reports.invoice_total_charges_in_millicents IS 'Total charges for the invoice represented in millicents';
+COMMENT on COLUMN tpps_paid_invoice_reports.line_description IS 'Reservice code for the service item';
+COMMENT on COLUMN tpps_paid_invoice_reports.product_description IS 'Reservice code for the service item';
+COMMENT on COLUMN tpps_paid_invoice_reports.line_billing_units IS 'Line billing units';
+COMMENT on COLUMN tpps_paid_invoice_reports.line_unit_price_in_millicents IS 'Unit price represented in millicents';
+COMMENT on COLUMN tpps_paid_invoice_reports.line_net_charge_in_millicents IS 'Net charge represented in millicents';
+COMMENT on COLUMN tpps_paid_invoice_reports.po_tcn IS 'PO/TCN';
+COMMENT on COLUMN tpps_paid_invoice_reports.line_number IS 'Line number';
+COMMENT on COLUMN tpps_paid_invoice_reports.first_note_code IS 'Code of the first note';
+COMMENT on COLUMN tpps_paid_invoice_reports.first_note_description IS 'Description of the first note';
+COMMENT on COLUMN tpps_paid_invoice_reports.first_note_to IS 'Note of the first note';
+COMMENT on COLUMN tpps_paid_invoice_reports.first_note_message IS 'Message of the first note';
+COMMENT on COLUMN tpps_paid_invoice_reports.second_note_code IS 'Code of the second note';
+COMMENT on COLUMN tpps_paid_invoice_reports.second_note_description IS 'Description of the second note';
+COMMENT on COLUMN tpps_paid_invoice_reports.second_note_to IS 'Note of the second note';
+COMMENT on COLUMN tpps_paid_invoice_reports.second_note_message IS 'Message of the second note';
+COMMENT on COLUMN tpps_paid_invoice_reports.third_note_code IS 'Code of the third note';
+COMMENT on COLUMN tpps_paid_invoice_reports.third_note_code_description IS 'Description of the third note';
+COMMENT on COLUMN tpps_paid_invoice_reports.third_note_code_to IS 'Note of the third note';
+COMMENT on COLUMN tpps_paid_invoice_reports.third_note_code_message IS 'Message of the third note';
 
 COMMENT ON TABLE tpps_paid_invoice_reports IS 'Contains data populated from processing the TPPS paid invoice report';
