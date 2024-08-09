@@ -2,8 +2,10 @@
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
+  let tac;
   test.beforeEach(async ({ scPage }) => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
+    tac = await scPage.testHarness.buildGoodTACAndLoaCombination();
     await scPage.navigateToMove(move.locator);
   });
 
@@ -83,5 +85,53 @@ test.describe('Services counselor user', () => {
     // Submit the move and verify the success alert displays
     await page.getByRole('button', { name: 'Yes, submit' }).click();
     await expect(page.getByText('Move submitted.')).toBeVisible();
+  });
+
+  test('Service Counselor can identify an active NTS LOA based on the date in which they are submitting the move', async ({
+    page,
+    scPage,
+  }) => {
+    // this test is almost identical to the NTSR test
+    await scPage.addNTSShipment();
+
+    // Find the card for the NTS shipment, then click the edit button
+    const container = await scPage.getShipmentContainerByType('NTS');
+    await container.getByRole('button', { name: 'Edit Shipment' }).click();
+    await scPage.waitForPage.editNTSShipment();
+
+    // Click the "Add or edit codes" button to be taken to the orders form
+    await page.getByRole('button', { name: 'Add or edit codes' }).click();
+    await scPage.waitForPage.moveOrders();
+
+    // Fill out the orders details
+    await page.getByLabel('Orders number').fill('1234');
+    await page.getByLabel('Date issued').fill('1234');
+    await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
+    await page.getByLabel('Orders type', { exact: true }).selectOption({ label: 'Permanent Change Of Station (PCS)' });
+    await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
+
+    // Fill out the HHG and NTS accounting codes
+    await page.getByTestId('hhgTacInput').fill(tac.tac);
+    const today = new Date();
+    const formattedDate = new Intl.DateTimeFormat('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(today);
+    await page.locator('input[name="issueDate"]').fill(formattedDate);
+
+    await page.getByTestId('hhgSacInput').fill('4K988AS098F');
+    // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
+    await page.getByTestId('ntsTacInput').fill(tac.tac);
+    const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
+    await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
+
+    const loaMissingErrorMessage = page.getByText('Unable to find a LOA based on the provided details');
+    const loaInvalidErrorMessage = page.getByText(
+      'The LOA identified based on the provided details appears to be invalid',
+    );
+
+    await expect(loaMissingErrorMessage).not.toBeVisible();
+    await expect(loaInvalidErrorMessage).not.toBeVisible();
   });
 });
