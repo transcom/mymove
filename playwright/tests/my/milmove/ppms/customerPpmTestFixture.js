@@ -785,6 +785,16 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToEditExpensePage() {
     await this.page.getByRole('link', { name: 'Edit' }).nth(3).click();
+
+    try {
+      await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
+    } catch (error) {
+      const reviewHeading = await this.page.$('role=heading[name="Review"]');
+      if (reviewHeading) {
+        await this.page.locator('.reviewExpenses a').getByText('Edit').click();
+      }
+    }
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
@@ -792,7 +802,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToAddExpensePage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
