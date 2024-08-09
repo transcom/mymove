@@ -15,9 +15,11 @@ const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+  let tac;
   test.describe('with unapproved HHG + NTS Move', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSShipmentsForTOO();
+      tac = await officePage.testHarness.buildGoodTACAndLoaCombination();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
@@ -185,7 +187,7 @@ test.describe('TOO user', () => {
       await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 
       // Fill out the HHG and NTS accounting codes
-      await page.getByTestId('hhgTacInput').fill('GOOD');
+      await page.getByTestId('hhgTacInput').fill(tac.tac);
       const today = new Date();
       const formattedDate = new Intl.DateTimeFormat('en-GB', {
         day: '2-digit',
@@ -197,7 +199,7 @@ test.describe('TOO user', () => {
       await page.getByTestId('hhgSacInput').fill('4K988AS098F');
       // "GOOD" is a hard-set GOOD TAC by the e2e seed data
       // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
-      await page.getByTestId('ntsTacInput').fill('GOOD');
+      await page.getByTestId('ntsTacInput').fill(tac.tac);
       const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
       await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
 
