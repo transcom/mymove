@@ -129,6 +129,7 @@ export const SitDaysAllowanceForm = ({ onChange }) => (
       inputClassName={styles.approvedDaysInput}
       errorClassName={styles.errors}
       onChange={onChange}
+      label="daysApproved"
     />
   </div>
 );
