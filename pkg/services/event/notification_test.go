@@ -23,6 +23,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -77,6 +78,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -116,6 +118,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -182,6 +185,7 @@ func (suite *EventServiceSuite) Test_MTOServiceItemPayload() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -270,6 +274,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: models.TimePointer(time.Now()),
+					ApprovedAt:         models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -308,6 +313,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: models.TimePointer(time.Now()),
+					ApprovedAt:         models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)

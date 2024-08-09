@@ -76,6 +76,7 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 	payload := &ghcmessages.Move{
 		ID:                           strfmt.UUID(move.ID.String()),
 		AvailableToPrimeAt:           handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:                   handlers.FmtDateTimePtr(move.ApprovedAt),
 		ContractorID:                 handlers.FmtUUIDPtr(move.ContractorID),
 		Contractor:                   Contractor(move.Contractor),
 		Locator:                      move.Locator,
@@ -117,6 +118,7 @@ func ListMove(move *models.Move) *ghcmessages.ListPrimeMove {
 		MoveCode:           move.Locator,
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:         handlers.FmtDateTimePtr(move.ApprovedAt),
 		OrderID:            strfmt.UUID(move.OrdersID.String()),
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
@@ -469,6 +471,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *ghcmessages.MoveTaskOrder {
 		ID:                 strfmt.UUID(moveTaskOrder.ID.String()),
 		CreatedAt:          strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		ApprovedAt:         handlers.FmtDateTimePtr(moveTaskOrder.ApprovedAt),
 		OrderID:            strfmt.UUID(moveTaskOrder.OrdersID.String()),
 		ReferenceID:        *moveTaskOrder.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(moveTaskOrder.UpdatedAt),
@@ -2211,7 +2214,7 @@ func ShipmentsPaymentSITBalance(shipmentsSITBalance []services.ShipmentPaymentSI
 	return payload
 }
 
-func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustomers {
+func SearchCustomers(customers models.ServiceMemberSearchResults) *ghcmessages.SearchCustomers {
 	searchCustomers := make(ghcmessages.SearchCustomers, len(customers))
 	for i, customer := range customers {
 		searchCustomers[i] = &ghcmessages.SearchCustomer{

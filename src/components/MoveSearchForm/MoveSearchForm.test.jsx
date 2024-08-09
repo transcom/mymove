@@ -79,12 +79,45 @@ describe('MoveSearchForm', () => {
       });
     });
 
+    it('can submit payment request number', async () => {
+      const onSubmit = jest.fn();
+      const { getByLabelText, getByRole } = render(<MoveSearchForm onSubmit={onSubmit} />);
+      const submitButton = getByRole('button');
+
+      await userEvent.click(getByLabelText('Payment Request Number'));
+      await userEvent.type(getByLabelText('Search'), '1234-5678-9');
+      await waitFor(() => {
+        expect(getByLabelText('Search')).toHaveValue('1234-5678-9');
+      });
+      expect(submitButton).toBeEnabled();
+      await userEvent.click(submitButton);
+      await waitFor(() => {
+        expect(onSubmit).toHaveBeenCalledWith(
+          {
+            searchText: '1234-5678-9',
+            searchType: 'paymentRequestCode',
+          },
+          expect.anything(),
+        );
+      });
+    });
+
     it('submits move code when it is 6 characters', async () => {
       const { getByLabelText, getByRole } = render(<MoveSearchForm onSubmit={jest.fn()} />);
       await userEvent.click(getByLabelText('Move Code'));
       await userEvent.type(getByLabelText('Search'), '123456');
       await waitFor(() => {
         expect(getByLabelText('Search')).toHaveValue('123456');
+      });
+      expect(getByRole('button')).toBeEnabled();
+    });
+
+    it('submits payment request code when it is in the correct format', async () => {
+      const { getByLabelText, getByRole } = render(<MoveSearchForm onSubmit={jest.fn()} />);
+      await userEvent.click(getByLabelText('Payment Request Number'));
+      await userEvent.type(getByLabelText('Search'), '1234-5678-9');
+      await waitFor(() => {
+        expect(getByLabelText('Search')).toHaveValue('1234-5678-9');
       });
       expect(getByRole('button')).toBeEnabled();
     });
@@ -120,6 +153,21 @@ describe('MoveSearchForm', () => {
       await userEvent.type(getByLabelText('Search'), '6');
       await waitFor(() => {
         expect(getByLabelText('Search')).toHaveValue('123456');
+      });
+      expect(getByRole('button')).toBeEnabled();
+    });
+
+    it('disables submit button when payment request number is not in correct format', async () => {
+      const { getByLabelText, getByRole } = render(<MoveSearchForm onSubmit={jest.fn()} />);
+      await userEvent.click(getByLabelText('Payment Request Number'));
+      await userEvent.type(getByLabelText('Search'), '1234-5678-');
+      await waitFor(() => {
+        expect(getByLabelText('Search')).toHaveValue('1234-5678-');
+      });
+      expect(getByRole('button')).toBeDisabled();
+      await userEvent.type(getByLabelText('Search'), '9');
+      await waitFor(() => {
+        expect(getByLabelText('Search')).toHaveValue('1234-5678-9');
       });
       expect(getByRole('button')).toBeEnabled();
     });

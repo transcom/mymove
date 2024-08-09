@@ -56,7 +56,7 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 			mtoShipment.PPMShipment = ppmShipment
 
 			return nil
-		} else if isBoatShipment {
+		} else if isBoatShipment && shipment.BoatShipment != nil {
 			shipment.BoatShipment.ShipmentID = mtoShipment.ID
 			shipment.BoatShipment.Shipment = *mtoShipment
 

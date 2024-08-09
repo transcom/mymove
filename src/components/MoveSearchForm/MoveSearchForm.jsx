@@ -10,6 +10,7 @@ import styles from './MoveSearchForm.module.scss';
 import { Form } from 'components/form/Form';
 import TextField from 'components/form/fields/TextField/TextField';
 import formStyles from 'styles/form.module.scss';
+import { roleTypes } from 'constants/userRoles';
 
 const baseSchema = Yup.object().shape({
   searchType: Yup.string().required('searchtype error'),
@@ -29,8 +30,22 @@ const customerNameSchema = baseSchema.concat(
     searchText: Yup.string().trim().min(1, 'Customer search must contain a value'),
   }),
 );
+const paymentRequestCodeSchema = baseSchema.concat(
+  Yup.object().shape({
+    searchText: Yup.string()
+      .trim()
+      .length(
+        11,
+        'Payment request number must be a 11 character string (9 numbers with hyphens after every 4th number, e.g. 1234-5678-9)',
+      )
+      .matches(/(\d{4})(-{1})(\d{4})(-{1})(\d{1})/g, {
+        message:
+          'Payment request number must be a 11 character string (9 numbers with hyphens after every 4th number, e.g. 1234-5678-9)',
+      }),
+  }),
+);
 
-const MoveSearchForm = ({ onSubmit }) => {
+const MoveSearchForm = ({ onSubmit, role }) => {
   const getValidationSchema = (values) => {
     switch (values.searchType) {
       case 'moveCode':
@@ -39,6 +54,8 @@ const MoveSearchForm = ({ onSubmit }) => {
         return dodIDSchema;
       case 'customerName':
         return customerNameSchema;
+      case 'paymentRequestCode':
+        return paymentRequestCodeSchema;
       default:
         return Yup.object().shape({
           searchType: Yup.string().required('Search option must be selected'),
@@ -118,6 +135,23 @@ const MoveSearchForm = ({ onSubmit }) => {
                   formik.setFieldTouched('searchText', false, false);
                 }}
               />
+              {role !== roleTypes.SERVICES_COUNSELOR && (
+                <Field
+                  as={Radio}
+                  id="radio-picked-paymentRequestCode"
+                  data-testid="paymentRequestCode"
+                  type="radio"
+                  name="searchType"
+                  value="paymentRequestCode"
+                  title="Payment Request Number"
+                  label="Payment Request Number"
+                  onChange={(e) => {
+                    formik.setFieldValue('searchType', e.target.value);
+                    formik.setFieldValue('searchText', '', false); // Clear TextField
+                    formik.setFieldTouched('searchText', false, false);
+                  }}
+                />
+              )}
             </div>
             <div className={styles.searchBar}>
               <TextField
