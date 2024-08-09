@@ -132,12 +132,19 @@ func (suite *HandlerSuite) TestIndexOrderForMemberReadPerms() {
 			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
+		"SpaceForce": {
+			makeAllPowerfulClientCert(),
+			models.IssuerSpaceForce,
+			models.ElectronicOrdersAffiliationSpaceForce,
+			"1234567895",
+		},
 	}
 	testCases["Army"].cert.AllowArmyOrdersRead = false
 	testCases["Navy"].cert.AllowNavyOrdersRead = false
 	testCases["MarineCorps"].cert.AllowMarineCorpsOrdersRead = false
 	testCases["CoastGuard"].cert.AllowCoastGuardOrdersRead = false
 	testCases["AirForce"].cert.AllowAirForceOrdersRead = false
+	testCases["SpaceForce"].cert.AllowAirForceOrdersRead = false
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(_ *testing.T) {

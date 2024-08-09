@@ -26,6 +26,8 @@ const (
 	ElectronicOrdersAffiliationMarineCorps ElectronicOrdersAffiliation = "marine-corps"
 	// ElectronicOrdersAffiliationNavy captures enum value "navy"
 	ElectronicOrdersAffiliationNavy ElectronicOrdersAffiliation = "navy"
+	// ElectronicOrdersAffiliationSpaceForce captures enum value "space-force"
+	ElectronicOrdersAffiliationSpaceForce ElectronicOrdersAffiliation = "space-force"
 )
 
 // Paygrade is the "rank" of a member. Some of these paygrades will have identical entitlements.
@@ -235,6 +237,7 @@ func (e *ElectronicOrdersRevision) Validate(_ *pop.Connection) (*validate.Errors
 			string(ElectronicOrdersAffiliationCoastGuard),
 			string(ElectronicOrdersAffiliationMarineCorps),
 			string(ElectronicOrdersAffiliationNavy),
+			string(ElectronicOrdersAffiliationSpaceForce),
 		}},
 		&validators.StringInclusion{Field: string(e.Paygrade), Name: "Paygrade", List: []string{
 			string(PaygradeAviationCadet),

@@ -718,6 +718,11 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		ordersAssertion.ElectronicOrder.Issuer = models.IssuerCoastGuard
 		ordersAssertion.ElectronicOrder.OrdersNumber = "8675313"
 		testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
+		ordersAssertion.ElectronicOrder.Issuer = models.IssuerSpaceForce
+		ordersAssertion.ElectronicOrder.OrdersNumber = "8675314"
+		testdatagen.MakeElectronicOrder(suite.DB(), ordersAssertion)
+
 		return marineCorpsOrders
 	}
 
@@ -727,6 +732,7 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		NewQueryFilter("issuer", equals, models.IssuerMarineCorps),
 		NewQueryFilter("issuer", equals, models.IssuerNavy),
 		NewQueryFilter("issuer", equals, models.IssuerAirForce),
+		NewQueryFilter("issuer", equals, models.IssuerSpaceForce),
 	}
 
 	suite.Run("Successfully select some category counts", func() {
@@ -739,6 +745,7 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.Equal(1, counts[models.IssuerMarineCorps])
 		suite.Equal(1, counts[models.IssuerNavy])
 		suite.Equal(1, counts[models.IssuerAirForce])
+		suite.Equal(1, counts[models.IssuerSpaceForce])
 
 		andFilters := []services.QueryFilter{
 			NewQueryFilter("updated_at", equals, marineCorpsOrders.UpdatedAt),
@@ -763,6 +770,7 @@ func (suite *QueryBuilderSuite) TestFetchCategoricalCountsFromOneModel() {
 		suite.Equal(1, counts[models.IssuerMarineCorps])
 		suite.Equal(0, counts[models.IssuerNavy])
 		suite.Equal(0, counts[models.IssuerAirForce])
+		suite.Equal(0, counts[models.IssuerSpaceForce])
 	})
 
 	suite.Run("Unsuccessfully select some category counts", func() {

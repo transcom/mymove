@@ -110,6 +110,7 @@ func (h GetElectronicOrdersTotalsHandler) Handle(params electronicorderop.GetEle
 					h.NewQueryFilter("issuer", "=", models.IssuerCoastGuard),
 					h.NewQueryFilter("issuer", "=", models.IssuerNavy),
 					h.NewQueryFilter("issuer", "=", models.IssuerMarineCorps),
+					h.NewQueryFilter("issuer", "=", models.IssuerSpaceForce),
 				}
 			} else {
 				for i, filter := range params.Filter {

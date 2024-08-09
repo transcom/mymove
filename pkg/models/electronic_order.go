@@ -25,6 +25,8 @@ const (
 	IssuerMarineCorps Issuer = "marine-corps"
 	// IssuerCoastGuard captures enum value "coast-guard"
 	IssuerCoastGuard Issuer = "coast-guard"
+	// IssuerSpaceForce captures enum value "space-force"
+	IssuerSpaceForce Issuer = "space-force"
 )
 
 // ElectronicOrder contains the unchanging data of a set of orders across all amendments / revisions
@@ -67,6 +69,7 @@ func (e *ElectronicOrder) Validate(_ *pop.Connection) (*validate.Errors, error) 
 			string(IssuerCoastGuard),
 			string(IssuerMarineCorps),
 			string(IssuerNavy),
+			string(IssuerSpaceForce),
 		}},
 	), nil
 }

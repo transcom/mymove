@@ -169,12 +169,19 @@ func (suite *HandlerSuite) TestPostRevisionToOrdersWritePerms() {
 			models.ElectronicOrdersAffiliationAirForce,
 			"1234567894",
 		},
+		"SpaceForce": {
+			makeAllPowerfulClientCert(),
+			models.IssuerSpaceForce,
+			models.ElectronicOrdersAffiliationSpaceForce,
+			"1234567895",
+		},
 	}
 	testCases["Army"].cert.AllowArmyOrdersWrite = false
 	testCases["Navy"].cert.AllowNavyOrdersWrite = false
 	testCases["MarineCorps"].cert.AllowMarineCorpsOrdersWrite = false
 	testCases["CoastGuard"].cert.AllowCoastGuardOrdersWrite = false
 	testCases["AirForce"].cert.AllowAirForceOrdersWrite = false
+	testCases["SpaceForce"].cert.AllowSpaceForceOrdersWrite = false
 
 	for name, testCase := range testCases {
 		suite.T().Run(name, func(_ *testing.T) {

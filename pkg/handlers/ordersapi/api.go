@@ -137,6 +137,8 @@ func verifyOrdersReadAccess(issuer models.Issuer, cert *models.ClientCert) bool 
 		return cert.AllowMarineCorpsOrdersRead
 	case models.IssuerNavy:
 		return cert.AllowNavyOrdersRead
+	case models.IssuerSpaceForce:
+		return cert.AllowSpaceForceOrdersRead
 	default:
 		// Unknown issuer
 		return false
@@ -155,6 +157,8 @@ func verifyOrdersWriteAccess(issuer models.Issuer, cert *models.ClientCert) bool
 		return cert.AllowMarineCorpsOrdersWrite
 	case models.IssuerNavy:
 		return cert.AllowNavyOrdersWrite
+	case models.IssuerSpaceForce:
+		return cert.AllowSpaceForceOrdersWrite
 	default:
 		// Unknown issuer
 		return false

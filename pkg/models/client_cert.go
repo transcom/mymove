@@ -86,5 +86,8 @@ func (c *ClientCert) GetAllowedOrdersIssuersRead() []string {
 	if c.AllowNavyOrdersRead {
 		issuers = append(issuers, string(IssuerNavy))
 	}
+	if c.AllowSpaceForceOrdersRead {
+		issuers = append(issuers, string(IssuerSpaceForce))
+	}
 	return issuers
 }

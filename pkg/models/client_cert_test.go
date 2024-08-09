@@ -65,6 +65,7 @@ func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadAll() {
 		AllowCoastGuardOrdersRead:  true,
 		AllowMarineCorpsOrdersRead: true,
 		AllowNavyOrdersRead:        true,
+		AllowSpaceForceOrdersRead:  true,
 	}
 	suite.ElementsMatch(
 		cert.GetAllowedOrdersIssuersRead(),
@@ -74,5 +75,6 @@ func (suite *ModelSuite) Test_ClientCertGetAllowedOrdersIssuersReadAll() {
 			string(models.IssuerCoastGuard),
 			string(models.IssuerMarineCorps),
 			string(models.IssuerNavy),
+			string(models.IssuerSpaceForce),
 		})
 }
