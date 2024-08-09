@@ -36,6 +36,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -102,6 +103,32 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 		return mockUpdater
 	}
+
+	setupPricerData := func() {
+		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
+			ReDomesticServiceArea: models.ReDomesticServiceArea{
+				ServiceArea:      "056",
+				ServicesSchedule: 3,
+				SITPDSchedule:    3,
+			},
+			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
+		})
+
+		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             originDomesticServiceArea.Contract,
+				ContractID:           originDomesticServiceArea.ContractID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+	}
+
+	suite.PreloadData(func() {
+		setupPricerData()
+	})
 
 	validStatuses := []struct {
 		desc   string
