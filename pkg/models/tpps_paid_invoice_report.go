@@ -46,7 +46,7 @@ func (t TPPSPaidInvoiceReportEntry) TableName() string {
 	return "tpps_paid_invoice_reports"
 }
 
-// PaymentRequests is a slice of PaymentRequest
+// TPPSPaidInvoiceReportEntrys is a slice of TPPSPaidInvoiceReportEntry
 type TPPSPaidInvoiceReportEntrys []TPPSPaidInvoiceReportEntry
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

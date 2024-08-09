@@ -28,7 +28,7 @@ func TestProcessTPPSPaidInvoiceReportSuite(t *testing.T) {
 func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport() {
 	tppsPaidInvoiceReportProcessor := NewTPPSPaidInvoiceReportProcessor()
 
-	suite.Run("successfully proccesses a valid TPPSPaidInvoiceReport", func() {
+	suite.Run("successfully proccesses a valid TPPSPaidInvoiceReport and stores it in the database", func() {
 
 		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/tpps_paid_invoice_report_testfile.csv"
 
