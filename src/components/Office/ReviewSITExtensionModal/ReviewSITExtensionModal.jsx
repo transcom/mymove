@@ -13,149 +13,76 @@ import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal/ConfirmCu
 
 import DataTableWrapper from 'components/DataTableWrapper/index';
 import DataTable from 'components/DataTable/index';
-import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import { DropdownInput, DatePickerInput, CheckboxField } from 'components/form/fields';
+import { DropdownInput, CheckboxField } from 'components/form/fields';
 import { dropdownInputOptions } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import Modal, { ModalActions, ModalClose, ModalTitle } from 'components/Modal/Modal';
 import { sitExtensionReasons } from 'constants/sitExtensions';
-import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
-import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
+import { formatDateForDatePicker } from 'shared/dates';
+import { SitStatusShape } from 'types/sitStatusShape';
 import { ShipmentShape } from 'types';
-import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
-
-const SitDaysAllowanceForm = ({ onChange }) => (
-  <MaskedTextField
-    data-testid="daysApproved"
-    defaultValue="1"
-    id="daysApproved"
-    name="daysApproved"
-    mask={Number}
-    lazy={false}
-    scale={0}
-    signed={false} // no negative numbers
-    inputClassName={styles.approvedDaysInput}
-    errorClassName={styles.errors}
-    onChange={onChange}
-  />
-);
-
-const SitEndDateForm = ({ onChange }) => (
-  <DatePickerInput name="sitEndDate" label="" id="sitEndDate" onChange={onChange} />
-);
-
-const SITHistoryItemHeader = ({ title, value }) => {
-  let action = '';
-
-  if (title.includes('approved')) {
-    action = 'Approved';
-  }
-
-  if (title.includes('authorized')) {
-    action = 'Authorized';
-  }
-
-  return (
-    <div data-happo-hide className={styles.sitHistoryItemHeader}>
-      {title}
-      <span className={styles.hintText}>
-        {action} + Requested = {value}
-      </span>
-    </div>
-  );
-};
+import {
+  calculateEndDate,
+  calculateSitDaysAllowance,
+  calculateDaysInPreviousSIT,
+  calculateSITEndDate,
+  CurrentSITDateData,
+  formatSITAuthorizedEndDate,
+  formatSITDepartureDate,
+  formatSITEntryDate,
+  getSITCurrentLocation,
+  SitDaysAllowanceForm,
+  SitEndDateForm,
+  SITHistoryItemHeader,
+  calculateApprovedAndRequestedDaysCombined,
+  calculateSITTotalDaysRemaining,
+  calculateApprovedAndRequestedDatesCombined,
+} from 'utils/sitFormatters';
 
 const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
   const { totalSITDaysUsed } = sitStatus;
-  const { daysInSIT, location } = sitStatus.currentSIT;
-  const sitDepartureDate = sitStatus.currentSIT?.sitDepartureDate || DEFAULT_EMPTY_VALUE;
-  const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
-  const daysInPreviousSIT = totalSITDaysUsed - daysInSIT;
-
-  /**
-   * @function
-   * @description This function calculates the total remaining days. If the SIT entry date has started, a day is subtracted from the days remaining to account for the current day.
-   * @returns {number|string} - The number of days remaming or 'expired' if there are no more days left.
-   */
-  const totalDaysRemaining = () => {
-    const daysRemaining = sitStatus ? sitStatus.totalDaysRemaining : shipment.sitDaysAllowance;
-    // SIT not started
-    if (!sitStatus && daysRemaining > 0) {
-      return daysRemaining;
-    }
-    // SIT in has started
-    if (sitStatus && daysRemaining > 1) {
-      return daysRemaining - 1;
-    }
-    return 'Expired';
-  };
-
-  const approvedAndRequestedDaysCombined = shipment.sitDaysAllowance + sitExtension.requestedDays;
-  const approvedAndRequestedDatesCombined = formatDateForDatePicker(
-    moment()
-      .add(sitExtension.requestedDays, 'days')
-      .add(Number.isInteger(totalDaysRemaining()) ? totalDaysRemaining() - 1 : 0, 'days'),
-  );
+  const { daysInSIT } = sitStatus.currentSIT;
+  const sitDepartureDate = formatSITDepartureDate(sitStatus.currentSIT.sitDepartureDate);
+  const sitEntryDate = formatSITEntryDate(sitStatus.currentSIT.sitEntryDate);
+  const daysInPreviousSIT = calculateDaysInPreviousSIT(totalSITDaysUsed, daysInSIT);
+  const currentLocation = getSITCurrentLocation(sitStatus);
+  const totalDaysRemaining = calculateSITTotalDaysRemaining(sitStatus, shipment);
 
   const sitAllowanceHelper = useField({ name: 'daysApproved', id: 'daysApproved' })[2];
   const endDateHelper = useField({ name: 'sitEndDate', id: 'sitEndDate' })[2];
-  // Currently active SIT
-  const currentLocation = location === LOCATION_TYPES.ORIGIN ? 'origin SIT' : 'destination SIT';
 
-  const currentDaysInSit = <p>{daysInSIT}</p>;
-  const currentDateEnteredSit = <p>{formatDateForDatePicker(sitEntryDate)}</p>;
+  const currentDateEnteredSit = <p>{sitEntryDate}</p>;
 
-  /**
-   * @function
-   * @description This function is used to change the values of the Total Days
-   * of SIT approved input when the End Date datepicker is modified. This is
-   * being triggered on the `onChange` event for the SitEndDateForm component.
-   * @param {Date} endDate A Moment.input representing the last day approved in the form.
-   * @see handleDaysAllowanceChange
-   * @see SitEndDateForm component
-   */
+  const approvedAndRequestedDaysCombined = calculateApprovedAndRequestedDaysCombined(shipment, sitExtension);
+  const approvedAndRequestedDatesCombined = calculateApprovedAndRequestedDatesCombined(
+    sitExtension,
+    totalDaysRemaining,
+  );
+
   const handleSitEndDateChange = (endDate) => {
-    // Calculate total allowance
-    // Set dates to same time zone and strip of time information to calculate integer
-    // days between them
-    const endDay = moment(endDate).utcOffset(sitEntryDate.utcOffset(), true).startOf('day');
-    const startDay = sitEntryDate.startOf('day');
-    const sitDurationDays = moment.duration(endDay.diff(startDay)).asDays();
-    const calculatedSitDaysAllowance = sitDurationDays + daysInPreviousSIT;
+    const endDay = calculateEndDate(sitEntryDate, endDate);
+    const calculatedSitDaysAllowance = calculateSitDaysAllowance(sitEntryDate, daysInPreviousSIT, endDay);
 
     // Update form values
     endDateHelper.setValue(endDate);
     sitAllowanceHelper.setValue(String(calculatedSitDaysAllowance));
   };
 
-  /**
-   * @function
-   * @description This function is used to change the values of the End Date
-   * datepicker when the Days Approved text input is modified. This is being
-   * triggered on the `onChange` event for the SitDaysAllowanceForm component.
-   * @param {number} daysApproved A number representing the number of days
-   * approved in the form.
-   * @see handleSitEndDateChange
-   * @see SitDaysAllowanceForm component
-   */
   const handleDaysAllowanceChange = (daysApproved) => {
-    // Sit days allowance
     sitAllowanceHelper.setValue(daysApproved);
-    // // // Sit End date
-    const calculatedSitEndDate = formatDateForDatePicker(sitEntryDate.add(daysApproved - daysInPreviousSIT, 'days'));
+    const calculatedSITEndDate = calculateSITEndDate(sitEntryDate, daysApproved, daysInPreviousSIT);
     endDateHelper.setTouched(true);
-    endDateHelper.setValue(calculatedSitEndDate);
+    endDateHelper.setValue(calculatedSITEndDate);
   };
 
   return (
     <>
       <div className={styles.title}>
         <p>SIT (STORAGE IN TRANSIT)</p>
-        <Tag>Additional Days Requested</Tag>
+        <Tag>SIT EXTENSION REQUESTED</Tag>
       </div>
       <div className={styles.tableContainer} data-testid="sitStatusTable">
-        {/* Sit Total days table */}
         <DataTable
           custClass={styles.totalDaysTable}
           columnHeaders={[
@@ -166,12 +93,11 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
           dataRow={[
             <SitDaysAllowanceForm onChange={(e) => handleDaysAllowanceChange(e.target.value)} />,
             sitStatus.totalSITDaysUsed,
-            totalDaysRemaining(),
+            totalDaysRemaining,
           ]}
         />
       </div>
       <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
-        {/* Sit Start and End table */}
         <p className={styles.sitHeader}>Current location: {currentLocation}</p>
         <DataTable
           columnHeaders={[
@@ -192,11 +118,10 @@ const SitStatusTables = ({ sitStatus, sitExtension, shipment }) => {
         />
       </div>
       <div className={styles.tableContainer}>
-        {/* Total days at current location */}
-        <DataTable
-          testID="currentSITDateData"
-          columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
-          dataRow={[currentDaysInSit, sitDepartureDate]}
+        <CurrentSITDateData
+          currentLocation={currentLocation}
+          daysInSIT={daysInSIT}
+          sitDepartureDate={sitDepartureDate}
         />
       </div>
     </>
@@ -216,10 +141,11 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
     daysApproved: String(shipment.sitDaysAllowance),
     requestReason: sitExtension.requestReason,
     officeRemarks: '',
-    sitEndDate: formatDateForDatePicker(moment(sitStatus.currentSIT.sitAuthorizedEndDate, swaggerDateFormat)),
+    sitEndDate: formatSITAuthorizedEndDate(sitStatus),
   };
-  const minimumDaysAllowed = shipment.sitDaysAllowance + 1;
-  const sitEntryDate = moment(sitStatus.currentSIT.sitEntryDate, swaggerDateFormat);
+  const minimumDaysAllowed = shipment.sitDaysAllowance;
+  const sitEntryDate = formatSITEntryDate(sitStatus.currentSIT.sitEntryDate);
+
   const reviewSITExtensionSchema = Yup.object().shape({
     acceptExtension: Yup.mixed().oneOf(['yes', 'no']).required('Required'),
     convertToCustomerExpense: Yup.boolean().default(false),
@@ -237,7 +163,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
           .required('Required'),
     }),
     sitEndDate: Yup.date().min(
-      formatDateForDatePicker(sitEntryDate.add(1, 'days')),
+      formatDateForDatePicker(moment(sitEntryDate).add(1, 'days')),
       'The end date must occur after the start date. Please select a new date.',
     ),
   });
@@ -249,7 +175,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
         <Modal className={styles.ReviewSITExtensionModal}>
           <ModalClose handleClick={() => onClose()} />
           <ModalTitle>
-            <h2>Review additional days requested</h2>
+            <h2>Review SIT Extension Request</h2>
           </ModalTitle>
           <div>
             <Formik
@@ -293,7 +219,7 @@ const ReviewSITExtensionsModal = ({ onClose, sitExtension, shipment, sitStatus, 
                     <div className={styles.ModalPanel}>
                       <dl className={styles.SITSummary}>
                         <div>
-                          <dt>Additional days requested:</dt>
+                          <dt>Days requested for SIT extension:</dt>
                           <dd>{sitExtension.requestedDays}</dd>
                         </div>
                         <div>
