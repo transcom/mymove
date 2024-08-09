@@ -36,7 +36,7 @@ export const AddressFields = ({
   let postalCodeField;
   let stateField;
 
-  if (formikFunctionsToValidatePostalCodeOnChange && !zipCityEnabled) {
+  if (formikFunctionsToValidatePostalCodeOnChange) {
     postalCodeField = (
       <TextField
         label="ZIP"
@@ -44,6 +44,7 @@ export const AddressFields = ({
         name={`${name}.postalCode`}
         maxLength={10}
         validate={validators?.postalCode}
+        isDisabled={zipCityEnabled}
         onChange={async (e) => {
           // If we are validating on change we need to also set the field to touched when it is changed.
           // Formik, by default, only sets the field to touched on blur.
@@ -166,6 +167,7 @@ AddressFields.propTypes = {
     city: PropTypes.func,
     state: PropTypes.func,
     postalCode: PropTypes.func,
+    county: PropTypes.func,
   }),
   formikFunctionsToValidatePostalCodeOnChange: PropTypes.shape({
     handleChange: PropTypes.func,

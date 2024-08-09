@@ -217,6 +217,7 @@ export const LocationSearchBoxComponent = ({
       <div className={inputContainerClasses}>
         <AsyncSelect
           name={name}
+          data-testid={inputId}
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions

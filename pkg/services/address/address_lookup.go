@@ -41,7 +41,7 @@ func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models
 		select uprc.u_s_post_region_city_nm, uprc.state, uprc.usprc_county_nm, uprc.uspr_zip_id
 			from us_post_region_cities uprc where position(upper($1) in uprc.uspr_zip_id) > 0 or
 			position(upper($1) in uprc.u_s_post_region_city_nm) > 0
-			limit 10`
+			limit 20`
 	query := appCtx.DB().Q().RawQuery(sqlQuery, &search)
 	if err := query.All(&locationList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {

@@ -99,7 +99,6 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
             initialValues={initialValues}
             onBack={handleBack}
             onSubmit={handleSubmit}
-            validators={{ postalCode: validatePostalCode }}
           />
         </Grid>
       </Grid>

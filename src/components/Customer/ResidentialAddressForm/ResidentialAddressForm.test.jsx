@@ -1,8 +1,9 @@
 import React from 'react';
-import { render, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ResidentialAddressForm from './ResidentialAddressForm';
+import addressFactory from 'utils/test/factories/address';
 
 describe('ResidentialAddressForm component', () => {
   const formFieldsName = 'current_residence';
@@ -16,6 +17,7 @@ describe('ResidentialAddressForm component', () => {
         city: '',
         state: '',
         postalCode: '',
+        county: '',
       },
     },
     onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
@@ -28,7 +30,10 @@ describe('ResidentialAddressForm component', () => {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
   };
+
+  const mockAddress = addressFactory();
 
   it('renders the form inputs and help text', async () => {
     const { getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
@@ -42,31 +47,11 @@ describe('ResidentialAddressForm component', () => {
 
       expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
 
+      expect(getByLabelText('County')).toBeInstanceOf(HTMLSelectElement);
+
       expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByText('Must be a physical address.')).toBeInTheDocument();
-    });
-  });
-
-  it('passes custom validators to fields', async () => {
-    const postalCodeValidator = jest.fn().mockImplementation(() => undefined);
-
-    const { findByLabelText } = render(
-      <ResidentialAddressForm {...testProps} validators={{ postalCode: postalCodeValidator }} />,
-    );
-
-    const postalCodeInput = await findByLabelText('ZIP');
-
-    const postalCode = '99999';
-
-    await userEvent.type(postalCodeInput, postalCode);
-
-    await waitFor(() => {
-      // We expect this to be called 6 times.
-      // 1 - validate on mount
-      // 5 - once for each 9 that was typed, since we are validating on change
-      expect(postalCodeValidator).toHaveBeenCalledTimes(6);
-      expect(postalCodeValidator).toHaveBeenCalledWith(postalCode);
     });
   });
 
@@ -74,16 +59,18 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, findAllByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
-    await userEvent.click(getByLabelText('City'));
-    await userEvent.click(getByLabelText('State'));
-    await userEvent.click(getByLabelText('ZIP'));
+    const postalCodeInput = await screen.findByLabelText('Zip/City Lookup');
 
+    const postalCode = '79912';
+
+    await userEvent.type(postalCodeInput, postalCode);
+    await userEvent.click(await screen.findByText('79912'));
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
 
-    expect(alerts.length).toBe(4);
+    expect(alerts.length).toBe(1);
 
     alerts.forEach((alert) => {
       expect(alert).toHaveTextContent('Required');
@@ -96,12 +83,15 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
-    await userEvent.tab();
+    await userEvent.type(getByLabelText('Address 1'), mockAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 2/), mockAddress.streetAddress2);
+    const input = getByRole('combobox', { id: 'zipCity-input' });
+    await userEvent.type(input, mockAddress.postalCode);
+    await waitFor(() => {
+      expect(screen.getByText(mockAddress.city)).toBeInTheDocument();
+    });
+
+    fireEvent.keyPress(input, { key: 'Enter', code: 13 });
 
     await waitFor(() => {
       expect(submitBtn).toBeEnabled();
