@@ -198,10 +198,12 @@ export default function ReviewBillableWeight() {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const fileList = getAllFiles();
+
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        <DocumentViewer files={getAllFiles()} />
+        {fileList.length > 0 ? <DocumentViewer files={fileList} /> : <h2>No documents provided</h2>}
       </div>
       <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
         {sidebarType === 'MAX' ? (
