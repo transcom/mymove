@@ -93,7 +93,8 @@ export default function ReviewBillableWeight() {
     });
   };
 
-  const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
+  const selectedShipment =
+    filteredShipments && filteredShipments.length > 0 ? filteredShipments[selectedShipmentIndex] : {};
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
