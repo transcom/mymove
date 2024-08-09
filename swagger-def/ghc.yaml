@@ -402,7 +402,7 @@ paths:
       tags:
         - move
       description: cancels a move
-      operationId: moveCancellation
+      operationId: moveCanceler
       summary: Cancels a move
   '/counseling/orders/{orderID}':
     parameters:

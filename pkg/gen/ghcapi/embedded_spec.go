@@ -2246,7 +2246,7 @@ func init() {
           "move"
         ],
         "summary": "Cancels a move",
-        "operationId": "moveCancellation",
+        "operationId": "moveCanceler",
         "responses": {
           "200": {
             "description": "Successfully cancelled move",
@@ -16390,7 +16390,7 @@ func init() {
           "move"
         ],
         "summary": "Cancels a move",
-        "operationId": "moveCancellation",
+        "operationId": "moveCanceler",
         "responses": {
           "200": {
             "description": "Successfully cancelled move",
