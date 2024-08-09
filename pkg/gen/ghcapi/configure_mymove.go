@@ -354,9 +354,9 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation queues.ListPrimeMoves has not yet been implemented")
 		})
 	}
-	if api.MoveMoveCancellationHandler == nil {
-		api.MoveMoveCancellationHandler = move.MoveCancellationHandlerFunc(func(params move.MoveCancellationParams) middleware.Responder {
-			return middleware.NotImplemented("operation move.MoveCancellation has not yet been implemented")
+	if api.MoveMoveCancelerHandler == nil {
+		api.MoveMoveCancelerHandler = move.MoveCancelerHandlerFunc(func(params move.MoveCancelerParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.MoveCanceler has not yet been implemented")
 		})
 	}
 	if api.ShipmentRejectShipmentHandler == nil {

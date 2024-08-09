@@ -279,28 +279,28 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 		})
 }
 
-type MoveCancellationHandler struct {
+type MoveCancelerHandler struct {
 	handlers.HandlerConfig
-	services.MoveCancellation
+	services.MoveCanceler
 }
 
-func (h MoveCancellationHandler) Handle(params moveop.MoveCancellationParams) middleware.Responder {
+func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
-			move, err := h.MoveCancellation.CancelMove(appCtx, moveID)
+			move, err := h.MoveCanceler.CancelMove(appCtx, moveID)
 			if err != nil {
-				appCtx.Logger().Error("MoveCancellationHandler error", zap.Error(err))
+				appCtx.Logger().Error("MoveCancelerHandler error", zap.Error(err))
 				switch err.(type) {
 				case apperror.NotFoundError:
-					return moveop.NewMoveCancellationNotFound(), err
+					return moveop.NewMoveCancelerNotFound(), err
 				case apperror.PreconditionFailedError:
-					return moveop.NewMoveCancellationPreconditionFailed(), err
+					return moveop.NewMoveCancelerPreconditionFailed(), err
 				case apperror.InvalidInputError:
-					return moveop.NewMoveCancellationUnprocessableEntity(), err
+					return moveop.NewMoveCancelerUnprocessableEntity(), err
 				default:
-					return moveop.NewMoveCancellationInternalServerError(), err
+					return moveop.NewMoveCancelerInternalServerError(), err
 				}
 			}
 
@@ -308,7 +308,7 @@ func (h MoveCancellationHandler) Handle(params moveop.MoveCancellationParams) mi
 			if err != nil {
 				return nil, err
 			}
-			return moveop.NewMoveCancellationOK().WithPayload(payload), nil
+			return moveop.NewMoveCancelerOK().WithPayload(payload), nil
 		})
 }
 
