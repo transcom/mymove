@@ -7,7 +7,8 @@ import (
 
 // PPTASReportListFetcher is the exported interface for fetching reports
 //
-//go:generate mockery --name ReportListFetcher
+//go:generate mockery --name PPTASReportListFetcher
 type PPTASReportListFetcher interface {
-	BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.PPTASReports, error)
+	GetMovesForReportBuilder(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
+	BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, moves models.Moves) (models.PPTASReports, error)
 }

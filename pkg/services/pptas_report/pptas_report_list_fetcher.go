@@ -3,8 +3,11 @@ package report
 import (
 	"time"
 
+	"github.com/go-openapi/strfmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -27,207 +30,32 @@ func NewPPTASReportListFetcher(estimator services.PPMEstimator, moveFetcher serv
 	}
 }
 
-// Builds a list of reports for PPTAS
-func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.PPTASReports, error) {
-	var fullreport models.PPTASReports
-	moves, err := f.moveFetcher.FetchMovesForReports(appCtx, params)
+func (f *pptasReportListFetcher) GetMovesForReportBuilder(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	moves, err := f.moveFetcher.FetchMovesForPPTASReports(appCtx, params)
 
 	if err != nil {
 		return nil, err
 	}
 
+	return moves, err
+}
+
+// Builds a list of reports for PPTAS
+func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.AppContext, moves models.Moves) (models.PPTASReports, error) {
+	var fullreport models.PPTASReports
+
 	for _, move := range moves {
 		var report models.PPTASReport
-		report.ShipmentId = move.ID
-
 		orders := move.Orders
-		var paymentRequests []models.PaymentRequest
-		prQuerry := appCtx.DB().EagerPreload(
-			"PaymentServiceItems.MTOServiceItem.Dimensions",
-			"PaymentServiceItems.MTOServiceItem.ReService").
-			Where("payment_requests.move_id = ?", move.ID).
-			All(&paymentRequests)
-		if prQuerry != nil {
-			return nil, apperror.NewQueryError("failed to query payment request", err, ".")
-		}
-
-		for _, pr := range paymentRequests {
-			if pr.Status == models.PaymentRequestStatusReviewed || pr.Status == models.PaymentRequestStatusSentToGex {
-				paymentRequests = append(paymentRequests, pr)
-			}
-		}
-
-		if len(paymentRequests) < 1 && move.MTOShipments[0].PPMShipment == nil {
-			continue
-		}
-
-		tacErr := inputReportTAC(&report, orders, appCtx, f.tacFetcher, f.loaFetcher)
-		if tacErr != nil {
-			return nil, tacErr
-		}
-
 		var middleInitial string
 		if orders.ServiceMember.MiddleName != nil && *orders.ServiceMember.MiddleName != "" {
 			middleInitial = string([]rune(*orders.ServiceMember.MiddleName)[0])
 		}
 
-		progear := unit.Pound(0)
-		sitTotal := unit.Pound(0)
-		originActualWeight := unit.Pound(0)
-		travelAdvance := unit.Cents(0)
 		scac := "HSFR"
 		transmitCd := "T"
 
-		var moveDate *time.Time
-		if move.MTOShipments[0].PPMShipment != nil {
-			moveDate = &move.MTOShipments[0].PPMShipment.ExpectedDepartureDate
-		} else if move.MTOShipments[0].ActualPickupDate != nil {
-			moveDate = move.MTOShipments[0].ActualPickupDate
-		}
-
-		if moveDate != nil {
-			report.DeliveryDate = moveDate
-		}
-
-		if orders.OrdersTypeDetail != nil {
-			report.ShipmentType = (*string)(orders.OrdersTypeDetail)
-			report.TravelType = (*string)(orders.OrdersTypeDetail)
-		}
-
-		if move.MTOShipments[0].ActualPickupDate != nil {
-			report.PickupDate = move.MTOShipments[0].ActualPickupDate
-		}
-
-		if orders.Grade != nil && orders.Entitlement != nil {
-			orders.Entitlement.SetWeightAllotment(string(*orders.Grade))
-		}
-
-		weightAllotment := orders.Entitlement.WeightAllotment()
-
-		var totalWeight unit.Pound
-		if orders.Entitlement.DBAuthorizedWeight != nil {
-			if orders.Entitlement.DependentsAuthorized != nil {
-				totalWeight = unit.Pound(weightAllotment.TotalWeightSelfPlusDependents)
-
-				report.WeightAuthorized = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
-			} else {
-				totalWeight = unit.Pound(weightAllotment.TotalWeightSelf)
-			}
-		}
-
-		report.EntitlementWeight = &totalWeight
-
-		var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
-		hasSIT := false
-
-		// sharing this for loop for all MTOShipment calculations
-		for _, shipment := range move.MTOShipments {
-			if report.OriginAddress == nil {
-				report.OriginAddress = shipment.PickupAddress
-			}
-			if report.DestinationAddress == nil {
-				report.DestinationAddress = shipment.DestinationAddress
-			}
-
-			// calculate total progear, gets SIT dates, and ppm price breakdown
-			if shipment.PPMShipment != nil {
-				// query the ppmshipment for all it's child needs for the price breakdown
-				var ppmShipment models.PPMShipment
-				ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets", "Shipment").
-					InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
-					Where("ppm_shipments.id = ?", shipment.PPMShipment.ID).
-					Where("ppm_shipments.status = ?", models.PPMShipmentStatusCloseoutComplete).
-					First(&ppmShipment)
-
-					// if the ppm isn't in closeout complete status skip to the next shipment
-				if ppmQ != nil && ppmQ.Error() == models.RecordNotFoundErrorString {
-					continue
-				}
-
-				if ppmQ != nil {
-					return nil, apperror.NewQueryError("failed to query ppm ", ppmQ, ".")
-				}
-
-				var shipmentTotalProgear float64
-				if ppmShipment.ProGearWeight != nil {
-					shipmentTotalProgear += ppmShipment.ProGearWeight.Float64()
-				}
-
-				if ppmShipment.SpouseProGearWeight != nil {
-					shipmentTotalProgear += ppmShipment.SpouseProGearWeight.Float64()
-				}
-
-				progear += unit.Pound(shipmentTotalProgear)
-
-				// need to determine which shipment(s) have a ppm and get the travel advances and add them up
-				if ppmShipment.AdvanceAmountReceived != nil {
-					travelAdvance += *ppmShipment.AdvanceAmountReceived
-				}
-
-				// add SIT estimated weights
-				if *ppmShipment.SITExpected {
-					sitTotal += *ppmShipment.SITEstimatedWeight
-
-					// SIT Fields
-					report.SitInDate = ppmShipment.SITEstimatedEntryDate
-					report.SitOutDate = ppmShipment.SITEstimatedDepartureDate
-					hasSIT = true
-				}
-
-				// do the ppm cost breakdown here
-				linehaul, fuel, origin, dest, packing, unpacking, err := f.estimator.PriceBreakdown(appCtx, &ppmShipment)
-				if err != nil {
-					return nil, apperror.NewUnprocessableEntityError("ppm price breakdown")
-				}
-
-				ppmLinehaul += linehaul.Float64()
-				ppmFuel += fuel.Float64()
-				ppmOriginPrice += origin.Float64()
-				ppmDestPrice += dest.Float64()
-				ppmPacking += packing.Float64()
-				ppmUnpacking += unpacking.Float64()
-			}
-
-			if shipment.PrimeActualWeight != nil {
-				originActualWeight += *shipment.PrimeActualWeight
-			}
-		}
-
-		report.PpmLinehaul = &ppmLinehaul
-		report.PpmFuelRateAdjTotal = &ppmFuel
-		report.PpmOriginPrice = &ppmOriginPrice
-		report.PpmDestPrice = &ppmDestPrice
-		report.PpmPacking = &ppmPacking
-		report.PpmUnpacking = &ppmUnpacking
-		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
-		report.PpmTotal = &ppmTotal
-
-		inputPaymentRequestFields(&report, paymentRequests, hasSIT)
-
-		report.ActualOriginNetWeight = &originActualWeight
-		report.PBPAndE = &progear
-		reweigh := move.MTOShipments[0].Reweigh
-		if reweigh != nil {
-			report.DestinationReweighNetWeight = reweigh.Weight
-		} else {
-			report.DestinationReweighNetWeight = nil
-		}
-
-		if orders.SAC != nil {
-			report.OrderNumber = orders.SAC
-		}
-
-		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress")
-		if addressLoad != nil {
-			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
-		}
-
-		netWeight := models.GetTotalNetWeightFromMTO(move)
-
-		if orders.ServiceMember.BackupContacts != nil {
-			report.EmailSecondary = &orders.ServiceMember.BackupContacts[0].Email
-		}
-
+		// handle orders and service member information here
 		report.FirstName = orders.ServiceMember.FirstName
 		report.LastName = orders.ServiceMember.LastName
 		report.MiddleInitial = &middleInitial
@@ -241,27 +69,55 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.TravelClassCode = (*string)(&orders.OrdersType)
 		report.OrdersNumber = orders.OrdersNumber
 		report.OrdersDate = &orders.IssueDate
-		report.Address = orders.ServiceMember.ResidentialAddress
+		report.TAC = orders.TAC
+		report.ShipmentNum = len(move.MTOShipments)
+		report.SCAC = &scac
 		report.OriginGBLOC = orders.OriginDutyLocationGBLOC
 		report.DestinationGBLOC = &orders.NewDutyLocation.TransportationOffice.Gbloc
 		report.DepCD = orders.HasDependents
-		report.TravelAdvance = &travelAdvance
-		report.MoveDate = moveDate
-		report.TAC = orders.TAC
-		report.ShipmentNum = len(move.MTOShipments)
-		report.WeightEstimate = calculateTotalWeightEstimate(move.MTOShipments)
 		report.TransmitCd = &transmitCd
-		report.DD2278IssueDate = move.ServiceCounselingCompletedAt
-		report.Miles = move.MTOShipments[0].Distance
-		report.SCAC = &scac
-		report.NetWeight = &netWeight
-		if len(paymentRequests) > 0 && paymentRequests[0].ReviewedAt != nil {
-			report.PaidDate = paymentRequests[0].ReviewedAt
-		}
 		report.CounseledDate = move.ServiceCounselingCompletedAt
+		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress")
+		if addressLoad != nil {
+			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
+		}
+		report.Address = orders.ServiceMember.ResidentialAddress
 
-		financialFlag := move.FinancialReviewFlag
-		report.FinancialReviewFlag = &financialFlag
+		if orders.Grade != nil && orders.Entitlement != nil {
+			orders.Entitlement.SetWeightAllotment(string(*orders.Grade))
+		}
+
+		weightAllotment := orders.Entitlement.WeightAllotment()
+
+		var totalWeight unit.Pound
+		if orders.Entitlement.DBAuthorizedWeight != nil && weightAllotment != nil {
+			if orders.Entitlement.DependentsAuthorized != nil {
+				totalWeight = unit.Pound(weightAllotment.TotalWeightSelfPlusDependents)
+
+				report.WeightAuthorized = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
+			} else {
+				totalWeight = unit.Pound(weightAllotment.TotalWeightSelf)
+			}
+		}
+
+		report.EntitlementWeight = &totalWeight
+
+		if orders.ServiceMember.BackupContacts != nil {
+			report.EmailSecondary = &orders.ServiceMember.BackupContacts[0].Email
+		}
+
+		if orders.OrdersTypeDetail != nil {
+			report.TravelType = (*string)(orders.OrdersTypeDetail)
+		}
+
+		if orders.SAC != nil {
+			report.OrderNumber = orders.SAC
+		}
+
+		err := populateShipmentFields(&report, appCtx, move, orders, f.tacFetcher, f.loaFetcher, f.estimator)
+		if err != nil {
+			return nil, err
+		}
 
 		fullreport = append(fullreport, report)
 	}
@@ -269,50 +125,118 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 	return fullreport, nil
 }
 
-func calculateTotalWeightEstimate(shipments models.MTOShipments) *unit.Pound {
-	var weightEstimate unit.Pound
-	for _, shipment := range shipments {
+// iterate through mtoshipments and build out PPTASShipment objects for pptas report.
+func populateShipmentFields(
+	report *models.PPTASReport, appCtx appcontext.AppContext, move models.Move,
+	orders models.Order, tacFetcher services.TransportationAccountingCodeFetcher,
+	loaFetcher services.LineOfAccountingFetcher, estimator services.PPMEstimator) error {
+	var pptasShipments []*pptasmessages.PPTASShipment
+	for _, shipment := range move.MTOShipments {
+		var pptasShipment pptasmessages.PPTASShipment
+
+		pptasShipment.ShipmentID = strfmt.UUID(shipment.ID.String())
+		pptasShipment.ShipmentType = string(shipment.ShipmentType)
+
+		var moveDate *time.Time
+		if shipment.ActualPickupDate != nil {
+			moveDate = shipment.ActualPickupDate
+			pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
+		}
+
+		if moveDate != nil && shipment.ActualDeliveryDate != nil {
+			pptasShipment.DeliveryDate = strfmt.Date(*shipment.ActualDeliveryDate)
+		}
+
+		if shipment.ActualPickupDate != nil {
+			pptasShipment.PickupDate = strfmt.Date(*shipment.ActualPickupDate)
+		}
+
+		pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
+		pptasShipment.Dd2278IssueDate = strfmt.Date(*move.ServiceCounselingCompletedAt)
+
+		// location fields
+		if pptasShipment.OriginAddress == nil {
+			pptasShipment.OriginAddress = Address(shipment.PickupAddress)
+		}
+		if pptasShipment.DestinationAddress == nil {
+			pptasShipment.DestinationAddress = Address(shipment.DestinationAddress)
+		}
+
+		// populate TGET data
+		tacErr := inputReportTAC(&pptasShipment, orders, appCtx, tacFetcher, loaFetcher)
+		if tacErr != nil {
+			return tacErr
+		}
+
+		// populate payment request data
+		err := populatePaymentRequestFields(&pptasShipment, appCtx, shipment)
+		if err != nil {
+			return err
+		}
+
+		// populate ppm data
+		err = populatePPMFields(appCtx, &pptasShipment, shipment, estimator)
+		if err != nil {
+			return err
+		}
+
+		var originActualWeight float64
+		if pptasShipment.ActualOriginNetWeight == nil && shipment.PrimeActualWeight != nil {
+			originActualWeight = shipment.PrimeActualWeight.Float64()
+			pptasShipment.ActualOriginNetWeight = &originActualWeight
+		}
+
+		if shipment.Reweigh != nil {
+			reweigh := shipment.Reweigh.Weight.Float64()
+			pptasShipment.DestinationReweighNetWeight = &reweigh
+		}
+
+		netWeight := models.GetTotalNetWeightForMTOShipment(shipment).Int64()
+		pptasShipment.NetWeight = &netWeight
+
+		financialFlag := move.FinancialReviewFlag
+		pptasShipment.FinancialReviewFlag = &financialFlag
+
+		var weightEstimate float64
 		if shipment.PPMShipment != nil {
-			weightEstimate += *shipment.PPMShipment.EstimatedWeight
+			weightEstimate = shipment.PPMShipment.EstimatedWeight.Float64()
 		}
 
 		if shipment.PrimeEstimatedWeight != nil {
-			weightEstimate += *shipment.PrimeEstimatedWeight
+			weightEstimate = shipment.PrimeEstimatedWeight.Float64()
 		}
+		pptasShipment.WeightEstimate = &weightEstimate
+
+		if shipment.Distance != nil {
+			pptasShipment.Miles = int64(*shipment.Distance)
+		}
+
+		pptasShipments = append(pptasShipments, &pptasShipment)
 	}
 
-	return &weightEstimate
-}
-
-// inputs all TAC related fields and builds full line of accounting string
-func inputReportTAC(report *models.PPTASReport, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
-	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
-	if err != nil {
-		return err
-	} else if len(tac) < 1 {
-		return apperror.NewNotFoundError(orders.ID, "No valid TAC found")
-	}
-
-	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)
-
-	report.LOA = &longLoa
-	report.FiscalYear = tac[0].TacFyTxt
-	report.Appro = tac[0].LineOfAccounting.LoaBafID
-	report.Subhead = tac[0].LineOfAccounting.LoaObjClsID
-	report.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
-	report.BCN = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
-	report.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
-	report.AAA = tac[0].LineOfAccounting.LoaTrnsnID
-	report.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
-	report.PAA = tac[0].LineOfAccounting.LoaDocID
-	report.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
-	report.DDCD = tac[0].LineOfAccounting.LoaDptID
+	report.Shipments = pptasShipments
 
 	return nil
 }
 
-// iterates through all approved payment requests and their respective service items to add up totals for pptas report payment fields
-func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests models.PaymentRequests, hasSIT bool) {
+func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, appCtx appcontext.AppContext, shipment models.MTOShipment) error {
+	var paymentRequests []models.PaymentRequest
+	prQErr := appCtx.DB().EagerPreload(
+		"PaymentServiceItems.MTOServiceItem.ReService").
+		InnerJoin("payment_service_items", "payment_requests.id = payment_service_items.payment_request_id").
+		InnerJoin("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
+		Where("mto_service_items.mto_shipment_id = ?", shipment.ID).
+		Where("payment_requests.status = ?", models.PaymentRequestStatusReviewed).
+		GroupBy("payment_requests.id").
+		All(&paymentRequests)
+	if prQErr != nil {
+		return apperror.NewQueryError("failed to query payment request", prQErr, ".")
+	}
+
+	if len(paymentRequests) < 1 {
+		return nil
+	}
+
 	var linehaulTotal, managementTotal, fuelPrice, domesticOriginTotal, domesticDestTotal, domesticPacking,
 		domesticUnpacking, domesticCrating, domesticUncrating, counselingTotal, sitPickuptotal, sitOriginFuelSurcharge,
 		sitOriginShuttle, sitOriginAddlDays, sitOriginFirstDay, sitDeliveryTotal, sitDestFuelSurcharge, sitDestShuttle,
@@ -320,10 +244,20 @@ func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests model
 
 	var allCrates []*pptasmessages.Crate
 
-	// this adds up all the different payment service items across all payment requests for a move
+	// assign the service item cost to the corresponding variable
 	for _, pr := range paymentRequests {
 		for _, serviceItem := range pr.PaymentServiceItems {
-			totalPrice := serviceItem.PriceCents.Float64()
+			mtoServiceItem := serviceItem.MTOServiceItem
+
+			err := appCtx.DB().Load(&mtoServiceItem, "Dimensions")
+			if err != nil {
+				return err
+			}
+
+			totalPrice := float64(0)
+			if serviceItem.PriceCents != nil {
+				totalPrice = serviceItem.PriceCents.Float64()
+			}
 
 			switch serviceItem.MTOServiceItem.ReService.Name {
 			case "Domestic linehaul":
@@ -344,7 +278,7 @@ func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests model
 			case "Domestic uncrating":
 				domesticUncrating += totalPrice
 			case "Domestic crating":
-				crate := buildServiceItemCrate(serviceItem.MTOServiceItem)
+				crate := buildServiceItemCrate(mtoServiceItem)
 				allCrates = append(allCrates, &crate)
 				domesticCrating += totalPrice
 			case "Domestic origin SIT pickup":
@@ -356,8 +290,8 @@ func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests model
 			case "Domestic origin add'l SIT":
 				sitOriginAddlDays += totalPrice
 			case "Domestic origin 1st day SIT":
-				if report.SitType == nil || *report.SitType == "" {
-					report.SitType = models.StringPointer("Origin")
+				if pptasShipment.SitType == nil || *pptasShipment.SitType == "" {
+					pptasShipment.SitType = models.StringPointer("Origin")
 				}
 				sitOriginFirstDay += totalPrice
 			case "Domestic destination SIT fuel surcharge":
@@ -369,9 +303,9 @@ func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests model
 			case "Domestic destination add'l SIT":
 				sitDestAddlDays += totalPrice
 			case "Domestic destination 1st day SIT":
-				if report.SitType == models.StringPointer("Origin") || report.SitType == nil {
+				if pptasShipment.SitType == models.StringPointer("Origin") || pptasShipment.SitType == nil {
 					sitType := "Destination"
-					report.SitType = &sitType
+					pptasShipment.SitType = &sitType
 				}
 				sitDestFirstDay += totalPrice
 			case "Counseling":
@@ -380,38 +314,140 @@ func inputPaymentRequestFields(report *models.PPTASReport, paymentRequests model
 				continue
 			}
 		}
+
+		// Paid date is the earliest payment request date
+		if pr.PaidAt != nil && pptasShipment.PaidDate == nil {
+			paidDate := strfmt.Date(*pr.PaidAt)
+			pptasShipment.PaidDate = &paidDate
+		} else if pr.PaidAt != nil && !pr.PaidAt.After(time.Time(*pptasShipment.PaidDate)) {
+			paidDate := strfmt.Date(*pr.PaidAt)
+			pptasShipment.PaidDate = &paidDate
+		}
 	}
 
 	shuttleTotal := sitOriginShuttle + sitDestShuttle
-	report.LinehaulTotal = &linehaulTotal
-	report.LinehaulFuelTotal = &fuelPrice
-	report.OriginPrice = &domesticOriginTotal
-	report.DestinationPrice = &domesticDestTotal
-	report.PackingPrice = &domesticPacking
-	report.UnpackingPrice = &domesticUnpacking
-	report.CratingTotal = &domesticCrating
-	report.UncratingTotal = &domesticUncrating
-	report.ShuttleTotal = &shuttleTotal
-	report.MoveManagementFeeTotal = &managementTotal
-	report.CounselingFeeTotal = &counselingTotal
-	report.CratingDimensions = allCrates
+	pptasShipment.LinehaulTotal = &linehaulTotal
+	pptasShipment.LinehaulFuelTotal = &fuelPrice
+	pptasShipment.OriginPrice = &domesticOriginTotal
+	pptasShipment.DestinationPrice = &domesticDestTotal
+	pptasShipment.PackingPrice = &domesticPacking
+	pptasShipment.UnpackingPrice = &domesticUnpacking
+	pptasShipment.CratingTotal = &domesticCrating
+	pptasShipment.UncratingTotal = &domesticUncrating
+	pptasShipment.ShuttleTotal = &shuttleTotal
+	pptasShipment.MoveManagementFeeTotal = &managementTotal
+	pptasShipment.CounselingFeeTotal = &counselingTotal
+	pptasShipment.CratingDimensions = allCrates
 
 	// calculate total invoice cost
 	invoicePaidAmt := shuttleTotal + linehaulTotal + fuelPrice + domesticOriginTotal + domesticDestTotal + domesticPacking + domesticUnpacking +
 		sitOriginFirstDay + sitOriginAddlDays + sitDestFirstDay + sitDestAddlDays + sitPickuptotal + sitDeliveryTotal + sitOriginFuelSurcharge +
 		sitDestFuelSurcharge + domesticCrating + domesticUncrating
-	report.InvoicePaidAmt = &invoicePaidAmt
+	pptasShipment.InvoicePaidAmt = &invoicePaidAmt
 
-	if hasSIT {
-		report.SITOriginFirstDayTotal = &sitOriginFirstDay
-		report.SITOriginAddlDaysTotal = &sitOriginAddlDays
-		report.SITDestFirstDayTotal = &sitDestFirstDay
-		report.SITDestAddlDaysTotal = &sitDestAddlDays
-		report.SITPickupTotal = &sitPickuptotal
-		report.SITDeliveryTotal = &sitDeliveryTotal
-		report.SITOriginFuelSurcharge = &sitOriginFuelSurcharge
-		report.SITDestFuelSurcharge = &sitDestFuelSurcharge
+	if pptasShipment.SitInDate != nil || pptasShipment.SitOutDate != nil {
+		pptasShipment.SitOriginFirstDayTotal = &sitOriginFirstDay
+		pptasShipment.SitOriginAddlDaysTotal = &sitOriginAddlDays
+		pptasShipment.SitDestFirstDayTotal = &sitDestFirstDay
+		pptasShipment.SitDestAddlDaysTotal = &sitDestAddlDays
+		pptasShipment.SitPickupTotal = &sitPickuptotal
+		pptasShipment.SitDeliveryTotal = &sitDeliveryTotal
+		pptasShipment.SitOriginFuelSurcharge = &sitOriginFuelSurcharge
+		pptasShipment.SitDestFuelSurcharge = &sitDestFuelSurcharge
 	}
+
+	return nil
+}
+
+// populates ppm related fields (progear, ppm costs, SIT)
+func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessages.PPTASShipment, shipment models.MTOShipment, estimator services.PPMEstimator) error {
+	travelAdvance := unit.Cents(0)
+
+	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
+	if shipment.PPMShipment != nil {
+		// query the ppmshipment for all it's child needs for the price breakdown
+		var ppmShipment models.PPMShipment
+		ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets", "Shipment").
+			InnerJoin("mto_shipments", "mto_shipments.id = ppm_shipments.shipment_id").
+			Where("ppm_shipments.id = ?", shipment.PPMShipment.ID).
+			Where("ppm_shipments.status = ?", models.PPMShipmentStatusCloseoutComplete).
+			First(&ppmShipment)
+
+		// if the ppm isn't in closeout complete status skip to the next shipment
+		if ppmQ != nil && ppmQ.Error() == models.RecordNotFoundErrorString {
+			return ppmQ
+		}
+
+		if ppmQ != nil {
+			return apperror.NewQueryError("failed to query ppm ", ppmQ, ".")
+		}
+
+		moveDate := &shipment.PPMShipment.ExpectedDepartureDate
+		pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
+
+		pptasShipment.DeliveryDate = strfmt.Date(*ppmShipment.ActualMoveDate)
+
+		ppmNetWeight := calculatePPMNetWeight(ppmShipment)
+		pptasShipment.ActualOriginNetWeight = models.Float64Pointer(ppmNetWeight)
+
+		var shipmentTotalProgear float64
+		if ppmShipment.ProGearWeight != nil {
+			shipmentTotalProgear += ppmShipment.ProGearWeight.Float64()
+		}
+
+		if ppmShipment.SpouseProGearWeight != nil {
+			shipmentTotalProgear += ppmShipment.SpouseProGearWeight.Float64()
+		}
+
+		pptasShipment.PbpAnde = &shipmentTotalProgear
+
+		// need to determine which shipment(s) have a ppm and get the travel advances and add them up
+		if ppmShipment.AdvanceAmountReceived != nil {
+			travelAdvance = *ppmShipment.AdvanceAmountReceived
+			ppmShipment.AdvanceAmountReceived = &travelAdvance
+		}
+
+		// add SIT fields
+		if *ppmShipment.SITExpected {
+			pptasShipment.SitInDate = (*strfmt.Date)(ppmShipment.SITEstimatedEntryDate)
+			pptasShipment.SitOutDate = (*strfmt.Date)(ppmShipment.SITEstimatedDepartureDate)
+		}
+
+		// do the ppm cost breakdown here
+		linehaul, fuel, origin, dest, packing, unpacking, err := estimator.PriceBreakdown(appCtx, &ppmShipment)
+		if err != nil {
+			return apperror.NewUnprocessableEntityError("ppm price breakdown")
+		}
+
+		ppmLinehaul += linehaul.Float64()
+		ppmFuel += fuel.Float64()
+		ppmOriginPrice += origin.Float64()
+		ppmDestPrice += dest.Float64()
+		ppmPacking += packing.Float64()
+		ppmUnpacking += unpacking.Float64()
+		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
+
+		pptasShipment.PpmLinehaul = &ppmLinehaul
+		pptasShipment.PpmFuelRateAdjTotal = &ppmFuel
+		pptasShipment.PpmOriginPrice = &ppmOriginPrice
+		pptasShipment.PpmDestPrice = &ppmDestPrice
+		pptasShipment.PpmPacking = &ppmPacking
+		pptasShipment.PpmUnpacking = &ppmUnpacking
+		pptasShipment.PpmTotal = &ppmTotal
+	}
+
+	return nil
+}
+
+// calculate the ppm net weight by taking the difference in full weight and empty weight in the weight tickets
+func calculatePPMNetWeight(ppmShipment models.PPMShipment) float64 {
+	totalNetWeight := unit.Pound(0)
+
+	for _, weightTicket := range ppmShipment.WeightTickets {
+		totalNetWeight += *weightTicket.FullWeight - *weightTicket.EmptyWeight
+	}
+
+	return totalNetWeight.Float64()
 }
 
 func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crate {
@@ -439,4 +475,50 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 	newServiceItemCrate.Description = *serviceItem.Description
 
 	return newServiceItemCrate
+}
+
+// inputs all TAC related fields and builds full line of accounting string
+func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Order, appCtx appcontext.AppContext, tacFetcher services.TransportationAccountingCodeFetcher, loa services.LineOfAccountingFetcher) error {
+	tac, err := tacFetcher.FetchOrderTransportationAccountingCodes(*orders.ServiceMember.Affiliation, orders.IssueDate, *orders.TAC, appCtx)
+	if err != nil {
+		return err
+	} else if len(tac) < 1 {
+		return nil
+	}
+
+	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)
+
+	pptasShipment.Loa = &longLoa
+	pptasShipment.FiscalYear = tac[0].TacFyTxt
+	pptasShipment.Appro = tac[0].LineOfAccounting.LoaBafID
+	pptasShipment.Subhead = tac[0].LineOfAccounting.LoaObjClsID
+	pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
+	pptasShipment.Bcn = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
+	pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
+	pptasShipment.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
+	pptasShipment.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
+	pptasShipment.Paa = tac[0].LineOfAccounting.LoaDocID
+	pptasShipment.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
+	pptasShipment.Ddcd = tac[0].LineOfAccounting.LoaDptID
+
+	return nil
+}
+
+// converts models.Address into payload address
+func Address(address *models.Address) *pptasmessages.Address {
+	if address == nil {
+		return nil
+	}
+	return &pptasmessages.Address{
+		ID:             strfmt.UUID(address.ID.String()),
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+		City:           &address.City,
+		State:          &address.State,
+		PostalCode:     &address.PostalCode,
+		Country:        address.Country,
+		County:         &address.County,
+		ETag:           etag.GenerateEtag(address.UpdatedAt),
+	}
 }

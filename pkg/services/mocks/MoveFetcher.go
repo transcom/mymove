@@ -42,8 +42,8 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 	return r0, r1
 }
 
-// FetchMovesForReports provides a mock function with given fields: appCtx, params
-func (_m *MoveFetcher) FetchMovesForReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+// FetchMovesForPPTASReports provides a mock function with given fields: appCtx, params
+func (_m *MoveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, params)
 
 	var r0 models.Moves

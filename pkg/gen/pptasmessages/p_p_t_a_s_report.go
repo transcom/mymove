@@ -21,66 +21,22 @@ import (
 // swagger:model PPTASReport
 type PPTASReport struct {
 
-	// LoaTrnsnID in lines_of_accounting
-	Aaa *string `json:"aaa,omitempty"`
-
-	// actual origin net weight
-	ActualOriginNetWeight *float64 `json:"actualOriginNetWeight,omitempty"`
-
 	// address
 	Address *Address `json:"address,omitempty"`
 
 	// affiliation
 	Affiliation *Affiliation `json:"affiliation,omitempty"`
 
-	// Appropriation
-	Appro *string `json:"appro,omitempty"`
-
-	// LoaSbaltmtRcpntID in lines_of_accounting
-	Bcn *string `json:"bcn,omitempty"`
-
-	// LoaPgmElmntID in lines_of_accounting
-	CostCD *string `json:"costCD,omitempty"`
-
 	// counseled date
 	// Format: date
 	CounseledDate strfmt.Date `json:"counseledDate,omitempty"`
 
-	// counseling fee total
-	CounselingFeeTotal *float64 `json:"counselingFeeTotal,omitempty"`
-
-	// crating dimensions
-	CratingDimensions []*Crate `json:"cratingDimensions"`
-
-	// crating total
-	CratingTotal *float64 `json:"cratingTotal,omitempty"`
-
-	// Counseling Date
-	// Format: date
-	Dd2278IssueDate strfmt.Date `json:"dd2278IssueDate,omitempty"`
-
-	// LoaDptID in lines_of_accounting
-	Ddcd *string `json:"ddcd,omitempty"`
-
-	// delivery date
-	// Format: date
-	DeliveryDate strfmt.Date `json:"deliveryDate,omitempty"`
-
 	// Dependent Code
 	DepCD *bool `json:"depCD,omitempty"`
-
-	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
 
 	// destination gbloc
 	// Pattern: ^[A-Z]{4}$
 	DestinationGbloc *string `json:"destinationGbloc,omitempty"`
-
-	// destination price
-	DestinationPrice *float64 `json:"destinationPrice,omitempty"`
-
-	// destination reweigh net weight
-	DestinationReweighNetWeight *float64 `json:"destinationReweighNetWeight,omitempty"`
 
 	// edipi
 	Edipi string `json:"edipi,omitempty"`
@@ -95,51 +51,17 @@ type PPTASReport struct {
 	// entitlement weight
 	EntitlementWeight *int64 `json:"entitlementWeight,omitempty"`
 
-	// financial review flag
-	FinancialReviewFlag *bool `json:"financialReviewFlag,omitempty"`
-
 	// first name
 	// Example: Bob
 	FirstName string `json:"firstName,omitempty"`
-
-	// fiscal year
-	FiscalYear *string `json:"fiscalYear,omitempty"`
-
-	// Invoice Paid Amounts
-	InvoicePaidAmt *float64 `json:"invoicePaidAmt,omitempty"`
 
 	// last name
 	// Example: Job
 	LastName string `json:"lastName,omitempty"`
 
-	// linehaul fuel total
-	LinehaulFuelTotal *float64 `json:"linehaulFuelTotal,omitempty"`
-
-	// linehaul total
-	LinehaulTotal *float64 `json:"linehaulTotal,omitempty"`
-
-	// Line of Accounting
-	Loa *string `json:"loa,omitempty"`
-
 	// middle initial
 	// Example: G
 	MiddleInitial *string `json:"middleInitial,omitempty"`
-
-	// miles
-	Miles int64 `json:"miles,omitempty"`
-
-	// move date
-	// Format: date
-	MoveDate *strfmt.Date `json:"moveDate,omitempty"`
-
-	// move management fee total
-	MoveManagementFeeTotal *float64 `json:"moveManagementFeeTotal,omitempty"`
-
-	// net weight
-	NetWeight *int64 `json:"netWeight,omitempty"`
-
-	// LoaAlltSnID in lines_of_accounting
-	ObjClass *string `json:"objClass,omitempty"`
 
 	// not to be confused with Orders Number
 	// Example: 030-00362
@@ -155,32 +77,13 @@ type PPTASReport struct {
 	// orders type
 	OrdersType string `json:"ordersType,omitempty"`
 
-	// origin address
-	OriginAddress *Address `json:"originAddress,omitempty"`
-
 	// origin gbloc
 	// Pattern: ^[A-Z]{4}$
 	OriginGbloc *string `json:"originGbloc,omitempty"`
 
-	// origin price
-	OriginPrice *float64 `json:"originPrice,omitempty"`
-
-	// LoaDocID in lines_of_accounting
-	Paa *string `json:"paa,omitempty"`
-
-	// packing price
-	PackingPrice *float64 `json:"packingPrice,omitempty"`
-
-	// paid date
-	// Format: date
-	PaidDate *strfmt.Date `json:"paidDate,omitempty"`
-
 	// grade
 	// Enum: [E_1 E_2 E_3 E_4 E_5 E_6 E_7 E_8 E_9 E_9_SPECIAL_SENIOR_ENLISTED O_1_ACADEMY_GRADUATE O_2 O_3 O_4 O_5 O_6 O_7 O_8 O_9 O_10 W_1 W_2 W_3 W_4 W_5 AVIATION_CADET CIVILIAN_EMPLOYEE ACADEMY_CADET MIDSHIPMAN]
 	PayGrade *string `json:"payGrade,omitempty"`
-
-	// Pro Gear
-	PbpAnde *float64 `json:"pbpAnde,omitempty"`
 
 	// phone primary
 	PhonePrimary string `json:"phonePrimary,omitempty"`
@@ -188,101 +91,21 @@ type PPTASReport struct {
 	// phone secondary
 	PhoneSecondary *string `json:"phoneSecondary,omitempty"`
 
-	// pickup date
-	// Format: date
-	PickupDate strfmt.Date `json:"pickupDate,omitempty"`
-
-	// ppm dest price
-	PpmDestPrice *float64 `json:"ppmDestPrice,omitempty"`
-
-	// Personally Procured Move Fuel Rate Adjusted total cost
-	PpmFuelRateAdjTotal *float64 `json:"ppmFuelRateAdjTotal,omitempty"`
-
-	// Personally Procured Move Linehaul total cost
-	PpmLinehaul *float64 `json:"ppmLinehaul,omitempty"`
-
-	// ppm origin price
-	PpmOriginPrice *float64 `json:"ppmOriginPrice,omitempty"`
-
-	// ppm packing
-	PpmPacking *float64 `json:"ppmPacking,omitempty"`
-
-	// ppm storage
-	PpmStorage *float64 `json:"ppmStorage,omitempty"`
-
-	// ppm total
-	PpmTotal *float64 `json:"ppmTotal,omitempty"`
-
-	// ppm unpacking
-	PpmUnpacking *float64 `json:"ppmUnpacking,omitempty"`
-
 	// scac
 	// Example: AGFM
 	Scac *string `json:"scac,omitempty"`
 
-	// shipment Id
-	// Format: uuid
-	ShipmentID strfmt.UUID `json:"shipmentId,omitempty"`
-
 	// Number of shipments
 	ShipmentNum int64 `json:"shipmentNum,omitempty"`
 
-	// shipment type
-	ShipmentType string `json:"shipmentType,omitempty"`
-
-	// shuttle total
-	ShuttleTotal *float64 `json:"shuttleTotal,omitempty"`
-
-	// Storage in Transit delivery total cost
-	SitDeliveryTotal *float64 `json:"sitDeliveryTotal,omitempty"`
-
-	// Additional day of Destination Storage in Transit cost
-	SitDestAddlDaysTotal *float64 `json:"sitDestAddlDaysTotal,omitempty"`
-
-	// First day of Destination Storage in Transit cost
-	SitDestFirstDayTotal *float64 `json:"sitDestFirstDayTotal,omitempty"`
-
-	// Storage in Transit destination total cost
-	SitDestFuelSurcharge *float64 `json:"sitDestFuelSurcharge,omitempty"`
-
-	// Storage in Transit In Date
-	// Format: date
-	SitInDate *strfmt.Date `json:"sitInDate,omitempty"`
-
-	// Additional day of Origin Storage in Transit cost
-	SitOriginAddlDaysTotal *float64 `json:"sitOriginAddlDaysTotal,omitempty"`
-
-	// First day of Origin Storage in Transit cost
-	SitOriginFirstDayTotal *float64 `json:"sitOriginFirstDayTotal,omitempty"`
-
-	// Storage in Transit origin fuel total cost
-	SitOriginFuelSurcharge *float64 `json:"sitOriginFuelSurcharge,omitempty"`
-
-	// Storage in Transit Out Date
-	// Format: date
-	SitOutDate *strfmt.Date `json:"sitOutDate,omitempty"`
-
-	// Storage in Transit pickup total cost
-	SitPickupTotal *float64 `json:"sitPickupTotal,omitempty"`
-
-	// Storage in Transit type
-	// Example: Destination
-	SitType *string `json:"sitType,omitempty"`
-
-	// LoaInstlAcntgActID in lines_of_accounting
-	SubAllotCD *string `json:"subAllotCD,omitempty"`
-
-	// LoaObjClsID in lines_of_accounting
-	Subhead *string `json:"subhead,omitempty"`
+	// shipments
+	Shipments []*PPTASShipment `json:"shipments"`
 
 	// Transportation Accounting Code
 	Tac *string `json:"tac,omitempty"`
 
 	// Transmit Code
 	TransmitCD *string `json:"transmitCD,omitempty"`
-
-	// travel advance
-	TravelAdvance *float64 `json:"travelAdvance,omitempty"`
 
 	// travel class code
 	// Example: PCS
@@ -292,20 +115,8 @@ type PPTASReport struct {
 	// Example: Shipment of HHG Permitted
 	TravelType string `json:"travelType,omitempty"`
 
-	// LoaJbOrdNm in lines_of_accounting
-	TypeCD *string `json:"typeCD,omitempty"`
-
-	// uncrating total
-	UncratingTotal *float64 `json:"uncratingTotal,omitempty"`
-
-	// unpacking price
-	UnpackingPrice *float64 `json:"unpackingPrice,omitempty"`
-
 	// weight authorized
 	WeightAuthorized *float64 `json:"weightAuthorized,omitempty"`
-
-	// Total weight estimate
-	WeightEstimate *float64 `json:"weightEstimate,omitempty"`
 }
 
 // Validate validates this p p t a s report
@@ -324,27 +135,7 @@ func (m *PPTASReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateCratingDimensions(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDd2278IssueDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDeliveryDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateDestinationAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateDestinationGbloc(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateMoveDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -352,15 +143,7 @@ func (m *PPTASReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateOriginAddress(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateOriginGbloc(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validatePaidDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -368,19 +151,7 @@ func (m *PPTASReport) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validatePickupDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateShipmentID(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitInDate(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitOutDate(formats); err != nil {
+	if err := m.validateShipments(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -440,93 +211,12 @@ func (m *PPTASReport) validateCounseledDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPTASReport) validateCratingDimensions(formats strfmt.Registry) error {
-	if swag.IsZero(m.CratingDimensions) { // not required
-		return nil
-	}
-
-	for i := 0; i < len(m.CratingDimensions); i++ {
-		if swag.IsZero(m.CratingDimensions[i]) { // not required
-			continue
-		}
-
-		if m.CratingDimensions[i] != nil {
-			if err := m.CratingDimensions[i].Validate(formats); err != nil {
-				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
-				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
-				}
-				return err
-			}
-		}
-
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validateDd2278IssueDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.Dd2278IssueDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("dd2278IssueDate", "body", "date", m.Dd2278IssueDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validateDeliveryDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.DeliveryDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("deliveryDate", "body", "date", m.DeliveryDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validateDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.DestinationAddress) { // not required
-		return nil
-	}
-
-	if m.DestinationAddress != nil {
-		if err := m.DestinationAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *PPTASReport) validateDestinationGbloc(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationGbloc) { // not required
 		return nil
 	}
 
 	if err := validate.Pattern("destinationGbloc", "body", *m.DestinationGbloc, `^[A-Z]{4}$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validateMoveDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.MoveDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("moveDate", "body", "date", m.MoveDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -545,43 +235,12 @@ func (m *PPTASReport) validateOrdersDate(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPTASReport) validateOriginAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.OriginAddress) { // not required
-		return nil
-	}
-
-	if m.OriginAddress != nil {
-		if err := m.OriginAddress.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *PPTASReport) validateOriginGbloc(formats strfmt.Registry) error {
 	if swag.IsZero(m.OriginGbloc) { // not required
 		return nil
 	}
 
 	if err := validate.Pattern("originGbloc", "body", *m.OriginGbloc, `^[A-Z]{4}$`); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validatePaidDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.PaidDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("paidDate", "body", "date", m.PaidDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -711,49 +370,27 @@ func (m *PPTASReport) validatePayGrade(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *PPTASReport) validatePickupDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.PickupDate) { // not required
+func (m *PPTASReport) validateShipments(formats strfmt.Registry) error {
+	if swag.IsZero(m.Shipments) { // not required
 		return nil
 	}
 
-	if err := validate.FormatOf("pickupDate", "body", "date", m.PickupDate.String(), formats); err != nil {
-		return err
-	}
+	for i := 0; i < len(m.Shipments); i++ {
+		if swag.IsZero(m.Shipments[i]) { // not required
+			continue
+		}
 
-	return nil
-}
+		if m.Shipments[i] != nil {
+			if err := m.Shipments[i].Validate(formats); err != nil {
+				if ve, ok := err.(*errors.Validation); ok {
+					return ve.ValidateName("shipments" + "." + strconv.Itoa(i))
+				} else if ce, ok := err.(*errors.CompositeError); ok {
+					return ce.ValidateName("shipments" + "." + strconv.Itoa(i))
+				}
+				return err
+			}
+		}
 
-func (m *PPTASReport) validateShipmentID(formats strfmt.Registry) error {
-	if swag.IsZero(m.ShipmentID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("shipmentId", "body", "uuid", m.ShipmentID.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validateSitInDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitInDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitInDate", "body", "date", m.SitInDate.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) validateSitOutDate(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitOutDate) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("sitOutDate", "body", "date", m.SitOutDate.String(), formats); err != nil {
-		return err
 	}
 
 	return nil
@@ -771,15 +408,7 @@ func (m *PPTASReport) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateCratingDimensions(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateOriginAddress(ctx, formats); err != nil {
+	if err := m.contextValidateShipments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -831,68 +460,26 @@ func (m *PPTASReport) contextValidateAffiliation(ctx context.Context, formats st
 	return nil
 }
 
-func (m *PPTASReport) contextValidateCratingDimensions(ctx context.Context, formats strfmt.Registry) error {
+func (m *PPTASReport) contextValidateShipments(ctx context.Context, formats strfmt.Registry) error {
 
-	for i := 0; i < len(m.CratingDimensions); i++ {
+	for i := 0; i < len(m.Shipments); i++ {
 
-		if m.CratingDimensions[i] != nil {
+		if m.Shipments[i] != nil {
 
-			if swag.IsZero(m.CratingDimensions[i]) { // not required
+			if swag.IsZero(m.Shipments[i]) { // not required
 				return nil
 			}
 
-			if err := m.CratingDimensions[i].ContextValidate(ctx, formats); err != nil {
+			if err := m.Shipments[i].ContextValidate(ctx, formats); err != nil {
 				if ve, ok := err.(*errors.Validation); ok {
-					return ve.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
+					return ve.ValidateName("shipments" + "." + strconv.Itoa(i))
 				} else if ce, ok := err.(*errors.CompositeError); ok {
-					return ce.ValidateName("cratingDimensions" + "." + strconv.Itoa(i))
+					return ce.ValidateName("shipments" + "." + strconv.Itoa(i))
 				}
 				return err
 			}
 		}
 
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.DestinationAddress != nil {
-
-		if swag.IsZero(m.DestinationAddress) { // not required
-			return nil
-		}
-
-		if err := m.DestinationAddress.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("destinationAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("destinationAddress")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *PPTASReport) contextValidateOriginAddress(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.OriginAddress != nil {
-
-		if swag.IsZero(m.OriginAddress) { // not required
-			return nil
-		}
-
-		if err := m.OriginAddress.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("originAddress")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("originAddress")
-			}
-			return err
-		}
 	}
 
 	return nil

@@ -1,10 +1,13 @@
 package report
 
 import (
+	"time"
+
+	"github.com/stretchr/testify/mock"
+
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/services"
 	mocks "github.com/transcom/mymove/pkg/services/mocks"
 )
 
@@ -15,11 +18,12 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 	loaFetcher := mocks.LineOfAccountingFetcher{}
 
 	reportListFetcher := NewPPTASReportListFetcher(&ppmEstimator, &moveFetcher, &tacFetcher, &loaFetcher)
-	defaultSearchParams := services.MoveTaskOrderFetcherParams{}
+	// defaultSearchParams := services.MoveTaskOrderFetcherParams{}
 
 	appCtx := suite.AppContextForTest()
 
 	// Setup data
+	testDate := time.Now()
 	serviceMember := factory.BuildServiceMember(suite.DB(), []factory.Customization{
 		{
 			Model: models.ServiceMember{
@@ -35,7 +39,8 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		},
 		{
 			Model: models.Order{
-				TAC: models.StringPointer("E12A"),
+				TAC:       models.StringPointer("E12A"),
+				IssueDate: testDate,
 			},
 		},
 	}, nil)
@@ -43,6 +48,11 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		{
 			Model:    orders,
 			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ServiceCounselingCompletedAt: &testDate,
+			},
 		},
 		{
 			Model: models.MTOShipment{
@@ -68,31 +78,48 @@ func (suite *ReportServiceSuite) TestReportFetcher() {
 		},
 	}, nil)
 
-	// Add TAC/LOA records with fully filled out LOA fields
+	beginDate := time.Now().AddDate(0, 0, -10)
+	endDate := time.Now().AddDate(0, 0, 10)
+	hsgdscd := models.LineOfAccountingHouseholdGoodsCodeEnlisted
 	loa := factory.BuildFullLineOfAccounting(nil, []factory.Customization{
 		{
 			Model: models.LineOfAccounting{
+				LoaSysID:           models.StringPointer("ooga booga"),
 				LoaInstlAcntgActID: models.StringPointer("123"),
+				LoaBgnDt:           &beginDate,
+				LoaEndDt:           &endDate,
+				LoaHsGdsCd:         &hsgdscd,
 			},
 		},
 	}, nil)
 	tac := factory.BuildTransportationAccountingCode(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationAccountingCode{
-				TAC:          *move.Orders.TAC,
-				TacFnBlModCd: models.StringPointer("W"),
-				LoaSysID:     loa.LoaSysID,
+				TAC:               "E12A",
+				TacFnBlModCd:      models.StringPointer("W"),
+				LoaSysID:          loa.LoaSysID,
+				TrnsprtnAcntBgnDt: &beginDate,
+				TrnsprtnAcntEndDt: &endDate,
 			},
 		},
 		{
-			Model: loa,
+			Model:    loa,
+			LinkOnly: false,
 		},
 	}, nil)
 
-	factory.BuildMove(suite.DB(), nil, nil)
+	var movesForReport models.Moves
+	movesForReport = append(movesForReport, move)
 
-	suite.Run("successfully return only navy moves with an approved payment request", func() {
-		reports, err := reportListFetcher.BuildPPTASReportsFromMoves(appCtx, &defaultSearchParams)
+	suite.Run("successfully create a report", func() {
+		tacFetcher.On("FetchOrderTransportationAccountingCodes",
+			mock.Anything,
+			mock.Anything,
+			"E12A",
+			mock.AnythingOfType("*appcontext.appContext"),
+		).Return(nil, nil)
+
+		reports, err := reportListFetcher.BuildPPTASReportsFromMoves(appCtx, movesForReport)
 		suite.NoError(err)
 
 		suite.Equal(1, len(reports))

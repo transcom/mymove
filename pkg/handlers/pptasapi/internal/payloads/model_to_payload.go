@@ -33,52 +33,23 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 	}
 
 	payload := &pptasmessages.PPTASReport{
-		MiddleInitial:          pptasReport.MiddleInitial,
-		PhoneSecondary:         pptasReport.PhoneSecondary,
-		EmailSecondary:         pptasReport.EmailSecondary,
-		OrdersType:             string(pptasReport.OrdersType),
-		PayGrade:               (*string)(pptasReport.PayGrade),
-		OriginAddress:          Address(pptasReport.OriginAddress),
-		DestinationAddress:     Address(pptasReport.DestinationAddress),
-		OriginGbloc:            pptasReport.OriginGBLOC,
-		DestinationGbloc:       pptasReport.DestinationGBLOC,
-		DepCD:                  &pptasReport.DepCD,
-		Affiliation:            (*pptasmessages.Affiliation)(pptasReport.Affiliation),
-		Tac:                    pptasReport.TAC,
-		FiscalYear:             pptasReport.FiscalYear,
-		ShipmentNum:            int64(pptasReport.ShipmentNum),
-		TransmitCD:             pptasReport.TransmitCd,
-		Dd2278IssueDate:        strfmt.Date(*pptasReport.DD2278IssueDate),
-		ShipmentID:             strfmt.UUID(pptasReport.ShipmentId.String()),
-		Scac:                   pptasReport.SCAC,
-		Loa:                    pptasReport.LOA,
-		SitType:                pptasReport.SitType,
-		LinehaulTotal:          pptasReport.LinehaulTotal,
-		LinehaulFuelTotal:      pptasReport.LinehaulFuelTotal,
-		OriginPrice:            pptasReport.OriginPrice,
-		DestinationPrice:       pptasReport.DestinationPrice,
-		PackingPrice:           pptasReport.PackingPrice,
-		UnpackingPrice:         pptasReport.UnpackingPrice,
-		PaidDate:               (*strfmt.Date)(pptasReport.PaidDate),
-		MoveDate:               (*strfmt.Date)(pptasReport.MoveDate),
-		SitInDate:              (*strfmt.Date)(pptasReport.SitInDate),
-		SitOutDate:             (*strfmt.Date)(pptasReport.SitOutDate),
-		SitOriginFirstDayTotal: pptasReport.SITOriginFirstDayTotal,
-		SitOriginAddlDaysTotal: pptasReport.SITOriginAddlDaysTotal,
-		SitDestFirstDayTotal:   pptasReport.SITDestFirstDayTotal,
-		SitDestAddlDaysTotal:   pptasReport.SITDestAddlDaysTotal,
-		SitPickupTotal:         pptasReport.SITPickupTotal,
-		SitDeliveryTotal:       pptasReport.SITDeliveryTotal,
-		SitOriginFuelSurcharge: pptasReport.SITOriginFuelSurcharge,
-		SitDestFuelSurcharge:   pptasReport.SITDestFuelSurcharge,
-		CratingTotal:           pptasReport.CratingTotal,
-		UncratingTotal:         pptasReport.UncratingTotal,
-		CratingDimensions:      pptasReport.CratingDimensions,
-		ShuttleTotal:           pptasReport.ShuttleTotal,
-		MoveManagementFeeTotal: pptasReport.MoveManagementFeeTotal,
-		CounselingFeeTotal:     pptasReport.CounselingFeeTotal,
-		InvoicePaidAmt:         pptasReport.InvoicePaidAmt,
-		FinancialReviewFlag:    pptasReport.FinancialReviewFlag,
+		MiddleInitial:    pptasReport.MiddleInitial,
+		PhoneSecondary:   pptasReport.PhoneSecondary,
+		EmailSecondary:   pptasReport.EmailSecondary,
+		OrdersType:       string(pptasReport.OrdersType),
+		PayGrade:         (*string)(pptasReport.PayGrade),
+		OriginGbloc:      pptasReport.OriginGBLOC,
+		DestinationGbloc: pptasReport.DestinationGBLOC,
+		DepCD:            &pptasReport.DepCD,
+		Affiliation:      (*pptasmessages.Affiliation)(pptasReport.Affiliation),
+		Tac:              pptasReport.TAC,
+		ShipmentNum:      int64(pptasReport.ShipmentNum),
+		TransmitCD:       pptasReport.TransmitCd,
+		Scac:             pptasReport.SCAC,
+	}
+
+	if len(pptasReport.Shipments) > 0 {
+		payload.Shipments = pptasReport.Shipments
 	}
 
 	if pptasReport.FirstName != nil {
@@ -113,133 +84,24 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 		payload.OrderNumber = pptasReport.OrderNumber
 	}
 
-	if pptasReport.PickupDate != nil {
-		payload.PickupDate = strfmt.Date(*pptasReport.PickupDate)
-	}
-
-	if pptasReport.PBPAndE != nil {
-		payload.PbpAnde = models.Float64Pointer(pptasReport.PBPAndE.Float64())
-	}
-
-	if pptasReport.TravelAdvance != nil {
-		payload.TravelAdvance = models.Float64Pointer(pptasReport.TravelAdvance.Float64())
-	}
-
-	if pptasReport.NetWeight != nil {
-		payload.NetWeight = models.Int64Pointer(pptasReport.NetWeight.Int64())
+	if pptasReport.Address != nil {
+		payload.Address = Address(pptasReport.Address)
 	}
 
 	if pptasReport.EntitlementWeight != nil {
 		payload.EntitlementWeight = models.Int64Pointer(pptasReport.EntitlementWeight.Int64())
 	}
 
-	if pptasReport.Miles != nil {
-		payload.Miles = int64(*pptasReport.Miles)
-	}
-
-	if pptasReport.Address != nil {
-		payload.Address = Address(pptasReport.Address)
-	}
-
-	if pptasReport.ShipmentType != nil {
-		payload.ShipmentType = *pptasReport.ShipmentType
-	}
-
 	if pptasReport.TravelType != nil {
 		payload.TravelType = *pptasReport.TravelType
-	}
-
-	if pptasReport.Appro != nil {
-		payload.Appro = pptasReport.Appro
-	}
-
-	if pptasReport.Subhead != nil {
-		payload.Subhead = pptasReport.Subhead
-	}
-
-	if pptasReport.ObjClass != nil {
-		payload.ObjClass = pptasReport.ObjClass
-	}
-
-	if pptasReport.BCN != nil {
-		payload.Bcn = pptasReport.BCN
-	}
-
-	if pptasReport.SubAllotCD != nil {
-		payload.SubAllotCD = pptasReport.SubAllotCD
-	}
-
-	if pptasReport.AAA != nil {
-		payload.Aaa = pptasReport.AAA
-	}
-
-	if pptasReport.TravelType != nil {
-		payload.TravelType = *pptasReport.TravelType
-	}
-
-	if pptasReport.PAA != nil {
-		payload.Paa = pptasReport.PAA
-	}
-
-	if pptasReport.CostCD != nil {
-		payload.CostCD = pptasReport.CostCD
-	}
-
-	if pptasReport.DDCD != nil {
-		payload.Ddcd = pptasReport.DDCD
 	}
 
 	if pptasReport.TravelClassCode != nil {
 		payload.TravelClassCode = *pptasReport.TravelClassCode
 	}
 
-	if pptasReport.WeightEstimate != nil {
-		payload.WeightEstimate = models.Float64Pointer(pptasReport.WeightEstimate.Float64())
-	}
-
-	if pptasReport.ActualOriginNetWeight != nil {
-		payload.ActualOriginNetWeight = models.Float64Pointer(pptasReport.ActualOriginNetWeight.Float64())
-	}
-
-	if pptasReport.DestinationReweighNetWeight != nil {
-		payload.DestinationReweighNetWeight = models.Float64Pointer(pptasReport.DestinationReweighNetWeight.Float64())
-	}
-
-	if pptasReport.DeliveryDate != nil {
-		payload.DeliveryDate = strfmt.Date(*pptasReport.DeliveryDate)
-	}
-
 	if pptasReport.CounseledDate != nil {
 		payload.CounseledDate = strfmt.Date(*pptasReport.CounseledDate)
-	}
-
-	emptyCost := float64(0)
-	if pptasReport.PpmLinehaul != nil && *pptasReport.PpmLinehaul != emptyCost {
-		payload.PpmLinehaul = pptasReport.PpmLinehaul
-	}
-
-	if pptasReport.PpmFuelRateAdjTotal != nil && *pptasReport.PpmFuelRateAdjTotal != emptyCost {
-		payload.PpmFuelRateAdjTotal = pptasReport.PpmFuelRateAdjTotal
-	}
-
-	if pptasReport.PpmOriginPrice != nil && *pptasReport.PpmOriginPrice != emptyCost {
-		payload.PpmOriginPrice = pptasReport.PpmOriginPrice
-	}
-
-	if pptasReport.PpmDestPrice != nil && *pptasReport.PpmDestPrice != emptyCost {
-		payload.PpmDestPrice = pptasReport.PpmDestPrice
-	}
-
-	if pptasReport.PpmPacking != nil && *pptasReport.PpmPacking != emptyCost {
-		payload.PpmPacking = pptasReport.PpmPacking
-	}
-
-	if pptasReport.PpmUnpacking != nil && *pptasReport.PpmUnpacking != emptyCost {
-		payload.PpmUnpacking = pptasReport.PpmUnpacking
-	}
-
-	if pptasReport.PpmTotal != nil && *pptasReport.PpmTotal != emptyCost {
-		payload.PpmTotal = pptasReport.PpmTotal
 	}
 
 	return payload
