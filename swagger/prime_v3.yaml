@@ -625,7 +625,23 @@ definitions:
         description: The address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1157,6 +1173,10 @@ definitions:
     properties:
       newAddress:
         $ref: '#/definitions/Address'
+      newSecondaryAddress:
+        $ref: '#/definitions/Address'
+      newTertiaryAddress:
+        $ref: '#/definitions/Address'
       contractorRemarks:
         type: string
         example: >-
@@ -1298,6 +1318,10 @@ definitions:
     type: object
     properties:
       newAddress:
+        $ref: '#/definitions/Address'
+      newSecondaryAddress:
+        $ref: '#/definitions/Address'
+      newTertiaryAddress:
         $ref: '#/definitions/Address'
       contractorRemarks:
         type: string
@@ -2352,6 +2376,12 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -2368,6 +2398,12 @@ definitions:
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -2550,7 +2586,15 @@ definitions:
         readOnly: true
       originalAddress:
         $ref: '#/definitions/Address'
+      originalSecondaryAddress:
+        $ref: '#/definitions/Address'
+      originalTertiaryAddress:
+        $ref: '#/definitions/Address'
       newAddress:
+        $ref: '#/definitions/Address'
+      newSecondaryAddress:
+        $ref: '#/definitions/Address'
+      newTertiaryAddress:
         $ref: '#/definitions/Address'
       sitOriginalAddress:
         $ref: '#/definitions/Address'
@@ -2745,6 +2789,26 @@ definitions:
           the customer during onboarding when they enter shipment details.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        description: >-
+          A second pickup address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       destinationAddress:
         description: >
           Where the movers should deliver this shipment. Often provided by the
@@ -2761,18 +2825,26 @@ definitions:
           - $ref: '#/definitions/Address'
       destinationType:
         $ref: '#/definitions/DestinationType'
-      secondaryPickupAddress:
+      secondaryDestinationAddress:
         description: >-
-          A second pickup address for this shipment, if the customer entered
+          A second destination address for this shipment, if the customer
+          entered one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        description: >-
+          A third destination address for this shipment, if the customer entered
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
-        description: >-
-          A second delivery address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       storageFacility:
         allOf:
           - x-nullable: true
@@ -3041,12 +3113,40 @@ definitions:
         type: string
       newAddress:
         $ref: '#/definitions/Address'
+      newSecondaryAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      newSecondaryAddress:
+        $ref: '#/definitions/Address'
+      newTertiaryAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      newTertiaryAddress:
+        $ref: '#/definitions/Address'
       oldAddressId:
         example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
         format: uuid
         readOnly: true
         type: string
       oldAddress:
+        $ref: '#/definitions/Address'
+      oldSecondaryAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldSecondaryAddress:
+        $ref: '#/definitions/Address'
+      oldTertiaryAddressId:
+        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+        format: uuid
+        readOnly: true
+        type: string
+      oldTertiaryAddress:
         $ref: '#/definitions/Address'
       status:
         $ref: '#/definitions/SitAddressUpdateStatus'

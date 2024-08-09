@@ -142,6 +142,22 @@ properties:
       when they enter shipment details.
     allOf:
       - $ref: '../../Address.yaml'
+  secondaryPickupAddress:
+    description: A second pickup address for this shipment, if the customer entered one. An optional field.
+    allOf:
+      - $ref: '../../Address.yaml'
+  hasSecondaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+  tertiaryPickupAddress:
+    description: A second pickup address for this shipment, if the customer entered one. An optional field.
+    allOf:
+      - $ref: '../../Address.yaml'
+  hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
   destinationAddress:
     description: |
       Where the movers should deliver this shipment. Often provided by the customer when they enter shipment details
@@ -153,14 +169,22 @@ properties:
       - $ref: '../../Address.yaml'
   destinationType:
     $ref: '../../DestinationType.yaml'
-  secondaryPickupAddress:
-    description: A second pickup address for this shipment, if the customer entered one. An optional field.
+  secondaryDestinationAddress:
+    description: A second destination address for this shipment, if the customer entered one. An optional field.
     allOf:
       - $ref: '../../Address.yaml'
-  secondaryDeliveryAddress:
-    description: A second delivery address for this shipment, if the customer entered one. An optional field.
+  hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+  tertiaryDestinationAddress:
+    description: A third destination address for this shipment, if the customer entered one. An optional field.
     allOf:
       - $ref: '../../Address.yaml'
+  hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
   storageFacility:
     allOf:
       - x-nullable: true

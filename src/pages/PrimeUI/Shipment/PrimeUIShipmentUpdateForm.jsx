@@ -22,26 +22,12 @@ const emptyAddressShape = {
 
 const shipmentDestinationTypeOptions = dropdownInputOptions(shipmentDestinationTypes);
 
-const PrimeUIShipmentUpdateForm = ({
-  editableWeightEstimateField,
-  editableWeightActualField,
-  editableProGearWeightActualField,
-  editableSpouseProGearWeightActualField,
-  editablePickupAddress,
-  editableDestinationAddress,
-  requestedPickupDate,
-  estimatedWeight,
-  actualWeight,
-  actualProGearWeight,
-  actualSpouseProGearWeight,
-  pickupAddress,
-  destinationAddress,
-}) => {
+const PrimeUIShipmentUpdateForm = ({ editableFormFields, shipment }) => {
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Dates</h2>
       <h5 className={styles.sectionHeader}>Requested Pickup</h5>
-      {formatDate(requestedPickupDate)}
+      {formatDate(shipment.requestedPickupDate)}
       <DatePickerInput name="scheduledPickupDate" label="Scheduled pickup" />
       <DatePickerInput name="actualPickupDate" label="Actual pickup" />
       <DatePickerInput name="scheduledDeliveryDate" label="Scheduled delivery" />
@@ -49,7 +35,7 @@ const PrimeUIShipmentUpdateForm = ({
       <h2 className={styles.sectionHeader}>Diversion</h2>
       <CheckboxField id="diversion" name="diversion" label="Diversion" />
       <h2 className={styles.sectionHeader}>Shipment Weights</h2>
-      {editableWeightEstimateField && (
+      {editableFormFields.editableWeightEstimateField && (
         <MaskedTextField
           data-testid="estimatedWeightInput"
           defaultValue="0"
@@ -63,15 +49,15 @@ const PrimeUIShipmentUpdateForm = ({
           lazy={false} // immediate masking evaluation
         />
       )}
-      {!editableWeightEstimateField && (
+      {!editableFormFields.editableWeightEstimateField && (
         <>
           <dt>
             <h5 className={styles.sectionHeader}>Estimated Weight</h5>
           </dt>
-          <dd data-testid="authorizedWeight">{formatWeight(estimatedWeight)}</dd>
+          <dd data-testid="authorizedWeight">{formatWeight(shipment.estimatedWeight)}</dd>
         </>
       )}
-      {editableWeightActualField && (
+      {editableFormFields.editableWeightActualField && (
         <MaskedTextField
           data-testid="actualWeightInput"
           defaultValue="0"
@@ -85,16 +71,16 @@ const PrimeUIShipmentUpdateForm = ({
           lazy={false} // immediate masking evaluation
         />
       )}
-      {!editableWeightActualField && (
+      {!editableFormFields.editableWeightActualField && (
         <>
           <dt>
             <h5 className={styles.sectionHeader}>Actual Weight</h5>
           </dt>
-          <dd data-testid="authorizedWeight">{formatWeight(actualWeight)}</dd>
+          <dd data-testid="authorizedWeight">{formatWeight(shipment.actualWeight)}</dd>
         </>
       )}
       <h2 className={styles.sectionHeader}>Pro Gear Weights</h2>
-      {editableProGearWeightActualField && (
+      {editableFormFields.editableProGearWeightActualField && (
         <MaskedTextField
           data-testid="actualProGearWeightInput"
           defaultValue="0"
@@ -108,15 +94,15 @@ const PrimeUIShipmentUpdateForm = ({
           lazy={false} // immediate masking evaluation
         />
       )}
-      {!editableProGearWeightActualField && (
+      {!editableFormFields.editableProGearWeightActualField && (
         <>
           <dt>
             <h5 className={styles.sectionHeader}>Actual Pro Gear Weight</h5>
           </dt>
-          <dd data-testid="authorizedWeight">{formatWeight(actualProGearWeight)}</dd>
+          <dd data-testid="authorizedWeight">{formatWeight(shipment.actualProGearWeight)}</dd>
         </>
       )}
-      {editableSpouseProGearWeightActualField && (
+      {editableFormFields.editableSpouseProGearWeightActualField && (
         <MaskedTextField
           data-testid="actualSpouseProGearWeightInput"
           defaultValue="0"
@@ -130,21 +116,33 @@ const PrimeUIShipmentUpdateForm = ({
           lazy={false} // immediate masking evaluation
         />
       )}
-      {!editableSpouseProGearWeightActualField && (
+      {!editableFormFields.editableSpouseProGearWeightActualField && (
         <>
           <dt>
             <h5 className={styles.sectionHeader}>Actual Pro Gear Weight</h5>
           </dt>
-          <dd data-testid="authorizedWeight">{formatWeight(actualSpouseProGearWeight)}</dd>
+          <dd data-testid="authorizedWeight">{formatWeight(editableFormFields.actualSpouseProGearWeight)}</dd>
         </>
       )}
       <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
       <h5 className={styles.sectionHeader}>Pickup Address</h5>
-      {editablePickupAddress && <AddressFields name="pickupAddress" />}
-      {!editablePickupAddress && formatAddress(pickupAddress)}
+      {editableFormFields.editablePickupAddress && <AddressFields name="pickupAddress" />}
+      {!editableFormFields.ditablePickupAddress && formatAddress(shipment.pickupAddress)}
+      <h5 className={styles.sectionHeader}>Secondary Pickup Address</h5>
+      {editableFormFields.editableSecondaryPickupAddress && <AddressFields name="secondaryPickupAddress" />}
+      {!editableFormFields.editableSecondaryPickupAddress && formatAddress(shipment.secondaryPickupAddress)}
+      <h5 className={styles.sectionHeader}>Tertiary Pickup Address</h5>
+      {editableFormFields.editableTertiaryPickupAddress && <AddressFields name="tertiaryPickupAddress" />}
+      {!editableFormFields.editableTertiaryPickupAddress && formatAddress(shipment.tertiaryPickupAddress)}
       <h5 className={styles.sectionHeader}>Destination Address</h5>
-      {editableDestinationAddress && <AddressFields name="destinationAddress" />}
-      {!editableDestinationAddress && formatAddress(destinationAddress)}
+      {editableFormFields.editableDestinationAddress && <AddressFields name="destinationAddress" />}
+      {!editableFormFields.editableDestinationAddress && formatAddress(shipment.destinationAddress)}
+      <h5 className={styles.sectionHeader}>Secondary Destination Address</h5>
+      {editableFormFields.editableSecondaryDestinationAddress && <AddressFields name="secondaryDestinationAddress" />}
+      {!editableFormFields.editableSecondaryDestinationAddress && formatAddress(shipment.secondaryDestinationAddress)}
+      <h5 className={styles.sectionHeader}>Tertiary Destination Address</h5>
+      {editableFormFields.editableTertiaryDestinationAddress && <AddressFields name="tertiaryDestinationAddress" />}
+      {!editableFormFields.editableTertiaryDestinationAddress && formatAddress(shipment.tertiaryDestinationAddress)}
       <DropdownInput
         label="Destination type"
         name="destinationType"
@@ -168,7 +166,11 @@ PrimeUIShipmentUpdateForm.propTypes = {
   actualProGearWeight: PropTypes.string,
   actualSpouseProGearWeight: PropTypes.string,
   pickupAddress: ResidentialAddressShape,
+  secondaryPickupAddress: ResidentialAddressShape,
+  tertiaryPickupAddress: ResidentialAddressShape,
   destinationAddress: ResidentialAddressShape,
+  secondaryDestinationAddress: ResidentialAddressShape,
+  tertiaryDestinationAddress: ResidentialAddressShape,
 };
 
 PrimeUIShipmentUpdateForm.defaultProps = {
@@ -184,7 +186,11 @@ PrimeUIShipmentUpdateForm.defaultProps = {
   actualProGearWeight: '',
   actualSpouseProGearWeight: '',
   pickupAddress: emptyAddressShape,
+  secondaryPickupAddress: emptyAddressShape,
+  tertiaryPickupAddress: emptyAddressShape,
   destinationAddress: emptyAddressShape,
+  secondaryDestinationAddress: emptyAddressShape,
+  tertiaryDestinationAddress: emptyAddressShape,
 };
 
 export default PrimeUIShipmentUpdateForm;

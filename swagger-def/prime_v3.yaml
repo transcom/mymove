@@ -351,7 +351,23 @@ definitions:
         description: The address where the movers should pick up this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      secondaryDestinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -797,6 +813,10 @@ definitions:
     properties:
       newAddress:
         $ref: 'definitions/Address.yaml'
+      newSecondaryAddress:
+        $ref: 'definitions/Address.yaml'
+      newTertiaryAddress:
+        $ref: 'definitions/Address.yaml'
       contractorRemarks:
         type: string
         example: Customer reached out to me this week and let me know they want to move somewhere else.
@@ -916,6 +936,10 @@ definitions:
     type: object
     properties:
       newAddress:
+        $ref: 'definitions/Address.yaml'
+      newSecondaryAddress:
+        $ref: 'definitions/Address.yaml'
+      newTertiaryAddress:
         $ref: 'definitions/Address.yaml'
       contractorRemarks:
         type: string

@@ -11343,10 +11343,16 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -11361,6 +11367,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -25539,11 +25551,17 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -25559,6 +25577,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {

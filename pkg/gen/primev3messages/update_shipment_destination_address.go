@@ -27,6 +27,12 @@ type UpdateShipmentDestinationAddress struct {
 	// new address
 	// Required: true
 	NewAddress *Address `json:"newAddress"`
+
+	// new secondary address
+	NewSecondaryAddress *Address `json:"newSecondaryAddress,omitempty"`
+
+	// new tertiary address
+	NewTertiaryAddress *Address `json:"newTertiaryAddress,omitempty"`
 }
 
 // Validate validates this update shipment destination address
@@ -38,6 +44,14 @@ func (m *UpdateShipmentDestinationAddress) Validate(formats strfmt.Registry) err
 	}
 
 	if err := m.validateNewAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewSecondaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewTertiaryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -76,11 +90,57 @@ func (m *UpdateShipmentDestinationAddress) validateNewAddress(formats strfmt.Reg
 	return nil
 }
 
+func (m *UpdateShipmentDestinationAddress) validateNewSecondaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewSecondaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewSecondaryAddress != nil {
+		if err := m.NewSecondaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipmentDestinationAddress) validateNewTertiaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewTertiaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewTertiaryAddress != nil {
+		if err := m.NewTertiaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update shipment destination address based on the context it is used
 func (m *UpdateShipmentDestinationAddress) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateNewAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewSecondaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewTertiaryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,6 +159,48 @@ func (m *UpdateShipmentDestinationAddress) contextValidateNewAddress(ctx context
 				return ve.ValidateName("newAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("newAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipmentDestinationAddress) contextValidateNewSecondaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewSecondaryAddress != nil {
+
+		if swag.IsZero(m.NewSecondaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewSecondaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipmentDestinationAddress) contextValidateNewTertiaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewTertiaryAddress != nil {
+
+		if swag.IsZero(m.NewTertiaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewTertiaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
 			}
 			return err
 		}

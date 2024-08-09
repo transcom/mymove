@@ -16,12 +16,40 @@ properties:
     type: string
   newAddress:
     $ref: '../Address.yaml'
+  newSecondaryAddressId:
+    example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+    format: uuid
+    readOnly: true
+    type: string
+  newSecondaryAddress:
+    $ref: '../Address.yaml'
+  newTertiaryAddressId:
+    example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+    format: uuid
+    readOnly: true
+    type: string
+  newTertiaryAddress:
+    $ref: '../Address.yaml'
   oldAddressId:
     example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
     format: uuid
     readOnly: true
     type: string
   oldAddress:
+    $ref: '../Address.yaml'
+  oldSecondaryAddressId:
+    example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+    format: uuid
+    readOnly: true
+    type: string
+  oldSecondaryAddress:
+    $ref: '../Address.yaml'
+  oldTertiaryAddressId:
+    example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+    format: uuid
+    readOnly: true
+    type: string
+  oldTertiaryAddress:
     $ref: '../Address.yaml'
   status:
     $ref: 'SitAddressUpdateStatus.yaml'

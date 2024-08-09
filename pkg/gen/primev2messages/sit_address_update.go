@@ -59,6 +59,24 @@ type SitAddressUpdate struct {
 	// Format: uuid
 	NewAddressID strfmt.UUID `json:"newAddressId,omitempty"`
 
+	// new secondary address
+	NewSecondaryAddress *Address `json:"newSecondaryAddress,omitempty"`
+
+	// new secondary address Id
+	// Example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+	// Read Only: true
+	// Format: uuid
+	NewSecondaryAddressID strfmt.UUID `json:"newSecondaryAddressId,omitempty"`
+
+	// new tertiary address
+	NewTertiaryAddress *Address `json:"newTertiaryAddress,omitempty"`
+
+	// new tertiary address Id
+	// Example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+	// Read Only: true
+	// Format: uuid
+	NewTertiaryAddressID strfmt.UUID `json:"newTertiaryAddressId,omitempty"`
+
 	// office remarks
 	// Example: The customer has found a new house closer to base.
 	OfficeRemarks *string `json:"officeRemarks"`
@@ -71,6 +89,24 @@ type SitAddressUpdate struct {
 	// Read Only: true
 	// Format: uuid
 	OldAddressID strfmt.UUID `json:"oldAddressId,omitempty"`
+
+	// old secondary address
+	OldSecondaryAddress *Address `json:"oldSecondaryAddress,omitempty"`
+
+	// old secondary address Id
+	// Example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+	// Read Only: true
+	// Format: uuid
+	OldSecondaryAddressID strfmt.UUID `json:"oldSecondaryAddressId,omitempty"`
+
+	// old tertiary address
+	OldTertiaryAddress *Address `json:"oldTertiaryAddress,omitempty"`
+
+	// old tertiary address Id
+	// Example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
+	// Read Only: true
+	// Format: uuid
+	OldTertiaryAddressID strfmt.UUID `json:"oldTertiaryAddressId,omitempty"`
 
 	// status
 	Status SitAddressUpdateStatus `json:"status,omitempty"`
@@ -109,11 +145,43 @@ func (m *SitAddressUpdate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNewSecondaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewSecondaryAddressID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewTertiaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewTertiaryAddressID(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateOldAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateOldAddressID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldSecondaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldSecondaryAddressID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldTertiaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOldTertiaryAddressID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -206,6 +274,68 @@ func (m *SitAddressUpdate) validateNewAddressID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *SitAddressUpdate) validateNewSecondaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewSecondaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewSecondaryAddress != nil {
+		if err := m.NewSecondaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateNewSecondaryAddressID(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewSecondaryAddressID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("newSecondaryAddressId", "body", "uuid", m.NewSecondaryAddressID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateNewTertiaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewTertiaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewTertiaryAddress != nil {
+		if err := m.NewTertiaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateNewTertiaryAddressID(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewTertiaryAddressID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("newTertiaryAddressId", "body", "uuid", m.NewTertiaryAddressID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *SitAddressUpdate) validateOldAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.OldAddress) { // not required
 		return nil
@@ -231,6 +361,68 @@ func (m *SitAddressUpdate) validateOldAddressID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("oldAddressId", "body", "uuid", m.OldAddressID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateOldSecondaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldSecondaryAddress) { // not required
+		return nil
+	}
+
+	if m.OldSecondaryAddress != nil {
+		if err := m.OldSecondaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("oldSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("oldSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateOldSecondaryAddressID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldSecondaryAddressID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("oldSecondaryAddressId", "body", "uuid", m.OldSecondaryAddressID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateOldTertiaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldTertiaryAddress) { // not required
+		return nil
+	}
+
+	if m.OldTertiaryAddress != nil {
+		if err := m.OldTertiaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("oldTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("oldTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) validateOldTertiaryAddressID(formats strfmt.Registry) error {
+	if swag.IsZero(m.OldTertiaryAddressID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("oldTertiaryAddressId", "body", "uuid", m.OldTertiaryAddressID.String(), formats); err != nil {
 		return err
 	}
 
@@ -281,11 +473,43 @@ func (m *SitAddressUpdate) ContextValidate(ctx context.Context, formats strfmt.R
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateNewSecondaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewSecondaryAddressID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewTertiaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewTertiaryAddressID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOldAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateOldAddressID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOldSecondaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOldSecondaryAddressID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOldTertiaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOldTertiaryAddressID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -374,6 +598,66 @@ func (m *SitAddressUpdate) contextValidateNewAddressID(ctx context.Context, form
 	return nil
 }
 
+func (m *SitAddressUpdate) contextValidateNewSecondaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewSecondaryAddress != nil {
+
+		if swag.IsZero(m.NewSecondaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewSecondaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateNewSecondaryAddressID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "newSecondaryAddressId", "body", strfmt.UUID(m.NewSecondaryAddressID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateNewTertiaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewTertiaryAddress != nil {
+
+		if swag.IsZero(m.NewTertiaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewTertiaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateNewTertiaryAddressID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "newTertiaryAddressId", "body", strfmt.UUID(m.NewTertiaryAddressID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *SitAddressUpdate) contextValidateOldAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OldAddress != nil {
@@ -398,6 +682,66 @@ func (m *SitAddressUpdate) contextValidateOldAddress(ctx context.Context, format
 func (m *SitAddressUpdate) contextValidateOldAddressID(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "oldAddressId", "body", strfmt.UUID(m.OldAddressID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateOldSecondaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OldSecondaryAddress != nil {
+
+		if swag.IsZero(m.OldSecondaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.OldSecondaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("oldSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("oldSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateOldSecondaryAddressID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "oldSecondaryAddressId", "body", strfmt.UUID(m.OldSecondaryAddressID)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateOldTertiaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OldTertiaryAddress != nil {
+
+		if swag.IsZero(m.OldTertiaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.OldTertiaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("oldTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("oldTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *SitAddressUpdate) contextValidateOldTertiaryAddressID(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "oldTertiaryAddressId", "body", strfmt.UUID(m.OldTertiaryAddressID)); err != nil {
 		return err
 	}
 

@@ -141,6 +141,8 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		CounselorRemarks:            mtoShipment.CounselorRemarks,
 		HasSecondaryPickupAddress:   handlers.FmtBool(false),
 		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
+		HasTertiaryPickupAddress:    handlers.FmtBool(false),
+		HasTertiaryDeliveryAddress:  handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
@@ -159,16 +161,35 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	}
 
 	// Set up address models
-	var addressModel *models.Address
 
-	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
-	if addressModel != nil {
-		model.PickupAddress = addressModel
+	pickupAddressModel := AddressModel(&mtoShipment.PickupAddress.Address)
+	if pickupAddressModel != nil {
+		model.PickupAddress = pickupAddressModel
 	}
 
-	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
-	if addressModel != nil {
-		model.DestinationAddress = addressModel
+	secondaryPickupAddressModel := AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if secondaryPickupAddressModel != nil {
+		model.SecondaryPickupAddress = secondaryPickupAddressModel
+	}
+
+	tertiaryPickupAddressModel := AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if tertiaryPickupAddressModel != nil {
+		model.TertiaryPickupAddress = tertiaryPickupAddressModel
+	}
+
+	destinationAddressModel := AddressModel(&mtoShipment.DestinationAddress.Address)
+	if destinationAddressModel != nil {
+		model.DestinationAddress = destinationAddressModel
+	}
+
+	secondaryDestinationAddressModel := AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	if secondaryDestinationAddressModel != nil {
+		model.SecondaryDeliveryAddress = secondaryDestinationAddressModel
+	}
+
+	tertiaryDestinationAddressModel := AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
+	if tertiaryDestinationAddressModel != nil {
+		model.TertiaryDeliveryAddress = tertiaryDestinationAddressModel
 	}
 
 	if mtoShipment.Agents != nil {
@@ -197,6 +218,16 @@ func ShipmentAddressUpdateModel(nonSITAddressUpdate *primev3messages.UpdateShipm
 	addressModel := AddressModel(nonSITAddressUpdate.NewAddress)
 	if addressModel != nil {
 		model.NewAddress = *addressModel
+	}
+
+	secondaryAddressModel := AddressModel(nonSITAddressUpdate.NewSecondaryAddress)
+	if addressModel != nil {
+		model.NewSecondaryAddress = *secondaryAddressModel
+	}
+
+	tertiaryAddressModel := AddressModel(nonSITAddressUpdate.NewTertiaryAddress)
+	if addressModel != nil {
+		model.NewTertiaryAddress = *tertiaryAddressModel
 	}
 
 	return model
@@ -806,6 +837,18 @@ func SITAddressUpdateModel(sitAddressUpdate *primev3messages.CreateSITAddressUpd
 	if addressModel != nil {
 		model.NewAddress = *addressModel
 		newAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.NewAddressID = newAddressID
+	}
+	secondaryAddressModel := AddressModel(sitAddressUpdate.NewSecondaryAddress)
+	if secondaryAddressModel != nil {
+		model.NewAddress = *addressModel
+		newAddressID := uuid.FromStringOrNil(secondaryAddressModel.ID.String())
+		model.NewAddressID = newAddressID
+	}
+	tertiaryAddressModel := AddressModel(sitAddressUpdate.NewTertiaryAddress)
+	if tertiaryAddressModel != nil {
+		model.NewAddress = *addressModel
+		newAddressID := uuid.FromStringOrNil(tertiaryAddressModel.ID.String())
 		model.NewAddressID = newAddressID
 	}
 

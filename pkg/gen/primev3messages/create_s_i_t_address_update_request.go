@@ -31,6 +31,12 @@ type CreateSITAddressUpdateRequest struct {
 
 	// new address
 	NewAddress *Address `json:"newAddress,omitempty"`
+
+	// new secondary address
+	NewSecondaryAddress *Address `json:"newSecondaryAddress,omitempty"`
+
+	// new tertiary address
+	NewTertiaryAddress *Address `json:"newTertiaryAddress,omitempty"`
 }
 
 // Validate validates this create s i t address update request
@@ -46,6 +52,14 @@ func (m *CreateSITAddressUpdateRequest) Validate(formats strfmt.Registry) error 
 	}
 
 	if err := m.validateNewAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewSecondaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewTertiaryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -95,11 +109,57 @@ func (m *CreateSITAddressUpdateRequest) validateNewAddress(formats strfmt.Regist
 	return nil
 }
 
+func (m *CreateSITAddressUpdateRequest) validateNewSecondaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewSecondaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewSecondaryAddress != nil {
+		if err := m.NewSecondaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateSITAddressUpdateRequest) validateNewTertiaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewTertiaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewTertiaryAddress != nil {
+		if err := m.NewTertiaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 // ContextValidate validate this create s i t address update request based on the context it is used
 func (m *CreateSITAddressUpdateRequest) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.contextValidateNewAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewSecondaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewTertiaryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -122,6 +182,48 @@ func (m *CreateSITAddressUpdateRequest) contextValidateNewAddress(ctx context.Co
 				return ve.ValidateName("newAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("newAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateSITAddressUpdateRequest) contextValidateNewSecondaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewSecondaryAddress != nil {
+
+		if swag.IsZero(m.NewSecondaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewSecondaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateSITAddressUpdateRequest) contextValidateNewTertiaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewTertiaryAddress != nil {
+
+		if swag.IsZero(m.NewTertiaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewTertiaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
 			}
 			return err
 		}

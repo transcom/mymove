@@ -3923,10 +3923,16 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -3941,6 +3947,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -4017,6 +4029,24 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "officeRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -4027,6 +4057,24 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldTertiaryAddressId": {
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -9027,11 +9075,17 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -9047,6 +9101,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -9123,6 +9183,24 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "officeRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -9133,6 +9211,24 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldTertiaryAddressId": {
           "type": "string",
           "format": "uuid",
           "readOnly": true,

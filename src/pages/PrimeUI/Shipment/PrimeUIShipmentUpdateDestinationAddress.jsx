@@ -78,7 +78,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
-    const { mtoShipmentID, newAddress } = values;
+    const { mtoShipmentID, newAddress, newSecondaryAddress, newTertiaryAddress } = values;
 
     const body = {
       newAddress: {
@@ -90,6 +90,24 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
         state: newAddress.address.state,
         postalCode: newAddress.address.postalCode,
       },
+      newSecondaryAddress: {
+        id: newSecondaryAddress.address.id,
+        streetAddress1: newSecondaryAddress.address.streetAddress1,
+        streetAddress2: newSecondaryAddress.address.streetAddress2,
+        streetAddress3: newSecondaryAddress.address.streetAddress3,
+        city: newSecondaryAddress.address.city,
+        state: newSecondaryAddress.address.state,
+        postalCode: newSecondaryAddress.address.postalCode,
+      },
+      newTertiaryAddress: {
+        id: newTertiaryAddress.address.id,
+        streetAddress1: newTertiaryAddress.address.streetAddress1,
+        streetAddress2: newTertiaryAddress.address.streetAddress2,
+        streetAddress3: newTertiaryAddress.address.streetAddress3,
+        city: newTertiaryAddress.address.city,
+        state: newTertiaryAddress.address.state,
+        postalCode: newTertiaryAddress.address.postalCode,
+      },
       contractorRemarks: values.contractorRemarks,
     };
 
@@ -100,18 +118,6 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
     }).then(() => {
       setSubmitting(false);
     });
-  };
-
-  const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
-  const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
-
-  const initialValuesDestinationAddress = {
-    mtoShipmentID: shipment.id,
-    contractorRemarks: '',
-    newAddress: {
-      address: reformatPrimeApiDestinationAddress,
-    },
-    eTag: shipment.eTag,
   };
 
   return (
@@ -128,14 +134,11 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
                   </Alert>
                 </div>
               )}
-              {editableDestinationAddress && (
-                <PrimeUIShipmentUpdateDestinationAddressForm
-                  initialValues={initialValuesDestinationAddress}
-                  onSubmit={onSubmit}
-                  updateDestinationAddressSchema={updateDestinationAddressSchema}
-                  name="newAddress.address"
-                />
-              )}
+              <PrimeUIShipmentUpdateDestinationAddressForm
+                onSubmit={onSubmit}
+                updateDestinationAddressSchema={updateDestinationAddressSchema}
+                shipment={shipment}
+              />
             </Grid>
           </Grid>
         </GridContainer>

@@ -608,8 +608,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDestinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -748,6 +780,12 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddress": {
           "$ref": "#/definitions/Address"
         }
       }
@@ -1568,6 +1606,26 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The ID of the shipment.",
           "type": "string",
@@ -1673,8 +1731,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+        "secondaryDestinationAddress": {
+          "description": "A second destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1715,6 +1773,22 @@ func init() {
             },
             {
               "$ref": "#/definitions/StorageFacility"
+            }
+          ]
+        },
+        "tertiaryDestinationAddress": {
+          "description": "A third destination address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
             }
           ]
         },
@@ -2055,6 +2129,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -2151,6 +2235,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
@@ -2714,10 +2804,16 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -2732,6 +2828,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -2808,6 +2910,24 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "officeRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -2818,6 +2938,24 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldTertiaryAddressId": {
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -3385,6 +3523,12 @@ func init() {
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
         "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddress": {
           "$ref": "#/definitions/Address"
         }
       }
@@ -4173,8 +4317,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDestinationAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4313,6 +4489,12 @@ func init() {
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddress": {
           "$ref": "#/definitions/Address"
         }
       }
@@ -5133,6 +5315,26 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The ID of the shipment.",
           "type": "string",
@@ -5238,8 +5440,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+        "secondaryDestinationAddress": {
+          "description": "A second destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -5280,6 +5482,22 @@ func init() {
             },
             {
               "$ref": "#/definitions/StorageFacility"
+            }
+          ]
+        },
+        "tertiaryDestinationAddress": {
+          "description": "A third destination address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
             }
           ]
         },
@@ -5620,6 +5838,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -5716,6 +5944,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
@@ -6279,11 +6513,17 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -6299,6 +6539,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -6375,6 +6621,24 @@ func init() {
           "readOnly": true,
           "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
         "officeRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -6385,6 +6649,24 @@ func init() {
           "$ref": "#/definitions/Address"
         },
         "oldAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldSecondaryAddressId": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
+        },
+        "oldTertiaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "oldTertiaryAddressId": {
           "type": "string",
           "format": "uuid",
           "readOnly": true,
@@ -6952,6 +7234,12 @@ func init() {
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
         "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddress": {
           "$ref": "#/definitions/Address"
         }
       }
