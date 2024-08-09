@@ -1,2 +1,0 @@
-ALTER TYPE mto_shipment_type
-RENAME VALUE 'MOTORHOME' to 'MOBILE_HOME'
