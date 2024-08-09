@@ -7,15 +7,13 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
-	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// tppsPaidInvoiceReport stores the entries found from processing a TPPS paid invoice report
+// TPPSPaidInvoiceReportEntry stores the entries found from processing a TPPS paid invoice report
 type TPPSPaidInvoiceReportEntry struct {
-	ID uuid.UUID `db:"id"`
-	// PaymentRequestID         uuid.UUID                                `db:"payment_request_id"`
+	ID                              uuid.UUID       `db:"id"`
 	InvoiceNumber                   string          `db:"invoice_number"`
 	TPPSCreatedDocumentDate         time.Time       `json:"tpps_created_doc_date" db:"tpps_created_doc_date"`
 	SellerPaidDate                  time.Time       `json:"seller_paid_date" db:"seller_paid_date"`
@@ -54,21 +52,63 @@ type TPPSPaidInvoiceReportEntrys []TPPSPaidInvoiceReportEntry
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TPPSPaidInvoiceReportEntry) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	var vs []validate.Validator
-	// vs = append(vs, &validators.UUIDIsPresent{Field: t.PaymentRequestID, Name: "PaymentRequestID"})
 	if t.InvoiceNumber != "" {
 		vs = append(vs, &validators.StringIsPresent{Field: t.InvoiceNumber, Name: "InvoiceNumber", Message: "InvoiceNumber string if present should not be empty"})
 	}
 	vs = append(vs, &validators.TimeIsPresent{Field: t.TPPSCreatedDocumentDate, Name: "TPPSCreatedDocumentDate"})
+	vs = append(vs, &validators.TimeIsPresent{Field: t.SellerPaidDate, Name: "SellerPaidDate"})
+	vs = append(vs, &validators.IntIsGreaterThan{Field: t.InvoiceTotalChargesInMillicents.Int(), Name: "InvoiceTotalChargesInMillicents", Compared: 0})
+	if t.LineDescription != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.LineDescription, Name: "LineDescription", Message: "LineDescription string if present should not be empty"})
+	}
+	if t.ProductDescription != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.ProductDescription, Name: "ProductDescription", Message: "ProductDescription string if present should not be empty"})
+	}
+	vs = append(vs, &validators.IntIsGreaterThan{Field: int(t.LineBillingUnits), Name: "LineBillingUnits", Compared: -1})
+	vs = append(vs, &validators.IntIsGreaterThan{Field: t.LineUnitPrice.Int(), Name: "LineUnitPrice", Compared: 0})
+	vs = append(vs, &validators.IntIsGreaterThan{Field: t.LineNetCharge.Int(), Name: "LineNetCharge", Compared: 0})
+	if t.POTCN != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.POTCN, Name: "POTCN", Message: "POTCN string if present should not be empty"})
+	}
+	if t.LineNumber != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.LineNumber, Name: "LineNumber", Message: "LineNumber string if present should not be empty"})
+	}
+	if t.FirstNoteCode != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.FirstNoteCode, Name: "FirstNoteCode", Message: "FirstNoteCode string if present should not be empty"})
+	}
+	if t.FirstNoteDescription != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.FirstNoteDescription, Name: "FirstNoteDescription", Message: "FirstNoteDescription string if present should not be empty"})
+	}
+	if t.FirstNoteCodeTo != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.FirstNoteCodeTo, Name: "FirstNoteCodeTo", Message: "FirstNoteCodeTo string if present should not be empty"})
+	}
+	if t.FirstNoteCodeMessage != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.FirstNoteCodeMessage, Name: "FirstNoteCodeMessage", Message: "FirstNoteCodeMessage string if present should not be empty"})
+	}
+	if t.SecondNoteCode != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.SecondNoteCode, Name: "SecondNoteCode", Message: "SecondNoteCode string if present should not be empty"})
+	}
+	if t.SecondNoteDescription != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.SecondNoteDescription, Name: "SecondNoteDescription", Message: "SecondNoteDescription string if present should not be empty"})
+	}
+	if t.SecondNoteCodeTo != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.SecondNoteCodeTo, Name: "SecondNoteCodeTo", Message: "SecondNoteCodeTo string if present should not be empty"})
+	}
+	if t.SecondNoteCodeMessage != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.SecondNoteCodeMessage, Name: "SecondNoteCodeMessage", Message: "SecondNoteCodeMessage string if present should not be empty"})
+	}
+	if t.ThirdNoteCode != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.ThirdNoteCode, Name: "ThirdNoteCode", Message: "ThirdNoteCode string if present should not be empty"})
+	}
+	if t.ThirdNoteDescription != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.ThirdNoteDescription, Name: "ThirdNoteDescription", Message: "ThirdNoteDescription string if present should not be empty"})
+	}
+	if t.ThirdNoteCodeTo != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.ThirdNoteCodeTo, Name: "ThirdNoteCodeTo", Message: "ThirdNoteCodeTo string if present should not be empty"})
+	}
+	if t.ThirdNoteCodeMessage != "" {
+		vs = append(vs, &validators.StringIsPresent{Field: t.ThirdNoteCodeMessage, Name: "ThirdNoteCodeMessage", Message: "ThirdNoteCodeMessage string if present should not be empty"})
+	}
 
 	return validate.Validate(vs...), nil
-}
-
-// MarshalLogObject is required to be able to zap.Object log this model.
-func (t *TPPSPaidInvoiceReportEntry) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
-	// encoder.AddString("EDIType", e.EDIType.String())
-	// encoder.AddInt("NumEDIsProcessed", e.NumEDIsProcessed)
-	// encoder.AddTime("ProcessStartedAt", e.ProcessStartedAt)
-	// encoder.AddTime("ProcessEndedAt", e.ProcessEndedAt)
-	encoder.AddString("InvoiceNumber", t.InvoiceNumber)
-	return nil
 }

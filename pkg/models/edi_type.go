@@ -12,7 +12,7 @@ const (
 	EDIType858 EDIType = "858"
 	// EDIType997 captures enum value "997"
 	EDIType997 EDIType = "997"
-	// TODO (maybe put this somewhere else as TPPS paid report is not an EDI type)
+	// TPPSPaidInvoiceReport captures enum value "TPPSPaidInvoiceReport"
 	TPPSPaidInvoiceReport EDIType = "TPPSPaidInvoiceReport"
 )
 
