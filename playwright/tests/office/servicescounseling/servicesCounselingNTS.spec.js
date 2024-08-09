@@ -2,8 +2,10 @@
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
+  let tac;
   test.beforeEach(async ({ scPage }) => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
+    tac = await scPage.testHarness.buildGoodTACAndLoaCombination();
     await scPage.navigateToMove(move.locator);
   });
 
@@ -109,7 +111,7 @@ test.describe('Services counselor user', () => {
     await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
 
     // Fill out the HHG and NTS accounting codes
-    await page.getByTestId('hhgTacInput').fill('GOOD');
+    await page.getByTestId('hhgTacInput').fill(tac.tac);
     const today = new Date();
     const formattedDate = new Intl.DateTimeFormat('en-GB', {
       day: '2-digit',
@@ -119,9 +121,8 @@ test.describe('Services counselor user', () => {
     await page.locator('input[name="issueDate"]').fill(formattedDate);
 
     await page.getByTestId('hhgSacInput').fill('4K988AS098F');
-    // "GOOD" is a hard-set GOOD TAC by the e2e seed data
     // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
-    await page.getByTestId('ntsTacInput').fill('GOOD');
+    await page.getByTestId('ntsTacInput').fill(tac.tac);
     const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
     await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
 
