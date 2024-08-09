@@ -54,9 +54,9 @@ func NewTPPSPaidInvoiceReportProcessor() services.SyncadaFileProcessor {
 
 // ProcessFile parses a TPPS paid invoice report response and updates the payment request status
 func (t *tppsPaidInvoiceReportProcessor) ProcessFile(appCtx appcontext.AppContext, TPPSPaidInvoiceReportFilePath string, stringTPPSPaidInvoiceReport string) error {
-	tppsPaidInvoiceReport := tppsReponse.EDI{}
+	tppsPaidInvoiceReport := tppsReponse.TPPSData{}
 
-	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath)
+	tppsData, err := tppsPaidInvoiceReport.Parse(TPPSPaidInvoiceReportFilePath, "")
 	if err != nil {
 		appCtx.Logger().Error("unable to parse TPPS paid invoice report", zap.Error(err))
 		return fmt.Errorf("unable to parse TPPS paid invoice report")

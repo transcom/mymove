@@ -2,37 +2,11 @@ package tppspaidinvoicereport
 
 import (
 	"bufio"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 )
-
-// TPPSData represents TPPS paid invoice report data
-type TPPSData struct {
-	InvoiceNumber             string
-	TPPSCreatedDocumentDate   string
-	SellerPaidDate            string
-	InvoiceTotalCharges       string
-	LineDescription           string
-	ProductDescription        string
-	LineBillingUnits          string
-	LineUnitPrice             string
-	LineNetCharge             string
-	POTCN                     string
-	LineNumber                string
-	FirstNoteCode             string
-	FirstNoteCodeDescription  string
-	FirstNoteTo               string
-	FirstNoteMessage          string
-	SecondNoteCode            string
-	SecondNoteCodeDescription string
-	SecondNoteTo              string
-	SecondNoteMessage         string
-	ThirdNoteCode             string
-	ThirdNoteCodeDescription  string
-	ThirdNoteTo               string
-	ThirdNoteMessage          string
-}
 
 func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
 	allHeadersWereProcessedCorrectly := false
@@ -122,19 +96,26 @@ func ParseTPPSReportEntryForOneRow(row []string) TPPSData {
 }
 
 // Parse takes in a TPPS paid invoice report file and parses it into an array of TPPSData structs
-func (e *EDI) Parse(stringTPPSPaidInvoiceReportFilePath string) ([]TPPSData, error) {
+func (t *TPPSData) Parse(stringTPPSPaidInvoiceReportFilePath string, testTPPSInvoiceString string) ([]TPPSData, error) {
 	var tppsDataFile []TPPSData
 
-	csvFile, _ := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
+	var dataToParse io.Reader
+
+	if stringTPPSPaidInvoiceReportFilePath != "" {
+		csvFile, _ := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
+		dataToParse = csvFile
+	} else {
+		dataToParse = strings.NewReader(testTPPSInvoiceString)
+	}
 	endOfFile := false
 	headersAreCorrect := false
 
-	scanner := bufio.NewScanner(csvFile)
+	scanner := bufio.NewScanner(dataToParse)
 	for scanner.Scan() {
 		rowIsHeader := false
 		row := strings.Split(scanner.Text(), "\n")
-		// If we have reached a NULL at the end of the file, do not continue parsing
-		if row[0] == "\x00" {
+		// If we have reached a NULL or empty row at the end of the file, do not continue parsing
+		if row[0] == "\x00" || row[0] == "" {
 			endOfFile = true
 		}
 		if row != nil && !endOfFile {

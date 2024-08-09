@@ -244,8 +244,6 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
-	// TODO: should this go in a new file as opposed to process_edis.go since it is NOT an EDI file?
-
 	// Process TPPS paid invoice report
 	pathTPPSPaidInvoiceReport := v.GetString(cli.SFTPTPPSPaidInvoiceReportPickupDirectory)
 	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, pathTPPSPaidInvoiceReport, lastReadTime, invoice.NewTPPSPaidInvoiceReportProcessor())

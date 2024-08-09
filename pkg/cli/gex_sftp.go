@@ -44,7 +44,7 @@ const (
 // Set of flags used for SFTPTPPSPaid
 const (
 	// SFTPTPPSPaidInvoiceReportPickupDirectory is the ENV var for the directory where TPPS delivers the TPPS paid invoice report
-	SFTPTPPSPaidInvoiceReportPickupDirectory string = "pending"
+	SFTPTPPSPaidInvoiceReportPickupDirectory string = "pending" // pending completion of B-20560
 )
 
 // InitGEXSFTPFlags initializes GEX SFTP command line flags
@@ -57,6 +57,7 @@ func InitGEXSFTPFlags(flag *pflag.FlagSet) {
 	flag.String(GEXSFTPHostKeyFlag, "", "GEX SFTP Host Key")
 	flag.String(GEXSFTP997PickupDirectory, "", "GEX 997 SFTP Pickup Directory")
 	flag.String(GEXSFTP824PickupDirectory, "", "GEX 834 SFTP Pickup Directory")
+	// flag.String(SFTPTPPSPaidInvoiceReportPickupDirectory, "", "TPPS Paid Invoice SFTP Pickup Directory") // pending completion of B-20560
 }
 
 // CheckGEXSFTP validates GEX SFTP command line flags
