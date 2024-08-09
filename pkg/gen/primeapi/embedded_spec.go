@@ -355,7 +355,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
         "consumes": [
           "application/json"
         ],
@@ -1059,7 +1059,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -2673,7 +2673,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -2684,7 +2684,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILE_HOME",
         "PPM"
       ],
       "x-display-value": {
@@ -3088,6 +3088,10 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -3424,7 +3428,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -4128,7 +4132,7 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
@@ -4136,7 +4140,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -4174,9 +4178,12 @@ func init() {
               "enum": [
                 "DDDSIT",
                 "DDASIT",
+                "DDFSIT",
+                "DDSFSC",
                 "DOPSIT",
                 "DOASIT",
-                "DOFSIT"
+                "DOFSIT",
+                "DOSFSC"
               ]
             },
             "requestApprovalsRequestedStatus": {
@@ -5137,7 +5144,7 @@ func init() {
     },
     "/mto-service-items/{mtoServiceItemID}": {
       "patch": {
-        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n",
+        "description": "Updates MTOServiceItems after creation. Not all service items or fields may be updated, please see details below.\n\nThis endpoint supports different body definitions. In the modelType field below, select the modelType corresponding\n to the service item you wish to update and the documentation will update with the new definition.\n\n* Addresses: To update a destination service item's SIT destination final address, update the shipment destination address.\nFor approved shipments, please use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress).\nFor shipments not yet approved, please use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress).\n\n* SIT Service Items: Take note that when updating ` + "`" + `sitCustomerContacted` + "`" + `, ` + "`" + `sitDepartureDate` + "`" + `, or ` + "`" + `sitRequestedDelivery` + "`" + `, we want\nthose to be updated on ` + "`" + `DOASIT` + "`" + ` (for origin SIT) and ` + "`" + `DDASIT` + "`" + ` (for destination SIT). If updating those values in other service\nitems, the office users will not have as much attention to those values.\n\nTo create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.\n\n* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from\nREJECTED to SUBMITTED. Please provide the ` + "`" + `requestedApprovalsRequestedStatus: true` + "`" + ` when resubmitting as this will give attention to the TOO to\nreview the resubmitted SIT service item. Another note, ` + "`" + `updateReason` + "`" + ` must have a different value than the current ` + "`" + `reason` + "`" + ` value on the service item.\nIf this value is not updated, then an error will be sent back.\n\nThe following SIT service items can be resubmitted following a rejection:\n- DDASIT\n- DDDSIT\n- DDFSIT\n- DOASIT\n- DOPSIT\n- DOFSIT\n- DDSFSC\n- DOSFSC\n\nAt a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:\n` + "`" + `` + "`" + `` + "`" + `json\n{\n  \"reServiceCode\": \"DDFSIT\",\n  \"updateReason\": \"A reason that differs from the previous reason\",\n  \"modelType\": \"UpdateMTOServiceItemSIT\",\n  \"requestApprovalsRequestedStatus\": true\n}\n` + "`" + `` + "`" + `` + "`" + `\n",
         "consumes": [
           "application/json"
         ],
@@ -6044,7 +6051,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
       "post": {
-        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\n\nThis endpoint and operation only supports the following shipment types:\n- HHG\n- NTSR\n\nFor HHG shipments, if automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\n\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
         "consumes": [
           "application/json"
         ],
@@ -7788,7 +7795,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -7799,7 +7806,7 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILE_HOME",
         "PPM"
       ],
       "x-display-value": {
@@ -8203,6 +8210,10 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
+        },
         "eTag": {
           "type": "string",
           "readOnly": true
@@ -8539,7 +8550,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -9248,7 +9259,7 @@ func init() {
       "discriminator": "modelType"
     },
     "UpdateMTOServiceItemModelType": {
-      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
+      "description": "Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.\n  * DDDSIT - UpdateMTOServiceItemSIT\n  * DDFSIT - UpdateMTOServiceItemSIT\n  * DDASIT - UpdateMTOServiceItemSIT\n  * DOPSIT - UpdateMTOServiceItemSIT\n  * DOASIT - UpdateMTOServiceItemSIT\n  * DOFSIT - UpdateMTOServiceItemSIT\n  * DOSFSC - UpdateMTOServiceItemSIT\n  * DDSFSC - UpdateMTOServiceItemSIT\n  * DDSHUT - UpdateMTOServiceItemShuttle\n  * DOSHUT - UpdateMTOServiceItemShuttle\n\nThe documentation will then update with the supported fields.\n",
       "type": "string",
       "enum": [
         "UpdateMTOServiceItemSIT",
@@ -9256,7 +9267,7 @@ func init() {
       ]
     },
     "UpdateMTOServiceItemSIT": {
-      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating and existing service item.\n",
+      "description": "Subtype used to provide the departure date for origin or destination SIT. This is not creating a new service item but rather updating an existing service item.\n",
       "allOf": [
         {
           "$ref": "#/definitions/UpdateMTOServiceItem"
@@ -9294,9 +9305,12 @@ func init() {
               "enum": [
                 "DDDSIT",
                 "DDASIT",
+                "DDFSIT",
+                "DDSFSC",
                 "DOPSIT",
                 "DOASIT",
-                "DOFSIT"
+                "DOFSIT",
+                "DOSFSC"
               ]
             },
             "requestApprovalsRequestedStatus": {

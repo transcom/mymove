@@ -816,7 +816,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromProgearPage() {
     await this.page.getByRole('button', { name: 'Save & Continue' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/review/);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Review' })).toBeVisible();
   }
 
   async verifySaveAndContinueDisabled() {
@@ -892,7 +892,7 @@ export class CustomerPpmPage extends CustomerPage {
    */
   async navigateFromCloseoutReviewPageToExpensesPage() {
     await this.page.getByRole('link', { name: 'Add Expenses' }).click();
-    await this.page.waitForURL(/\/moves\/[^/]+\/shipments\/[^/]+\/expenses/);
+    await expect(this.page.getByRole('heading', { level: 1, name: 'Expenses' })).toBeVisible();
   }
 
   /**
