@@ -189,6 +189,7 @@ const ShipmentForm = (props) => {
     setIsCancelModalVisible(true);
   };
 
+  // onload validate pickup date
   useEffect(() => {
     const onErrorHandler = (e) => {
       const { response } = e;
@@ -205,6 +206,7 @@ const ShipmentForm = (props) => {
     );
   }, [mtoShipment.requestedPickupDate]);
 
+  // onload validate delivery date
   useEffect(() => {
     const onErrorHandler = (e) => {
       const { response } = e;
@@ -733,7 +735,7 @@ const ShipmentForm = (props) => {
                     <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
                     <Fieldset>
                       {isRequestedPickupDateAlertVisible && (
-                        <Alert type="warning" headingLevel="h4">
+                        <Alert type="warning" aria-live="polite" headingLevel="h4">
                           {requestedPickupDateAlertMessage}
                         </Alert>
                       )}
@@ -820,7 +822,7 @@ const ShipmentForm = (props) => {
                     <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
                     <Fieldset>
                       {isRequestedDeliveryDateAlertVisible && (
-                        <Alert type="warning" headingLevel="h4">
+                        <Alert type="warning" aria-live="polite" headingLevel="h4">
                           {requestedDeliveryDateAlertMessage}
                         </Alert>
                       )}
