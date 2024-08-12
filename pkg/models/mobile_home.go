@@ -20,9 +20,9 @@ type MobileHome struct {
 	LengthInInches *int        `json:"length_in_inches" db:"length_in_inches"`
 	HeightInInches *int        `json:"height_in_inches" db:"height_in_inches"`
 	WidthInInches  *int        `json:"width_in_inches" db:"width_in_inches"`
-	CreatedAt      time.Time        `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time        `json:"updated_at" db:"updated_at"`
-	DeletedAt      *time.Time       `json:"deleted_at" db:"deleted_at"`
+	CreatedAt      time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at" db:"updated_at"`
+	DeletedAt      *time.Time  `json:"deleted_at" db:"deleted_at"`
 }
 
 // TableName overrides the table name used by Pop.

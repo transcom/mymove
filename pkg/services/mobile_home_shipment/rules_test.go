@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -96,17 +97,17 @@ func (suite *MobileHomeShipmentSuite) TestValidationRules() {
 			testCases := map[string]struct {
 				newMobileHomeShipment models.MobileHome
 				oldMobileHomeShipment *models.MobileHome
-				verr            bool
+				verr                  bool
 			}{
 				"create": {
 					newMobileHomeShipment: models.MobileHome{ID: id1},
 					oldMobileHomeShipment: nil,
-					verr:            true,
+					verr:                  true,
 				},
 				"update": {
 					newMobileHomeShipment: models.MobileHome{ID: id1},
 					oldMobileHomeShipment: &models.MobileHome{ID: id2},
-					verr:            true,
+					verr:                  true,
 				}}
 			for name, testCase := range testCases {
 				suite.Run(name, func() {

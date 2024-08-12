@@ -50,7 +50,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 	}
 
 	if shipment.Status == "" {
-		if isPPMShipment || isBoatShipment || isMobileHomeShipment{
+		if isPPMShipment || isBoatShipment || isMobileHomeShipment {
 			shipment.Status = models.MTOShipmentStatusDraft
 		} else {
 			// TODO: remove this status change once MB-3428 is implemented and can update to Submitted on second page

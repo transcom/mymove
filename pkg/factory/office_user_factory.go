@@ -41,7 +41,7 @@ func BuildOfficeUser(db *pop.Connection, customs []Customization, traits []Trait
 	transportationOffice := BuildTransportationOffice(db, customs, nil)
 
 	// create officeuser
-	officeUser := models.OfficeUser {
+	officeUser := models.OfficeUser{
 		UserID:                 &user.ID,
 		User:                   user,
 		FirstName:              "Leo",

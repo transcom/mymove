@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,7 +18,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 	mobileHomeShipmentCreator := NewMobileHomeShipmentCreator()
 
 	type createShipmentSubtestData struct {
-		move            models.Move
+		move                  models.Move
 		newMobileHomeShipment *models.MobileHome
 	}
 
@@ -69,7 +70,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
-			CreatedAt: date,}, nil)
+			CreatedAt:      date}, nil)
 
 		createdMobileHomeShipment, err := mobileHomeShipmentCreator.CreateMobileHomeShipmentWithDefaultCheck(appCtx, subtestData.newMobileHomeShipment)
 
@@ -78,10 +79,10 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 	})
 
 	var invalidInputTests = []struct {
-		name                 string
-		mtoShipmentTemplate  *models.MTOShipment
+		name                       string
+		mtoShipmentTemplate        *models.MTOShipment
 		mobileHomeShipmentTemplate models.MobileHome
-		expectedErrorMsg     string
+		expectedErrorMsg           string
 	}{
 		{
 			"missing MTOShipment ID",
@@ -95,7 +96,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 			"already has a MobileHomeShipment ID",
 			nil,
 			models.MobileHome{
-				ID:   uuid.Must(uuid.NewV4()),
+				ID: uuid.Must(uuid.NewV4()),
 			},
 			"Invalid input found while validating the Mobile Home shipment.",
 		},
@@ -138,7 +139,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
-			CreatedAt: date,
+			CreatedAt:      date,
 		}, nil)
 
 		createdMobileHomeShipment, err := mobileHomeShipmentCreator.CreateMobileHomeShipmentWithDefaultCheck(appCtx, subtestData.newMobileHomeShipment)

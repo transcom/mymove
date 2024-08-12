@@ -21,7 +21,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentValidatorFunc() {
 		suite.NoError(err)
 	})
 
-		suite.Run("Calling Validate runs validation function with errors", func() {
+	suite.Run("Calling Validate runs validation function with errors", func() {
 		validator := mobileHomeShipmentValidatorFunc(func(_ appcontext.AppContext, _ models.MobileHome, _ *models.MobileHome, _ *models.MTOShipment) error {
 			verrs := validate.NewErrors()
 

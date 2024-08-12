@@ -2,6 +2,7 @@ package mobilehomeshipment
 
 import (
 	"github.com/gobuffalo/validate/v3"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"

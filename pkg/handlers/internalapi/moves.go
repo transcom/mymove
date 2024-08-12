@@ -387,46 +387,46 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 				/** End of Feature Flag Block **/
 
-			/** Feature Flag - Mobile Home Shipment **/
-			mobileHomefeatureFlag := "mobileHome"
-			isMobileHomeFeatureOn := false
-			mobileHomeflag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, mobileHomefeatureFlag, map[string]string{})
-			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", mobileHomefeatureFlag), zap.Error(err))
-				isMobileHomeFeatureOn = false
-			} else {
-				isMobileHomeFeatureOn = mobileHomeflag.Match
-			}
-			/** End of Feature Flag Block **/
-
-			for _, move := range movesList {
-
 				/** Feature Flag - Mobile Home Shipment **/
-				if !isMobileHomeFeatureOn {
-					var filteredShipments models.MTOShipments
-					if move.MTOShipments != nil {
-						filteredShipments = models.MTOShipments{}
-					}
-					for i, shipment := range move.MTOShipments {
-						if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
-							continue
-						}
-
-						filteredShipments = append(filteredShipments, move.MTOShipments[i])
-					}
-					move.MTOShipments = filteredShipments
+				mobileHomefeatureFlag := "mobileHome"
+				isMobileHomeFeatureOn := false
+				mobileHomeflag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, mobileHomefeatureFlag, map[string]string{})
+				if err != nil {
+					appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", mobileHomefeatureFlag), zap.Error(err))
+					isMobileHomeFeatureOn = false
+				} else {
+					isMobileHomeFeatureOn = mobileHomeflag.Match
 				}
 				/** End of Feature Flag Block **/
 
-				if latestMove.CreatedAt == nilTime {
-					latestMove = move
-					break
-				}
-				if move.CreatedAt.After(latestMove.CreatedAt) && move.CreatedAt != latestMove.CreatedAt {
-					latestMove = move
+				for _, move := range movesList {
+
+					/** Feature Flag - Mobile Home Shipment **/
+					if !isMobileHomeFeatureOn {
+						var filteredShipments models.MTOShipments
+						if move.MTOShipments != nil {
+							filteredShipments = models.MTOShipments{}
+						}
+						for i, shipment := range move.MTOShipments {
+							if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+								continue
+							}
+
+							filteredShipments = append(filteredShipments, move.MTOShipments[i])
+						}
+						move.MTOShipments = filteredShipments
+					}
+					/** End of Feature Flag Block **/
+
+					if latestMove.CreatedAt == nilTime {
+						latestMove = move
+						break
+					}
+					if move.CreatedAt.After(latestMove.CreatedAt) && move.CreatedAt != latestMove.CreatedAt {
+						latestMove = move
+					}
 				}
 			}
-		}
 			// Place latest move in currentMovesList array
 			currentMovesList = append(currentMovesList, latestMove)
 

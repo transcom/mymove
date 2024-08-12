@@ -360,10 +360,10 @@ func (suite *ShipmentSuite) TestUpdateShipment() {
 	})
 
 	serviceObjectErrorTestCases := map[string]struct {
-		shipmentType               models.MTOShipmentType
-		returnErrorForMTOShipment  bool
-		returnErrorForPPMShipment  bool
-		returnErrorForBoatShipment bool
+		shipmentType                     models.MTOShipmentType
+		returnErrorForMTOShipment        bool
+		returnErrorForPPMShipment        bool
+		returnErrorForBoatShipment       bool
 		returnErrorForMobileHomeShipment bool
 	}{
 		"error updating MTOShipment": {
