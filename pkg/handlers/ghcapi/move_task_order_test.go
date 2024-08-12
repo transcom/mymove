@@ -76,8 +76,38 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+	setupPricerData := func() {
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		service := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		service = factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+	}
+
+	suite.PreloadData(setupPricerData)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -103,32 +133,6 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 
 		return mockUpdater
 	}
-
-	setupPricerData := func() {
-		originDomesticServiceArea := testdatagen.FetchOrMakeReDomesticServiceArea(suite.DB(), testdatagen.Assertions{
-			ReDomesticServiceArea: models.ReDomesticServiceArea{
-				ServiceArea:      "056",
-				ServicesSchedule: 3,
-				SITPDSchedule:    3,
-			},
-			ReContract: testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{}),
-		})
-
-		testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
-			ReContractYear: models.ReContractYear{
-				Contract:             originDomesticServiceArea.Contract,
-				ContractID:           originDomesticServiceArea.ContractID,
-				StartDate:            time.Now(),
-				EndDate:              time.Now().Add(time.Hour * 12),
-				Escalation:           1.0,
-				EscalationCompounded: 1.0,
-			},
-		})
-	}
-
-	suite.PreloadData(func() {
-		setupPricerData()
-	})
 
 	validStatuses := []struct {
 		desc   string
