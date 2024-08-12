@@ -324,7 +324,7 @@ class MtoShipmentForm extends Component {
                               be out of your origin residence.
                             </Hint>
                             {isPreferredPickupDateAlertVisible && (
-                              <Alert type="info" headingLevel="h4">
+                              <Alert type="warning" headingLevel="h4">
                                 {preferredPickupDateAlertMessage}
                               </Alert>
                             )}
@@ -443,7 +443,7 @@ class MtoShipmentForm extends Component {
                               Representative once the shipment is underway.
                             </Hint>
                             {isPreferredDeliveryDateAlertVisible && (
-                              <Alert type="info" headingLevel="h4">
+                              <Alert type="warning" headingLevel="h4">
                                 {preferredDeliveryDateAlertMessage}
                               </Alert>
                             )}

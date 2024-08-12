@@ -513,12 +513,12 @@ describe('MtoShipmentForm component', () => {
 
       expect(
         screen.getByText(
-          /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+          /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
         ),
       ).toHaveClass('usa-alert__text');
       expect(
         screen.getAllByText(
-          'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+          'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
         ),
       ).toHaveLength(1);
     });
@@ -900,12 +900,12 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United of States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United of States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
           screen.getByText(
-            /Preferred delivery date 11 Aug 2021 is on a holiday and weekend in the United of States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred delivery date 11 Aug 2021 is on a holiday and weekend in the United of States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
       });
@@ -927,12 +927,12 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred pickup date 01 Aug 2021 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
           screen.getByText(
-            /Preferred delivery date 11 Aug 2021 is on a weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred delivery date 11 Aug 2021 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
       });
@@ -954,12 +954,12 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
           screen.getByText(
-            /Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
       });
@@ -987,12 +987,12 @@ describe('MtoShipmentForm component', () => {
       await waitFor(() => {
         expect(
           screen.queryAllByText(
-            'Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+            'Preferred pickup date 01 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
           ),
         ).toHaveLength(0);
         expect(
           screen.queryAllByText(
-            'Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+            'Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
           ),
         ).toHaveLength(0);
       });
@@ -1103,12 +1103,12 @@ describe('MtoShipmentForm component', () => {
         // only pickup date is available. delivery alert will never be present.
         expect(
           screen.getByText(
-            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
         expect(
           screen.queryAllByText(
-            'Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+            'Preferred delivery date 11 Aug 2021 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
           ),
         ).toHaveLength(0);
       });
@@ -1216,12 +1216,12 @@ describe('MtoShipmentForm component', () => {
         // only delivery date is available. pickup alert will never be present.
         expect(
           screen.queryAllByText(
-            'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date.',
+            'Preferred pickup date 01 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
           ),
         ).toHaveLength(0);
         expect(
           screen.getByText(
-            /Preferred delivery date 11 Aug 2021 is on a holiday and weekend in the United States. This date, may not be accepted. A government representative may not be available to provide assistance on this date./,
+            /Preferred delivery date 11 Aug 2021 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
         ).toHaveClass('usa-alert__text');
       });
