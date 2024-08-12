@@ -89,6 +89,34 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			}
 			/** End of Feature Flag **/
 
+			/** Feature Flag - Mobile Home Shipment **/
+			mobileHomefeatureFlag := "mobileHome"
+			isMobileHomeFeatureOn := false
+			mobileHomeflag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, mobileHomefeatureFlag, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", mobileHomefeatureFlag), zap.Error(err))
+				isMobileHomeFeatureOn = false
+			} else {
+				isMobileHomeFeatureOn = mobileHomeflag.Match
+			}
+
+			// Remove Mobile Home shipments if Mobile Home FF is off
+			if !isMobileHomeFeatureOn {
+				var filteredShipments models.MTOShipments
+				if shipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range shipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, shipments[i])
+				}
+				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
 			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses, h.FileStorer())
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments), sitStatusPayload)
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil

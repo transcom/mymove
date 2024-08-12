@@ -9,6 +9,7 @@ import (
 )
 
 func (suite *FactorySuite) TestBuildMobileHomeShipment() {
+	date := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	suite.Run("Successful creation of default MobileHomeShipment", func() {
 		defaultBoat := models.MobileHome{
 			Year:           models.IntPointer(2000),
@@ -17,7 +18,7 @@ func (suite *FactorySuite) TestBuildMobileHomeShipment() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
-			CreatedAt:      time.Now().Local(),
+			CreatedAt:      date,
 		}
 
 		mobileHomeShipment := BuildMobileHomeShipment(suite.DB(), nil, nil)

@@ -12,6 +12,7 @@ import (
 )
 
 func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
+	date := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 
 	mobileHomeShipmentCreator := NewMobileHomeShipmentCreator()
 
@@ -68,7 +69,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
-			CreatedAt: time.Now(),}, nil)
+			CreatedAt: date,}, nil)
 
 		createdMobileHomeShipment, err := mobileHomeShipmentCreator.CreateMobileHomeShipmentWithDefaultCheck(appCtx, subtestData.newMobileHomeShipment)
 
@@ -137,7 +138,7 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 			LengthInInches: models.IntPointer(300),
 			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
-			CreatedAt: time.Now(),
+			CreatedAt: date,
 		}, nil)
 
 		createdMobileHomeShipment, err := mobileHomeShipmentCreator.CreateMobileHomeShipmentWithDefaultCheck(appCtx, subtestData.newMobileHomeShipment)

@@ -9,6 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
+	date := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	testCases := map[string]struct {
 		mobileHome   models.MobileHome
 		expectedErrs map[string][]string
@@ -22,7 +23,7 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 				LengthInInches: models.IntPointer(200),
 				HeightInInches: models.IntPointer(84),
 				WidthInInches:  models.IntPointer(96),
-				CreatedAt:      time.Now(),
+				CreatedAt:      date,
 			},
 			expectedErrs: nil,
 		},
