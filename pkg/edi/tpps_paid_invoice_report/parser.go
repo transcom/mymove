@@ -2,10 +2,13 @@ package tppspaidinvoicereport
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
@@ -102,7 +105,10 @@ func (t *TPPSData) Parse(stringTPPSPaidInvoiceReportFilePath string, testTPPSInv
 	var dataToParse io.Reader
 
 	if stringTPPSPaidInvoiceReportFilePath != "" {
-		csvFile, _ := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
+		csvFile, err := os.Open(filepath.Clean(stringTPPSPaidInvoiceReportFilePath))
+		if err != nil {
+			return nil, errors.Wrap(err, (fmt.Sprintf("Unable to read TPPS paid invoice report from path %s", stringTPPSPaidInvoiceReportFilePath)))
+		}
 		dataToParse = csvFile
 	} else {
 		dataToParse = strings.NewReader(testTPPSInvoiceString)

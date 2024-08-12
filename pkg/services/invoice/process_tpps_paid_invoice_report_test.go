@@ -143,4 +143,19 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 			suite.Equal(tppsEntries[tppsEntryIndex].ThirdNoteCodeMessage, "")
 		}
 	})
+
+	suite.Run("error opening filepath returns descriptive error for failing to parse TPPS paid invoice report", func() {
+		// given a path to a nonexistent file
+		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/AFileThatDoesNotExist.csv"
+
+		err := tppsPaidInvoiceReportProcessor.ProcessFile(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath, "")
+		// ensure parse fails and returns error
+		suite.Error(err, "unable to parse TPPS paid invoice report")
+
+		// verify no entries were logged in the database
+		tppsEntries := []models.TPPSPaidInvoiceReportEntry{}
+		err = suite.DB().All(&tppsEntries)
+		suite.NoError(err)
+		suite.Equal(len(tppsEntries), 0)
+	})
 }
