@@ -26,8 +26,6 @@ import (
 	ppmshipment "github.com/transcom/mymove/pkg/services/ppmshipment"
 )
 
-const featureFlagBoat = "BOAT"
-
 // ListMTOShipmentsHandler returns a list of MTO Shipments
 type ListMTOShipmentsHandler struct {
 	handlers.HandlerConfig
@@ -64,10 +62,11 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			shipmentSITStatuses := h.CalculateShipmentsSITStatuses(appCtx, shipments)
 
 			/** Feature Flag - Boat Shipment **/
+			featureFlagName := "boat"
 			isBoatFeatureOn := false
-			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagBoat, map[string]string{})
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
 			if err != nil {
-				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagBoat), zap.Error(err))
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 				isBoatFeatureOn = false
 			} else {
 				isBoatFeatureOn = flag.Match
@@ -216,6 +215,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
+			}
+
 			var err error
 			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
@@ -339,6 +343,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
+
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
+			}
+
 			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc")
 			if err != nil {
 				return handleError(err)
