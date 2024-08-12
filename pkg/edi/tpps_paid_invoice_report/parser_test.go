@@ -32,7 +32,7 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 
 		tppsPaidInvoice := TPPSData{}
 		tppsEntries, err := tppsPaidInvoice.Parse("", sampleTPPSPaidInvoiceString)
-		suite.NoError(err, "Successful parse of 997")
+		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
 		suite.Equal(len(tppsEntries), 5)
 
 		for tppsEntryIndex := range tppsEntries {

@@ -44,10 +44,11 @@ func VerifyHeadersParsedCorrectly(parsedHeadersFromFile TPPSData) bool {
 }
 
 // ProcessTPPSReportEntryForOneRow takes one data row, cleans it, and parses it into a string representation of the TPPSData struct
-func ParseTPPSReportEntryForOneRow(row []string) TPPSData {
+func ParseTPPSReportEntryForOneRow(row []string, columnIndexes map[string]int, headerIndicesNeedDefined bool) (TPPSData, map[string]int, bool) {
 	tppsReportEntryForOnePaymentRequest := strings.Split(row[0], "\t")
 	var tppsData TPPSData
 	var processedTPPSReportEntryForOnePaymentRequest []string
+	var columnHeaderIndices map[string]int
 
 	if len(tppsReportEntryForOnePaymentRequest) > 0 {
 
@@ -70,32 +71,41 @@ func ParseTPPSReportEntryForOneRow(row []string) TPPSData {
 			// After we have fully processed an entry and have built a string, store it
 			processedTPPSReportEntryForOnePaymentRequest = append(processedTPPSReportEntryForOnePaymentRequest, processedEntry)
 		}
-
-		tppsData.InvoiceNumber = processedTPPSReportEntryForOnePaymentRequest[0]
-		tppsData.TPPSCreatedDocumentDate = processedTPPSReportEntryForOnePaymentRequest[1]
-		tppsData.SellerPaidDate = processedTPPSReportEntryForOnePaymentRequest[2]
-		tppsData.InvoiceTotalCharges = processedTPPSReportEntryForOnePaymentRequest[3]
-		tppsData.LineDescription = processedTPPSReportEntryForOnePaymentRequest[4]
-		tppsData.ProductDescription = processedTPPSReportEntryForOnePaymentRequest[5]
-		tppsData.LineBillingUnits = processedTPPSReportEntryForOnePaymentRequest[6]
-		tppsData.LineUnitPrice = processedTPPSReportEntryForOnePaymentRequest[7]
-		tppsData.LineNetCharge = processedTPPSReportEntryForOnePaymentRequest[8]
-		tppsData.POTCN = processedTPPSReportEntryForOnePaymentRequest[9]
-		tppsData.LineNumber = processedTPPSReportEntryForOnePaymentRequest[10]
-		tppsData.FirstNoteCode = processedTPPSReportEntryForOnePaymentRequest[11]
-		tppsData.FirstNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[12]
-		tppsData.FirstNoteTo = processedTPPSReportEntryForOnePaymentRequest[13]
-		tppsData.FirstNoteMessage = processedTPPSReportEntryForOnePaymentRequest[14]
-		tppsData.SecondNoteCode = processedTPPSReportEntryForOnePaymentRequest[15]
-		tppsData.SecondNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[16]
-		tppsData.SecondNoteTo = processedTPPSReportEntryForOnePaymentRequest[17]
-		tppsData.SecondNoteMessage = processedTPPSReportEntryForOnePaymentRequest[18]
-		tppsData.ThirdNoteCode = processedTPPSReportEntryForOnePaymentRequest[19]
-		tppsData.ThirdNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[20]
-		tppsData.ThirdNoteTo = processedTPPSReportEntryForOnePaymentRequest[21]
-		tppsData.ThirdNoteMessage = processedTPPSReportEntryForOnePaymentRequest[22]
+		if headerIndicesNeedDefined {
+			columnHeaderIndices = make(map[string]int)
+			for i, columnHeader := range processedTPPSReportEntryForOnePaymentRequest {
+				columnHeaderIndices[columnHeader] = i
+			}
+			// only need to define the column header indices once per read of a file, so set to false after first pass through
+			headerIndicesNeedDefined = false
+		} else {
+			columnHeaderIndices = columnIndexes
+		}
+		tppsData.InvoiceNumber = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Invoice Number From Invoice"]]
+		tppsData.TPPSCreatedDocumentDate = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Document Create Date"]]
+		tppsData.SellerPaidDate = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Seller Paid Date"]]
+		tppsData.InvoiceTotalCharges = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Invoice Total Charges"]]
+		tppsData.LineDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Description"]]
+		tppsData.ProductDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Product Description"]]
+		tppsData.LineBillingUnits = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Billing Units"]]
+		tppsData.LineUnitPrice = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Unit Price"]]
+		tppsData.LineNetCharge = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Net Charge"]]
+		tppsData.POTCN = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["PO/TCN"]]
+		tppsData.LineNumber = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Line Number"]]
+		tppsData.FirstNoteCode = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note Code"]]
+		tppsData.FirstNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note Code Description"]]
+		tppsData.FirstNoteTo = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note To"]]
+		tppsData.FirstNoteMessage = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["First Note Message"]]
+		tppsData.SecondNoteCode = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note Code"]]
+		tppsData.SecondNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note Code Description"]]
+		tppsData.SecondNoteTo = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note To"]]
+		tppsData.SecondNoteMessage = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Second Note Message"]]
+		tppsData.ThirdNoteCode = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note Code"]]
+		tppsData.ThirdNoteCodeDescription = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note Code Description"]]
+		tppsData.ThirdNoteTo = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note To"]]
+		tppsData.ThirdNoteMessage = processedTPPSReportEntryForOnePaymentRequest[columnHeaderIndices["Third Note Message"]]
 	}
-	return tppsData
+	return tppsData, columnHeaderIndices, headerIndicesNeedDefined
 }
 
 // Parse takes in a TPPS paid invoice report file and parses it into an array of TPPSData structs
@@ -115,6 +125,8 @@ func (t *TPPSData) Parse(stringTPPSPaidInvoiceReportFilePath string, testTPPSInv
 	}
 	endOfFile := false
 	headersAreCorrect := false
+	needToDefineColumnIndices := true
+	var headerColumnIndices map[string]int
 
 	scanner := bufio.NewScanner(dataToParse)
 	for scanner.Scan() {
@@ -125,7 +137,14 @@ func (t *TPPSData) Parse(stringTPPSPaidInvoiceReportFilePath string, testTPPSInv
 			endOfFile = true
 		}
 		if row != nil && !endOfFile {
-			tppsReportEntryForOnePaymentRequest := ParseTPPSReportEntryForOneRow(row)
+			tppsReportEntryForOnePaymentRequest, columnIndicesFound, keepFindingColumnIndices := ParseTPPSReportEntryForOneRow(row, headerColumnIndices, needToDefineColumnIndices)
+			// For first data row of file (headers), find indices of the columns
+			// For the rest of the file, use those same indices to parse in the data
+			if needToDefineColumnIndices {
+				// Only want to define header column indices once per file read
+				headerColumnIndices = columnIndicesFound
+			}
+			needToDefineColumnIndices = keepFindingColumnIndices
 			if tppsReportEntryForOnePaymentRequest.InvoiceNumber == "Invoice Number From Invoice" {
 				rowIsHeader = true
 				headersAreCorrect = VerifyHeadersParsedCorrectly(tppsReportEntryForOnePaymentRequest)
