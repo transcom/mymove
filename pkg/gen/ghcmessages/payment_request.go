@@ -27,13 +27,13 @@ type PaymentRequest struct {
 	ETag string `json:"eTag,omitempty"`
 
 	// Reported code from syncada for the EDI error encountered
-	EdiErrorCode string `json:"ediErrorCode,omitempty"`
+	EdiErrorCode *string `json:"ediErrorCode,omitempty"`
 
 	// The reason the services counselor has excluded or rejected the item.
-	EdiErrorDescription string `json:"ediErrorDescription,omitempty"`
+	EdiErrorDescription *string `json:"ediErrorDescription,omitempty"`
 
 	// Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
-	EdiErrorType string `json:"ediErrorType,omitempty"`
+	EdiErrorType *string `json:"ediErrorType,omitempty"`
 
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
