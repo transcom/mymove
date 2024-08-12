@@ -114,7 +114,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT || currentSIT.ReService.Code == models.ReServiceCodeDOASIT {
 			location = OriginSITLocation
 		}
-		daysInSIT := daysInSIT(*currentSIT, today)
+		daysInSIT := daysInSIT(*currentSIT, today) // how many days in current SIT that INCLUDES today?
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
 		sitAuthorizedEndDate := CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
@@ -222,18 +222,18 @@ func getAdditionalSIT(shipmentSITs SortedShipmentSITs, shipment models.MTOShipme
 // is in SIT using a serviceItem and the current day.
 //
 // If the service item has a departure date and SIT entry date is in the past,
-// then the return value is the SITDepartureDate - SITEntryDate.
+// then the return value is the SITDepartureDate - SITEntryDate in hours, then converted to days.
 //
 // If there is no departure date and the SIT entry date in the past, then the
-// return value is Today - SITEntryDate.
+// return value is Today - SITEntryDate, adding 1 to include today.
 func daysInSIT(serviceItem models.MTOServiceItem, today time.Time) int {
+	var days int
 	if serviceItem.SITDepartureDate != nil && serviceItem.SITDepartureDate.Before(today) {
-		return int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
-	} else if serviceItem.SITEntryDate.Before(today) {
-		return int(today.Sub(*serviceItem.SITEntryDate).Hours()) / 24
+		days = int(serviceItem.SITDepartureDate.Sub(*serviceItem.SITEntryDate).Hours()) / 24
+	} else if serviceItem.SITEntryDate.Before(today) || serviceItem.SITEntryDate.Equal(today) {
+		days = int(today.Sub(*serviceItem.SITEntryDate).Hours())/24 + 1
 	}
-
-	return 0
+	return days
 }
 
 func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {
