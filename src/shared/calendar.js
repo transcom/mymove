@@ -41,7 +41,7 @@ export function dateSelectionWeekendHolidayCheck(
           const countryLabel = info.country_code === 'US' ? `the ${info.country_name}` : info.country_name;
           const message = `${label} ${formatDateForDatePicker(
             dateSelection,
-          )} is on a ${type} in ${countryLabel}. This date, may not be accepted. A government representative may not be available to provide assistance on this date.`;
+          )} is on a ${type} in ${countryLabel}. This date may not be accepted. A government representative may not be available to provide assistance on this date.`;
           setAlertMessageCallback(message);
           setIsDateSelectionAlertVisibleCallback(true);
         } else if (!info.is_holiday && !info.is_weekend) {
