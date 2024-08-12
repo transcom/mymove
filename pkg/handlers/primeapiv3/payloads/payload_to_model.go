@@ -182,12 +182,12 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.DestinationAddress = destinationAddressModel
 	}
 
-	secondaryDestinationAddressModel := AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	secondaryDestinationAddressModel := AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 	if secondaryDestinationAddressModel != nil {
 		model.SecondaryDeliveryAddress = secondaryDestinationAddressModel
 	}
 
-	tertiaryDestinationAddressModel := AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
+	tertiaryDestinationAddressModel := AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
 	if tertiaryDestinationAddressModel != nil {
 		model.TertiaryDeliveryAddress = tertiaryDestinationAddressModel
 	}

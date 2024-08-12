@@ -514,16 +514,16 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		payload.DestinationType = &destinationType
 	}
 	if mtoShipment.SecondaryDeliveryAddress != nil {
-		payload.DestinationAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
+		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
-		payload.HasSecondaryDestinationAddress = mtoShipment.HasSecondaryDeliveryAddress
+		payload.HasSecondaryDeliveryAddress = mtoShipment.HasSecondaryDeliveryAddress
 	}
 	if mtoShipment.TertiaryDeliveryAddress != nil {
-		payload.TertiaryDestinationAddress.Address = *Address(mtoShipment.TertiaryDeliveryAddress)
+		payload.TertiaryDeliveryAddress.Address = *Address(mtoShipment.TertiaryDeliveryAddress)
 	}
 	if mtoShipment.HasTertiaryDeliveryAddress != nil {
-		payload.HasTertiaryDestinationAddress = mtoShipment.HasTertiaryDeliveryAddress
+		payload.HasTertiaryDeliveryAddress = mtoShipment.HasTertiaryDeliveryAddress
 	}
 
 	if mtoShipment.StorageFacility != nil {

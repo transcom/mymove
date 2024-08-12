@@ -169,19 +169,19 @@ properties:
       - $ref: '../../Address.yaml'
   destinationType:
     $ref: '../../DestinationType.yaml'
-  secondaryDestinationAddress:
+  secondaryDeliveryAddress:
     description: A second destination address for this shipment, if the customer entered one. An optional field.
     allOf:
       - $ref: '../../Address.yaml'
-  hasSecondaryDestinationAddress:
+  hasSecondaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
-  tertiaryDestinationAddress:
+  tertiaryDeliveryAddress:
     description: A third destination address for this shipment, if the customer entered one. An optional field.
     allOf:
       - $ref: '../../Address.yaml'
-  hasTertiaryDestinationAddress:
+  hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true

@@ -103,14 +103,14 @@ type MTOShipmentWithoutServiceItems struct {
 	// Format: date
 	FirstAvailableDeliveryDate *strfmt.Date `json:"firstAvailableDeliveryDate"`
 
-	// has secondary destination address
-	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
+	// has secondary delivery address
+	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
 
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
-	// has tertiary destination address
-	HasTertiaryDestinationAddress *bool `json:"hasTertiaryDestinationAddress"`
+	// has tertiary delivery address
+	HasTertiaryDeliveryAddress *bool `json:"hasTertiaryDeliveryAddress"`
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
@@ -193,9 +193,9 @@ type MTOShipmentWithoutServiceItems struct {
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 	// A second destination address for this shipment, if the customer entered one. An optional field.
-	SecondaryDestinationAddress struct {
+	SecondaryDeliveryAddress struct {
 		Address
-	} `json:"secondaryDestinationAddress,omitempty"`
+	} `json:"secondaryDeliveryAddress,omitempty"`
 
 	// A second pickup address for this shipment, if the customer entered one. An optional field.
 	SecondaryPickupAddress struct {
@@ -218,9 +218,9 @@ type MTOShipmentWithoutServiceItems struct {
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 
 	// A third destination address for this shipment, if the customer entered one. An optional field.
-	TertiaryDestinationAddress struct {
+	TertiaryDeliveryAddress struct {
 		Address
-	} `json:"tertiaryDestinationAddress,omitempty"`
+	} `json:"tertiaryDeliveryAddress,omitempty"`
 
 	// A second pickup address for this shipment, if the customer entered one. An optional field.
 	TertiaryPickupAddress struct {
@@ -333,7 +333,7 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -357,7 +357,7 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -688,8 +688,8 @@ func (m *MTOShipmentWithoutServiceItems) validateScheduledPickupDate(formats str
 	return nil
 }
 
-func (m *MTOShipmentWithoutServiceItems) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+func (m *MTOShipmentWithoutServiceItems) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
 	}
 
@@ -811,8 +811,8 @@ func (m *MTOShipmentWithoutServiceItems) validateStorageFacility(formats strfmt.
 	return nil
 }
 
-func (m *MTOShipmentWithoutServiceItems) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+func (m *MTOShipmentWithoutServiceItems) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
 		return nil
 	}
 
@@ -919,7 +919,7 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -943,7 +943,7 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1177,7 +1177,7 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateReweigh(ctx context.Cont
 	return nil
 }
 
-func (m *MTOShipmentWithoutServiceItems) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipmentWithoutServiceItems) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
@@ -1249,7 +1249,7 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateStorageFacility(ctx cont
 	return nil
 }
 
-func (m *MTOShipmentWithoutServiceItems) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipmentWithoutServiceItems) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

@@ -637,11 +637,11 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDestinationAddress:
+      secondaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
-      tertiaryDestinationAddress:
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -2825,23 +2825,23 @@ definitions:
           - $ref: '#/definitions/Address'
       destinationType:
         $ref: '#/definitions/DestinationType'
-      secondaryDestinationAddress:
+      secondaryDeliveryAddress:
         description: >-
           A second destination address for this shipment, if the customer
           entered one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      hasSecondaryDestinationAddress:
+      hasSecondaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryDestinationAddress:
+      tertiaryDeliveryAddress:
         description: >-
           A third destination address for this shipment, if the customer entered
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      hasTertiaryDestinationAddress:
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true

@@ -608,7 +608,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "secondaryDestinationAddress": {
+        "secondaryDeliveryAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -627,7 +627,7 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
-        "tertiaryDestinationAddress": {
+        "tertiaryDeliveryAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -1606,7 +1606,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasSecondaryDestinationAddress": {
+        "hasSecondaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -1616,7 +1616,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDestinationAddress": {
+        "hasTertiaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -1731,7 +1731,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDestinationAddress": {
+        "secondaryDeliveryAddress": {
           "description": "A second destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -1776,7 +1776,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDestinationAddress": {
+        "tertiaryDeliveryAddress": {
           "description": "A third destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -4317,7 +4317,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "secondaryDestinationAddress": {
+        "secondaryDeliveryAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -4336,7 +4336,7 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
-        "tertiaryDestinationAddress": {
+        "tertiaryDeliveryAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -5315,7 +5315,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasSecondaryDestinationAddress": {
+        "hasSecondaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -5325,7 +5325,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDestinationAddress": {
+        "hasTertiaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -5440,7 +5440,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDestinationAddress": {
+        "secondaryDeliveryAddress": {
           "description": "A second destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -5485,7 +5485,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDestinationAddress": {
+        "tertiaryDeliveryAddress": {
           "description": "A third destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {

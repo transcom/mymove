@@ -138,11 +138,11 @@ const PrimeUIShipmentUpdateForm = ({ editableFormFields, shipment }) => {
       {editableFormFields.editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableFormFields.editableDestinationAddress && formatAddress(shipment.destinationAddress)}
       <h5 className={styles.sectionHeader}>Secondary Destination Address</h5>
-      {editableFormFields.editableSecondaryDestinationAddress && <AddressFields name="secondaryDestinationAddress" />}
-      {!editableFormFields.editableSecondaryDestinationAddress && formatAddress(shipment.secondaryDestinationAddress)}
+      {editableFormFields.editableSecondaryDeliveryAddress && <AddressFields name="secondaryDeliveryAddress" />}
+      {!editableFormFields.editableSecondaryDeliveryAddress && formatAddress(shipment.secondaryDeliveryAddress)}
       <h5 className={styles.sectionHeader}>Tertiary Destination Address</h5>
-      {editableFormFields.editableTertiaryDestinationAddress && <AddressFields name="tertiaryDestinationAddress" />}
-      {!editableFormFields.editableTertiaryDestinationAddress && formatAddress(shipment.tertiaryDestinationAddress)}
+      {editableFormFields.editableTertiaryDeliveryAddress && <AddressFields name="tertiaryDeliveryAddress" />}
+      {!editableFormFields.editableTertiaryDeliveryAddress && formatAddress(shipment.tertiaryDeliveryAddress)}
       <DropdownInput
         label="Destination type"
         name="destinationType"
@@ -151,46 +151,6 @@ const PrimeUIShipmentUpdateForm = ({ editableFormFields, shipment }) => {
       />
     </SectionWrapper>
   );
-};
-
-PrimeUIShipmentUpdateForm.propTypes = {
-  editableWeightEstimateField: PropTypes.bool,
-  editableWeightActualField: PropTypes.bool,
-  editableProGearWeightActualField: PropTypes.bool,
-  editableSpouseProGearWeightActualField: PropTypes.bool,
-  editablePickupAddress: PropTypes.bool,
-  editableDestinationAddress: PropTypes.bool,
-  requestedPickupDate: PropTypes.string,
-  estimatedWeight: PropTypes.string,
-  actualWeight: PropTypes.string,
-  actualProGearWeight: PropTypes.string,
-  actualSpouseProGearWeight: PropTypes.string,
-  pickupAddress: ResidentialAddressShape,
-  secondaryPickupAddress: ResidentialAddressShape,
-  tertiaryPickupAddress: ResidentialAddressShape,
-  destinationAddress: ResidentialAddressShape,
-  secondaryDestinationAddress: ResidentialAddressShape,
-  tertiaryDestinationAddress: ResidentialAddressShape,
-};
-
-PrimeUIShipmentUpdateForm.defaultProps = {
-  editableWeightEstimateField: 0,
-  editableWeightActualField: 0,
-  editableProGearWeightActualField: true,
-  editableSpouseProGearWeightActualField: true,
-  editablePickupAddress: true,
-  editableDestinationAddress: true,
-  requestedPickupDate: '',
-  estimatedWeight: '',
-  actualWeight: '',
-  actualProGearWeight: '',
-  actualSpouseProGearWeight: '',
-  pickupAddress: emptyAddressShape,
-  secondaryPickupAddress: emptyAddressShape,
-  tertiaryPickupAddress: emptyAddressShape,
-  destinationAddress: emptyAddressShape,
-  secondaryDestinationAddress: emptyAddressShape,
-  tertiaryDestinationAddress: emptyAddressShape,
 };
 
 export default PrimeUIShipmentUpdateForm;

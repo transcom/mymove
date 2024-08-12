@@ -141,8 +141,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   let reformatPrimeApiSecondaryPickupAddress = fromPrimeAPIAddressFormat(shipment.secondaryPickupAddress);
   let reformatPrimeApiTertiaryPickupAddress = fromPrimeAPIAddressFormat(shipment.tertiaryPickupAddress);
   let reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
-  let reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDestinationAddress);
-  let reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDestinationAddress);
+  let reformatPrimeApiSecondaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.secondaryDeliveryAddress);
+  let reformatPrimeApiTertiaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
 
   const editableFormFields = {
     editableWeightEstimateField: !isValidWeight(shipment.primeEstimatedWeight),
@@ -153,8 +153,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     editableSecondaryPickupAddress: isEmpty(reformatPrimeApiSecondaryPickupAddress),
     editableTertiaryPickupAddress: isEmpty(reformatPrimeApiTertiaryPickupAddress),
     editableDestinationAddress: isEmpty(reformatPrimeApiDestinationAddress),
-    editableSecondaryDestinationAddress: isEmpty(reformatPrimeApiSecondaryDestinationAddress),
-    editableTertiaryDestinationAddress: isEmpty(reformatPrimeApiTertiaryDestinationAddress),
+    editableSecondaryDeliveryAddress: isEmpty(reformatPrimeApiSecondaryDeliveryAddress),
+    editableTertiaryDeliveryAddress: isEmpty(reformatPrimeApiTertiaryDeliveryAddress),
   };
 
   const onCancelShipmentClick = () => {
@@ -173,7 +173,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           secondaryPickupAddress,
           tertiaryPickupAddress,
           destinationAddress,
-          secondaryDestinationAddress,
+          secondaryDeliveryAddress,
           tertiaryDestinationAddress,
           sitExpected,
           sitLocation,
@@ -186,7 +186,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           spouseProGearWeight,
           hasSecondaryPickupAddress,
           hasTertiaryPickupAddress,
-          hasSecondaryDestinationAddress,
+          hasSecondaryDeliveryAddress,
           hasTertiaryDestinationAddress,
         },
         counselorRemarks,
@@ -200,14 +200,14 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
             : formatAddressForPrimeAPI(secondaryPickupAddress),
           tertiaryPickupAddress: isEmpty(tertiaryPickupAddress)
             ? emptyAddress
-            : formatAddressForPrimeAPI(secondaryDestinationAddress),
+            : formatAddressForPrimeAPI(tertiaryPickupAddress),
           destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
-          secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
+          secondaryDeliveryAddress: isEmpty(secondaryDeliveryAddress)
             ? emptyAddress
-            : formatAddressForPrimeAPI(secondaryDestinationAddress),
+            : formatAddressForPrimeAPI(secondaryDeliveryAddress),
           tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
             ? emptyAddress
-            : formatAddressForPrimeAPI(secondaryDestinationAddress),
+            : formatAddressForPrimeAPI(tertiaryDestinationAddress),
           sitExpected,
           ...(sitExpected && {
             sitLocation: sitLocation || null,
@@ -223,7 +223,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
           }),
           hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
           hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
-          hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+          hasSecondaryDeliveryAddress: hasSecondaryDeliveryAddress === 'true',
           hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
         },
         counselorRemarks: counselorRemarks || null,
@@ -242,8 +242,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         secondaryPickupAddress,
         tertiaryPickupAddress,
         destinationAddress,
-        secondaryDestinationAddress,
-        tertiaryDestinationAddress,
+        secondaryDeliveryAddress,
+        tertiaryDeliveryAddress,
         destinationType,
         diversion,
       } = values;
@@ -267,11 +267,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         destinationAddress: editableFormFields.editableDestinationAddress
           ? formatAddressForPrimeAPI(destinationAddress)
           : null,
-        secondaryDestinationAddress: editableFormFields.editableSecondaryDestinationAddress
-          ? formatAddressForPrimeAPI(secondaryDestinationAddress)
+        secondaryDeliveryAddress: editableFormFields.editableSecondaryDeliveryAddress
+          ? formatAddressForPrimeAPI(secondaryDeliveryAddress)
           : null,
-        tertiaryDestinationAddress: editableFormFields.editableTertiaryDestinationAddress
-          ? formatAddressForPrimeAPI(tertiaryDestinationAddress)
+        tertiaryDeliveryAddress: editableFormFields.editableTertiaryDeliveryAddress
+          ? formatAddressForPrimeAPI(tertiaryDeliveryAddress)
           : null,
         destinationType,
         diversion,
@@ -317,7 +317,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
         proGearWeight: shipment.ppmShipment.proGearWeight?.toString(),
         spouseProGearWeight: shipment.ppmShipment.spouseProGearWeight?.toString(),
         hasSecondaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
-        hasSecondaryDestinationAddress: shipment.ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
+        hasSecondaryDeliveryAddress: shipment.ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
         hasTertiaryPickupAddress: shipment.ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
         hasTertiaryDestinationAddress: shipment.ppmShipment.hasTertiaryDestinationAddress ? 'true' : 'false',
       },
@@ -373,8 +373,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     reformatPrimeApiSecondaryPickupAddress = fromPrimeAPIAddressFormat(shipment.secondaryPickupAddress);
     reformatPrimeApiTertiaryPickupAddress = fromPrimeAPIAddressFormat(shipment.tertiaryPickupAddress);
     reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
-    reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDestinationAddress);
-    reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDestinationAddress);
+    reformatPrimeApiSecondaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.secondaryDeliveryAddress);
+    reformatPrimeApiTertiaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
     initialValues = {
       estimatedWeight: shipment.primeEstimatedWeight?.toLocaleString(),
       actualWeight: shipment.primeActualWeight?.toLocaleString(),
@@ -395,12 +395,12 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       destinationAddress: editableFormFields.editableDestinationAddress
         ? emptyAddress
         : reformatPrimeApiDestinationAddress,
-      secondaryDestinationAddress: editableFormFields.editableSecondaryDestinationAddress
+      secondaryDeliveryAddress: editableFormFields.editableSecondaryDeliveryAddress
         ? emptyAddress
-        : reformatPrimeApiSecondaryDestinationAddress,
-      tertiaryDestinationAddress: editableFormFields.editableTertiaryDestinationAddress
+        : reformatPrimeApiSecondaryDeliveryAddress,
+      tertiaryDeliveryAddress: editableFormFields.editableTertiaryDeliveryAddress
         ? emptyAddress
-        : reformatPrimeApiTertiaryDestinationAddress,
+        : reformatPrimeApiTertiaryDeliveryAddress,
       destinationType: shipment.destinationType,
       diversion: shipment.diversion,
     };
@@ -410,8 +410,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       secondaryPickupAddress: addressSchema,
       tertiaryPickupAddress: addressSchema,
       destinationAddress: addressSchema,
-      secondaryDestinationAddress: addressSchema,
-      tertiaryDestinationAddress: addressSchema,
+      secondaryDeliveryAddress: addressSchema,
+      tertiaryDeliveryAddress: addressSchema,
       scheduledPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
       actualPickupDate: Yup.date().typeError('Invalid date. Must be in the format: DD MMM YYYY'),
     });

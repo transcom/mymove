@@ -401,10 +401,10 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
-		verifyAddressFields(successShipment.SecondaryDeliveryAddress, &shipment.SecondaryDestinationAddress.Address)
+		verifyAddressFields(successShipment.SecondaryDeliveryAddress, &shipment.SecondaryDeliveryAddress.Address)
 		verifyAddressFields(successShipment.SecondaryPickupAddress, &shipment.SecondaryPickupAddress.Address)
 
-		verifyAddressFields(successShipment.TertiaryDeliveryAddress, &shipment.TertiaryDestinationAddress.Address)
+		verifyAddressFields(successShipment.TertiaryDeliveryAddress, &shipment.TertiaryDeliveryAddress.Address)
 		verifyAddressFields(successShipment.TertiaryPickupAddress, &shipment.TertiaryPickupAddress.Address)
 
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
