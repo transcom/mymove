@@ -1792,11 +1792,15 @@ definitions:
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
       - PPM
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
       PPM: PPM
+      BOAT_HAUL_AWAY: Boat Haul-Away
+      BOAT_TOW_AWAY: Boat Tow-Away
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1836,6 +1840,8 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      boatShipment:
+        $ref: '#/definitions/BoatShipment'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       status:
@@ -1906,6 +1912,8 @@ definitions:
         $ref: '#/definitions/MTOShipmentType'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
       requestedPickupDate:
         format: date
         type: string
@@ -2084,6 +2092,89 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+  CreateBoatShipment:
+    description: Boat shipment information for the move.
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  UpdateBoatShipment:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+        x-nullable: true
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+        x-nullable: true
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -2093,6 +2184,8 @@ definitions:
         $ref: '#/definitions/MTOShipmentType'
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/UpdateBoatShipment'
       requestedPickupDate:
         format: date
         type: string
@@ -3549,6 +3642,80 @@ definitions:
       - status
       - expectedDepartureDate
       - sitExpected
+      - eTag
+  BoatShipment:
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Boat shipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when the Boat Shipment was initially created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
       - eTag
   PpmID:
     description: |
