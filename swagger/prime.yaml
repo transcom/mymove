@@ -1162,6 +1162,13 @@ paths:
           * DDDSIT - Domestic destination SIT delivery
           * DDSFSC - Domestic destination SIT fuel surcharge
 
+        **NOTE** When providing the `sitEntryDate` value in the payload, please
+        ensure that the date is not BEFORE
+
+        `firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it
+        is, you will receive an error response.
+
+
         **DDASIT**
 
 
@@ -2100,6 +2107,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -2147,6 +2159,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true

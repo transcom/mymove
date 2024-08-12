@@ -69,6 +69,7 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 			"Success - Move is available to Prime": {
 				move: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 				delta:  nil,
 				result: nil,
@@ -76,15 +77,18 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 			"Success - Move is being made available to Prime": {
 				move: models.Move{
 					AvailableToPrimeAt: nil,
+					ApprovedAt:         nil,
 				},
 				delta: &models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 				result: nil,
 			},
 			"Fail - Move is not available to the Prime": {
 				move: models.Move{
 					AvailableToPrimeAt: &time.Time{},
+					ApprovedAt:         &time.Time{},
 				},
 				delta:  nil,
 				result: apperror.NotFoundError{},
@@ -92,9 +96,11 @@ func (suite *MoveServiceSuite) TestMoveValidation() {
 			"Fail - Move is being made unavailable to the Prime": {
 				move: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 				delta: &models.Move{
 					AvailableToPrimeAt: &time.Time{},
+					ApprovedAt:         &time.Time{},
 				},
 				result: apperror.NotFoundError{},
 			},

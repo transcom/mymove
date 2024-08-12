@@ -271,7 +271,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     }
 
     let destLink = '';
-    if (shipmentType === shipmentTypes.HHG || shipmentType === shipmentTypes.PPM) {
+    if (
+      shipmentType === shipmentTypes.HHG ||
+      shipmentType === shipmentTypes.PPM ||
+      shipmentType === shipmentTypes.BOAT
+    ) {
       destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: move.id,
         mtoShipmentId: shipmentId,
