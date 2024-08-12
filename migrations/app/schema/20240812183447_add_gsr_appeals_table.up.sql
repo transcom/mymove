@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS gsr_appeals (
     id UUID PRIMARY KEY NOT NULL,
     evaluation_report_id UUID REFERENCES evaluation_reports(id) ON DELETE CASCADE,
     report_violation_id UUID REFERENCES report_violations(id) ON DELETE SET NULL,
-    office_user_id UUID REFERENCES office_users(id) ON DELETE SET NULL,
+    office_user_id UUID REFERENCES office_users(id) ON DELETE SET NULL NOT NULL,
     is_serious_incident_appeal BOOLEAN,
     appeal_status TEXT NOT NULL CHECK (appeal_status IN ('SUSTAINED', 'REJECTED')),
     remarks TEXT NOT NULL,
