@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button, Tag } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import PropTypes from 'prop-types';
@@ -6,27 +6,20 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import styles from './QAEReportTable.module.scss';
 
-import ConnectedEvaluationReportConfirmationModal from 'components/ConfirmationModals/EvaluationReportConfirmationModal';
 import ConnectedDeleteEvaluationReportConfirmationModal from 'components/ConfirmationModals/DeleteEvaluationReportConfirmationModal';
 import { formatCustomerDate, formatEvaluationReportLocation, formatQAReportID } from 'utils/formatters';
-import { CustomerShape, EvaluationReportShape, ShipmentShape } from 'types';
+import { EvaluationReportShape } from 'types';
 
 const QAEReportTable = ({
   reports,
-  shipments,
   emptyText,
   moveCode,
-  customerInfo,
-  grade,
   setReportToDelete,
   setIsDeleteModalOpen,
   deleteReport,
   isDeleteModalOpen,
-  destinationDutyLocationPostalCode,
 }) => {
   const location = useLocation();
-  const [isViewReportModalVisible, setIsViewReportModalVisible] = useState(false);
-  const [reportToView, setReportToView] = useState(undefined);
   const navigate = useNavigate();
 
   // whether or not the delete report modal is displaying
@@ -35,18 +28,8 @@ const QAEReportTable = ({
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  // const handleViewReportClick = (report) => {
-  //   setReportToView(report);
-  //   setIsViewReportModalVisible(true);
-  // };
-
   const handleViewReportClick = (reportID) => {
     navigate(`/moves/${moveCode}/evaluation-report/${reportID}`);
-  };
-
-  // this handles the close button at the bottom of the view report modal
-  const toggleCloseModal = () => {
-    setIsViewReportModalVisible(!isViewReportModalVisible);
   };
 
   const row = (report) => {
@@ -83,15 +66,6 @@ const QAEReportTable = ({
         </td>
         <td className={styles.viewReportColumn}>
           {report.submittedAt && (
-            // <Button
-            //   type="button"
-            //   id={report.id}
-            //   className={classnames(styles.viewButton, 'text-blue usa-button--unstyled')}
-            //   onClick={() => handleViewReportClick(report)}
-            //   data-testid="viewReport"
-            // >
-            //   View report
-            // </Button>
             <Button
               type="button"
               id={report.id}
@@ -153,31 +127,6 @@ const QAEReportTable = ({
         submitModal={deleteReport}
         isDeleteFromTable
       />
-      {isViewReportModalVisible && reportToView && (
-        <ConnectedEvaluationReportConfirmationModal
-          isOpen={isViewReportModalVisible}
-          evaluationReport={reportToView}
-          moveCode={moveCode}
-          customerInfo={customerInfo}
-          grade={grade}
-          destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
-          mtoShipments={shipments}
-          reportViolations={reportToView.ReportViolations}
-          modalActions={
-            <div className={styles.modalActions}>
-              <Button
-                type="button"
-                onClick={toggleCloseModal}
-                aria-label="Close"
-                secondary
-                className={styles.closeModalBtn}
-              >
-                Close
-              </Button>
-            </div>
-          }
-        />
-      )}
       <table className={styles.qaeReportTable}>
         <thead>
           <tr>
@@ -200,20 +149,14 @@ QAEReportTable.propTypes = {
   reports: PropTypes.arrayOf(EvaluationReportShape),
   emptyText: PropTypes.string.isRequired,
   moveCode: PropTypes.string.isRequired,
-  customerInfo: CustomerShape.isRequired,
-  grade: PropTypes.string.isRequired,
-  shipments: PropTypes.arrayOf(ShipmentShape),
   setIsDeleteModalOpen: PropTypes.func.isRequired,
   setReportToDelete: PropTypes.func.isRequired,
   deleteReport: PropTypes.func.isRequired,
   isDeleteModalOpen: PropTypes.bool.isRequired,
-  destinationDutyLocationPostalCode: PropTypes.string,
 };
 
 QAEReportTable.defaultProps = {
   reports: [],
-  shipments: null,
-  destinationDutyLocationPostalCode: '',
 };
 
 export default QAEReportTable;
