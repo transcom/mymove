@@ -3,16 +3,29 @@ package models
 import (
 	"time"
 
+	"github.com/gobuffalo/pop/v6"
+	"github.com/gobuffalo/validate/v3"
+	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
 )
 
 // AppealStatus represents the status of an appeal made by a GSR
 type AppealStatus string
 
+// String is a string representation of a GSR Appeal Status
+func (g AppealStatus) String() string {
+	return string(g)
+}
+
 const (
-	AppealStatusSustained string = "SUSTAINED"
-	AppealStatusRejected  string = "REJECTED"
+	AppealStatusSustained AppealStatus = "SUSTAINED"
+	AppealStatusRejected  AppealStatus = "REJECTED"
 )
+
+var validAppealStatus = []string{
+	string(AppealStatusSustained),
+	string(AppealStatusRejected),
+}
 
 type GsrAppeal struct {
 	ID                      uuid.UUID         `json:"id" db:"id"`
@@ -31,6 +44,15 @@ type GsrAppeal struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (mh GsrAppeal) TableName() string {
+func (g GsrAppeal) TableName() string {
 	return "gsr_appeals"
+}
+
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
+func (g *GsrAppeal) Validate(_ *pop.Connection) (*validate.Errors, error) {
+	return validate.Validate(
+		&validators.UUIDIsPresent{Field: g.OfficeUserID, Name: "OfficeUserID"},
+		&validators.StringInclusion{Field: g.AppealStatus.String(), Name: "AppealStatus", List: validAppealStatus},
+		&validators.StringIsPresent{Field: g.Remarks, Name: "Remarks"},
+	), nil
 }
