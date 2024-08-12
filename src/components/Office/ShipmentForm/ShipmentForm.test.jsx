@@ -12,6 +12,7 @@ import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments'
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
+import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
 
 const mockMutateFunction = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -25,6 +26,11 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
 const mockMtoShipment = {
   id: 'shipment123',
   moveTaskOrderId: 'mock move id',
@@ -32,6 +38,8 @@ const mockMtoShipment = {
   counselorRemarks: 'mock counselor remarks',
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
+  // requestedPickupDate: '2021-06-07',
+  // requestedDeliveryDate: '2021-06-14',
   hasSecondaryDeliveryAddress: false,
   hasSecondaryPickupAddress: false,
   pickupAddress: {
@@ -159,6 +167,7 @@ const mockMtoShipment = {
 const defaultProps = {
   isCreatePage: true,
   submitHandler: jest.fn(),
+  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
   newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -418,6 +427,35 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
 
+    it('Service Counselor - renders date alert warnings for pickup/delivery on date picker selection', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2024');
+      await userEvent.type(screen.getByLabelText('Requested delivery date'), '30 Mar 2024');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 26 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Requested delivery date 30 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
     it('uses the current residence address for pickup address when checked', async () => {
       const user = userEvent.setup();
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
@@ -512,6 +550,17 @@ describe('ShipmentForm component', () => {
 
   describe('editing an already existing HHG shipment', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
+      // For some reason need this mock here.
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: false,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -938,6 +987,138 @@ describe('ShipmentForm component', () => {
   });
 
   describe('as a TOO', () => {
+    it('create new - HHG: displays date alerts for pickup/delivery for weekends', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(
+        <ShipmentForm {...defaultProps} isCreatePage shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />,
+      );
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2024');
+      await userEvent.type(screen.getByLabelText('Requested delivery date'), '30 Mar 2024');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 26 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Requested delivery date 30 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('edit-HHG: pageload displays date alerts for pickup/delivery for weekends', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          userRole={roleTypes.TOO}
+        />,
+      );
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
+      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
+      expect(await screen.findByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 01 Mar 2020 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Requested delivery date 30 Mar 2020 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('edit-HHG: pageload displays date alerts for pickup/delivery for holiday', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: false,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          userRole={roleTypes.TOO}
+        />,
+      );
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 01 Mar 2020 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Requested delivery date 30 Mar 2020 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('edit-HHG: pageload displays date alerts for pickup/delivery for weekend and holiday', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          userRole={roleTypes.TOO}
+        />,
+      );
+      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.getByText(
+            /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
     it('renders the HHG shipment form', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />);
 
@@ -961,6 +1142,63 @@ describe('ShipmentForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
     });
 
+    it('create new - NTS: displays date alerts for pickup/delivery for weekends', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: false,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(
+        <ShipmentForm {...defaultProps} isCreatePage shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
+      );
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2024');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 26 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+      });
+    });
+
+    it('edit-NTS: pageload displays date alerts for pickup/delivery for weekend and holiday', async () => {
+      const expectedDateSelectionIsWeekendHolidayResponse = {
+        country_code: 'US',
+        country_name: 'United States',
+        is_weekend: true,
+        is_holiday: true,
+      };
+      dateSelectionIsWeekendHoliday.mockImplementation(() =>
+        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+      );
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          isCreatePage={false}
+          shipmentType={SHIPMENT_OPTIONS.NTS}
+          userRole={roleTypes.TOO}
+        />,
+      );
+      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveClass('usa-alert__text');
+        expect(
+          screen.queryAllByText(
+            /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+          ),
+        ).toHaveLength(0);
+      });
+    });
+
     it('renders the NTS release shipment form', async () => {
       renderWithRouter(
         <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
@@ -969,6 +1207,61 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
+    });
+  });
+
+  it('edit-NTSR: pageload displays date alerts for pickup/delivery for weekend and holiday', async () => {
+    const expectedDateSelectionIsWeekendHolidayResponse = {
+      country_code: 'US',
+      country_name: 'United States',
+      is_weekend: true,
+      is_holiday: true,
+    };
+    dateSelectionIsWeekendHoliday.mockImplementation(() =>
+      Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+    );
+    renderWithRouter(
+      <ShipmentForm
+        {...defaultProps}
+        isCreatePage={false}
+        shipmentType={SHIPMENT_OPTIONS.NTSR}
+        userRole={roleTypes.TOO}
+      />,
+    );
+    expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+    expect(
+      screen.queryAllByText(
+        'Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
+      ),
+    ).toHaveLength(0);
+    expect(
+      screen.getByText(
+        /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+      ),
+    ).toHaveClass('usa-alert__text');
+  });
+
+  it('create new - NTSR: displays date alerts for pickup/delivery for weekends', async () => {
+    const expectedDateSelectionIsWeekendHolidayResponse = {
+      country_code: 'US',
+      country_name: 'United States',
+      is_weekend: true,
+      is_holiday: false,
+    };
+    dateSelectionIsWeekendHoliday.mockImplementation(() =>
+      Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
+    );
+    renderWithRouter(
+      <ShipmentForm {...defaultProps} isCreatePage shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
+    );
+    expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
+    await userEvent.type(screen.getByLabelText('Requested delivery date'), '01 Mar 2024');
+    await waitFor(() => {
+      expect(
+        screen.getByText(
+          /Requested delivery date 01 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
+        ),
+      ).toHaveClass('usa-alert__text');
     });
   });
 
