@@ -1,8 +1,10 @@
 package ppmshipment
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/factory"
@@ -479,14 +481,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 	}
 
 	suite.Run("Price Breakdown", func() {
-		weight := unit.Pound(5000)
-		ppmShipment := factory.BuildMinimalPPMShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.PPMShipment{
-					EstimatedWeight: &weight,
-				},
-			},
-		}, nil)
+		ppmShipment := factory.BuildPPMShipmentWithApprovedDocuments(suite.DB())
 
 		setupPricerData()
 
@@ -506,19 +501,19 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			"50309", "30813")
 		mockedPaymentRequestHelper.AssertCalled(suite.T(), "FetchServiceParamsForServiceItems", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("[]models.MTOServiceItem"))
 
-		suite.Equal(unit.Pound(5000), *ppmShipment.EstimatedWeight)
-		suite.Equal(unit.Cents(69599960), linehaul)
+		suite.Equal(unit.Pound(4000), *ppmShipment.EstimatedWeight)
+		suite.Equal(unit.Cents(37841824), linehaul)
 		suite.Equal(unit.Cents(3004), fuel)
-		suite.Equal(unit.Cents(20200), origin)
-		suite.Equal(unit.Cents(41600), dest)
-		suite.Equal(unit.Cents(369750), packing)
-		suite.Equal(unit.Cents(29850), unpacking)
+		suite.Equal(unit.Cents(16160), origin)
+		suite.Equal(unit.Cents(33280), dest)
+		suite.Equal(unit.Cents(295800), packing)
+		suite.Equal(unit.Cents(23880), unpacking)
 
 		total := linehaul + fuel + origin + dest + packing + unpacking
-		suite.Equal(unit.Cents(70064364), total)
+		suite.Equal(unit.Cents(38213948), total)
 	})
 
-	/* suite.Run("Estimated Incentive", func() {
+	suite.Run("Estimated Incentive", func() {
 		suite.Run("Estimated Incentive - Success", func() {
 			oldPPMShipment := factory.BuildMinimalPPMShipment(suite.DB(), nil, nil)
 
@@ -1783,5 +1778,4 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.Nil(estimatedSITCost)
 		})
 	})
-	*/
 }
