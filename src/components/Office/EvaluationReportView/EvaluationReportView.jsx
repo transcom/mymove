@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'styles/office.scss';
-import { GridContainer } from '@trussworks/react-uswds';
+import { Button, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 import { useParams } from 'react-router-dom';
 
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
-import EvaluationReportViolationsList from '../DefinitionLists/EvaluationReportViolationsList';
 import PreviewRow from '../EvaluationReportPreview/PreviewRow/PreviewRow';
 
 import styles from './EvaluationReportView.module.scss';
@@ -27,6 +26,10 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
     useEvaluationReportShipmentListQueries(reportId);
 
+  // this is currently set to false to hide the "add appeal" button for future GSR work
+  // TODO implement permissions check in order to render this button
+  const [canLeaveAppeal] = useState(false);
+
   const isShipment = evaluationReport.type === EVALUATION_REPORT_TYPE.SHIPMENT;
 
   if (isLoading) {
@@ -46,7 +49,7 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   const showIncidentDescription = evaluationReport?.seriousIncident;
 
   return (
-    <div className={styles.tabContent}>
+    <div className={styles.tabContent} data-testid="EvaluationReportPreview">
       <GridContainer className={styles.container}>
         <QaeReportHeader report={evaluationReport} />
         {mtoShipmentsToShow?.length > 0 && (
@@ -131,7 +134,14 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                   <dd className={styles.violationsRemarks}>
                     {reportViolations.map((reportViolation) => (
                       <div className={styles.violation} key={`${reportViolation.id}-violation`}>
-                        <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
+                        <div className={styles.violationHeader}>
+                          <h5>{`${reportViolation?.violation?.paragraphNumber} ${reportViolation?.violation?.title}`}</h5>
+                          {canLeaveAppeal && (
+                            <Button unstyled className={styles.addAppealBtn}>
+                              Add appeal
+                            </Button>
+                          )}
+                        </div>
                         <p>
                           <small>{reportViolation?.violation?.requirementSummary}</small>
                         </p>
@@ -170,23 +180,33 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
                 label="Observed Delivery Date"
                 data={formatDate(evaluationReport?.observedDeliveryDate, 'DD MMM YYYY')}
               />
-              <PreviewRow
-                isShown={hasViolations}
-                label="Serious incident"
-                data={showIncidentDescription ? 'Yes' : 'No'}
-              />
-              <PreviewRow
-                isShown={hasViolations && showIncidentDescription}
-                label="Serious incident description"
-                data={evaluationReport?.seriousIncidentDesc}
-              />
             </dl>
           </div>
           <div className={styles.section}>
-            <h3>Serious Incident</h3>
-            <EvaluationReportViolationsList evaluationReport={evaluationReport} reportViolations={reportViolations} />
+            <div className={styles.seriousIncidentHeader}>
+              <h3>Serious Incident</h3>
+              {canLeaveAppeal && (
+                <Button unstyled className={styles.addAppealBtn}>
+                  Add appeal
+                </Button>
+              )}
+            </div>
+            <dl className={descriptionListStyles.descriptionList} data-testid="seriousIncidentSection">
+              <div className={descriptionListStyles.row}>
+                <dt className={styles.label}>Serious incident</dt>
+                <dd className={styles.seriousIncidentRemarks} data-testid="seriousIncidentYesNo">
+                  {showIncidentDescription ? 'Yes' : 'No'}
+                </dd>
+              </div>
+              {showIncidentDescription && (
+                <div className={descriptionListStyles.row} data-testid="seriousIncidentDescription">
+                  <dt className={styles.label}>Description</dt>
+                  <dd className={styles.seriousIncidentRemarks}>{evaluationReport?.seriousIncidentDesc}</dd>
+                </div>
+              )}
+            </dl>
           </div>
-          <div className={styles.section}>
+          <div className={styles.section} data-testid="qaeRemarks">
             <h3>QAE remarks</h3>
             <dl className={descriptionListStyles.descriptionList}>
               <div className={descriptionListStyles.row}>

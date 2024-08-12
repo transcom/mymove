@@ -119,11 +119,52 @@
 }
 
 .qaeRemarks {
-  width: 711px;
+  flex-grow: 1;
+  max-width: 648px;
 }
 
 .label {
   width: 200px !important;
   @include u-padding-x(1 !important);
   @include u-padding-y(1.5 !important);
+}
+
+.violationsRemarks {
+  @include u-padding-x(1 !important);
+  flex-grow: 1;
+}
+
+.violation {
+  display: flex;
+  flex-direction: column;
+  margin-left: -1rem;
+  @include u-padding-x(2);
+  border: 1px solid $base-light;
+  border-radius: 2px;
+  max-width: 648px;
+
+  .violationHeader {
+    display: flex;
+    justify-content: space-between;
+
+    .addAppealBtn {
+      margin-top: 1vh;
+    }
+  }
+
+  h5 {
+    margin-top: 12px;
+    margin-bottom: 0;
+  }
+}
+
+.seriousIncidentHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-right: 1.6em;
+}
+
+.seriousIncidentRemarks {
+  flex-grow: 1;
+  max-width: 648px;
 }
