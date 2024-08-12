@@ -60,7 +60,7 @@ func NewPptasReportsOK() *PptasReportsOK {
 /*
 PptasReportsOK describes a response with status code 200, with default header values.
 
-Successfully retrieved moves. A successful fetch might still return zero moves.
+Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.
 */
 type PptasReportsOK struct {
 	Payload pptasmessages.PPTASReports

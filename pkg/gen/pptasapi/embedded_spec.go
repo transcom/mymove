@@ -65,7 +65,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "description": "Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.",
             "schema": {
               "$ref": "#/definitions/PPTASReports"
             }
@@ -935,7 +935,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully retrieved moves. A successful fetch might still return zero moves.",
+            "description": "Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.",
             "schema": {
               "$ref": "#/definitions/PPTASReports"
             }
