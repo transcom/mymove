@@ -967,6 +967,9 @@
 20240719192106_add_destination_gbloc_to_orders.up.sql
 20240719222007_add_state_to_us_post_region_cities.up.sql
 20240722134633_update_move_history_indexes.up.sql
+20240730161630_remove-boat-shipments-index.up.sql
 20240725190050_update_payment_request_status_tpps_received.up.sql
 20240729162353_joseph_doye_cn_cac.up.sql
 20240729164930_mai_do_cac.up.sql
+20240801135811_create_mobile_home.up.sql
+20240801135833_alter_mto_shipment_type_motorhome.up.sql
