@@ -17,7 +17,7 @@ import (
 const PptasReportsOKCode int = 200
 
 /*
-PptasReportsOK Successfully retrieved moves. A successful fetch might still return zero moves.
+PptasReportsOK Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.
 
 swagger:response pptasReportsOK
 */

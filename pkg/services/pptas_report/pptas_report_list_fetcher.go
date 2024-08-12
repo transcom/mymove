@@ -254,7 +254,7 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 				return err
 			}
 
-			totalPrice := float64(0)
+			var totalPrice float64
 			if serviceItem.PriceCents != nil {
 				totalPrice = serviceItem.PriceCents.Float64()
 			}
@@ -364,7 +364,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 	travelAdvance := unit.Cents(0)
 
 	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
-	if shipment.PPMShipment != nil {
+	if shipment.PPMShipment != nil && shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete {
 		// query the ppmshipment for all it's child needs for the price breakdown
 		var ppmShipment models.PPMShipment
 		ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets", "Shipment").
@@ -380,6 +380,13 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 
 		if ppmQ != nil {
 			return apperror.NewQueryError("failed to query ppm ", ppmQ, ".")
+		}
+
+		if pptasShipment.OriginAddress == nil {
+			pptasShipment.OriginAddress = Address(ppmShipment.PickupAddress)
+		}
+		if pptasShipment.DestinationAddress == nil {
+			pptasShipment.DestinationAddress = Address(ppmShipment.DestinationAddress)
 		}
 
 		moveDate := &shipment.PPMShipment.ExpectedDepartureDate
@@ -408,7 +415,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		}
 
 		// add SIT fields
-		if *ppmShipment.SITExpected {
+		if ppmShipment.SITExpected != nil && *ppmShipment.SITExpected {
 			pptasShipment.SitInDate = (*strfmt.Date)(ppmShipment.SITEstimatedEntryDate)
 			pptasShipment.SitOutDate = (*strfmt.Date)(ppmShipment.SITEstimatedDepartureDate)
 		}
@@ -486,20 +493,22 @@ func inputReportTAC(pptasShipment *pptasmessages.PPTASShipment, orders models.Or
 		return nil
 	}
 
-	longLoa := loa.BuildFullLineOfAccountingString(tac[0].LineOfAccounting)
+	if tac[0].LineOfAccounting != nil {
+		longLoa := loa.BuildFullLineOfAccountingString(*tac[0].LineOfAccounting)
 
-	pptasShipment.Loa = &longLoa
-	pptasShipment.FiscalYear = tac[0].TacFyTxt
-	pptasShipment.Appro = tac[0].LineOfAccounting.LoaBafID
-	pptasShipment.Subhead = tac[0].LineOfAccounting.LoaObjClsID
-	pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
-	pptasShipment.Bcn = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
-	pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
-	pptasShipment.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
-	pptasShipment.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
-	pptasShipment.Paa = tac[0].LineOfAccounting.LoaDocID
-	pptasShipment.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
-	pptasShipment.Ddcd = tac[0].LineOfAccounting.LoaDptID
+		pptasShipment.Loa = &longLoa
+		pptasShipment.FiscalYear = tac[0].TacFyTxt
+		pptasShipment.Appro = tac[0].LineOfAccounting.LoaBafID
+		pptasShipment.Subhead = tac[0].LineOfAccounting.LoaObjClsID
+		pptasShipment.ObjClass = tac[0].LineOfAccounting.LoaAlltSnID
+		pptasShipment.Bcn = tac[0].LineOfAccounting.LoaSbaltmtRcpntID
+		pptasShipment.SubAllotCD = tac[0].LineOfAccounting.LoaInstlAcntgActID
+		pptasShipment.Aaa = tac[0].LineOfAccounting.LoaTrnsnID
+		pptasShipment.TypeCD = tac[0].LineOfAccounting.LoaJbOrdNm
+		pptasShipment.Paa = tac[0].LineOfAccounting.LoaDocID
+		pptasShipment.CostCD = tac[0].LineOfAccounting.LoaPgmElmntID
+		pptasShipment.Ddcd = tac[0].LineOfAccounting.LoaDptID
+	}
 
 	return nil
 }

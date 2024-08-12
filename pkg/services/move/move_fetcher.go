@@ -102,5 +102,9 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 		return nil, err
 	}
 
+	if len(moves) < 1 {
+		return nil, nil
+	}
+
 	return moves, nil
 }

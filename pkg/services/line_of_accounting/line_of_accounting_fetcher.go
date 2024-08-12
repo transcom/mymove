@@ -221,13 +221,13 @@ func checkForValidHhgProgramCodeForLoaAndValidLoaForTac(linesOfAccounting []mode
 	return linesOfAccounting, err
 }
 
-func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa *models.LineOfAccounting) string {
+func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
 	emptyString := ""
-	var fiscalYear string
+	var loaFyTx string
 	if fmt.Sprint(*loa.LoaBgFyTx) != "" && fmt.Sprint(*loa.LoaEndFyTx) != "" {
-		fiscalYear = fmt.Sprint(*loa.LoaBgFyTx) + fmt.Sprint(*loa.LoaEndFyTx)
+		loaFyTx = fmt.Sprint(*loa.LoaBgFyTx) + fmt.Sprint(*loa.LoaEndFyTx)
 	} else {
-		fiscalYear = ""
+		loaFyTx = ""
 	}
 
 	if loa.LoaDptID == nil {
@@ -316,7 +316,7 @@ func (f linesOfAccountingFetcher) BuildFullLineOfAccountingString(loa *models.Li
 	LineOfAccountingDfasElementOrder := []string{
 		*loa.LoaDptID,               // "LoaDptID"
 		*loa.LoaTnsfrDptNm,          // "LoaTnsfrDptNm",
-		fiscalYear,                  // "LoaEndFyTx",
+		loaFyTx,                     // "LoaEndFyTx",
 		*loa.LoaBafID,               // "LoaBafID",
 		*loa.LoaTrsySfxTx,           // "LoaTrsySfxTx",
 		*loa.LoaMajClmNm,            // "LoaMajClmNm",

@@ -17,11 +17,11 @@ type LineOfAccountingFetcher struct {
 }
 
 // BuildFullLineOfAccountingString provides a mock function with given fields: loa
-func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa *models.LineOfAccounting) string {
+func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
 	ret := _m.Called(loa)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(*models.LineOfAccounting) string); ok {
+	if rf, ok := ret.Get(0).(func(models.LineOfAccounting) string); ok {
 		r0 = rf(loa)
 	} else {
 		r0 = ret.Get(0).(string)
