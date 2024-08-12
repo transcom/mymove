@@ -10764,15 +10764,18 @@ func init() {
         },
         "ediErrorCode": {
           "description": "Reported code from syncada for the EDI error encountered",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "ediErrorDescription": {
           "description": "The reason the services counselor has excluded or rejected the item.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "ediErrorType": {
           "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -25751,15 +25754,18 @@ func init() {
         },
         "ediErrorCode": {
           "description": "Reported code from syncada for the EDI error encountered",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "ediErrorDescription": {
           "description": "The reason the services counselor has excluded or rejected the item.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "ediErrorType": {
           "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
-          "type": "string"
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",

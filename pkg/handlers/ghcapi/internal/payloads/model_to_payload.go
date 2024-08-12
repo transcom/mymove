@@ -1476,31 +1476,6 @@ func PaymentRequests(appCtx appcontext.AppContext, prs *models.PaymentRequests, 
 	return &payload, nil
 }
 
-func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.EdiError, error) {
-	// find any associated errors in the edi_errors table from processing the EDI 858, 824, or 997
-	var ediError []models.EdiError
-	ediErrorInfo := models.EdiError{}
-
-	// regardless of PR status, find any associated edi_errors
-	// 997s could have edi_errors logged but not have a status of EDI_ERROR
-	query := `SELECT *
-	FROM edi_errors
-	WHERE edi_errors.payment_request_id = $1
-	ORDER BY created_at DESC`
-	error := appCtx.DB().RawQuery(query, pr.ID).All(&ediError)
-	if error != nil {
-		return ediErrorInfo, error
-	} else if len(ediError) == 0 {
-		return ediErrorInfo, nil
-	}
-	if len(ediError) > 0 {
-		// since we ordered by created_at desc, the first result will be the most recent error we want to grab
-		ediErrorInfo = ediError[0]
-	}
-
-	return ediErrorInfo, nil
-}
-
 // PaymentRequest payload
 func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
@@ -1523,16 +1498,17 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 	ediErrorInfoEDIType := ""
 	ediErrorInfoEDICode := ""
 	ediErrorInfoEDIDescription := ""
-	ediErrorInfo, err := fetchEDIErrorsForPaymentRequest(appCtx, pr)
-	if err == nil {
-		if ediErrorInfo.EDIType != "" {
-			ediErrorInfoEDIType = string(ediErrorInfo.EDIType)
+	ediErrorInfo := pr.EdiErrors
+	if ediErrorInfo != nil {
+		mostRecentEdiError := ediErrorInfo[0]
+		if mostRecentEdiError.EDIType != "" {
+			ediErrorInfoEDIType = string(mostRecentEdiError.EDIType)
 		}
-		if ediErrorInfo.Code != nil {
-			ediErrorInfoEDICode = *ediErrorInfo.Code
+		if mostRecentEdiError.Code != nil {
+			ediErrorInfoEDICode = *mostRecentEdiError.Code
 		}
-		if ediErrorInfo.Description != nil {
-			ediErrorInfoEDIDescription = *ediErrorInfo.Description
+		if mostRecentEdiError.Description != nil {
+			ediErrorInfoEDIDescription = *mostRecentEdiError.Description
 		}
 	}
 
@@ -1552,9 +1528,9 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
 		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
 		ReceivedByGexAt:                 (*strfmt.DateTime)(pr.ReceivedByGexAt),
-		EdiErrorType:                    ediErrorInfoEDIType,
-		EdiErrorCode:                    ediErrorInfoEDICode,
-		EdiErrorDescription:             ediErrorInfoEDIDescription,
+		EdiErrorType:                    &ediErrorInfoEDIType,
+		EdiErrorCode:                    &ediErrorInfoEDICode,
+		EdiErrorDescription:             &ediErrorInfoEDIDescription,
 	}, nil
 }
 
