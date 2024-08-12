@@ -114,7 +114,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		if currentSIT.ReService.Code == models.ReServiceCodeDOFSIT || currentSIT.ReService.Code == models.ReServiceCodeDOASIT {
 			location = OriginSITLocation
 		}
-		daysInSIT := daysInSIT(*currentSIT, today) // how many days in current SIT that INCLUDES today?
+		daysInSIT := daysInSIT(*currentSIT, today)
 		sitEntryDate := *currentSIT.SITEntryDate
 		sitDepartureDate := currentSIT.SITDepartureDate
 		sitAuthorizedEndDate := CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
