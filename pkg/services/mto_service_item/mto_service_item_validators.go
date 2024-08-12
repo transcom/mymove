@@ -1,7 +1,6 @@
 package mtoserviceitem
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 
@@ -11,7 +10,6 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/db/utilities"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 )
@@ -360,28 +358,10 @@ func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) er
 		fmt.Sprintf("- SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
 }
 
-func retrieveShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*models.MTOShipment, error) {
-	var shipment models.MTOShipment
-	findShipmentQuery := appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope())
-
-	err := findShipmentQuery.Find(&shipment, shipmentID)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(shipmentID, "while looking for shipment")
-		default:
-			return nil, apperror.NewQueryError("MTOShipment", err, "")
-		}
-	}
-
-	return &shipment, nil
-}
-
 // checkSITDepartureDate checks that the SITDepartureDate:
 // - is not later than the authorized end date
 // - is not before the current entry date
-func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppContext) error {
+func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
@@ -392,12 +372,6 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppCo
 			// Otherwise, authorized end dates cannot be calculated or validated properly
 			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data.", v.updatedServiceItem.ID))
 		}
-
-		shipment, err := retrieveShipment(appCtx, *v.oldServiceItem.MTOShipmentID)
-		if err != nil {
-			return err
-		}
-
 		// Set the SIT entry date we are going to use for comparison
 		if v.updatedServiceItem.SITEntryDate == nil && v.oldServiceItem.SITEntryDate == nil {
 			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have a SIT entry date attached.", v.updatedServiceItem.ID))
@@ -409,24 +383,6 @@ func (v *updateMTOServiceItemData) checkSITDepartureDate(appCtx appcontext.AppCo
 		// Check that departure date is not before the current entry date
 		if v.updatedServiceItem.SITDepartureDate.Before(*SITEntryDate) {
 			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before the SIT entry date.")
-		}
-		// SITDepartureDate case for origin SIT handling
-		if slices.Contains(OriginReServiceCodesAllowedForSITDepartureDateUpdate, v.oldServiceItem.ReService.Code) {
-			if shipment.OriginSITAuthEndDate == nil {
-				return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have an authorized origin SIT end date on its shipment. This occurs on the server not preloading necessary data.", v.updatedServiceItem.ID))
-			}
-			if v.updatedServiceItem.SITDepartureDate.After(*shipment.OriginSITAuthEndDate) {
-				v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set after the authorized end date.")
-			}
-		}
-		// SITDepartureDate case for destination SIT handling
-		if slices.Contains(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, v.oldServiceItem.ReService.Code) {
-			if shipment.DestinationSITAuthEndDate == nil {
-				return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have an authorized destination SIT end date on its shipment. This occurs on the server not preloading necessary data.", v.updatedServiceItem.ID))
-			}
-			if v.updatedServiceItem.SITDepartureDate.After(*shipment.DestinationSITAuthEndDate) {
-				v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set after the authorized end date.")
-			}
 		}
 	}
 	return nil
