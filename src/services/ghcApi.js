@@ -336,12 +336,12 @@ export async function getTacValid({ tac }) {
 }
 
 // Retrieves the line of accounting based on a given TAC,
-// effective date, and service member affiliation
-export async function getLoa({ tacCode, effectiveDate, serviceMemberAffiliation }) {
+// orders issue date, and service member affiliation
+export async function getLoa({ tacCode, ordersIssueDate, serviceMemberAffiliation }) {
   const operationPath = 'linesOfAccounting.requestLineOfAccounting';
   return makeGHCRequest(
     operationPath,
-    { body: { tacCode, effectiveDate, serviceMemberAffiliation } },
+    { body: { tacCode, ordersIssueDate, serviceMemberAffiliation } },
     { normalize: false },
   );
 }
