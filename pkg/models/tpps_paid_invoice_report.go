@@ -52,15 +52,15 @@ type TPPSPaidInvoiceReportEntrys []TPPSPaidInvoiceReportEntry
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TPPSPaidInvoiceReportEntry) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: t.InvoiceNumber, Name: "InvoiceNumber", Message: "InvoiceNumber string if present should not be empty"},
+		&validators.StringIsPresent{Field: t.InvoiceNumber, Name: "InvoiceNumber"},
 		&validators.TimeIsPresent{Field: t.SellerPaidDate, Name: "SellerPaidDate"},
-		&validators.IntIsGreaterThan{Field: t.InvoiceTotalChargesInMillicents.Int(), Name: "InvoiceTotalChargesInMillicents", Compared: 0},
-		&validators.StringIsPresent{Field: t.LineDescription, Name: "LineDescription", Message: "LineDescription string if present should not be empty"},
-		&validators.StringIsPresent{Field: t.ProductDescription, Name: "ProductDescription", Message: "ProductDescription string if present should not be empty"},
+		&validators.IntIsGreaterThan{Field: t.InvoiceTotalChargesInMillicents.Int(), Name: "InvoiceTotalChargesInMillicents", Compared: -1},
+		&validators.StringIsPresent{Field: t.LineDescription, Name: "LineDescription"},
+		&validators.StringIsPresent{Field: t.ProductDescription, Name: "ProductDescription"},
 		&validators.IntIsGreaterThan{Field: int(t.LineBillingUnits), Name: "LineBillingUnits", Compared: -1},
-		&validators.IntIsGreaterThan{Field: t.LineUnitPrice.Int(), Name: "LineUnitPrice", Compared: 0},
-		&validators.IntIsGreaterThan{Field: t.LineNetCharge.Int(), Name: "LineNetCharge", Compared: 0},
-		&validators.StringIsPresent{Field: t.POTCN, Name: "POTCN", Message: "POTCN string if present should not be empty"},
-		&validators.StringIsPresent{Field: t.LineNumber, Name: "LineNumber", Message: "LineNumber string if present should not be empty"},
+		&validators.IntIsGreaterThan{Field: t.LineUnitPrice.Int(), Name: "LineUnitPrice", Compared: -1},
+		&validators.IntIsGreaterThan{Field: t.LineNetCharge.Int(), Name: "LineNetCharge", Compared: -1},
+		&validators.StringIsPresent{Field: t.POTCN, Name: "POTCN"},
+		&validators.StringIsPresent{Field: t.LineNumber, Name: "LineNumber"},
 	), nil
 }
