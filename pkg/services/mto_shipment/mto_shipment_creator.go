@@ -131,14 +131,6 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		return nil, err
 	}
 
-	verrs, err = f.builder.UpdateOne(appCtx, &move, nil)
-	if err != nil {
-		return nil, err
-	}
-	if verrs != nil && verrs.HasAny() {
-		return nil, verrs
-	}
-
 	if serviceItems != nil {
 		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
