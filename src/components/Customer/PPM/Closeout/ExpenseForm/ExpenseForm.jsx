@@ -105,7 +105,7 @@ const ExpenseForm = ({
                   <>
                     <FormGroup>
                       <h3>Description</h3>
-                      <TextField label="What did you buy?" id="description" name="description" />
+                      <TextField label="What did you buy or rent?" id="description" name="description" />
                       <Hint>Add a brief description of the expense.</Hint>
                       {values.expenseType === 'STORAGE' && (
                         <FormGroup>

@@ -227,7 +227,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
-	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
+	packingAndShippingInstructions string,
+	newDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -256,6 +257,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SpouseHasProGear:               spouseHasProGear,
 			NewDutyLocationID:              newDutyLocation.ID,
 			NewDutyLocation:                newDutyLocation,
+			DestinationGBLOC:               newDutyLocationGBLOC,
 			UploadedOrders:                 uploadedOrders,
 			UploadedOrdersID:               uploadedOrders.ID,
 			Status:                         OrderStatusDRAFT,
@@ -299,7 +301,23 @@ func UpdateServiceMemberDoDID(db *pop.Connection, serviceMember *ServiceMember, 
 	if verrs.HasAny() {
 		return verrs
 	} else if err != nil {
-		err = errors.Wrap(err, "Unable to update service member")
+		err = errors.Wrap(err, "Unable to update service member edipi")
+		return err
+	}
+
+	return nil
+}
+
+// UpdateServiceMemberEMPLID is called if Safety Move order is created to clear out the EMPLID
+func UpdateServiceMemberEMPLID(db *pop.Connection, serviceMember *ServiceMember, emplid *string) error {
+
+	serviceMember.Emplid = emplid
+
+	verrs, err := db.ValidateAndUpdate(serviceMember)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update service member emplid")
 		return err
 	}
 
