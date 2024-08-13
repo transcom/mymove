@@ -76,9 +76,10 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		ShipmentType:    models.MTOShipmentType(*mtoShipment.ShipmentType),
 	}
 	isBoatShipment := model.ShipmentType == models.MTOShipmentTypeBoatHaulAway || model.ShipmentType == models.MTOShipmentTypeBoatTowAway
+	isMobileHomeShipment := model.ShipmentType == models.MTOShipmentTypeMobileHome
 	// PPM and Boat type shipment begins in DRAFT because it requires a multi-page series to complete.
 	// After move submission a the status will change to SUBMITTED
-	if model.ShipmentType == models.MTOShipmentTypePPM || isBoatShipment {
+	if model.ShipmentType == models.MTOShipmentTypePPM || isBoatShipment || isMobileHomeShipment {
 		model.Status = models.MTOShipmentStatusDraft
 	} else {
 		model.Status = models.MTOShipmentStatusSubmitted
@@ -118,6 +119,9 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
 		model.PPMShipment.Shipment = *model
 	} else if mtoShipment.BoatShipment != nil {
+		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
+	} else if mtoShipment.MobileHomeShipment != nil {
 		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
 		model.BoatShipment.Shipment = *model
 	}
@@ -318,6 +322,82 @@ func UpdateBoatShipmentModel(boatShipment *internalmessages.UpdateBoatShipment) 
 	}
 
 	return boatModel
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mobileHomeShipment *internalmessages.CreateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != 0 {
+		val := int(mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != 0 {
+		val := int(mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != 0 {
+		val := int(mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != 0 {
+		val := int(mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	model := &models.MobileHome{
+		Make:           &mobileHomeShipment.Make,
+		Model:          &mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return model
+}
+
+func UpdateMobileHomeShipmentModel(mobileHomeShipment *internalmessages.UpdateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != 0 {
+		val := int(mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != 0 {
+		val := int(mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != 0 {
+		val := int(mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != 0 {
+		val := int(mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	mobileHomeModel := &models.MobileHome{
+		Make:           &mobileHomeShipment.Make,
+		Model:          &mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return mobileHomeModel
 }
 
 // MTOShipmentModelFromUpdate model

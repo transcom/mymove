@@ -181,6 +181,8 @@ properties:
     $ref: 'PPMShipment.yaml'
   boatShipment:
     $ref: 'BoatShipment.yaml'
+  mobileHomeShipment:
+    $ref: 'MobileHome.yaml'
   deliveryAddressUpdate:
     $ref: 'ShipmentAddressUpdate.yaml'
   shipmentLocator:
