@@ -191,7 +191,7 @@ test.describe('TOO user', () => {
       const today = new Date();
       const formattedDate = new Intl.DateTimeFormat('en-GB', {
         day: '2-digit',
-        month: '2-digit',
+        month: 'short',
         year: 'numeric',
       }).format(today);
       await page.locator('input[name="issueDate"]').fill(formattedDate);
