@@ -18,7 +18,7 @@ import {
   createPPMShipmentWithFinalIncentive,
   createPPMShipmentWithExcessWeight,
 } from 'utils/test/factories/ppmShipment';
-import { createCompleteWeightTicket } from 'utils/test/factories/weightTicket';
+import { createCompleteWeightTicket, createSecondCompleteWeightTicket } from 'utils/test/factories/weightTicket';
 import createUpload from 'utils/test/factories/upload';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 
@@ -574,7 +574,7 @@ describe('ReviewDocuments', () => {
     });
   });
   describe('with multiple document sets loaded', () => {
-    const usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets = {
+    let usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets = {
       ...usePPMShipmentDocsQueriesReturnValueAllDocs,
       documents: {
         ...usePPMShipmentDocsQueriesReturnValueAllDocs.documents,
@@ -625,6 +625,55 @@ describe('ReviewDocuments', () => {
       await userEvent.click(screen.getByRole('button', { name: 'Back' }));
       expect(screen.getByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
       expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+    });
+
+    it('renders weights correctly for multiple trips/weight tickets', async () => {
+      usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets = {
+        ...usePPMShipmentDocsQueriesReturnValueAllDocs,
+        documents: {
+          ...usePPMShipmentDocsQueriesReturnValueAllDocs.documents,
+          WeightTickets: [
+            createCompleteWeightTicket({ serviceMemberId: mtoShipment.ppmShipment.serviceMemberId }),
+            createSecondCompleteWeightTicket({ serviceMemberId: mtoShipment.ppmShipment.serviceMemberId }),
+          ],
+        },
+      };
+
+      useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
+      usePPMShipmentDocsQueries.mockReturnValue(usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets);
+      usePPMCloseoutQuery.mockReturnValue(usePPMCloseoutQueryReturnValue);
+      useReviewShipmentWeightsQuery.mockReturnValue(useReviewShipmentWeightsQueryReturnValueAll);
+
+      renderWithProviders(<ReviewDocuments />, mockRoutingOptions);
+
+      expect(screen.findByRole('heading', { level: 2, name: '1 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 3, name: /trip 1/ })).toBeInTheDocument();
+
+      expect(screen.getByRole('button', { name: 'Continue' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Back' })).toBeInTheDocument();
+      await userEvent.click(screen.getByLabelText('Accept'));
+
+      // render the empty, full and allowable weights correctly for the first trip/weight ticket
+      const weightTicketOne = usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets.documents.WeightTickets[0];
+      expect(weightTicketOne.emptyWeight).toBe(14500);
+      expect(screen.getByTestId('emptyWeight')).toHaveValue('14,500');
+      expect(weightTicketOne.fullWeight).toBe(18500);
+      expect(screen.getByTestId('fullWeight')).toHaveValue('18,500');
+      expect(weightTicketOne.allowableWeight).toBe(20000);
+      expect(screen.getByTestId('allowableWeight')).toHaveValue('20,000');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
+      expect(screen.getByRole('heading', { level: 3, name: /trip 2/ })).toBeInTheDocument();
+
+      // render the empty, full and allowable weights correctly for the second trip/weight ticket
+      const weightTicketTwo = usePPMShipmentDocsQueriesReturnValueMultipleWeightTickets.documents.WeightTickets[1];
+      expect(weightTicketTwo.emptyWeight).toBe(10000);
+      expect(screen.getByTestId('emptyWeight')).toHaveValue('10,000');
+      expect(weightTicketTwo.fullWeight).toBe(12000);
+      expect(screen.getByTestId('fullWeight')).toHaveValue('12,000');
+      expect(weightTicketTwo.allowableWeight).toBe(18000);
+      expect(screen.getByTestId('allowableWeight')).toHaveValue('18,000');
     });
 
     it('only shows uploads for the document set being reviewed', async () => {
