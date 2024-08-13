@@ -102,6 +102,20 @@ properties:
     type: boolean
     x-omitempty: false
     x-nullable: true
+  tertiaryPickupAddress:
+    x-nullable: true
+    $ref: 'Address.yaml'
+  tertiaryDeliveryAddress:
+    x-nullable: true
+    $ref: 'Address.yaml'
+  hasTertiaryPickupAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
+  hasTertiaryDeliveryAddress:
+    type: boolean
+    x-omitempty: false
+    x-nullable: true
   actualProGearWeight:
     type: integer
     x-nullable: true
