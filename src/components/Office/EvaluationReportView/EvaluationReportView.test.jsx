@@ -224,6 +224,8 @@ describe('EvaluationReportView', () => {
     expect(screen.getByText('QAE remarks')).toBeInTheDocument();
     expect(screen.getByText('Evaluation remarks')).toBeInTheDocument();
     expect(screen.getByText('test remarks')).toBeInTheDocument();
+
+    expect(screen.getByTestId('backBtn')).toBeInTheDocument();
   });
 
   it('displays no violations observed when there are none', () => {
