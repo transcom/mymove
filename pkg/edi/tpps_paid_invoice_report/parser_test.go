@@ -21,6 +21,7 @@ func TestTPPSPaidInvoiceSuite(t *testing.T) {
 func (suite *TPPSPaidInvoiceSuite) TestParse() {
 
 	suite.Run("successfully parse simple TPPS Paid Invoice string", func() {
+		// This is a string representation of a test .csv file. Rows are new-line delimited, columns in each row are tab delimited, file ends in a empty row.
 		sampleTPPSPaidInvoiceString := `Invoice Number From Invoice	Document Create Date	Seller Paid Date	Invoice Total Charges	Line Description	Product Description	Line Billing Units	Line Unit Price	Line Net Charge	PO/TCN	Line Number	First Note Code	First Note Code Description	First Note To	First Note Message	Second Note Code	Second Note Code Description	Second Note To	Second Note Message	Third Note Code	Third Note Code Description	Third Note To	Third Note Message
 1841-7267-3	2024-07-29	2024-07-30	1151.55	DDP	DDP	3760	0.0077	28.95	1841-7267-826285fc	1                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50066								
 1841-7267-3	2024-07-29	2024-07-30	1151.55	FSC	FSC	3760	0.0014	5.39	1841-7267-aeb3cfea	4                   	INT                                                                        	Notes to My Company - INT                                                            	CARR                	HQ50066								
@@ -32,7 +33,7 @@ func (suite *TPPSPaidInvoiceSuite) TestParse() {
 
 		tppsPaidInvoice := TPPSData{}
 		tppsEntries, err := tppsPaidInvoice.Parse("", sampleTPPSPaidInvoiceString)
-		suite.NoError(err, "Successful parse of 997")
+		suite.NoError(err, "Successful parse of TPPS Paid Invoice string")
 		suite.Equal(len(tppsEntries), 5)
 
 		for tppsEntryIndex := range tppsEntries {

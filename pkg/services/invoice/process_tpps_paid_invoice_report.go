@@ -132,7 +132,6 @@ func priceToMillicents(rawPrice string) (int, error) {
 
 func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(appCtx appcontext.AppContext, tppsData []tppsReponse.TPPSData) (*validate.Errors, error) {
 	var verrs *validate.Errors
-
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 
 		DateParamFormat := "2006-01-02"
@@ -145,22 +144,27 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 			timeOfSellerPaidDate, err := time.Parse(DateParamFormat, tppsEntry.SellerPaidDate)
 			if err != nil {
 				appCtx.Logger().Info("unable to parse SellerPaidDate from TPPS paid invoice report", zap.Error(err))
+				return verrs
 			}
 			invoiceTotalChargesInMillicents, err := priceToMillicents(tppsEntry.InvoiceTotalCharges)
 			if err != nil {
 				appCtx.Logger().Info("unable to parse InvoiceTotalCharges from TPPS paid invoice report", zap.Error(err))
+				return verrs
 			}
 			intLineBillingUnits, err := strconv.Atoi(tppsEntry.LineBillingUnits)
 			if err != nil {
 				appCtx.Logger().Info("unable to parse LineBillingUnits from TPPS paid invoice report", zap.Error(err))
+				return verrs
 			}
 			lineUnitPriceInMillicents, err := priceToMillicents(tppsEntry.LineUnitPrice)
 			if err != nil {
 				appCtx.Logger().Info("unable to parse LineUnitPrice from TPPS paid invoice report", zap.Error(err))
+				return verrs
 			}
 			lineNetChargeInMillicents, err := priceToMillicents(tppsEntry.LineNetCharge)
 			if err != nil {
 				appCtx.Logger().Info("unable to parse LineNetCharge from TPPS paid invoice report", zap.Error(err))
+				return verrs
 			}
 
 			tppsEntryModel := models.TPPSPaidInvoiceReportEntry{
