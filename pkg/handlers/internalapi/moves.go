@@ -385,6 +385,35 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				}
 				/** End of Feature Flag **/
 
+				/** Feature Flag - Mobile Home Shipment **/
+				// TODO: check if name change is necessary
+				featureFlagNameMH := "mobileHome"
+				isMobileHomeFeatureOn := false
+				flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+				if err != nil {
+					appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
+					isMobileHomeFeatureOn = false
+				} else {
+					isMobileHomeFeatureOn = flagMH.Match
+				}
+
+				// Remove Mobile Home shipments if Mobile Home FF is off
+				if !isMobileHomeFeatureOn {
+					var filteredShipments models.MTOShipments
+					if move.MTOShipments != nil {
+						filteredShipments = models.MTOShipments{}
+					}
+					for i, shipment := range move.MTOShipments {
+						if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+							continue
+						}
+
+						filteredShipments = append(filteredShipments, move.MTOShipments[i])
+					}
+					move.MTOShipments = filteredShipments
+				}
+				/** End of Feature Flag **/
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break

@@ -115,6 +115,34 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 			}
 			/** End of Feature Flag **/
 
+			/** Feature Flag - Mobile Home Shipment **/
+			isMobileHomeFeatureOn := false
+			featureFlagNameMH := "mobileHome"
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
+				isMobileHomeFeatureOn = false
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+
+			// Remove MobileHome shipments if MobileHome FF is off
+			if !isMobileHomeFeatureOn {
+				var filteredShipments models.MTOShipments
+				if mto.MTOShipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range mto.MTOShipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, mto.MTOShipments[i])
+				}
+				mto.MTOShipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
 			moveTaskOrderPayload := payloads.MoveTaskOrder(mto)
 
 			return movetaskorderops.NewGetMoveTaskOrderOK().WithPayload(moveTaskOrderPayload), nil
