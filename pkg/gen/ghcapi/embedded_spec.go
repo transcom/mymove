@@ -2233,6 +2233,58 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -10684,7 +10736,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -10783,6 +10836,21 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -16319,6 +16387,76 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -25686,7 +25824,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -25785,6 +25924,21 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
