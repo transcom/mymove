@@ -30,7 +30,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 
 	suite.Run("successfully proccesses a valid TPPSPaidInvoiceReport and stores it in the database", func() {
 
-		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/tpps_paid_invoice_report_testfile.csv"
+		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/fixtures/tpps_paid_invoice_report_testfile.csv"
 
 		err := tppsPaidInvoiceReportProcessor.ProcessFile(suite.AppContextForTest(), testTPPSPaidInvoiceReportFilePath, "")
 		suite.NoError(err)
