@@ -1339,4 +1339,287 @@ describe('Home component', () => {
       });
     });
   });
+
+  const defaultPropsWithEditedAdvanceAndPPMApproved = {
+    ...props,
+    serviceMemberMoves: {
+      currentMove: [
+        {
+          createdAt: '2024-02-16T15:55:20.639Z',
+          eTag: 'MjAyNC0wMi0xNlQxNTo1NToyMC42Mzk5MDRa',
+          id: '6dad799c-4567-4a7d-9419-1a686797768f',
+          moveCode: '4H8VCD',
+          mtoShipments: [
+            {
+              createdAt: '2024-02-20T17:40:25.836Z',
+              eTag: 'MjAyNC0wMi0yMFQxODowMToxNC43NTY1MTJa',
+              hasSecondaryDeliveryAddress: false,
+              hasSecondaryPickupAddress: false,
+              id: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
+              moveTaskOrderID: '4918b8c9-5e0a-4d65-a6b8-6a7a6ce265d4',
+              ppmShipment: {
+                actualDestinationPostalCode: null,
+                actualMoveDate: null,
+                actualPickupPostalCode: null,
+                advanceAmountReceived: null,
+                advanceAmountRequested: 400000,
+                advanceStatus: 'APPROVED',
+                approvedAt: '2024-02-20T18:01:14.760Z',
+                createdAt: '2024-02-20T17:40:25.842Z',
+                eTag: 'MjAyNC0wMi0yMFQxODowMToxNC43NjAyNTha',
+                estimatedIncentive: 678255,
+                estimatedWeight: 4000,
+                expectedDepartureDate: '2024-02-24',
+                finalIncentive: null,
+                hasProGear: false,
+                hasReceivedAdvance: null,
+                hasRequestedAdvance: true,
+                id: expectedPpmShipmentID,
+                movingExpenses: [],
+                proGearWeight: null,
+                proGearWeightTickets: [],
+                reviewedAt: null,
+                shipmentId: '322ebc9f-0ca8-4943-a7a8-39235f4e680b',
+                sitEstimatedCost: null,
+                sitEstimatedDepartureDate: null,
+                sitEstimatedEntryDate: null,
+                sitEstimatedWeight: null,
+                sitExpected: false,
+                spouseProGearWeight: null,
+                status: 'WAITING_ON_CUSTOMER',
+                submittedAt: null,
+                updatedAt: '2024-02-20T18:01:14.760Z',
+                weightTickets: [],
+                pickupAddress: {
+                  streetAddress1: '1 Test Street',
+                  streetAddress2: '2 Test Street',
+                  streetAddress3: '3 Test Street',
+                  city: 'Pickup Test City',
+                  state: 'NY',
+                  postalCode: '10001',
+                },
+                destinationAddress: {
+                  streetAddress1: '1 Test Street',
+                  streetAddress2: '2 Test Street',
+                  streetAddress3: '3 Test Street',
+                  city: 'Destination Test City',
+                  state: 'NY',
+                  postalCode: '11111',
+                },
+              },
+              shipmentType: 'PPM',
+              status: 'APPROVED',
+              updatedAt: '2024-02-20T18:01:14.756Z',
+            },
+          ],
+          orders: {
+            authorizedWeight: 11000,
+            created_at: '2024-02-20T17:11:08.815Z',
+            department_indicator: 'ARMY',
+            entitlement: {
+              proGear: 2000,
+              proGearSpouse: 500,
+            },
+            grade: 'E_7',
+            has_dependents: false,
+            id: '9db91886-40eb-4910-9c87-968fecd44d4b',
+            issue_date: '2024-02-22',
+            new_duty_location: {
+              address: {
+                city: 'Fort Sill',
+                country: 'United States',
+                id: 'ed62ba0b-a3cb-47ac-81ae-5b27ade4592b',
+                postalCode: '73503',
+                state: 'OK',
+                streetAddress1: 'n/a',
+              },
+              address_id: 'ed62ba0b-a3cb-47ac-81ae-5b27ade4592b',
+              affiliation: 'ARMY',
+              created_at: '2024-02-15T14:42:58.875Z',
+              id: '5c182566-0e6e-46f2-9eef-f07963783575',
+              name: 'Fort Sill, OK 73503',
+              transportation_office: {
+                address: {
+                  city: 'Fort Sill',
+                  country: 'United States',
+                  id: 'abbc0af9-2394-4e36-be84-811ad8f6060b',
+                  postalCode: '73503',
+                  state: 'OK',
+                  streetAddress1: '4700 Mow Way Rd',
+                  streetAddress2: 'Room 110',
+                },
+                created_at: '2018-05-28T14:27:35.547Z',
+                gbloc: 'JEAT',
+                id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
+                name: 'PPPO Fort Sill - USA',
+                phone_lines: [],
+                updated_at: '2018-05-28T14:27:35.547Z',
+              },
+              transportation_office_id: '7f5b64b8-979c-4cbd-890b-bffd6fdf56d9',
+              updated_at: '2024-02-15T14:42:58.875Z',
+            },
+            orders_number: '12345678901234',
+            orders_type: 'PERMANENT_CHANGE_OF_STATION',
+            orders_type_detail: 'PCS_TDY',
+            originDutyLocationGbloc: 'HAFC',
+            origin_duty_location: {
+              address: {
+                city: 'Tinker AFB',
+                country: 'United States',
+                id: '7e3ea97c-da9f-4fa1-8a11-87063c857635',
+                postalCode: '73145',
+                state: 'OK',
+                streetAddress1: 'n/a',
+              },
+              address_id: '7e3ea97c-da9f-4fa1-8a11-87063c857635',
+              affiliation: 'AIR_FORCE',
+              created_at: '2024-02-15T14:42:58.875Z',
+              id: '2d6eab7d-1a21-4f29-933e-ee8fa7dbc314',
+              name: 'Tinker AFB, OK 73145',
+              transportation_office: {
+                address: {
+                  city: 'Tinker AFB',
+                  country: 'United States',
+                  id: '410b18bc-b270-4b52-9211-532fffc6f59e',
+                  postalCode: '73145',
+                  state: 'OK',
+                  streetAddress1: '7330 Century Blvd',
+                  streetAddress2: 'Bldg 469',
+                },
+                created_at: '2018-05-28T14:27:40.605Z',
+                gbloc: 'HAFC',
+                id: '7876373d-57e4-4cde-b11f-c26a8feee9e8',
+                name: 'PPPO Tinker AFB - USAF',
+                phone_lines: [],
+                updated_at: '2018-05-28T14:27:40.605Z',
+              },
+              transportation_office_id: '7876373d-57e4-4cde-b11f-c26a8feee9e8',
+              updated_at: '2024-02-15T14:42:58.875Z',
+            },
+            report_by_date: '2024-02-24',
+            service_member_id: 'd6d26f51-a8f2-4294-aba4-2f38a759afe2',
+            spouse_has_pro_gear: false,
+            status: 'DRAFT',
+            tac: '1111',
+            updated_at: '2024-02-20T18:01:06.825Z',
+            uploaded_amended_orders: {
+              id: '33c8773e-3409-457f-b94e-b8683514cbcd',
+              service_member_id: 'd6d26f51-a8f2-4294-aba4-2f38a759afe2',
+              uploads: [
+                {
+                  bytes: 1578588,
+                  contentType: 'image/png',
+                  createdAt: '2024-02-20T17:40:58.233Z',
+                  filename: 'Screenshot 2024-02-15 at 12.22.53 PM (2).png',
+                  id: 'f26f3427-a289-4faf-90da-2d02f3094a00',
+                  status: 'PROCESSING',
+                  updatedAt: '2024-02-20T17:40:58.233Z',
+                  url: '/storage/user/9e16e5d7-4548-4f70-8a2a-b87d34ab3067/uploads/f26f3427-a289-4faf-90da-2d02f3094a00?contentType=image%2Fpng',
+                },
+              ],
+            },
+            uploaded_orders: {
+              id: 'fa2e5695-8c95-4460-91d5-e7d29dafa0b0',
+              service_member_id: 'd6d26f51-a8f2-4294-aba4-2f38a759afe2',
+              uploads: [
+                {
+                  bytes: 84847,
+                  contentType: 'image/png',
+                  createdAt: '2024-02-20T17:12:56.328Z',
+                  filename: 'Screenshot 2024-02-12 at 8.26.20 AM.png',
+                  id: '99fab296-ad63-4e34-8724-a8b73e357480',
+                  status: 'PROCESSING',
+                  updatedAt: '2024-02-20T17:12:56.328Z',
+                  url: '/storage/user/9e16e5d7-4548-4f70-8a2a-b87d34ab3067/uploads/99fab296-ad63-4e34-8724-a8b73e357480?contentType=image%2Fpng',
+                },
+              ],
+            },
+          },
+          status: 'APPROVED',
+          submittedAt: '0001-01-01T00:00:00.000Z',
+          updatedAt: '0001-01-01T00:00:00.000Z',
+        },
+      ],
+      previousMoves: [],
+    },
+    uploadedOrderDocuments: [],
+    uploadedAmendedOrderDocuments: [],
+  };
+
+  describe('with default props, with approved PPM and edited advance', () => {
+    const wrapper = mountMoveHomeWithProviders(defaultPropsWithEditedAdvanceAndPPMApproved);
+
+    it('renders Home with the right amount of components', () => {
+      expect(wrapper.find('ConnectedFlashMessage').length).toBe(1);
+      expect(wrapper.find('Step').length).toBe(6);
+      expect(wrapper.find('Helper').length).toBe(1);
+      expect(wrapper.find('Contact').length).toBe(1);
+    });
+
+    it('profile and order step is editable', () => {
+      const profileStep = wrapper.find('Step[step="1"]');
+      expect(profileStep.prop('editBtnLabel')).toEqual('Edit');
+      const orderStep = wrapper.find('Step[step="2"]');
+      expect(orderStep.prop('editBtnLabel')).toEqual('Upload documents');
+      const advanceStep = wrapper.find('Step[step="5"]');
+      expect(advanceStep.prop('completedHeaderText')).toEqual('Advance request reviewed');
+    });
+
+    it('has appropriate step headers for orders with shipments', () => {
+      expect(wrapper.text()).toContain('Your move is in progress.');
+      expect(wrapper.text()).toContain('Profile complete');
+      expect(wrapper.text()).toContain('Orders');
+      expect(wrapper.text()).toContain('If you receive amended orders');
+      expect(wrapper.text()).toContain('Shipments');
+      expect(wrapper.find('ShipmentList').length).toBe(1);
+      expect(wrapper.text()).toContain(
+        'If you need to change, add, or cancel shipments, talk to your move counselor or Customer Care Representative',
+      );
+      expect(wrapper.text()).toContain('Move request confirmed');
+      expect(wrapper.text()).toContain(
+        'Your Advance Operating Allowance (AOA) request has been reviewed. Download the paperwork for approved requests and submit it to your Finance Office to receive your advance.',
+      );
+      expect(wrapper.text()).toContain('Manage your PPM');
+      expect(wrapper.find('PPMSummaryList').length).toBe(1);
+    });
+
+    it('has enabled and disabled buttons based on step', () => {
+      // confirm move request step should be enabled
+      const confirmMoveRequest = wrapper.find('Step[step="4"]');
+      expect(confirmMoveRequest.prop('actionBtnDisabled')).toBeFalsy();
+      expect(confirmMoveRequest.prop('actionBtnLabel')).toBe('Review your request');
+    });
+
+    it('Download AOA Paperwork - success', async () => {
+      const buttonId = `button[data-testid="asyncPacketDownloadLink${expectedPpmShipmentID}"]`;
+      expect(wrapper.find(buttonId).length).toBe(1);
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+      downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
+      await wrapper.find(buttonId).simulate('click');
+      await waitFor(() => {
+        expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('Download AOA Paperwork - failure', async () => {
+      const buttonId = `button[data-testid="asyncPacketDownloadLink${expectedPpmShipmentID}"]`;
+      expect(wrapper.find(buttonId).length).toBe(1);
+      downloadPPMAOAPacket.mockRejectedValue({
+        response: { body: { title: 'Error title', detail: 'Error detail' } },
+      });
+      await wrapper.find(buttonId).simulate('click');
+      await waitFor(() => {
+        // scrape text from error modal
+        expect(wrapper.text()).toContain('Something went wrong downloading PPM paperwork.');
+        expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+      });
+    });
+  });
 });

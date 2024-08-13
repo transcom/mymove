@@ -10,6 +10,7 @@ import styles from './PaymentRequestCard.module.scss';
 
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
+import { nonWeightReliantServiceItems } from 'content/serviceItems';
 import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
@@ -114,6 +115,10 @@ const PaymentRequestCard = ({
     };
   }
 
+  const uploads = paymentRequest.proofOfServiceDocs
+    ? paymentRequest.proofOfServiceDocs.flatMap((docs) => docs.uploads.flatMap((primeUploads) => primeUploads))
+    : [];
+
   const showDetailsChevron = showDetails ? 'chevron-up' : 'chevron-down';
   const showDetailsText = showDetails ? 'Hide request details' : 'Show request details';
   const handleToggleDetails = () => setShowDetails((prevState) => !prevState);
@@ -131,11 +136,19 @@ const PaymentRequestCard = ({
   const { ediErrorCode, ediErrorDescription, ediErrorType } = paymentRequest;
   const ediErrorsExistForPaymentRequest = ediErrorCode || ediErrorDescription || ediErrorType;
 
+  const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
+
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
 
   const onEditCodesClick = () => {
     navigate(`/moves/${locator}/orders`);
+  };
+
+  const nonWeightRelatedServiceItemsOnly = () => {
+    return paymentRequest.serviceItems.every((serviceItem) =>
+      Object.prototype.hasOwnProperty.call(nonWeightReliantServiceItems, serviceItem.mtoServiceItemCode),
+    );
   };
 
   const renderReviewServiceItemsBtnForTOO = () => {
@@ -146,7 +159,7 @@ const PaymentRequestCard = ({
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
             Review service items
           </Button>
-          {hasBillableWeightIssues && (
+          {hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly() && (
             <span className={styles.errorText} data-testid="errorTxt">
               Resolve billable weight before reviewing service items.
             </span>
@@ -164,13 +177,13 @@ const PaymentRequestCard = ({
           <Button
             style={{ maxWidth: '225px' }}
             onClick={handleClick}
-            disabled={hasBillableWeightIssues || isMoveLocked}
+            disabled={(hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly()) || isMoveLocked}
             data-testid="reviewBtn"
           >
             <FontAwesomeIcon icon="copy" className={`${styles['docs-icon']} fas fa-copy`} />
             Review service items
           </Button>
-          {hasBillableWeightIssues && (
+          {hasBillableWeightIssues && !nonWeightRelatedServiceItemsOnly() && (
             <span className={styles.errorText} data-testid="errorTxt">
               Resolve billable weight before reviewing service items.
             </span>
@@ -365,7 +378,7 @@ const PaymentRequestCard = ({
                 View orders
               </Link>
             ) : (
-              ViewDocuments
+              showViewDocuments
             ))}
           <div className={styles.toggleDrawer}>
             {showRequestDetailsButton && (

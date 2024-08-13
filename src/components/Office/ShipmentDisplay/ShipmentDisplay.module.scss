@@ -13,41 +13,13 @@
     @include u-border-bottom('base-lighter');
     @include u-padding(2);
 
-    .typeLocator {
-      display: grid;
-      h3 {
-        font-weight: normal;
-        @include u-margin(0);
-        @include u-margin-x(1);
-      }
-
-      h5 {
-        font-weight: normal;
-        @include u-margin(0);
-        @include u-margin-x(1);
-        @include u-text('gray-cool-50', 'normal');
-        @include u-margin-top(0);
-      }
-    }
-
-    .serviceCounselingShipments {
-      h3 {
-        font-weight: 700;
-        @include u-font-size('body', 'md');
-      }
-    }
-
     :global(.usa-tag) {
-      @include u-margin-top(neg-3);
-      @include u-margin-left(neg-5);
       @include u-font-size('body', 3xs);
       background-color: $info-light;
       &.ppmStatus {
         @include u-font-size('body', 'sm');
         @include u-margin-left(1);
         background-color: $base-lightest;
-        @include u-margin-top(neg-3);
-        @include u-margin-left(neg-5);
       }
     }
 
@@ -109,4 +81,37 @@
   display: flex;
   width: 100%;
   flex-wrap: wrap;
+}
+
+.headerContainer {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  @include u-margin-x(2);
+
+  h3 {
+    font-weight: 700;
+    @include u-font-size('body', 'md');
+  }
+
+  .shipmentTypeHeader {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  h5 {
+    font-weight: normal;
+    @include u-text('gray-cool-50', 'normal');
+  }
+
+  .shipmentLocator {
+    margin-top: 1px;
+  }
+}
+
+.headerContainer .shipmentTypeHeader h3,
+.headerContainer .shipmentLocator h5 {
+  margin: 0;
+  padding: 0;
 }
