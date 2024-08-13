@@ -32,7 +32,7 @@ html {
     &--nts,
     &--ntsr {
       @include u-radius(0);
-    }    
+    }
 
     &--default {
       @include cont-border-top($accent-default);
