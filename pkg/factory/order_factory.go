@@ -203,6 +203,8 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 	defaultSpouseHasProGear := false
 	defaultOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	defaultOrdersTypeDetail := internalmessages.OrdersTypeDetail("HHG_PERMITTED")
+	defaultDestinationDutyLocationGbloc := "AGFM"
+	destinationDutyLocationGbloc := &defaultDestinationDutyLocationGbloc
 	testYear := 2018
 	defaultIssueDate := time.Date(testYear, time.March, 15, 0, 0, 0, 0, time.UTC)
 	defaultReportByDate := time.Date(testYear, time.August, 1, 0, 0, 0, 0, time.UTC)
@@ -237,8 +239,17 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 				log.Panicf("Error loading duty location by id %s: %s\n", originDutyLocation.ID.String(), err)
 			}
 		}
-		postalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
-		originDutyLocationGbloc = &postalCodeToGBLOC.GBLOC
+		originPostalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(db, originDutyLocation.Address.PostalCode, "KKFA")
+		originDutyLocationGbloc = &originPostalCodeToGBLOC.GBLOC
+
+		if newDutyLocation.Address.PostalCode == "" {
+			err := db.EagerPreload("Address").Find(&newDutyLocation, newDutyLocation.ID)
+			if err != nil {
+				log.Panicf("Error loading duty location by id %s: %s\n", newDutyLocation.ID.String(), err)
+			}
+			destinationPostalCodeToGBLOC := FetchOrBuildPostalCodeToGBLOC(db, newDutyLocation.Address.PostalCode, "AGFM")
+			destinationDutyLocationGbloc = &destinationPostalCodeToGBLOC.GBLOC
+		}
 	}
 
 	order := models.Order{
@@ -246,6 +257,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		ServiceMemberID:                serviceMember.ID,
 		NewDutyLocation:                newDutyLocation,
 		NewDutyLocationID:              newDutyLocation.ID,
+		DestinationGBLOC:               destinationDutyLocationGbloc,
 		UploadedOrders:                 uploadedOrders,
 		UploadedOrdersID:               uploadedOrders.ID,
 		IssueDate:                      defaultIssueDate,
