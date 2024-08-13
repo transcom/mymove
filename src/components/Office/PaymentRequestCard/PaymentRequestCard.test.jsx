@@ -98,6 +98,7 @@ const shipmentInfo = [
 ];
 const moveCode = 'AF7K1P';
 const dateRegex = /\d{2} [A-Za-z]{3} \d{4}/; // Regex match for DD MMM YYYY
+
 describe('PaymentRequestCard', () => {
   const order = {
     sac: '1234456',
@@ -132,6 +133,24 @@ describe('PaymentRequestCard', () => {
         createdAt: '2020-12-01T00:00:00.000Z',
         mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
         priceCents: 4000001,
+        status: 'REQUESTED',
+      },
+    ],
+  };
+  const nonWeightReliantPaymentRequest = {
+    id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+    createdAt: '2020-12-01T00:00:00.000Z',
+    moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+    paymentRequestNumber: '1843-9061-2',
+    moveTaskOrder: move,
+    status: 'PENDING',
+    serviceItems: [
+      {
+        id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemCode: 'MS',
+        mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 2000001,
         status: 'REQUESTED',
       },
     ],
@@ -291,6 +310,48 @@ describe('PaymentRequestCard', () => {
       ],
     };
 
+    const mockPDFUpload = {
+      contentType: 'application/pdf',
+      createdAt: '2020-09-17T16:00:48.099137Z',
+      filename: 'test.pdf',
+      id: '10',
+      status: 'PROCESSING',
+      updatedAt: '2020-09-17T16:00:48.099142Z',
+      url: '/storage/prime/99/uploads/10?contentType=application%2Fpdf',
+    };
+
+    const reviewedPaymentRequestWithDocuments = {
+      id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+      createdAt: '2020-12-01T00:00:00.000Z',
+      moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+      paymentRequestNumber: '1843-9061-2',
+      status: 'REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED',
+      moveTaskOrder: move,
+      reviewedAt: '2020-12-01T00:00:00.000Z',
+      serviceItems: [
+        {
+          id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 2000001,
+          status: 'APPROVED',
+        },
+        {
+          id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+          createdAt: '2020-12-01T00:00:00.000Z',
+          mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+          priceCents: 4000001,
+          status: 'DENIED',
+          rejectionReason: 'duplicate charge',
+        },
+      ],
+      proofOfServiceDocs: [
+        {
+          uploads: [mockPDFUpload],
+        },
+      ],
+    };
+
     const rejectedPaymentRequest = {
       id: '29474c6a-69b6-4501-8e08-670a12512e5f',
       createdAt: '2020-12-01T00:00:00.000Z',
@@ -358,10 +419,26 @@ describe('PaymentRequestCard', () => {
     });
 
     it('renders the view documents link', () => {
-      const viewLink = wrapper.find('.footer a');
+      const requestWithDocuments = mount(
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={reviewedPaymentRequestWithDocuments}
+            shipmentInfo={shipmentInfo}
+          />
+        </MockProviders>,
+      );
+
+      const viewLink = requestWithDocuments.find('.footer a');
 
       expect(viewLink.text()).toEqual('View documents');
       expect(viewLink.prop('href')).toBe(`payment-requests/${reviewedPaymentRequest.id}`);
+    });
+
+    it('renders the no documents text', () => {
+      const viewLink = wrapper.find('.footer span');
+
+      expect(viewLink.text()).toEqual('No documents provided');
     });
 
     it('shows only rejected if no service items are approved', () => {
@@ -679,5 +756,19 @@ describe('PaymentRequestCard', () => {
       expect(screen.queryByRole('button', { name: 'View documents' })).not.toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Review service items' })).toBeDisabled();
     });
+  });
+
+  it('Review service items is enabled when payment request only contains non weight reliant service items', () => {
+    render(
+      <MockProviders
+        path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+        params={{ moveCode }}
+        permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+      >
+        <PaymentRequestCard paymentRequest={nonWeightReliantPaymentRequest} shipmentInfo={shipmentInfo} />
+      </MockProviders>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Review service items' })).toBeEnabled();
   });
 });
