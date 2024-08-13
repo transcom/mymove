@@ -16,6 +16,7 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
+import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
 
 const currentYear = new Date().getFullYear();
 const maxYear = currentYear + 2;
@@ -57,14 +58,6 @@ const validationShape = {
     then: (schema) => schema.required('Required'),
   }),
   customerRemarks: Yup.string(),
-};
-
-const convertInchesToFeetAndInches = (totalInches) => {
-  if (!totalInches) return { feet: '', inches: '' };
-
-  const feet = Math.floor(totalInches / 12).toString();
-  const inches = (totalInches % 12).toString();
-  return { feet, inches };
 };
 
 const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
