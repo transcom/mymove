@@ -47,7 +47,7 @@ func (h GetPaymentRequestForMoveHandler) Handle(
 				return paymentrequestop.NewGetPaymentRequestNotFound(), err
 			}
 
-			returnPayload, err := payloads.PaymentRequests(paymentRequests, h.FileStorer())
+			returnPayload, err := payloads.PaymentRequests(appCtx, paymentRequests, h.FileStorer())
 			if err != nil {
 				appCtx.Logger().
 					Error(fmt.Sprintf("Error building payment requests payload for locator: %s", locator), zap.Error(err))
@@ -97,7 +97,7 @@ func (h GetPaymentRequestHandler) Handle(
 				return paymentrequestop.NewGetPaymentRequestNotFound(), notFoundErr
 			}
 
-			returnPayload, err := payloads.PaymentRequest(&paymentRequest, h.FileStorer())
+			returnPayload, err := payloads.PaymentRequest(appCtx, &paymentRequest, h.FileStorer())
 			if err != nil {
 				return paymentrequestop.NewGetPaymentRequestInternalServerError(), err
 			}
@@ -213,7 +213,7 @@ func (h UpdatePaymentRequestStatusHandler) Handle(
 					Error("ghcapi.UpdatePaymentRequestStatusHandler could not generate the event")
 			}
 
-			returnPayload, err := payloads.PaymentRequest(updatedPaymentRequest, h.FileStorer())
+			returnPayload, err := payloads.PaymentRequest(appCtx, updatedPaymentRequest, h.FileStorer())
 			if err != nil {
 				return paymentrequestop.NewGetPaymentRequestInternalServerError(), err
 			}
