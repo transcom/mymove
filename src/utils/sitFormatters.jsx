@@ -81,13 +81,11 @@ export const calculateApprovedAndRequestedDaysCombined = (shipment, sitExtension
 };
 
 // adds the requested number of days & total days remaining
-// subtracts one day since we are including the SIT entry date
 export const calculateApprovedAndRequestedDatesCombined = (sitExtension, totalDaysRemaining) => {
   return formatDateForDatePicker(
     moment()
       .add(sitExtension.requestedDays, 'days')
-      .add(Number.isInteger(totalDaysRemaining) ? totalDaysRemaining : 0, 'days')
-      .subtract(1, 'day'),
+      .add(Number.isInteger(totalDaysRemaining) ? totalDaysRemaining : 0, 'days'),
   );
 };
 
