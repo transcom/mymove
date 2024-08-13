@@ -132,86 +132,88 @@ func populateShipmentFields(
 	loaFetcher services.LineOfAccountingFetcher, estimator services.PPMEstimator) error {
 	var pptasShipments []*pptasmessages.PPTASShipment
 	for _, shipment := range move.MTOShipments {
-		var pptasShipment pptasmessages.PPTASShipment
+		if shipment.Status == models.MTOShipmentStatusApproved || shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete {
+			var pptasShipment pptasmessages.PPTASShipment
 
-		pptasShipment.ShipmentID = strfmt.UUID(shipment.ID.String())
-		pptasShipment.ShipmentType = string(shipment.ShipmentType)
+			pptasShipment.ShipmentID = strfmt.UUID(shipment.ID.String())
+			pptasShipment.ShipmentType = string(shipment.ShipmentType)
 
-		var moveDate *time.Time
-		if shipment.ActualPickupDate != nil {
-			moveDate = shipment.ActualPickupDate
+			var moveDate *time.Time
+			if shipment.ActualPickupDate != nil {
+				moveDate = shipment.ActualPickupDate
+				pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
+			}
+
+			if moveDate != nil && shipment.ActualDeliveryDate != nil {
+				pptasShipment.DeliveryDate = strfmt.Date(*shipment.ActualDeliveryDate)
+			}
+
+			if shipment.ActualPickupDate != nil {
+				pptasShipment.PickupDate = strfmt.Date(*shipment.ActualPickupDate)
+			}
+
 			pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
+			pptasShipment.Dd2278IssueDate = strfmt.Date(*move.ServiceCounselingCompletedAt)
+
+			// location fields
+			if pptasShipment.OriginAddress == nil {
+				pptasShipment.OriginAddress = Address(shipment.PickupAddress)
+			}
+			if pptasShipment.DestinationAddress == nil {
+				pptasShipment.DestinationAddress = Address(shipment.DestinationAddress)
+			}
+
+			// populate TGET data
+			tacErr := inputReportTAC(&pptasShipment, orders, appCtx, tacFetcher, loaFetcher)
+			if tacErr != nil {
+				return tacErr
+			}
+
+			// populate payment request data
+			err := populatePaymentRequestFields(&pptasShipment, appCtx, shipment)
+			if err != nil {
+				return err
+			}
+
+			// populate ppm data
+			err = populatePPMFields(appCtx, &pptasShipment, shipment, estimator)
+			if err != nil {
+				return err
+			}
+
+			var originActualWeight float64
+			if pptasShipment.ActualOriginNetWeight == nil && shipment.PrimeActualWeight != nil {
+				originActualWeight = shipment.PrimeActualWeight.Float64()
+				pptasShipment.ActualOriginNetWeight = &originActualWeight
+			}
+
+			if shipment.Reweigh != nil {
+				reweigh := shipment.Reweigh.Weight.Float64()
+				pptasShipment.DestinationReweighNetWeight = &reweigh
+			}
+
+			netWeight := models.GetTotalNetWeightForMTOShipment(shipment).Int64()
+			pptasShipment.NetWeight = &netWeight
+
+			financialFlag := move.FinancialReviewFlag
+			pptasShipment.FinancialReviewFlag = &financialFlag
+
+			var weightEstimate float64
+			if shipment.PPMShipment != nil {
+				weightEstimate = shipment.PPMShipment.EstimatedWeight.Float64()
+			}
+
+			if shipment.PrimeEstimatedWeight != nil {
+				weightEstimate = shipment.PrimeEstimatedWeight.Float64()
+			}
+			pptasShipment.WeightEstimate = &weightEstimate
+
+			if shipment.Distance != nil {
+				pptasShipment.Miles = int64(*shipment.Distance)
+			}
+
+			pptasShipments = append(pptasShipments, &pptasShipment)
 		}
-
-		if moveDate != nil && shipment.ActualDeliveryDate != nil {
-			pptasShipment.DeliveryDate = strfmt.Date(*shipment.ActualDeliveryDate)
-		}
-
-		if shipment.ActualPickupDate != nil {
-			pptasShipment.PickupDate = strfmt.Date(*shipment.ActualPickupDate)
-		}
-
-		pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
-		pptasShipment.Dd2278IssueDate = strfmt.Date(*move.ServiceCounselingCompletedAt)
-
-		// location fields
-		if pptasShipment.OriginAddress == nil {
-			pptasShipment.OriginAddress = Address(shipment.PickupAddress)
-		}
-		if pptasShipment.DestinationAddress == nil {
-			pptasShipment.DestinationAddress = Address(shipment.DestinationAddress)
-		}
-
-		// populate TGET data
-		tacErr := inputReportTAC(&pptasShipment, orders, appCtx, tacFetcher, loaFetcher)
-		if tacErr != nil {
-			return tacErr
-		}
-
-		// populate payment request data
-		err := populatePaymentRequestFields(&pptasShipment, appCtx, shipment)
-		if err != nil {
-			return err
-		}
-
-		// populate ppm data
-		err = populatePPMFields(appCtx, &pptasShipment, shipment, estimator)
-		if err != nil {
-			return err
-		}
-
-		var originActualWeight float64
-		if pptasShipment.ActualOriginNetWeight == nil && shipment.PrimeActualWeight != nil {
-			originActualWeight = shipment.PrimeActualWeight.Float64()
-			pptasShipment.ActualOriginNetWeight = &originActualWeight
-		}
-
-		if shipment.Reweigh != nil {
-			reweigh := shipment.Reweigh.Weight.Float64()
-			pptasShipment.DestinationReweighNetWeight = &reweigh
-		}
-
-		netWeight := models.GetTotalNetWeightForMTOShipment(shipment).Int64()
-		pptasShipment.NetWeight = &netWeight
-
-		financialFlag := move.FinancialReviewFlag
-		pptasShipment.FinancialReviewFlag = &financialFlag
-
-		var weightEstimate float64
-		if shipment.PPMShipment != nil {
-			weightEstimate = shipment.PPMShipment.EstimatedWeight.Float64()
-		}
-
-		if shipment.PrimeEstimatedWeight != nil {
-			weightEstimate = shipment.PrimeEstimatedWeight.Float64()
-		}
-		pptasShipment.WeightEstimate = &weightEstimate
-
-		if shipment.Distance != nil {
-			pptasShipment.Miles = int64(*shipment.Distance)
-		}
-
-		pptasShipments = append(pptasShipments, &pptasShipment)
 	}
 
 	report.Shipments = pptasShipments
@@ -257,6 +259,14 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 			var totalPrice float64
 			if serviceItem.PriceCents != nil {
 				totalPrice = serviceItem.PriceCents.Float64()
+			}
+
+			if serviceItem.MTOServiceItem.SITEntryDate != nil {
+				pptasShipment.SitInDate = (*strfmt.Date)(serviceItem.MTOServiceItem.SITEntryDate)
+			}
+
+			if serviceItem.MTOServiceItem.SITDepartureDate != nil {
+				pptasShipment.SitOutDate = (*strfmt.Date)(serviceItem.MTOServiceItem.SITDepartureDate)
 			}
 
 			switch serviceItem.MTOServiceItem.ReService.Name {
@@ -361,7 +371,7 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 
 // populates ppm related fields (progear, ppm costs, SIT)
 func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessages.PPTASShipment, shipment models.MTOShipment, estimator services.PPMEstimator) error {
-	travelAdvance := unit.Cents(0)
+	var travelAdvance float64
 
 	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
 	if shipment.PPMShipment != nil && shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete {
@@ -410,8 +420,8 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 
 		// need to determine which shipment(s) have a ppm and get the travel advances and add them up
 		if ppmShipment.AdvanceAmountReceived != nil {
-			travelAdvance = *ppmShipment.AdvanceAmountReceived
-			ppmShipment.AdvanceAmountReceived = &travelAdvance
+			travelAdvance = ppmShipment.AdvanceAmountReceived.Float64()
+			pptasShipment.TravelAdvance = &travelAdvance
 		}
 
 		// add SIT fields
