@@ -13,7 +13,7 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { addressSchema } from 'utils/validation';
 import scrollToTop from 'shared/scrollToTop';
-import { updateShipmentDestinationAddress } from 'services/primeApi';
+import { updateShipmentDestinationAddressV3 } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
@@ -22,6 +22,12 @@ import { setFlashMessage } from 'store/flash/actions';
 const updateDestinationAddressSchema = Yup.object().shape({
   mtoShipmentID: Yup.string(),
   newAddress: Yup.object().shape({
+    address: addressSchema,
+  }),
+  newSecondaryAddress: Yup.object().shape({
+    address: addressSchema,
+  }),
+  newTertiaryAddress: Yup.object().shape({
     address: addressSchema,
   }),
   contractorRemarks: Yup.string().required('Contractor remarks are required to make these changes'),
@@ -41,7 +47,7 @@ const PrimeUIShipmentUpdateDestinationAddress = () => {
   };
 
   /* istanbul ignore next */
-  const { mutate: updateShipmentDestinationAddressAPI } = useMutation(updateShipmentDestinationAddress, {
+  const { mutate: updateShipmentDestinationAddressAPI } = useMutation(updateShipmentDestinationAddressV3, {
     onSuccess: (updatedMTOShipment) => {
       mtoShipments[mtoShipments.findIndex((mtoShipment) => mtoShipment.id === updatedMTOShipment.id)] =
         updatedMTOShipment;

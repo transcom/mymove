@@ -329,6 +329,79 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
+  /mto-shipments/{mtoShipmentID}/shipment-address-updates:
+    post:
+      summary: updateShipmentDestinationAddress
+      description: >
+        ### Functionality
+
+        This endpoint is used so the Prime can request an **update** for the
+        destination address on an MTO Shipment,
+
+        after the destination address has already been approved.
+
+        If automatically approved or TOO approves, this will update the final
+        destination address values for destination SIT service items to be the
+        same as the changed destination address that was approved.
+
+        Address updates will be automatically approved unless they change:
+          - The service area
+          - Mileage bracket for direct delivery
+          - the address and the distance between the old and new address is > 50
+          - Domestic Short Haul to Domestic Line Haul or vice versa
+              - Shipments that start and end in one ZIP3 use Short Haul pricing
+              - Shipments that start and end in different ZIP3s use Line Haul pricing
+
+        For those, changes will require TOO approval.
+      operationId: updateShipmentDestinationAddress
+      tags:
+        - mtoShipment
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: mtoShipmentID
+          description: UUID of the shipment associated with the address
+          required: true
+          format: uuid
+          type: string
+        - in: body
+          required: true
+          name: body
+          schema:
+            $ref: '#/definitions/UpdateShipmentDestinationAddress'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+          description: >
+            Needs to be the eTag of the mtoShipment. Optimistic locking is
+            implemented via the `If-Match` header. If the ETag header does not
+            match the value of the resource on the server, the server rejects
+            the change with a `412 Precondition Failed` error.
+      responses:
+        '201':
+          description: Successfully created the address update request.
+          schema:
+            $ref: '#/definitions/ShipmentAddressUpdate'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   MTOServiceItemBasic:
     description: Describes a basic service item subtype of a MTOServiceItem.
@@ -3242,6 +3315,12 @@ responses:
     description: The request was unprocessable, likely due to bad input from the requester.
     schema:
       $ref: '#/definitions/ValidationError'
+  Conflict:
+    description: >-
+      The request could not be processed because of conflict in the current
+      state of the resource.
+    schema:
+      $ref: '#/definitions/ClientError'
 parameters:
   ifMatch:
     in: header

@@ -332,6 +332,79 @@ func init() {
           }
         }
       }
+    },
+    "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the address",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the address update request.",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -3620,6 +3693,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
@@ -4017,6 +4096,103 @@ func init() {
           },
           "404": {
             "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the address",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the address update request.",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
             "schema": {
               "$ref": "#/definitions/ClientError"
             }
@@ -7331,6 +7507,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {

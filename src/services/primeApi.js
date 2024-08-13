@@ -223,6 +223,25 @@ export function updateShipmentDestinationAddress({
   );
 }
 
+export function updateShipmentDestinationAddressV3({
+  mtoShipmentID,
+  ifMatchETag,
+  body,
+  schemaKey = 'mtoShipment',
+  normalize = true,
+}) {
+  const operationPath = 'mtoShipment.updateShipmentDestinationAddress';
+  return makePrimeSimulatorRequestV3(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
 export function updatePrimeMTOShipmentAddress({
   mtoShipmentID,
   ifMatchETag,

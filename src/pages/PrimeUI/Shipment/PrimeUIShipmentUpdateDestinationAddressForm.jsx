@@ -30,10 +30,10 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
   const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
 
-  const reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDestinationAddress);
+  const reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDeliveryAddress);
   const editableSecondaryDestinationAddress = !isEmpty(reformatPrimeApiSecondaryDestinationAddress);
 
-  const reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDestinationAddress);
+  const reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
   const editableTertiaryDestinationAddress = !isEmpty(reformatPrimeApiTertiaryDestinationAddress);
 
   const initialValuesDestinationAddress = {
@@ -90,19 +90,27 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                     <AddressFields name="newAddress.address" />
                   </div>
                 )}
+              </SectionWrapper>
+              <SectionWrapper>
                 {editableSecondaryDestinationAddress && (
                   <div>
                     <h4>Secondary Address</h4>
                     <AddressFields name="newSecondaryAddress.address" />
                   </div>
                 )}
-                {editableTertiaryDestinationAddress &&
-                  (<h4>Tertiary Address</h4>)(
-                    <div>
-                      <AddressFields name="newTertiaryAddress.address" />
-                      <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
-                    </div>,
-                  )}
+              </SectionWrapper>
+              <SectionWrapper>
+                {editableTertiaryDestinationAddress && (
+                  <div>
+                    <h4>Tertiary Address</h4>
+                    <AddressFields name="newTertiaryAddress.address" />
+                  </div>
+                )}
+              </SectionWrapper>
+              <SectionWrapper>
+                <div>
+                  <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
+                </div>
               </SectionWrapper>
             </SectionWrapper>
             <WizardNavigation
