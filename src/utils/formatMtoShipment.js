@@ -108,8 +108,8 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     tertiaryDestination: {
       address: { ...emptyAddressShape },
     },
-    hasTertiaryPickup: ppmShipment.hasTertiaryPickup ? 'true' : 'false',
-    hasTertiaryDestination: ppmShipment.hasTertiaryDestination ? 'true' : 'false',
+    hasTertiaryPickup: ppmShipment.hasTertiaryPickupAddress ? 'true' : 'false',
+    hasTertiaryDestination: ppmShipment.hasTertiaryDestinationAddress ? 'true' : 'false',
 
     sitExpected: !!ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation ?? LOCATION_TYPES.DESTINATION,
@@ -138,12 +138,12 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     displayValues.secondaryDestination.address = { ...emptyAddressShape, ...ppmShipment.secondaryDestinationAddress };
   }
 
-  if (ppmShipment.hasTertiaryPickup) {
-    displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...ppmShipment.tertiaryPickup };
+  if (ppmShipment.hasTertiaryPickupAddress) {
+    displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...ppmShipment.tertiaryPickupAddress };
   }
 
-  if (ppmShipment.hasTertiaryDestination) {
-    displayValues.tertiaryDestination.address = { ...emptyAddressShape, ...ppmShipment.tertiaryDestination };
+  if (ppmShipment.hasTertiaryDestinationAddress) {
+    displayValues.tertiaryDestination.address = { ...emptyAddressShape, ...ppmShipment.tertiaryDestinationAddress };
   }
 
   return displayValues;
@@ -302,6 +302,8 @@ export function formatPpmShipmentForAPI(formValues) {
     advanceStatus: formValues.advanceStatus,
     hasSecondaryPickupAddress: formValues.hasSecondaryPickup === 'true',
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
+    hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
+    hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
   };
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
@@ -315,6 +317,20 @@ export function formatPpmShipmentForAPI(formValues) {
     ppmShipmentValues = {
       ...ppmShipmentValues,
       secondaryDestinationAddress: formatAddressForAPI(formValues.secondaryDestination.address),
+    };
+  }
+
+  if (ppmShipmentValues.hasTertiaryPickupAddress) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      tertiaryPickupAddress: formatAddressForAPI(formValues.tertiaryPickup.address),
+    };
+  }
+
+  if (ppmShipmentValues.hasTertiaryDestinationAddress) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      tertiaryDestinationAddress: formatAddressForAPI(formValues.tertiaryDestination.address),
     };
   }
 
