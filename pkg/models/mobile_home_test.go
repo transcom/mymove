@@ -14,17 +14,24 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 		"Successful Minimal Validation": {
 			mobileHome: models.MobileHome{
 				ShipmentID:     uuid.Must(uuid.NewV4()),
-				Make:           "Mobile Home Make",
-				Model:          "Mobile Home Model",
-				Year:           1996,
-				LengthInInches: 200,
-				HeightInInches: 84,
-				WidthInInches:  96,
+				Make:           models.StringPointer("Mobile Home Make"),
+				Model:          models.StringPointer("Mobile Home Model"),
+				Year:           models.IntPointer(1996),
+				LengthInInches: models.IntPointer(200),
+				HeightInInches: models.IntPointer(84),
+				WidthInInches:  models.IntPointer(96),
 			},
 			expectedErrs: nil,
 		},
 		"Missing Required Fields": {
-			mobileHome: models.MobileHome{},
+			mobileHome: models.MobileHome{
+				Make: models.StringPointer(""),
+				Model: models.StringPointer(""),
+				Year: models.IntPointer(0),
+				LengthInInches: models.IntPointer(0),
+				HeightInInches: models.IntPointer(0),
+				WidthInInches: models.IntPointer(0),
+			},
 			expectedErrs: map[string][]string{
 				"shipment_id":      {"ShipmentID can not be blank."},
 				"make":             {"Make can not be blank."},
