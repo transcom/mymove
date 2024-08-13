@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'styles/office.scss';
 import { Button, GridContainer } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import EvaluationReportList from '../DefinitionLists/EvaluationReportList';
 import PreviewRow from '../EvaluationReportPreview/PreviewRow/PreviewRow';
@@ -22,7 +22,8 @@ import { formatDateFromIso } from 'utils/formatters';
 import EVALUATION_REPORT_TYPE from 'constants/evaluationReports';
 
 const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPostalCode }) => {
-  const { reportId } = useParams();
+  const navigate = useNavigate();
+  const { moveCode, reportId } = useParams();
   const { evaluationReport, reportViolations, mtoShipments, isLoading, isError } =
     useEvaluationReportShipmentListQueries(reportId);
 
@@ -44,6 +45,10 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
   } else {
     mtoShipmentsToShow = mtoShipments;
   }
+
+  const handleBack = () => {
+    navigate(`/moves/${moveCode}/evaluation-reports`);
+  };
 
   const hasViolations = reportViolations && reportViolations.length > 0;
   const showIncidentDescription = evaluationReport?.seriousIncident;
@@ -215,6 +220,9 @@ const EvaluationReportView = ({ customerInfo, grade, destinationDutyLocationPost
               </div>
             </dl>
           </div>
+          <Button onClick={() => handleBack()} aria-label="Back" secondary data-testid="backBtn">
+            Back
+          </Button>
         </div>
       </GridContainer>
     </div>
