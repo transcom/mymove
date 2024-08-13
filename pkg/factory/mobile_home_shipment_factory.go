@@ -2,7 +2,6 @@ package factory
 
 import (
 	"log"
-	"time"
 
 	"github.com/gobuffalo/pop/v6"
 
@@ -55,17 +54,15 @@ func buildMobileHomeShipmentWithBuildType(db *pop.Connection, customs []Customiz
 		shipment.ShipmentType = models.MTOShipmentTypeMobileHome
 	}
 
-	date := time.Date(time.Now().Year(), time.Now().Month(), time.Now().Day(), 0, 0, 0, 0, time.UTC)
 	mobileHomeShipment := models.MobileHome{
 		ShipmentID:     shipment.ID,
 		Shipment:       shipment,
-		Year:           models.IntPointer(2000),
 		Make:           models.StringPointer("Mobile Home Make"),
 		Model:          models.StringPointer("Mobile Home Model"),
+		Year:           models.IntPointer(1996),
 		LengthInInches: models.IntPointer(300),
-		WidthInInches:  models.IntPointer(108),
 		HeightInInches: models.IntPointer(72),
-		CreatedAt:      date,
+		WidthInInches:  models.IntPointer(108),
 	}
 
 	// Overwrite values with those from customizations
