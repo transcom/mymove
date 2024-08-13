@@ -17,16 +17,16 @@
   }
 
   &.HHG {
-    @include u-bg('blue-20');
+    background-color: $accent-hhg;
   }
   &.PPM {
     background-color: $accent-ppm;
   }
   &.NTS {
-    @include u-bg('violet-warm-30v');
+    background-color: $accent-nts;
   }
   &.NTS-release {
-    @include u-bg('violet-30');
+    background-color: $accent-ntsr;
   }
   &.Boat {
     background-color: $accent-boat;
