@@ -236,7 +236,7 @@ describe('calculateApprovedAndRequestedDatesCombined', () => {
     const sitExtension = { requestedDays: 10 };
     const totalDaysRemaining = 5;
 
-    const expectedDate = formatDateForDatePicker(moment().add(10, 'days').add(5, 'days').subtract(1, 'day'));
+    const expectedDate = formatDateForDatePicker(moment().add(10, 'days').add(5, 'days'));
 
     const result = calculateApprovedAndRequestedDatesCombined(sitExtension, totalDaysRemaining);
     expect(result).toBe(expectedDate);
@@ -246,7 +246,7 @@ describe('calculateApprovedAndRequestedDatesCombined', () => {
     const sitExtension = { requestedDays: 10 };
     const totalDaysRemaining = 'invalid';
 
-    const expectedDate = formatDateForDatePicker(moment().add(10, 'days').subtract(1, 'day'));
+    const expectedDate = formatDateForDatePicker(moment().add(10, 'days'));
 
     const result = calculateApprovedAndRequestedDatesCombined(sitExtension, totalDaysRemaining);
     expect(result).toBe(expectedDate);
@@ -256,7 +256,7 @@ describe('calculateApprovedAndRequestedDatesCombined', () => {
     const sitExtension = { requestedDays: 0 };
     const totalDaysRemaining = 0;
 
-    const expectedDate = formatDateForDatePicker(moment().subtract(1, 'day'));
+    const expectedDate = formatDateForDatePicker(moment());
 
     const result = calculateApprovedAndRequestedDatesCombined(sitExtension, totalDaysRemaining);
     expect(result).toBe(expectedDate);
