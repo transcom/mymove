@@ -65,7 +65,7 @@ func (f *shipmentBillableWeightCalculator) CalculateShipmentBillableWeight(shipm
 			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && shipment.NTSRecordedWeight != nil {
 				adjustedRecordedWeight := unit.Pound(shipment.NTSRecordedWeight.Float64() * float64(1.1))
 				if adjustedRecordedWeight < *shipment.PrimeActualWeight {
-					calculatedWeight = shipment.NTSRecordedWeight
+					calculatedWeight = &adjustedRecordedWeight
 				}
 			}
 		}

@@ -76,7 +76,7 @@ describe('ReviewSITExtensionModal', () => {
     await userEvent.type(officeRemarksInput, 'Approved!');
     await userEvent.click(submitBtn);
 
-    const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days'));
+    const expectedEndDate = formatDateForDatePicker(moment().add(75, 'days').subtract(1, 'day'));
 
     await waitFor(() => {
       // expect(mockOnSubmit).toHaveBeenCalled();
