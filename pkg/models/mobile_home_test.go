@@ -28,7 +28,14 @@ func (suite *ModelSuite) TestMobileHomeShipmentValidation() {
 			expectedErrs: nil,
 		},
 		"Missing Required Fields": {
-			mobileHome: models.MobileHome{},
+			mobileHome: models.MobileHome{
+				Make:           models.StringPointer(""),
+				Model:          models.StringPointer(""),
+				Year:           models.IntPointer(0),
+				LengthInInches: models.IntPointer(0),
+				HeightInInches: models.IntPointer(0),
+				WidthInInches:  models.IntPointer(0),
+			},
 			expectedErrs: map[string][]string{
 				"shipment_id":      {"ShipmentID can not be blank."},
 				"make":             {"Make can not be blank."},
