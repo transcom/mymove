@@ -274,6 +274,18 @@ func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relat
 	return req
 }
 
+func (suite *BaseRoutingSuite) NewPPTASRequest(method string, relativePath string, body io.Reader) *http.Request {
+	return suite.NewRequest(method,
+		suite.HandlerConfig().AppNames().PPTASServerName,
+		relativePath,
+		body)
+}
+func (suite *BaseRoutingSuite) NewAuthenticatedPPTASRequest(method string, relativePath string, body io.Reader, clientCert models.ClientCert) *http.Request {
+	req := suite.NewOfficeRequest(method, relativePath, body)
+	req.Header.Add("X-Devlocal-Cert-Hash", clientCert.Sha256Digest)
+	return req
+}
+
 // The ClientCertMiddleware looks at the TLS certificate on the
 // request to make sure it matches something in the database. Fake the TLS
 // info on the request
