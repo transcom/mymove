@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -18,6 +20,9 @@ type MobileHome struct {
 	LengthInInches *int        `json:"length_in_inches" db:"length_in_inches"`
 	HeightInInches *int        `json:"height_in_inches" db:"height_in_inches"`
 	WidthInInches  *int        `json:"width_in_inches" db:"width_in_inches"`
+	CreatedAt      time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at" db:"updated_at"`
+	DeletedAt      *time.Time  `json:"deleted_at" db:"deleted_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -40,6 +45,7 @@ func (mh MobileHome) Validate(_ *pop.Connection) (*validate.Errors, error) {
 		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: *mh.LengthInInches, Compared: 0},
 		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: *mh.HeightInInches, Compared: 0},
 		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: *mh.WidthInInches, Compared: 0},
+		&OptionalTimeIsPresent{Name: "DeletedAt", Field: mh.DeletedAt},
 	), nil
 }
 
