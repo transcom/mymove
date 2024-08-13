@@ -152,7 +152,12 @@ func populateShipmentFields(
 		}
 
 		pptasShipment.MoveDate = (*strfmt.Date)(moveDate)
-		pptasShipment.Dd2278IssueDate = strfmt.Date(*move.ServiceCounselingCompletedAt)
+
+		if move.ServiceCounselingCompletedAt != nil {
+			pptasShipment.Dd2278IssueDate = strfmt.Date(*move.ServiceCounselingCompletedAt)
+		} else if move.PrimeCounselingCompletedAt != nil {
+			pptasShipment.Dd2278IssueDate = strfmt.Date(*move.PrimeCounselingCompletedAt)
+		}
 
 		// location fields
 		if pptasShipment.OriginAddress == nil {
