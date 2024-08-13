@@ -53,7 +53,6 @@ type TPPSPaidInvoiceReportEntrys []TPPSPaidInvoiceReportEntry
 func (t *TPPSPaidInvoiceReportEntry) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.InvoiceNumber, Name: "InvoiceNumber", Message: "InvoiceNumber string if present should not be empty"},
-		&validators.TimeIsPresent{Field: t.TPPSCreatedDocumentDate, Name: "TPPSCreatedDocumentDate"},
 		&validators.TimeIsPresent{Field: t.SellerPaidDate, Name: "SellerPaidDate"},
 		&validators.IntIsGreaterThan{Field: t.InvoiceTotalChargesInMillicents.Int(), Name: "InvoiceTotalChargesInMillicents", Compared: 0},
 		&validators.StringIsPresent{Field: t.LineDescription, Name: "LineDescription", Message: "LineDescription string if present should not be empty"},
