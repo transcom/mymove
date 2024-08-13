@@ -973,3 +973,4 @@
 20240729164930_mai_do_cac.up.sql
 20240801135811_create_mobile_home.up.sql
 20240801135833_alter_mto_shipment_type_motorhome.up.sql
+20240813153431_change_mobile_home_shipment_deleted_at_type.up.sql

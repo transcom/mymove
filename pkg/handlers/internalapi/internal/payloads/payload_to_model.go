@@ -122,8 +122,8 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
 		model.BoatShipment.Shipment = *model
 	} else if mtoShipment.MobileHomeShipment != nil {
-		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
-		model.BoatShipment.Shipment = *model
+		model.MobileHome = MobileHomeShipmentModelFromCreate(mtoShipment.MobileHomeShipment)
+		model.MobileHome.Shipment = *model
 	}
 
 	return model
@@ -330,29 +330,29 @@ func MobileHomeShipmentModelFromCreate(mobileHomeShipment *internalmessages.Crea
 		return nil
 	}
 	var year *int
-	if mobileHomeShipment.Year != 0 {
-		val := int(mobileHomeShipment.Year)
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
 		year = &val
 	}
 	var lengthInInches *int
-	if mobileHomeShipment.LengthInInches != 0 {
-		val := int(mobileHomeShipment.LengthInInches)
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
 		lengthInInches = &val
 	}
 	var widthInInches *int
-	if mobileHomeShipment.WidthInInches != 0 {
-		val := int(mobileHomeShipment.WidthInInches)
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
 		widthInInches = &val
 	}
 	var heightInInches *int
-	if mobileHomeShipment.HeightInInches != 0 {
-		val := int(mobileHomeShipment.HeightInInches)
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
 		heightInInches = &val
 	}
 
 	model := &models.MobileHome{
-		Make:           &mobileHomeShipment.Make,
-		Model:          &mobileHomeShipment.Model,
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
 		Year:           year,
 		LengthInInches: lengthInInches,
 		HeightInInches: heightInInches,
@@ -367,30 +367,30 @@ func UpdateMobileHomeShipmentModel(mobileHomeShipment *internalmessages.UpdateMo
 		return nil
 	}
 	var year *int
-	if mobileHomeShipment.Year != 0 {
-		val := int(mobileHomeShipment.Year)
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
 		year = &val
 	}
 	var lengthInInches *int
-	if mobileHomeShipment.LengthInInches != 0 {
-		val := int(mobileHomeShipment.LengthInInches)
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
 		lengthInInches = &val
 	}
 	var heightInInches *int
-	if mobileHomeShipment.HeightInInches != 0 {
-		val := int(mobileHomeShipment.HeightInInches)
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
 		heightInInches = &val
 	}
 
 	var widthInInches *int
-	if mobileHomeShipment.WidthInInches != 0 {
-		val := int(mobileHomeShipment.WidthInInches)
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
 		widthInInches = &val
 	}
 
 	mobileHomeModel := &models.MobileHome{
-		Make:           &mobileHomeShipment.Make,
-		Model:          &mobileHomeShipment.Model,
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
 		Year:           year,
 		LengthInInches: lengthInInches,
 		HeightInInches: heightInInches,
@@ -470,6 +470,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		}
 	}
 	model.BoatShipment = UpdateBoatShipmentModel(mtoShipment.BoatShipment)
+
+	model.MobileHome = UpdateMobileHomeShipmentModel(mtoShipment.MobileHomeShipment)
 
 	return model
 }

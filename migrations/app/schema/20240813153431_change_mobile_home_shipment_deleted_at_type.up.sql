@@ -1,0 +1,1 @@
+ALTER TABLE mobile_homes ALTER COLUMN deleted_at drop not NULL

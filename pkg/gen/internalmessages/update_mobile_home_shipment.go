@@ -8,7 +8,6 @@ package internalmessages
 import (
 	"context"
 
-	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 )
@@ -17,31 +16,24 @@ import (
 //
 // swagger:model UpdateMobileHomeShipment
 type UpdateMobileHomeShipment struct {
-	MobileHome
-}
 
-// UnmarshalJSON unmarshals this object from a JSON structure
-func (m *UpdateMobileHomeShipment) UnmarshalJSON(raw []byte) error {
-	// AO0
-	var aO0 MobileHome
-	if err := swag.ReadJSON(raw, &aO0); err != nil {
-		return err
-	}
-	m.MobileHome = aO0
+	// Height of the Mobile Home in inches
+	HeightInInches *int64 `json:"heightInInches,omitempty"`
 
-	return nil
-}
+	// Length of the Mobile Home in inches
+	LengthInInches *int64 `json:"lengthInInches,omitempty"`
 
-// MarshalJSON marshals this object to a JSON structure
-func (m UpdateMobileHomeShipment) MarshalJSON() ([]byte, error) {
-	_parts := make([][]byte, 0, 1)
+	// Make of the Mobile Home
+	Make *string `json:"make,omitempty"`
 
-	aO0, err := swag.WriteJSON(m.MobileHome)
-	if err != nil {
-		return nil, err
-	}
-	_parts = append(_parts, aO0)
-	return swag.ConcatJSON(_parts...), nil
+	// Model of the Mobile Home
+	Model *string `json:"model,omitempty"`
+
+	// Width of the Mobile Home in inches
+	WidthInInches *int64 `json:"widthInInches,omitempty"`
+
+	// Year of the Mobile Home
+	Year *int64 `json:"year,omitempty"`
 }
 
 // Validate validates this update mobile home shipment
@@ -49,17 +41,25 @@ func (m *UpdateMobileHomeShipment) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
-// ContextValidate validate this update mobile home shipment based on the context it is used
+// ContextValidate validates this update mobile home shipment based on context it is used
 func (m *UpdateMobileHomeShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
-	var res []error
+	return nil
+}
 
-	// validation for a type composition with MobileHome
-	if err := m.MobileHome.ContextValidate(ctx, formats); err != nil {
-		res = append(res, err)
+// MarshalBinary interface implementation
+func (m *UpdateMobileHomeShipment) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
 	}
+	return swag.WriteJSON(m)
+}
 
-	if len(res) > 0 {
-		return errors.CompositeValidationError(res...)
+// UnmarshalBinary interface implementation
+func (m *UpdateMobileHomeShipment) UnmarshalBinary(b []byte) error {
+	var res UpdateMobileHomeShipment
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
 	}
+	*m = res
 	return nil
 }

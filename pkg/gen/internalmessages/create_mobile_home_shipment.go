@@ -11,55 +11,146 @@ import (
 	"github.com/go-openapi/errors"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // CreateMobileHomeShipment A mobile home shipment that the prime moves for a service member.
 //
 // swagger:model CreateMobileHomeShipment
 type CreateMobileHomeShipment struct {
-	MobileHome
-}
 
-// UnmarshalJSON unmarshals this object from a JSON structure
-func (m *CreateMobileHomeShipment) UnmarshalJSON(raw []byte) error {
-	// AO0
-	var aO0 MobileHome
-	if err := swag.ReadJSON(raw, &aO0); err != nil {
-		return err
-	}
-	m.MobileHome = aO0
+	// Height of the Mobile Home in inches
+	// Required: true
+	HeightInInches *int64 `json:"heightInInches"`
 
-	return nil
-}
+	// Length of the Mobile Home in inches
+	// Required: true
+	LengthInInches *int64 `json:"lengthInInches"`
 
-// MarshalJSON marshals this object to a JSON structure
-func (m CreateMobileHomeShipment) MarshalJSON() ([]byte, error) {
-	_parts := make([][]byte, 0, 1)
+	// Make of the Mobile Home
+	// Required: true
+	Make *string `json:"make"`
 
-	aO0, err := swag.WriteJSON(m.MobileHome)
-	if err != nil {
-		return nil, err
-	}
-	_parts = append(_parts, aO0)
-	return swag.ConcatJSON(_parts...), nil
+	// Model of the Mobile Home
+	// Required: true
+	Model *string `json:"model"`
+
+	// Width of the Mobile Home in inches
+	// Required: true
+	WidthInInches *int64 `json:"widthInInches"`
+
+	// Year of the Mobile Home
+	// Required: true
+	Year *int64 `json:"year"`
 }
 
 // Validate validates this create mobile home shipment
 func (m *CreateMobileHomeShipment) Validate(formats strfmt.Registry) error {
-	return nil
-}
-
-// ContextValidate validate this create mobile home shipment based on the context it is used
-func (m *CreateMobileHomeShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
-	// validation for a type composition with MobileHome
-	if err := m.MobileHome.ContextValidate(ctx, formats); err != nil {
+	if err := m.validateHeightInInches(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateLengthInInches(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMake(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateModel(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateWidthInInches(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateYear(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *CreateMobileHomeShipment) validateHeightInInches(formats strfmt.Registry) error {
+
+	if err := validate.Required("heightInInches", "body", m.HeightInInches); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMobileHomeShipment) validateLengthInInches(formats strfmt.Registry) error {
+
+	if err := validate.Required("lengthInInches", "body", m.LengthInInches); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMobileHomeShipment) validateMake(formats strfmt.Registry) error {
+
+	if err := validate.Required("make", "body", m.Make); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMobileHomeShipment) validateModel(formats strfmt.Registry) error {
+
+	if err := validate.Required("model", "body", m.Model); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMobileHomeShipment) validateWidthInInches(formats strfmt.Registry) error {
+
+	if err := validate.Required("widthInInches", "body", m.WidthInInches); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMobileHomeShipment) validateYear(formats strfmt.Registry) error {
+
+	if err := validate.Required("year", "body", m.Year); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ContextValidate validates this create mobile home shipment based on context it is used
+func (m *CreateMobileHomeShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
+	return nil
+}
+
+// MarshalBinary interface implementation
+func (m *CreateMobileHomeShipment) MarshalBinary() ([]byte, error) {
+	if m == nil {
+		return nil, nil
+	}
+	return swag.WriteJSON(m)
+}
+
+// UnmarshalBinary interface implementation
+func (m *CreateMobileHomeShipment) UnmarshalBinary(b []byte) error {
+	var res CreateMobileHomeShipment
+	if err := swag.ReadJSON(b, &res); err != nil {
+		return err
+	}
+	*m = res
 	return nil
 }
