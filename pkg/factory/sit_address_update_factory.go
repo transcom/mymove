@@ -184,7 +184,6 @@ func GetTraitSITAddressUpdateWithMoveSetUp() []Customization {
 			Model: models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
-				ApprovedAt:         models.TimePointer(time.Now()),
 			},
 		},
 		{

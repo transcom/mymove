@@ -71,7 +71,6 @@ func (suite *MTOShipmentServiceSuite) TestUpdateValidations() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
 					Show:               &hide,
 				},
 			},
@@ -356,7 +355,6 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 					{
 						Model: models.Move{
 							AvailableToPrimeAt: &now,
-							ApprovedAt:         &now,
 						},
 					},
 				}, nil)
@@ -399,7 +397,6 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 					{
 						Model: models.Move{
 							AvailableToPrimeAt: &now,
-							ApprovedAt:         &now,
 						},
 					},
 				}, nil)
@@ -429,7 +426,6 @@ func (suite *MTOShipmentServiceSuite) TestDeleteValidations() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: nil,
-					ApprovedAt:         nil,
 				},
 			},
 		}, nil)
