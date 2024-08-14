@@ -125,7 +125,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		move := BuildApprovalsRequestedMove(suite.DB(), nil, nil)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 		suite.NotNil(move.AvailableToPrimeAt)
-		suite.NotNil(move.ApprovedAt)
 	})
 	suite.Run("Successful creation of customized move with approval status", func() {
 		// Under test:      BuildApprovalsRequestedMove
@@ -145,7 +144,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(customMove.Locator, move.Locator)
 		suite.Equal(models.MoveStatusAPPROVALSREQUESTED, move.Status)
 		suite.NotNil(move.AvailableToPrimeAt)
-		suite.NotNil(move.ApprovedAt)
 	})
 	suite.Run("Successful creation of submitted move", func() {
 		// Under test:      BuildSubmittedMove
@@ -233,7 +231,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		move := BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 		suite.NotNil(move.AvailableToPrimeAt)
-		suite.NotNil(move.ApprovedAt)
 	})
 	suite.Run("Successful creation of customized available to prime move", func() {
 		// Under test:      BuildAvailableToPrimeMove
@@ -243,7 +240,6 @@ func (suite *FactorySuite) TestBuildMove() {
 		customMove := models.Move{
 			Locator:            "999111",
 			AvailableToPrimeAt: &availableToPrimeAt,
-			ApprovedAt:         &availableToPrimeAt,
 		}
 		// Create move
 		move := BuildAvailableToPrimeMove(suite.DB(), []Customization{
@@ -254,9 +250,7 @@ func (suite *FactorySuite) TestBuildMove() {
 		suite.Equal(customMove.Locator, move.Locator)
 		suite.Equal(models.MoveStatusAPPROVED, move.Status)
 		suite.Equal(availableToPrimeAt, *move.AvailableToPrimeAt)
-		suite.Equal(availableToPrimeAt, *move.ApprovedAt) // Inheriting available to prime at date
 		suite.NotNil(move.AvailableToPrimeAt)
-		suite.NotNil(move.ApprovedAt)
 	})
 	suite.Run("Successful creation of move with shipment", func() {
 		// Under test:      BuildMoveWithShipment

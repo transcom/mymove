@@ -3,16 +3,9 @@ import { LOA_VALIDATION_ACTIONS, initialState, reducer } from './loaValidation';
 describe('reducers/loaValidation', () => {
   it('creates an initialState', () => {
     expect(initialState()).toEqual({
-      HHG: {
-        isValid: false,
-        longLineOfAccounting: '',
-        loa: null,
-      },
-      NTS: {
-        isValid: false,
-        longLineOfAccounting: '',
-        loa: null,
-      },
+      isValid: false,
+      longLineOfAccounting: '',
+      loa: null,
     });
   });
 
@@ -23,14 +16,38 @@ describe('reducers/loaValidation', () => {
         type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
         payload: {
           isValid: true,
-          longLineOfAccounting: '1234',
-          loa: '1234',
-          loaType: 'HHG',
+          loa: {
+            id: '1234',
+            longLineOfAccounting: '1234',
+            loaSysId: '5678',
+          },
         },
       }),
     ).toEqual({
-      NTS: { isValid: false, loa: null, longLineOfAccounting: '' },
-      HHG: { isValid: true, loa: '1234', longLineOfAccounting: '1234' },
+      isValid: true,
+      loa: {
+        id: '1234',
+        longLineOfAccounting: '1234',
+        loaSysId: '5678',
+      },
+    });
+  });
+
+  it('handles invalid LOA validation', () => {
+    const state = initialState();
+    expect(
+      reducer(state, {
+        type: LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE,
+        payload: {
+          isValid: false,
+          longLineOfAccounting: '',
+          loa: null,
+        },
+      }),
+    ).toEqual({
+      isValid: false,
+      longLineOfAccounting: '',
+      loa: null,
     });
   });
 });

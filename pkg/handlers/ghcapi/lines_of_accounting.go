@@ -25,15 +25,6 @@ type LinesOfAccountingRequestLineOfAccountingHandler struct {
 }
 
 // Handle requesting (Fetching) a line of accounting from a request payload
-// It takes in the parameters of:
-// - TAC
-// - Service member affiliation
-// - EffectiveDate
-// And uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering
-// through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date
-// that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments),
-// or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request)
-// Effective date is used to find "Active" TGET data by searching for the TACs and LOAs with begin and end dates containing this date
 func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofaccountingop.RequestLineOfAccountingParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -58,7 +49,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 				*payload.ServiceMemberAffiliation = ghcmessages.AffiliationAIRFORCE
 			}
 
-			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.ServiceMemberAffiliation(*payload.ServiceMemberAffiliation), time.Time(payload.EffectiveDate), payload.TacCode, appCtx)
+			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.ServiceMemberAffiliation(*payload.ServiceMemberAffiliation), time.Time(payload.OrdersIssueDate), payload.TacCode, appCtx)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					// Either TAC or LOA service objects triggered a sql err for now rows
@@ -66,7 +57,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 					// of the service object being updated in the future, this will catch it and keep the API giving good errors
 					// instead of defaulting to an internal server error
 
-					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.EffectiveDate), payload.TacCode)
+					errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.OrdersIssueDate), payload.TacCode)
 					appCtx.Logger().Info(errMsg)
 					// Do not return any payload here as no LOA was found
 					return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
@@ -76,7 +67,7 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 			if len(loas) == 0 {
 				// No LOAs were identified with the provided parameters
 				// Return an empty 200 and log the error
-				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.EffectiveDate), payload.TacCode)
+				errMsg := fmt.Sprintf("Unable to find any lines of accounting based on the provided parameters: serviceMemberAffiliation=%s, ordersIssueDate=%s, tacCode=%s", *payload.ServiceMemberAffiliation, time.Time(payload.OrdersIssueDate), payload.TacCode)
 				appCtx.Logger().Info(errMsg)
 				return linesofaccountingop.NewRequestLineOfAccountingOK(), nil
 			}

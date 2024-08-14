@@ -16,8 +16,8 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
-import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 
 const NTSRShipmentInfoList = ({
   className,
