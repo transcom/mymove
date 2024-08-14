@@ -1,0 +1,20 @@
+body {
+  overflow-x: scroll !important;
+}
+
+.layout > div.RaLayout-appFrame {
+  margin-top: 0;
+}
+
+#app-root {
+  min-width: fit-content;
+}
+
+.adminCUIHeader {
+  position: sticky;
+  z-index: 10;
+}
+
+.MultiTableHead-root th {
+  top: 21px;
+}

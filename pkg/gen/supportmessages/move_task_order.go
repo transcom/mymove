@@ -24,11 +24,6 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
-	// Indicates this MoveTaskOrder has been approved by an office user such as the Task Ordering Officer (TOO).
-	//
-	// Format: date-time
-	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
-
 	// Indicates this MoveTaskOrder is available for Prime API handling.
 	//
 	// In production, only MoveTaskOrders for which this is set will be available to the API.
@@ -122,8 +117,6 @@ func (m *MoveTaskOrder) SetMtoServiceItems(val []MTOServiceItem) {
 // UnmarshalJSON unmarshals this object with a polymorphic type from a JSON structure
 func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	var data struct {
-		ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
-
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 		ContractorID *strfmt.UUID `json:"contractorID"`
@@ -174,9 +167,6 @@ func (m *MoveTaskOrder) UnmarshalJSON(raw []byte) error {
 	}
 
 	var result MoveTaskOrder
-
-	// approvedAt
-	result.ApprovedAt = data.ApprovedAt
 
 	// availableToPrimeAt
 	result.AvailableToPrimeAt = data.AvailableToPrimeAt
@@ -236,8 +226,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 	var b1, b2, b3 []byte
 	var err error
 	b1, err = json.Marshal(struct {
-		ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
-
 		AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
 
 		ContractorID *strfmt.UUID `json:"contractorID"`
@@ -268,8 +256,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 
 		UpdatedAt strfmt.DateTime `json:"updatedAt,omitempty"`
 	}{
-
-		ApprovedAt: m.ApprovedAt,
 
 		AvailableToPrimeAt: m.AvailableToPrimeAt,
 
@@ -320,10 +306,6 @@ func (m MoveTaskOrder) MarshalJSON() ([]byte, error) {
 // Validate validates this move task order
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
-
-	if err := m.validateApprovedAt(formats); err != nil {
-		res = append(res, err)
-	}
 
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
@@ -376,18 +358,6 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
-	return nil
-}
-
-func (m *MoveTaskOrder) validateApprovedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ApprovedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
-		return err
-	}
-
 	return nil
 }
 
