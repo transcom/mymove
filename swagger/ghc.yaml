@@ -3880,9 +3880,18 @@ paths:
   /lines-of-accounting:
     post:
       summary: Fetch line of accounting
-      description: >-
+      description: >
         Fetches a line of accounting based on provided service member
-        affiliation, order issue date, and Transportation Accounting Code (TAC).
+        affiliation, effective date, and Transportation Accounting Code (TAC).
+        It uses these parameters to filter the correct Line of Accounting for
+        the provided TAC. It does this by filtering through both TAC and LOAs
+        based on the provided code and effective date. The 'Effective Date' is
+        the date that can be either the orders issued date (For HHG shipments),
+        MTO approval date (For NTS shipments), or even the current date for NTS
+        shipments with no approval yet (Just providing a preview to the office
+        users per customer request). Effective date is used to find "Active"
+        TGET data by searching for the TACs and LOAs with begin and end dates
+        containing this date.
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
@@ -3893,7 +3902,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Service member affiliation, order issue date, and TAC code.
+          description: Service member affiliation, effective date, and TAC code.
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
@@ -4599,7 +4608,17 @@ definitions:
     properties:
       serviceMemberAffiliation:
         $ref: '#/definitions/Affiliation'
-      ordersIssueDate:
+      effectiveDate:
+        description: >
+          The effective date for the Line Of Accounting (LOA) being fetched. Eg,
+          the orders issue date or the Non-Temporary Storage (NTS) Move Task
+          Order (MTO) approval date. Effective date is used to find "Active"
+          TGET data by searching for the TACs and LOAs with begin and end dates
+          containing this date. The 'Effective Date' is the date that can be
+          either the orders issued date (For HHG shipments), MTO approval date
+          (For NTS shipments), or even the current date for NTS shipments with
+          no approval yet (Just providing a preview to the office users per
+          customer request).
         type: string
         format: date
         example: '2023-01-01'
@@ -4793,6 +4812,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -5604,6 +5627,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string
@@ -5686,6 +5713,20 @@ definitions:
         x-nullable: true
       receivedByGexAt:
         format: date-time
+        type: string
+        x-nullable: true
+      ediErrorType:
+        description: >-
+          Type of EDI reporting or causing the issue. Can be EDI 997, 824, and
+          858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
     type: object
@@ -6639,6 +6680,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -9625,10 +9671,75 @@ definitions:
       sitCost:
         example: 2000
         type: integer
-        x-nullable: true
-        x-omitempty: false
+      priceFirstDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of the first day in SIT
+      priceAdditionalDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of an additional day in SIT
+      paramsFirstDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '20.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+      paramsAdditionalDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          numberDaysSIT:
+            type: string
+            example: '30'
+            x-nullable: true
+            x-omitempty: true
     required:
       - sitCost
+      - priceFirstDaySIT
+      - priceAdditionalDaySIT
   MTOServiceItemSingle:
     type: object
     properties:
