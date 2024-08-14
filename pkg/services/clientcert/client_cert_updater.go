@@ -70,9 +70,6 @@ func (o *clientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uu
 	if payload.AllowPrime != nil {
 		foundClientCert.AllowPrime = *payload.AllowPrime
 	}
-	if payload.AllowPPTAS != nil {
-		foundClientCert.AllowPPTAS = *payload.AllowPPTAS
-	}
 
 	verrs, err := o.builder.UpdateOne(appCtx, &foundClientCert, nil)
 	if verrs != nil || err != nil {

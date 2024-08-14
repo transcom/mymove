@@ -10,7 +10,7 @@ import { isNullUndefinedOrWhitespace } from 'shared/utils';
 
 const QAECSRMoveSearch = () => {
   const navigate = useNavigate();
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
 
   const handleClick = useCallback(
@@ -24,6 +24,7 @@ const QAECSRMoveSearch = () => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -32,6 +33,8 @@ const QAECSRMoveSearch = () => {
         payload.dodID = values.searchText;
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
 
@@ -57,6 +60,7 @@ const QAECSRMoveSearch = () => {
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}
+            paymentRequestCode={search.paymentRequestCode}
           />
         )}
       </div>

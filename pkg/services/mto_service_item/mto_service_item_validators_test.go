@@ -965,3 +965,57 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.IsType(apperror.InvalidInputError{}, err)
 	})
 }
+
+func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItemValidators() {
+
+	setupTestData := func() models.MTOServiceItem {
+		serviceItem := testdatagen.MakeDefaultMTOServiceItem(suite.DB())
+		serviceItem.CustomerContacts = models.MTOServiceItemCustomerContacts{
+			models.MTOServiceItemCustomerContact{
+				Type:                       models.CustomerContactTypeFirst,
+				DateOfContact:              time.Now().AddDate(0, 0, 4),
+				TimeMilitary:               "1200Z",
+				FirstAvailableDeliveryDate: time.Now().AddDate(0, 0, 3),
+			},
+		}
+		return serviceItem
+	}
+
+	suite.Run("checkSITEntryDateAndFADD - success", func() {
+		s := mtoServiceItemCreator{}
+		serviceItem := setupTestData()
+		// will pass since the SIT entry date is AFTER the FADD
+		serviceItem.SITEntryDate = models.TimePointer(time.Now().AddDate(0, 0, 4))
+		err := s.checkSITEntryDateAndFADD(&serviceItem)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkSITEntryDateAndFADD - success when the SIT entry date is the same date as the FADD", func() {
+		s := mtoServiceItemCreator{}
+		serviceItem := setupTestData()
+		// will pass since the SIT entry date is AFTER the FADD
+		serviceItem.SITEntryDate = &serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate
+		err := s.checkSITEntryDateAndFADD(&serviceItem)
+
+		suite.NoError(err)
+	})
+
+	suite.Run("checkSITEntryDateAndFADD - fail when SIT entry is before FADD", func() {
+		s := mtoServiceItemCreator{}
+		serviceItem := setupTestData()
+		// will fail since the SIT entry date is BEFORE the FADD
+		serviceItem.SITEntryDate = models.TimePointer(time.Now().AddDate(0, 0, 2))
+		err := s.checkSITEntryDateAndFADD(&serviceItem)
+
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		// Format the dates as "YYYY-MM-DD" to match the error message
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+			serviceItem.SITEntryDate.Format("2006-01-02"),
+			serviceItem.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+}
