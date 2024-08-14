@@ -1,0 +1,6 @@
+type: string
+enum:
+  - DRAFT
+  - SUBMITTED
+  - APPROVED
+  - CANCELED
