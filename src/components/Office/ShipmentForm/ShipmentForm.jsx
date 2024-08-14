@@ -59,7 +59,7 @@ import {
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
-import { dateSelectionWeekendHolidayCheck } from 'shared/calendar';
+import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 import { datePickerFormat, formatDate } from 'shared/dates';
 
 const ShipmentForm = (props) => {
