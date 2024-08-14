@@ -3693,8 +3693,8 @@ func init() {
         "model",
         "year",
         "lengthInInches",
-        "widthInInches",
-        "heightInInches"
+        "heightInInches",
+        "widthInInches"
       ],
       "properties": {
         "heightInInches": {
@@ -12135,8 +12135,8 @@ func init() {
         "model",
         "year",
         "lengthInInches",
-        "widthInInches",
-        "heightInInches"
+        "heightInInches",
+        "widthInInches"
       ],
       "properties": {
         "heightInInches": {

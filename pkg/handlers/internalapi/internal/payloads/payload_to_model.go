@@ -339,15 +339,15 @@ func MobileHomeShipmentModelFromCreate(mobileHomeShipment *internalmessages.Crea
 		val := int(*mobileHomeShipment.LengthInInches)
 		lengthInInches = &val
 	}
-	var widthInInches *int
-	if mobileHomeShipment.WidthInInches != nil {
-		val := int(*mobileHomeShipment.WidthInInches)
-		widthInInches = &val
-	}
 	var heightInInches *int
 	if mobileHomeShipment.HeightInInches != nil {
 		val := int(*mobileHomeShipment.HeightInInches)
 		heightInInches = &val
+	}
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
 	}
 
 	model := &models.MobileHome{

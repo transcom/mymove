@@ -8,7 +8,7 @@ import (
 
 func (suite *FactorySuite) TestBuildMobileHomeShipment() {
 	suite.Run("Successful creation of default MobileHomeShipment", func() {
-		defaultBoat := models.MobileHome{
+		defaultMobileHome := models.MobileHome{
 			Make:           models.StringPointer("Mobile Home Make"),
 			Model:          models.StringPointer("Mobile Home Model"),
 			Year:           models.IntPointer(1996),
@@ -19,12 +19,12 @@ func (suite *FactorySuite) TestBuildMobileHomeShipment() {
 
 		mobileHomeShipment := BuildMobileHomeShipment(suite.DB(), nil, nil)
 
-		suite.Equal(defaultBoat.Make, mobileHomeShipment.Make)
-		suite.Equal(defaultBoat.Model, mobileHomeShipment.Model)
-		suite.Equal(defaultBoat.Year, mobileHomeShipment.Year)
-		suite.Equal(defaultBoat.LengthInInches, mobileHomeShipment.LengthInInches)
-		suite.Equal(defaultBoat.HeightInInches, mobileHomeShipment.HeightInInches)
-		suite.Equal(defaultBoat.WidthInInches, mobileHomeShipment.WidthInInches)
+		suite.Equal(defaultMobileHome.Make, mobileHomeShipment.Make)
+		suite.Equal(defaultMobileHome.Model, mobileHomeShipment.Model)
+		suite.Equal(defaultMobileHome.Year, mobileHomeShipment.Year)
+		suite.Equal(defaultMobileHome.LengthInInches, mobileHomeShipment.LengthInInches)
+		suite.Equal(defaultMobileHome.HeightInInches, mobileHomeShipment.HeightInInches)
+		suite.Equal(defaultMobileHome.WidthInInches, mobileHomeShipment.WidthInInches)
 	})
 
 	suite.Run("Successful creation of customized mobileHomeShipment", func() {

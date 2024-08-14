@@ -68,8 +68,8 @@ func (suite *MobileHomeShipmentSuite) TestMobileHomeShipmentCreator() {
 			Make:           models.StringPointer("Mobile Home Make"),
 			Model:          models.StringPointer("Mobile Home Model"),
 			LengthInInches: models.IntPointer(300),
-			WidthInInches:  models.IntPointer(108),
 			HeightInInches: models.IntPointer(72),
+			WidthInInches:  models.IntPointer(108),
 			CreatedAt:      date}, nil)
 
 		createdMobileHomeShipment, err := mobileHomeShipmentCreator.CreateMobileHomeShipmentWithDefaultCheck(appCtx, subtestData.newMobileHomeShipment)

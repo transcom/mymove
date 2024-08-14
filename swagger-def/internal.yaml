@@ -2163,19 +2163,19 @@ definitions:
       lengthInInches:
         type: integer
         description: Length of the Mobile Home in inches
-      widthInInches:
-        type: integer
-        description: Width of the Mobile Home in inches
       heightInInches:
         type: integer
         description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
     required:
       - make
       - model
       - year
       - lengthInInches
-      - widthInInches
       - heightInInches
+      - widthInInches
   UpdateMobileHomeShipment:
     properties:
       make:

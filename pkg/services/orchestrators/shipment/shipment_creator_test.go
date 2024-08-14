@@ -24,13 +24,13 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 	updatePPMTypeMethodName := "UpdatePPMType"
 
 	type subtestDataObjects struct {
-		mockMTOShipmentCreator      *mocks.MTOShipmentCreator
-		mockPPMShipmentCreator      *mocks.PPMShipmentCreator
-		mockBoatShipmentCreator     *mocks.BoatShipmentCreator
+		mockMTOShipmentCreator        *mocks.MTOShipmentCreator
+		mockPPMShipmentCreator        *mocks.PPMShipmentCreator
+		mockBoatShipmentCreator       *mocks.BoatShipmentCreator
 		mockMobileHomeShipmentCreator *mocks.MobileHomeShipmentCreator
-		mockMoveTaskOrderUpdater    *mocks.MoveTaskOrderUpdater
-		shipmentCreatorOrchestrator services.ShipmentCreator
-		fakeError                   error
+		mockMoveTaskOrderUpdater      *mocks.MoveTaskOrderUpdater
+		shipmentCreatorOrchestrator   services.ShipmentCreator
+		fakeError                     error
 	}
 
 	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool) (subtestData subtestDataObjects) {
