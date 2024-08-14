@@ -54,7 +54,7 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 MymoveAPI The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request
 information relating to current moves in progress.
 
-All endpoints are located at `/prime/pptas/`.
+All endpoints are located at `/pptas/v1`.
 */
 type MymoveAPI struct {
 	spec            *loads.Document

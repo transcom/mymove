@@ -51,7 +51,7 @@ func ApplicationTestServername() auth.ApplicationServername {
 		OrdersServername: OrdersTestHost,
 		AdminServername:  AdminTestHost,
 		PrimeServername:  PrimeTestHost,
-		PPTASServerName:  PPTASTestHost,
+		PPTASServerName:  PrimeTestHost,
 	}
 }
 

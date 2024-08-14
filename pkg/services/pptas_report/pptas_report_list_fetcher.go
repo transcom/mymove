@@ -377,7 +377,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 	var travelAdvance float64
 
 	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
-	if shipment.PPMShipment != nil && shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete {
+	if shipment.PPMShipment != nil && (shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete || shipment.PPMShipment.Status == models.PPMShipmentStatusComplete) {
 		// query the ppmshipment for all it's child needs for the price breakdown
 		var ppmShipment models.PPMShipment
 		ppmQ := appCtx.DB().Q().EagerPreload("PickupAddress", "DestinationAddress", "WeightTickets", "Shipment").

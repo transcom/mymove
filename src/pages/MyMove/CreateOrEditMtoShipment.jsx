@@ -5,7 +5,8 @@ import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   updateMTOShipment as updateMTOShipmentAction,
@@ -65,6 +66,21 @@ export class CreateOrEditMtoShipment extends Component {
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
             destinationDutyLocation={orders.new_duty_location}
+          />
+        );
+      }
+      if (
+        type === SHIPMENT_OPTIONS.BOAT ||
+        mtoShipment?.shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
+        mtoShipment?.shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY
+      ) {
+        return (
+          <BoatShipmentCreate
+            move={move}
+            mtoShipment={mtoShipment}
+            serviceMember={serviceMember}
+            destinationDutyLocation={orders.new_duty_location}
+            serviceMemberMoves={serviceMemberMoves}
           />
         );
       }

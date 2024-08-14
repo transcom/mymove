@@ -76,6 +76,20 @@ describe('formatMtoShipmentForDisplay', () => {
     postalCode: destinationAddress.postalCode,
   };
 
+  const tertiaryPickupAddress = {
+    streetAddress1: '422 Front St',
+    city: 'Missoula',
+    state: 'MT',
+    postalCode: '59802',
+  };
+
+  const tertiaryDeliveryAddress = {
+    streetAddress1: '2509 Lehigh Dr',
+    city: 'Silver Spring',
+    state: 'MD',
+    postalCode: '20906',
+  };
+
   const checkAddressesAreEqual = (address1, address2) => {
     expect(address1.streetAddress1 === address2.streetAddress1);
     expect(address1.streetAddress2 === address2.streetAddress2);
@@ -124,6 +138,12 @@ describe('formatMtoShipmentForDisplay', () => {
 
       checkAddressesAreEqual(displayValues.secondaryDelivery.address, emptyAddressShape);
       expect(displayValues.hasSecondaryDelivery).toBe('no');
+
+      checkAddressesAreEqual(displayValues.tertiaryPickup.address, emptyAddressShape);
+      expect(displayValues.hasTertiaryPickup).toBe('no');
+
+      checkAddressesAreEqual(displayValues.tertiaryDelivery.address, emptyAddressShape);
+      expect(displayValues.hasTertiaryDelivery).toBe('no');
 
       expect(displayValues.agents).toBeUndefined();
     },
@@ -181,6 +201,40 @@ describe('formatMtoShipmentForDisplay', () => {
     const expectedSecondaryDeliveryAddress = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
     expect(displayValues.hasSecondaryDelivery).toBe('yes');
+  });
+
+  it('can format a shipment with a primary, secondary, and tertiary pickup and destination', () => {
+    const params = {
+      ...mtoShipment,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      destinationAddress,
+      secondaryPickupAddress,
+      secondaryDeliveryAddress,
+      tertiaryPickupAddress,
+      tertiaryDeliveryAddress,
+    };
+
+    const displayValues = formatMtoShipmentForDisplay(params);
+
+    const expectedDeliveryAddress = { ...emptyAddressShape, ...destinationAddress };
+    checkAddressesAreEqual(displayValues.delivery.address, expectedDeliveryAddress);
+    expect(displayValues.hasDeliveryAddress).toBe('yes');
+
+    const expectedSecondaryPickupAddress = { ...emptyAddressShape, ...secondaryPickupAddress };
+    checkAddressesAreEqual(displayValues.secondaryPickup.address, expectedSecondaryPickupAddress);
+    expect(displayValues.hasSecondaryPickup).toBe('yes');
+
+    const expectedSecondaryDeliveryAddress = { ...emptyAddressShape, ...secondaryDeliveryAddress };
+    checkAddressesAreEqual(displayValues.secondaryDelivery.address, expectedSecondaryDeliveryAddress);
+    expect(displayValues.hasSecondaryDelivery).toBe('yes');
+
+    const expectedTertiaryPickupAddress = { ...emptyAddressShape, ...tertiaryPickupAddress };
+    checkAddressesAreEqual(displayValues.tertiaryPickup.address, expectedTertiaryPickupAddress);
+    expect(displayValues.hasTertiaryPickup).toBe('yes');
+
+    const expectedTertiaryDeliveryAddress = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
+    checkAddressesAreEqual(displayValues.tertiaryDelivery.address, expectedTertiaryDeliveryAddress);
+    expect(displayValues.hasTertiaryDelivery).toBe('yes');
   });
 
   it('can format a shipment with lines of accounting', () => {
@@ -280,6 +334,8 @@ describe('formatMtoShipmentForAPI', () => {
 
     expect(actual.secondaryPickupAddress).toBeUndefined();
     expect(actual.secondaryDeliveryAddress).toBeUndefined();
+    expect(actual.tertiaryPickupAddress).toBeUndefined();
+    expect(actual.tertiaryDeliveryAddress).toBeUndefined();
   });
 
   it('can format an NTSr shipment', () => {
@@ -412,6 +468,43 @@ describe('formatMtoShipmentForAPI', () => {
     expect(actual.secondaryDeliveryAddress).not.toBeUndefined();
     expect(actual.secondaryDeliveryAddress.streetAddress1).toEqual('441 SW Río de la Plata Drive');
   });
+
+  it('can format an HHG shipment with a Tertiary pickup/destination', () => {
+    const params = {
+      ...mtoShipmentParams,
+      shipmentType: SHIPMENT_OPTIONS.HHG,
+      pickup: { ...pickupInfo },
+      hasTertiaryPickup: true,
+      tertiaryPickup: {
+        address: {
+          streetAddress1: '142 E Barrel Hoop Circle',
+          streetAddress2: '#4A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+      },
+      delivery: { ...deliveryInfo },
+      hasTertiaryDelivery: true,
+      tertiaryDelivery: {
+        address: {
+          streetAddress1: '441 SW Río de la Plata Drive',
+          streetAddress2: '',
+          city: deliveryInfo.address.city,
+          state: deliveryInfo.address.state,
+          postalCode: deliveryInfo.address.postalCode,
+        },
+      },
+    };
+
+    const actual = formatMtoShipmentForAPI(params);
+
+    expect(actual.tertiaryPickupAddress).not.toBeUndefined();
+    expect(actual.tertiaryPickupAddress.streetAddress1).toEqual('142 E Barrel Hoop Circle');
+
+    expect(actual.tertiaryDeliveryAddress).not.toBeUndefined();
+    expect(actual.tertiaryDeliveryAddress.streetAddress1).toEqual('441 SW Río de la Plata Drive');
+  });
 });
 
 describe('formatPpmShipmentForDisplay', () => {
@@ -460,6 +553,24 @@ describe('formatPpmShipmentForDisplay', () => {
         state: 'KY',
         postalCode: '42701',
       },
+      hasTertiaryPickupAddress: true,
+      hasTertiaryDestinationAddress: true,
+      tertiaryPickupAddress: {
+        streetAddress1: '321 Test Street',
+        streetAddress2: '432 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'KY',
+        postalCode: '42702',
+      },
+      tertiaryDestinationAddress: {
+        streetAddress1: '123 Test Street',
+        streetAddress2: '234 Test Street',
+        streetAddress3: 'Test Man',
+        city: 'Test City',
+        state: 'KY',
+        postalCode: '42701',
+      },
       sitExpected: true,
       sitLocation: 'DESTINATION',
       sitEstimatedWeight: 2750,
@@ -486,6 +597,12 @@ describe('formatPpmShipmentForDisplay', () => {
 
     expect(display.hasSecondaryPickup).toEqual('true');
     expect(display.hasSecondaryDestination).toEqual('true');
+
+    expect(display.tertiaryPickup.address).toEqual(api.tertiaryPickupAddress);
+    expect(display.tertiaryDestination.address).toEqual(api.tertiaryDestinationAddress);
+
+    expect(display.hasTertiaryPickup).toEqual('true');
+    expect(display.hasTertiaryDestination).toEqual('true');
 
     expect(display.sitEstimatedWeight).toEqual('2750');
     expect(display.estimatedWeight).toEqual('9000');
@@ -519,6 +636,16 @@ describe('formatPpmShipmentForAPI', () => {
           postalCode: '78212',
         },
       },
+      hasTertiaryPickup: 'true',
+      tertiaryPickup: {
+        address: {
+          streetAddress1: '333 E Barrel Hoop Circle',
+          streetAddress2: '#2A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78212',
+        },
+      },
       destination: {
         address: {
           streetAddress1: '444 W Block Hoop Circle',
@@ -530,6 +657,16 @@ describe('formatPpmShipmentForAPI', () => {
       },
       hasSecondaryDestination: 'true',
       secondaryDestination: {
+        address: {
+          streetAddress1: '444 W Block Hoop Circle',
+          streetAddress2: '#34A',
+          city: 'Corpus Christi',
+          state: 'TX',
+          postalCode: '78412',
+        },
+      },
+      hasTertiaryDestination: 'true',
+      tertiaryDestination: {
         address: {
           streetAddress1: '444 W Block Hoop Circle',
           streetAddress2: '#34A',
@@ -565,6 +702,12 @@ describe('formatPpmShipmentForAPI', () => {
 
     expect(ppmShipment.hasSecondaryPickupAddress).toEqual(true);
     expect(ppmShipment.hasSecondaryDestinationAddress).toEqual(true);
+
+    expect(ppmShipment.tertiaryPickupAddress).toEqual(formValues.tertiaryPickup.address);
+    expect(ppmShipment.tertiaryDestinationAddress).toEqual(formValues.tertiaryDestination.address);
+
+    expect(ppmShipment.hasTertiaryPickupAddress).toEqual(true);
+    expect(ppmShipment.hasTertiaryDestinationAddress).toEqual(true);
 
     expect(ppmShipment.estimatedWeight).toEqual(7500);
     expect(ppmShipment.proGearWeight).toEqual(1000);

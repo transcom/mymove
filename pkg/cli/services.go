@@ -39,6 +39,7 @@ func InitServiceFlags(flag *pflag.FlagSet) {
 	flag.Bool(ServeSupportFlag, false, "Enable the Support Service.")
 	flag.Bool(ServePrimeSimulatorFlag, false, "Enable the Prime Simulator Service.")
 	flag.Bool(ServeClientCollectorFlag, false, "Enable the Client Collector.")
+	flag.Bool(ServePPTASFlag, false, "Enable the PPTAS API Service.")
 }
 
 // CheckServices validates these lovely service flags
@@ -49,6 +50,7 @@ func CheckServices(v *viper.Viper) error {
 	ghcAPIEnabled := v.GetBool(ServeGHCFlag)
 	primeAPIEnabled := v.GetBool(ServePrimeFlag)
 	primeSimulatorEnabled := v.GetBool(ServePrimeSimulatorFlag)
+	pptasEnabled := v.GetBool(ServePPTASFlag)
 
 	// Oops none of the flags used
 	if (!adminEnabled) &&
@@ -56,7 +58,8 @@ func CheckServices(v *viper.Viper) error {
 		(!internalAPIEnabled) &&
 		(!ghcAPIEnabled) &&
 		(!primeAPIEnabled) &&
-		(!primeSimulatorEnabled) {
+		(!primeSimulatorEnabled) &&
+		(!pptasEnabled) {
 		return fmt.Errorf("no service was enabled")
 	}
 
