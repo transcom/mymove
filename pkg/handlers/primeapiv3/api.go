@@ -20,6 +20,7 @@ import (
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	shipmentaddressupdate "github.com/transcom/mymove/pkg/services/shipment_address_update"
 	signedcertification "github.com/transcom/mymove/pkg/services/signed_certification"
 )
 
@@ -92,6 +93,11 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primev3operations.Mymove
 	primeAPIV3.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		handlerConfig,
 		shipmentUpdater,
+	}
+
+	primeAPIV3.MtoShipmentUpdateShipmentDestinationAddressHandler = UpdateShipmentDestinationAddressHandler{
+		handlerConfig,
+		shipmentaddressupdate.NewShipmentAddressUpdateRequester(handlerConfig.HHGPlanner(), addressCreator, moveRouter),
 	}
 
 	return primeAPIV3
