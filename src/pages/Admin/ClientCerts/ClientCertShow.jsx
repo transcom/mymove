@@ -38,6 +38,7 @@ const ClientCertShow = (props) => {
         <BooleanField source="allowNavyOrdersRead" />
         <BooleanField source="allowNavyOrdersWrite" />
         <BooleanField source="allowPrime" />
+        <BooleanField source="allowPPTAS" label="Allow PPTAS" />
         <DateField source="createdAt" showTime addLabel />
         <DateField source="updatedAt" showTime addLabel />
       </SimpleShowLayout>
