@@ -65,7 +65,6 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"shipment_address_updates":     subScenarioShipmentAddressUpdates(appCtx),
 		"sit_address_updates":          subScenarioSITAddressUpdates(appCtx, userUploader),
 		"multiple_moves":               subScenarioMultipleMoves(appCtx),
-		"tget":                         subScenarioTGET(appCtx),
 	}
 }
 
