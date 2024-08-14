@@ -1053,7 +1053,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	sitEntryDate := time.Now()
+	sitEntryDate := time.Now().Add(time.Hour * 24)
 
 	type localSubtestData struct {
 		mto            models.Move

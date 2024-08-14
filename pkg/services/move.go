@@ -97,6 +97,7 @@ type SearchMovesParams struct {
 	DodID                 *string
 	Emplid                *string
 	CustomerName          *string
+	PaymentRequestCode    *string
 	DestinationPostalCode *string
 	OriginPostalCode      *string
 	Status                []string
@@ -107,7 +108,6 @@ type SearchMovesParams struct {
 	Order                 *string
 	PickupDate            *time.Time
 	DeliveryDate          *time.Time
-	MoveCreatedDate       *time.Time
 }
 
 type MoveCloseoutOfficeUpdater interface {
