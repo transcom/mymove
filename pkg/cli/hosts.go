@@ -20,6 +20,8 @@ const (
 	HTTPOrdersServerNameFlag string = "http-orders-server-name"
 	// HTTPPrimeServerNameFlag is the HTTP GHC Prime Server Name Flag
 	HTTPPrimeServerNameFlag string = "http-prime-server-name"
+	// HTTPPPTASServerNameFlag is the HTTP PPTAS Prime Server Name Flag
+	HTTPPPTASServerNameFlag string = "http-pptas-server-name"
 	// HTTPMyServerNameLocal is the HTTP My Server Name for Local
 	HTTPMyServerNameLocal string = "milmovelocal"
 	// HTTPOfficeServerNameLocal is the HTTP Office Server Name for Local
@@ -47,6 +49,7 @@ func InitHostFlags(flag *pflag.FlagSet) {
 	flag.String(HTTPAdminServerNameFlag, HTTPAdminServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPOrdersServerNameFlag, HTTPOrdersServerNameLocal, "Hostname according to environment.")
 	flag.String(HTTPPrimeServerNameFlag, HTTPPrimeServerNameLocal, "Hostname according to environment.")
+	flag.String(HTTPPPTASServerNameFlag, HTTPPrimeServerNameLocal, "Hostname according to environment.")
 }
 
 // CheckHosts validates the Hosts command line flags
@@ -58,6 +61,7 @@ func CheckHosts(v *viper.Viper) error {
 		HTTPAdminServerNameFlag,
 		HTTPOrdersServerNameFlag,
 		HTTPPrimeServerNameFlag,
+		HTTPPPTASServerNameFlag,
 	}
 
 	for _, c := range hostVars {

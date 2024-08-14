@@ -6,6 +6,7 @@ module.exports = (app) => {
   app.use(createProxyMiddleware('/admin', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/ghc', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/prime', { target: 'http://milmovelocal:8080/' }));
+  app.use(createProxyMiddleware('/pptas', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/support', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/testharness', { target: 'http://milmovelocal:8080/' }));
   app.use(createProxyMiddleware('/storage', { target: 'http://milmovelocal:8080/' }));
