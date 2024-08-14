@@ -47,7 +47,7 @@ import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { dateSelectionWeekendHolidayCheck } from 'shared/calendar';
+import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
 
 const blankAddress = {
   address: {
