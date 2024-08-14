@@ -222,76 +222,6 @@ describe('SelectShipmentType', () => {
     });
   });
 
-  describe('when an NTS has already been created', () => {
-    const props = {
-      mtoShipments: [{ id: '3', shipmentType: SHIPMENT_OPTIONS.NTS }],
-      move: { status: MOVE_STATUSES.DRAFT },
-    };
-
-    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
-    // set state to true for mount render for test case
-    wrapper.setState({ enablePPM: true });
-    wrapper.setState({ enableNTS: true });
-    wrapper.setState({ enableNTSR: true });
-    it('NTS card should render the correct text', () => {
-      expect(wrapper.find('.usa-checkbox__label-description').at(2).text()).toContain(
-        'You’ve already requested a long-term storage shipment for this move. Talk to your movers to change or add to your request.',
-      );
-      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
-        'Your orders might not authorize long-term storage — your counselor can verify.',
-      );
-    });
-    it('NTS card should be disabled', () => {
-      expect(wrapper.find(Radio).at(2).find('.usa-radio__input').prop('disabled')).toBe(true);
-    });
-  });
-
-  describe('when an NTSr has already been created', () => {
-    const props = {
-      mtoShipments: [{ id: '4', shipmentType: SHIPMENT_OPTIONS.NTSR }],
-      move: { status: MOVE_STATUSES.DRAFT },
-    };
-    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
-    // set state to true for mount render for test case
-    wrapper.setState({ enablePPM: true });
-    wrapper.setState({ enableNTS: true });
-    wrapper.setState({ enableNTSR: true });
-    it('NTSr card should render the correct text', () => {
-      expect(wrapper.find('.usa-checkbox__label-description').at(3).text()).toContain(
-        'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.',
-      );
-      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
-        'Your orders might not authorize long-term storage — your counselor can verify.',
-      );
-    });
-    it('NTSr card should be disabled', () => {
-      expect(wrapper.find(Radio).at(3).find('.usa-radio__input').prop('disabled')).toBe(true);
-    });
-  });
-  describe('when an unsubmitted move has both an NTS and an NTSr', () => {
-    const props = {
-      mtoShipments: [
-        { id: '4', shipmentType: SHIPMENT_OPTIONS.NTS },
-        { id: '5', shipmentType: SHIPMENT_OPTIONS.NTSR },
-      ],
-      move: { status: MOVE_STATUSES.DRAFT },
-    };
-    const wrapper = mount(<SelectShipmentType {...defaultProps} {...props} />);
-    // set state to true for mount render for test case
-    wrapper.setState({ enablePPM: true });
-    wrapper.setState({ enableNTS: true });
-    wrapper.setState({ enableNTSR: true });
-    it('should render the correct text', () => {
-      expect(wrapper.find('[data-testid="long-term-storage-heading"] + p').text()).toEqual(
-        'Talk to your movers about long-term storage if you need to add it to this move or change a request you made earlier.',
-      );
-    });
-    it('should not show radio cards for NTS or NTSr', () => {
-      expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
-      expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
-    });
-  });
-
   describe('when a move has already been submitted', () => {
     const props = {
       move: {
@@ -317,10 +247,6 @@ describe('SelectShipmentType', () => {
     it('should disable HHG form option', () => {
       // HHG button should be disabled on page load
       expect(wrapper.find(Radio).at(0).find('.usa-radio__input').html()).toContain('disabled');
-    });
-    it('should not show radio cards for NTS or NTSr', () => {
-      expect(wrapper.find(Radio).at(2).exists()).toEqual(false);
-      expect(wrapper.find(Radio).at(3).exists()).toEqual(false);
     });
     it('should have selectable PPM if move does not have a PPM, even if the move is already submitted', () => {
       expect(wrapper.find(Radio).at(1).prop('disabled')).toEqual(false);

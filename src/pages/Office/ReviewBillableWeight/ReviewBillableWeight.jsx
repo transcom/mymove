@@ -93,7 +93,8 @@ export default function ReviewBillableWeight() {
     });
   };
 
-  const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
+  const selectedShipment =
+    filteredShipments && filteredShipments.length > 0 ? filteredShipments[selectedShipmentIndex] : {};
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
@@ -197,12 +198,14 @@ export default function ReviewBillableWeight() {
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
+  const fileList = getAllFiles();
+
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        <DocumentViewer files={getAllFiles()} />
+        {fileList.length > 0 ? <DocumentViewer files={fileList} /> : <h2>No documents provided</h2>}
       </div>
-      <div className={styles.sidebar}>
+      <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
         {sidebarType === 'MAX' ? (
           <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
             <DocumentViewerSidebar.Content>
