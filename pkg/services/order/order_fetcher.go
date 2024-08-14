@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // Since timestamps in a postgres DB are stored with at the microsecond precision, we want to ensure that we are checking all timestamps up until that point to prevent moves from not showing up
@@ -30,22 +31,23 @@ type QueryOption func(*pop.Query)
 
 func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
 	var moves []models.Move
-	var transportationOffice models.TransportationOffice
-	// select the GBLOC associated with the transportation office of the session's current office user
-	err := appCtx.DB().Q().
-		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-		Where("office_users.id = ?", officeUserID).First(&transportationOffice)
 
-	if err != nil {
-		return []models.Move{}, 0, err
+	var officeUserGbloc string
+	if params.ViewAsGBLOC != nil {
+		officeUserGbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		officeUserGbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return []models.Move{}, 0, gblocErr
+		}
 	}
 
 	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
 	if err != nil {
 		appCtx.Logger().Error("Error retreiving user privileges", zap.Error(err))
 	}
-
-	officeUserGbloc := transportationOffice.Gbloc
 
 	// Alright let's build our query based on the filters we got from the handler. These use the FilterOption type above.
 	// Essentially these are private functions that return query objects that we can mash together to form a complete
@@ -102,6 +104,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	lastNameQuery := lastNameFilter(params.LastName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
@@ -115,7 +118,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [16]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
+	options := [17]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -506,6 +509,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	}
 }
 
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
+		}
+	}
+}
+
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
@@ -662,6 +673,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 	parameters := map[string]string{
 		"lastName":                "service_members.last_name",
 		"dodID":                   "service_members.edipi",
+		"emplid":                  "service_members.emplid",
 		"branch":                  "service_members.affiliation",
 		"locator":                 "moves.locator",
 		"status":                  "moves.status",

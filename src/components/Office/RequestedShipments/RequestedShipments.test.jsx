@@ -287,6 +287,60 @@ describe('RequestedShipments', () => {
       ]);
     });
 
+    it('only calls onSubmit once in the case of multiple button clicks', async () => {
+      const mockOnSubmit = jest.fn((id, eTag) => {
+        return new Promise((resolve) => {
+          resolve({ response: { status: 200, body: { id, eTag } } });
+        });
+      });
+
+      const { container } = render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <SubmittedRequestedShipments
+            mtoShipments={shipments}
+            ordersInfo={ordersInfo}
+            allowancesInfo={allowancesInfo}
+            customerInfo={customerInfo}
+            moveTaskOrder={moveTaskOrder}
+            approveMTO={mockOnSubmit}
+            moveCode="TE5TC0DE"
+          />
+        </MockProviders>,
+      );
+
+      await userEvent.click(screen.getByRole('button', { name: 'Approve selected' }));
+
+      const shipmentInput = container.querySelector('input[name="shipments"]');
+      await userEvent.type(shipmentInput, 'ce01a5b8-9b44-4511-8a8d-edb60f2a4aee');
+
+      const shipmentManagementFeeInput = screen.getByRole('checkbox', { name: 'Move management' });
+      await userEvent.click(shipmentManagementFeeInput);
+
+      const counselingFeeInput = screen.getByRole('checkbox', { name: 'Counseling' });
+      await userEvent.click(counselingFeeInput);
+
+      await userEvent.click(screen.getByText('Approve and send'));
+      await userEvent.click(screen.getByText('Approve and send'));
+      await userEvent.click(screen.getByText('Approve and send'));
+
+      expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      expect(mockOnSubmit.mock.calls[0]).toEqual([
+        {
+          moveTaskOrderID: moveTaskOrder.id,
+          ifMatchETag: moveTaskOrder.eTag,
+          mtoApprovalServiceItemCodes: {
+            serviceCodeCS: true,
+            serviceCodeMS: true,
+          },
+          normalize: false,
+        },
+        {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        },
+      ]);
+    });
+
     it('displays approved basic service items for approved shipments', () => {
       render(
         <ApprovedRequestedShipments

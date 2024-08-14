@@ -69,6 +69,9 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                   This also updates the final destination address for destination SIT service items in the shipment.
                   <br />
                   <br />
+                  This endpoint should be used for changing the destination address of HHG & NTSR shipments.
+                  <br />
+                  <br />
                   The address update will be automatically approved unless it changes any of the following:
                   <br />
                   <strong>

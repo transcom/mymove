@@ -26,6 +26,15 @@ type PaymentRequest struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// Reported code from syncada for the EDI error encountered
+	EdiErrorCode *string `json:"ediErrorCode,omitempty"`
+
+	// The reason the services counselor has excluded or rejected the item.
+	EdiErrorDescription *string `json:"ediErrorDescription,omitempty"`
+
+	// Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
+	EdiErrorType *string `json:"ediErrorType,omitempty"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
@@ -57,6 +66,10 @@ type PaymentRequest struct {
 	// Format: uuid
 	RecalculationOfPaymentRequestID *strfmt.UUID `json:"recalculationOfPaymentRequestID,omitempty"`
 
+	// received by gex at
+	// Format: date-time
+	ReceivedByGexAt *strfmt.DateTime `json:"receivedByGexAt,omitempty"`
+
 	// rejection reason
 	// Example: documentation was incomplete
 	RejectionReason *string `json:"rejectionReason,omitempty"`
@@ -64,6 +77,10 @@ type PaymentRequest struct {
 	// reviewed at
 	// Format: date-time
 	ReviewedAt *strfmt.DateTime `json:"reviewedAt,omitempty"`
+
+	// sent to gex at
+	// Format: date-time
+	SentToGexAt *strfmt.DateTime `json:"sentToGexAt,omitempty"`
 
 	// service items
 	ServiceItems PaymentServiceItems `json:"serviceItems,omitempty"`
@@ -100,7 +117,15 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateReceivedByGexAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateReviewedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSentToGexAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -202,12 +227,36 @@ func (m *PaymentRequest) validateRecalculationOfPaymentRequestID(formats strfmt.
 	return nil
 }
 
+func (m *PaymentRequest) validateReceivedByGexAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ReceivedByGexAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("receivedByGexAt", "body", "date-time", m.ReceivedByGexAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *PaymentRequest) validateReviewedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ReviewedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("reviewedAt", "body", "date-time", m.ReviewedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateSentToGexAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.SentToGexAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("sentToGexAt", "body", "date-time", m.SentToGexAt.String(), formats); err != nil {
 		return err
 	}
 

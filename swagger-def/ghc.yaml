@@ -59,6 +59,8 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '404':
           $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
         '412':
           $ref: '#/responses/PreconditionFailed'
         '422':
@@ -201,6 +203,12 @@ paths:
                 minLength: 10
                 maxLength: 10
                 x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
+                x-nullable: true
               branch:
                 description: Branch
                 type: string
@@ -213,7 +221,7 @@ paths:
               sort:
                 type: string
                 x-nullable: true
-                enum: [customerName, dodID, branch, personalEmail, telephone]
+                enum: [customerName, dodID, emplid, branch, personalEmail, telephone]
               order:
                 type: string
                 x-nullable: true
@@ -1780,6 +1788,45 @@ paths:
           $ref: '#/responses/ServerError'
       x-permissions:
         - update.shipment
+  /ppm-shipments/{ppmShipmentId}/ppm-sit:
+    patch:
+      summary: Updates a PPM shipment's SIT values
+      description: |
+        Updates a PPM shipment's SIT values
+      operationId: updatePPMSIT
+      tags:
+        - ppm
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - $ref: 'parameters/ppmShipmentId.yaml'
+        - in: header
+          name: If-Match
+          type: string
+          required: true
+        - in: body
+          name: body
+          schema:
+            $ref: 'definitions/PPMShipmentSIT.yaml'
+      responses:
+        '200':
+          description: Successfully finished PPM SIT update
+          schema:
+            $ref: 'definitions/PPMShipment.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
   /ppm-shipments/{ppmShipmentId}/closeout:
     parameters:
       - $ref: 'parameters/ppmShipmentId.yaml'
@@ -1824,6 +1871,60 @@ paths:
           description: Returns actual weight for the specified PPM shipment.
           schema:
             $ref: 'definitions/PPMActualWeight.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+  /ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost:
+    parameters:
+      - $ref: 'parameters/ppmShipmentId.yaml'
+      - in: path
+        format: string
+        description: location of sit
+        name: sitLocation
+        required: true
+        type: string
+        enum:
+          - ORIGIN
+          - DESTINATION
+      - in: query
+        format: date-time
+        description: Date entered into SIT
+        name: sitEntryDate
+        required: true
+        type: string
+      - in: query
+        format: date-time
+        description: Date departed SIT
+        name: sitDepartureDate
+        required: true
+        type: string
+      - in: query
+        description: Weight stored in SIT
+        name: weightStored
+        required: true
+        type: integer
+        minimum: 0
+    get:
+      summary: Get the SIT estimated cost for a PPM shipment
+      description: |
+        Calculates and returns the SIT estimated cost for the specified PPM shipment.
+      operationId: getPPMSITEstimatedCost
+      tags:
+        - ppm
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Calculates and returns the SIT estimated cost for the specified PPM shipment.
+          schema:
+            $ref: 'definitions/PPMSITEstimatedCost.yaml'
         '400':
           $ref: '#/responses/InvalidRequest'
         '403':
@@ -3087,6 +3188,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3122,6 +3224,10 @@ paths:
           name: dodID
           type: string
           description: filters to match the unique service member's DoD ID
+        - in: query
+          name: emplid
+          type: string
+          description: filters to match the unique service member's EMPLID
         - in: query
           name: requestedMoveDate
           type: string
@@ -3188,6 +3294,11 @@ paths:
             - WAITING_ON_CUSTOMER
             - NEEDS_CLOSEOUT
           description: filters the status of the PPM shipment
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3296,6 +3407,7 @@ paths:
             [
               lastName,
               dodID,
+              emplid,
               branch,
               locator,
               status,
@@ -3321,6 +3433,9 @@ paths:
           type: string
         - in: query
           name: dodID
+          type: string
+        - in: query
+          name: emplid
           type: string
         - in: query
           name: originDutyLocation
@@ -3355,6 +3470,11 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3364,9 +3484,6 @@ paths:
           $ref: '#/responses/PermissionDenied'
         '500':
           $ref: '#/responses/ServerError'
-      x-permissions:
-        - update.move
-        - create.serviceItem
   /queues/payment-requests:
     get:
       produces:
@@ -3381,7 +3498,7 @@ paths:
         - in: query
           name: sort
           type: string
-          enum: [lastName, locator, submittedAt, branch, status, dodID, age, originDutyLocation]
+          enum: [lastName, locator, submittedAt, branch, status, dodID, emplid, age, originDutyLocation]
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3414,6 +3531,9 @@ paths:
           name: dodID
           type: string
         - in: query
+          name: emplid
+          type: string
+        - in: query
           name: destinationDutyLocation
           type: string
         - in: query
@@ -3437,6 +3557,11 @@ paths:
           name: orderType
           type: string
           description: order type
+        - in: query
+          name: viewAsGBLOC
+          type: string
+          description: |
+            Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
       responses:
         '200':
           description: Successfully returned all moves matching the criteria
@@ -3479,6 +3604,12 @@ paths:
                 type: string
                 minLength: 10
                 maxLength: 10
+                x-nullable: true
+              emplid:
+                description: EMPLID
+                type: string
+                minLength: 7
+                maxLength: 7
                 x-nullable: true
               customerName:
                 description: Customer Name
@@ -3525,6 +3656,7 @@ paths:
                   [
                     customerName,
                     dodID,
+                    emplid,
                     branch,
                     locator,
                     status,
@@ -3662,6 +3794,30 @@ paths:
           description: Successfully retrieved transportation offices
           schema:
             $ref: '#/definitions/TransportationOffices'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+  /transportation-offices/gblocs:
+    get:
+      produces:
+        - application/json
+      summary: Returns a list of distinct GBLOCs that exist in the transportation offices table
+      description: Returns a list of distinct GBLOCs that exist in the transportation offices table
+      operationId: getTransportationOfficesGBLOCs
+      tags:
+        - transportationOffice
+      responses:
+        '200':
+          description: Successfully retrieved transportation offices
+          schema:
+            $ref: '#/definitions/GBLOCs'
         '400':
           $ref: '#/responses/InvalidRequest'
         '401':
@@ -4087,6 +4243,9 @@ definitions:
       cacValidated:
         type: boolean
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
   CreatedCustomer:
     type: object
     properties:
@@ -4203,6 +4362,11 @@ definitions:
         type: string
         example: John
         x-nullable: true
+      emplid:
+        type: string
+        example: '9485155'
+        maxLength: 7
+        x-nullable: true
       firstName:
         type: string
         example: John
@@ -4294,6 +4458,9 @@ definitions:
       dodID:
         type: string
         x-nullable: true
+      emplid:
+        type: string
+        x-nullable: true
       branch:
         type: string
       telephone:
@@ -4306,6 +4473,7 @@ definitions:
         format: x-email
         example: personalEmail@email.com
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        x-nullable: true
   Entitlements:
     properties:
       id:
@@ -4777,6 +4945,8 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
+      destinationDutyLocationGBLOC:
+        $ref: '#/definitions/GBLOC'
       originDutyLocation:
         $ref: 'definitions/DutyLocation.yaml'
       originDutyLocationGBLOC:
@@ -5296,6 +5466,26 @@ definitions:
       createdAt:
         format: date-time
         type: string
+      sentToGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      receivedByGexAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      ediErrorType:
+        description: Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5559,6 +5749,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -5687,6 +5891,18 @@ definitions:
         allOf:
           - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
+      sitEstimatedCost:
+        description: The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
+        format: cents
+        x-nullable: true
+        x-omitempty: false
   UpdateProGearWeightTicket:
     type: object
     properties:
@@ -5764,6 +5980,38 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
       destinationType:
         $ref: 'definitions/DestinationType.yaml'
       shipmentType:
@@ -5792,11 +6040,16 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
+      mobileHome:
+        $ref: '#/definitions/CreateMobileHome'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
       - shipmentType
+  CreateMobileHome:
+    description: A mobile home shipment that the prime moves for a service member.
+    $ref: 'definitions/MobileHome.yaml'
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -6012,6 +6265,21 @@ definitions:
       eTag:
         type: string
     type: object
+  AvailableOfficeUsers:
+    type: array
+    items:
+      $ref: '#/definitions/AvailableOfficeUser'
+  AvailableOfficeUser:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      fullName:
+        type: string
+      hasSafetyPrivilege:
+        type: boolean
   QueueMoves:
     type: array
     items:
@@ -6089,6 +6357,8 @@ definitions:
         type: integer
       queueMoves:
         $ref: '#/definitions/QueueMoves'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   ListPrimeMove:
     description: >
       An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to
@@ -6202,6 +6472,8 @@ definitions:
         type: integer
       queuePaymentRequests:
         $ref: '#/definitions/QueuePaymentRequests'
+      availableOfficeUsers:
+        $ref: '#/definitions/AvailableOfficeUsers'
   QueuePaymentRequestStatus:
     enum:
       - Payment requested
@@ -6273,6 +6545,9 @@ definitions:
       lockExpiresAt:
         type: string
         format: date-time
+        x-nullable: true
+      emplid:
+        type: string
         x-nullable: true
   SearchMovesResult:
     type: object
@@ -6580,6 +6855,10 @@ definitions:
     type: array
     items:
       $ref: 'definitions/TransportationOffice.yaml'
+  GBLOCs:
+    type: array
+    items:
+      type: string
   MovePayload:
     type: object
     properties:

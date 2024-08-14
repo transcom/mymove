@@ -283,7 +283,9 @@ const MoveDetails = ({
 
   const customerInfo = {
     name: formattedCustomerName(customer.last_name, customer.first_name, customer.suffix, customer.middle_name),
+    agency: customer.agency,
     dodId: customer.dodID,
+    emplid: customer.emplid,
     phone: customer.phone,
     altPhone: customer.secondaryTelephone,
     email: customer.email,
@@ -379,8 +381,14 @@ const MoveDetails = ({
           </Grid>
           {!isMoveLocked && (
             <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
-                <option value="">Add a new shipment</option>
+              <ButtonDropdown
+                ariaLabel="Add a new shipment"
+                data-testid="addShipmentButton"
+                onChange={handleButtonDropdownChange}
+              >
+                <option value="" label="Add a new shipment">
+                  Add a new shipment
+                </option>
                 <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
                   HHG
                 </option>

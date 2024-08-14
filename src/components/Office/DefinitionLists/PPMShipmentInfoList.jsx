@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -17,6 +17,7 @@ import affiliation from 'content/serviceMemberAgencies';
 import { permissionTypes } from 'constants/permissions';
 import Restricted from 'components/Restricted/Restricted';
 import { downloadPPMAOAPacket, downloadPPMPaymentPacket } from 'services/ghcApi';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const PPMShipmentInfoList = ({
   className,
@@ -41,6 +42,8 @@ const PPMShipmentInfoList = ({
     proGearWeight,
     secondaryDestinationAddress,
     secondaryPickupAddress,
+    tertiaryDestinationAddress,
+    tertiaryPickupAddress,
     sitExpected,
     spouseProGearWeight,
   } = shipment.ppmShipment || {};
@@ -70,6 +73,14 @@ const PPMShipmentInfoList = ({
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, ppmShipmentInfo);
 
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
+    };
+    if (!isForEvaluationReport) fetchData();
+  }, [isForEvaluationReport]);
+
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
@@ -87,7 +98,7 @@ const PPMShipmentInfoList = ({
   const pickupAddressElementFlags = getDisplayFlags('pickupAddress');
   const pickupAddressElement = (
     <div className={pickupAddressElementFlags.classes}>
-      <dt>Pickup Address</dt>
+      <dt>Pickup address</dt>
       <dd data-testid="pickupAddress">{pickupAddress ? formatAddress(pickupAddress) : '-'}</dd>
     </div>
   );
@@ -95,17 +106,25 @@ const PPMShipmentInfoList = ({
   const secondaryPickupAddressElementFlags = getDisplayFlags('secondaryPickupAddress');
   const secondaryPickupAddressElement = (
     <div className={secondaryPickupAddressElementFlags.classes}>
-      <dt>Secondary Pickup Address</dt>
+      <dt>Second pickup address</dt>
       <dd data-testid="secondaryPickupAddress">
         {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
     </div>
   );
 
+  const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
+  const tertiaryPickupAddressElement = (
+    <div className={tertiaryPickupAddressElementFlags.classes}>
+      <dt>Third pickup address</dt>
+      <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
+    </div>
+  );
+
   const destinationAddressElementFlags = getDisplayFlags('destinationAddress');
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
-      <dt>Destination Address</dt>
+      <dt>Destination address</dt>
       <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '-'}</dd>
     </div>
   );
@@ -113,9 +132,19 @@ const PPMShipmentInfoList = ({
   const secondaryDestinationAddressElementFlags = getDisplayFlags('secondaryDestinationAddress');
   const secondaryDestinationAddressElement = (
     <div className={secondaryDestinationAddressElementFlags.classes}>
-      <dt>Secondary Destination Address</dt>
+      <dt>Second destination address</dt>
       <dd data-testid="secondaryDestinationAddress">
         {secondaryDestinationAddress ? formatAddress(secondaryDestinationAddress) : '—'}
+      </dd>
+    </div>
+  );
+
+  const tertiaryDestinationAddressElementFlags = getDisplayFlags('tertiaryDestinationAddress');
+  const tertiaryDestinationAddressElement = (
+    <div className={tertiaryDestinationAddressElementFlags.classes}>
+      <dt>Third destination address</dt>
+      <dd data-testid="tertiaryDestinationAddress">
+        {tertiaryDestinationAddress ? formatAddress(tertiaryDestinationAddress) : '—'}
       </dd>
     </div>
   );
@@ -243,8 +272,10 @@ const PPMShipmentInfoList = ({
       {expectedDepartureDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
       {destinationAddressElement}
       {secondaryDestinationAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryDestinationAddressElement : null}
       <Restricted to={permissionTypes.viewCloseoutOffice}>{closeoutOfficeElement}</Restricted>
       {sitPlannedElement}
       {estimatedWeightElement}
@@ -253,7 +284,8 @@ const PPMShipmentInfoList = ({
       {showElement(estimatedIncentiveElementFlags) && estimatedIncentiveElement}
       {hasRequestedAdvanceElement}
       {hasRequestedAdvance === true && advanceStatusElement}
-      {advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && aoaPacketElement}
+      {(advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue || advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) &&
+        aoaPacketElement}
       {status === ppmShipmentStatuses.CLOSEOUT_COMPLETE && paymentPacketElement}
       {counselorRemarksElement}
     </dl>

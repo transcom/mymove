@@ -21,6 +21,7 @@ type paymentRequestListFetcher struct {
 var parameters = map[string]string{
 	"lastName":           "service_members.last_name",
 	"dodID":              "service_members.edipi",
+	"emplid":             "service_members.emplid",
 	"submittedAt":        "payment_requests.created_at",
 	"branch":             "service_members.affiliation",
 	"locator":            "moves.locator",
@@ -39,10 +40,16 @@ type QueryOption func(*pop.Query)
 
 // FetchPaymentRequestList returns a list of payment requests
 func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.FetchPaymentRequestListParams) (*models.PaymentRequests, int, error) {
-	gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-	gbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
-	if gblocErr != nil {
-		return &models.PaymentRequests{}, 0, gblocErr
+	var gbloc string
+	if params.ViewAsGBLOC != nil {
+		gbloc = *params.ViewAsGBLOC
+	} else {
+		var gblocErr error
+		gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
+		gbloc, gblocErr = gblocFetcher.FetchGblocForOfficeUser(appCtx, officeUserID)
+		if gblocErr != nil {
+			return &models.PaymentRequests{}, 0, gblocErr
+		}
 	}
 
 	privileges, err := models.FetchPrivilegesForUser(appCtx.DB(), appCtx.Session().UserID)
@@ -84,6 +91,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	}
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
+	emplidQuery := emplidFilter(params.Emplid)
 	lastNameQuery := lastNameFilter(params.LastName)
 	dutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	statusQuery := paymentRequestsStatusFilter(params.Status)
@@ -91,7 +99,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestList(appCtx appcontext.Ap
 	originDutyLocationQuery := dutyLocationFilter(params.OriginDutyLocation)
 	orderQuery := sortOrder(params.Sort, params.Order)
 
-	options := [10]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery}
+	options := [11]QueryOption{branchQuery, locatorQuery, dodIDQuery, lastNameQuery, dutyLocationQuery, statusQuery, originDutyLocationQuery, submittedAtQuery, gblocQuery, orderQuery, emplidQuery}
 
 	for _, option := range options {
 		if option != nil {
@@ -183,9 +191,42 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		for j := range paymentRequests[i].ProofOfServiceDocs {
 			paymentRequests[i].ProofOfServiceDocs[j].PrimeUploads = paymentRequests[i].ProofOfServiceDocs[j].PrimeUploads.FilterDeleted()
 		}
+
+		mostRecentEdiErrorForPaymentRequest, errFetchingEdiError := fetchEDIErrorsForPaymentRequest(appCtx, &paymentRequests[i])
+		if errFetchingEdiError != nil {
+			return nil, errFetchingEdiError
+		}
+		paymentRequests[i].EdiErrors = append(paymentRequests[i].EdiErrors, mostRecentEdiErrorForPaymentRequest)
 	}
 
 	return &paymentRequests, nil
+}
+
+// fetchEDIErrorsForPaymentRequest returns the edi_error with the most recent created_at date for a payment request
+func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.EdiError, error) {
+
+	// find any associated errors in the edi_errors table from processing the EDI 858, 824, or 997
+	var ediError []models.EdiError
+	ediErrorInfo := models.EdiError{}
+
+	// regardless of PR status, find any associated edi_errors
+	// 997s could have edi_errors logged but not have a status of EDI_ERROR
+	err := appCtx.DB().Q().
+		Where("edi_errors.payment_request_id = $1", pr.ID).
+		Order("created_at DESC").
+		All(&ediError)
+
+	if err != nil {
+		return ediErrorInfo, err
+	} else if len(ediError) == 0 {
+		return ediErrorInfo, nil
+	}
+	if len(ediError) > 0 {
+		// since we ordered by created_at desc, the first result will be the most recent error we want to grab
+		ediErrorInfo = ediError[0]
+	}
+
+	return ediErrorInfo, nil
 }
 
 func orderName(query *pop.Query, order *string) *pop.Query {
@@ -254,6 +295,14 @@ func dodIDFilter(dodID *string) QueryOption {
 	}
 }
 
+func emplidFilter(emplid *string) QueryOption {
+	return func(query *pop.Query) {
+		if emplid != nil {
+			query.Where("service_members.emplid = ?", emplid)
+		}
+	}
+}
+
 func locatorFilter(locator *string) QueryOption {
 	return func(query *pop.Query) {
 		if locator != nil {
@@ -300,7 +349,7 @@ func paymentRequestsStatusFilter(statuses []string) QueryOption {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewed.String(),
 						models.PaymentRequestStatusSentToGex.String(),
-						models.PaymentRequestStatusReceivedByGex.String())
+						models.PaymentRequestStatusTppsReceived.String())
 				} else if strings.EqualFold(status, "Rejected") || strings.EqualFold(status, "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED") {
 					translatedStatuses = append(translatedStatuses,
 						models.PaymentRequestStatusReviewedAllRejected.String())

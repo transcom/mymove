@@ -366,6 +366,15 @@ func TransportationOffices(transportationOffices models.TransportationOffices) g
 	return payload
 }
 
+func GBLOCs(gblocs []string) ghcmessages.GBLOCs {
+	payload := make(ghcmessages.GBLOCs, len(gblocs))
+
+	for i, gbloc := range gblocs {
+		payload[i] = string(gbloc)
+	}
+	return payload
+}
+
 // MoveHistory payload
 func MoveHistory(logger *zap.Logger, moveHistory *models.MoveHistory) *ghcmessages.MoveHistory {
 	payload := &ghcmessages.MoveHistory{
@@ -494,6 +503,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 		PhoneIsPreferred:   swag.BoolValue(customer.PhoneIsPreferred),
 		EmailIsPreferred:   swag.BoolValue(customer.EmailIsPreferred),
 		CacValidated:       &customer.CacValidated,
+		Emplid:             customer.Emplid,
 	}
 	return &payload
 }
@@ -578,6 +588,7 @@ func Order(order *models.Order) *ghcmessages.Order {
 
 	payload := ghcmessages.Order{
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   ghcmessages.GBLOC(swag.StringValue(order.DestinationGBLOC)),
 		Entitlement:                    entitlements,
 		Grade:                          &grade,
 		OrderNumber:                    order.OrdersNumber,
@@ -855,6 +866,8 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		SitExpected:                    ppmShipment.SITExpected,
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
@@ -891,6 +904,14 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		payloadPPMShipment.SecondaryDestinationAddress = Address(ppmShipment.SecondaryDestinationAddress)
+	}
+
+	if ppmShipment.TertiaryPickupAddress != nil {
+		payloadPPMShipment.TertiaryPickupAddress = Address(ppmShipment.TertiaryPickupAddress)
+	}
+
+	if ppmShipment.TertiaryDestinationAddress != nil {
+		payloadPPMShipment.TertiaryDestinationAddress = Address(ppmShipment.TertiaryDestinationAddress)
 	}
 
 	return payloadPPMShipment
@@ -952,17 +973,18 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	}
 
 	payload := &ghcmessages.MovingExpense{
-		ID:             *handlers.FmtUUID(movingExpense.ID),
-		PpmShipmentID:  *handlers.FmtUUID(movingExpense.PPMShipmentID),
-		DocumentID:     *handlers.FmtUUID(movingExpense.DocumentID),
-		Document:       document,
-		CreatedAt:      strfmt.DateTime(movingExpense.CreatedAt),
-		UpdatedAt:      strfmt.DateTime(movingExpense.UpdatedAt),
-		Description:    movingExpense.Description,
-		PaidWithGtcc:   movingExpense.PaidWithGTCC,
-		Amount:         handlers.FmtCost(movingExpense.Amount),
-		MissingReceipt: movingExpense.MissingReceipt,
-		ETag:           etag.GenerateEtag(movingExpense.UpdatedAt),
+		ID:               *handlers.FmtUUID(movingExpense.ID),
+		PpmShipmentID:    *handlers.FmtUUID(movingExpense.PPMShipmentID),
+		DocumentID:       *handlers.FmtUUID(movingExpense.DocumentID),
+		Document:         document,
+		CreatedAt:        strfmt.DateTime(movingExpense.CreatedAt),
+		UpdatedAt:        strfmt.DateTime(movingExpense.UpdatedAt),
+		Description:      movingExpense.Description,
+		PaidWithGtcc:     movingExpense.PaidWithGTCC,
+		Amount:           handlers.FmtCost(movingExpense.Amount),
+		MissingReceipt:   movingExpense.MissingReceipt,
+		ETag:             etag.GenerateEtag(movingExpense.UpdatedAt),
+		SitEstimatedCost: handlers.FmtCost(movingExpense.SITEstimatedCost),
 	}
 	if movingExpense.MovingExpenseType != nil {
 		movingExpenseType := ghcmessages.OmittableMovingExpenseType(*movingExpense.MovingExpenseType)
@@ -994,6 +1016,10 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	if movingExpense.SITLocation != nil {
 		sitLocation := ghcmessages.SITLocationType(*movingExpense.SITLocation)
 		payload.SitLocation = &sitLocation
+	}
+
+	if movingExpense.SITReimburseableAmount != nil {
+		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
 	}
 
 	return payload
@@ -1133,6 +1159,46 @@ func PPMActualWeight(ppmActualWeight *unit.Pound) *ghcmessages.PPMActualWeight {
 	return payload
 }
 
+func PPMSITEstimatedCostParamsFirstDaySIT(ppmSITFirstDayParams models.PPMSITEstimatedCostParams) *ghcmessages.PPMSITEstimatedCostParamsFirstDaySIT {
+	payload := &ghcmessages.PPMSITEstimatedCostParamsFirstDaySIT{
+		ContractYearName:       ppmSITFirstDayParams.ContractYearName,
+		PriceRateOrFactor:      ppmSITFirstDayParams.PriceRateOrFactor,
+		IsPeak:                 ppmSITFirstDayParams.IsPeak,
+		EscalationCompounded:   ppmSITFirstDayParams.EscalationCompounded,
+		ServiceAreaOrigin:      &ppmSITFirstDayParams.ServiceAreaOrigin,
+		ServiceAreaDestination: &ppmSITFirstDayParams.ServiceAreaDestination,
+	}
+	return payload
+}
+
+func PPMSITEstimatedCostParamsAdditionalDaySIT(ppmSITAdditionalDayParams models.PPMSITEstimatedCostParams) *ghcmessages.PPMSITEstimatedCostParamsAdditionalDaySIT {
+	payload := &ghcmessages.PPMSITEstimatedCostParamsAdditionalDaySIT{
+		ContractYearName:       ppmSITAdditionalDayParams.ContractYearName,
+		PriceRateOrFactor:      ppmSITAdditionalDayParams.PriceRateOrFactor,
+		IsPeak:                 ppmSITAdditionalDayParams.IsPeak,
+		EscalationCompounded:   ppmSITAdditionalDayParams.EscalationCompounded,
+		ServiceAreaOrigin:      &ppmSITAdditionalDayParams.ServiceAreaOrigin,
+		ServiceAreaDestination: &ppmSITAdditionalDayParams.ServiceAreaDestination,
+		NumberDaysSIT:          &ppmSITAdditionalDayParams.NumberDaysSIT,
+	}
+	return payload
+}
+
+func PPMSITEstimatedCost(ppmSITEstimatedCost *models.PPMSITEstimatedCostInfo) *ghcmessages.PPMSITEstimatedCost {
+	if ppmSITEstimatedCost == nil {
+		return nil
+	}
+	payload := &ghcmessages.PPMSITEstimatedCost{
+		SitCost:                handlers.FmtCost(ppmSITEstimatedCost.EstimatedSITCost),
+		PriceFirstDaySIT:       handlers.FmtCost(ppmSITEstimatedCost.PriceFirstDaySIT),
+		PriceAdditionalDaySIT:  handlers.FmtCost(ppmSITEstimatedCost.PriceAdditionalDaySIT),
+		ParamsFirstDaySIT:      PPMSITEstimatedCostParamsFirstDaySIT(ppmSITEstimatedCost.ParamsFirstDaySIT),
+		ParamsAdditionalDaySIT: PPMSITEstimatedCostParamsAdditionalDaySIT(ppmSITEstimatedCost.ParamsAdditionalDaySIT),
+	}
+
+	return payload
+}
+
 // ShipmentAddressUpdate payload
 func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) *ghcmessages.ShipmentAddressUpdate {
 	if shipmentAddressUpdate == nil || shipmentAddressUpdate.ID.IsNil() {
@@ -1245,6 +1311,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		TertiaryDeliveryAddress:     Address(mtoShipment.TertiaryDeliveryAddress),
+		TertiaryPickupAddress:       Address(mtoShipment.TertiaryPickupAddress),
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
 		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		PrimeEstimatedWeight:        handlers.FmtPoundPtr(mtoShipment.PrimeEstimatedWeight),
@@ -1392,12 +1462,12 @@ func MTOAgents(mtoAgents *models.MTOAgents) *ghcmessages.MTOAgents {
 }
 
 // PaymentRequests payload
-func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*ghcmessages.PaymentRequests, error) {
+func PaymentRequests(appCtx appcontext.AppContext, prs *models.PaymentRequests, storer storage.FileStorer) (*ghcmessages.PaymentRequests, error) {
 	payload := make(ghcmessages.PaymentRequests, len(*prs))
 
 	for i, p := range *prs {
 		paymentRequest := p
-		pr, err := PaymentRequest(&paymentRequest, storer)
+		pr, err := PaymentRequest(appCtx, &paymentRequest, storer)
 		if err != nil {
 			return nil, err
 		}
@@ -1407,7 +1477,7 @@ func PaymentRequests(prs *models.PaymentRequests, storer storage.FileStorer) (*g
 }
 
 // PaymentRequest payload
-func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
+func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, storer storage.FileStorer) (*ghcmessages.PaymentRequest, error) {
 	serviceDocs := make(ghcmessages.ProofOfServiceDocs, len(pr.ProofOfServiceDocs))
 
 	if pr.ProofOfServiceDocs != nil && len(pr.ProofOfServiceDocs) > 0 {
@@ -1425,6 +1495,23 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		return nil, err
 	}
 
+	ediErrorInfoEDIType := ""
+	ediErrorInfoEDICode := ""
+	ediErrorInfoEDIDescription := ""
+	ediErrorInfo := pr.EdiErrors
+	if ediErrorInfo != nil {
+		mostRecentEdiError := ediErrorInfo[0]
+		if mostRecentEdiError.EDIType != "" {
+			ediErrorInfoEDIType = string(mostRecentEdiError.EDIType)
+		}
+		if mostRecentEdiError.Code != nil {
+			ediErrorInfoEDICode = *mostRecentEdiError.Code
+		}
+		if mostRecentEdiError.Description != nil {
+			ediErrorInfoEDIDescription = *mostRecentEdiError.Description
+		}
+	}
+
 	return &ghcmessages.PaymentRequest{
 		ID:                              *handlers.FmtUUID(pr.ID),
 		IsFinal:                         &pr.IsFinal,
@@ -1439,6 +1526,11 @@ func PaymentRequest(pr *models.PaymentRequest, storer storage.FileStorer) (*ghcm
 		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
 		ProofOfServiceDocs:              serviceDocs,
 		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
+		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
+		ReceivedByGexAt:                 (*strfmt.DateTime)(pr.ReceivedByGexAt),
+		EdiErrorType:                    &ediErrorInfoEDIType,
+		EdiErrorCode:                    &ediErrorInfoEDICode,
+		EdiErrorDescription:             &ediErrorInfoEDIDescription,
 	}, nil
 }
 
@@ -1807,6 +1899,22 @@ func queueIncludeShipmentStatus(status models.MTOShipmentStatus) bool {
 		status == models.MTOShipmentStatusCancellationRequested
 }
 
+func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.AvailableOfficeUsers {
+	availableOfficeUsers := make(ghcmessages.AvailableOfficeUsers, len(officeUsers))
+	for i, officeUser := range officeUsers {
+
+		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
+
+		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
+			FullName:           officeUser.LastName + ", " + officeUser.FirstName,
+			OfficeUserID:       *handlers.FmtUUID(officeUser.ID),
+			HasSafetyPrivilege: swag.BoolValue(&hasSafety),
+		}
+	}
+
+	return &availableOfficeUsers
+}
+
 // QueueMoves payload
 func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
@@ -1930,7 +2038,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 
 	// If a payment request is either reviewed, sent_to_gex or recieved_by_gex then we'll use 'reviewed'
 	if paymentRequest.Status == models.PaymentRequestStatusSentToGex ||
-		paymentRequest.Status == models.PaymentRequestStatusReceivedByGex ||
+		paymentRequest.Status == models.PaymentRequestStatusTppsReceived ||
 		paymentRequest.Status == models.PaymentRequestStatusReviewed {
 		return models.QueuePaymentRequestReviewed
 	}
@@ -2068,6 +2176,7 @@ func SearchMoves(appCtx appcontext.AppContext, moves models.Moves) *ghcmessages.
 			FirstName:                         customer.FirstName,
 			LastName:                          customer.LastName,
 			DodID:                             customer.Edipi,
+			Emplid:                            customer.Emplid,
 			Branch:                            customer.Affiliation.String(),
 			Status:                            ghcmessages.MoveStatus(move.Status),
 			ID:                                *handlers.FmtUUID(move.ID),
@@ -2130,9 +2239,10 @@ func SearchCustomers(customers models.ServiceMembers) *ghcmessages.SearchCustome
 			FirstName:     customer.FirstName,
 			LastName:      customer.LastName,
 			DodID:         customer.Edipi,
+			Emplid:        customer.Emplid,
 			Branch:        customer.Affiliation.String(),
 			ID:            *handlers.FmtUUID(customer.ID),
-			PersonalEmail: *customer.PersonalEmail,
+			PersonalEmail: customer.PersonalEmail,
 			Telephone:     customer.Telephone,
 		}
 	}

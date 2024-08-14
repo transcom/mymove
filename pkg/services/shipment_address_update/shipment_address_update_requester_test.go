@@ -189,6 +189,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		suite.NotNil(update)
 	})
 	suite.Run("Should not be able to update NTS shipment", func() {
+		move := setupTestData()
 		newAddress := models.Address{
 			StreetAddress1: "123 Any St",
 			City:           "Beverly Hills",
@@ -196,10 +197,39 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "90210",
 			Country:        models.StringPointer("United States"),
 		}
-		shipment := factory.BuildNTSShipment(suite.DB(), nil, nil)
+		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
 		suite.Nil(update)
+	})
+	suite.Run("Should be able to update NTSr shipment", func() {
+		move := setupTestData()
+		newAddress := models.Address{
+			StreetAddress1: "123 Any St",
+			City:           "Beverly Hills",
+			State:          "CA",
+			PostalCode:     "90210",
+			Country:        models.StringPointer("United States"),
+		}
+		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
+		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    storageFacility,
+				LinkOnly: true,
+			},
+		}, nil)
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		suite.NoError(err)
+		suite.NotNil(update)
 	})
 	suite.Run("Request destination address changes on the same shipment multiple times", func() {
 		move := setupTestData()

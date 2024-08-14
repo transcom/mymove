@@ -64,13 +64,14 @@ jest.mock('hooks/queries', () => ({
           {
             id: 'move2',
             customer: {
-              agency: 'MARINES',
+              agency: 'COAST_GUARD',
               first_name: 'test another first',
               last_name: 'test another last',
               dodID: '4444444444',
+              emplid: '4589652',
             },
             locator: 'T12A',
-            departmentIndicator: 'NAVY_AND_MARINES',
+            departmentIndicator: 'COAST_GUARD',
             shipmentsCount: 1,
             status: 'APPROVED',
             originDutyLocation: {
@@ -127,9 +128,10 @@ describe('MoveQueue', () => {
     const secondMove = moves.at(1);
     expect(secondMove.find({ 'data-testid': 'lastName-1' }).text()).toBe('test another last, test another first');
     expect(secondMove.find({ 'data-testid': 'dodID-1' }).text()).toBe('4444444444');
+    expect(secondMove.find({ 'data-testid': 'emplid-1' }).text()).toBe('4589652');
     expect(secondMove.find({ 'data-testid': 'status-1' }).text()).toBe('Move approved');
     expect(secondMove.find({ 'data-testid': 'locator-1' }).text()).toBe('T12A');
-    expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Marine Corps');
+    expect(secondMove.find({ 'data-testid': 'branch-1' }).text()).toBe('Coast Guard');
     expect(secondMove.find({ 'data-testid': 'shipmentsCount-1' }).text()).toBe('1');
     expect(secondMove.find({ 'data-testid': 'originDutyLocation-1' }).text()).toBe('Los Alamos');
     expect(secondMove.find({ 'data-testid': 'originGBLOC-1' }).text()).toBe('EEEE');

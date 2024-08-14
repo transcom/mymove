@@ -16,9 +16,13 @@ import (
 
 // UpdateMTOServiceItemModelType Using this list, choose the correct modelType in the dropdown, corresponding to the service item type.
 //   - DDDSIT - UpdateMTOServiceItemSIT
+//   - DDFSIT - UpdateMTOServiceItemSIT
+//   - DDASIT - UpdateMTOServiceItemSIT
 //   - DOPSIT - UpdateMTOServiceItemSIT
 //   - DOASIT - UpdateMTOServiceItemSIT
 //   - DOFSIT - UpdateMTOServiceItemSIT
+//   - DOSFSC - UpdateMTOServiceItemSIT
+//   - DDSFSC - UpdateMTOServiceItemSIT
 //   - DDSHUT - UpdateMTOServiceItemShuttle
 //   - DOSHUT - UpdateMTOServiceItemShuttle
 //

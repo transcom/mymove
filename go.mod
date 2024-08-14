@@ -17,7 +17,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/rds v1.78.2
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.58.2
 	github.com/aws/aws-sdk-go-v2/service/ses v1.22.7
-	github.com/aws/aws-sdk-go-v2/service/ssm v1.50.2
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.52.3
 	github.com/aws/aws-sdk-go-v2/service/sts v1.30.3
 	github.com/aws/smithy-go v1.20.3
 	github.com/benbjohnson/clock v1.3.5
@@ -93,7 +93,7 @@ require (
 	go.uber.org/zap v1.26.0
 	golang.org/x/crypto v0.25.0
 	golang.org/x/net v0.27.0
-	golang.org/x/oauth2 v0.20.0
+	golang.org/x/oauth2 v0.21.0
 	golang.org/x/text v0.16.0
 	golang.org/x/tools v0.23.0
 	google.golang.org/grpc v1.64.1

@@ -188,6 +188,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		PpmGetPPMDocumentsHandler: ppm.GetPPMDocumentsHandlerFunc(func(params ppm.GetPPMDocumentsParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.GetPPMDocuments has not yet been implemented")
 		}),
+		PpmGetPPMSITEstimatedCostHandler: ppm.GetPPMSITEstimatedCostHandlerFunc(func(params ppm.GetPPMSITEstimatedCostParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.GetPPMSITEstimatedCost has not yet been implemented")
+		}),
 		PwsViolationsGetPWSViolationsHandler: pws_violations.GetPWSViolationsHandlerFunc(func(params pws_violations.GetPWSViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation pws_violations.GetPWSViolations has not yet been implemented")
 		}),
@@ -220,6 +223,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		TransportationOfficeGetTransportationOfficesHandler: transportation_office.GetTransportationOfficesHandlerFunc(func(params transportation_office.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOffices has not yet been implemented")
+		}),
+		TransportationOfficeGetTransportationOfficesGBLOCsHandler: transportation_office.GetTransportationOfficesGBLOCsHandlerFunc(func(params transportation_office.GetTransportationOfficesGBLOCsParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesGBLOCs has not yet been implemented")
 		}),
 		TransportationOfficeGetTransportationOfficesOpenHandler: transportation_office.GetTransportationOfficesOpenHandlerFunc(func(params transportation_office.GetTransportationOfficesOpenParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
@@ -316,6 +322,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrderUpdateOrderHandler: order.UpdateOrderHandlerFunc(func(params order.UpdateOrderParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateOrder has not yet been implemented")
+		}),
+		PpmUpdatePPMSITHandler: ppm.UpdatePPMSITHandlerFunc(func(params ppm.UpdatePPMSITParams) middleware.Responder {
+			return middleware.NotImplemented("operation ppm.UpdatePPMSIT has not yet been implemented")
 		}),
 		PaymentRequestsUpdatePaymentRequestStatusHandler: payment_requests.UpdatePaymentRequestStatusHandlerFunc(func(params payment_requests.UpdatePaymentRequestStatusParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_requests.UpdatePaymentRequestStatus has not yet been implemented")
@@ -467,6 +476,8 @@ type MymoveAPI struct {
 	PpmGetPPMCloseoutHandler ppm.GetPPMCloseoutHandler
 	// PpmGetPPMDocumentsHandler sets the operation handler for the get p p m documents operation
 	PpmGetPPMDocumentsHandler ppm.GetPPMDocumentsHandler
+	// PpmGetPPMSITEstimatedCostHandler sets the operation handler for the get p p m s i t estimated cost operation
+	PpmGetPPMSITEstimatedCostHandler ppm.GetPPMSITEstimatedCostHandler
 	// PwsViolationsGetPWSViolationsHandler sets the operation handler for the get p w s violations operation
 	PwsViolationsGetPWSViolationsHandler pws_violations.GetPWSViolationsHandler
 	// ApplicationParametersGetParamHandler sets the operation handler for the get param operation
@@ -489,6 +500,8 @@ type MymoveAPI struct {
 	PaymentRequestsGetShipmentsPaymentSITBalanceHandler payment_requests.GetShipmentsPaymentSITBalanceHandler
 	// TransportationOfficeGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficeGetTransportationOfficesHandler transportation_office.GetTransportationOfficesHandler
+	// TransportationOfficeGetTransportationOfficesGBLOCsHandler sets the operation handler for the get transportation offices g b l o cs operation
+	TransportationOfficeGetTransportationOfficesGBLOCsHandler transportation_office.GetTransportationOfficesGBLOCsHandler
 	// TransportationOfficeGetTransportationOfficesOpenHandler sets the operation handler for the get transportation offices open operation
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -553,6 +566,8 @@ type MymoveAPI struct {
 	PpmUpdateMovingExpenseHandler ppm.UpdateMovingExpenseHandler
 	// OrderUpdateOrderHandler sets the operation handler for the update order operation
 	OrderUpdateOrderHandler order.UpdateOrderHandler
+	// PpmUpdatePPMSITHandler sets the operation handler for the update p p m s i t operation
+	PpmUpdatePPMSITHandler ppm.UpdatePPMSITHandler
 	// PaymentRequestsUpdatePaymentRequestStatusHandler sets the operation handler for the update payment request status operation
 	PaymentRequestsUpdatePaymentRequestStatusHandler payment_requests.UpdatePaymentRequestStatusHandler
 	// PaymentServiceItemUpdatePaymentServiceItemStatusHandler sets the operation handler for the update payment service item status operation
@@ -772,6 +787,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.PpmGetPPMDocumentsHandler == nil {
 		unregistered = append(unregistered, "ppm.GetPPMDocumentsHandler")
 	}
+	if o.PpmGetPPMSITEstimatedCostHandler == nil {
+		unregistered = append(unregistered, "ppm.GetPPMSITEstimatedCostHandler")
+	}
 	if o.PwsViolationsGetPWSViolationsHandler == nil {
 		unregistered = append(unregistered, "pws_violations.GetPWSViolationsHandler")
 	}
@@ -804,6 +822,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.TransportationOfficeGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesHandler")
+	}
+	if o.TransportationOfficeGetTransportationOfficesGBLOCsHandler == nil {
+		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesGBLOCsHandler")
 	}
 	if o.TransportationOfficeGetTransportationOfficesOpenHandler == nil {
 		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesOpenHandler")
@@ -900,6 +921,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderUpdateOrderHandler == nil {
 		unregistered = append(unregistered, "order.UpdateOrderHandler")
+	}
+	if o.PpmUpdatePPMSITHandler == nil {
+		unregistered = append(unregistered, "ppm.UpdatePPMSITHandler")
 	}
 	if o.PaymentRequestsUpdatePaymentRequestStatusHandler == nil {
 		unregistered = append(unregistered, "payment_requests.UpdatePaymentRequestStatusHandler")
@@ -1180,6 +1204,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost"] = ppm.NewGetPPMSITEstimatedCost(o.context, o.PpmGetPPMSITEstimatedCostHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/pws-violations"] = pws_violations.NewGetPWSViolations(o.context, o.PwsViolationsGetPWSViolationsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1221,6 +1249,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_office.NewGetTransportationOffices(o.context, o.TransportationOfficeGetTransportationOfficesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation-offices/gblocs"] = transportation_office.NewGetTransportationOfficesGBLOCs(o.context, o.TransportationOfficeGetTransportationOfficesGBLOCsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -1349,6 +1381,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{orderID}"] = order.NewUpdateOrder(o.context, o.OrderUpdateOrderHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/ppm-shipments/{ppmShipmentId}/ppm-sit"] = ppm.NewUpdatePPMSIT(o.context, o.PpmUpdatePPMSITHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

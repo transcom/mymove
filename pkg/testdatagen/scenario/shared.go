@@ -1549,7 +1549,8 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 	}, nil)
 
 	storageType := models.MovingExpenseReceiptTypeStorage
-
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -1572,6 +1573,8 @@ func createApprovedMoveWithPPMCloseoutCompleteWithExpenses(appCtx appcontext.App
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
 				SITStartDate:      models.TimePointer(time.Now()),
 				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -2052,6 +2055,8 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -2067,6 +2072,8 @@ func createApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext, info *
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
 				SITStartDate:      models.TimePointer(time.Now()),
 				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -5309,12 +5316,19 @@ func CreateMoveWithOptions(appCtx appcontext.AppContext, assertions testdatagen.
 
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: servicesCounseling,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -10165,12 +10179,19 @@ func CreateNeedsServicesCounseling(appCtx appcontext.AppContext, ordersType inte
 	ordersNumber := "8675309"
 	departmentIndicator := "ARMY"
 	tac := "E19A"
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -10262,12 +10283,19 @@ func CreateNeedsServicesCounselingWithAmendedOrders(appCtx appcontext.AppContext
 	ordersNumber := "8675309"
 	departmentIndicator := "ARMY"
 	tac := "E19A"
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -10325,12 +10353,19 @@ Create Needs Service Counseling without all required order information
 func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, shipmentType models.MTOShipmentType, destinationType *models.DestinationType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -10401,12 +10436,19 @@ func createNeedsServicesCounselingWithoutCompletedOrders(appCtx appcontext.AppCo
 func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string, dodID string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.ServiceMember{
@@ -10458,12 +10500,19 @@ func createUserWithLocatorAndDODID(appCtx appcontext.AppContext, locator string,
 func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -10513,12 +10562,19 @@ func createNeedsServicesCounselingSingleHHG(appCtx appcontext.AppContext, orders
 func CreateNeedsServicesCounselingMinimalNTSR(appCtx appcontext.AppContext, ordersType internalmessages.OrdersType, locator string) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -10569,12 +10625,20 @@ func createHHGNeedsServicesCounselingUSMC(appCtx appcontext.AppContext, userUplo
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
 
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Move{
@@ -10640,12 +10704,20 @@ func createHHGNeedsServicesCounselingUSMC2(appCtx appcontext.AppContext, userUpl
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
 
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Move{
@@ -10701,12 +10773,20 @@ func CreateHHGNeedsServicesCounselingUSMC3(appCtx appcontext.AppContext, userUpl
 	marineCorps := models.AffiliationMARINES
 	submittedAt := time.Now()
 
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Move{
@@ -10770,12 +10850,19 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	servicesCounselingCompletedAt := time.Now()
 	submittedAt := servicesCounselingCompletedAt.Add(-7 * 24 * time.Hour)
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	move := factory.BuildMove(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Move{
@@ -10803,12 +10890,19 @@ func createHHGServicesCounselingCompleted(appCtx appcontext.AppContext) {
 func createHHGNoShipments(appCtx appcontext.AppContext) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
@@ -11855,12 +11949,19 @@ func MakeSITExtensionsForShipment(appCtx appcontext.AppContext, shipment models.
 func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -11925,12 +12026,19 @@ func CreateMoveWithHHGAndNTSShipments(appCtx appcontext.AppContext, locator stri
 func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -11994,12 +12102,19 @@ func CreateMoveWithHHGAndNTSRShipments(appCtx appcontext.AppContext, locator str
 func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) models.Move {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12039,12 +12154,19 @@ func CreateMoveWithNTSShipment(appCtx appcontext.AppContext, locator string, use
 func createMoveWithNTSRShipment(appCtx appcontext.AppContext, locator string, usesExternalVendor bool) {
 	db := appCtx.DB()
 	submittedAt := time.Now()
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	orders := factory.BuildOrderWithoutDefaults(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
 			},
 			Type: &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12122,6 +12244,8 @@ func createRandomMove(
 	}
 
 	dutyLocationCount := len(allDutyLocations)
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	if orderTemplate.OriginDutyLocationID == nil {
 		// We can pick any origin duty location not only one in the office user's GBLOC
 		if *serviceMemberTemplate.Affiliation == models.AffiliationMARINES {
@@ -12259,6 +12383,8 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 			},
 		},
 	}, nil)
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
 	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.User{
@@ -12290,6 +12416,11 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
 	}, nil)
 
 	// Move A
@@ -12307,6 +12438,11 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12337,6 +12473,11 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
@@ -12374,6 +12515,11 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12463,6 +12609,11 @@ func createMultipleMovesTwoMovesHHGAndPPMShipments(appCtx appcontext.AppContext)
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
 			Model: models.Order{
 				OrdersType:          pcos,
 				OrdersTypeDetail:    &hhgPermitted,
@@ -12509,6 +12660,9 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 	oktaID := uuid.Must(uuid.NewV4())
 	email := "multiplemoves@HHG_PPM_NTS.com"
 
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12548,6 +12702,11 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
 	}, nil)
 
 	// Move A
@@ -12565,6 +12724,11 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12595,6 +12759,11 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
@@ -12632,6 +12801,11 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12698,6 +12872,11 @@ func createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx appcontext.AppContex
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
 			Model: models.Order{
 				OrdersType:          pcos,
 				OrdersTypeDetail:    &hhgPermitted,
@@ -12744,6 +12923,9 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 	oktaID := uuid.Must(uuid.NewV4())
 	email := "multiplemoves@NTS_HHG.com"
 
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -12783,6 +12965,11 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
 	}, nil)
 
 	// Move A
@@ -12800,6 +12987,11 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12830,6 +13022,11 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
@@ -12880,6 +13077,11 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -12970,6 +13172,11 @@ func createMultipleMovesThreeMovesNTSHHGShipments(appCtx appcontext.AppContext) 
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
 			Model: models.Order{
 				OrdersType:          pcos,
 				OrdersTypeDetail:    &hhgPermitted,
@@ -13040,6 +13247,9 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 	oktaID := uuid.Must(uuid.NewV4())
 	email := "multiplemoves@PPM.com"
 
+	newDutyLocation := factory.FetchOrBuildCurrentDutyLocation(db)
+	newDutyLocation.Address.PostalCode = "52549"
+
 	originDutyLocation := factory.BuildDutyLocation(db, []factory.Customization{
 		{
 			Model: models.DutyLocation{
@@ -13079,6 +13289,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
 	}, nil)
 
 	// Move A
@@ -13096,6 +13311,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 		{
 			Model: models.Order{
@@ -13126,6 +13346,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
@@ -13168,6 +13393,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
 			Model: models.Order{
 				OrdersType:          pcos,
 				OrdersTypeDetail:    &hhgPermitted,
@@ -13196,6 +13426,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
@@ -13238,6 +13473,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
+		},
+		{
 			Model: models.Order{
 				OrdersType:          pcos,
 				OrdersTypeDetail:    &hhgPermitted,
@@ -13266,6 +13506,11 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
+		},
+		{
+			Model:    newDutyLocation,
+			LinkOnly: true,
+			Type:     &factory.DutyLocations.NewDutyLocation,
 		},
 	}, nil)
 
