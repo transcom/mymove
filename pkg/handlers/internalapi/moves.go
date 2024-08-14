@@ -386,8 +386,7 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 				/** End of Feature Flag **/
 
 				/** Feature Flag - Mobile Home Shipment **/
-				// TODO: check if name change is necessary
-				featureFlagNameMH := "mobileHome"
+				featureFlagNameMH := "mobile_home"
 				isMobileHomeFeatureOn := false
 				flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
 				if err != nil {
