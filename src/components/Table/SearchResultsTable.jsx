@@ -379,10 +379,10 @@ const SearchResultsTable = (props) => {
     setParamFilters([]);
     const filtersToAdd = [];
     if (moveCode) {
-      filtersToAdd.push({ id: 'locator', value: moveCode });
+      filtersToAdd.push({ id: 'locator', value: moveCode.trim() });
     }
     if (dodID) {
-      filtersToAdd.push({ id: 'dodID', value: dodID });
+      filtersToAdd.push({ id: 'dodID', value: dodID.trim() });
     }
     if (customerName) {
       filtersToAdd.push({ id: 'customerName', value: customerName });

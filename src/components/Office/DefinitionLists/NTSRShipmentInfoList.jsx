@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -16,6 +16,8 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -31,6 +33,7 @@ const NTSRShipmentInfoList = ({
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
+    tertiaryDeliveryAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
@@ -47,6 +50,7 @@ const NTSRShipmentInfoList = ({
     sacType,
     tac,
     sac,
+    deliveryAddressUpdate,
   } = shipment;
 
   const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
@@ -57,6 +61,14 @@ const NTSRShipmentInfoList = ({
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
+    };
+    if (!isForEvaluationReport) fetchData();
+  }, [isForEvaluationReport]);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -184,7 +196,11 @@ const NTSRShipmentInfoList = ({
   const destinationAddressElement = (
     <div className={destinationAddressElementFlags.classes}>
       <dt>Delivery address</dt>
-      <dd data-testid="destinationAddress">{destinationAddress ? formatAddress(destinationAddress) : '—'}</dd>
+      <dd data-testid="destinationAddress">
+        {deliveryAddressUpdate?.status === ADDRESS_UPDATE_STATUS.REQUESTED
+          ? 'Review required'
+          : (destinationAddress && formatAddress(destinationAddress)) || '—'}
+      </dd>
     </div>
   );
 
@@ -202,6 +218,16 @@ const NTSRShipmentInfoList = ({
       <dt>Second delivery address</dt>
       <dd data-testid="secondaryDeliveryAddress">
         {secondaryDeliveryAddress ? formatAddress(secondaryDeliveryAddress) : '—'}
+      </dd>
+    </div>
+  );
+
+  const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
+  const tertiaryDeliveryAddressElement = (
+    <div className={tertiaryDeliveryAddressElementFlags.classes}>
+      <dt>Third delivery address</dt>
+      <dd data-testid="tertiaryDeliveryAddress">
+        {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
       </dd>
     </div>
   );
@@ -264,6 +290,7 @@ const NTSRShipmentInfoList = ({
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
+      {isExpanded && isTertiaryAddressEnabled ? tertiaryDeliveryAddressElement : null}
       {showElement(receivingAgentFlags) && receivingAgentElement}
       {isExpanded && customerRemarksElement}
       {showElement(counselorRemarksElementFlags) && counselorRemarksElement}

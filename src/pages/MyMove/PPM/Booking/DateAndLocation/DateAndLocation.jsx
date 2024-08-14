@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
@@ -26,8 +26,12 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   const [errorMessage, setErrorMessage] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
-  const { moveId, shipmentNumber } = useParams();
+  const { moveId } = useParams();
   const dispatch = useDispatch();
+
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const shipmentNumber = searchParams.get('shipmentNumber');
 
   const includeCloseoutOffice =
     serviceMember.affiliation === SERVICE_MEMBER_AGENCIES.ARMY ||

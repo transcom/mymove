@@ -77,9 +77,18 @@ export const SHIPMENT_OPTIONS = {
   PPM: 'PPM',
   NTS: 'HHG_INTO_NTS_DOMESTIC',
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
-  BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
-  BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
+  BOAT: 'BOAT',
   MOTOR_HOME: 'MOTOR_HOME',
+};
+
+export const SHIPMENT_TYPES = {
+  HHG: 'HHG',
+  PPM: 'PPM',
+  NTS: 'HHG_INTO_NTS_DOMESTIC',
+  NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
+  BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
+  BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
+  MOBILE_HOME: 'MOBILE_HOME',
 };
 
 // These constants are used for forming URLs that have the shipment type in
@@ -89,6 +98,7 @@ export const SHIPMENT_OPTIONS_URL = {
   PPM: 'PPM',
   NTS: 'NTS',
   NTSrelease: 'NTSrelease',
+  BOAT: 'Boat',
 };
 
 export const LOA_TYPE = {
@@ -177,6 +187,7 @@ export const FEATURE_FLAG_KEYS = {
   PPM: 'ppm',
   NTS: 'nts',
   NTSR: 'ntsr',
+  BOAT: 'boat',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
