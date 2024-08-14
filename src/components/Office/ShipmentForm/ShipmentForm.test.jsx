@@ -959,7 +959,8 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
-
+      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
@@ -973,6 +974,8 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
     });
   });
 
