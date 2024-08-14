@@ -209,6 +209,7 @@ describe('NTSR Shipment Info', () => {
       expect(screen.queryByTestId('storageFacility')).toBeNull();
       expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
       expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
+      expect(screen.queryByTestId('tertiaryDeliveryAddress')).toBeNull();
       expect(screen.queryByTestId('receivingAgent')).toBeNull();
       expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
     });

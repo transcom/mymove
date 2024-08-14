@@ -164,7 +164,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
 			AvailableToPrimeAt: models.TimePointer(time.Now()),
-			ApprovedAt:         models.TimePointer(time.Now()),
 		}
 
 		customPickupAddress := models.Address{
@@ -253,7 +252,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check move
 		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
 		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
-		suite.Equal(customMove.ApprovedAt, mtoShipment.MoveTaskOrder.ApprovedAt)
 	})
 
 	suite.Run("Successful creation of custom MTOShipment with delivery details and other associated set relationships", func() {
@@ -278,7 +276,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			ID:                 uuid.FromStringOrNil("d4d95b22-2d9d-428b-9a11-284455aa87ba"),
 			Status:             models.MoveStatusAPPROVALSREQUESTED,
 			AvailableToPrimeAt: models.TimePointer(time.Now()),
-			ApprovedAt:         models.TimePointer(time.Now()),
 		}
 
 		customDeliveryAddress := models.Address{
@@ -344,7 +341,6 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check move
 		suite.Equal(customMove.Status, mtoShipment.MoveTaskOrder.Status)
 		suite.Equal(customMove.AvailableToPrimeAt, mtoShipment.MoveTaskOrder.AvailableToPrimeAt)
-		suite.Equal(customMove.ApprovedAt, mtoShipment.MoveTaskOrder.ApprovedAt)
 	})
 
 	suite.Run("Successful return of linkOnly mtoShipment", func() {

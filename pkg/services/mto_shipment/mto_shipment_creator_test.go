@@ -966,7 +966,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
-					ApprovedAt:         &currentTime,
 				},
 			},
 			{
@@ -1005,7 +1004,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
-					ApprovedAt:         &currentTime,
 				},
 			},
 			{
