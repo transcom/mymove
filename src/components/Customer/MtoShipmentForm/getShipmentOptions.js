@@ -81,7 +81,7 @@ function getShipmentOptions(shipmentType, userRole) {
           return {
             schema: ntsShipmentTOOSchema,
             showPickupFields: true,
-            showDeliveryFields: false,
+            showDeliveryFields: true,
           };
         }
 
@@ -115,7 +115,7 @@ function getShipmentOptions(shipmentType, userRole) {
         case roleTypes.TOO: {
           return {
             schema: ntsReleaseShipmentTOOSchema,
-            showPickupFields: false,
+            showPickupFields: true,
             showDeliveryFields: true,
           };
         }
