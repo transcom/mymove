@@ -73,7 +73,7 @@ export const ShipmentListItem = ({
       {/* use substring of the UUID until actual shipment code is available */}
       {!showShipmentWeight && !showIncomplete && (
         <span className={styles['shipment-code']}>#{shipment.shipmentLocator}</span>
-      )}{' '}
+      )}
       {showIncomplete && <Tag>Incomplete</Tag>}
       {showShipmentWeight && (
         <div className={styles.shipmentWeight}>
@@ -152,7 +152,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
-    const { shipmentType } = shipment;
+    const shipmentType = shipmentTypes[shipment?.shipmentType];
     if (shipmentCountByType[shipmentType]) {
       shipmentCountByType[shipmentType] += 1;
     } else {
@@ -163,7 +163,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
   return (
     <div>
       {shipments.map((shipment) => {
-        const { shipmentType } = shipment;
+        const shipmentType = shipmentTypes[shipment?.shipmentType];
         if (shipmentNumbersByType[shipmentType]) {
           shipmentNumbersByType[shipmentType] += 1;
         } else {
@@ -180,7 +180,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
           canEditOrDelete = false;
           showNumber = false;
           switch (shipmentType) {
-            case SHIPMENT_OPTIONS.NTSR:
+            case shipmentTypes[SHIPMENT_OPTIONS.NTSR]:
               // don't want “Over weight” or “Missing weight” warnings for NTSR
               break;
             default:
@@ -203,7 +203,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             isOverweight={isOverweight}
             showIncomplete={ppmIsIncomplete}
             isMissingWeight={isMissingWeight}
-            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
+            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipment?.shipmentType)}
             onDeleteClick={() => onDeleteClick(shipment.id)}
             shipment={shipment}
           />

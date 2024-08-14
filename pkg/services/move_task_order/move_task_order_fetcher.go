@@ -125,6 +125,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
+		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 		"ShipmentGBLOC",
@@ -238,6 +239,16 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		loadedServiceItems = append(loadedServiceItems, mto.MTOServiceItems[i])
 	}
 	mto.MTOServiceItems = loadedServiceItems
+
+	if mto.Orders.DestinationGBLOC == nil {
+		newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
+		if err != nil {
+			err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+			appCtx.Logger().Error(err.Error())
+			return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+		}
+		mto.Orders.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+	}
 
 	return mto, nil
 }
@@ -382,10 +393,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	if searchParams.ID != nil {
 		query.Where("moves.id = ?", *searchParams.ID)
 	}
-	// if there is an error returned we will just return no moves
-	if err != nil {
-		return []models.Move{}, 0, err
-	}
 	// adding pagination and all moves returned with built query
 	// if there are no moves then it will return.. no moves
 	err = query.EagerPreload("Orders.OrdersType").Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
@@ -393,15 +400,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 		return []models.Move{}, 0, err
 	}
 	count = query.Paginator.TotalEntriesSize
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
-
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
 
 	return moveTaskOrders, count, nil
 }

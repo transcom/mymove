@@ -26,6 +26,15 @@ type PaymentRequest struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
+	// Reported code from syncada for the EDI error encountered
+	EdiErrorCode *string `json:"ediErrorCode,omitempty"`
+
+	// The reason the services counselor has excluded or rejected the item.
+	EdiErrorDescription *string `json:"ediErrorDescription,omitempty"`
+
+	// Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
+	EdiErrorType *string `json:"ediErrorType,omitempty"`
+
 	// id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Read Only: true
@@ -56,6 +65,10 @@ type PaymentRequest struct {
 	// Read Only: true
 	// Format: uuid
 	RecalculationOfPaymentRequestID *strfmt.UUID `json:"recalculationOfPaymentRequestID,omitempty"`
+
+	// received by gex at
+	// Format: date-time
+	ReceivedByGexAt *strfmt.DateTime `json:"receivedByGexAt,omitempty"`
 
 	// rejection reason
 	// Example: documentation was incomplete
@@ -101,6 +114,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateRecalculationOfPaymentRequestID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateReceivedByGexAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -204,6 +221,18 @@ func (m *PaymentRequest) validateRecalculationOfPaymentRequestID(formats strfmt.
 	}
 
 	if err := validate.FormatOf("recalculationOfPaymentRequestID", "body", "uuid", m.RecalculationOfPaymentRequestID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateReceivedByGexAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ReceivedByGexAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("receivedByGexAt", "body", "date-time", m.ReceivedByGexAt.String(), formats); err != nil {
 		return err
 	}
 

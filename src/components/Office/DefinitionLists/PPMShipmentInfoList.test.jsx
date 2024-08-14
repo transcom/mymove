@@ -65,7 +65,7 @@ describe('PPMShipmentInfoList', () => {
     expect(screen.getByText('Closeout office')).toBeInTheDocument();
   });
 
-  it('PPM Download AOA Paperwork - success', async () => {
+  it('PPM Download AOA Paperwork - success with Approved', async () => {
     const mockResponse = {
       ok: true,
       headers: {
@@ -77,6 +77,31 @@ describe('PPMShipmentInfoList', () => {
     downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
 
     renderWithPermissions({ ppmShipment: { advanceStatus: ADVANCE_STATUSES.APPROVED.apiValue } });
+
+    expect(screen.getByText('Download AOA Paperwork (PDF)', { exact: false })).toBeInTheDocument();
+
+    const downloadAOAButton = screen.getByText('Download AOA Paperwork (PDF)');
+    expect(downloadAOAButton).toBeInTheDocument();
+
+    await userEvent.click(downloadAOAButton);
+
+    await waitFor(() => {
+      expect(downloadPPMAOAPacket).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it('PPM Download AOA Paperwork - success with Edited', async () => {
+    const mockResponse = {
+      ok: true,
+      headers: {
+        'content-disposition': 'filename="test.pdf"',
+      },
+      status: 200,
+      data: null,
+    };
+    downloadPPMAOAPacket.mockImplementation(() => Promise.resolve(mockResponse));
+
+    renderWithPermissions({ ppmShipment: { advanceStatus: ADVANCE_STATUSES.EDITED.apiValue } });
 
     expect(screen.getByText('Download AOA Paperwork (PDF)', { exact: false })).toBeInTheDocument();
 
@@ -165,5 +190,21 @@ describe('PPMShipmentInfoList', () => {
       expect(downloadPPMPaymentPacket).toHaveBeenCalledTimes(1);
       expect(onErrorHandler).toHaveBeenCalledTimes(1);
     });
+  });
+
+  it('renders actual move date', () => {
+    renderWithPermissions({
+      ppmShipment: { expectedDepartureDate: '2024-07-20T09:48:21.573Z', actualMoveDate: '2024-07-22T09:48:21.573Z' },
+    });
+    expect(screen.getByTestId('actualDepartureDate')).toBeInTheDocument();
+    expect(screen.getByText('Actual Departure date')).toBeInTheDocument();
+    expect(screen.getByText('22 Jul 2024')).toBeInTheDocument();
+  });
+
+  it('renders estimated move date', () => {
+    renderWithPermissions({ ppmShipment: { expectedDepartureDate: '2024-07-20T09:48:21.573Z' } });
+    expect(screen.getByTestId('expectedDepartureDate')).toBeInTheDocument();
+    expect(screen.getByText('Estimated Departure date')).toBeInTheDocument();
+    expect(screen.getByText('20 Jul 2024')).toBeInTheDocument();
   });
 });

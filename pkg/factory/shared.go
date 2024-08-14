@@ -44,6 +44,7 @@ var AdditionalDocuments CustomType = "AdditionalDocuments"
 var AdminUser CustomType = "AdminUser"
 var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
+var BoatShipment CustomType = "BoatShipment"
 var ClientCert CustomType = "ClientCert"
 var Contractor CustomType = "Contractor"
 var CustomerSupportRemark CustomType = "CustomerSupportRemark"
@@ -102,6 +103,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.AdminUser":                                AdminUser,
 	"factory.TestDataAuditHistory":                    AuditHistory,
 	"models.BackupContact":                            BackupContact,
+	"models.BoatShipment":                             BoatShipment,
 	"models.ClientCert":                               ClientCert,
 	"models.Contractor":                               Contractor,
 	"models.CustomerSupportRemark":                    CustomerSupportRemark,

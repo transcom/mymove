@@ -8,6 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -175,6 +176,8 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 		contractor := factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 		packingAndShippingInstructions := m.InstructionsBeforeContractNumber + " " + contractor.ContractNumber + " " + m.InstructionsAfterContractNumber
 
+		newGBLOC, gblocErr := models.FetchGBLOCForPostalCode(suite.DB(), dutyLocation2.Address.PostalCode)
+		suite.NoError(gblocErr)
 		grade := m.ServiceMemberGradeE1
 		order := m.Order{
 			ServiceMemberID:                serviceMember.ID,
@@ -188,6 +191,7 @@ func (suite *ModelSuite) TestFetchLatestOrders() {
 			OriginDutyLocation:             &dutyLocation,
 			NewDutyLocationID:              dutyLocation2.ID,
 			NewDutyLocation:                dutyLocation2,
+			DestinationGBLOC:               &newGBLOC.GBLOC,
 			UploadedOrdersID:               uploadedOrder.ID,
 			UploadedOrders:                 uploadedOrder,
 			Status:                         m.OrderStatusSUBMITTED,

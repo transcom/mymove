@@ -54,6 +54,7 @@ export class Summary extends Component {
       enablePPM: true,
       enableNTS: true,
       enableNTSR: true,
+      enableBoat: true,
     };
   }
 
@@ -81,6 +82,11 @@ export class Summary extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then((enabled) => {
+      this.setState({
+        enableBoat: enabled,
       });
     });
   }
@@ -198,6 +204,7 @@ export class Summary extends Component {
             shipmentType={shipment.shipmentType}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            shipmentLocator={shipment.shipmentLocator}
           />
         );
       }
@@ -220,6 +227,7 @@ export class Summary extends Component {
             shipmentType={shipment.shipmentType}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            shipmentLocator={shipment.shipmentLocator}
           />
         );
       }
@@ -282,6 +290,7 @@ export class Summary extends Component {
       enablePPM,
       enableNTS,
       enableNTSR,
+      enableBoat,
     } = this.state;
 
     const { pathname } = router.location;
@@ -405,18 +414,20 @@ export class Summary extends Component {
         ) : (
           <p>Talk with your movers directly if you want to add or change shipments.</p>
         )}
-        {moveIsApproved && (
-          <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {currentDutyLocation.name}{' '}
+        {moveIsApproved && currentDutyLocation && (
+          <p>
+            *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}
             {officePhone ? ` at ${officePhone}` : ''}.
-          </div>
+          </p>
         )}
+        {moveIsApproved && !currentDutyLocation && <p>*To change these fields, contact your local PPPO office.</p>}
         <ConnectedAddShipmentModal
           isOpen={showModal}
           closeModal={this.toggleModal}
           enablePPM={enablePPM}
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}
+          enableBoat={enableBoat}
         />
       </>
     );
