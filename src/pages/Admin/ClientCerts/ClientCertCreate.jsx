@@ -35,6 +35,13 @@ const ClientCertCreate = (props) => (
         ]}
       />
       <SelectInput
+        source="allowPPTAS"
+        choices={[
+          { id: true, name: 'Yes' },
+          { id: false, name: 'No' },
+        ]}
+      />
+      <SelectInput
         source="allowOrdersAPI"
         choices={[
           { id: true, name: 'Yes' },
@@ -106,6 +113,7 @@ const ClientCertCreate = (props) => (
       />
       <SelectInput
         source="allowNavyOrdersWrite"
+        label="allow pptas"
         choices={[
           { id: true, name: 'Yes' },
           { id: false, name: 'No' },
