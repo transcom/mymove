@@ -691,7 +691,6 @@ func (suite *HandlerSuite) setupDomesticLinehaulData() (models.Move, models.MTOS
 			Model: models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: &availableToPrimeAt,
-				ApprovedAt:         &availableToPrimeAt,
 			},
 		},
 		{

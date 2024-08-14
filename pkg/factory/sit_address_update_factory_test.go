@@ -136,7 +136,6 @@ func (suite *FactorySuite) TestBuildSITAddressUpdate() {
 
 		suite.Equal(models.MoveStatusAPPROVED, sitAddressUpdate.MTOServiceItem.MoveTaskOrder.Status)
 		suite.NotNil(sitAddressUpdate.MTOServiceItem.MoveTaskOrder.AvailableToPrimeAt)
-		suite.NotNil(sitAddressUpdate.MTOServiceItem.MoveTaskOrder.ApprovedAt)
 
 		shipment := sitAddressUpdate.MTOServiceItem.MTOShipment
 		suite.Equal(unit.Pound(1400), *shipment.PrimeEstimatedWeight)

@@ -93,7 +93,6 @@ export const EmptyValues = () => (
           payGrade={ORDERS_PAY_GRADE_OPTIONS.E_1}
           payGradeOptions={payGradeOptions}
           hhgLongLineOfAccounting={longLineOfAccounting}
-          ntsLongLineOfAccounting={longLineOfAccounting}
         />
       </form>
     </Formik>
