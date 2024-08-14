@@ -1896,6 +1896,11 @@ func init() {
                   "description": "requested page of results",
                   "type": "integer"
                 },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
+                },
                 "perPage": {
                   "type": "integer"
                 },
@@ -11815,6 +11820,11 @@ func init() {
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
         },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
+        },
         "requestedDeliveryDate": {
           "type": "string",
           "format": "date",
@@ -15898,6 +15908,11 @@ func init() {
                 "page": {
                   "description": "requested page of results",
                   "type": "integer"
+                },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
                 },
                 "perPage": {
                   "type": "integer"
@@ -26855,6 +26870,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",
