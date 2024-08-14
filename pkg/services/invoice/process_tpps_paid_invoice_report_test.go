@@ -43,7 +43,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 
 			if tppsEntryIndex == 0 {
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
-				suite.Equal(tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
 				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DDP")
@@ -53,14 +53,14 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(2895000)) // 28.95
 				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-826285fc")
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "1")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
 			}
 			if tppsEntryIndex == 1 {
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
-				suite.Equal(tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
 				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "FSC")
@@ -70,15 +70,15 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(539000)) // 5.39
 				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-aeb3cfea")
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "4")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
 
 			}
 			if tppsEntryIndex == 2 {
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
-				suite.Equal(tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
 				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DLH")
@@ -88,15 +88,15 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(99877000)) // 998.77
 				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-c8ea170b")
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "2")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
 
 			}
 			if tppsEntryIndex == 3 {
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "1841-7267-3")
-				suite.Equal(tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(115155000)) // 1151.55
 				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DUPK")
@@ -106,15 +106,15 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(11844000)) // 118.44
 				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "1841-7267-265c16d7")
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "3")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50066")
 
 			}
 			if tppsEntryIndex == 4 {
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceNumber, "9436-4123-3")
-				suite.Equal(tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
+				suite.Equal(*tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate, time.Date(2024, time.July, 29, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].SellerPaidDate, time.Date(2024, time.July, 30, 0, 0, 0, 0, tppsEntries[tppsEntryIndex].TPPSCreatedDocumentDate.Location()))
 				suite.Equal(tppsEntries[tppsEntryIndex].InvoiceTotalChargesInMillicents, unit.Millicents(12525000)) // 125.25
 				suite.Equal(tppsEntries[tppsEntryIndex].LineDescription, "DDP")
@@ -124,23 +124,23 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNetCharge, unit.Millicents(12525000)) // 125.25
 				suite.Equal(tppsEntries[tppsEntryIndex].POTCN, "9436-4123-93761f93")
 				suite.Equal(tppsEntries[tppsEntryIndex].LineNumber, "1")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
-				suite.Equal(tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50057")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCode, "INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteDescription, "Notes to My Company - INT")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeTo, "CARR")
+				suite.Equal(*tppsEntries[tppsEntryIndex].FirstNoteCodeMessage, "HQ50057")
 
 			}
 			suite.NotNil(tppsEntries[tppsEntryIndex].ID)
 			suite.NotNil(tppsEntries[tppsEntryIndex].CreatedAt)
 			suite.NotNil(tppsEntries[tppsEntryIndex].UpdatedAt)
-			suite.Equal(tppsEntries[tppsEntryIndex].SecondNoteCode, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].SecondNoteDescription, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].SecondNoteCodeTo, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].SecondNoteCodeMessage, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].ThirdNoteCode, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].ThirdNoteDescription, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].ThirdNoteCodeTo, "")
-			suite.Equal(tppsEntries[tppsEntryIndex].ThirdNoteCodeMessage, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteCode, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteDescription, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteCodeTo, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].SecondNoteCodeMessage, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteCode, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteDescription, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteCodeTo, "")
+			suite.Equal(*tppsEntries[tppsEntryIndex].ThirdNoteCodeMessage, "")
 		}
 	})
 

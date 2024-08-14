@@ -169,7 +169,7 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 
 			tppsEntryModel := models.TPPSPaidInvoiceReportEntry{
 				InvoiceNumber:                   tppsEntry.InvoiceNumber,
-				TPPSCreatedDocumentDate:         timeOfTPPSCreatedDocumentDate,
+				TPPSCreatedDocumentDate:         &timeOfTPPSCreatedDocumentDate,
 				SellerPaidDate:                  timeOfSellerPaidDate,
 				InvoiceTotalChargesInMillicents: unit.Millicents(invoiceTotalChargesInMillicents),
 				LineDescription:                 tppsEntry.LineDescription,
@@ -179,18 +179,18 @@ func (t *tppsPaidInvoiceReportProcessor) StoreTPPSPaidInvoiceReportInDatabase(ap
 				LineNetCharge:                   unit.Millicents(lineNetChargeInMillicents),
 				POTCN:                           tppsEntry.POTCN,
 				LineNumber:                      tppsEntry.LineNumber,
-				FirstNoteCode:                   tppsEntry.FirstNoteCode,
-				FirstNoteDescription:            tppsEntry.FirstNoteCodeDescription,
-				FirstNoteCodeTo:                 tppsEntry.FirstNoteTo,
-				FirstNoteCodeMessage:            tppsEntry.FirstNoteMessage,
-				SecondNoteCode:                  tppsEntry.SecondNoteCode,
-				SecondNoteDescription:           tppsEntry.SecondNoteCodeDescription,
-				SecondNoteCodeTo:                tppsEntry.SecondNoteTo,
-				SecondNoteCodeMessage:           tppsEntry.SecondNoteMessage,
-				ThirdNoteCode:                   tppsEntry.ThirdNoteCode,
-				ThirdNoteDescription:            tppsEntry.ThirdNoteCodeDescription,
-				ThirdNoteCodeTo:                 tppsEntry.ThirdNoteTo,
-				ThirdNoteCodeMessage:            tppsEntry.ThirdNoteMessage,
+				FirstNoteCode:                   &tppsEntry.FirstNoteCode,             // #nosec G601
+				FirstNoteDescription:            &tppsEntry.FirstNoteCodeDescription,  // #nosec G601
+				FirstNoteCodeTo:                 &tppsEntry.FirstNoteTo,               // #nosec G601
+				FirstNoteCodeMessage:            &tppsEntry.FirstNoteMessage,          // #nosec G601
+				SecondNoteCode:                  &tppsEntry.SecondNoteCode,            // #nosec G601
+				SecondNoteDescription:           &tppsEntry.SecondNoteCodeDescription, // #nosec G601
+				SecondNoteCodeTo:                &tppsEntry.SecondNoteTo,              // #nosec G601
+				SecondNoteCodeMessage:           &tppsEntry.SecondNoteMessage,         // #nosec G601
+				ThirdNoteCode:                   &tppsEntry.ThirdNoteCode,             // #nosec G601
+				ThirdNoteDescription:            &tppsEntry.ThirdNoteCodeDescription,  // #nosec G601
+				ThirdNoteCodeTo:                 &tppsEntry.ThirdNoteTo,               // #nosec G601
+				ThirdNoteCodeMessage:            &tppsEntry.ThirdNoteMessage,          // #nosec G601
 			}
 
 			verrs, err = txnAppCtx.DB().ValidateAndSave(&tppsEntryModel)

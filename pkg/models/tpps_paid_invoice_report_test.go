@@ -10,6 +10,19 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicTPPSPaidInvoiceReportInstantiation() {
+	currTime := time.Now()
+	firstNoteCode := "INT"
+	firstNoteDescription := "Notes to My Company - INT"
+	firstNoteCodeTo := "CARR"
+	firstNoteCodeMessage := "HQ50066"
+	SecondNoteCode := "INT"
+	SecondNoteDescription := "Notes to My Company - INT"
+	SecondNoteCodeTo := "CARR"
+	SecondNoteCodeMessage := "HQ50066"
+	ThirdNoteCode := "INT"
+	ThirdNoteDescription := "Notes to My Company - INT"
+	ThirdNoteCodeTo := "CARR"
+	ThirdNoteCodeMessage := "HQ50066"
 	testCases := map[string]struct {
 		tppsPaidInvoiceReport models.TPPSPaidInvoiceReportEntry
 		expectedErrs          map[string][]string
@@ -18,8 +31,8 @@ func (suite *ModelSuite) TestBasicTPPSPaidInvoiceReportInstantiation() {
 			tppsPaidInvoiceReport: models.TPPSPaidInvoiceReportEntry{
 				ID:                              uuid.Must(uuid.NewV4()),
 				InvoiceNumber:                   "1841-7267-3",
-				TPPSCreatedDocumentDate:         time.Now(),
-				SellerPaidDate:                  time.Now(),
+				TPPSCreatedDocumentDate:         &currTime,
+				SellerPaidDate:                  currTime,
 				InvoiceTotalChargesInMillicents: unit.Millicents(115155000),
 				LineDescription:                 "DDP",
 				ProductDescription:              "DDP",
@@ -28,18 +41,18 @@ func (suite *ModelSuite) TestBasicTPPSPaidInvoiceReportInstantiation() {
 				LineNetCharge:                   unit.Millicents(2895000),
 				POTCN:                           "1841-7267-826285fc",
 				LineNumber:                      "1",
-				FirstNoteCode:                   "INT",
-				FirstNoteDescription:            "Notes to My Company - INT",
-				FirstNoteCodeTo:                 "CARR",
-				FirstNoteCodeMessage:            "HQ50066",
-				SecondNoteCode:                  "INT",
-				SecondNoteDescription:           "Notes to My Company - INT",
-				SecondNoteCodeTo:                "CARR",
-				SecondNoteCodeMessage:           "HQ50066",
-				ThirdNoteCode:                   "INT",
-				ThirdNoteDescription:            "Notes to My Company - INT",
-				ThirdNoteCodeTo:                 "CARR",
-				ThirdNoteCodeMessage:            "HQ50066",
+				FirstNoteCode:                   &firstNoteCode,
+				FirstNoteDescription:            &firstNoteDescription,
+				FirstNoteCodeTo:                 &firstNoteCodeTo,
+				FirstNoteCodeMessage:            &firstNoteCodeMessage,
+				SecondNoteCode:                  &SecondNoteCode,
+				SecondNoteDescription:           &SecondNoteDescription,
+				SecondNoteCodeTo:                &SecondNoteCodeTo,
+				SecondNoteCodeMessage:           &SecondNoteCodeMessage,
+				ThirdNoteCode:                   &ThirdNoteCode,
+				ThirdNoteDescription:            &ThirdNoteDescription,
+				ThirdNoteCodeTo:                 &ThirdNoteCodeTo,
+				ThirdNoteCodeMessage:            &ThirdNoteCodeMessage,
 			},
 			expectedErrs: nil,
 		},
@@ -58,8 +71,8 @@ func (suite *ModelSuite) TestBasicTPPSPaidInvoiceReportInstantiation() {
 			tppsPaidInvoiceReport: models.TPPSPaidInvoiceReportEntry{
 				ID:                              uuid.Must(uuid.NewV4()),
 				InvoiceNumber:                   "1841-7267-3",
-				TPPSCreatedDocumentDate:         time.Now(),
-				SellerPaidDate:                  time.Now(),
+				TPPSCreatedDocumentDate:         &currTime,
+				SellerPaidDate:                  currTime,
 				InvoiceTotalChargesInMillicents: -1,
 				LineDescription:                 "DDP",
 				ProductDescription:              "DDP",
@@ -68,18 +81,18 @@ func (suite *ModelSuite) TestBasicTPPSPaidInvoiceReportInstantiation() {
 				LineNetCharge:                   -1,
 				POTCN:                           "1841-7267-826285fc",
 				LineNumber:                      "1",
-				FirstNoteCode:                   "INT",
-				FirstNoteDescription:            "Notes to My Company - INT",
-				FirstNoteCodeTo:                 "CARR",
-				FirstNoteCodeMessage:            "HQ50066",
-				SecondNoteCode:                  "INT",
-				SecondNoteDescription:           "Notes to My Company - INT",
-				SecondNoteCodeTo:                "CARR",
-				SecondNoteCodeMessage:           "HQ50066",
-				ThirdNoteCode:                   "INT",
-				ThirdNoteDescription:            "Notes to My Company - INT",
-				ThirdNoteCodeTo:                 "CARR",
-				ThirdNoteCodeMessage:            "HQ50066",
+				FirstNoteCode:                   &firstNoteCode,
+				FirstNoteDescription:            &firstNoteDescription,
+				FirstNoteCodeTo:                 &firstNoteCodeTo,
+				FirstNoteCodeMessage:            &firstNoteCodeMessage,
+				SecondNoteCode:                  &SecondNoteCode,
+				SecondNoteDescription:           &SecondNoteDescription,
+				SecondNoteCodeTo:                &SecondNoteCodeTo,
+				SecondNoteCodeMessage:           &SecondNoteCodeMessage,
+				ThirdNoteCode:                   &ThirdNoteCode,
+				ThirdNoteDescription:            &ThirdNoteDescription,
+				ThirdNoteCodeTo:                 &ThirdNoteCodeTo,
+				ThirdNoteCodeMessage:            &ThirdNoteCodeMessage,
 			},
 			expectedErrs: map[string][]string{
 				"invoice_total_charges_in_millicents": {"-1 is not greater than -1."},
