@@ -5727,6 +5727,20 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      ediErrorType:
+        description: >-
+          Type of EDI reporting or causing the issue. Can be EDI 997, 824, and
+          858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6005,6 +6019,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -6238,6 +6266,38 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -9055,6 +9115,80 @@ definitions:
       - expectedDepartureDate
       - sitExpected
       - eTag
+  BoatShipment:
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Boat shipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when the Boat Shipment was initially created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+      - eTag
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -9236,6 +9370,20 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -9316,6 +9464,8 @@ definitions:
         $ref: '#/definitions/StorageFacility'
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      boatShipment:
+        $ref: '#/definitions/BoatShipment'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       shipmentLocator:
@@ -9551,10 +9701,75 @@ definitions:
       sitCost:
         example: 2000
         type: integer
-        x-nullable: true
-        x-omitempty: false
+      priceFirstDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of the first day in SIT
+      priceAdditionalDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of an additional day in SIT
+      paramsFirstDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '20.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+      paramsAdditionalDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          numberDaysSIT:
+            type: string
+            example: '30'
+            x-nullable: true
+            x-omitempty: true
     required:
       - sitCost
+      - priceFirstDaySIT
+      - priceAdditionalDaySIT
   MTOServiceItemSingle:
     type: object
     properties:

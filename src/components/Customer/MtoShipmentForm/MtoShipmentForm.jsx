@@ -12,7 +12,10 @@ import {
   Label,
   Radio,
   Textarea,
+  Button,
 } from '@trussworks/react-uswds';
+
+import boatShipmentstyles from '../BoatShipment/BoatShipmentForm/BoatShipmentForm.module.scss';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
@@ -36,7 +39,7 @@ import {
   patchMTOShipment,
   dateSelectionIsWeekendHoliday,
 } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { OrdersShape } from 'types/customerShapes';
@@ -176,6 +179,7 @@ class MtoShipmentForm extends Component {
       orders,
       currentResidence,
       router: { params, navigate },
+      handleBack,
     } = this.props;
 
     const { moveId } = params;
@@ -184,7 +188,8 @@ class MtoShipmentForm extends Component {
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
-    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
+    const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
+    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG || isBoat ? this.getShipmentNumber() : null;
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
@@ -613,59 +618,83 @@ class MtoShipmentForm extends Component {
                         </SectionWrapper>
                       )}
 
-                      <SectionWrapper className={formStyles.formSection}>
-                        <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
-                          <Label htmlFor="customerRemarks">
-                            Are there things about this shipment that your counselor or movers should discuss with you?
-                          </Label>
+                      {!isBoat && (
+                        <SectionWrapper className={formStyles.formSection}>
+                          <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
+                            <Label htmlFor="customerRemarks">
+                              Are there things about this shipment that your counselor or movers should discuss with
+                              you?
+                            </Label>
 
-                          <Callout>
-                            Examples
-                            <ul>
-                              {isNTSR && (
-                                <li>
-                                  Details about the facility where your things are now, including the name or address
-                                  (if you know them)
-                                </li>
-                              )}
-                              <li>Large, bulky, or fragile items</li>
-                              <li>Access info for your origin or destination address</li>
-                              <li>You’re shipping weapons or alcohol</li>
-                            </ul>
-                          </Callout>
+                            <Callout>
+                              Examples
+                              <ul>
+                                {isNTSR && (
+                                  <li>
+                                    Details about the facility where your things are now, including the name or address
+                                    (if you know them)
+                                  </li>
+                                )}
+                                <li>Large, bulky, or fragile items</li>
+                                <li>Access info for your origin or destination address</li>
+                                <li>You’re shipping weapons or alcohol</li>
+                              </ul>
+                            </Callout>
 
-                          <Field
-                            as={Textarea}
-                            data-testid="remarks"
-                            name="customerRemarks"
-                            className={`${formStyles.remarks}`}
-                            placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
-                            id="customerRemarks"
-                            maxLength={250}
-                          />
-                          <Hint>
-                            <p>250 characters</p>
-                          </Hint>
-                        </Fieldset>
-                      </SectionWrapper>
-
+                            <Field
+                              as={Textarea}
+                              data-testid="remarks"
+                              name="customerRemarks"
+                              className={`${formStyles.remarks}`}
+                              placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
+                              id="customerRemarks"
+                              maxLength={250}
+                            />
+                            <Hint>
+                              <p>250 characters</p>
+                            </Hint>
+                          </Fieldset>
+                        </SectionWrapper>
+                      )}
                       <Hint darkText>
                         <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
-                      <div className={formStyles.formActions}>
-                        <WizardNavigation
-                          disableNext={isSubmitting || !isValid}
-                          editMode={!isCreatePage}
-                          onNextClick={handleSubmit}
-                          onBackClick={() => {
-                            navigate(-1);
-                          }}
-                          onCancelClick={() => {
-                            navigate(-1);
-                          }}
-                        />
-                      </div>
+                      {isBoat ? (
+                        <div className={boatShipmentstyles.buttonContainer}>
+                          <Button
+                            className={boatShipmentstyles.backButton}
+                            type="button"
+                            onClick={handleBack}
+                            secondary
+                            outline
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            className={boatShipmentstyles.saveButton}
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={!isValid || isSubmitting}
+                          >
+                            Save & Continue
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className={formStyles.formActions}>
+                          <WizardNavigation
+                            disableNext={isSubmitting || !isValid}
+                            editMode={!isCreatePage}
+                            onNextClick={handleSubmit}
+                            onBackClick={() => {
+                              navigate(-1);
+                            }}
+                            onCancelClick={() => {
+                              navigate(-1);
+                            }}
+                          />
+                        </div>
+                      )}
                     </Form>
                   </div>
                 </Grid>

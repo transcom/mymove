@@ -12,7 +12,13 @@ import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments'
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const mockMutateFunction = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -953,8 +959,6 @@ describe('ShipmentForm component', () => {
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Yes')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('No')).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
@@ -1390,6 +1394,8 @@ describe('ShipmentForm component', () => {
           counselorRemarks: newCounselorRemarks,
           hasSecondaryDeliveryAddress: false,
           hasSecondaryPickupAddress: false,
+          hasTertiaryDeliveryAddress: false,
+          hasTertiaryPickupAddress: false,
           destinationAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
@@ -1521,6 +1527,7 @@ describe('ShipmentForm component', () => {
 
   describe('TOO editing an already existing PPM shipment', () => {
     it('renders the PPM shipment form with pre-filled values as TOO', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1596,8 +1603,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
       expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
@@ -1644,6 +1651,7 @@ describe('ShipmentForm component', () => {
     });
     describe('editing an already existing PPM shipment', () => {
       it('renders the PPM shipment form with pre-filled values', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         renderWithRouter(
           <ShipmentForm
             {...defaultProps}
@@ -1718,8 +1726,8 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
       });
     });
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {

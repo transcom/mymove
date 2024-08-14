@@ -3524,6 +3524,96 @@ func init() {
         "VIEW": "View all move details"
       }
     },
+    "BoatShipment": {
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer",
+        "eTag"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when the Boat Shipment was initially created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Boat shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
+    },
     "CancelMove": {
       "type": "object",
       "required": [
@@ -3554,6 +3644,61 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
         }
       }
     },
@@ -3781,6 +3926,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "customerRemarks": {
           "type": "string",
@@ -4458,6 +4606,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/BoatShipment"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -4573,9 +4724,13 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
@@ -6879,6 +7034,59 @@ func init() {
         "$ref": "#/definitions/TransportationOffice"
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -7144,6 +7352,9 @@ func init() {
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
         },
         "customerRemarks": {
           "type": "string",
@@ -11712,6 +11923,96 @@ func init() {
         "VIEW": "View all move details"
       }
     },
+    "BoatShipment": {
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer",
+        "eTag"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when the Boat Shipment was initially created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Boat shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
+    },
     "CancelMove": {
       "type": "object",
       "required": [
@@ -11742,6 +12043,61 @@ func init() {
         },
         "title": {
           "type": "string"
+        }
+      }
+    },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
         }
       }
     },
@@ -11969,6 +12325,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "customerRemarks": {
           "type": "string",
@@ -12648,6 +13007,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/BoatShipment"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -12763,9 +13125,13 @@ func init() {
         "HHG",
         "HHG_INTO_NTS_DOMESTIC",
         "HHG_OUTOF_NTS_DOMESTIC",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
@@ -15073,6 +15439,59 @@ func init() {
         "$ref": "#/definitions/TransportationOffice"
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -15339,6 +15758,9 @@ func init() {
         },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
         },
         "customerRemarks": {
           "type": "string",

@@ -21,7 +21,6 @@ import NotificationList from './Notifications/NotificationList';
 import UploadSearch from './Uploads/UploadSearch';
 
 import { milmoveLogger } from 'utils/milmoveLog';
-import CUIHeader from 'components/CUIHeader/CUIHeader';
 import OfficeUserList from 'pages/Admin/OfficeUsers/OfficeUserList';
 import OfficeUserShow from 'pages/Admin/OfficeUsers/OfficeUserShow';
 import OfficeUserCreate from 'pages/Admin/OfficeUsers/OfficeUserCreate';
@@ -61,8 +60,7 @@ const httpClient = (url, options = {}) => {
 const CUIWrapper = () => (
   <>
     <AdminLogoutOnInactivity />
-    <CUIHeader />
-    <AppBar />
+    <AppBar position="sticky" />
   </>
 );
 
