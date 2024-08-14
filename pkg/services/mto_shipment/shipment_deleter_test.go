@@ -297,7 +297,6 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -322,7 +321,6 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: nil,
-					ApprovedAt:         nil,
 				},
 			},
 		}, nil)
@@ -342,7 +340,6 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -367,7 +364,6 @@ func (suite *MTOShipmentServiceSuite) TestPrimeShipmentDeleter() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
 				},
 			},
 			{

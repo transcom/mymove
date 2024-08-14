@@ -397,7 +397,6 @@ func MoveTaskOrderModel(mtoPayload *supportmessages.MoveTaskOrder) *models.Move 
 	if mtoPayload.AvailableToPrimeAt != nil {
 		availableToPrimeAt := time.Time(*mtoPayload.AvailableToPrimeAt)
 		model.AvailableToPrimeAt = &availableToPrimeAt
-		model.ApprovedAt = &availableToPrimeAt
 	}
 
 	return model
