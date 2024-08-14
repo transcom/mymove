@@ -159,6 +159,24 @@ const initialValues = {
   issue_date: '2020-11-08',
   report_by_date: '2020-11-26',
   has_dependents: 'No',
+  origin_duty_location: {
+    address: {
+      city: 'Des Moines',
+      country: 'US',
+      id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+      postalCode: '50309',
+      state: 'IA',
+      streetAddress1: '987 Other Avenue',
+      streetAddress2: 'P.O. Box 1234',
+      streetAddress3: 'c/o Another Person',
+    },
+    address_id: 'a4b30b99-4e82-48a6-b736-01662b499d6a',
+    affiliation: 'AIR_FORCE',
+    created_at: '2020-10-19T17:01:16.114Z',
+    id: 'f9299768-16d2-4a13-ae39-7087a58b1f62',
+    name: 'Yuma AFB',
+    updated_at: '2020-10-19T17:01:16.114Z',
+  },
   new_duty_location: {
     address: {
       city: 'Des Moines',
