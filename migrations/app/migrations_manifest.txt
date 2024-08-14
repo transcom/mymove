@@ -974,3 +974,4 @@
 20240730161630_remove-boat-shipments-index.up.sql
 20240801135811_create_mobile_home.up.sql
 20240801135833_alter_mto_shipment_type_motorhome.up.sql
+20240814144527_remove_allow_pptas_client.up.sql

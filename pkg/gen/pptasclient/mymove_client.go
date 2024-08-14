@@ -22,7 +22,7 @@ const (
 	DefaultHost string = "primelocal"
 	// DefaultBasePath is the default BasePath
 	// found in Meta (info) section of spec file
-	DefaultBasePath string = "/pptas/v1"
+	DefaultBasePath string = "/prime/pptas"
 )
 
 // DefaultSchemes are the default schemes found in Meta (info) section of spec file

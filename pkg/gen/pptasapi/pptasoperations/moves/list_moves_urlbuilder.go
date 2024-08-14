@@ -45,7 +45,7 @@ func (o *ListMovesURL) Build() (*url.URL, error) {
 
 	_basePath := o._basePath
 	if _basePath == "" {
-		_basePath = "/pptas/v1"
+		_basePath = "/prime/pptas"
 	}
 	_result.Path = golangswaggerpaths.Join(_basePath, _path)
 
