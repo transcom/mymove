@@ -256,7 +256,7 @@ export class SelectShipmentType extends Component {
                   </p>
                   <SelectableCard
                     {...selectableCardDefaultProps}
-                    label="Move a Boat"
+                    label="Move a boat"
                     value={SHIPMENT_OPTIONS.BOAT}
                     id={SHIPMENT_OPTIONS.BOAT}
                     cardText={boatCardText}
