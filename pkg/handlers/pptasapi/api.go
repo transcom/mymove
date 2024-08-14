@@ -2,6 +2,7 @@ package pptasapi
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/go-openapi/loads"
 
@@ -11,7 +12,8 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 )
 
-func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
+func NewPPTASApiHandler(handlerConfig handlers.HandlerConfig) http.Handler {
+
 	pptasSpec, err := loads.Analyzed(pptasapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -24,5 +26,5 @@ func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
 		MoveTaskOrderFetcher: movetaskorder.NewMoveTaskOrderFetcher(),
 	}
 
-	return pptasAPI
+	return pptasAPI.Serve(nil)
 }

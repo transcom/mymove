@@ -5,12 +5,12 @@
 //	The PPTAS API is a RESTful API that enables the Navy's PPTAS system to request
 //	information relating to current moves in progress.
 //
-//	All endpoints are located at `/pptas/v1`.
+//	All endpoints are located at `/prime/pptas/`.
 //
 //	Schemes:
 //	  http
 //	Host: primelocal
-//	BasePath: /pptas/v1
+//	BasePath: /prime/pptas
 //	Version: 0.0.1
 //	License: MIT https://opensource.org/licenses/MIT
 //	Contact: <milmove-developers@caci.com>
