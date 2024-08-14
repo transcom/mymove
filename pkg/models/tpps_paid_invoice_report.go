@@ -15,7 +15,7 @@ import (
 type TPPSPaidInvoiceReportEntry struct {
 	ID                              uuid.UUID       `db:"id"`
 	InvoiceNumber                   string          `db:"invoice_number"`
-	TPPSCreatedDocumentDate         time.Time       `json:"tpps_created_doc_date" db:"tpps_created_doc_date"`
+	TPPSCreatedDocumentDate         *time.Time      `json:"tpps_created_doc_date" db:"tpps_created_doc_date"`
 	SellerPaidDate                  time.Time       `json:"seller_paid_date" db:"seller_paid_date"`
 	InvoiceTotalChargesInMillicents unit.Millicents `json:"invoice_total_charges_in_millicents" db:"invoice_total_charges_in_millicents"`
 	LineDescription                 string          `json:"line_description" db:"line_description"`
@@ -25,18 +25,18 @@ type TPPSPaidInvoiceReportEntry struct {
 	LineNetCharge                   unit.Millicents `json:"line_net_charge_in_millicents" db:"line_net_charge_in_millicents"`
 	POTCN                           string          `json:"po_tcn" db:"po_tcn"`
 	LineNumber                      string          `json:"line_number" db:"line_number"`
-	FirstNoteCode                   string          `json:"first_note_code" db:"first_note_code"`
-	FirstNoteDescription            string          `json:"first_note_description" db:"first_note_description"`
-	FirstNoteCodeTo                 string          `json:"first_note_to" db:"first_note_to"`
-	FirstNoteCodeMessage            string          `json:"first_note_message" db:"first_note_message"`
-	SecondNoteCode                  string          `json:"second_note_code" db:"second_note_code"`
-	SecondNoteDescription           string          `json:"second_note_description" db:"second_note_description"`
-	SecondNoteCodeTo                string          `json:"second_note_to" db:"second_note_to"`
-	SecondNoteCodeMessage           string          `json:"second_note_message" db:"second_note_message"`
-	ThirdNoteCode                   string          `json:"third_note_code" db:"third_note_code"`
-	ThirdNoteDescription            string          `json:"third_note_code_description" db:"third_note_code_description"`
-	ThirdNoteCodeTo                 string          `json:"third_note_code_to" db:"third_note_code_to"`
-	ThirdNoteCodeMessage            string          `json:"third_note_code_message" db:"third_note_code_message"`
+	FirstNoteCode                   *string         `json:"first_note_code" db:"first_note_code"`
+	FirstNoteDescription            *string         `json:"first_note_description" db:"first_note_description"`
+	FirstNoteCodeTo                 *string         `json:"first_note_to" db:"first_note_to"`
+	FirstNoteCodeMessage            *string         `json:"first_note_message" db:"first_note_message"`
+	SecondNoteCode                  *string         `json:"second_note_code" db:"second_note_code"`
+	SecondNoteDescription           *string         `json:"second_note_description" db:"second_note_description"`
+	SecondNoteCodeTo                *string         `json:"second_note_to" db:"second_note_to"`
+	SecondNoteCodeMessage           *string         `json:"second_note_message" db:"second_note_message"`
+	ThirdNoteCode                   *string         `json:"third_note_code" db:"third_note_code"`
+	ThirdNoteDescription            *string         `json:"third_note_code_description" db:"third_note_code_description"`
+	ThirdNoteCodeTo                 *string         `json:"third_note_code_to" db:"third_note_code_to"`
+	ThirdNoteCodeMessage            *string         `json:"third_note_code_message" db:"third_note_code_message"`
 	CreatedAt                       time.Time       `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time       `json:"updated_at" db:"updated_at"`
 }
