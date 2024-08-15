@@ -105,6 +105,9 @@ type Move struct {
 	// Example: 1001-3456
 	ReferenceID *string `json:"referenceId,omitempty"`
 
+	// sc assigned user
+	ScAssignedUser *AssignedOfficeUser `json:"scAssignedUser,omitempty"`
+
 	// service counseling completed at
 	// Format: date-time
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
@@ -119,9 +122,15 @@ type Move struct {
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
+	// tio assigned user
+	TioAssignedUser *AssignedOfficeUser `json:"tioAssignedUser,omitempty"`
+
 	// tio remarks
 	// Example: approved additional weight
 	TioRemarks *string `json:"tioRemarks,omitempty"`
+
+	// too assigned user
+	TooAssignedUser *AssignedOfficeUser `json:"tooAssignedUser,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -200,6 +209,10 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateScAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateServiceCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -213,6 +226,14 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSubmittedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTioAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTooAssignedUser(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -465,6 +486,25 @@ func (m *Move) validateOrdersID(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Move) validateScAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.ScAssignedUser) { // not required
+		return nil
+	}
+
+	if m.ScAssignedUser != nil {
+		if err := m.ScAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("scAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("scAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ServiceCounselingCompletedAt) { // not required
 		return nil
@@ -523,6 +563,44 @@ func (m *Move) validateSubmittedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Move) validateTioAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.TioAssignedUser) { // not required
+		return nil
+	}
+
+	if m.TioAssignedUser != nil {
+		if err := m.TioAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tioAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tioAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateTooAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.TooAssignedUser) { // not required
+		return nil
+	}
+
+	if m.TooAssignedUser != nil {
+		if err := m.TooAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tooAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tooAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -567,11 +645,23 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateScAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentGBLOC(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateStatus(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTioAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTooAssignedUser(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -704,6 +794,27 @@ func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registr
 	return nil
 }
 
+func (m *Move) contextValidateScAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.ScAssignedUser != nil {
+
+		if swag.IsZero(m.ScAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.ScAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("scAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("scAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Move) contextValidateShipmentGBLOC(ctx context.Context, formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ShipmentGBLOC) { // not required
@@ -735,6 +846,48 @@ func (m *Move) contextValidateStatus(ctx context.Context, formats strfmt.Registr
 			return ce.ValidateName("status")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateTioAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TioAssignedUser != nil {
+
+		if swag.IsZero(m.TioAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.TioAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tioAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tioAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateTooAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TooAssignedUser != nil {
+
+		if swag.IsZero(m.TooAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.TooAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tooAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tooAssignedUser")
+			}
+			return err
+		}
 	}
 
 	return nil
