@@ -299,6 +299,8 @@ func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware
 					return moveop.NewMoveCancelerPreconditionFailed(), err
 				case apperror.InvalidInputError:
 					return moveop.NewMoveCancelerUnprocessableEntity(), err
+				case apperror.ConflictError:
+					return moveop.NewMoveCancelerConflict(), err
 				default:
 					return moveop.NewMoveCancelerInternalServerError(), err
 				}
