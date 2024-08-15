@@ -3786,6 +3786,10 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              paymentRequestCode:
+                type: string
+                example: 9551-6199-2
+                x-nullable: true
               status:
                 type: array
                 description: Filtering for the status.
@@ -5688,6 +5692,20 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      ediErrorType:
+        description: >-
+          Type of EDI reporting or causing the issue. Can be EDI 997, 824, and
+          858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5966,6 +5984,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -6199,6 +6231,38 @@ definitions:
         allOf:
           - $ref: '#/definitions/Address'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -6713,6 +6777,10 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      paymentRequestCode:
+        type: string
+        example: 9551-6199-2
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
@@ -9248,6 +9316,20 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -9565,10 +9647,75 @@ definitions:
       sitCost:
         example: 2000
         type: integer
-        x-nullable: true
-        x-omitempty: false
+      priceFirstDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of the first day in SIT
+      priceAdditionalDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of an additional day in SIT
+      paramsFirstDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '20.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+      paramsAdditionalDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          numberDaysSIT:
+            type: string
+            example: '30'
+            x-nullable: true
+            x-omitempty: true
     required:
       - sitCost
+      - priceFirstDaySIT
+      - priceAdditionalDaySIT
   MTOServiceItemSingle:
     type: object
     properties:
