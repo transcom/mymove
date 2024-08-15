@@ -40,6 +40,7 @@ ZipCityInput.propTypes = {
   hint: PropTypes.node,
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
+  handleZipCityChange: PropTypes.func,
 };
 
 ZipCityInput.defaultProps = {
@@ -47,6 +48,7 @@ ZipCityInput.defaultProps = {
   hint: '',
   placeholder: '',
   isDisabled: false,
+  handleZipCityChange: undefined,
 };
 
 export default ZipCityInput;

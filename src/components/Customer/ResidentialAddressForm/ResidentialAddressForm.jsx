@@ -27,7 +27,7 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched, values, setValues }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
         const handleZipCityChange = (value) => {
           setValues({
             ...values,

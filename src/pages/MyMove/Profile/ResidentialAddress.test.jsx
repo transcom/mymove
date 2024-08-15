@@ -84,10 +84,10 @@ describe('ResidentialAddress page', () => {
     render(<ResidentialAddress {...testProps} />);
     const postalCode = '79912';
     const testLocation = 'EL PASO, TX 79912 (EL PASO)';
-    const optionName = testLocation.split(' 79912')[0];
+    const optionName = testLocation.split(' 79')[0];
     await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(screen.getByLabelText('Zip/City Lookup'), '79912');
+    await userEvent.type(screen.getByLabelText('Zip/City Lookup'), '79');
     await userEvent.click(await screen.findByText(optionName));
     // const postalCodeInput = await findByLabelText('Zip/City Lookup');
     // await userEvent.type(postalCodeInput, postalCode);

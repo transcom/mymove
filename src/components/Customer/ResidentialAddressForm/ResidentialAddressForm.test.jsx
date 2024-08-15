@@ -1,9 +1,23 @@
 import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
+import selectEvent from 'react-select-event';
+import { renderWithRouter } from 'testUtils';
 
 import ResidentialAddressForm from './ResidentialAddressForm';
-import addressFactory from 'utils/test/factories/address';
+import { searchLocationByZipCity } from 'services/internalApi';
+
+const mockNavigate = jest.fn();
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockNavigate,
+}));
+
+jest.mock('services/internalApi', () => ({
+  ...jest.requireActual('services/internalApi'),
+  searchLocationByZipCity: jest.fn(),
+}));
 
 describe('ResidentialAddressForm component', () => {
   const formFieldsName = 'current_residence';
@@ -33,21 +47,21 @@ describe('ResidentialAddressForm component', () => {
     county: 'El Paso',
   };
 
-  const mockAddress = addressFactory();
-
   it('renders the form inputs and help text', async () => {
-    const { getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
+    const { getByRole, getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
 
     await waitFor(() => {
       expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
+      expect(getByRole('combobox', { id: 'zipCity-input' })).toBeInstanceOf(HTMLInputElement);
+
       expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('County')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('County')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
 
@@ -56,15 +70,31 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
+    const mockAddress = {
+      city: 'El Paso',
+      state: 'TX',
+      postalCode: '79912',
+      county: 'El Paso',
+    };
+    const mockSearchLocationByZipCity= () => Promise.resolve(mockAddress);
+    searchLocationByZipCity.mockImplementation(mockSearchLocationByZipCity);
+
     const { getByRole, findAllByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
-    const postalCodeInput = await screen.findByLabelText('Zip/City Lookup');
+    const input = getByRole('combobox', { id: 'zipCity-input' });
+    fireEvent.change(input, {target: {value: mockAddress.postalCode} });
+    await act(() => selectEvent.select(input, 79912));
 
-    const postalCode = '79912';
+    await waitFor(() => {
+      expect(screen.getByText(mockAddress.postalCode)).toBeInTheDocument();
+    });
 
-    await userEvent.type(postalCodeInput, postalCode);
-    await userEvent.click(await screen.findByText('79912'));
+    // fireEvent.keyPress(input, { key: 'Enter', code: 13 });
+
+    await waitFor(() => {
+      expect(searchLocationByZipCity).toHaveBeenCalledTimes(1);
+    });
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
@@ -80,19 +110,29 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
-    const submitBtn = getByRole('button', { name: 'Next' });
+    const mockAddress = {
+      city: 'El Paso',
+      state: 'TX',
+      postalCode: '79912',
+      county: 'El Paso',
+    };
+    const mockSearchLocationByZipCity= () => Promise.resolve(mockAddress);
+    searchLocationByZipCity.mockImplementation(mockSearchLocationByZipCity);
 
-    await userEvent.type(getByLabelText('Address 1'), mockAddress.streetAddress1);
-    await userEvent.type(getByLabelText(/Address 2/), mockAddress.streetAddress2);
-    const input = getByRole('combobox', { id: 'zipCity-input' });
-    await userEvent.type(input, mockAddress.postalCode);
-    await waitFor(() => {
-      expect(screen.getByText(mockAddress.city)).toBeInTheDocument();
-    });
+    // const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
+    renderWithRouter(<ResidentialAddressForm {...testProps} />);
+    const submitBtn = screen.getByRole('button', { name: 'Next' });
 
-    fireEvent.keyPress(input, { key: 'Enter', code: 13 });
-
+    await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
+    const input = screen.getByLabelText('Zip/City Lookup');
+    await userEvent.type(input, '79912');
+    fireEvent.change(input, {target: {value: mockAddress.postalCode} });
+    // await waitFor(() => {
+    //   expect(screen.getByText(mockAddress.state)).toBeInTheDocument();
+    // });
+    await act(() => selectEvent.select(input, mockAddress.postalCode));
+    expect(screen.getByLabelText('State')).toHaveValue(mockAddress.state);
     await waitFor(() => {
       expect(submitBtn).toBeEnabled();
     });
