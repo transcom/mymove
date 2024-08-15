@@ -54,6 +54,7 @@ export class Summary extends Component {
       enablePPM: true,
       enableNTS: true,
       enableNTSR: true,
+      enableBoat: true,
     };
   }
 
@@ -81,6 +82,11 @@ export class Summary extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then((enabled) => {
+      this.setState({
+        enableBoat: enabled,
       });
     });
   }
@@ -284,6 +290,7 @@ export class Summary extends Component {
       enablePPM,
       enableNTS,
       enableNTSR,
+      enableBoat,
     } = this.state;
 
     const { pathname } = router.location;
@@ -420,6 +427,7 @@ export class Summary extends Component {
           enablePPM={enablePPM}
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}
+          enableBoat={enableBoat}
         />
       </>
     );

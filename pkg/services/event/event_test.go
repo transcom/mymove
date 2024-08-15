@@ -42,7 +42,6 @@ func (suite *EventServiceSuite) Test_EventTrigger() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -209,6 +208,7 @@ func (suite *EventServiceSuite) Test_MTOEventTrigger() {
 		// Check some params
 		suite.Equal(mto.PPMType, &mtoInPayload.PpmType)
 		suite.Equal(handlers.FmtDateTimePtr(mto.AvailableToPrimeAt).String(), mtoInPayload.AvailableToPrimeAt.String())
+
 	})
 }
 
@@ -219,7 +219,6 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: models.TimePointer(time.Now()),
-					ApprovedAt:         models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -273,7 +272,6 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: models.TimePointer(time.Now()),
-					ApprovedAt:         models.TimePointer(time.Now()),
 				},
 			},
 		}, nil)
@@ -308,7 +306,6 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: models.TimePointer(time.Now()),
-					ApprovedAt:         models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -365,7 +362,7 @@ func (suite *EventServiceSuite) Test_MTOShipmentEventTrigger() {
 		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
-					ApprovedAt: models.TimePointer(time.Now()),
+					AvailableToPrimeAt: models.TimePointer(time.Now()),
 				},
 			},
 			{
@@ -410,7 +407,6 @@ func (suite *EventServiceSuite) Test_MTOServiceItemEventTrigger() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
-					ApprovedAt:         &now,
 				},
 			},
 		}, nil)

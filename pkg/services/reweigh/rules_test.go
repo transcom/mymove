@@ -179,7 +179,6 @@ func (suite *ReweighSuite) TestValidationRules() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: nil,
-					ApprovedAt:         nil,
 				},
 			},
 		}, nil)
@@ -217,7 +216,6 @@ func (suite *ReweighSuite) TestValidationRules() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
-					ApprovedAt:         &currentTime,
 				},
 			},
 		}, nil)

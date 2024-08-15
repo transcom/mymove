@@ -1,0 +1,36 @@
+@import 'shared/styles/colors.scss';
+@import 'shared/styles/basics';
+
+input.approvedDaysInput {
+    max-width: 108px !important;
+}
+
+.errors {
+    margin-top: 0;
+    color: #b50909;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 4px 0px;
+}
+
+.sitHistoryItemHeader {
+    .hintText {
+      display: block;
+      font-size: 13px;
+      line-height: 16px;
+      font-weight: 400;
+      color: $base-darker;
+    }
+}
+
+.sitDatePicker {
+    margin-top: -10px;
+    margin-left: -5px;
+}
+
+.label {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+}
