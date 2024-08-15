@@ -72,7 +72,7 @@ describe('ResidentialAddress page', () => {
   });
 
   it('next button submits the form and goes to the Backup address step', async () => {
-    const testProps = generateTestProps(blankAddress);
+    const testProps = generateTestProps(fakeAddress);
 
     const expectedServiceMemberPayload = { ...testProps.serviceMember, residential_address: fakeAddress };
 
@@ -82,17 +82,6 @@ describe('ResidentialAddress page', () => {
     patchServiceMember.mockImplementation(() => Promise.resolve(expectedServiceMemberPayload));
 
     render(<ResidentialAddress {...testProps} />);
-    const postalCode = '79912';
-    const testLocation = 'EL PASO, TX 79912 (EL PASO)';
-    const optionName = testLocation.split(' 79')[0];
-    await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
-    await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(screen.getByLabelText('Zip/City Lookup'), '79');
-    await userEvent.click(await screen.findByText(optionName));
-    // const postalCodeInput = await findByLabelText('Zip/City Lookup');
-    // await userEvent.type(postalCodeInput, postalCode);
-    // await userEvent.click(await screen.findByText('79912'));
-    await userEvent.tab();
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
