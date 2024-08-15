@@ -38,8 +38,18 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
+	office := m.TransportationOffice{
+		Name:      "JPSO Supreme",
+		AddressID: uuid.UUID{},
+		Gbloc:     "BMAF",
+		Latitude:  61.1262383,
+		Longitude: -149.9212882,
+		Hours:     m.StringPointer("0900-1800 Mon-Sat"),
+	}
+
 	moveOptions := m.MoveOptions{
-		Show: m.BoolPointer(true),
+		Show:             m.BoolPointer(true),
+		CounselingOffice: &office,
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -224,6 +234,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	move.Orders = orders
 
 	verrs, _ = m.SaveMoveDependencies(suite.DB(), move)
+
 	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
 }
 
@@ -234,7 +245,8 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
-		Show: m.BoolPointer(true),
+		Show:             m.BoolPointer(true),
+		CounselingOffice: &m.TransportationOffice{},
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
