@@ -339,6 +339,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
 		})
 	}
+	if api.UploadsGetUploadHandler == nil {
+		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
+		})
+	}
 	if api.MtoServiceItemListMTOServiceItemsHandler == nil {
 		api.MtoServiceItemListMTOServiceItemsHandler = mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
@@ -522,6 +527,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.MtoServiceItemUpdateServiceItemSitEntryDateHandler == nil {
 		api.MtoServiceItemUpdateServiceItemSitEntryDateHandler = mto_service_item.UpdateServiceItemSitEntryDateHandlerFunc(func(params mto_service_item.UpdateServiceItemSitEntryDateParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateServiceItemSitEntryDate has not yet been implemented")
+		})
+	}
+	if api.UploadsUpdateUploadHandler == nil {
+		api.UploadsUpdateUploadHandler = uploads.UpdateUploadHandlerFunc(func(params uploads.UpdateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.UpdateUpload has not yet been implemented")
 		})
 	}
 	if api.PpmUpdateWeightTicketHandler == nil {
