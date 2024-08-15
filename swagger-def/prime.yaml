@@ -1734,11 +1734,6 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
-      approvedAt:
-        format: date-time
-        type: string
-        x-nullable: true
-        readOnly: true
       updatedAt:
         format: date-time
         type: string

@@ -50,7 +50,7 @@ const locatorLength = 6
 // This set of letters should produce 'non-word' type strings
 var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
-// Move is an object representing a move task order which falls under an "Order" assigned to a service member
+// Move is an object representing a move
 type Move struct {
 	ID                           uuid.UUID             `json:"id" db:"id"`
 	Locator                      string                `json:"locator" db:"locator"`
@@ -65,7 +65,6 @@ type Move struct {
 	Show                         *bool                 `json:"show" db:"show"`
 	TIORemarks                   *string               `db:"tio_remarks"`
 	AvailableToPrimeAt           *time.Time            `db:"available_to_prime_at"`
-	ApprovedAt                   *time.Time            `db:"approved_at"`
 	ContractorID                 *uuid.UUID            `db:"contractor_id"`
 	Contractor                   *Contractor           `belongs_to:"contractors" fk_id:"contractor_id"`
 	PPMType                      *string               `db:"ppm_type"`
