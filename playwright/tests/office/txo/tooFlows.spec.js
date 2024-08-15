@@ -771,7 +771,7 @@ test.describe('TOO user', () => {
   });
 
   test('approves a delivery address change request for a NTSr shipment', async ({ officePage, page }) => {
-    const shipmentAddressUpdate = await officePage.testHarness.bulidNTSRMoveWithAddressChangeRequest();
+    const shipmentAddressUpdate = await officePage.testHarness.buildNTSRMoveWithAddressChangeRequest();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, shipmentAddressUpdate.Shipment.MoveTaskOrder);
     await tooFlowPage.waitForLoading();

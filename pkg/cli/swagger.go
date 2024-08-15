@@ -23,12 +23,10 @@ const (
 	PrimeV2SwaggerFlag string = "prime-v2-swagger"
 	// PrimeV3SwaggerFlag is the Prime V3 Swagger Flag
 	PrimeV3SwaggerFlag string = "prime-v3-swagger"
-	// SupportSwaggerFlag is the Support Swagger Flag
-	SupportSwaggerFlag string = "support-swagger"
-	// PPTASSwaggerFlag is the PPTAS Swagger Flag
-	PPTASSwaggerFlag string = "pptas-swagger"
 	// ServeSwaggerUIFlag is the Serve Swagger UI Flag
 	ServeSwaggerUIFlag string = "serve-swagger-ui"
+	// SupportSwaggerFlag is the Support Swagger Flag
+	SupportSwaggerFlag string = "support-swagger"
 )
 
 // InitSwaggerFlags initializes the Swagger command line flags
@@ -42,8 +40,7 @@ func InitSwaggerFlags(flag *pflag.FlagSet) {
 	flag.String(PrimeV2SwaggerFlag, "swagger/prime_v2.yaml", "The location of the Prime V2 API swagger definition")
 	flag.String(PrimeV3SwaggerFlag, "swagger/prime_v3.yaml", "The location of the Prime V3 API swagger definition")
 	flag.String(SupportSwaggerFlag, "swagger/support.yaml", "The location of the Support API swagger definition")
-	flag.String(PPTASSwaggerFlag, "swagger/pptas.yaml", "The location of the PPTAS Export API swagger definition")
-	flag.Bool(ServeSwaggerUIFlag, true, "Whether to serve swagger UI for the APIs")
+	flag.Bool(ServeSwaggerUIFlag, false, "Whether to serve swagger UI for the APIs")
 }
 
 // CheckSwagger validates Swagger command line flags
@@ -58,7 +55,6 @@ func CheckSwagger(v *viper.Viper) error {
 		PrimeV2SwaggerFlag,
 		PrimeV3SwaggerFlag,
 		SupportSwaggerFlag,
-		PPTASSwaggerFlag,
 	}
 
 	for _, c := range swaggerVars {

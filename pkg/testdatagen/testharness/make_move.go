@@ -6910,6 +6910,10 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 		},
 	}, nil)
 
+	now := time.Now()
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
 	NTSRecordedWeight := unit.Pound(1400)
 	serviceOrderNumber := "1234"
 	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
@@ -6930,10 +6934,12 @@ func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.S
 		},
 		{
 			Model: models.MTOShipment{
-				Status:             models.MTOShipmentStatusApproved,
-				ShipmentType:       models.MTOShipmentTypeHHGOutOfNTSDom,
-				NTSRecordedWeight:  &NTSRecordedWeight,
-				ServiceOrderNumber: &serviceOrderNumber,
+				Status:                models.MTOShipmentStatusApproved,
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				NTSRecordedWeight:     &NTSRecordedWeight,
+				ServiceOrderNumber:    &serviceOrderNumber,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
 			},
 		},
 		{

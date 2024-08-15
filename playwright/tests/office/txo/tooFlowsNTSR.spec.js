@@ -60,6 +60,8 @@ test.describe('TOO user', () => {
       // Basic info
       await page.locator('#ntsRecordedWeight').clear();
       await page.locator('#ntsRecordedWeight').fill('3000');
+      await page.locator('#requestedPickupDate').clear();
+      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
 
       // Storage facility info
       await page.locator('#facilityName').fill('Sample Facility Name');
