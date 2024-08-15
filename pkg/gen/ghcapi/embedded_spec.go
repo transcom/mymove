@@ -10840,6 +10840,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsPaidReportAmountPaidTotal": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Total amount that TPPS paid for the service items on the payment request in cents",
+          "x-nullable": true
+        },
+        "tppsPaidReportSellerPaidDate": {
+          "type": "string",
+          "format": "date",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -10927,6 +10939,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsPaidReportAmountPaidForServiceItem": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Amount that TPPS paid for the individual service item in cents",
+          "x-nullable": true
         }
       }
     },
@@ -25839,6 +25857,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsPaidReportAmountPaidTotal": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Total amount that TPPS paid for the service items on the payment request in cents",
+          "x-nullable": true
+        },
+        "tppsPaidReportSellerPaidDate": {
+          "type": "string",
+          "format": "date",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -25926,6 +25956,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsPaidReportAmountPaidForServiceItem": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Amount that TPPS paid for the individual service item in cents",
+          "x-nullable": true
         }
       }
     },

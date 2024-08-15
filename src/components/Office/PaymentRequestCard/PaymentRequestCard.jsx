@@ -31,7 +31,7 @@ const paymentRequestStatusLabel = (status) => {
     case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
     case PAYMENT_REQUEST_STATUS.PAID:
-      return 'Paid';
+      return 'TPPS Paid';
     case PAYMENT_REQUEST_STATUS.EDI_ERROR:
       return 'EDI Error';
     default:
