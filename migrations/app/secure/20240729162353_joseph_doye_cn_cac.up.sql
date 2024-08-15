@@ -5,10 +5,6 @@
 -- Using a person's CAC as the certificate is a convenient way to permit a
 -- single trusted individual to interact with the Orders API and the Prime API. Eventually
 -- this CAC certificate should be removed.
-DELETE FROM client_certs WHERE user_id = '545f3a07-76dd-4c62-8541-0353cb507d17';
-DELETE FROM users_roles WHERE user_id = '545f3a07-76dd-4c62-8541-0353cb507d17';
-DELETE FROM users WHERE id = '545f3a07-76dd-4c62-8541-0353cb507d17';
-
 INSERT INTO users (
     id,
     okta_email,
@@ -27,7 +23,7 @@ INSERT INTO users_roles (
     created_at,
     updated_at)
 VALUES (
-    '545f3a07-76dd-4c62-8541-0353cb507d17',
+    uuid_generate_v4(),
     (SELECT id FROM roles WHERE role_type = 'prime'),
     '545f3a07-76dd-4c62-8541-0353cb507d17',
     now(),
