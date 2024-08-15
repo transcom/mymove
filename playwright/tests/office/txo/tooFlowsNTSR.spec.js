@@ -170,11 +170,11 @@ test.describe('TOO user', () => {
       // confirm the changes made above
       lastShipment = page.locator('[data-testid="ShipmentContainer"]').last();
       // delivery address header
-      await expect(lastShipment.locator('[data-testid="nts-release-shipment-info-list"]')).toContainText(
+      await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
         'Delivery address',
       );
       // facility address header
-      await expect(lastShipment.locator('[data-testid="nts-release-shipment-info-list"]')).toContainText(
+      await expect(lastShipment.locator('[class*="ShipmentAddresses_mtoShipmentAddresses"]')).toContainText(
         'Facility address',
       );
 
