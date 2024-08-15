@@ -800,7 +800,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
-		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID),
+		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID), // TODO: Refactor out service item ID dependence in GHC API. This should be based on SIT groupings / summaries
 		Location:             currentSIT.Location,
 		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
@@ -816,8 +816,14 @@ func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStore
 	if shipmentSITStatuses == nil {
 		return nil
 	}
+	// Extract past SIT service items from the SIT groupings
+	var allPastSITServiceItems models.MTOServiceItems
+	for _, sitGroup := range shipmentSITStatuses.PastSITs {
+		allPastSITServiceItems = append(allPastSITServiceItems, sitGroup.ServiceItems...)
+	}
+	// TODO: GHC API to return SIT groupings
 	payload := &ghcmessages.SITStatus{
-		PastSITServiceItems:      MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
+		PastSITServiceItems:      MTOServiceItemModels(allPastSITServiceItems, storer),
 		TotalSITDaysUsed:         handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
 		TotalDaysRemaining:       handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
 		CalculatedTotalDaysInSIT: handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CalculatedTotalDaysInSIT),

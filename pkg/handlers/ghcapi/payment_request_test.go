@@ -916,10 +916,16 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		suite.Len(payload, 1)
 		shipmentSITBalance := payload[0]
 
+		// Destination SIT had a SIT entry date of 90 days before today
+		// Because Destination SIT did not receive a departure date, we go based off today
+		// Meaning Destination SIT has spent 90 days in SIT so far
+		// Origin SIT received a SIT departure date 90 days after its entry date
+		// Meaning 90 + 90 = 180 days spent in SIT, meaning this test went well over its entitlement
+		// of 120
 		suite.Equal(shipment.ID.String(), shipmentSITBalance.ShipmentID.String())
 		suite.Equal(int64(120), shipmentSITBalance.TotalSITDaysAuthorized)
 		suite.Equal(int64(60), shipmentSITBalance.PendingSITDaysInvoiced)
-		suite.Equal(int64(30), shipmentSITBalance.TotalSITDaysRemaining)
+		suite.Equal(int64(-60), shipmentSITBalance.TotalSITDaysRemaining) // Well over entitlement
 		suite.Equal(destinationPaymentEndDate.Format("2006-01-02"), shipmentSITBalance.PendingBilledEndDate.String())
 		suite.Equal(int64(30), *shipmentSITBalance.PreviouslyBilledDays)
 	})
