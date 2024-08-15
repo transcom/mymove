@@ -3288,6 +3288,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rotation": {
+          "type": "integer"
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -6722,6 +6725,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "status": {
           "type": "string",

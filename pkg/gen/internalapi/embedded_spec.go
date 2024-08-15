@@ -7428,6 +7428,10 @@ func init() {
         "isWeightTicket": {
           "type": "boolean"
         },
+        "rotation": {
+          "type": "integer",
+          "example": 2
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -15740,6 +15744,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
