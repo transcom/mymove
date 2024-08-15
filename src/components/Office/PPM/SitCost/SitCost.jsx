@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import classnames from 'classnames';
+import { Button } from '@trussworks/react-uswds';
 
 import styles from './SitCost.module.scss';
 
 import { formatCents, toDollarString } from 'utils/formatters';
+import SitCostBreakdown from 'components/Office/PPM/SitCostBreakdown/SitCostBreakdown';
 
 export default function SitCost({
   ppmShipmentInfo,
   ppmSITLocation,
   sitStartDate,
+  sitAdditionalStartDate,
   sitEndDate,
   weightStored,
+  actualWeight,
   useQueries,
   setEstimatedCost,
 }) {
@@ -20,7 +24,9 @@ export default function SitCost({
     sitStartDate,
     sitEndDate,
     weightStored,
+    actualWeight,
   );
+  const [calculationsVisible, setCalulationsVisible] = useState(false);
 
   const costLabel = 'Government SIT Cost';
 
@@ -39,7 +45,36 @@ export default function SitCost({
       <legend className={classnames('usa-label', styles.label)}>{costLabel}</legend>
       <div className={styles.displayValue} data-testid="costAmountSuccess">
         {toDollarString(formatCents(estimatedCost?.sitCost || 0))}
+        <Button
+          className={styles.togglePPMCalculations}
+          type="button"
+          data-testid="togglePPMCalculations"
+          aria-expanded={calculationsVisible}
+          unstyled
+          onClick={() => {
+            setCalulationsVisible((isVisible) => {
+              return !isVisible;
+            });
+          }}
+        >
+          {calculationsVisible ? 'Hide calculations' : 'Show calculations'}
+        </Button>
       </div>
+      {calculationsVisible && (
+        <div className={styles.calculationsContainer}>
+          <SitCostBreakdown
+            ppmShipmentInfo={ppmShipmentInfo}
+            ppmSITLocation={ppmSITLocation}
+            sitStartDate={sitStartDate}
+            sitAdditionalStartDate={sitAdditionalStartDate}
+            sitEndDate={sitEndDate}
+            weightStored={weightStored}
+            actualWeight={actualWeight}
+            useQueries={useQueries}
+            setEstimatedCost={setEstimatedCost}
+          />
+        </div>
+      )}
     </div>
   );
 }

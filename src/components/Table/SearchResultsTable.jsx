@@ -277,6 +277,7 @@ const SearchResultsTable = (props) => {
     dodID,
     moveCode,
     customerName,
+    paymentRequestCode,
     searchType,
   } = props;
   const [paramSort, setParamSort] = useState(defaultSortedColumns);
@@ -378,16 +379,19 @@ const SearchResultsTable = (props) => {
     setParamFilters([]);
     const filtersToAdd = [];
     if (moveCode) {
-      filtersToAdd.push({ id: 'locator', value: moveCode });
+      filtersToAdd.push({ id: 'locator', value: moveCode.trim() });
     }
     if (dodID) {
-      filtersToAdd.push({ id: 'dodID', value: dodID });
+      filtersToAdd.push({ id: 'dodID', value: dodID.trim() });
     }
     if (customerName) {
       filtersToAdd.push({ id: 'customerName', value: customerName });
     }
+    if (paymentRequestCode) {
+      filtersToAdd.push({ id: 'paymentRequestCode', value: paymentRequestCode });
+    }
     setParamFilters(filtersToAdd.concat(filters));
-  }, [filters, moveCode, dodID, customerName]);
+  }, [filters, moveCode, dodID, customerName, paymentRequestCode]);
 
   // this useEffect handles the fetching of feature flags
   useEffect(() => {
@@ -460,6 +464,7 @@ SearchResultsTable.propTypes = {
   moveCode: PropTypes.string,
   // customerName is the customer name search text
   customerName: PropTypes.string,
+  paymentRequestCode: PropTypes.string,
   searchType: PropTypes.string,
 };
 
@@ -474,6 +479,7 @@ SearchResultsTable.defaultProps = {
   dodID: null,
   moveCode: null,
   customerName: null,
+  paymentRequestCode: null,
   searchType: 'move',
 };
 

@@ -148,3 +148,17 @@
     @include u-margin-top(2);
   }
 }
+
+.alert {
+  a {
+    color: $link;
+    &:link,
+    &:visited {
+      color: $link;
+    }
+    &:hover,
+    &:focus {
+      color: $primary-dark;
+    }
+  }
+}

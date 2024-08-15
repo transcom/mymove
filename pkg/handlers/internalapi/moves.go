@@ -355,7 +355,38 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 
 			// Find the move with the latest CreatedAt Date. That one will be the current move
 			var nilTime time.Time
+
+			/** Feature Flag - Boat Shipment **/
+			featureFlagName := "boat"
+			isBoatFeatureOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				isBoatFeatureOn = false
+			} else {
+				isBoatFeatureOn = flag.Match
+			}
+			/** End of Feature Flag Block **/
+
 			for _, move := range movesList {
+
+				/** Feature Flag - Boat Shipment **/
+				if !isBoatFeatureOn {
+					var filteredShipments models.MTOShipments
+					if move.MTOShipments != nil {
+						filteredShipments = models.MTOShipments{}
+					}
+					for i, shipment := range move.MTOShipments {
+						if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+							continue
+						}
+
+						filteredShipments = append(filteredShipments, move.MTOShipments[i])
+					}
+					move.MTOShipments = filteredShipments
+				}
+				/** End of Feature Flag Block **/
+
 				if latestMove.CreatedAt == nilTime {
 					latestMove = move
 					break
@@ -371,6 +402,24 @@ func (h GetAllMovesHandler) Handle(params moveop.GetAllMovesParams) middleware.R
 			// Populate previousMovesList
 			for _, move := range movesList {
 				if move.ID != latestMove.ID {
+
+					/** Feature Flag - Boat Shipment **/
+					if !isBoatFeatureOn {
+						var filteredShipments models.MTOShipments
+						if move.MTOShipments != nil {
+							filteredShipments = models.MTOShipments{}
+						}
+						for i, shipment := range move.MTOShipments {
+							if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+								continue
+							}
+
+							filteredShipments = append(filteredShipments, move.MTOShipments[i])
+						}
+						move.MTOShipments = filteredShipments
+					}
+					/** End of Feature Flag Block **/
+
 					previousMovesList = append(previousMovesList, move)
 				}
 			}

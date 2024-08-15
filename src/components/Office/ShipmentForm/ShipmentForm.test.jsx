@@ -12,6 +12,12 @@ import { ADDRESS_UPDATE_STATUS, ppmShipmentStatuses } from 'constants/shipments'
 import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const mockMutateFunction = jest.fn();
 jest.mock('@tanstack/react-query', () => ({
@@ -605,24 +611,32 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Destination type')).toBeVisible();
     });
 
-    describe('shipment address change request', () => {
-      it('displays appropriate alerting when an address change is requested', async () => {
-        renderWithRouter(
-          <ShipmentForm
-            {...defaultPropsRetirement}
-            isCreatePage={false}
-            shipmentType={SHIPMENT_OPTIONS.HHG}
-            mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
-            displayDestinationType
-          />,
-        );
+    const runAlertingTest = async (shipmentType) => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultPropsRetirement}
+          isCreatePage={false}
+          shipmentType={shipmentType}
+          mtoShipment={{ ...mockShipmentWithDestinationType, ...mockDeliveryAddressUpdate }}
+          displayDestinationType
+        />,
+      );
 
-        const alerts = await screen.findAllByTestId('alert');
-        expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
-        expect(await alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
-        expect(await alerts[1]).toHaveTextContent(
-          'Pending delivery location change request needs review. Review request to proceed.',
-        );
+      const alerts = await screen.findAllByTestId('alert');
+      expect(alerts).toHaveLength(2); // Should have 2 alerts shown due to the address update request
+      expect(alerts[0]).toHaveTextContent('Request needs review. See delivery location to proceed.');
+      expect(alerts[1]).toHaveTextContent(
+        'Pending delivery location change request needs review. Review request to proceed.',
+      );
+    };
+
+    describe('shipment address change request', () => {
+      it('displays appropriate alerting when an address change is requested for HHG shipment', async () => {
+        await runAlertingTest(SHIPMENT_OPTIONS.HHG);
+      });
+
+      it('displays appropriate alerting when an address change is requested for NTSr shipment', async () => {
+        await runAlertingTest(SHIPMENT_OPTIONS.NTSR);
       });
 
       it('opens a closeable modal when Review Request is clicked', async () => {
@@ -667,10 +681,8 @@ describe('ShipmentForm component', () => {
         expect(queryForModal()).not.toBeInTheDocument();
       });
 
-      it('allows a shipment address update review to be submitted via the modal', async () => {
+      const runShipmentAddressUpdateTest = async (shipmentType) => {
         const user = userEvent.setup();
-
-        const shipmentType = SHIPMENT_OPTIONS.HHG;
         const eTag = '8c32882e7793d9da88e0fdfd68672e2ead2f';
 
         renderWithRouter(
@@ -722,6 +734,14 @@ describe('ShipmentForm component', () => {
           },
           successCallback: expect.any(Function),
         });
+      };
+
+      it('allows a shipment address update review to be submitted via the modal for an HHG shipment', async () => {
+        await runShipmentAddressUpdateTest(SHIPMENT_OPTIONS.HHG);
+      });
+
+      it('allows a shipment address update review to be submitted via the modal for an NTSr shipment', async () => {
+        await runShipmentAddressUpdateTest(SHIPMENT_OPTIONS.NTSR);
       });
     });
   });
@@ -890,8 +910,6 @@ describe('ShipmentForm component', () => {
 
       expect(screen.queryByText('Pickup location')).not.toBeInTheDocument();
       expect(screen.queryByText(/Releasing agent/)).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('Yes')).not.toBeInTheDocument();
-      expect(screen.queryByLabelText('No')).not.toBeInTheDocument();
 
       expect(screen.getByLabelText('Requested delivery date')).toBeInstanceOf(HTMLInputElement);
 
@@ -1083,6 +1101,8 @@ describe('ShipmentForm component', () => {
           counselorRemarks: newCounselorRemarks,
           hasSecondaryDeliveryAddress: false,
           hasSecondaryPickupAddress: false,
+          hasTertiaryDeliveryAddress: false,
+          hasTertiaryPickupAddress: false,
           destinationAddress: {
             streetAddress1: '441 SW Rio de la Plata Drive',
             city: 'Tacoma',
@@ -1214,6 +1234,7 @@ describe('ShipmentForm component', () => {
 
   describe('TOO editing an already existing PPM shipment', () => {
     it('renders the PPM shipment form with pre-filled values as TOO', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -1289,8 +1310,8 @@ describe('ShipmentForm component', () => {
       expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
       expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
       expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-      expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-      expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+      expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+      expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
     });
 
     it('renders the PPM shipment form with pre-filled requested values for Advance Page for TOO', async () => {
@@ -1337,6 +1358,7 @@ describe('ShipmentForm component', () => {
     });
     describe('editing an already existing PPM shipment', () => {
       it('renders the PPM shipment form with pre-filled values', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
         renderWithRouter(
           <ShipmentForm
             {...defaultProps}
@@ -1411,8 +1433,8 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Yes')[0]).toBeChecked();
         expect(screen.getAllByLabelText('No')[0]).not.toBeChecked();
         expect(screen.getByLabelText('Estimated PPM weight')).toHaveValue('4,999');
-        expect(screen.getAllByLabelText('Yes')[1]).toBeChecked();
-        expect(screen.getAllByLabelText('No')[1]).not.toBeChecked();
+        expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
+        expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
       });
     });
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {

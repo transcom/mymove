@@ -122,6 +122,9 @@ When a DDFSIT is requested, the API will auto-create the following group of serv
   - DDDSIT - Domestic destination SIT delivery
   - DDSFSC - Domestic destination SIT fuel surcharge
 
+**NOTE** When providing the `sitEntryDate` value in the payload, please ensure that the date is not BEFORE
+`firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it is, you will receive an error response.
+
 **DDASIT**
 
 **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.
@@ -229,6 +232,33 @@ those to be updated on `DOASIT` (for origin SIT) and `DDASIT` (for destination S
 items, the office users will not have as much attention to those values.
 
 To create a service item, please use [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
+
+* Resubmitting rejected SIT service items: This endpoint will handle the logic of changing the status of rejected SIT service items from
+REJECTED to SUBMITTED. Please provide the `requestedApprovalsRequestedStatus: true` when resubmitting as this will give attention to the TOO to
+review the resubmitted SIT service item. Another note, `updateReason` must have a different value than the current `reason` value on the service item.
+If this value is not updated, then an error will be sent back.
+
+The following SIT service items can be resubmitted following a rejection:
+- DDASIT
+- DDDSIT
+- DDFSIT
+- DOASIT
+- DOPSIT
+- DOFSIT
+- DDSFSC
+- DOSFSC
+
+At a MINIMUM, the payload for resubmitting a rejected SIT service item must look like this:
+```json
+
+	{
+	  "reServiceCode": "DDFSIT",
+	  "updateReason": "A reason that differs from the previous reason",
+	  "modelType": "UpdateMTOServiceItemSIT",
+	  "requestApprovalsRequestedStatus": true
+	}
+
+```
 */
 func (a *Client) UpdateMTOServiceItem(params *UpdateMTOServiceItemParams, opts ...ClientOption) (*UpdateMTOServiceItemOK, error) {
 	// TODO: Validate the params before sending
