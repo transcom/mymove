@@ -27,7 +27,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
-	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
@@ -41,8 +40,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
 	planner := &mocks.Planner{}
-	sitStatusService := sitstatus.NewShipmentSITStatus()
-
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -243,57 +240,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:                  &contactDatePlusGracePeriod,
-					SITEntryDate:                      &aMonthAgo,
-					SITCustomerContacted:              &now,
-					SITRequestedDelivery:              &sitRequestedDelivery,
-					Status:                            "APPROVED",
-					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -334,15 +283,19 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.NoError(err)
@@ -357,318 +310,15 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.Equal(newAddress.PostalCode, updatedServiceItem.SITDestinationFinalAddress.PostalCode)
 	})
 
-	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments
-	// authorized end date then the shipment's end date will be adjusted to be equal to the SITDepartureDate
-	// DESTINATION
-	suite.Run("Successful Prime update - adding SITDepartureDate adjusts shipment's Destination SIT authorized end date", func() {
-		now := time.Now()
-		requestApproavalsRequestedStatus := false
-		year, month, day := now.Add(time.Hour * 24 * -30).Date()
-		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
-		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:                  &contactDatePlusGracePeriod,
-					SITEntryDate:                      &aMonthAgo,
-					SITCustomerContacted:              &now,
-					SITRequestedDelivery:              &sitRequestedDelivery,
-					Status:                            "APPROVED",
-					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
-				},
-			},
-		}, nil)
-		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDDSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:                  &contactDatePlusGracePeriod,
-					SITEntryDate:                      &aMonthAgo,
-					SITCustomerContacted:              &now,
-					SITRequestedDelivery:              &sitRequestedDelivery,
-					Status:                            "REJECTED",
-					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
-				},
-			},
-		}, nil)
-
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(1234, nil)
-
-		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-			MaxDaysTransitTime: 12,
-			WeightLbsLower:     0,
-			WeightLbsUpper:     10000,
-			DistanceMilesLower: 1,
-			DistanceMilesUpper: 2000,
-		}
-		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
-
-		// Try to add SITDestinationFinalAddress
-		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
-		suite.NoError(err)
-		suite.NotNil(updatedServiceItem)
-		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
-
-		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
-		// to the SIT departure date
-		var postUpdatedServiceItemShipment models.MTOShipment
-		suite.DB().Q().Find(&postUpdatedServiceItemShipment, shipment.ID)
-		suite.NotNil(postUpdatedServiceItemShipment)
-		// Verify the departure date is before the original shipment authorized end date
-		suite.True(updatedServiceItem.SITDepartureDate.Before(*shipmentWithCalculatedStatus.DestinationSITAuthEndDate))
-		// Verify the updated shipment authorized end date is equal to the departure date
-		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
-		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-
-	})
-
-	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments
-	// authorized end date then the shipment's end date will be adjusted to be equal to the SITDepartureDate
-	// ORIGIN
-	suite.Run("Successful Prime update - adding SITDepartureDate adjusts shipment's Origin SIT authorized end date", func() {
-		now := time.Now()
-		requestApproavalsRequestedStatus := false
-		year, month, day := now.Add(time.Hour * 24 * -30).Date()
-		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
-		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDOFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:                  &contactDatePlusGracePeriod,
-					SITEntryDate:                      &aMonthAgo,
-					SITCustomerContacted:              &now,
-					SITRequestedDelivery:              &sitRequestedDelivery,
-					Status:                            "APPROVED",
-					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
-				},
-			},
-		}, nil)
-		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDOPSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:                  &contactDatePlusGracePeriod,
-					SITEntryDate:                      &aMonthAgo,
-					SITCustomerContacted:              &now,
-					SITRequestedDelivery:              &sitRequestedDelivery,
-					Status:                            "REJECTED",
-					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
-				},
-			},
-		}, nil)
-
-		planner := &mocks.Planner{}
-		planner.On("ZipTransitDistance",
-			mock.AnythingOfType("*appcontext.appContext"),
-			mock.Anything,
-			mock.Anything,
-		).Return(1234, nil)
-
-		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
-			MaxDaysTransitTime: 12,
-			WeightLbsLower:     0,
-			WeightLbsUpper:     10000,
-			DistanceMilesLower: 1,
-			DistanceMilesUpper: 2000,
-		}
-		_, _ = suite.DB().ValidateAndCreate(&ghcDomesticTransitTime)
-		eTag := etag.GenerateEtag(oldServiceItemPrime.UpdatedAt)
-
-		// Try to add SITDestinationFinalAddress
-		newServiceItemPrime := oldServiceItemPrime
-		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDOFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
-		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipmentWithCalculatedStatus, eTag)
-		suite.NoError(err)
-		suite.NotNil(updatedServiceItem)
-		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
-
-		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
-		// to the SIT departure date
-		var postUpdatedServiceItemShipment models.MTOShipment
-		suite.DB().Q().Find(&postUpdatedServiceItemShipment, shipment.ID)
-		suite.NotNil(postUpdatedServiceItemShipment)
-		// Verify the departure date is before the original shipment authorized end date
-		suite.True(updatedServiceItem.SITDepartureDate.Before(*shipmentWithCalculatedStatus.OriginSITAuthEndDate))
-		// Verify the updated shipment authorized end date is equal to the departure date
-		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
-		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
-
-	})
-
 	suite.Run("Unsuccessful Prime update - updating existing SITDestinationFinalAddres", func() {
 		now := time.Now()
 		year, month, day := now.Add(time.Hour * 24 * -30).Date()
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:     &contactDatePlusGracePeriod,
-					SITEntryDate:         &aMonthAgo,
-					SITCustomerContacted: &now,
-					SITRequestedDelivery: &sitRequestedDelivery,
-					Status:               "APPROVED",
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -712,15 +362,19 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Nil(updatedServiceItem)
@@ -878,56 +532,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:     &contactDatePlusGracePeriod,
-					SITEntryDate:         &aMonthAgo,
-					SITCustomerContacted: &now,
-					SITRequestedDelivery: &sitRequestedDelivery,
-					Status:               "APPROVED",
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -967,15 +574,19 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
-
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Nil(updatedServiceItem)
@@ -993,56 +604,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:     &contactDatePlusGracePeriod,
-					SITEntryDate:         &aMonthAgo,
-					SITCustomerContacted: &now,
-					SITRequestedDelivery: &sitRequestedDelivery,
-					Status:               "APPROVED",
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -1082,15 +646,19 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
-
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(1400)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
 		updatedServiceItem, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Nil(updatedServiceItem)
@@ -1152,55 +720,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		sitRequestedDelivery := time.Now().AddDate(0, 0, 10)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		// Do not provide a custom prime estimated weight
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a origin first day sit in order to properly calculate authorized end date
-		oldDOFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:     &contactDatePlusGracePeriod,
-					SITEntryDate:         &aMonthAgo,
-					SITCustomerContacted: &now,
-					SITRequestedDelivery: &sitRequestedDelivery,
-					Status:               "APPROVED",
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -1239,16 +761,21 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		newServiceItemPrime := oldServiceItemPrime
 		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDOFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(20000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
-		_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
+		_, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.NotFoundError{}, err)
@@ -1261,56 +788,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
 		sitRequestedDelivery := time.Now().AddDate(0, 0, 10)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDOFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDOFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:     &contactDatePlusGracePeriod,
-					SITEntryDate:         &aMonthAgo,
-					SITCustomerContacted: &now,
-					SITRequestedDelivery: &sitRequestedDelivery,
-					Status:               "APPROVED",
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -1349,16 +829,22 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		newServiceItemPrime := oldServiceItemPrime
 		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDOFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
+		shipmentSITAllowance := int(90)
+		estimatedWeight := unit.Pound(20000)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					Status:               models.MTOShipmentStatusApproved,
+					SITDaysAllowance:     &shipmentSITAllowance,
+					PrimeEstimatedWeight: &estimatedWeight,
+					RequiredDeliveryDate: &aMonthAgo,
+					UpdatedAt:            aMonthAgo,
+				},
+			},
+		}, nil)
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
 
-		// Update MTO service item
-
-		_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
+		_, err := updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
@@ -1368,9 +854,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
-	before := time.Now().AddDate(0, 0, -3)
 	now := time.Now()
-	sitStatusService := sitstatus.NewShipmentSITStatus()
 
 	// Test with bad string key
 	suite.Run("bad validatorKey - failure", func() {
@@ -1559,60 +1043,9 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 
 	// Test that when an approved DDDSIT sitDestination is updated the serviceItem stays approved
 	suite.Run("UpdateMTOServiceItemPrimeValidator - Successfully Update Approved ServiceItem sitDepartureDate", func() {
-		year, month, day := now.Add(time.Hour * 24 * -30).Date()
-		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		contactDatePlusGracePeriod := now.AddDate(0, 0, GracePeriodDays)
-		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
-		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		shipmentSITAllowance := int(90)
-		estimatedWeight := unit.Pound(1400)
-		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
-			{
-				Model: models.MTOShipment{
-					Status:               models.MTOShipmentStatusApproved,
-					SITDaysAllowance:     &shipmentSITAllowance,
-					PrimeEstimatedWeight: &estimatedWeight,
-					RequiredDeliveryDate: &aMonthAgo,
-					UpdatedAt:            aMonthAgo,
-				},
-			},
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-		}, nil)
-		// We need to create a destination first day sit in order to properly calculate authorized end date
-		oldDDFSITServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
-			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
-				LinkOnly: true,
-			},
-			{
-				Model: models.ReService{
-					Code: models.ReServiceCodeDDFSIT,
-				},
-			},
-			{
-				Model: models.MTOServiceItem{
-					SITDepartureDate:     &contactDatePlusGracePeriod,
-					SITEntryDate:         &aMonthAgo,
-					SITCustomerContacted: &now,
-					SITRequestedDelivery: &sitRequestedDelivery,
-					Status:               "APPROVED",
-				},
-			},
-		}, nil)
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
-				Model:    move,
-				LinkOnly: true,
-			},
-			{
-				Model:    shipment,
+				Model:    factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil),
 				LinkOnly: true,
 			},
 			{
@@ -1623,14 +1056,12 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			{
 				Model: models.MTOServiceItem{
 					SITDepartureDate: &now,
-					SITEntryDate:     &before,
 					Status:           models.MTOServiceItemStatusApproved,
 				},
 			},
 		}, nil)
 
 		newServiceItemPrime := oldServiceItemPrime
-		newServiceItemPrime.SITEntryDate = nil
 		newServiceItemPrime.RequestedApprovalsRequestedStatus = nil
 
 		// Change sitDepartureDate:
@@ -1643,14 +1074,6 @@ func (suite *MTOServiceItemServiceSuite) TestValidateUpdateMTOServiceItem() {
 			verrs:               validate.NewErrors(),
 			availabilityChecker: checker,
 		}
-		// Set shipment SIT status
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
-		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
-		suite.MustSave(&shipmentWithCalculatedStatus)
-		suite.NoError(err)
-		suite.NotNil(sitStatus)
-
-		// Update MTO service item
 		updatedServiceItem, err := ValidateUpdateMTOServiceItem(suite.AppContextForTest(), &serviceItemData, UpdateMTOServiceItemPrimeValidator)
 
 		suite.NoError(err)
@@ -2330,7 +1753,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	})
 
 	suite.Run("Returns a not found error if the updater can't find the MTO Shipment in the DB.", func() {
-		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
+		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		_, err := updater.ConvertItemToCustomerExpense(
 			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)
