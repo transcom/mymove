@@ -21,12 +21,12 @@ import { BRANCH_OPTIONS, GBLOC } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import TabNav from 'components/TabNav';
 import { tioRoutes, generalRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
@@ -141,7 +141,7 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
 const PaymentRequestQueue = () => {
   const { queueType } = useParams();
   const navigate = useNavigate();
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
 
@@ -165,6 +165,7 @@ const PaymentRequestQueue = () => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -173,6 +174,8 @@ const PaymentRequestQueue = () => {
         payload.dodID = values.searchText;
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
     setSearch(payload);
@@ -237,6 +240,7 @@ const PaymentRequestQueue = () => {
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
+            paymentRequestCode={search.paymentRequestCode}
             customerName={search.customerName}
             roleType={roleTypes.TIO}
           />

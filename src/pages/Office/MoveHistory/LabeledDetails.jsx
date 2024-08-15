@@ -71,13 +71,6 @@ export const retrieveTextToDisplay = (fieldName, value) => {
   const { fn: valueFormatFn } = getMappedDisplayName(fieldName);
   const displayValue = valueFormatFn({ value });
 
-  if (fieldName === 'has_received_advance') {
-    return {
-      displayName,
-      displayValue: (!`${value}` && '—') || (value && displayValue) || 'No',
-    };
-  }
-
   return {
     displayName,
     displayValue: (!`${value}` && '—') || (value !== null && value !== '' && displayValue) || '—',

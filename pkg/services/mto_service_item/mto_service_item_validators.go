@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // UpdateMTOServiceItemBasicValidator is the key for generic validation on the MTO Service Item
@@ -36,6 +37,20 @@ var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDOASIT,
 	models.ReServiceCodeDOSFSC,
 }
+
+var destSITServiceItems = []models.ReServiceCode{
+	models.ReServiceCodeDDDSIT,
+	models.ReServiceCodeDDASIT,
+	models.ReServiceCodeDDFSIT,
+	models.ReServiceCodeDDSFSC,
+}
+
+// Manual updates to SIT Departure dates are allowed for these service items
+var (
+	OriginReServiceCodesAllowedForSITDepartureDateUpdate      = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
+	ReServiceCodesAllowedForSITDepartureDateUpdate            = append(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, OriginReServiceCodesAllowedForSITDepartureDateUpdate...)
+)
 
 type updateMTOServiceItemValidator interface {
 	validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error
@@ -105,6 +120,19 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Checks that only SITDepartureDate is only updated for DDDSIT and DOPSIT objects
 	err = serviceItemData.checkSITDeparture(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that only SIT Entry Date occurs AFTER the FADD
+	err = serviceItemData.checkSITEntryDateAndFADD(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that the SITDepartureDate
+	// - is not before the current entry date
+	err = serviceItemData.checkSITDepartureDate(appCtx)
 	if err != nil {
 		return err
 	}
@@ -380,6 +408,60 @@ func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) er
 			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOSFSC))
 }
 
+// checkSITEntryDateAndFADD checks that the SIT entry date occurs after the FADD for destination SIT
+func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppContext) error {
+	if slices.Contains(destSITServiceItems, v.oldServiceItem.ReService.Code) {
+		// if they are attempting to update the SIT entry date
+		if v.updatedServiceItem.SITEntryDate != nil {
+			var contacts models.MTOServiceItemCustomerContacts
+			if v.updatedServiceItem.CustomerContacts != nil {
+				contacts = v.updatedServiceItem.CustomerContacts
+			} else if v.oldServiceItem.CustomerContacts != nil {
+				contacts = v.oldServiceItem.CustomerContacts
+			}
+
+			for _, contact := range contacts {
+				if !contact.FirstAvailableDeliveryDate.IsZero() &&
+					v.updatedServiceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
+					return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+						v.updatedServiceItem.SITEntryDate.Format("2006-01-02"), contact.FirstAvailableDeliveryDate.Format("2006-01-02")))
+				}
+			}
+		}
+		return nil
+	}
+	return nil
+}
+
+// checkSITDepartureDate checks that the SITDepartureDate:
+// - is not later than the authorized end date
+func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext) error {
+	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
+		return nil // the SITDepartureDate isn't being updated, so we're fine here
+	}
+
+	if v.updatedServiceItem.SITDepartureDate != nil {
+		if v.oldServiceItem.MTOShipmentID == nil || *v.oldServiceItem.MTOShipmentID == uuid.Nil {
+			// If we are updating the SIT departure date, there must be an attached MTO shipment to this service item
+			// Otherwise, authorized end dates cannot be calculated or validated properly
+			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data.", v.updatedServiceItem.ID))
+		}
+		// Set the SIT entry date we are going to use for comparison
+		if v.updatedServiceItem.SITEntryDate == nil && v.oldServiceItem.SITEntryDate == nil {
+			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have a SIT entry date attached.", v.updatedServiceItem.ID))
+		}
+		SITEntryDate := v.oldServiceItem.SITEntryDate
+		if v.updatedServiceItem.SITEntryDate != nil {
+			SITEntryDate = v.updatedServiceItem.SITEntryDate
+		}
+		// Check that departure date is not before the current entry date
+		if v.updatedServiceItem.SITDepartureDate.Before(*SITEntryDate) {
+			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before the SIT entry date.")
+		}
+	}
+	return nil
+}
+
 // checkSITDestinationOriginalAddress checks that SITDestinationOriginalAddress isn't being changed
 func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDestinationOriginalAddress == nil {
@@ -616,4 +698,45 @@ func paymentRequestCheckAllowableFieldCheck(serviceItemData *updateMTOServiceIte
 	}
 
 	return false
+}
+
+// checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one requested
+func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) error {
+	var duplicateServiceItem models.MTOServiceItem
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("move_id", "=", serviceItem.MoveTaskOrderID),
+		query.NewQueryFilter("re_service_id", "=", serviceItem.ReServiceID),
+	}
+	if serviceItem.MTOShipmentID != nil {
+		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipment_id", "=", serviceItem.MTOShipmentID))
+	}
+
+	// We DON'T want to find this service item:
+	err := o.builder.FetchOne(appCtx, &duplicateServiceItem, queryFilters)
+	if err == nil && duplicateServiceItem.ID != uuid.Nil {
+		return apperror.NewConflictError(duplicateServiceItem.ID,
+			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
+	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
+		return err
+	}
+
+	return nil
+}
+
+// checkSITEntryDateAndFADD checks that the SIT entry date is not before the First Available Delivery Date
+func (o *mtoServiceItemCreator) checkSITEntryDateAndFADD(serviceItem *models.MTOServiceItem) error {
+	if serviceItem.SITEntryDate == nil {
+		return nil
+	}
+
+	for _, contact := range serviceItem.CustomerContacts {
+		if !contact.FirstAvailableDeliveryDate.IsZero() &&
+			serviceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
+			return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+				serviceItem.SITEntryDate.Format("2006-01-02"), contact.FirstAvailableDeliveryDate.Format("2006-01-02")))
+		}
+	}
+
+	return nil
 }

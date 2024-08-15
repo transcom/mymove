@@ -80,6 +80,7 @@ func (suite *PPMShipmentSuite) TestMergePPMShipment() {
 			ID:                    id,
 			ShipmentID:            shipmentID,
 			Status:                models.PPMShipmentStatusDraft,
+			ActualMoveDate:        &today,
 			ExpectedDepartureDate: time.Date(2020, time.March, 15, 0, 0, 0, 0, time.UTC),
 			PickupAddress: &models.Address{
 				StreetAddress1: "123 Pickup",

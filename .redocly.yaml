@@ -8,6 +8,7 @@ apiDefinitions:
   prime_v2: swagger-def/prime_v2.yaml
   prime_v3: swagger-def/prime_v3.yaml
   support: swagger-def/support.yaml
+  pptas: swagger-def/pptas.yaml
 lint:
   extends:
     - recommended

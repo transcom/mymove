@@ -288,6 +288,10 @@ export default function ReviewExpense({
             setCurrentCategoryIndex(count + 1);
           };
 
+          const sitAdditionalStartDate = sitStartDateValue
+            ? moment(sitStartDateValue, 'YYYY-MM-DD').add(1, 'days')
+            : '##';
+
           const daysInSIT =
             sitStartDateValue && sitEndDateValue
               ? moment(sitEndDateValue, 'YYYY-MM-DD')
@@ -373,8 +377,10 @@ export default function ReviewExpense({
                         ppmShipmentInfo={ppmShipmentInfo}
                         ppmSITLocation={ppmSITLocation}
                         sitStartDate={sitStartDateValue}
+                        sitAdditionalStartDate={sitAdditionalStartDate}
                         sitEndDate={sitEndDateValue}
                         weightStored={weightStoredValue}
+                        actualWeight={actualWeight}
                         useQueries={useGetPPMSITEstimatedCostQuery}
                         setEstimatedCost={setEstimatedCost}
                       />

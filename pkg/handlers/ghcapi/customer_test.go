@@ -261,6 +261,7 @@ func (suite *HandlerSuite) TestCreateCustomerWithOktaOptionHandler() {
 			Telephone:     handlers.FmtString("223-455-3399"),
 			Affiliation:   &affiliation,
 			Edipi:         customer.Edipi,
+			Emplid:        handlers.FmtString(""),
 			PersonalEmail: *handlers.FmtString("email@email.com"),
 			BackupContact: &ghcmessages.BackupContact{
 				Name:  handlers.FmtString("New Backup Contact"),
@@ -312,7 +313,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 	suite.Run("Successful customer search by DOD ID", func() {
 		req := setupTestData()
 		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
-		customers := models.ServiceMembers{customer}
+		customers := models.ServiceMemberSearchResults{customer.ToSearchResult()}
 
 		mockSearcher := mocks.CustomerSearcher{}
 
@@ -347,7 +348,7 @@ func (suite *HandlerSuite) TestSearchCustomersHandler() {
 	suite.Run("Successful customer search by name", func() {
 		req := setupTestData()
 		customer := factory.BuildServiceMember(suite.DB(), nil, nil)
-		customers := models.ServiceMembers{customer}
+		customers := models.ServiceMemberSearchResults{customer.ToSearchResult()}
 
 		mockSearcher := mocks.CustomerSearcher{}
 

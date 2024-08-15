@@ -97,6 +97,7 @@ type SearchMovesParams struct {
 	DodID                 *string
 	Emplid                *string
 	CustomerName          *string
+	PaymentRequestCode    *string
 	DestinationPostalCode *string
 	OriginPostalCode      *string
 	Status                []string
@@ -107,8 +108,13 @@ type SearchMovesParams struct {
 	Order                 *string
 	PickupDate            *time.Time
 	DeliveryDate          *time.Time
+	MoveCreatedDate       *time.Time
 }
 
 type MoveCloseoutOfficeUpdater interface {
 	UpdateCloseoutOffice(appCtx appcontext.AppContext, moveLocator string, closeoutOfficeID uuid.UUID, eTag string) (*models.Move, error)
+}
+
+type MoveCanceler interface {
+	CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error)
 }

@@ -1714,6 +1714,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -2124,7 +2130,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -5147,6 +5154,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -5557,7 +5570,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },

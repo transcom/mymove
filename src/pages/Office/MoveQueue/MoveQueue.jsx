@@ -16,7 +16,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { DATE_FORMAT_STRING } from 'shared/constants';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
@@ -24,6 +23,7 @@ import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const columns = (moveLockFlag, showBranchFilter = true) => [
@@ -145,7 +145,7 @@ export const columns = (moveLockFlag, showBranchFilter = true) => [
 const MoveQueue = () => {
   const navigate = useNavigate();
   const { queueType } = useParams();
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
 
@@ -163,6 +163,7 @@ const MoveQueue = () => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -171,6 +172,8 @@ const MoveQueue = () => {
         payload.dodID = values.searchText.trim();
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText.trim();
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
     setSearch(payload);
@@ -249,6 +252,7 @@ const MoveQueue = () => {
             moveCode={search.moveCode}
             dodID={search.dodID}
             customerName={search.customerName}
+            paymentRequestCode={search.paymentRequestCode}
             roleType={roleTypes.TOO}
           />
         )}

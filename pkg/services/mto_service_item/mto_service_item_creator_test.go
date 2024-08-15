@@ -1149,7 +1149,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		return contacts
 	}
 
-	sitEntryDate := time.Now()
+	sitEntryDate := time.Now().AddDate(0, 0, 1)
 	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
 	attemptedContact := time.Now()
 
@@ -1307,6 +1307,36 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(err.Error(), fmt.Sprintf("A service item with reServiceCode %s already exists for this move and/or shipment.", models.ReServiceCodeDDFSIT))
 	})
 
+	suite.Run("Failure - SIT entry date is before FADD for DDFSIT creation", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		sitEntryDateBeforeToday := time.Now().AddDate(0, 0, -1)
+
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDateBeforeToday,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		// Make a second attempt to add a DDFSIT
+		serviceItem, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(serviceItem)
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+			serviceItemDDFSIT.SITEntryDate.Format("2006-01-02"),
+			serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
 	// Successful creation of DDASIT service item
 	suite.Run("Success - DDASIT creation approved", func() {
 		shipment, creator, reServiceDDFSIT := setupTestData()
@@ -1364,6 +1394,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Status:             models.MoveStatusAPPROVED,
 				},
 			},

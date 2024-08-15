@@ -133,7 +133,7 @@ func ServiceParamLookupInitialize(
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		err := appCtx.DB().Load(&mtoServiceItem, "Dimensions")
 		if err != nil {
 			return nil, err
@@ -193,7 +193,7 @@ func ServiceParamLookupInitialize(
 
 		pickupAddress, err = getPickupAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
-			return nil, fmt.Errorf("not found looking for pickup address")
+			return nil, fmt.Errorf("Not found looking for pickup address")
 		}
 
 		destinationAddress, err = getDestinationAddressForService(appCtx, mtoServiceItem.ReService.Code, mtoShipment)

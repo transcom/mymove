@@ -2239,6 +2239,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -2699,6 +2700,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:
@@ -2840,6 +2853,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true

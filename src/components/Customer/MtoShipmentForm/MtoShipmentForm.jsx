@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { bool, func, string } from 'prop-types';
 import { Field, Formik } from 'formik';
 import { generatePath } from 'react-router-dom';
@@ -12,7 +12,10 @@ import {
   Label,
   Radio,
   Textarea,
+  Button,
 } from '@trussworks/react-uswds';
+
+import boatShipmentstyles from '../BoatShipment/BoatShipmentForm/BoatShipmentForm.module.scss';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';
@@ -30,8 +33,13 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes } from 'constants/routes';
 import { roleTypes } from 'constants/userRoles';
 import { shipmentForm } from 'content/shipments';
-import { createMTOShipment, getResponseError, patchMTOShipment } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import {
+  createMTOShipment,
+  getResponseError,
+  patchMTOShipment,
+  dateSelectionIsWeekendHoliday,
+} from 'services/internalApi';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AddressShape, SimpleAddressShape } from 'types/address';
 import { OrdersShape } from 'types/customerShapes';
@@ -42,6 +50,7 @@ import { validateDate } from 'utils/validation';
 import withRouter from 'utils/routing';
 import { ORDERS_TYPE } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { dateSelectionWeekendHolidayCheck } from 'shared/calendar';
 
 const blankAddress = {
   address: {
@@ -92,6 +101,7 @@ class MtoShipmentForm extends Component {
       mtoShipment,
       updateMTOShipment,
     } = this.props;
+
     const { moveId } = params;
 
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
@@ -169,18 +179,23 @@ class MtoShipmentForm extends Component {
       orders,
       currentResidence,
       router: { params, navigate },
+      handleBack,
     } = this.props;
+
     const { moveId } = params;
     const { isTertiaryAddressEnabled } = this.state;
     const { errorMessage } = this.state;
     const { showDeliveryFields, showPickupFields, schema } = getShipmentOptions(shipmentType, roleTypes.CUSTOMER);
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
-    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG ? this.getShipmentNumber() : null;
+    const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
+    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG || isBoat ? this.getShipmentNumber() : null;
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
-    const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
+    const initialValues = formatMtoShipmentForDisplay(
+      isCreatePage && !mtoShipment?.requestedPickupDate ? {} : mtoShipment, // check if data carried over from boat shipment
+    );
 
     const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 
@@ -199,6 +214,8 @@ class MtoShipmentForm extends Component {
             hasSecondaryDelivery,
             hasTertiaryPickup,
             hasTertiaryDelivery,
+            pickup,
+            delivery,
           } = values;
 
           const handleUseCurrentResidenceChange = (e) => {
@@ -234,6 +251,54 @@ class MtoShipmentForm extends Component {
             }
           };
 
+          const [isPreferredPickupDateAlertVisible, setIsPreferredPickupDateAlertVisible] = useState(false);
+          const [isPreferredDeliveryDateAlertVisible, setIsPreferredDeliveryDateAlertVisible] = useState(false);
+          const [preferredPickupDateAlertMessage, setPreferredPickupDateAlertMessage] = useState('');
+          const [preferredDeliveryDateAlertMessage, setPreferredDeliveryDateAlertMessage] = useState('');
+          const DEFAULT_COUNTRY_CODE = 'US';
+
+          const onDateSelectionErrorHandler = (e) => {
+            const { response } = e;
+            const msg = getResponseError(response, 'failed to retrieve date selection weekend/holiday info');
+            this.setState({ errorMessage: msg });
+          };
+
+          useEffect(() => {
+            if (pickup?.requestedDate !== '') {
+              const preferredPickupDateSelectionHandler = (countryCode, date) => {
+                dateSelectionWeekendHolidayCheck(
+                  dateSelectionIsWeekendHoliday,
+                  countryCode,
+                  date,
+                  'Preferred pickup date',
+                  setPreferredPickupDateAlertMessage,
+                  setIsPreferredPickupDateAlertVisible,
+                  onDateSelectionErrorHandler,
+                );
+              };
+              const dateSelection = new Date(pickup.requestedDate);
+              preferredPickupDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
+            }
+          }, [pickup.requestedDate]);
+
+          useEffect(() => {
+            if (delivery?.requestedDate !== '') {
+              const preferredDeliveryDateSelectionHandler = (countryCode, date) => {
+                dateSelectionWeekendHolidayCheck(
+                  dateSelectionIsWeekendHoliday,
+                  countryCode,
+                  date,
+                  'Preferred delivery date',
+                  setPreferredDeliveryDateAlertMessage,
+                  setIsPreferredDeliveryDateAlertVisible,
+                  onDateSelectionErrorHandler,
+                );
+              };
+              const dateSelection = new Date(delivery.requestedDate);
+              preferredDeliveryDateSelectionHandler(DEFAULT_COUNTRY_CODE, dateSelection);
+            }
+          }, [delivery.requestedDate]);
+
           return (
             <GridContainer>
               <Grid row>
@@ -265,6 +330,11 @@ class MtoShipmentForm extends Component {
                               pickup/load date should be your latest preferred pickup/load date, or the date you need to
                               be out of your origin residence.
                             </Hint>
+                            {isPreferredPickupDateAlertVisible && (
+                              <Alert type="warning" aria-live="polite" headingLevel="h4">
+                                {preferredPickupDateAlertMessage}
+                              </Alert>
+                            )}
                             <DatePickerInput
                               name="pickup.requestedDate"
                               label="Preferred pickup date"
@@ -379,6 +449,11 @@ class MtoShipmentForm extends Component {
                               You will finalize an actual delivery date later by talking with your Customer Care
                               Representative once the shipment is underway.
                             </Hint>
+                            {isPreferredDeliveryDateAlertVisible && (
+                              <Alert type="warning" aria-live="polite" headingLevel="h4">
+                                {preferredDeliveryDateAlertMessage}
+                              </Alert>
+                            )}
                             <DatePickerInput
                               name="delivery.requestedDate"
                               label="Preferred delivery date"
@@ -545,59 +620,83 @@ class MtoShipmentForm extends Component {
                         </SectionWrapper>
                       )}
 
-                      <SectionWrapper className={formStyles.formSection}>
-                        <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
-                          <Label htmlFor="customerRemarks">
-                            Are there things about this shipment that your counselor or movers should discuss with you?
-                          </Label>
+                      {!isBoat && (
+                        <SectionWrapper className={formStyles.formSection}>
+                          <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
+                            <Label htmlFor="customerRemarks">
+                              Are there things about this shipment that your counselor or movers should discuss with
+                              you?
+                            </Label>
 
-                          <Callout>
-                            Examples
-                            <ul>
-                              {isNTSR && (
-                                <li>
-                                  Details about the facility where your things are now, including the name or address
-                                  (if you know them)
-                                </li>
-                              )}
-                              <li>Large, bulky, or fragile items</li>
-                              <li>Access info for your origin or destination address</li>
-                              <li>You’re shipping weapons or alcohol</li>
-                            </ul>
-                          </Callout>
+                            <Callout>
+                              Examples
+                              <ul>
+                                {isNTSR && (
+                                  <li>
+                                    Details about the facility where your things are now, including the name or address
+                                    (if you know them)
+                                  </li>
+                                )}
+                                <li>Large, bulky, or fragile items</li>
+                                <li>Access info for your origin or destination address</li>
+                                <li>You’re shipping weapons or alcohol</li>
+                              </ul>
+                            </Callout>
 
-                          <Field
-                            as={Textarea}
-                            data-testid="remarks"
-                            name="customerRemarks"
-                            className={`${formStyles.remarks}`}
-                            placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
-                            id="customerRemarks"
-                            maxLength={250}
-                          />
-                          <Hint>
-                            <p>250 characters</p>
-                          </Hint>
-                        </Fieldset>
-                      </SectionWrapper>
-
+                            <Field
+                              as={Textarea}
+                              data-testid="remarks"
+                              name="customerRemarks"
+                              className={`${formStyles.remarks}`}
+                              placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
+                              id="customerRemarks"
+                              maxLength={250}
+                            />
+                            <Hint>
+                              <p>250 characters</p>
+                            </Hint>
+                          </Fieldset>
+                        </SectionWrapper>
+                      )}
                       <Hint darkText>
                         <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
-                      <div className={formStyles.formActions}>
-                        <WizardNavigation
-                          disableNext={isSubmitting || !isValid}
-                          editMode={!isCreatePage}
-                          onNextClick={handleSubmit}
-                          onBackClick={() => {
-                            navigate(-1);
-                          }}
-                          onCancelClick={() => {
-                            navigate(-1);
-                          }}
-                        />
-                      </div>
+                      {isBoat ? (
+                        <div className={boatShipmentstyles.buttonContainer}>
+                          <Button
+                            className={boatShipmentstyles.backButton}
+                            type="button"
+                            onClick={handleBack}
+                            secondary
+                            outline
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            className={boatShipmentstyles.saveButton}
+                            type="button"
+                            onClick={handleSubmit}
+                            disabled={!isValid || isSubmitting}
+                          >
+                            Save & Continue
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className={formStyles.formActions}>
+                          <WizardNavigation
+                            disableNext={isSubmitting || !isValid}
+                            editMode={!isCreatePage}
+                            onNextClick={handleSubmit}
+                            onBackClick={() => {
+                              navigate(-1);
+                            }}
+                            onCancelClick={() => {
+                              navigate(-1);
+                            }}
+                          />
+                        </div>
+                      )}
                     </Form>
                   </div>
                 </Grid>

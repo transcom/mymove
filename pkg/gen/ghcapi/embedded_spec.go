@@ -884,7 +884,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -898,7 +898,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1896,6 +1896,11 @@ func init() {
                   "description": "requested page of results",
                   "type": "integer"
                 },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
+                },
                 "perPage": {
                   "type": "integer"
                 },
@@ -2223,6 +2228,58 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -6001,11 +6058,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -7458,7 +7518,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -7943,6 +8004,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -8905,6 +8972,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -9314,6 +9386,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -10220,13 +10297,97 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -10586,7 +10747,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -10685,6 +10847,21 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -11601,7 +11778,8 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true
+          "x-nullable": true,
+          "example": 1234567890
         },
         "emplid": {
           "type": "string",
@@ -11723,6 +11901,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -14514,7 +14697,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -14528,7 +14711,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -15808,6 +15991,11 @@ func init() {
                   "description": "requested page of results",
                   "type": "integer"
                 },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
+                },
                 "perPage": {
                   "type": "integer"
                 },
@@ -16210,6 +16398,76 @@ func init() {
           "format": "string",
           "description": "move code to identify a move for payment requests",
           "name": "locator",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
           "in": "path",
           "required": true
         }
@@ -20822,11 +21080,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -22283,7 +22544,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -22768,6 +23030,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -23730,6 +23998,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -24139,6 +24412,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -25046,14 +25324,170 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsAdditionalDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "numberDaysSIT": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "30"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "0.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsFirstDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "20.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
         }
       }
     },
@@ -25412,7 +25846,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -25511,6 +25946,21 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -26479,7 +26929,8 @@ func init() {
         },
         "dodID": {
           "type": "string",
-          "x-nullable": true
+          "x-nullable": true,
+          "example": 1234567890
         },
         "emplid": {
           "type": "string",
@@ -26601,6 +27052,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",

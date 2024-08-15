@@ -252,7 +252,7 @@ export function formatMtoShipmentForDisplay({
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
-    displayValues.hasDeliveryAddress = 'yes';
+    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'yes';
   }
 
   if (destinationType) {
@@ -504,6 +504,20 @@ export function getMtoShipmentLabel({ context }) {
   return mtoShipmentLabels;
 }
 
+// Convert feet and inches to all inches for Boat & Mobile Homes
+export function toTotalInches(feet, inches) {
+  return (Number(feet) || 0) * 12 + (Number(inches) || 0);
+}
+
+// Convert inches to feet and inches
+export function convertInchesToFeetAndInches(totalInches) {
+  if (!totalInches) return { feet: '', inches: '' };
+
+  const feet = Math.floor(totalInches / 12).toString();
+  const inches = (totalInches % 12).toString();
+  return { feet, inches };
+}
+
 export default {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
@@ -511,4 +525,6 @@ export default {
   formatStorageFacilityForAPI,
   removeEtag,
   getMtoShipmentLabel,
+  toTotalInches,
+  convertInchesToFeetAndInches,
 };

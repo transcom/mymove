@@ -1482,6 +1482,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -1726,6 +1738,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -2160,7 +2178,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -4995,6 +5014,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -5239,6 +5270,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -5673,7 +5710,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },

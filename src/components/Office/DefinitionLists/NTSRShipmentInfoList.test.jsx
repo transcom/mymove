@@ -209,27 +209,26 @@ describe('NTSR Shipment Info', () => {
       expect(screen.queryByTestId('storageFacility')).toBeNull();
       expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
       expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
-      expect(screen.queryByTestId('tertiaryDeliveryAddress')).toBeNull();
       expect(screen.queryByTestId('receivingAgent')).toBeNull();
       expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
     });
-  });
 
-  describe('NTSR Shipment Info List Destination Address Request', () => {
-    it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
-      render(
-        <NTSRShipmentInfoList
-          isExpanded
-          shipment={shipmentWithDeliveryAddressUpdate}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-        />,
-      );
+    describe('NTSR Shipment Info List Destination Address Request', () => {
+      it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+        render(
+          <NTSRShipmentInfoList
+            isExpanded
+            shipment={shipmentWithDeliveryAddressUpdate}
+            warnIfMissing={warnIfMissing}
+            errorIfMissing={errorIfMissing}
+            showWhenCollapsed={showWhenCollapsed}
+          />,
+        );
 
-      const destinationAddress = screen.getByTestId('destinationAddress');
-      expect(destinationAddress).toBeInTheDocument();
-      expect(destinationAddress).toHaveTextContent('Review required');
+        const destinationAddress = screen.getByTestId('destinationAddress');
+        expect(destinationAddress).toBeInTheDocument();
+        expect(destinationAddress).toHaveTextContent('Review required');
+      });
     });
   });
 });
