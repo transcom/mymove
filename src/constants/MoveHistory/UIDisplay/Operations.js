@@ -30,6 +30,7 @@ export default {
   updateMTOShipmentAddress: 'updateMTOShipmentAddress', // prime.yaml
   updateMTOShipmentStatus: 'updateMTOShipmentStatus',
   updateMTOStatusServiceCounselingCompleted: 'updateMTOStatusServiceCounselingCompleted',
+  updateMTOPostCounselingInformation: 'updateMTOPostCounselingInformation', // prime.yaml
   updateOrder: 'updateOrder', // ghc.yaml
   updateOrders: 'updateOrders', // internal.yaml
   updatePaymentRequestStatus: 'updatePaymentRequestStatus',
