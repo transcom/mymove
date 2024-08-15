@@ -177,7 +177,7 @@ const ServiceItemsTable = ({
 
   const sortedServiceItems = sortServiceItems(serviceItems);
   const tableRows = sortedServiceItems.map((serviceItem) => {
-    const { id, code, details, mtoShipmentID, sitAddressUpdates, serviceRequestDocuments, ...item } = serviceItem;
+    const { id, code, details, mtoShipmentID, serviceRequestDocuments, ...item } = serviceItem;
     let hasPaymentRequestBeenMade;
     // if there are service items in the payment requests, we want to look to see if the service item is in there
     // if so, we don't want to let the TOO edit the SIT entry date
