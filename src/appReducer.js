@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux';
-import { reducer as formReducer } from 'redux-form';
 import storage from 'redux-persist/lib/storage';
 import { persistReducer } from 'redux-persist';
 
@@ -21,7 +20,6 @@ const authPersistConfig = {
 const defaultReducers = {
   auth: persistReducer(authPersistConfig, authReducer),
   flash: flashReducer,
-  form: formReducer,
   swaggerPublic: swaggerReducerPublic,
   requests: requestsReducer,
   entities: entitiesReducer,

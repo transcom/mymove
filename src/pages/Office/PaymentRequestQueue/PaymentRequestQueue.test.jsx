@@ -109,7 +109,7 @@ jest.mock('hooks/queries', () => ({
     };
   },
 }));
-const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
+const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
 
 describe('PaymentRequestQueue', () => {
   const client = new QueryClient();
@@ -299,7 +299,26 @@ describe('PaymentRequestQueue', () => {
     expect(screen.queryByText('Results (1)')).toBeInTheDocument();
     expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
   });
-  it('has 3 options for searches', async () => {
+  it('searches by Move Code and displays possible filters for status', async () => {
+    reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
+    render(
+      <reactRouterDom.BrowserRouter>
+        <PaymentRequestQueue />
+      </reactRouterDom.BrowserRouter>,
+    );
+    // Simulate user input and form submission
+    const searchSelection = screen.getByLabelText('Payment Request Number');
+    await userEvent.click(searchSelection);
+
+    const searchInput = screen.getByTestId('searchText');
+    await userEvent.type(searchInput, '1234-5678-9');
+    await userEvent.click(screen.getByTestId('searchTextSubmit'));
+    // Assert search results are displayed
+
+    expect(screen.queryByText('Results (1)')).toBeInTheDocument();
+    expect(screen.queryByTestId('table-queue')).toBeInTheDocument();
+  });
+  it('has 4 options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
       <reactRouterDom.BrowserRouter>
