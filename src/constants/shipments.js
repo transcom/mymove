@@ -1,11 +1,14 @@
 /* eslint-disable import/prefer-default-export */
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 
 export const shipmentTypes = {
   [SHIPMENT_OPTIONS.HHG]: 'HHG',
   [SHIPMENT_OPTIONS.PPM]: 'PPM',
   [SHIPMENT_OPTIONS.NTS]: 'NTS',
   [SHIPMENT_OPTIONS.NTSR]: 'NTS-release',
+  [SHIPMENT_OPTIONS.BOAT]: 'Boat',
+  [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
+  [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
 };
 
 export const shipmentModificationTypes = {
@@ -37,6 +40,11 @@ export const ppmShipmentStatuses = {
   NEEDS_ADVANCE_APPROVAL: 'NEEDS_ADVANCE_APPROVAL',
   NEEDS_CLOSEOUT: 'NEEDS_CLOSEOUT',
   CLOSEOUT_COMPLETE: 'CLOSEOUT_COMPLETE',
+};
+
+export const boatShipmentTypes = {
+  HAUL_AWAY: 'HAUL_AWAY',
+  TOW_AWAY: 'TOW_AWAY',
 };
 
 export const shipmentDestinationTypes = {
