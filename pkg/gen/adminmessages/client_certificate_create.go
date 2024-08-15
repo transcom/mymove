@@ -52,9 +52,6 @@ type ClientCertificateCreate struct {
 	// allow orders API
 	AllowOrdersAPI bool `json:"allowOrdersAPI,omitempty"`
 
-	// allow p p t a s
-	AllowPPTAS bool `json:"allowPPTAS,omitempty"`
-
 	// allow prime
 	AllowPrime bool `json:"allowPrime,omitempty"`
 

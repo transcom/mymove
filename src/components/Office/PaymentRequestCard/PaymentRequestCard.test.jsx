@@ -137,24 +137,6 @@ describe('PaymentRequestCard', () => {
       },
     ],
   };
-  const nonWeightReliantPaymentRequest = {
-    id: '29474c6a-69b6-4501-8e08-670a12512e5f',
-    createdAt: '2020-12-01T00:00:00.000Z',
-    moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
-    paymentRequestNumber: '1843-9061-2',
-    moveTaskOrder: move,
-    status: 'PENDING',
-    serviceItems: [
-      {
-        id: '09474c6a-69b6-4501-8e08-670a12512a5f',
-        createdAt: '2020-12-01T00:00:00.000Z',
-        mtoServiceItemCode: 'MS',
-        mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
-        priceCents: 2000001,
-        status: 'REQUESTED',
-      },
-    ],
-  };
   const ediErrorPaymentRequest = {
     id: '29474c6a-69b6-4501-8e08-670a12512e5f',
     createdAt: '2020-12-01T00:00:00.000Z',
@@ -181,6 +163,24 @@ describe('PaymentRequestCard', () => {
     ediErrorType: '858',
     ediErrorCode: '1A',
     ediErrorDescription: 'Test description',
+  };
+  const nonWeightReliantPaymentRequest = {
+    id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+    createdAt: '2020-12-01T00:00:00.000Z',
+    moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+    paymentRequestNumber: '1843-9061-2',
+    moveTaskOrder: move,
+    status: 'PENDING',
+    serviceItems: [
+      {
+        id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemCode: 'MS',
+        mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 2000001,
+        status: 'REQUESTED',
+      },
+    ],
   };
   describe('pending payment request', () => {
     const wrapper = mount(

@@ -80,7 +80,7 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 			/** Feature Flag - Mobile Home Shipment **/
 			isMobileHomeFeatureOn := false
-			featureFlagNameMH := "mobileHome"
+			featureFlagNameMH := "mobile_home"
 			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))

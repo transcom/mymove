@@ -65,13 +65,6 @@ func checkRequiredFields() mobileHomeShipmentValidator {
 		if newMobileHomeShipment.HeightInInches == nil || *newMobileHomeShipment.HeightInInches <= 0 {
 			verrs.Add("heightInInches", "cannot be a zero or a negative value")
 		}
-		if newMobileHomeShipment.HeightInInches != nil && newMobileHomeShipment.LengthInInches != nil && newMobileHomeShipment.WidthInInches != nil {
-			if *newMobileHomeShipment.LengthInInches <= 168 && *newMobileHomeShipment.WidthInInches <= 82 && *newMobileHomeShipment.HeightInInches <= 77 {
-				verrs.Add("heightInInches", "One of these criteria must be met for it to be a mobile home shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
-				verrs.Add("widthInInches", "One of these criteria must be met for it to be a mobile home shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
-				verrs.Add("lengthInInches", "One of these criteria must be met for it to be a mobile home shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77.")
-			}
-		}
 		return verrs
 	})
 }

@@ -26,10 +26,6 @@ type Move struct {
 	// Format: date-time
 	ApprovalsRequestedAt *strfmt.DateTime `json:"approvalsRequestedAt,omitempty"`
 
-	// approved at
-	// Format: date-time
-	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
-
 	// available to prime at
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
@@ -144,10 +140,6 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateApprovedAt(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -259,18 +251,6 @@ func (m *Move) validateApprovalsRequestedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("approvalsRequestedAt", "body", "date-time", m.ApprovalsRequestedAt.String(), formats); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *Move) validateApprovedAt(formats strfmt.Registry) error {
-	if swag.IsZero(m.ApprovedAt) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
 		return err
 	}
 
