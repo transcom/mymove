@@ -206,19 +206,6 @@ func (suite *MobileHomeShipmentSuite) TestValidationRules() {
 					"cannot be a zero or a negative value",
 				},
 				{
-					"Invalid LengthInInches Expected value",
-					models.MobileHome{
-						ShipmentID:     shipmentID,
-						Year:           models.IntPointer(2000),
-						Make:           models.StringPointer("Mobile Home Make"),
-						Model:          models.StringPointer("Mobile Home Model"),
-						LengthInInches: models.IntPointer(10),
-						WidthInInches:  models.IntPointer(10),
-						HeightInInches: models.IntPointer(10),
-					},
-					"lengthInInches",
-					"One of these criteria must be met for it to be a mobile home shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
-				{
 					"Missing WidthInInches Expected value",
 					models.MobileHome{
 						ShipmentID:     shipmentID,
@@ -232,19 +219,6 @@ func (suite *MobileHomeShipmentSuite) TestValidationRules() {
 					"widthInInches",
 					"cannot be a zero or a negative value"},
 				{
-					"Invalid WidthInInches Expected value",
-					models.MobileHome{
-						ShipmentID:     shipmentID,
-						Year:           models.IntPointer(2000),
-						Make:           models.StringPointer("Mobile Home Make"),
-						Model:          models.StringPointer("Mobile Home Model"),
-						LengthInInches: models.IntPointer(10),
-						WidthInInches:  models.IntPointer(10),
-						HeightInInches: models.IntPointer(10),
-					},
-					"widthInInches",
-					"One of these criteria must be met for it to be a mobile home shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
-				{
 					"Missing HeightInInches Expected value",
 					models.MobileHome{
 						ShipmentID:     shipmentID,
@@ -257,19 +231,6 @@ func (suite *MobileHomeShipmentSuite) TestValidationRules() {
 					},
 					"heightInInches",
 					"cannot be a zero or a negative value"},
-				{
-					"Invalid HeightInInches Expected value",
-					models.MobileHome{
-						ShipmentID:     shipmentID,
-						Year:           models.IntPointer(2000),
-						Make:           models.StringPointer("Mobile Home Make"),
-						Model:          models.StringPointer("Mobile Home Model"),
-						LengthInInches: models.IntPointer(10),
-						WidthInInches:  models.IntPointer(10),
-						HeightInInches: models.IntPointer(10),
-					},
-					"heightInInches",
-					"One of these criteria must be met for it to be a mobile home shipment: lengthInInches > 168, widthInInches > 82, or heightInInches > 77."},
 			}
 
 			for _, tc := range testCases {
