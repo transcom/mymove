@@ -102,7 +102,6 @@ services:
       - SERVE_API_GHC=true
       - SERVE_API_INTERNAL=true
       - SERVE_API_PRIME=true
-      - SERVE_API_PPTAS=true
       - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
       - TZ=UTC
