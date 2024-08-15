@@ -3786,6 +3786,10 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              paymentRequestCode:
+                type: string
+                example: 9551-6199-2
+                x-nullable: true
               status:
                 type: array
                 description: Filtering for the status.
@@ -6812,6 +6816,10 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      paymentRequestCode:
+        type: string
+        example: 9551-6199-2
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
