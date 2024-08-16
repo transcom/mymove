@@ -3,9 +3,11 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
+	"net/http"
 	"strings"
 	"time"
 
+	"github.com/go-openapi/runtime"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -103,6 +105,11 @@ type Move struct {
 	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
+// WriteResponse implements middleware.Responder.
+func (m *Move) WriteResponse(http.ResponseWriter, runtime.Producer) {
+	panic("unimplemented")
+}
+
 // TableName overrides the table name used by Pop.
 func (m Move) TableName() string {
 	return "moves"
@@ -110,8 +117,9 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show   *bool
-	Status *MoveStatus
+	Show             *bool
+	Status           *MoveStatus
+	CounselingOffice *TransportationOffice
 }
 
 type Moves []Move
@@ -288,13 +296,14 @@ func createNewMove(db *pop.Connection,
 	if orders.OrdersType != "SAFETY" {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
-				Orders:       orders,
-				OrdersID:     orders.ID,
-				Locator:      GenerateLocator(),
-				Status:       status,
-				Show:         show,
-				ContractorID: &contractor.ID,
-				ReferenceID:  &referenceID,
+				Orders:           orders,
+				OrdersID:         orders.ID,
+				Locator:          GenerateLocator(),
+				Status:           status,
+				Show:             show,
+				ContractorID:     &contractor.ID,
+				ReferenceID:      &referenceID,
+				CounselingOffice: moveOptions.CounselingOffice,
 			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
@@ -317,13 +326,14 @@ func createNewMove(db *pop.Connection,
 	} else {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
-				Orders:       orders,
-				OrdersID:     orders.ID,
-				Locator:      GenerateSafetyMoveLocator(db),
-				Status:       status,
-				Show:         show,
-				ContractorID: &contractor.ID,
-				ReferenceID:  &referenceID,
+				Orders:           orders,
+				OrdersID:         orders.ID,
+				Locator:          GenerateSafetyMoveLocator(db),
+				Status:           status,
+				Show:             show,
+				ContractorID:     &contractor.ID,
+				ReferenceID:      &referenceID,
+				CounselingOffice: moveOptions.CounselingOffice,
 			}
 
 			verrs, err := db.ValidateAndCreate(&move)

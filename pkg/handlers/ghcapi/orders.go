@@ -172,7 +172,16 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			const SAC_LIMIT = 80
 			payload := params.CreateOrders
+			var move *models.Move
+			// var officeUser models.OfficeUser
+			if appCtx.Session().OfficeUserID == uuid.Nil {
+				return move, apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request")
+			}
 
+			// fetching transportation office that office user belongs to
+			// this data will be used to display to read-only viewers in the UI
+			// var transportationOffice models.TransportationOffice
+			// var err error
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
 				err = apperror.NewBadDataError("Error processing Service Member ID")
@@ -182,6 +191,18 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			serviceMember, err := models.FetchServiceMemberForUser(appCtx.DB(), appCtx.Session(), serviceMemberID)
 			if err != nil {
 				err = apperror.NewBadDataError("Service member cannot be verified")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
+			var transportationOffice models.TransportationOffice
+			err = appCtx.DB().Q().
+				Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
+				Where("office_users.id = ?", appCtx.Session().OfficeUserID).
+				First(&transportationOffice)
+
+			if err != nil {
+				err = apperror.NewBadDataError("Error Finding Transportation Office")
 				appCtx.Logger().Error(err.Error())
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
@@ -310,8 +331,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			moveOptions := models.MoveOptions{
-				Show:   models.BoolPointer(true),
-				Status: &status,
+				Show:             models.BoolPointer(true),
+				Status:           &status,
+				CounselingOffice: &transportationOffice,
 			}
 
 			if newOrder.OrdersType == "SAFETY" {
