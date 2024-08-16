@@ -138,7 +138,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "59801",
 	}
-	destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{Model: customAddress3, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
@@ -154,7 +154,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	// duty location not in KKFA with provides services counseling true
+	// duty location NOT in KKFA with provides services counseling true
 	customAddress4 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "20906",
@@ -175,7 +175,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	offices, err := FindCounselingOffice(suite.AppContextForTest(), destDutyLocation.ID)
+	offices, err := FindCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID)
 
 	suite.NoError(err)
 	suite.Len(offices, 2)

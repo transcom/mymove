@@ -6,12 +6,12 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/factory"
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services/address"
 	transportationofficeservice "github.com/transcom/mymove/pkg/services/transportation_office"
 )
 
@@ -127,24 +127,40 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 
 	fetcher := transportationofficeservice.NewTransportationOfficesFetcher()
 
-	customAddress := models.Address{
-		ID:         uuid.Must(uuid.NewV4()),
-		PostalCode: "59801",
+	newAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "CA",
+		PostalCode:     "59801",
+		County:         "County",
 	}
-	destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+	addressCreator := address.NewAddressCreator()
+	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
+	suite.NoError(err)
+
+	origDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
 			Model: models.DutyLocation{
+				AddressID:                  createdAddress.ID,
 				ProvidesServicesCounseling: true,
 			},
 		},
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Travis AFB - USAF",
+				Gbloc:            "KKFA",
+				ProvidesCloseout: true,
+			},
+		},
 	}, nil)
+	suite.MustSave(&origDutyLocation)
 
-	req := httptest.NewRequest("GET", "/transportation_offices/{dutyLocationId}/counseling_offices", nil)
+	path := fmt.Sprintf("/transportation_offices/%v/counseling_offices", origDutyLocation.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
 	req = suite.AuthenticateUserRequest(req, user)
 	params := transportationofficeop.ShowCounselingOfficesParams{
 		HTTPRequest:    req,
-		DutyLocationID: strfmt.UUID(destDutyLocation.ID.String()),
+		DutyLocationID: *handlers.FmtUUID(origDutyLocation.ID),
 	}
 
 	handler := ShowCounselingOfficesHandler{
@@ -157,4 +173,5 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 
 	// Validate outgoing payload
 	suite.NoError(responsePayload.Payload.Validate(strfmt.Default))
+
 }
