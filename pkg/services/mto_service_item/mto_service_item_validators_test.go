@@ -932,7 +932,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		suite.False(serviceItemData.verrs.HasAny())
 		suite.Contains(err.Error(), "did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data")
 	})
-	
+
 	suite.Run("checkSITDestinationFinalAddress - adding SITDestinationFinalAddress for origin SIT service item", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{
