@@ -283,6 +283,8 @@ func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move
 
 	if currentStatusApprovable(*move) {
 		move.Status = models.MoveStatusAPPROVED
+		now := time.Now()
+		move.ApprovedAt = &now
 		appCtx.Logger().Info("SUCCESS: Move approved")
 		return nil
 	}

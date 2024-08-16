@@ -1031,6 +1031,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -1130,6 +1131,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 		}, nil)
 		suite.Nil(shipment.MoveTaskOrder.AvailableToPrimeAt)
+		suite.Nil(shipment.MoveTaskOrder.ApprovedAt)
 
 		// Create params
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
@@ -1180,6 +1182,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Check that they point to the same move and that it's available
 		suite.Equal(ogShipment.MoveTaskOrderID, externalShipment.MoveTaskOrderID)
 		suite.NotNil(ogShipment.MoveTaskOrder.AvailableToPrimeAt)
+		suite.NotNil(ogShipment.MoveTaskOrder.ApprovedAt)
 
 		// Create params
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", externalShipment.ID.String()), nil)
@@ -2604,6 +2607,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -2633,6 +2637,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -2659,6 +2664,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: nil,
+					ApprovedAt:         nil,
 				},
 			},
 		}, nil)

@@ -2351,6 +2351,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -2359,6 +2360,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentsMTOAvailableToPrime() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Show:               &hide,
 				},
 			},
@@ -2464,6 +2466,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Status:             models.MoveStatusAPPROVED,
 				},
 			},
@@ -2501,6 +2504,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Status:             models.MoveStatusAPPROVED,
 				},
 			},
@@ -2547,6 +2551,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -2591,6 +2596,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentEstimatedWeightMoveExces
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -2643,6 +2649,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Status:             models.MoveStatusAPPROVED,
 				},
 			},
@@ -2688,6 +2695,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -2730,6 +2738,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateShipmentActualWeightAutoReweigh(
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)

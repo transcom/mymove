@@ -787,107 +787,6 @@ func subScenarioShipmentAddressUpdates(appCtx appcontext.AppContext) func() {
 	}
 }
 
-func subScenarioSITAddressUpdates(appCtx appcontext.AppContext, userUploader *uploader.UserUploader) func() {
-	return func() {
-		createTOO(appCtx)
-		// SITUP1 has no SITAddressUpdate
-		createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP1")
-
-		// SITUP2 has an prime-initiated SITAddressUpdate under 50 miles
-		serviceItem := createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP2")
-		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-			{
-				Model: models.SITAddressUpdate{
-					Status:            models.SITAddressUpdateStatusApproved,
-					ContractorRemarks: models.StringPointer("test contractor remarks"),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-		// SITUP3 has a prime-initiated REQUESTED SITAddressUpdate update over 50 miles
-		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP3")
-		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-			{
-				Model: models.SITAddressUpdate{
-					Status:            models.SITAddressUpdateStatusRequested,
-					ContractorRemarks: models.StringPointer("test contractor remarks"),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-		// SITUP4 has an prime-initiated APPROVED SITAddressUpdate over 50 miles
-		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP4")
-		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-			{
-				Model: models.SITAddressUpdate{
-					Status:            models.SITAddressUpdateStatusApproved,
-					ContractorRemarks: models.StringPointer("test contractor remarks"),
-					OfficeRemarks:     models.StringPointer("TOO approved"),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-		// SITUP5 has an TOO-initiated APPROVED SITAddressUpdate under 50 miles
-		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP5")
-		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-			{
-				Model: models.SITAddressUpdate{
-					Status:        models.SITAddressUpdateStatusApproved,
-					OfficeRemarks: models.StringPointer("updated destination address"),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-		// SITUP6 has a TOO-initiated SITAddressUpdate over 50 miles
-		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP6")
-		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-			{
-				Model: models.SITAddressUpdate{
-					Status:        models.SITAddressUpdateStatusApproved,
-					OfficeRemarks: models.StringPointer("updated destination address"),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-		// SITUP7 has a rejected SITAddressUpdate over 50 miles
-		serviceItem = createMoveWithOriginAndDestinationSIT(appCtx, userUploader, "SITUP7")
-		factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-			{
-				Model:    serviceItem,
-				LinkOnly: true,
-			},
-			{
-				Model: models.SITAddressUpdate{
-					Status:            models.SITAddressUpdateStatusRejected,
-					ContractorRemarks: models.StringPointer("test contractor remarks"),
-					OfficeRemarks:     models.StringPointer("TOO rejected"),
-				},
-			},
-		}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-	}
-}
-
 func subScenarioNTSandNTSR(
 	appCtx appcontext.AppContext,
 	userUploader *uploader.UserUploader,
@@ -1021,5 +920,71 @@ func subScenarioMultipleMoves(appCtx appcontext.AppContext) func() {
 		createMultipleMovesThreeMovesHHGPPMNTSShipments(appCtx)
 		createMultipleMovesThreeMovesNTSHHGShipments(appCtx)
 		createMultipleMovesThreeMovesPPMShipments(appCtx)
+	}
+}
+
+// Transcom Relational Database Management (TRDM) TGET data
+// Active and linked together transportation accounting code and line of accounting
+// Creates a LOA and TAC that are active within a date range of 1 year
+func createTGETLineOfAccountingAndTransportationAccountingCodeWithActiveDates(appCtx appcontext.AppContext) {
+	ordersIssueDate := time.Now()
+	startDate := ordersIssueDate.AddDate(-1, 0, 0)
+	endDate := ordersIssueDate.AddDate(1, 0, 0)
+	tacCode := "GOOD"
+
+	loa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaBgnDt:               &startDate,
+				LoaEndDt:               &endDate,
+				LoaSysID:               models.StringPointer("1234567890"),
+				LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+				LoaDptID:               models.StringPointer("1"),
+				LoaTnsfrDptNm:          models.StringPointer("1"),
+				LoaBafID:               models.StringPointer("1"),
+				LoaTrsySfxTx:           models.StringPointer("1"),
+				LoaMajClmNm:            models.StringPointer("1"),
+				LoaOpAgncyID:           models.StringPointer("1"),
+				LoaAlltSnID:            models.StringPointer("1"),
+				LoaPgmElmntID:          models.StringPointer("1"),
+				LoaTskBdgtSblnTx:       models.StringPointer("1"),
+				LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+				LoaJbOrdNm:             models.StringPointer("1"),
+				LoaSbaltmtRcpntID:      models.StringPointer("1"),
+				LoaWkCntrRcpntNm:       models.StringPointer("1"),
+				LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+				LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+				LoaCustNm:              models.StringPointer("1"),
+				LoaObjClsID:            models.StringPointer("1"),
+				LoaSrvSrcID:            models.StringPointer("1"),
+				LoaSpclIntrID:          models.StringPointer("1"),
+				LoaBdgtAcntClsNm:       models.StringPointer("1"),
+				LoaDocID:               models.StringPointer("1"),
+				LoaClsRefID:            models.StringPointer("1"),
+				LoaInstlAcntgActID:     models.StringPointer("1"),
+				LoaLclInstlID:          models.StringPointer("1"),
+				LoaFmsTrnsactnID:       models.StringPointer("1"),
+				LoaTrnsnID:             models.StringPointer("1"),
+				LoaUic:                 models.StringPointer("1"),
+				LoaBgFyTx:              models.IntPointer(2023),
+				LoaEndFyTx:             models.IntPointer(2025),
+			},
+		},
+	}, nil)
+	factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TAC:               tacCode,
+				TrnsprtnAcntBgnDt: &startDate,
+				TrnsprtnAcntEndDt: &endDate,
+				TacFnBlModCd:      models.StringPointer("1"),
+				LoaSysID:          loa.LoaSysID,
+			},
+		},
+	}, nil)
+}
+func subScenarioTGET(appCtx appcontext.AppContext) func() {
+	return func() {
+		createTGETLineOfAccountingAndTransportationAccountingCodeWithActiveDates(appCtx)
 	}
 }
