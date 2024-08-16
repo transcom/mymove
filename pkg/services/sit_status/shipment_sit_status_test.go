@@ -179,6 +179,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Nil(shipment.DestinationSITAuthEndDate)
 	})
 
+	// TODO:
 	// The point of this test is to satisfy the following requirement by the PO
 	// - If Origin/Destination SIT is no longer "current", as in it has departed in a day
 	//	 prior to today, then as long as a second SIT has not been created then it will be returned
