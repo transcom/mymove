@@ -95,7 +95,18 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
-	transportationOffice1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	// duty location in KKFA with provies services counseling false
+	customAddress1 := models.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress1, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: false,
+			},
+		},
 		{
 			Model: models.TransportationOffice{
 				Name: "PPPO Holloman AFB - USAF",
@@ -103,7 +114,18 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
+	// duty location in KKFA with provides services counseling true
+	customAddress2 := models.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "59801",
+	}
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress2, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
 		{
 			Model: models.TransportationOffice{
 				Name: "PPPO Hill AFB - USAF",
@@ -111,15 +133,44 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	customAddress := models.Address{
+	// duty location in KKFA with provides services counseling true
+	customAddress3 := models.Address{
 		ID:         uuid.Must(uuid.NewV4()),
 		PostalCode: "59801",
 	}
 	destDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{Model: customAddress, Type: &factory.Addresses.DutyLocationAddress},
+		{Model: customAddress3, Type: &factory.Addresses.DutyLocationAddress},
 		{
 			Model: models.DutyLocation{
 				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Travis AFB - USAF",
+				Gbloc:            "KKFA",
+				ProvidesCloseout: true,
+			},
+		},
+	}, nil)
+
+	// duty location not in KKFA with provides services counseling true
+	customAddress4 := models.Address{
+		ID:         uuid.Must(uuid.NewV4()),
+		PostalCode: "20906",
+	}
+	factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{Model: customAddress4, Type: &factory.Addresses.DutyLocationAddress},
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+		{
+			Model: models.TransportationOffice{
+				Name:             "PPPO Fort Meade - USA",
+				Gbloc:            "BGCA",
+				ProvidesCloseout: true,
 			},
 		},
 	}, nil)
@@ -127,11 +178,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 	offices, err := FindCounselingOffice(suite.AppContextForTest(), destDutyLocation.ID)
 
 	suite.NoError(err)
-
-	// return should not include any duty location offices with provides_servives_counseling = false
 	suite.Len(offices, 2)
-
-	// return should be ordered by name asc
-	suite.Equal(transportationOffice2.Name, offices[0].Name)
-	suite.Equal(transportationOffice1.Name, offices[1].Name)
+	suite.Equal(offices[0].Name, "PPPO Hill AFB - USAF")
+	suite.Equal(offices[1].Name, "PPPO Travis AFB - USAF")
 }
