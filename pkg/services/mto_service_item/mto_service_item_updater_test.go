@@ -472,8 +472,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NotNil(updatedServiceItem)
 		suite.IsType(models.MTOServiceItem{}, *updatedServiceItem)
 
-
-
 		// Verify that the shipment's SIT authorized end date has been adjusted to be equal
 		// to the SIT departure date
 		var postUpdatedServiceItemShipment models.MTOShipment
@@ -587,7 +585,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newServiceItemPrime := oldServiceItemPrime
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationFinalAddress = &newAddress
-
 
 		// Set shipment SIT status
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDOFSITServiceItemPrime)
@@ -969,7 +966,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
-		
 
 		// Set shipment SIT status
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
@@ -1085,7 +1081,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
 		newServiceItemPrime.SITDestinationOriginalAddress = &newAddress
 		newServiceItemPrime.SITDestinationOriginalAddressID = &newAddress.ID
-
 
 		// Set shipment SIT status
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDDFSITServiceItemPrime)
@@ -1364,7 +1359,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Update MTO service item
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
 
-			_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
+		_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
 		suite.Error(err)
 		suite.IsType(apperror.UnprocessableEntityError{}, err)
