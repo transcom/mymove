@@ -19,11 +19,14 @@ import (
 // swagger:model AvailableOfficeUser
 type AvailableOfficeUser struct {
 
-	// full name
-	FullName string `json:"fullName,omitempty"`
+	// first name
+	FirstName string `json:"firstName,omitempty"`
 
 	// has safety privilege
 	HasSafetyPrivilege bool `json:"hasSafetyPrivilege,omitempty"`
+
+	// last name
+	LastName string `json:"lastName,omitempty"`
 
 	// office user Id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538

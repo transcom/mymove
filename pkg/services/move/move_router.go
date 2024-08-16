@@ -190,8 +190,8 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 	now := time.Now()
 	move.SubmittedAt = &now
 
-	// if it's a PPMShipment update both the mto and ppm shipment level statuses
 	for i := range move.MTOShipments {
+		// if it's a PPMShipment update both the mto and ppm shipment level statuses
 		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 			move.MTOShipments[i].PPMShipment.Status = models.PPMShipmentStatusSubmitted
@@ -205,6 +205,16 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 				msg := "failure saving PPM shipment when routing move submission"
 				appCtx.Logger().Error(msg, zap.Error(err))
 				return apperror.NewInvalidInputError(move.MTOShipments[i].PPMShipment.ID, err, verrs, msg)
+			}
+		}
+		// update status for boat shipment
+		if move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatHaulAway || move.MTOShipments[i].ShipmentType == models.MTOShipmentTypeBoatTowAway {
+			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
+
+			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
+				msg := "failure saving shipment when routing move submission"
+				appCtx.Logger().Error(msg, zap.Error(err))
+				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
 			}
 		}
 	}
@@ -273,6 +283,8 @@ func (router moveRouter) Approve(appCtx appcontext.AppContext, move *models.Move
 
 	if currentStatusApprovable(*move) {
 		move.Status = models.MoveStatusAPPROVED
+		now := time.Now()
+		move.ApprovedAt = &now
 		appCtx.Logger().Info("SUCCESS: Move approved")
 		return nil
 	}

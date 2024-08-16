@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestPaymentRequestToInterchangeControlNumber() {
 		expErrors := map[string][]string{
 			"payment_request_id":         {"PaymentRequestID can not be blank."},
 			"interchange_control_number": {"0 is not greater than 0."},
-			"editype":                    {"EDIType is not in the list [810, 824, 858, 997]."},
+			"editype":                    {"EDIType is not in the list [810, 824, 858, 997, TPPSPaidInvoiceReport]."},
 		}
 		suite.verifyValidationErrors(&validPR2ICN, expErrors)
 	})

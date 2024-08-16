@@ -27,10 +27,11 @@ func NewShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater, move
 }
 
 // NewPrimeShipmentDeleter creates a new struct with the service dependencies
-func NewPrimeShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater) services.ShipmentDeleter {
+func NewPrimeShipmentDeleter(moveTaskOrderUpdater services.MoveTaskOrderUpdater, moveRouter services.MoveRouter) services.ShipmentDeleter {
 	return &shipmentDeleter{
 		checks:               []validator{checkPrimeDeleteAllowed()},
 		moveTaskOrderUpdater: moveTaskOrderUpdater,
+		moveRouter:           moveRouter,
 	}
 }
 

@@ -156,6 +156,7 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -616,7 +617,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
-			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
@@ -817,40 +817,6 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
 		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
 		Status:            primev3messages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
-	}
-
-	return payload
-}
-
-// SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) primev3messages.SitAddressUpdates {
-	payload := make(primev3messages.SitAddressUpdates, len(u))
-	for i, item := range u {
-		copyOfItem := item
-		payload[i] = SITAddressUpdate(&copyOfItem)
-	}
-	return payload
-}
-
-// SITAddressUpdate payload
-func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primev3messages.SitAddressUpdate {
-	if sitAddressUpdate == nil {
-		return nil
-	}
-
-	payload := &primev3messages.SitAddressUpdate{
-		ID:                strfmt.UUID(sitAddressUpdate.ID.String()),
-		ETag:              etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
-		MtoServiceItemID:  strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
-		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
-		NewAddress:        Address(&sitAddressUpdate.NewAddress),
-		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
-		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
-		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
-		OldAddress:        Address(&sitAddressUpdate.OldAddress),
-		Status:            primev3messages.SitAddressUpdateStatus(sitAddressUpdate.Status),
-		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
 	}
 
 	return payload

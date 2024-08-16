@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"golang.org/x/exp/slices"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -332,7 +333,10 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		// Authorized End Date and Required Delivery Date
 		if (code == models.ReServiceCodeDOASIT || code == models.ReServiceCodeDDASIT) &&
 			updatedServiceItem.Status == models.MTOServiceItemStatusApproved {
-			err = calculateSITDates(appCtx, mtoServiceItem, shipment, planner)
+			err = calculateAndUpdateSITDatesForShipment(appCtx, mtoServiceItem, shipment, planner)
+			if err != nil {
+				return updatedServiceItem, err
+			}
 		}
 		if err != nil {
 			return nil, err
@@ -361,6 +365,15 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 				return nil, err
 			}
 		}
+
+	}
+
+	if updatedServiceItem != nil {
+		// If the service item was updated, then it will exist and be passed to this function
+		// We want to chick if the DepartureDate exists, and if it does and it is before
+		// the authorized end date, we need to update the shipment authorized end date
+		// to be equal to the departure date
+		err = setShipmentAuthorizedEndDateToDepartureDate(appCtx, *updatedServiceItem, shipment)
 	}
 
 	return updatedServiceItem, err
@@ -397,6 +410,10 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	if err != nil {
 		switch err {
 		case sql.ErrNoRows:
+			if weight == nil {
+				return nil, apperror.NewNotFoundError(shipment.ID, fmt.Sprintf(
+					"failed to find transit time for shipment of nil lbs weight and %d mile distance", distance))
+			}
 			return nil, apperror.NewNotFoundError(shipment.ID, fmt.Sprintf(
 				"failed to find transit time for shipment of %d lbs weight and %d mile distance", weight.Int(), distance))
 		default:
@@ -426,9 +443,42 @@ func calculateOriginSITRequiredDeliveryDate(appCtx appcontext.AppContext, shipme
 	return &requiredDeliveryDate, nil
 }
 
-// Calculate the Required Delivery Date for the service item based on business logic using the
+// Sets the shipment authorized end date to be equal to the SIT service item departure date
+// if found and SIT service item departure date occurs before the authorized end date
+func setShipmentAuthorizedEndDateToDepartureDate(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem, shipment models.MTOShipment) error {
+	if serviceItem.SITDepartureDate != nil {
+		// SITDepartureDate case for origin SIT handling
+		if slices.Contains(OriginReServiceCodesAllowedForSITDepartureDateUpdate, serviceItem.ReService.Code) && shipment.OriginSITAuthEndDate != nil {
+			if serviceItem.SITDepartureDate.Before(*shipment.OriginSITAuthEndDate) {
+				shipment.OriginSITAuthEndDate = serviceItem.SITDepartureDate
+				verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+				} else if err != nil {
+					return apperror.NewQueryError("Shipment", err, "")
+				}
+			}
+		}
+		// SITDepartureDate case for destination SIT handling
+		if slices.Contains(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, serviceItem.ReService.Code) && shipment.DestinationSITAuthEndDate != nil {
+			if serviceItem.SITDepartureDate.Before(*shipment.DestinationSITAuthEndDate) {
+				shipment.DestinationSITAuthEndDate = serviceItem.SITDepartureDate
+				verrs, err := appCtx.DB().ValidateAndUpdate(&shipment)
+				if verrs != nil && verrs.HasAny() {
+					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "invalid input found while updating dates of shipment")
+				} else if err != nil {
+					return apperror.NewQueryError("Shipment", err, "")
+				}
+			}
+		}
+
+	}
+	return nil
+}
+
+// Calculate the Required Delivery Date and Authorized End Date for the service item based on business logic using the
 // Customer Contact Date, Customer Requested Delivery Date, and SIT Departure Date
-func calculateSITDates(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
+func calculateAndUpdateSITDatesForShipment(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, shipment models.MTOShipment,
 	planner route.Planner) error {
 	location := DestinationSITLocation
 

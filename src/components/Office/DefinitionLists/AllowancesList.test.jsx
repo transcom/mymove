@@ -15,6 +15,7 @@ const info = {
   dependents: true,
   requiredMedicalEquipmentWeight: 1000,
   organizationalClothingAndIndividualEquipment: true,
+  gunSafe: true,
 };
 
 describe('AllowancesList', () => {
@@ -63,11 +64,20 @@ describe('AllowancesList', () => {
     render(<AllowancesList info={info} />);
     expect(screen.getByTestId('ocie').textContent).toEqual('Authorized');
   });
+  it('renders authorized gun safe', () => {
+    render(<AllowancesList info={info} />);
+    expect(screen.getByTestId('gunSafe').textContent).toEqual('Authorized');
+  });
 
   it('renders unauthorized ocie', () => {
     const withUnauthorizedOcie = { ...info, organizationalClothingAndIndividualEquipment: false };
     render(<AllowancesList info={withUnauthorizedOcie} />);
     expect(screen.getByTestId('ocie').textContent).toEqual('Unauthorized');
+  });
+  it('renders unauthorized gun safe', () => {
+    const withUnauthorizedOcie = { ...info, gunSafe: false };
+    render(<AllowancesList info={withUnauthorizedOcie} />);
+    expect(screen.getByTestId('gunSafe').textContent).toEqual('Unauthorized');
   });
 
   it('renders visual cues classname', () => {
