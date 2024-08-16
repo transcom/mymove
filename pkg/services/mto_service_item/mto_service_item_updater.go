@@ -7,6 +7,8 @@ import (
 
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
+	"golang.org/x/exp/slices"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/dates"
@@ -17,7 +19,6 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	"github.com/transcom/mymove/pkg/services/query"
 	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
-	"golang.org/x/exp/slices"
 )
 
 // OriginSITLocation is the constant representing when the shipment in storage occurs at the origin
