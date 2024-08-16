@@ -1,0 +1,30 @@
+properties:
+  firstDaySITServiceItemID:
+    type: string
+    format: uuid
+    example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  location:
+    enum:
+      - 'ORIGIN'
+      - 'DESTINATION'
+  daysInSIT:
+    type: integer
+    minimum: 0
+  sitEntryDate:
+    type: string
+    format: date
+  sitDepartureDate:
+    type: string
+    format: date
+    x-nullable: true
+  sitAuthorizedEndDate:
+    type: string
+    format: date
+  sitCustomerContacted:
+    type: string
+    format: date
+    x-nullable: true
+  sitRequestedDelivery:
+    type: string
+    format: date
+    x-nullable: true

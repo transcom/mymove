@@ -180,10 +180,10 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 	// TODO:
 	// The point of this test is to satisfy the following requirement by the PO
 	// - If Origin/Destination SIT is no longer "current", as in it has departed in a day
-	//	 prior to today, then as long as a second SIT has not been created then it will be returned
+	// 	 prior to today, then as long as a second SIT has not been created then it will be returned
 	//   as "current". This is because "CurrentSIT" populates a SIT dashboard modal on the frontend
-	//	 and we currently do not handle more than 1 SIT on the UI. This is a shoehorn to
-	//	 remedy SIT date retention per E-05849 https://www13.v1host.com/USTRANSCOM38/Epic.mvc/Summary?oidToken=Epic%3A994028
+	// 	 and we currently do not handle more than 1 SIT on the UI. This is a shoehorn to
+	// 	 remedy SIT date retention per E-05849 https://www13.v1host.com/USTRANSCOM38/Epic.mvc/Summary?oidToken=Epic%3A994028
 	// suite.Run("calculates status for a shipment with origin SIT in the past but no newer SIT is present", func() {
 	// 	shipmentSITAllowance := int(90)
 	// 	year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
@@ -234,7 +234,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 	// 		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
 	// 		suite.NoError(err)
 	// 		suite.NotNil(sitStatus)
-	// 		suite.NotNil(sitStatus.CurrentSIT)
+	// 		suite.NotNil(sitStatus.CurrentSIT) // Even though the SIT we created is in the past, since it has not been replaced it should be still considered the "Current" SIT
 	// 		suite.Equal(30, sitStatus.TotalSITDaysUsed)
 	// 		suite.Equal(30, sitStatus.CalculatedTotalDaysInSIT)
 	// 		suite.Equal(60, sitStatus.TotalDaysRemaining)

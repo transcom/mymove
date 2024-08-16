@@ -240,7 +240,6 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 
 	// From our SIT groupings, grab the current one
 	// Current SIT can only be either Current or Future at this time
-	// TODO: Analyze whether settings this to past fixes the issue of past sits having missing information
 	currentSIT := getCurrentSIT(shipmentSITGroupings)
 
 	// There were no relevant SIT service items for this shipment
@@ -323,7 +322,15 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.SITServiceItemGroupi
 		return getEarliestSIT(shipmentSITs.currentSITs)
 	} else if len(shipmentSITs.futureSITs) > 0 {
 		return getEarliestSIT(shipmentSITs.futureSITs)
-	}
+	} /* else if len(shipmentSITs.pastSITs) > 0 {
+		// TODO: Enhance
+		// This is a temporary check of to return the earliest
+		// past SIT if there are no current or future SITs to choose from.
+		// This is done because at this time the UI can only handle 1 'active' SIT at a time
+		// and the customer has deemed that if a new SIT has not been implemented, then we still want
+		// to display the old SIT as the 'current' SIT, even though it's in the past.
+		return getEarliestSIT(shipmentSITs.pastSITs)
+	} */
 	return nil
 }
 
