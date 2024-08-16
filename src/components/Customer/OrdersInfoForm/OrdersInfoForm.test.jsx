@@ -227,7 +227,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(4);
+      expect(getAllByText('Required').length).toBe(5);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
