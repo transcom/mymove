@@ -17,8 +17,8 @@ export const { expect } = base;
  */
 export const TOOOfficeUserType = 'TOO office';
 export const TIOOfficeUserType = 'TIO office';
-export const QAEOfficeUserType = 'QAE office';
 export const CustomerServiceRepresentativeOfficeUserType = 'CSR office';
+export const QAEOfficeUserType = 'QAE office';
 export const ServicesCounselorOfficeUserType = 'Services Counselor office';
 export const PrimeSimulatorUserType = 'Prime Simulator office';
 export const MultiRoleOfficeUserType = 'Multi role office';

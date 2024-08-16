@@ -48,8 +48,39 @@ export class CreateOrEditMtoShipment extends Component {
     const { type } = qs.parse(location.search);
 
     const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
+    let mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
     const { orders } = move ?? {};
+    const oldMtoShipment = location.state?.mtoShipment;
+
+    // carry over information if refirected from Boat shipment form
+    if (!mtoShipment?.id && oldMtoShipment) {
+      mtoShipment = {
+        agents: oldMtoShipment.agents?.map(({ id, ...rest }) => rest),
+        customerRemarks: oldMtoShipment.customerRemarks,
+        destinationAddress: oldMtoShipment.destinationAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.destinationAddress)
+          : null,
+        hasSecondaryDeliveryAddress: oldMtoShipment.hasSecondaryDeliveryAddress,
+        hasSecondaryPickupAddress: oldMtoShipment.hasSecondaryPickupAddress,
+        hasTertiaryDeliveryAddress: oldMtoShipment.hasTertiaryDeliveryAddress,
+        hasTertiaryPickupAddress: oldMtoShipment.hasTertiaryPickupAddress,
+        pickupAddress: oldMtoShipment.pickupAddress ? (({ id, ...rest }) => rest)(oldMtoShipment.pickupAddress) : null,
+        requestedDeliveryDate: oldMtoShipment.requestedDeliveryDate ?? null,
+        requestedPickupDate: oldMtoShipment.requestedPickupDate ?? null,
+        secondaryDeliveryAddress: oldMtoShipment.secondaryDeliveryAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.secondaryDeliveryAddress)
+          : null,
+        secondaryPickupAddress: oldMtoShipment.secondaryPickupAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.secondaryPickupAddress)
+          : null,
+        tertiaryDeliveryAddress: oldMtoShipment.tertiaryDeliveryAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.tertiaryDeliveryAddress)
+          : null,
+        tertiaryPickupAddress: oldMtoShipment.tertiaryPickupAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.tertiaryPickupAddress)
+          : null,
+      };
+    }
 
     // loading placeholder while data loads - this handles any async issues
     // loading placeholder while data loads - this handles any async issues

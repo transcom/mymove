@@ -120,6 +120,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 	}
 
+	// This is to make sure SeqNum for move matches what is currently
+	// in database. DB Trigger updates to moves.shipment_seq_num but we
+	// have to ensure it does not get overwritten with stale data in the
+	// update following this check. If this is not done, stale data will cause
+	// a unique index constraint error for subsequent new shipments due to
+	// shipment_seq_num is not correct.
+	err = ensureMoveShipmentSeqNumIsInSync(f, appCtx, &move)
+	if err != nil {
+		return nil, err
+	}
+
 	if serviceItems != nil {
 		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
@@ -149,8 +160,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	}
 
 	// Populate the destination address fields with the new duty location's address when
-	// we have an HHG with no destination address, but don't copy over any street fields.
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.DestinationAddress == nil {
+	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
@@ -190,9 +201,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
 		if shipment.PickupAddress != nil {
-			pickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
+			pickupAddress, pickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
+			if pickupAddressCreateErr != nil {
+				return fmt.Errorf("failed to create pickup address %#v %e", verrs, pickupAddressCreateErr)
 			}
 			shipment.PickupAddress = pickupAddress
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
@@ -207,9 +218,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryPickupAddress != nil {
-			secondaryPickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, err)
+			secondaryPickupAddress, secondPickupAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryPickupAddress)
+			if secondPickupAddressCreateErr != nil {
+				return fmt.Errorf("failed to create secondary pickup address %#v %e", verrs, secondPickupAddressCreateErr)
 			}
 			shipment.SecondaryPickupAddress = secondaryPickupAddress
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
@@ -235,9 +246,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.DestinationAddress != nil {
-			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
+			destinationAddress, destinationAddressCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
+			if destinationAddressCreateErr != nil {
+				return fmt.Errorf("failed to create destination address %#v %e", verrs, destinationAddressCreateErr)
 			}
 			shipment.DestinationAddress = destinationAddress
 			shipment.DestinationAddressID = &shipment.DestinationAddress.ID
@@ -249,9 +260,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryDeliveryAddress != nil {
-			secondaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
+			secondaryDeliveryAddress, secondDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDeliveryAddress)
+			if secondDeliveryCreateErr != nil {
+				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, secondDeliveryCreateErr)
 			}
 			shipment.SecondaryDeliveryAddress = secondaryDeliveryAddress
 			shipment.SecondaryDeliveryAddressID = &shipment.SecondaryDeliveryAddress.ID
@@ -277,9 +288,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.StorageFacility != nil {
-			storageFacility, errAddress := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
-			if errAddress != nil {
-				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, err)
+			storageFacility, storageFacilityCreateErr := f.addressCreator.CreateAddress(txnAppCtx, &shipment.StorageFacility.Address)
+			if storageFacilityCreateErr != nil {
+				return fmt.Errorf("failed to create storage facility address %#v %e", verrs, storageFacilityCreateErr)
 			}
 			shipment.StorageFacility.Address = *storageFacility
 			shipment.StorageFacility.AddressID = shipment.StorageFacility.Address.ID
@@ -289,9 +300,9 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			shipment.StorageFacility.Address.County = county
 
-			verrs, err = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
-			if verrs != nil || err != nil {
-				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
+			verrs, storageFacilityCreateErr = f.builder.CreateOne(txnAppCtx, shipment.StorageFacility)
+			if verrs != nil || storageFacilityCreateErr != nil {
+				return fmt.Errorf("failed to create storage facility %#v %e", verrs, storageFacilityCreateErr)
 			}
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
 		}

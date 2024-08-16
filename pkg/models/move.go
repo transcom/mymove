@@ -50,7 +50,7 @@ const locatorLength = 6
 // This set of letters should produce 'non-word' type strings
 var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
-// Move is an object representing a move
+// Move is an object representing a move task order which falls under an "Order" assigned to a service member
 type Move struct {
 	ID                           uuid.UUID             `json:"id" db:"id"`
 	Locator                      string                `json:"locator" db:"locator"`
@@ -65,6 +65,7 @@ type Move struct {
 	Show                         *bool                 `json:"show" db:"show"`
 	TIORemarks                   *string               `db:"tio_remarks"`
 	AvailableToPrimeAt           *time.Time            `db:"available_to_prime_at"`
+	ApprovedAt                   *time.Time            `db:"approved_at"`
 	ContractorID                 *uuid.UUID            `db:"contractor_id"`
 	Contractor                   *Contractor           `belongs_to:"contractors" fk_id:"contractor_id"`
 	PPMType                      *string               `db:"ppm_type"`
@@ -98,6 +99,8 @@ type Move struct {
 	TOOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	CounselingOfficeID           *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
+	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
 // TableName overrides the table name used by Pop.

@@ -665,6 +665,7 @@ describe('Summary page', () => {
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
     });
 
     it('add shipment modal displays still in dev mode', async () => {
@@ -695,6 +696,7 @@ describe('Summary page', () => {
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
     });
   });
   afterEach(jest.clearAllMocks);
