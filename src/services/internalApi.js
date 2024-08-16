@@ -548,3 +548,7 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
     { normalize: false },
   );
 }
+
+export async function searchLocationByZipCity(search) {
+  return makeInternalRequest('addresses.getLocationByZipCity', { search }, { normalize: false });
+}

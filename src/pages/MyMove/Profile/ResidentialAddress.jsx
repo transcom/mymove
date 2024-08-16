@@ -48,6 +48,7 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
       city: serviceMember.residential_address?.city || '',
       state: serviceMember.residential_address?.state || '',
       postalCode: serviceMember.residential_address?.postalCode || '',
+      county: serviceMember.residential_address?.county || '',
     },
   };
 
@@ -98,7 +99,6 @@ export const ResidentialAddress = ({ serviceMember, updateServiceMember }) => {
             initialValues={initialValues}
             onBack={handleBack}
             onSubmit={handleSubmit}
-            validators={{ postalCode: validatePostalCode }}
           />
         </Grid>
       </Grid>

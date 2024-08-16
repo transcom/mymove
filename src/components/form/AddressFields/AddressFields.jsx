@@ -7,6 +7,7 @@ import { statesList } from '../../../constants/states';
 
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
+import ZipCityInput from 'components/form/fields/ZipCityInput';
 
 /**
  * @param legend
@@ -14,6 +15,7 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
  * @param name
  * @param render
  * @param validators
+ * @param zipCity
  * @param formikFunctionsToValidatePostalCodeOnChange If you are intending to validate the postal code on change, you
  * will need to pass the handleChange and setFieldTouched Formik functions through in an object here.
  * See ResidentialAddressForm for an example.
@@ -26,11 +28,13 @@ export const AddressFields = ({
   name,
   render,
   validators,
+  zipCityEnabled,
+  handleZipCityChange,
   formikFunctionsToValidatePostalCodeOnChange,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
-
   let postalCodeField;
+  let stateField;
 
   if (formikFunctionsToValidatePostalCodeOnChange) {
     postalCodeField = (
@@ -40,6 +44,7 @@ export const AddressFields = ({
         name={`${name}.postalCode`}
         maxLength={10}
         validate={validators?.postalCode}
+        isDisabled={zipCityEnabled}
         onChange={async (e) => {
           // If we are validating on change we need to also set the field to touched when it is changed.
           // Formik, by default, only sets the field to touched on blur.
@@ -59,6 +64,29 @@ export const AddressFields = ({
         name={`${name}.postalCode`}
         maxLength={10}
         validate={validators?.postalCode}
+        isDisabled={zipCityEnabled}
+      />
+    );
+  }
+
+  if (zipCityEnabled) {
+    stateField = (
+      <TextField
+        name={`${name}.state`}
+        id={`state_${addressFieldsUUID.current}`}
+        label="State"
+        validate={validators?.state}
+        isDisabled={zipCityEnabled}
+      />
+    );
+  } else {
+    stateField = (
+      <DropdownInput
+        name={`${name}.state`}
+        id={`state_${addressFieldsUUID.current}`}
+        label="State"
+        options={statesList}
+        validate={validators?.state}
       />
     );
   }
@@ -87,24 +115,38 @@ export const AddressFields = ({
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          <TextField
-            label="City"
-            id={`city_${addressFieldsUUID.current}`}
-            name={`${name}.city`}
-            validate={validators?.city}
-          />
-
+          {zipCityEnabled && (
+            <ZipCityInput
+              name="zipCity"
+              placeholder="Start typing a Zip Code or City..."
+              label="Zip/City Lookup"
+              displayAddress={false}
+              handleZipCityChange={handleZipCityChange}
+            />
+          )}
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
-              <DropdownInput
-                name={`${name}.state`}
-                id={`state_${addressFieldsUUID.current}`}
-                label="State"
-                options={statesList}
-                validate={validators?.state}
+              <TextField
+                label="City"
+                id={`city_${addressFieldsUUID.current}`}
+                name={`${name}.city`}
+                validate={validators?.city}
+                isDisabled={zipCityEnabled}
               />
+              {zipCityEnabled && (
+                <TextField
+                  label="County"
+                  id={`county_${addressFieldsUUID.current}`}
+                  name={`${name}.county`}
+                  validate={validators?.county}
+                  isDisabled={zipCityEnabled}
+                />
+              )}
             </div>
-            <div className="mobile-lg:grid-col-6">{postalCodeField}</div>
+            <div className="mobile-lg:grid-col-6">
+              {stateField}
+              {postalCodeField}
+            </div>
           </div>
         </>,
       )}
@@ -117,12 +159,15 @@ AddressFields.propTypes = {
   className: PropTypes.string,
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
+  zipCityEnabled: PropTypes.bool,
+  handleZipCityChange: PropTypes.func,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
     streetAddress2: PropTypes.func,
     city: PropTypes.func,
     state: PropTypes.func,
     postalCode: PropTypes.func,
+    county: PropTypes.func,
   }),
   formikFunctionsToValidatePostalCodeOnChange: PropTypes.shape({
     handleChange: PropTypes.func,
@@ -134,6 +179,8 @@ AddressFields.defaultProps = {
   legend: '',
   className: '',
   render: (fields) => fields,
+  zipCityEnabled: false,
+  handleZipCityChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
 };

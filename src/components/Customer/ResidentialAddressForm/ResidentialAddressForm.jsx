@@ -27,7 +27,23 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
+        const handleZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              current_residence: {
+                ...values.current_residence,
+                city: value.city,
+                state: value.state ? value.state : '',
+                county: value.county,
+                postalCode: value.postalCode,
+              },
+            },
+            { shouldValidate: true },
+          );
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Current address</h1>
@@ -36,7 +52,8 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
               <AddressFields
                 name={formFieldsName}
                 validators={validators}
-                formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                zipCityEnabled
+                handleZipCityChange={handleZipCityChange}
               />
             </SectionWrapper>
 
