@@ -1065,7 +1065,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	sitEntryDate := time.Now()
+	sitEntryDate := time.Now().Add(time.Hour * 24)
 
 	type localSubtestData struct {
 		mto            models.Move
@@ -1101,7 +1101,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
-					DateOfContact:              time.Now().Add(time.Hour * 24),
+					DateOfContact:              time.Now(),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1302,16 +1302,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
-		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-		//   is used for both.  Need to figure out best way to resolve.
-		// okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		// Validate outgoing payload (each element of slice)
-		// for _, mtoServiceItem := range okResponse.Payload {
-		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-		// }
-
 		// now that the mto service item has been created, create a standalone
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
 		params = mtoserviceitemops.CreateMTOServiceItemParams{
@@ -1439,6 +1429,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 					SITEntryDate:     models.TimePointer(time.Now()),
 					SITDepartureDate: &timeNow,
 					Status:           "REJECTED",
+					Reason:           models.StringPointer("reason"),
 				},
 			},
 			{
@@ -1471,6 +1462,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			SitCustomerContacted:            handlers.FmtDate(time.Now()),
 			SitRequestedDelivery:            handlers.FmtDate(time.Now().AddDate(0, 0, 3)),
 			RequestApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+			UpdateReason:                    models.StringPointer("reason for updating"),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dddsit.ID.String()))
 
@@ -1682,6 +1674,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 				Model: models.MTOServiceItem{
 					SITEntryDate: models.TimePointer(time.Now()),
 					Status:       models.MTOServiceItemStatusRejected,
+					Reason:       models.StringPointer("reason"),
 				},
 			},
 			{
@@ -1696,6 +1689,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			ReServiceCode:                   models.ReServiceCodeDOPSIT.String(),
 			SitDepartureDate:                *handlers.FmtDate(time.Now().AddDate(0, 0, 5)),
 			RequestApprovalsRequestedStatus: &requestApprovalRequestedStatus,
+			UpdateReason:                    models.StringPointer("a new reason"),
 		}
 		subtestData.reqPayload.SetID(strfmt.UUID(subtestData.dopsit.ID.String()))
 		planner := &routemocks.Planner{}

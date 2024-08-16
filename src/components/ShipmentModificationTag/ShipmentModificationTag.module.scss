@@ -2,9 +2,11 @@
 
 .ShipmentModificationTag {
   background-color: $info-light;
-  display: inline-block;
-  font-size: 13px;
-  line-height: 1.38;
-  height: 18px;
+  min-height: 18px;
   width: 89px;
+  margin-left: 0.5333333333rem;
+  font-size: 0.87rem;
+  text-align: center;
+  height: max-content;
+  line-height: 1.6;
 }

@@ -131,30 +131,22 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 				// NotFoundError -> Not Found response
 				case apperror.NotFoundError:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressNotFound().WithPayload(payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-
 				// ConflictError -> Request conflict reponse
 				case apperror.ConflictError:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-
 				// PreconditionError -> precondition failed reponse
 				case apperror.PreconditionFailedError:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressPreconditionFailed().WithPayload(payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
-
 				// InvalidInputError -> Unprocessable Entity reponse
 				case apperror.InvalidInputError:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressUnprocessableEntity().WithPayload(payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
-
 				// Unknown -> Internal Server Error
 				default:
 					return mtoshipmentops.NewUpdateShipmentDestinationAddressInternalServerError().WithPayload(payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
-
 				}
-
 			}
-
 			returnPayload := payloads.ShipmentAddressUpdate(response)
 			return mtoshipmentops.NewUpdateShipmentDestinationAddressCreated().WithPayload(returnPayload), nil
-
 		})
 }
 
