@@ -5706,16 +5706,16 @@ definitions:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
-      tppsPaidReportAmountPaidTotal:
+      tppsInvoiceAmountPaidTotalMillicents:
         type: integer
-        format: cents
+        format: millients
         title: >-
-          Total amount that TPPS paid for the service items on the payment
-          request in cents
+          Total amount that TPPS paid for all service items on the payment
+          request in millicents
         x-nullable: true
-      tppsPaidReportSellerPaidDate:
+      tppsInvoiceSellerPaidDate:
         type: string
-        format: date
+        format: date-time
         title: Date that TPPS paid HS for the payment request
         x-nullable: true
     type: object
@@ -5777,10 +5777,10 @@ definitions:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
-      tppsPaidReportAmountPaidForServiceItem:
+      tppsInvoiceAmountPaidPerServiceItemMillicents:
         type: integer
-        format: cents
-        title: Amount that TPPS paid for the individual service item in cents
+        format: millicents
+        title: Amount that TPPS paid for the individual service item in millicents
         x-nullable: true
     type: object
   PaymentRequestStatus:

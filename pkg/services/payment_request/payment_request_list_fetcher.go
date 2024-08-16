@@ -203,7 +203,7 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		}
 
 		paymentRequests[i].EdiErrors = append(paymentRequests[i].EdiErrors, mostRecentEdiErrorForPaymentRequest)
-		paymentRequests[i].TPPSPaidInvoiceReports = tppsReportEntryList
+		paymentRequests[i].TPPSPaidInvoiceReports = &tppsReportEntryList
 
 	}
 

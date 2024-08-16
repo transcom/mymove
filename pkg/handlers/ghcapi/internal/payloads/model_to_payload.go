@@ -1512,25 +1512,37 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		}
 	}
 
+	TPPSPaidInvoiceReportsForPR := *pr.TPPSPaidInvoiceReports
+	totalTPPSPaidInvoicePriceMillicents := int64(0)
+	var tppsPaidInvoiceSellerPaidDate *time.Time
+	if len(TPPSPaidInvoiceReportsForPR) > 0 {
+		if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents > -1 {
+			totalTPPSPaidInvoicePriceMillicents = TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents.Int64()
+			tppsPaidInvoiceSellerPaidDate = &TPPSPaidInvoiceReportsForPR[0].SellerPaidDate
+		}
+	}
+
 	return &ghcmessages.PaymentRequest{
-		ID:                              *handlers.FmtUUID(pr.ID),
-		IsFinal:                         &pr.IsFinal,
-		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:                   move,
-		PaymentRequestNumber:            pr.PaymentRequestNumber,
-		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
-		RejectionReason:                 pr.RejectionReason,
-		Status:                          ghcmessages.PaymentRequestStatus(pr.Status),
-		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
-		ServiceItems:                    *PaymentServiceItems(&pr.PaymentServiceItems),
-		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
-		ProofOfServiceDocs:              serviceDocs,
-		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
-		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
-		ReceivedByGexAt:                 (*strfmt.DateTime)(pr.ReceivedByGexAt),
-		EdiErrorType:                    &ediErrorInfoEDIType,
-		EdiErrorCode:                    &ediErrorInfoEDICode,
-		EdiErrorDescription:             &ediErrorInfoEDIDescription,
+		ID:                                   *handlers.FmtUUID(pr.ID),
+		IsFinal:                              &pr.IsFinal,
+		MoveTaskOrderID:                      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:                        move,
+		PaymentRequestNumber:                 pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID:      handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                      pr.RejectionReason,
+		Status:                               ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                                 etag.GenerateEtag(pr.UpdatedAt),
+		ServiceItems:                         *PaymentServiceItems(&pr.PaymentServiceItems, &TPPSPaidInvoiceReportsForPR),
+		ReviewedAt:                           handlers.FmtDateTimePtr(pr.ReviewedAt),
+		ProofOfServiceDocs:                   serviceDocs,
+		CreatedAt:                            strfmt.DateTime(pr.CreatedAt),
+		SentToGexAt:                          (*strfmt.DateTime)(pr.SentToGexAt),
+		ReceivedByGexAt:                      (*strfmt.DateTime)(pr.ReceivedByGexAt),
+		EdiErrorType:                         &ediErrorInfoEDIType,
+		EdiErrorCode:                         &ediErrorInfoEDICode,
+		EdiErrorDescription:                  &ediErrorInfoEDIDescription,
+		TppsInvoiceAmountPaidTotalMillicents: &totalTPPSPaidInvoicePriceMillicents,
+		TppsInvoiceSellerPaidDate:            (*strfmt.DateTime)(tppsPaidInvoiceSellerPaidDate),
 	}, nil
 }
 
@@ -1559,11 +1571,18 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 }
 
 // PaymentServiceItems payload
-func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
+func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems, tppsPaidReportData *models.TPPSPaidInvoiceReportEntrys) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
 		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
+
+		tppsDataForPaymentRequest := *tppsPaidReportData
+		for tppsDataRowIndex := range tppsDataForPaymentRequest {
+			if tppsDataForPaymentRequest[tppsDataRowIndex].ProductDescription == payload[i].MtoServiceItemCode {
+				payload[i].TppsInvoiceAmountPaidPerServiceItemMillicents = handlers.FmtMilliCentsPtr(&tppsDataForPaymentRequest[tppsDataRowIndex].LineNetCharge)
+			}
+		}
 	}
 	return &payload
 }
