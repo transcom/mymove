@@ -47,7 +47,6 @@ describe('ResidentialAddressForm component', () => {
     onBack: jest.fn(),
   };
 
-
   it('renders the form inputs and help text', async () => {
     const { getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
 

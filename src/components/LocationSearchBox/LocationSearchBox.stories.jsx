@@ -7,12 +7,20 @@ export default {
   component: LocationSearchBoxComponent,
 };
 
-const testZipCity = {
-  city: 'El Paso',
-  state: 'TX',
-  postalCode: '79912',
-  county: 'El Paso',
-};
+const testZipCity = [
+  {
+    city: 'Glendale Luke AFB',
+    county: 'Maricopa',
+    postalCode: '85309',
+    state: 'AZ',
+  },
+  {
+    city: 'El Paso',
+    county: 'El Paso',
+    postalCode: '79912',
+    state: 'TX',
+  },
+];
 
 const testAddress = {
   city: 'Glendale Luke AFB',
@@ -136,16 +144,16 @@ const baseValue = {
   address: { ...testAddress },
 };
 
-const mockSearchLocationByZipCity = async () => {
-  return testZipCity;
-};
-
 const mockSearchLocations = async () => {
   return testLocations;
 };
 
 const mockShowAddress = async () => {
   return testAddress;
+};
+
+const mockZipCity = async () => {
+  return testZipCity;
 };
 
 export const DutyStationBasic = () => {
@@ -274,6 +282,30 @@ export const TransportationLocationWithValue = () => {
       displayAddress={false}
       searchLocations={mockSearchLocations}
       showAddress={mockShowAddress}
+    />
+  );
+};
+
+export const ZipCityLocationBasic = () => {
+  const [value, setValue] = useState();
+
+  const onChange = (newValue) => {
+    setValue(newValue);
+  };
+
+  const handleOnChange = (newValue) => {
+    setValue(newValue);
+  };
+
+  return (
+    <LocationSearchBoxComponent
+      input={{ name: 'test_component', onChange, value }}
+      placeholder="Start typing a Zip Code or City..."
+      title="Zip/City Lookup"
+      name="test_component"
+      searchLocations={mockZipCity}
+      displayAddress={false}
+      handleOnChange={handleOnChange}
     />
   );
 };
