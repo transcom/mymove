@@ -137,7 +137,7 @@ func (o *ShowDutyLocationTransportationOfficeForbidden) WriteResponse(rw http.Re
 const ShowDutyLocationTransportationOfficeNotFoundCode int = 404
 
 /*
-ShowDutyLocationTransportationOfficeNotFound transportation office not found
+ShowDutyLocationTransportationOfficeNotFound counseling office not found
 
 swagger:response showDutyLocationTransportationOfficeNotFound
 */

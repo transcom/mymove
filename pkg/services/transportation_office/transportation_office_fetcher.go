@@ -117,3 +117,50 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 
 	return gblocList, err
 }
+
+func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
+	officeList, err := FindCounselingOffice(appCtx, dutyLocationID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &officeList, apperror.NewNotFoundError(uuid.Nil, "dutyLocationID not found")
+		default:
+			return &officeList, err
+		}
+	}
+
+	return &officeList, nil
+}
+
+// return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
+func FindCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
+	var officeList []models.TransportationOffice
+
+	// TO DOS:
+	// do I need to update return to have less data?
+	sqlQuery := `
+		with counseling_offices as (
+		SELECT to2.id, to2.name
+				FROM postal_code_to_gblocs pctg
+				JOIN addresses a on pctg.postal_code = a.postal_code
+				JOIN duty_locations dl on a.id = dl.address_id
+				JOIN transportation_offices to2 on pctg.gbloc = to2.gbloc
+				WHERE dl.provides_services_counseling = true and dl.id = $1
+		)
+		SELECT co.id, co.name
+		FROM counseling_offices co
+		JOIN duty_locations dl2 on co.id = dl2.transportation_office_id
+		WHERE dl2.provides_services_counseling = true
+		GROUP BY co.id, co.name
+		ORDER BY co.name asc`
+
+	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
+	if err := query.All(&officeList); err != nil {
+		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+			return officeList, err
+		}
+	}
+
+	return officeList, nil
+}

@@ -70,3 +70,18 @@ func FetchNearestTransportationOffice(tx *pop.Connection, long float32, lat floa
 
 	return to, nil
 }
+
+func GetCounselingOffices(db *pop.Connection, id uuid.UUID) (TransportationOffices, error) {
+	var offices TransportationOffices
+	query := `
+		select transportation_office_id
+			from duty_locations
+		WHERE id = ?`
+
+	err := db.RawQuery(query, id).All(&offices)
+	if err != nil {
+		return offices, errors.Wrap(err, "Fetch transportation office failed")
+	}
+
+	return offices, nil
+}
