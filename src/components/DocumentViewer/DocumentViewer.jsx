@@ -69,7 +69,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
 
   useEffect(() => {
     selectFile(0);
-  }, [files]);
+  }, [files.length]);
 
   useEffect(() => {
     setRotationValue(selectedFile?.rotation || 0);
