@@ -29,6 +29,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primev2messages.MoveTaskOrder {
 		MoveCode:                   moveTaskOrder.Locator,
 		CreatedAt:                  strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		ApprovedAt:                 handlers.FmtDateTimePtr(moveTaskOrder.ApprovedAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
 		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),

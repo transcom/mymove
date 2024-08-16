@@ -64,6 +64,7 @@ func (e *devSeedScenario) Setup(appCtx appcontext.AppContext, userUploader *uplo
 		"ppm_close_outs":               subScenarioPPMCloseOut(appCtx, userUploader),
 		"shipment_address_updates":     subScenarioShipmentAddressUpdates(appCtx),
 		"multiple_moves":               subScenarioMultipleMoves(appCtx),
+		"tget":                         subScenarioTGET(appCtx),
 	}
 }
 

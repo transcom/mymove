@@ -19,6 +19,10 @@ import (
 // swagger:model MoveTaskOrder
 type MoveTaskOrder struct {
 
+	// approved at
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
+
 	// available to prime at
 	// Format: date-time
 	AvailableToPrimeAt *strfmt.DateTime `json:"availableToPrimeAt,omitempty"`
@@ -88,6 +92,10 @@ type MoveTaskOrder struct {
 func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateApprovedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -139,6 +147,18 @@ func (m *MoveTaskOrder) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *MoveTaskOrder) validateApprovedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 

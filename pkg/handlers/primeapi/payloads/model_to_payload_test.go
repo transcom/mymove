@@ -35,6 +35,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		Locator:                    "TESTTEST",
 		CreatedAt:                  time.Now(),
 		AvailableToPrimeAt:         &primeTime,
+		ApprovedAt:                 &primeTime,
 		OrdersID:                   ordersID,
 		Orders:                     models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
 		ReferenceID:                &referenceID,
@@ -61,6 +62,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(basicMove.Locator, returnedModel.MoveCode)
 		suite.Equal(strfmt.DateTime(basicMove.CreatedAt), returnedModel.CreatedAt)
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.ApprovedAt), returnedModel.ApprovedAt)
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
 		suite.Equal(ordersType, returnedModel.Order.OrdersType)
 		suite.Equal(shipmentGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)

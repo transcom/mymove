@@ -922,3 +922,69 @@ func subScenarioMultipleMoves(appCtx appcontext.AppContext) func() {
 		createMultipleMovesThreeMovesPPMShipments(appCtx)
 	}
 }
+
+// Transcom Relational Database Management (TRDM) TGET data
+// Active and linked together transportation accounting code and line of accounting
+// Creates a LOA and TAC that are active within a date range of 1 year
+func createTGETLineOfAccountingAndTransportationAccountingCodeWithActiveDates(appCtx appcontext.AppContext) {
+	ordersIssueDate := time.Now()
+	startDate := ordersIssueDate.AddDate(-1, 0, 0)
+	endDate := ordersIssueDate.AddDate(1, 0, 0)
+	tacCode := "GOOD"
+
+	loa := factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaBgnDt:               &startDate,
+				LoaEndDt:               &endDate,
+				LoaSysID:               models.StringPointer("1234567890"),
+				LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+				LoaDptID:               models.StringPointer("1"),
+				LoaTnsfrDptNm:          models.StringPointer("1"),
+				LoaBafID:               models.StringPointer("1"),
+				LoaTrsySfxTx:           models.StringPointer("1"),
+				LoaMajClmNm:            models.StringPointer("1"),
+				LoaOpAgncyID:           models.StringPointer("1"),
+				LoaAlltSnID:            models.StringPointer("1"),
+				LoaPgmElmntID:          models.StringPointer("1"),
+				LoaTskBdgtSblnTx:       models.StringPointer("1"),
+				LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+				LoaJbOrdNm:             models.StringPointer("1"),
+				LoaSbaltmtRcpntID:      models.StringPointer("1"),
+				LoaWkCntrRcpntNm:       models.StringPointer("1"),
+				LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+				LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+				LoaCustNm:              models.StringPointer("1"),
+				LoaObjClsID:            models.StringPointer("1"),
+				LoaSrvSrcID:            models.StringPointer("1"),
+				LoaSpclIntrID:          models.StringPointer("1"),
+				LoaBdgtAcntClsNm:       models.StringPointer("1"),
+				LoaDocID:               models.StringPointer("1"),
+				LoaClsRefID:            models.StringPointer("1"),
+				LoaInstlAcntgActID:     models.StringPointer("1"),
+				LoaLclInstlID:          models.StringPointer("1"),
+				LoaFmsTrnsactnID:       models.StringPointer("1"),
+				LoaTrnsnID:             models.StringPointer("1"),
+				LoaUic:                 models.StringPointer("1"),
+				LoaBgFyTx:              models.IntPointer(2023),
+				LoaEndFyTx:             models.IntPointer(2025),
+			},
+		},
+	}, nil)
+	factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TAC:               tacCode,
+				TrnsprtnAcntBgnDt: &startDate,
+				TrnsprtnAcntEndDt: &endDate,
+				TacFnBlModCd:      models.StringPointer("1"),
+				LoaSysID:          loa.LoaSysID,
+			},
+		},
+	}, nil)
+}
+func subScenarioTGET(appCtx appcontext.AppContext) func() {
+	return func() {
+		createTGETLineOfAccountingAndTransportationAccountingCodeWithActiveDates(appCtx)
+	}
+}

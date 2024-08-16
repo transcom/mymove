@@ -1434,6 +1434,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &timeNow,
+					ApprovedAt:         &timeNow,
 				},
 			},
 		}, nil)
@@ -1741,6 +1742,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &timeNow,
+					ApprovedAt:         &timeNow,
 				},
 			},
 		}, nil)

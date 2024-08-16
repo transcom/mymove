@@ -2027,6 +2027,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -2074,6 +2079,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
