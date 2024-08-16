@@ -24,7 +24,7 @@ const formatOptionLabel = (option, input) => {
   const searchIndex = optionLabel.toLowerCase().indexOf(inputText.toLowerCase());
 
   if (searchIndex === -1) {
-    return <span>{option.city}</span>;
+    return <span>{optionLabel}</span>;
   }
 
   return (

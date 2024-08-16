@@ -7,6 +7,13 @@ export default {
   component: LocationSearchBoxComponent,
 };
 
+const testZipCity = {
+  city: 'El Paso',
+  state: 'TX',
+  postalCode: '79912',
+  county: 'El Paso',
+};
+
 const testAddress = {
   city: 'Glendale Luke AFB',
   country: 'United States',
@@ -127,6 +134,10 @@ const testLocations = [
 const baseValue = {
   ...testLocations[2],
   address: { ...testAddress },
+};
+
+const mockSearchLocationByZipCity = async () => {
+  return testZipCity;
 };
 
 const mockSearchLocations = async () => {

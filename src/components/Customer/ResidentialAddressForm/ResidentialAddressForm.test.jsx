@@ -28,6 +28,7 @@ describe('ResidentialAddressForm component', () => {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
   };
 
   const dataProps = {
