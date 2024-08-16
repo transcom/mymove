@@ -3,9 +3,10 @@ import { normalize } from 'normalizr';
 
 import { LOAD_USER, getLoggedInUserStart, getLoggedInUserSuccess, getLoggedInUserFailure } from 'store/auth/actions';
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
+import { GetAdminUser, GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
-import { addEntities, setOktaUser } from 'shared/Entities/actions';
+import { addEntities, setAdminUser, setOktaUser } from 'shared/Entities/actions';
+import { isAdminSite } from 'shared/constants';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
@@ -21,6 +22,11 @@ export function* fetchUser() {
       try {
         const user = yield call(GetLoggedInUser); // make user API call
         const okta = yield call(GetOktaUser); // get Okta profile data
+
+        if (isAdminSite) {
+          const adminUser = yield call(GetAdminUser); // get admin user data
+          yield put(setAdminUser(adminUser)); // adds admin data to entities in state
+        }
 
         const userEntities = normalize(user, loggedInUser);
         yield put(addEntities(userEntities.entities)); // populate entities
