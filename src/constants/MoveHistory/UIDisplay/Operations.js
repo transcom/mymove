@@ -42,10 +42,6 @@ export default {
   createServiceMember: 'createServiceMember', // internal.yaml
   createServiceMemberBackupContact: 'createServiceMemberBackupContact', // internal.yaml
   updateServiceMemberBackupContact: 'updateServiceMemberBackupContact', // internal.yaml
-  createSITAddressUpdateRequest: 'createSITAddressUpdateRequest', // prime.yaml
-  approveSITAddressUpdate: 'approveSITAddressUpdate', // ghc.yaml
-  rejectSITAddressUpdate: 'rejectSITAddressUpdate', // ghc.yaml
-  createSITAddressUpdate: 'createSITAddressUpdate', // ghc.yaml
   updateWeightTicket: 'updateWeightTicket', // ghc.yaml, internal.yaml
   updateProGearWeightTicket: 'updateProGearWeightTicket', // ghc.yaml, internal.yaml
   updateMovingExpense: 'updateMovingExpense', // ghc.yaml, internal.yaml
