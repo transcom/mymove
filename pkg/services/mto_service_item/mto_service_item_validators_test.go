@@ -20,6 +20,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 	// Set up the data needed for updateMTOServiceItemData obj
 	checker := movetaskorder.NewMoveTaskOrderChecker()
 	now := time.Now()
+	before := now.AddDate(0, 0, -3)
 	later := now.AddDate(0, 0, 3)
 	setupTestData := func() (models.MTOServiceItem, models.MTOServiceItem) {
 		// Create a service item to serve as the old object
@@ -736,6 +737,202 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemData() {
 		}
 	})
 
+	suite.Run("SITDepartureDate - errors when set after the authorized end date", func() {
+		suite.T().Skip("SITDepartureDate being an illegal action if set past the authorized end date is not current business logic")
+		// Under test:  checkSITDepartureDate checks that
+		//				the SITDepartureDate is not later than the authorized end date
+		// Set up:      Create an old and new DOPSIT and DDDSIT, with a date later than the
+		// 				shipment and try to update.
+		// Expected outcome: ERROR if departure date comes after the end date
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeDOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &before,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &later
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err) // Just verrs
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set after the authorized end date.")
+		}
+
+	})
+
+	suite.Run("SITDepartureDate - Does not error or update shipment auth end date when set after the authorized end date", func() {
+		// Under test:  checkSITDepartureDate checks that
+		//				the SITDepartureDate is not later than the authorized end date
+		// Set up:      Create an old and new DOPSIT and DDDSIT, with a date later than the
+		// 				shipment and try to update.
+		// Expected outcome: No ERROR if departure date comes after the end date.
+		//					 Shipment auth end date does not change
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeDOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &later,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &later
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err)
+			suite.False(serviceItemData.verrs.HasAny())
+
+			// Double check the shipment and ensure that the SITDepartureDate is in fact after the authorized end date
+			var postUpdateShipment models.MTOShipment
+			err = suite.DB().Find(&postUpdateShipment, mtoShipment.ID)
+			suite.NoError(err)
+			if tc.reServiceCode == models.ReServiceCodeDOPSIT {
+				suite.True(mtoShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITEntryDate.Truncate(24 * time.Hour).After(postUpdateShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
+			}
+			if tc.reServiceCode == models.ReServiceCodeDDDSIT {
+				suite.True(mtoShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour).Equal(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+				suite.True(newSITServiceItem.SITEntryDate.Truncate(24 * time.Hour).After(postUpdateShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+			}
+		}
+
+	})
+
+	suite.Run("SITDepartureDate - errors when set before the SIT entry date", func() {
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{OriginSITAuthEndDate: &now,
+					DestinationSITAuthEndDate: &now},
+			},
+		}, nil)
+		testCases := []struct {
+			reServiceCode models.ReServiceCode
+		}{
+			{
+				reServiceCode: models.ReServiceCodeDOPSIT,
+			},
+			{
+				reServiceCode: models.ReServiceCodeDDDSIT,
+			},
+		}
+		for _, tc := range testCases {
+			oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+				{
+					Model: models.ReService{
+						Code: tc.reServiceCode,
+					},
+				},
+				{
+					Model:    mtoShipment,
+					LinkOnly: true,
+				},
+				{
+					Model: models.MTOServiceItem{
+						SITEntryDate: &later,
+					},
+				},
+			}, nil)
+			newSITServiceItem := oldSITServiceItem
+			newSITServiceItem.SITDepartureDate = &before
+			serviceItemData := updateMTOServiceItemData{
+				updatedServiceItem: newSITServiceItem,
+				oldServiceItem:     oldSITServiceItem,
+				verrs:              validate.NewErrors(),
+			}
+			err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+			suite.NoError(err) // Just verrs
+			suite.True(serviceItemData.verrs.HasAny())
+			suite.Contains(serviceItemData.verrs.Keys(), "SITDepartureDate")
+			suite.Contains(serviceItemData.verrs.Get("SITDepartureDate"), "SIT departure date cannot be set before the SIT entry date.")
+		}
+
+	})
+
+	suite.Run("SITDepartureDate - errors when service item is missing a shipment ID", func() {
+
+		oldSITServiceItem := factory.BuildMTOServiceItem(nil, []factory.Customization{
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOPSIT,
+				},
+			},
+		}, nil)
+		newSITServiceItem := oldSITServiceItem
+		newSITServiceItem.SITDepartureDate = &later
+		serviceItemData := updateMTOServiceItemData{
+			updatedServiceItem: newSITServiceItem,
+			oldServiceItem:     oldSITServiceItem,
+			verrs:              validate.NewErrors(),
+		}
+		err := serviceItemData.checkSITDepartureDate(suite.AppContextForTest())
+		suite.Error(err)
+		suite.IsType(apperror.InternalServerError{}, err)
+		suite.False(serviceItemData.verrs.HasAny())
+		suite.Contains(err.Error(), "did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data")
+	})
+	
 	suite.Run("checkSITDestinationFinalAddress - adding SITDestinationFinalAddress for origin SIT service item", func() {
 		oldServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
 			{

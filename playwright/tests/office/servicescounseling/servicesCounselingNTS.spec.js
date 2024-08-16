@@ -2,8 +2,10 @@
 import { test, expect } from './servicesCounselingTestFixture';
 
 test.describe('Services counselor user', () => {
+  let tac;
   test.beforeEach(async ({ scPage }) => {
     const move = await scPage.testHarness.buildHHGMoveWithNTSAndNeedsSC();
+    tac = await scPage.testHarness.buildGoodTACAndLoaCombination();
     await scPage.navigateToMove(move.locator);
   });
 

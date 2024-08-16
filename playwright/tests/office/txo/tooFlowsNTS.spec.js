@@ -15,9 +15,11 @@ const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+  let tac;
   test.describe('with unapproved HHG + NTS Move', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSShipmentsForTOO();
+      tac = await officePage.testHarness.buildGoodTACAndLoaCombination();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
