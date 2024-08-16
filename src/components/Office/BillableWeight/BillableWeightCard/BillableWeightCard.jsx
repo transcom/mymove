@@ -6,11 +6,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './BillableWeightCard.module.scss';
 
+import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
 import ExternalVendorWeightSummary from 'components/Office/ExternalVendorWeightSummary/ExternalVendorWeightSummary';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import { formatWeight } from 'utils/formatters';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 export default function BillableWeightCard({
   maxBillableWeight,
@@ -22,10 +24,12 @@ export default function BillableWeightCard({
   secondaryReviewWeightsBtn,
   isMoveLocked,
 }) {
+  const includesDivertedShipment = shipments.filter((s) => s.diversion).length > 0;
+
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
-        <div>
+        <div className={styles.cardTitleContainer}>
           <h2>Billable weights</h2>
           {actualBillableWeight > maxBillableWeight && (
             <div>
@@ -37,6 +41,9 @@ export default function BillableWeightCard({
                 Move exceeds max billable weight
               </span>
             </div>
+          )}
+          {includesDivertedShipment && (
+            <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.DIVERSION} />
           )}
         </div>
         <Restricted to={permissionTypes.updateMaxBillableWeight}>

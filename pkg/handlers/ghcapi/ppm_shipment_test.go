@@ -435,14 +435,17 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 
 	setUpForGetCostTests := func(sitEstimatedCost *unit.Cents, sitEstimatedError error) (subtestData ppmShipmentSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
-
+		ppmEstimatedCostInfo := &models.PPMSITEstimatedCostInfo{}
+		ppmEstimatedCostInfo.EstimatedSITCost = sitEstimatedCost
+		ppmEstimatedCostInfo.PriceFirstDaySIT = sitEstimatedCost
+		ppmEstimatedCostInfo.PriceAdditionalDaySIT = sitEstimatedCost
 		ppmEstimator.
 			On(
-				"CalculatePPMSITEstimatedCost",
+				"CalculatePPMSITEstimatedCostBreakdown",
 				mock.AnythingOfType("*appcontext.appContext"),
 				mock.AnythingOfType("*models.PPMShipment"),
 			).
-			Return(sitEstimatedCost, sitEstimatedError)
+			Return(ppmEstimatedCostInfo, sitEstimatedError)
 
 		subtestData.ppmShipmentFetcher = ppmshipment.NewPPMShipmentFetcher()
 		subtestData.ppmEstimator = &ppmEstimator
@@ -454,7 +457,7 @@ func (suite *HandlerSuite) TestGetPPMSITEstimatedCostHandler() {
 
 		ppmEstimator.
 			On(
-				"CalculatePPMSITEstimatedCost",
+				"CalculatePPMSITEstimatedCostBreakdown",
 				mock.AnythingOfType("*appcontext.appContext"),
 				mock.AnythingOfType("*models.PPMShipment"),
 			).
