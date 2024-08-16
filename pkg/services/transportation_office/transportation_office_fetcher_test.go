@@ -95,20 +95,10 @@ func (suite *TransportationOfficeServiceSuite) Test_SortedTransportationOffices(
 }
 
 func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
-	factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
-		{
-			Model: models.TransportationOffice{
-				Name:             "JPPSO",
-				ProvidesCloseout: true,
-			},
-		},
-	}, nil)
-
 	transportationOffice1 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
-				Name:             "PPPO Holloman AFB - USAF",
-				ProvidesCloseout: true,
+				Name: "PPPO Holloman AFB - USAF",
 			},
 		},
 	}, nil)
@@ -116,8 +106,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 	transportationOffice2 := factory.BuildTransportationOffice(suite.DB(), []factory.Customization{
 		{
 			Model: models.TransportationOffice{
-				Name:             "PPPO Hill AFB - USAF",
-				ProvidesCloseout: true,
+				Name: "PPPO Hill AFB - USAF",
 			},
 		},
 	}, nil)
@@ -139,7 +128,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 
 	suite.NoError(err)
 
-	// return should not include any JPPSO
+	// return should not include any duty location offices with provides_servives_counseling = false
 	suite.Len(offices, 2)
 
 	// return should be ordered by name asc

@@ -133,7 +133,7 @@ func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.App
 	return &officeList, nil
 }
 
-// return all the transportation offices in the GBLOC of the given duty location
+// return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
 func FindCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
 
