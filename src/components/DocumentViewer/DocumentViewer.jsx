@@ -30,7 +30,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
-  const [rotationValue, setRotationValue] = useState(selectedFile.rotation || 0);
+  const [rotationValue, setRotationValue] = useState(selectedFile?.rotation || 0);
 
   const mountedRef = useRef(true);
 
@@ -50,9 +50,9 @@ const DocumentViewer = ({ files, allowDownload }) => {
   });
 
   useEffect(() => {
-    const selectedFileHasRotation = selectedFile.rotation !== undefined;
+    const selectedFileHasRotation = selectedFile?.rotation !== undefined;
     if (
-      (selectedFileHasRotation && selectedFile.rotation !== rotationValue) ||
+      (selectedFileHasRotation && selectedFile?.rotation !== rotationValue) ||
       (!selectedFileHasRotation && rotationValue !== 0)
     ) {
       setDisableSaveButton(false);
@@ -67,21 +67,15 @@ const DocumentViewer = ({ files, allowDownload }) => {
     };
   }, []);
 
-  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
   useEffect(() => {
-    if (!initialLoadComplete) {
-      selectFile(0);
-      setInitialLoadComplete(true);
-      return;
-    }
-    selectFile(selectedFileIndex);
-  }, [files, initialLoadComplete, selectedFileIndex]);
+    selectFile(0);
+  }, [files]);
 
   useEffect(() => {
-    setRotationValue(selectedFile.rotation || 0);
+    setRotationValue(selectedFile?.rotation || 0);
   }, [selectedFile]);
 
-  const fileType = useRef(selectedFile.contentType);
+  const fileType = useRef(selectedFile?.contentType);
 
   if (!selectedFile) {
     return <h2>File Not Found</h2>;
@@ -107,18 +101,18 @@ const DocumentViewer = ({ files, allowDownload }) => {
     'image/gif': 'gif',
   };
 
-  fileType.current = fileTypeMap[selectedFile.contentType] || '';
+  fileType.current = fileTypeMap[selectedFile?.contentType] || '';
 
-  const selectedFilename = filenameFromPath(selectedFile.filename);
+  const selectedFilename = filenameFromPath(selectedFile?.filename);
 
-  const selectedFileDate = formatDate(moment(selectedFile.createdAt), 'DD MMM YYYY');
+  const selectedFileDate = formatDate(moment(selectedFile?.createdAt), 'DD MMM YYYY');
 
   const saveRotation = () => {
     if (fileType.current !== 'pdf' && mountedRef.current === true) {
       const uploadBody = {
         rotation: rotationValue,
       };
-      mutateUploads({ uploadID: selectedFile.id, body: uploadBody });
+      mutateUploads({ uploadID: selectedFile?.id, body: uploadBody });
       setDisableSaveButton(true);
     }
   };
@@ -134,7 +128,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
         </p>
         {allowDownload && (
           <p className={styles.downloadLink}>
-            <a href={selectedFile.url} download tabIndex={menuIsOpen ? '-1' : '0'}>
+            <a href={selectedFile?.url} download tabIndex={menuIsOpen ? '-1' : '0'}>
               <span>Download file</span> <FontAwesomeIcon icon="download" />
             </a>
           </p>
@@ -142,7 +136,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
       </div>
       <Content
         fileType={fileType.current}
-        filePath={selectedFile.url}
+        filePath={selectedFile?.url}
         rotationValue={rotationValue}
         disableSaveButton={disableSaveButton}
         setRotationValue={setRotationValue}
