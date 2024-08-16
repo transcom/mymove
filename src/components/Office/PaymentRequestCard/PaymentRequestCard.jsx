@@ -130,13 +130,13 @@ const PaymentRequestCard = ({
       </a>
     ) : null;
 
-  const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
-
   const showErrorDetailsChevron = showErrorDetails ? 'chevron-up' : 'chevron-down';
   const showErrorDetailsText = showErrorDetails ? 'Hide EDI error details' : 'Show EDI error details';
   const handleToggleErrorDetails = () => setShowErrorDetails((prevState) => !prevState);
   const { ediErrorCode, ediErrorDescription, ediErrorType } = paymentRequest;
   const ediErrorsExistForPaymentRequest = ediErrorCode || ediErrorDescription || ediErrorType;
+
+  const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
 
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
