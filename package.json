@@ -80,7 +80,7 @@
     "uswds": "2.13.3",
     "uuid": "^9.0.0",
     "webpack": "5",
-    "yup": "^1.2.0"
+    "yup": "^1.4.0"
   },
   "resolutions": {
     "dns-packet": "^5.4.0",
