@@ -53,6 +53,7 @@ var affiliationDisplayValue = map[internalmessages.Affiliation]string{
 	internalmessages.AffiliationMARINES:    "Marines",
 	internalmessages.AffiliationAIRFORCE:   "Air Force",
 	internalmessages.AffiliationCOASTGUARD: "Coast Guard",
+	internalmessages.AffiliationSPACEFORCE: "Space Force",
 }
 
 var serviceMemberAffiliationDisplayValue = map[models.ServiceMemberAffiliation]string{
@@ -61,6 +62,7 @@ var serviceMemberAffiliationDisplayValue = map[models.ServiceMemberAffiliation]s
 	models.AffiliationMARINES:    "Marines",
 	models.AffiliationAIRFORCE:   "Air Force",
 	models.AffiliationCOASTGUARD: "Coast Guard",
+	models.AffiliationSPACEFORCE: "Space Force",
 }
 
 var deptIndDisplayValue = map[internalmessages.DeptIndicator]string{

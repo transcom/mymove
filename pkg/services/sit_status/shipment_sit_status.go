@@ -331,18 +331,18 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.SITServiceItemGroupi
 // is in SIT using a serviceItem and the current day.
 //
 // If the service item has a departure date and SIT entry date is in the past,
-// then the return value is the SITDepartureDate - SITEntryDate.
+// then the return value is the SITDepartureDate - SITEntryDate in hours, then converted to days.
 //
 // If there is no departure date and the SIT entry date in the past, then the
-// return value is Today - SITEntryDate.
+// return value is Today - SITEntryDate, adding 1 to include today.
 func daysInSIT(sitEntryDate time.Time, sitDepartureDate *time.Time, today time.Time) int {
+	var days int
 	if sitDepartureDate != nil && sitDepartureDate.Before(today) {
-		return int(sitDepartureDate.Sub(sitEntryDate).Hours()) / 24
-	} else if sitEntryDate.Before(today) {
-		return int(today.Sub(sitEntryDate).Hours()) / 24
+		days = int(sitDepartureDate.Sub(sitEntryDate).Hours()) / 24
+	} else if sitEntryDate.Before(today) || sitEntryDate.Equal(today) {
+		days = int(today.Sub(sitEntryDate).Hours())/24 + 1
 	}
-
-	return 0
+	return days
 }
 
 func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {

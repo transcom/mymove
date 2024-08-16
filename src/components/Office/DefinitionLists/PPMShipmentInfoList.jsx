@@ -38,6 +38,7 @@ const PPMShipmentInfoList = ({
     estimatedIncentive,
     estimatedWeight,
     expectedDepartureDate,
+    actualMoveDate,
     pickupAddress,
     proGearWeight,
     secondaryDestinationAddress,
@@ -88,10 +89,18 @@ const PPMShipmentInfoList = ({
   const expectedDepartureDateElementFlags = getDisplayFlags('expectedDepartureDate');
   const expectedDepartureDateElement = (
     <div className={expectedDepartureDateElementFlags.classes}>
-      <dt>Departure date</dt>
+      <dt>Estimated Departure date</dt>
       <dd data-testid="expectedDepartureDate">
         {(expectedDepartureDate && formatDate(expectedDepartureDate, 'DD MMM YYYY')) || '—'}
       </dd>
+    </div>
+  );
+
+  const actualDepartureDateElementFlags = getDisplayFlags('actualMoveDate');
+  const actualDepartureDateElement = (
+    <div className={actualDepartureDateElementFlags.classes}>
+      <dt>Actual Departure date</dt>
+      <dd data-testid="actualDepartureDate">{(actualMoveDate && formatDate(actualMoveDate, 'DD MMM YYYY')) || '—'}</dd>
     </div>
   );
 
@@ -269,7 +278,8 @@ const PPMShipmentInfoList = ({
       )}
       data-testid="ppm-shipment-info-list"
     >
-      {expectedDepartureDateElement}
+      {!actualMoveDate && expectedDepartureDateElement}
+      {actualMoveDate && actualDepartureDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
       {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
