@@ -29,16 +29,19 @@ const ResidentialAddressForm = ({ formFieldsName, initialValues, onSubmit, onBac
     >
       {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
         const handleZipCityChange = (value) => {
-          setValues({
-            ...values,
-            current_residence: {
-              ...values.current_residence,
-              city: value.city,
-              state: value.state ? value.state : '',
-              county: value.county,
-              postalCode: value.postalCode,
+          setValues(
+            {
+              ...values,
+              current_residence: {
+                ...values.current_residence,
+                city: value.city,
+                state: value.state ? value.state : '',
+                county: value.county,
+                postalCode: value.postalCode,
+              },
             },
-          });
+            { shouldValidate: true },
+          );
         };
 
         return (
