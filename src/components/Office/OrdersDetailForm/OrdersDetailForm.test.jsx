@@ -54,7 +54,6 @@ const defaultProps = {
   setFieldValue: jest.fn,
   payGradeOptions,
   hhgLongLineOfAccounting: 'Long line of accounting is present',
-  ntsLongLineOfAccounting: 'NTS Long line of accounting is present',
 };
 
 function renderOrdersDetailForm(props) {
@@ -101,16 +100,10 @@ describe('OrdersDetailForm', () => {
     expect(await screen.findByLabelText('I have read the new orders')).toBeInTheDocument();
   });
 
-  it('accepts hhg longLineOfAccounting prop', async () => {
+  it('accepts longLineOfAccounting prop', async () => {
     renderOrdersDetailForm();
     const loaTextField = screen.getByTestId('hhgLoaTextField');
     expect(loaTextField).toHaveValue('Long line of accounting is present');
-  });
-
-  it('accepts nts longLineOfAccounting prop', async () => {
-    renderOrdersDetailForm();
-    const loaTextField = screen.getByTestId('ntsLoaTextField');
-    expect(loaTextField).toHaveValue('NTS Long line of accounting is present');
   });
 
   it('shows the tac warning', async () => {

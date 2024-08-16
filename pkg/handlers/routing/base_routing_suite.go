@@ -109,7 +109,6 @@ func (suite *BaseRoutingSuite) RoutingConfig() *Config {
 		// include all these as true to increase test coverage
 		ServeSwaggerUI:      true,
 		ServePrime:          true,
-		ServePPTAS:          true,
 		ServeSupport:        true,
 		ServeDebugPProf:     true,
 		ServeAPIInternal:    true,
@@ -271,18 +270,6 @@ func (suite *BaseRoutingSuite) NewPrimeRequest(method string, relativePath strin
 // associated with a user
 func (suite *BaseRoutingSuite) NewAuthenticatedPrimeRequest(method string, relativePath string, body io.Reader, clientCert models.ClientCert) *http.Request {
 	req := suite.NewPrimeRequest(method, relativePath, body)
-	req.Header.Add("X-Devlocal-Cert-Hash", clientCert.Sha256Digest)
-	return req
-}
-
-func (suite *BaseRoutingSuite) NewPPTASRequest(method string, relativePath string, body io.Reader) *http.Request {
-	return suite.NewRequest(method,
-		suite.HandlerConfig().AppNames().PPTASServerName,
-		relativePath,
-		body)
-}
-func (suite *BaseRoutingSuite) NewAuthenticatedPPTASRequest(method string, relativePath string, body io.Reader, clientCert models.ClientCert) *http.Request {
-	req := suite.NewOfficeRequest(method, relativePath, body)
 	req.Header.Add("X-Devlocal-Cert-Hash", clientCert.Sha256Digest)
 	return req
 }

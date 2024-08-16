@@ -62,7 +62,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 		name                         string
 		shouldGenerateGoodTacAndLoa  bool
 		serviceMemberAffiliation     *string
-		effectiveDate                *strfmt.Date
+		ordersIssueDate              *strfmt.Date
 		tacCode                      *string
 		expectedResponse             middleware.Responder
 		shouldTheBodyBeCompletelyNil bool
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			name:                         "Returns a 200 on fetching a good TAC and LOA",
 			shouldGenerateGoodTacAndLoa:  true,
 			serviceMemberAffiliation:     models.StringPointer(models.AffiliationARMY.String()),
-			effectiveDate:                (*strfmt.Date)(models.TimePointer(time.Now())),
+			ordersIssueDate:              (*strfmt.Date)(models.TimePointer(time.Now())),
 			tacCode:                      models.StringPointer("GOOD"),
 			shouldTheBodyBeCompletelyNil: false,
 			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingOK{},
@@ -81,7 +81,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			name:                         "Returns a 400 on nil body",
 			shouldGenerateGoodTacAndLoa:  false,
 			serviceMemberAffiliation:     nil,
-			effectiveDate:                nil,
+			ordersIssueDate:              nil,
 			tacCode:                      nil,
 			shouldTheBodyBeCompletelyNil: true,
 			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingBadRequest{},
@@ -90,7 +90,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			name:                         "Returns a 400 on nil affiliation",
 			shouldGenerateGoodTacAndLoa:  false,
 			serviceMemberAffiliation:     nil,
-			effectiveDate:                nil,
+			ordersIssueDate:              nil,
 			tacCode:                      nil,
 			shouldTheBodyBeCompletelyNil: false,
 			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingBadRequest{},
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			name:                         "Return 200 if TAC cannot be found",
 			shouldGenerateGoodTacAndLoa:  false,
 			serviceMemberAffiliation:     models.StringPointer(models.AffiliationARMY.String()),
-			effectiveDate:                (*strfmt.Date)(models.TimePointer(time.Now())),
+			ordersIssueDate:              (*strfmt.Date)(models.TimePointer(time.Now())),
 			tacCode:                      models.StringPointer("BAD"), // This may break in the future if TAC codes are enforced to be a minimum of 4 characters
 			shouldTheBodyBeCompletelyNil: false,
 			expectedResponse:             &linesofaccountingop.RequestLineOfAccountingOK{},
@@ -126,9 +126,9 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 				serviceMemberAffiliation = &affiliation
 			}
 
-			var effectiveDate strfmt.Date
-			if tc.effectiveDate != nil {
-				effectiveDate = *tc.effectiveDate
+			var ordersIssueDate strfmt.Date
+			if tc.ordersIssueDate != nil {
+				ordersIssueDate = *tc.ordersIssueDate
 			}
 
 			var tacCode string
@@ -140,7 +140,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			if !tc.shouldTheBodyBeCompletelyNil {
 				body = &ghcmessages.FetchLineOfAccountingPayload{
 					ServiceMemberAffiliation: serviceMemberAffiliation,
-					EffectiveDate:            effectiveDate,
+					OrdersIssueDate:          ordersIssueDate,
 					TacCode:                  tacCode,
 				}
 			}
@@ -169,7 +169,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
 				ServiceMemberAffiliation: &affiliation,
-				EffectiveDate:            strfmt.Date(time.Now()),
+				OrdersIssueDate:          strfmt.Date(time.Now()),
 				TacCode:                  "MOCK",
 			},
 		}
@@ -192,7 +192,7 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
 				ServiceMemberAffiliation: &affiliation,
-				EffectiveDate:            strfmt.Date(time.Now()),
+				OrdersIssueDate:          strfmt.Date(time.Now()),
 				TacCode:                  "MOCK",
 			},
 		}
