@@ -3,7 +3,7 @@
 
 import Swagger from 'swagger-client';
 
-import { checkResponse, getClient, requestInterceptor } from 'shared/Swagger/api';
+import { checkResponse, getAdminClient, getClient, requestInterceptor } from 'shared/Swagger/api';
 
 export const getQueriesStatus = (queries) => {
   // Queries should be an array of statuses returned by useQuery (https://react-query.tanstack.com/docs/api#usequery)
@@ -34,6 +34,13 @@ export async function GetOktaUser() {
 export async function GetIsLoggedIn() {
   const client = await getClient();
   const response = await client.apis.users.isLoggedInUser({});
+  checkResponse(response, 'failed to get user due to server error');
+  return response.body;
+}
+
+export async function GetAdminUser() {
+  const client = await getAdminClient();
+  const response = await client.apis.User.getLoggedInAdminUser({});
   checkResponse(response, 'failed to get user due to server error');
   return response.body;
 }
