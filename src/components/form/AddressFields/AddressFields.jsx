@@ -116,13 +116,18 @@ export const AddressFields = ({
             validate={validators?.streetAddress3}
           />
           {zipCityEnabled && (
-            <ZipCityInput
-              name="zipCity"
-              placeholder="Start typing a Zip Code or City..."
-              label="Zip/City Lookup"
-              displayAddress={false}
-              handleZipCityChange={handleZipCityChange}
-            />
+            <>
+              <ZipCityInput
+                name="zipCity"
+                placeholder="Start typing a Zip Code or City..."
+                label="Zip/City Lookup"
+                displayAddress={false}
+                handleZipCityChange={handleZipCityChange}
+              />
+              <p data-testid="inaccurateInfo">
+                If you encounter any inaccurate lookup information please contact the Help Desk for further assistance.
+              </p>
+            </>
           )}
           <div className="grid-row grid-gap">
             <div className="mobile-lg:grid-col-6">
