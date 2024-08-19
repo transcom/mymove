@@ -23,7 +23,7 @@ type CustomerUpdater interface {
 
 //go:generate mockery --name CustomerSearcher
 type CustomerSearcher interface {
-	SearchCustomers(appCtx appcontext.AppContext, params *SearchCustomersParams) (models.ServiceMembers, int, error)
+	SearchCustomers(appCtx appcontext.AppContext, params *SearchCustomersParams) (models.ServiceMemberSearchResults, int, error)
 }
 
 type SearchCustomersParams struct {

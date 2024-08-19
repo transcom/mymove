@@ -17,20 +17,20 @@ type CustomerSearcher struct {
 }
 
 // SearchCustomers provides a mock function with given fields: appCtx, params
-func (_m *CustomerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *services.SearchCustomersParams) (models.ServiceMembers, int, error) {
+func (_m *CustomerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *services.SearchCustomersParams) (models.ServiceMemberSearchResults, int, error) {
 	ret := _m.Called(appCtx, params)
 
-	var r0 models.ServiceMembers
+	var r0 models.ServiceMemberSearchResults
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.SearchCustomersParams) (models.ServiceMembers, int, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.SearchCustomersParams) (models.ServiceMemberSearchResults, int, error)); ok {
 		return rf(appCtx, params)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.SearchCustomersParams) models.ServiceMembers); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.SearchCustomersParams) models.ServiceMemberSearchResults); ok {
 		r0 = rf(appCtx, params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(models.ServiceMembers)
+			r0 = ret.Get(0).(models.ServiceMemberSearchResults)
 		}
 	}
 

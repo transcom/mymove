@@ -23,6 +23,11 @@ type ListMove struct {
 	// amendments
 	Amendments *Amendments `json:"amendments,omitempty"`
 
+	// approved at
+	// Read Only: true
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
+
 	// available to prime at
 	// Read Only: true
 	// Format: date-time
@@ -74,6 +79,10 @@ func (m *ListMove) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateApprovedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -118,6 +127,18 @@ func (m *ListMove) validateAmendments(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *ListMove) validateApprovedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -233,6 +254,10 @@ func (m *ListMove) ContextValidate(ctx context.Context, formats strfmt.Registry)
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateApprovedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAvailableToPrimeAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -275,6 +300,15 @@ func (m *ListMove) contextValidateAmendments(ctx context.Context, formats strfmt
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *ListMove) contextValidateApprovedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "approvedAt", "body", m.ApprovedAt); err != nil {
+		return err
 	}
 
 	return nil
