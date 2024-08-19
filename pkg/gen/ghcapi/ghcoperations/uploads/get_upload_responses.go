@@ -17,7 +17,7 @@ import (
 const GetUploadOKCode int = 200
 
 /*
-GetUploadOK Successfully retrieved order
+GetUploadOK Successfully retrieved upload
 
 swagger:response getUploadOK
 */

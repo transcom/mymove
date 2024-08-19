@@ -3951,7 +3951,7 @@ paths:
       parameters: []
       responses:
         '200':
-          description: Successfully retrieved order
+          description: Successfully retrieved upload
           schema:
             $ref: 'definitions/Upload.yaml'
         '400':

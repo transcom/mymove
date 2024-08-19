@@ -5754,7 +5754,7 @@ func init() {
         "operationId": "getUpload",
         "responses": {
           "200": {
-            "description": "Successfully retrieved order",
+            "description": "Successfully retrieved upload",
             "schema": {
               "$ref": "#/definitions/Upload"
             }
@@ -20801,7 +20801,7 @@ func init() {
         "operationId": "getUpload",
         "responses": {
           "200": {
-            "description": "Successfully retrieved order",
+            "description": "Successfully retrieved upload",
             "schema": {
               "$ref": "#/definitions/Upload"
             }
