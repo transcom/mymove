@@ -1173,6 +1173,8 @@ jobs:
   # `pre_deps_yarn` is used to cache yarn sources
   pre_deps_yarn:
     executor: mymove_compiler
+    environment:
+      WEBPACK_PUBLIC_PATH: /
     steps:
       - checkout
       - restore_cache:
@@ -1182,7 +1184,6 @@ jobs:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
       - run: scripts/check-generated-code yarn.lock
-      - run: yarn webpack --env publicPath=""
       # `v4-cache-yarn-v4-{{ checksum "yarn.lock" }}` is used to cache yarn sources
       - save_cache:
           key: v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
