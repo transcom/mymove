@@ -293,6 +293,16 @@ const PaymentRequestCard = ({
               </div>
             </div>
           )}
+          {rejectedAmount > 0 && (
+            <div className={styles.amountRejected}>
+              <FontAwesomeIcon icon="times" />
+              <div>
+                <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
+                <span>Rejected</span>
+                <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
         </div>
       );
     }
@@ -309,6 +319,16 @@ const PaymentRequestCard = ({
               <div>
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                 <span>Received</span>
+                <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+          {rejectedAmount > 0 && (
+            <div className={styles.amountRejected}>
+              <FontAwesomeIcon icon="times" />
+              <div>
+                <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
+                <span>Rejected</span>
                 <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
               </div>
             </div>
