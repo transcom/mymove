@@ -273,16 +273,6 @@ const PaymentRequestCard = ({
     ) {
       return (
         <div data-testid="tppsPaidDetails">
-          {tppsInvoiceAmountPaidTotalMillicents > 0 && (
-            <div className={styles.amountAccepted}>
-              <FontAwesomeIcon icon="check" />
-              <div data-testid="tppsPaidDetailsDollarAmountTotal">
-                <h2>{toDollarString(formatDollarFromMillicents(tppsInvoiceAmountPaidTotalMillicents))}</h2>
-                <span>TPPS Paid</span>
-                <span> on {formatDateWithUTC(tppsInvoiceSellerPaidDate, 'DD MMM YYYY')}</span>
-              </div>
-            </div>
-          )}
           {approvedAmount > 0 && (
             <div className={styles.amountAccepted} data-testid="milMoveAcceptedDetailsDollarAmountTotal">
               <FontAwesomeIcon icon="check" />
@@ -300,6 +290,16 @@ const PaymentRequestCard = ({
                 <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
                 <span>Rejected</span>
                 <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+          {tppsInvoiceAmountPaidTotalMillicents > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div data-testid="tppsPaidDetailsDollarAmountTotal">
+                <h2>{toDollarString(formatDollarFromMillicents(tppsInvoiceAmountPaidTotalMillicents))}</h2>
+                <span>TPPS Paid</span>
+                <span> on {formatDateWithUTC(tppsInvoiceSellerPaidDate, 'DD MMM YYYY')}</span>
               </div>
             </div>
           )}
