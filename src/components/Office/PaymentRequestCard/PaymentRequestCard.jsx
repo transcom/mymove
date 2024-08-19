@@ -272,11 +272,11 @@ const PaymentRequestCard = ({
       tppsInvoiceSellerPaidDate
     ) {
       return (
-        <div>
+        <div data-testid="tppsPaidDetails">
           {tppsInvoiceAmountPaidTotalMillicents > 0 && (
             <div className={styles.amountAccepted}>
               <FontAwesomeIcon icon="check" />
-              <div>
+              <div data-testid="tppsPaidDetailsDollarAmountTotal">
                 <h2>{toDollarString(formatDollarFromMillicents(tppsInvoiceAmountPaidTotalMillicents))}</h2>
                 <span>TPPS Paid</span>
                 <span> on {formatDateWithUTC(tppsInvoiceSellerPaidDate, 'DD MMM YYYY')}</span>
@@ -284,7 +284,7 @@ const PaymentRequestCard = ({
             </div>
           )}
           {approvedAmount > 0 && (
-            <div className={styles.amountAccepted}>
+            <div className={styles.amountAccepted} data-testid="milMoveAcceptedDetailsDollarAmountTotal">
               <FontAwesomeIcon icon="check" />
               <div>
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
@@ -294,7 +294,7 @@ const PaymentRequestCard = ({
             </div>
           )}
           {rejectedAmount > 0 && (
-            <div className={styles.amountRejected}>
+            <div className={styles.amountRejected} data-testid="milMoveRejectedDetailsDollarAmountTotal">
               <FontAwesomeIcon icon="times" />
               <div>
                 <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
