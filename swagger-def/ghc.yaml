@@ -3616,6 +3616,10 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              paymentRequestCode:
+                type: string
+                example: 9551-6199-2
+                x-nullable: true
               status:
                 type: array
                 description: Filtering for the status.
@@ -5474,6 +5478,18 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      ediErrorType:
+        description: Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5737,6 +5753,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -5951,6 +5981,38 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -6445,6 +6507,10 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      paymentRequestCode:
+        type: string
+        example: 9551-6199-2
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
