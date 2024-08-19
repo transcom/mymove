@@ -172,11 +172,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			const SAC_LIMIT = 80
 			payload := params.CreateOrders
-			var move *models.Move
 
-			if appCtx.Session().OfficeUserID == uuid.Nil {
-				return move, apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request")
-			}
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
 				err = apperror.NewBadDataError("Error processing Service Member ID")
