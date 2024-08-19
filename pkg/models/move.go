@@ -3,11 +3,9 @@ package models
 import (
 	"crypto/sha256"
 	"fmt"
-	"net/http"
 	"strings"
 	"time"
 
-	"github.com/go-openapi/runtime"
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -102,11 +100,6 @@ type Move struct {
 	TIOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
 	CounselingOfficeID           *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
 	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
-}
-
-// WriteResponse implements middleware.Responder.
-func (m *Move) WriteResponse(http.ResponseWriter, runtime.Producer) {
-	panic("unimplemented")
 }
 
 // TableName overrides the table name used by Pop.

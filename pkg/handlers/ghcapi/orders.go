@@ -172,11 +172,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			const SAC_LIMIT = 80
 			payload := params.CreateOrders
-			var move *models.Move
-			// var officeUser models.OfficeUser
-			if appCtx.Session().OfficeUserID == uuid.Nil {
-				return move, apperror.NewQueryError("OfficeUserID", nil, "No office user provided in request")
-			}
 
 			// fetching transportation office that office user belongs to
 			// this data will be used to display to read-only viewers in the UI
