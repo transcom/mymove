@@ -67,7 +67,7 @@ describe('BackupAddressForm component', () => {
     const { getByRole, findAllByRole, getByLabelText } = render(<BackupAddressForm {...testProps} />);
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
-   
+
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
