@@ -42,7 +42,7 @@ func (suite *BoatShipmentSuite) TestUpdateBoatShipment() {
 		suite.Equal(newBoat.WidthInInches, updatedBoat.WidthInInches)
 		suite.Equal(newBoat.HeightInInches, updatedBoat.HeightInInches)
 		suite.Equal(newBoat.HasTrailer, updatedBoat.HasTrailer)
-		suite.Equal(nil, updatedBoat.IsRoadworthy)
+		suite.Nil(updatedBoat.IsRoadworthy)
 	})
 
 	suite.Run("Can't update if Shipment can't be found", func() {
