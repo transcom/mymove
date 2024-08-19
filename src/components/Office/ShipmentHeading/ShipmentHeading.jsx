@@ -28,7 +28,7 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
   const isCancellationRequested = shipmentStatus === shipmentStatuses.CANCELLATION_REQUESTED;
   const showShipmentAddressInfo =
     shipmentInfo?.originCity &&
-    shipmentInfo?.originCity &&
+    shipmentInfo?.originState &&
     shipmentInfo?.originPostalCode &&
     shipmentInfo?.destinationAddress &&
     shipmentInfo?.scheduledPickupDate;

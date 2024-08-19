@@ -35,6 +35,7 @@
 
   small {
     @include u-text('base-light');
+    @include u-text('gray-50', 'normal');
   }
 
   .row {
