@@ -662,7 +662,21 @@ const ShipmentForm = (props) => {
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 
-                {showPickupFields && (
+                {showPickupFields && isNTSR && (
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
+                    <Fieldset>
+                      <DatePickerInput
+                        name="pickup.requestedDate"
+                        label="Requested pickup date"
+                        id="requestedPickupDate"
+                        validate={validateDate}
+                      />
+                    </Fieldset>
+                  </SectionWrapper>
+                )}
+
+                {showPickupFields && !isNTSR && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
                     <Fieldset>
@@ -778,7 +792,7 @@ const ShipmentForm = (props) => {
                   </>
                 )}
 
-                {showDeliveryFields && (
+                {showDeliveryFields && isNTS && (
                   <SectionWrapper className={formStyles.formSection}>
                     <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
                     <Fieldset>
@@ -789,7 +803,20 @@ const ShipmentForm = (props) => {
                         validate={validateDate}
                       />
                     </Fieldset>
+                  </SectionWrapper>
+                )}
 
+                {showDeliveryFields && !isNTS && (
+                  <SectionWrapper className={formStyles.formSection}>
+                    <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
+                    <Fieldset>
+                      <DatePickerInput
+                        name="delivery.requestedDate"
+                        label="Requested delivery date"
+                        id="requestedDeliveryDate"
+                        validate={validateDate}
+                      />
+                    </Fieldset>
                     {isNTSR ? (
                       <>
                         {deliveryAddressUpdateRequested && (
