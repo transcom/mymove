@@ -47,6 +47,11 @@ export const boatShipmentTypes = {
   TOW_AWAY: 'TOW_AWAY',
 };
 
+export const boatShipmentAbbr = {
+  BOAT_HAUL_AWAY: 'BHA',
+  BOAT_TOW_AWAY: 'BTA',
+};
+
 export const shipmentDestinationTypes = {
   HOME_OF_RECORD: 'Home of record (HOR)',
   HOME_OF_SELECTION: 'Home of selection (HOS)',

@@ -406,6 +406,42 @@ paths:
         Returns counseling evaluation reports for the specified move that are
         visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  /moves/{moveID}/cancel:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -5720,6 +5756,20 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      ediErrorType:
+        description: >-
+          Type of EDI reporting or causing the issue. Can be EDI 997, 824, and
+          858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
+        type: string
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -6559,7 +6609,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      fullName:
+      lastName:
+        type: string
+      firstName:
         type: string
       hasSafetyPrivilege:
         type: boolean
@@ -7633,58 +7685,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItemDimension'
-  SITAddressUpdate:
-    type: object
-    description: An update to a SIT service item address.
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoServiceItemID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      distance:
-        description: The distance between the old address and the new address in miles.
-        example: 54
-        minimum: 0
-        type: integer
-      contractorRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      officeRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      status:
-        enum:
-          - REQUESTED
-          - APPROVED
-          - REJECTED
-      oldAddress:
-        $ref: '#/definitions/Address'
-      newAddress:
-        $ref: '#/definitions/Address'
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        type: string
-        readOnly: true
-  SITAddressUpdates:
-    description: A list of updates to a SIT service item address.
-    type: array
-    items:
-      $ref: '#/definitions/SITAddressUpdate'
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -7790,8 +7790,6 @@ definitions:
         $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
-      sitAddressUpdates:
-        $ref: '#/definitions/SITAddressUpdates'
       sitDeliveryMiles:
         type: integer
         x-nullable: true
@@ -8207,6 +8205,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status

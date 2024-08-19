@@ -79,6 +79,9 @@ export const SHIPMENT_OPTIONS = {
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
   BOAT: 'BOAT',
   MOTOR_HOME: 'MOTOR_HOME',
+  BOAT_TOW_AWAY: 'BOAT_TOW_AWAY',
+  BOAT_HAUL_AWAY: 'BOAT_HAUL_AWAY',
+  MOBILE_HOME: 'MOBILE_HOME',
 };
 
 export const SHIPMENT_TYPES = {
@@ -116,6 +119,9 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.NTS, label: 'NTS' },
   { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
   { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
+  { key: SHIPMENT_OPTIONS.BOAT, label: 'Boat' },
+  { key: SHIPMENT_TYPES.BOAT_HAUL_AWAY, label: 'Boat' },
+  { key: SHIPMENT_TYPES.BOAT_TOW_AWAY, label: 'Boat' },
 ];
 
 export const SERVICE_ITEM_STATUS = {

@@ -311,21 +311,6 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
 	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)...)
 	for i := range sitItems {
-		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    sitItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-			originalAddress := sitAddressUpdate.OldAddress
-			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&sitItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
 		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PaymentServiceItem{
@@ -1012,6 +997,74 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
+}
+
+// MakeGoodTACAndLoaCombination builds a good TAC and LOA and returns the TAC
+// so that e2e_tests can supply a "Valid" TAC that isn't expired
+// or missing a LOA
+func MakeGoodTACAndLoaCombination(appCtx appcontext.AppContext) models.TransportationAccountingCode {
+	// Transcom Relational Database Management (TRDM) TGET data
+	// Creats an active and linked together transportation accounting code and line of accounting
+	// Said TAC and LOA are active within a date range of 1 year
+	ordersIssueDate := time.Now()
+	startDate := ordersIssueDate.AddDate(-1, 0, 0)
+	endDate := ordersIssueDate.AddDate(1, 0, 0)
+	tacCode := factory.MakeRandomString(4)
+	loaSysID := factory.MakeRandomString(10)
+
+	// Ensure all DFAS elements are present
+	factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaBgnDt:               &startDate,
+				LoaEndDt:               &endDate,
+				LoaSysID:               &loaSysID,
+				LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+				LoaDptID:               models.StringPointer("1"),
+				LoaTnsfrDptNm:          models.StringPointer("1"),
+				LoaBafID:               models.StringPointer("1"),
+				LoaTrsySfxTx:           models.StringPointer("1"),
+				LoaMajClmNm:            models.StringPointer("1"),
+				LoaOpAgncyID:           models.StringPointer("1"),
+				LoaAlltSnID:            models.StringPointer("1"),
+				LoaPgmElmntID:          models.StringPointer("1"),
+				LoaTskBdgtSblnTx:       models.StringPointer("1"),
+				LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+				LoaJbOrdNm:             models.StringPointer("1"),
+				LoaSbaltmtRcpntID:      models.StringPointer("1"),
+				LoaWkCntrRcpntNm:       models.StringPointer("1"),
+				LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+				LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+				LoaCustNm:              models.StringPointer("1"),
+				LoaObjClsID:            models.StringPointer("1"),
+				LoaSrvSrcID:            models.StringPointer("1"),
+				LoaSpclIntrID:          models.StringPointer("1"),
+				LoaBdgtAcntClsNm:       models.StringPointer("1"),
+				LoaDocID:               models.StringPointer("1"),
+				LoaClsRefID:            models.StringPointer("1"),
+				LoaInstlAcntgActID:     models.StringPointer("1"),
+				LoaLclInstlID:          models.StringPointer("1"),
+				LoaFmsTrnsactnID:       models.StringPointer("1"),
+				LoaTrnsnID:             models.StringPointer("1"),
+				LoaUic:                 models.StringPointer("1"),
+				LoaBgFyTx:              models.IntPointer(2023),
+				LoaEndFyTx:             models.IntPointer(2025),
+			},
+		},
+	}, nil)
+	// Create the TAC and associate loa based on LoaSysID
+	tac := factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TAC:               tacCode,
+				TrnsprtnAcntBgnDt: &startDate,
+				TrnsprtnAcntEndDt: &endDate,
+				TacFnBlModCd:      models.StringPointer("1"),
+				LoaSysID:          &loaSysID,
+			},
+		},
+	}, nil)
+	return tac
 }
 
 // MakeNTSRMoveWithPaymentRequest is similar to old shared.createNTSRMoveWithPaymentRequest
@@ -4038,21 +4091,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 		},
 	}, nil)
 	for i := range sitItems {
-		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    sitItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-			originalAddress := sitAddressUpdate.OldAddress
-			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&sitItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
 		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PaymentServiceItem{
@@ -5278,26 +5316,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	twoMonthsAgo := now.AddDate(0, 0, -60)
 	oneMonthAgo := now.AddDate(0, 0, -30)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	return move
 }
@@ -5373,7 +5392,6 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 
 	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -5411,26 +5429,7 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	return move
 }
@@ -5544,26 +5543,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -5654,25 +5634,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
@@ -5791,26 +5753,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {

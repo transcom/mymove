@@ -20,6 +20,7 @@ const ShipmentContainer = ({ id, className, children, shipmentType }) => {
       'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,
       'container--accent--ntsr': shipmentType === SHIPMENT_OPTIONS.NTSR,
       'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,
+      'container--accent--boat': shipmentType === SHIPMENT_OPTIONS.BOAT,
     },
     className,
   );

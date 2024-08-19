@@ -28,6 +28,7 @@ import (
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/services/query"
+	sitstatus "github.com/transcom/mymove/pkg/services/sit_status"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -1065,7 +1066,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 
 	builder := query.NewQueryBuilder()
 	mtoChecker := movetaskorder.NewMoveTaskOrderChecker()
-	sitEntryDate := time.Now()
+	sitEntryDate := time.Now().Add(time.Hour * 24)
 
 	type localSubtestData struct {
 		mto            models.Move
@@ -1101,7 +1102,7 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 				},
 				models.MTOServiceItemCustomerContact{
 					Type:                       models.CustomerContactTypeSecond,
-					DateOfContact:              time.Now().Add(time.Hour * 24),
+					DateOfContact:              time.Now(),
 					TimeMilitary:               "0400Z",
 					FirstAvailableDeliveryDate: time.Now(),
 				},
@@ -1302,16 +1303,6 @@ func (suite *HandlerSuite) TestCreateMTOServiceItemDestSITHandler() {
 		response := handler.Handle(params)
 		suite.IsType(&mtoserviceitemops.CreateMTOServiceItemOK{}, response)
 
-		// TODO: This is failing because DOPSIT and DDDSIT are being sent back in the response
-		//   but those are not listed in the enum in the swagger file.  They aren't allowed for
-		//   incoming payloads, but are allowed for outgoing payloads, but the same payload spec
-		//   is used for both.  Need to figure out best way to resolve.
-		// okResponse := response.(*mtoserviceitemops.CreateMTOServiceItemOK)
-		// Validate outgoing payload (each element of slice)
-		// for _, mtoServiceItem := range okResponse.Payload {
-		// 	suite.NoError(mtoServiceItem.Validate(strfmt.Default))
-		// }
-
 		// now that the mto service item has been created, create a standalone
 		subtestData.mtoServiceItem.ReService.Code = models.ReServiceCodeDDASIT
 		params = mtoserviceitemops.CreateMTOServiceItemParams{
@@ -1425,15 +1416,70 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 		params     mtoserviceitemops.UpdateMTOServiceItemParams
 	}
 
+	sitStatusService := sitstatus.NewShipmentSITStatus()
+
 	makeSubtestData := func() (subtestData *localSubtestData) {
 		subtestData = &localSubtestData{}
 		timeNow := time.Now()
-		subtestData.dddsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		requestApproavalsRequestedStatus := false
+		// Number of days of grace period after customer contacts prime for delivery out of SIT
+		const GracePeriodDays = 5
+
+		year, month, day := timeNow.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := timeNow.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &timeNow,
 					ApprovedAt:         &timeNow,
 				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// We need to create a destination first day sit in order to properly calculate authorized end date
+		ddfsitServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDDFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate:                  &contactDatePlusGracePeriod,
+					SITEntryDate:                      &aMonthAgo,
+					SITCustomerContacted:              &timeNow,
+					SITRequestedDelivery:              &sitRequestedDelivery,
+					Status:                            "APPROVED",
+					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
+				},
+			},
+		}, nil)
+
+		subtestData.dddsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
 			{
 				Model: models.MTOServiceItem{
@@ -1449,6 +1495,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDDDSIT() {
 				},
 			},
 		}, nil)
+
+		// Set shipment SIT status
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, subtestData.dddsit, ddfsitServiceItemPrime)
+		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
+		suite.MustSave(&shipmentWithCalculatedStatus)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		addr := primemessages.Address{
@@ -1663,6 +1716,7 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
+	sitStatusService := sitstatus.NewShipmentSITStatus()
 
 	type localSubtestData struct {
 		dopsit     models.MTOServiceItem
@@ -1675,12 +1729,65 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 		requestApprovalRequestedStatus := false
 		subtestData = &localSubtestData{}
 		timeNow := time.Now()
-		subtestData.dopsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+		requestApproavalsRequestedStatus := false
+		// Number of days of grace period after customer contacts prime for delivery out of SIT
+		const GracePeriodDays = 5
+
+		year, month, day := timeNow.Add(time.Hour * 24 * -30).Date()
+		aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+		contactDatePlusGracePeriod := timeNow.AddDate(0, 0, GracePeriodDays)
+		sitRequestedDelivery := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+
+		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &timeNow,
 					ApprovedAt:         &timeNow,
 				},
+			},
+		}, nil)
+		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		// We need to create an origin first day sit in order to properly calculate authorized end date
+		dofsitServiceItemPrime := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
+			},
+			{
+				Model: models.ReService{
+					Code: models.ReServiceCodeDOFSIT,
+				},
+			},
+			{
+				Model: models.MTOServiceItem{
+					SITDepartureDate:                  &contactDatePlusGracePeriod,
+					SITEntryDate:                      &aMonthAgo,
+					SITCustomerContacted:              &timeNow,
+					SITRequestedDelivery:              &sitRequestedDelivery,
+					Status:                            "APPROVED",
+					RequestedApprovalsRequestedStatus: &requestApproavalsRequestedStatus,
+				},
+			},
+		}, nil)
+
+		subtestData.dopsit = factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+			{
+				Model:    shipment,
+				LinkOnly: true,
 			},
 			{
 				Model: models.MTOServiceItem{
@@ -1695,6 +1802,13 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemDOPSIT() {
 				},
 			},
 		}, nil)
+
+		// Set shipment SIT status
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, subtestData.dopsit, dofsitServiceItemPrime)
+		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
+		suite.MustSave(&shipmentWithCalculatedStatus)
+		suite.NoError(err)
+		suite.NotNil(sitStatus)
 
 		// Create the payload with the desired update
 		subtestData.reqPayload = &primemessages.UpdateMTOServiceItemSIT{

@@ -122,9 +122,6 @@ type MTOServiceItem struct {
 	// service request documents
 	ServiceRequestDocuments ServiceRequestDocuments `json:"serviceRequestDocuments,omitempty"`
 
-	// sit address updates
-	SitAddressUpdates SITAddressUpdates `json:"sitAddressUpdates,omitempty"`
-
 	// sit customer contacted
 	// Format: date
 	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -234,10 +231,6 @@ func (m *MTOServiceItem) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateServiceRequestDocuments(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitAddressUpdates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -507,23 +500,6 @@ func (m *MTOServiceItem) validateServiceRequestDocuments(formats strfmt.Registry
 	return nil
 }
 
-func (m *MTOServiceItem) validateSitAddressUpdates(formats strfmt.Registry) error {
-	if swag.IsZero(m.SitAddressUpdates) { // not required
-		return nil
-	}
-
-	if err := m.SitAddressUpdates.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sitAddressUpdates")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sitAddressUpdates")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItem) validateSitCustomerContacted(formats strfmt.Registry) error {
 	if swag.IsZero(m.SitCustomerContacted) { // not required
 		return nil
@@ -709,10 +685,6 @@ func (m *MTOServiceItem) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -783,20 +755,6 @@ func (m *MTOServiceItem) contextValidateServiceRequestDocuments(ctx context.Cont
 			return ve.ValidateName("serviceRequestDocuments")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("serviceRequestDocuments")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItem) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sitAddressUpdates")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sitAddressUpdates")
 		}
 		return err
 	}

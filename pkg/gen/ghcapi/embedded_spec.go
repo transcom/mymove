@@ -2233,6 +2233,58 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -6006,11 +6058,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -8271,9 +8326,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -10689,7 +10741,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -10788,6 +10841,21 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -11477,73 +11545,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
       }
     },
     "SITExtension": {
@@ -16329,6 +16330,76 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -20936,11 +21007,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -23205,9 +23279,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -25696,7 +25767,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -25795,6 +25867,21 @@ func init() {
         },
         "eTag": {
           "type": "string"
+        },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
         },
         "id": {
           "type": "string",
@@ -26486,74 +26573,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "minimum": 0,
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
       }
     },
     "SITExtension": {
