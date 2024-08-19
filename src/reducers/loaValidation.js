@@ -1,3 +1,5 @@
+import { LOA_TYPE } from 'shared/constants';
+
 export const LOA_VALIDATION_ACTIONS = {
   VALIDATION_RESPONSE: 'VALIDATION_RESPONSE',
 };
@@ -7,9 +9,11 @@ export const reducer = (state, action) => {
     case LOA_VALIDATION_ACTIONS.VALIDATION_RESPONSE: {
       return {
         ...state,
-        isValid: action.payload.isValid,
-        longLineOfAccounting: action.payload.longLineOfAccounting,
-        loa: action.payload.loa,
+        [action.payload.loaType]: {
+          isValid: action.payload.isValid,
+          longLineOfAccounting: action.payload.longLineOfAccounting,
+          loa: action.payload.loa,
+        },
       };
     }
     default:
@@ -19,8 +23,15 @@ export const reducer = (state, action) => {
 
 export const initialState = () => {
   return {
-    isValid: false,
-    longLineOfAccounting: '',
-    loa: null,
+    [LOA_TYPE.HHG]: {
+      isValid: false,
+      longLineOfAccounting: '',
+      loa: null,
+    },
+    [LOA_TYPE.NTS]: {
+      isValid: false,
+      longLineOfAccounting: '',
+      loa: null,
+    },
   };
 };
