@@ -293,7 +293,7 @@ export const ZipCityLocationBasic = () => {
     setValue(newValue);
   };
 
-  const handleOnChange = (newValue) => {
+  const handleZipCityOnChange = (newValue) => {
     setValue(newValue);
   };
 
@@ -305,7 +305,7 @@ export const ZipCityLocationBasic = () => {
       name="test_component"
       searchLocations={mockZipCity}
       displayAddress={false}
-      handleOnChange={handleOnChange}
+      handleZipCityOnChange={handleZipCityOnChange}
     />
   );
 };
