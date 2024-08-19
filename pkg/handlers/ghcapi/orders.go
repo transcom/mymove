@@ -173,10 +173,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			const SAC_LIMIT = 80
 			payload := params.CreateOrders
 
-			// fetching transportation office that office user belongs to
-			// this data will be used to display to read-only viewers in the UI
-			// var transportationOffice models.TransportationOffice
-			// var err error
 			serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 			if err != nil {
 				err = apperror.NewBadDataError("Error processing Service Member ID")
@@ -196,11 +192,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Where("office_users.id = ?", appCtx.Session().OfficeUserID).
 				First(&transportationOffice)
 
-			if err != nil {
-				err = apperror.NewBadDataError("Error Finding Transportation Office")
-				appCtx.Logger().Error(err.Error())
-				return orderop.NewCreateOrderUnprocessableEntity(), err
-			}
+			appCtx.Logger().Error(err.Error())
 
 			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
 				err = apperror.NewBadDataError("SAC cannot be more than 80 characters.")
