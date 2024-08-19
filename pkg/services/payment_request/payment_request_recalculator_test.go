@@ -446,6 +446,7 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 			Model: models.Move{
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: &availableToPrimeAt,
+				ApprovedAt:         &availableToPrimeAt,
 			},
 		},
 		{

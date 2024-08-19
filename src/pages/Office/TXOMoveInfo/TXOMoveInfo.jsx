@@ -14,6 +14,7 @@ import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -252,6 +253,21 @@ const TXOMoveInfo = () => {
               element={
                 <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
                   <EvaluationReport
+                    customerInfo={customerData}
+                    grade={order.grade}
+                    destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  />
+                </Restricted>
+              }
+            />
+          )}
+          {order.grade && (
+            <Route
+              path={qaeCSRRoutes.EVALUATION_REPORT_VIEW_PATH}
+              exact
+              element={
+                <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                  <EvaluationReportView
                     customerInfo={customerData}
                     grade={order.grade}
                     destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
