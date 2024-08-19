@@ -108,6 +108,19 @@ export async function getPPMActualWeight(key, ppmShipmentId) {
   return makeGHCRequest('ppm.getPPMActualWeight', { ppmShipmentId }, { normalize: false });
 }
 
+export async function patchDocumentsSetRotation({ documentId, eTag }) {
+  return makeGHCRequest(
+    'ppm.setDocumentRotation',
+    {
+      documentId,
+      'If-Match': eTag,
+    },
+    {
+      normalize: false,
+    },
+  );
+}
+
 export async function patchPPMDocumentsSetStatus({ ppmShipmentId, eTag }) {
   return makeGHCRequest(
     'ppm.finishDocumentReview',
@@ -359,6 +372,11 @@ export async function counselingUpdateOrder({ orderID, ifMatchETag, body }) {
 export async function counselingCreateOrder({ body }) {
   const operationPath = 'order.createOrder';
   return makeGHCRequest(operationPath, { createOrders: body }, { normalize: true });
+}
+
+export async function updateUpload({ uploadID, body }) {
+  const operationPath = 'uploads.updateUpload';
+  return makeGHCRequest(operationPath, { uploadID, body });
 }
 
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
