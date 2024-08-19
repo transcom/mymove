@@ -6,7 +6,7 @@ import { setFlashMessage } from 'store/flash/actions';
 import { GetAdminUser, GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
 import { loggedInUser } from 'shared/Entities/schema';
 import { addEntities, setAdminUser, setOktaUser } from 'shared/Entities/actions';
-import { isAdminSite } from 'shared/constants';
+import { isAdminSite, serviceName } from 'shared/constants';
 
 /**
  * This saga mirrors the getCurrentUserInfo thunk (shared/Data/users.js)
@@ -23,7 +23,7 @@ export function* fetchUser() {
         const user = yield call(GetLoggedInUser); // make user API call
         const okta = yield call(GetOktaUser); // get Okta profile data
 
-        if (isAdminSite) {
+        if (serviceName() === 'admin' || isAdminSite) {
           const adminUser = yield call(GetAdminUser); // get admin user data
           yield put(setAdminUser(adminUser)); // adds admin data to entities in state
         }
