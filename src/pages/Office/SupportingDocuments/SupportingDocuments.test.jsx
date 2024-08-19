@@ -85,7 +85,11 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('displays message if no files were uploaded', async () => {
-      render(<SupportingDocuments {...mockProps} uploads={[]} />);
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <SupportingDocuments {...mockProps} uploads={[]} />
+        </QueryClientProvider>,
+      );
       expect(screen.getByRole('heading', { name: /No supporting documents have been uploaded/i })).toBeInTheDocument();
       const docMenuButton = await screen.queryByRole('button', { name: /open menu/i });
       expect(docMenuButton).not.toBeInTheDocument();
@@ -97,7 +101,11 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('displays message if uploads variable is undefined', async () => {
-      render(<SupportingDocuments {...mockProps} uploads={undefined} />);
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <SupportingDocuments {...mockProps} uploads={undefined} />
+        </QueryClientProvider>,
+      );
       expect(screen.getByRole('heading', { name: /No supporting documents have been uploaded/i })).toBeInTheDocument();
       const docMenuButton = await screen.queryByRole('button', { name: /open menu/i });
       expect(docMenuButton).not.toBeInTheDocument();
@@ -109,7 +117,11 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('displays message if uploads variable is not an array', async () => {
-      render(<SupportingDocuments {...mockProps} uploads={1} />);
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <SupportingDocuments {...mockProps} uploads={1} />
+        </QueryClientProvider>,
+      );
       expect(screen.getByRole('heading', { name: /No supporting documents have been uploaded/i })).toBeInTheDocument();
       const docMenuButton = await screen.queryByRole('button', { name: /open menu/i });
       expect(docMenuButton).not.toBeInTheDocument();
@@ -122,9 +134,11 @@ describe('Supporting Documents Viewer', () => {
 
     it('displays document manager sidebar', async () => {
       render(
-        <MockProviders permissions={[permissionTypes.createSupportingDocuments]}>
-          <SupportingDocuments {...mockProps} />
-        </MockProviders>,
+        <QueryClientProvider client={new QueryClient()}>
+          <MockProviders permissions={[permissionTypes.createSupportingDocuments]}>
+            <SupportingDocuments {...mockProps} />
+          </MockProviders>
+        </QueryClientProvider>,
       );
       await waitFor(() => {
         expect(
@@ -134,7 +148,11 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('hides document manager sidebar', async () => {
-      render(<SupportingDocuments {...mockProps} />);
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <SupportingDocuments {...mockProps} />
+        </QueryClientProvider>,
+      );
 
       expect(
         screen.queryByText(/PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible/),
