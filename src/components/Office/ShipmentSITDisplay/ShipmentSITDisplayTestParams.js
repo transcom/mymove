@@ -158,6 +158,53 @@ export const futureSITStatus = {
   },
 };
 
+export const SITStatusWithFullyPopulatedPastSITOriginServiceItem = {
+  daysInSIT: 30,
+  location: LOCATION_VALUES.ORIGIN,
+  sitEntryDate: '2021-08-23',
+  totalDaysRemaining: 210,
+  totalSITDaysUsed: 60,
+  calculatedTotalDaysInSIT: 60,
+  pastSITServiceItemGroupings: [
+    {
+      summary: {
+        firstDaySITServiceItemID: 'eb3a1983-4961-4be2-bfb6-73ad1720418a',
+        location: LOCATION_VALUES.ORIGIN,
+        daysInSIT: 30,
+        sitEntryDate: '2021-07-24T00:00:00.000Z',
+        sitDepartureDate: '2021-08-23T00:00:00.000Z',
+        sitAuthorizedEndDate: '2021-08-24T00:00:00.000Z',
+        sitCustomerContacted: '2021-08-25T00:00:00.000Z',
+        sitRequestedDelivery: '2021-08-26T00:00:00.000Z',
+      },
+      serviceItems: [
+        {
+          SITPostalCode: '90210',
+          createdAt: '2021-09-22T14:48:37.610Z',
+          deletedAt: '0001-01-01',
+          description: null,
+          eTag: 'MjAyMS0wOS0yMlQxNDo0ODozNy42MTAxODZa',
+          id: 'eb3a1983-4961-4be2-bfb6-73ad1720418a',
+          moveTaskOrderID: '55c1cdbb-95b0-47f0-ab17-cfe5a0e46ab8',
+          mtoShipmentID: 'f39ba92d-7d42-446a-be70-3a97b5f9f081',
+          pickupPostalCode: null,
+          reServiceCode: SERVICE_ITEM_CODES.DOFSIT,
+          reServiceID: 'd1a4f062-0ca3-4387-8f8e-3dd20493d0b7',
+          reServiceName: 'Domestic origin SIT pickup',
+          reason: 'peak season all trucks in use',
+          sitDepartureDate: '2021-08-23T00:00:00.000Z',
+          sitCustomerContacted: '2021-08-25T00:00:00.000Z',
+          sitRequestedDelivery: '2021-08-26T00:00:00.000Z',
+          sitEntryDate: '2021-07-24T00:00:00.000Z',
+          status: SERVICE_ITEM_STATUSES.APPROVED,
+          submittedAt: '0001-01-01',
+          updatedAt: '0001-01-01T00:00:00.000Z',
+        },
+      ],
+    },
+  ],
+};
+
 export const SITStatusWithPastSITOriginServiceItem = {
   daysInSIT: 30,
   location: LOCATION_VALUES.ORIGIN,

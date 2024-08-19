@@ -71,11 +71,25 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
   const [isConvertedToCustomerExpense, setIsConvertedToCustomerExpense] = useState(false);
+  // Descending sort of past SIT service item groups by SIT Departure Date
+  const sortedPastSITGroups = sitStatus.pastSITServiceItemGroupings?.sort(
+    (a, b) => new Date(b.summary.sitDepartureDate) - new Date(a.summary.sitDepartureDate),
+  );
+
+  // Get the most recent past SIT group if Current SIT doesn't exist
+  // This allows the support of the following PO requirement:
+  // - "If a new SIT hasn't replaced the old one, then the old SIT's departure date, requested delivery date, and contact date should still show on the dashboard"
+  // TODO: Eventually refactor this out when we receive the feature request to list multiple SITs at the same time
+  const mostRecentPastSITGroup = sortedPastSITGroups?.[0];
 
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
   const sitDepartureDate =
-    formatDate(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+    formatDate(
+      sitStatus.currentSIT?.sitDepartureDate || mostRecentPastSITGroup?.summary.sitDepartureDate,
+      swaggerDateFormat,
+      'DD MMM YYYY',
+    ) || DEFAULT_EMPTY_VALUE;
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
@@ -122,11 +136,19 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
 
   const showConvertToCustomerExpense = daysRemaining <= 30;
 
-  // Customer delivery request
   const customerContactDate =
-    formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+    formatDate(
+      sitStatus?.currentSIT?.sitCustomerContacted || mostRecentPastSITGroup?.summary.sitCustomerContacted,
+      swaggerDateFormat,
+      'DD MMM YYYY',
+    ) || DEFAULT_EMPTY_VALUE;
+
   const sitRequestedDelivery =
-    formatDate(sitStatus?.currentSIT?.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+    formatDate(
+      sitStatus?.currentSIT?.sitRequestedDelivery || mostRecentPastSITGroup?.summary.sitRequestedDelivery,
+      swaggerDateFormat,
+      'DD MMM YYYY',
+    ) || DEFAULT_EMPTY_VALUE;
 
   useEffect(() => {
     if (shipment.mtoServiceItems) {
@@ -180,11 +202,27 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
         </>
       )}
 
-      {/* SIT Service Items */}
+      {/* Past SIT Service Items Info Section */}
       {sitStatus.pastSITServiceItemGroupings && (
-        <div className={styles.tableContainer}>
-          <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
-        </div>
+        <>
+          <div className={styles.tableContainer}>
+            <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+          </div>
+          {!sitStatus.currentSIT && (
+            <div className={styles.tableContainer} data-testid="pastSitDepartureDateTable">
+              {/*
+              SIT departure date row for if there is no current SIT.
+              The customer wants the most recent SIT departure date to show as an independent entry
+              similar to how Current SIT works.
+              */}
+              <DataTable
+                testID="currentSITDateData"
+                columnHeaders={[`SIT departure date`]}
+                dataRow={[sitDepartureDate]}
+              />
+            </div>
+          )}
+        </>
       )}
       <div className={styles.tableContainer}>
         <p className={styles.sitHeader}>Customer delivery request</p>
