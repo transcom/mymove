@@ -1178,7 +1178,6 @@ jobs:
       - restore_cache:
           keys:
             - v4-cache-yarn-v4-{{ checksum "yarn.lock" }}
-      - run: webpack --env publicPath=/
       - run:
           name: Install Frozen YARN dependencies
           command: yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
@@ -1190,6 +1189,11 @@ jobs:
             - ~/.cache/yarn
       - announce_failure
 
+  # `public_path_config` is used to correct an issue with the headless browser and changes to package.json
+  public_path_config:
+    steps:
+      - run: webpack --env publicPath=/
+  
   # `check_generated_code` is used to ensure generated code doesn't change
   check_generated_code:
     executor: mymove_compiler
@@ -1607,6 +1611,7 @@ jobs:
     executor: tls_small
     steps:
       - checkout
+      - public_path_config
       - attach_workspace:
           at: .
       - restore_cache:
