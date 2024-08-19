@@ -629,6 +629,39 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		return mockUpdater
 	}
 
+	setupPricerData := func() {
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		service := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		service = factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+	}
+
+	suite.PreloadData(setupPricerData)
+
 	suite.Run("Service item creator is not called if move fails to get approved", func() {
 		mockserviceItemCreator := &mocks.MTOServiceItemCreator{}
 		queryBuilder := query.NewQueryBuilder()
@@ -666,8 +699,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	})
 
 	suite.Run("Makes move available to Prime and creates Move management and Service counseling service items when both are specified", func() {
-		suite.createMSAndCSReServices()
-
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
@@ -706,8 +737,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	})
 
 	suite.Run("Makes move available to Prime and only creates Move management when it's the only one specified", func() {
-		suite.createMSAndCSReServices()
-
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
@@ -742,8 +771,6 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 	})
 
 	suite.Run("Makes move available to Prime and only creates CS service item when it's the only one specified", func() {
-		suite.createMSAndCSReServices()
-
 		queryBuilder := query.NewQueryBuilder()
 		moveRouter := moverouter.NewMoveRouter()
 		planner := &routemocks.Planner{}
@@ -950,11 +977,6 @@ func (suite *MoveTaskOrderServiceSuite) containsServiceCode(items models.MTOServ
 	}
 
 	return false
-}
-
-func (suite *MoveTaskOrderServiceSuite) createMSAndCSReServices() {
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 }
 
 func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePPMType() {
