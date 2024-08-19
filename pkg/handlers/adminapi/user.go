@@ -25,9 +25,7 @@ func (h GetLoggedInUserHandler) Handle(params userop.GetLoggedInAdminUserParams)
 
 			var err error
 			if !appCtx.Session().IsAdminApp() {
-				if err != nil {
-					return handlers.ResponseForError(appCtx.Logger(), err), err
-				}
+				return userop.NewGetLoggedInAdminUserUnauthorized(), nil
 			}
 
 			var adminUserID uuid.UUID
