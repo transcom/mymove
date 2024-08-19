@@ -41,6 +41,9 @@ const MoveDocumentWrapper = () => {
     ?.filter((file) => {
       return !file.deletedAt;
     })
+    ?.map((file) => {
+      return { ...file, rotation: 0 }; // TODO: need to assign the rotation value from the DB
+    })
     ?.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
 
   const ordersFilteredAndSorted = Object.values(upload || {})

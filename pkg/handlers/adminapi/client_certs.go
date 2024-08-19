@@ -38,7 +38,6 @@ func payloadForClientCertModel(o models.ClientCert) *adminmessages.ClientCertifi
 		AllowNavyOrdersRead:         o.AllowNavyOrdersRead,
 		AllowNavyOrdersWrite:        o.AllowNavyOrdersWrite,
 		AllowPrime:                  o.AllowPrime,
-		AllowPPTAS:                  o.AllowPPTAS,
 	}
 	return payload
 }

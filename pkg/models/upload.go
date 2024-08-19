@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/db/utilities"
 )
@@ -29,6 +30,7 @@ type Upload struct {
 	ID          uuid.UUID  `db:"id"`
 	Filename    string     `db:"filename"`
 	Bytes       int64      `db:"bytes"`
+	Rotation    *int64     `db:"rotation"`
 	ContentType string     `db:"content_type"`
 	Checksum    string     `db:"checksum"`
 	StorageKey  string     `db:"storage_key"`
@@ -74,6 +76,20 @@ func (u *Upload) BeforeCreate(_ *pop.Connection) error {
 	}
 
 	return nil
+}
+
+func FetchUpload(dbConn *pop.Connection, uploadID uuid.UUID) (*Upload, error) {
+	var upload Upload
+	err := dbConn.Q().Find(&upload, uploadID)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return &Upload{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return &Upload{}, err
+	}
+
+	return &upload, nil
 }
 
 // DeleteUpload deletes an upload from the database

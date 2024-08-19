@@ -1679,7 +1679,6 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts:              MTOServiceItemCustomerContacts(s.CustomerContacts),
-		SitAddressUpdates:             SITAddressUpdates(s.SITAddressUpdates),
 		SitOriginHHGOriginalAddress:   Address(s.SITOriginHHGOriginalAddress),
 		SitOriginHHGActualAddress:     Address(s.SITOriginHHGActualAddress),
 		SitDestinationOriginalAddress: Address(s.SITDestinationOriginalAddress),
@@ -1695,6 +1694,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
 
@@ -1750,31 +1750,6 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 	return payload
 }
 
-// SITAddressUpdate payload
-func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
-	return &ghcmessages.SITAddressUpdate{
-		ID:                *handlers.FmtUUID(u.ID),
-		MtoServiceItemID:  *handlers.FmtUUID(u.MTOServiceItemID),
-		Distance:          handlers.FmtInt64(int64(u.Distance)),
-		ContractorRemarks: u.ContractorRemarks,
-		OfficeRemarks:     u.OfficeRemarks,
-		Status:            u.Status,
-		OldAddress:        Address(&u.OldAddress),
-		NewAddress:        Address(&u.NewAddress),
-		CreatedAt:         strfmt.DateTime(u.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(u.UpdatedAt),
-		ETag:              etag.GenerateEtag(u.UpdatedAt)}
-}
-
-// SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) ghcmessages.SITAddressUpdates {
-	payload := make(ghcmessages.SITAddressUpdates, len(u))
-	for i, item := range u {
-		payload[i] = SITAddressUpdate(item)
-	}
-	return payload
-}
-
 // Upload payload
 func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmessages.Upload {
 	uploadPayload := &ghcmessages.Upload{
@@ -1788,6 +1763,11 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
@@ -1861,6 +1841,11 @@ func PayloadForUploadModel(
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
