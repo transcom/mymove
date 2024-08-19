@@ -13,7 +13,6 @@ import styles from './ShipmentSITDisplay.module.scss';
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
@@ -97,15 +96,16 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
     ) || '\u2014';
 
   // Previous SIT calculations and date ranges
-  const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
-    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
-    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ? 'origin' : 'destination';
+  const previousDaysUsed = sitStatus.pastSITServiceItemGroupings?.map((sitGroup) => {
+    // Build the past SIT text based off the past sit group summary rather than individual service items
+    const sitDaysUsed = moment(sitGroup.summary.sitDepartureDate).diff(sitGroup.summary.sitEntryDate, 'days');
+    const location = sitGroup.summary.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
 
-    const start = formatDate(pastSITItem.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
-    const end = formatDate(pastSITItem.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
+    const start = formatDate(sitGroup.summary.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
+    const end = formatDate(sitGroup.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
     const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
 
-    return <p key={pastSITItem.id}>{text}</p>;
+    return <p key={sitGroup.summary.firstDaySITServiceItemID}>{text}</p>;
   });
 
   // Currently active SIT
@@ -180,8 +180,8 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
         </>
       )}
 
-      {/* Service Items */}
-      {sitStatus.pastSITServiceItems && (
+      {/* SIT Service Items */}
+      {sitStatus.pastSITServiceItemGroupings && (
         <div className={styles.tableContainer}>
           <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
         </div>
