@@ -1394,6 +1394,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Status:             models.MoveStatusAPPROVED,
 				},
 			},

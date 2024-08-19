@@ -42,6 +42,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 				Model: models.Move{
 					Status:             models.MoveStatusAPPROVED,
 					AvailableToPrimeAt: &availableToPrimeAt,
+					ApprovedAt:         &availableToPrimeAt,
 					SubmittedAt:        &submittedAt,
 				},
 			},
@@ -84,6 +85,7 @@ func (suite *HandlerSuite) TestGetMoveHandler() {
 
 		suite.Equal(move.ID.String(), payload.ID.String())
 		suite.Equal(move.AvailableToPrimeAt.Format(swaggerTimeFormat), time.Time(*payload.AvailableToPrimeAt).Format(swaggerTimeFormat))
+		suite.Equal(move.ApprovedAt.Format(swaggerTimeFormat), time.Time(*payload.AvailableToPrimeAt).Format(swaggerTimeFormat))
 		suite.Equal(move.ContractorID.String(), payload.ContractorID.String())
 		suite.Equal(move.Locator, payload.Locator)
 		suite.Equal(move.OrdersID.String(), payload.OrdersID.String())

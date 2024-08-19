@@ -144,6 +144,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.NotNil(expectedMTO.ReferenceID)
 		suite.NotNil(expectedMTO.Locator)
 		suite.Nil(expectedMTO.AvailableToPrimeAt)
+		suite.Nil(expectedMTO.ApprovedAt)
 		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
 
 		// Should get two shipments back since we didn't set searchParams to exclude external ones.
@@ -250,6 +251,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderFetcher() {
 		suite.NotNil(expectedMTO.ReferenceID)
 		suite.NotNil(expectedMTO.Locator)
 		suite.Nil(expectedMTO.AvailableToPrimeAt)
+		suite.Nil(expectedMTO.ApprovedAt)
 		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
 
 		// Should get one shipment back since we requested no external shipments.
