@@ -87,6 +87,7 @@ func GetTraitShipmentAddressUpdateRequested() []Customization {
 				Locator:            "CRQST1",
 				Status:             models.MoveStatusAPPROVALSREQUESTED,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				ApprovedAt:         models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -109,6 +110,7 @@ func GetTraitShipmentAddressUpdateApproved() []Customization {
 				Locator:            "CRQST2",
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				ApprovedAt:         models.TimePointer(time.Now()),
 			},
 		},
 		{
@@ -131,6 +133,7 @@ func GetTraitShipmentAddressUpdateRejected() []Customization {
 				Locator:            "CRQST3",
 				Status:             models.MoveStatusAPPROVED,
 				AvailableToPrimeAt: models.TimePointer(time.Now()),
+				ApprovedAt:         models.TimePointer(time.Now()),
 			},
 		},
 		{

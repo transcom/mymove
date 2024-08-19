@@ -34,7 +34,7 @@ type RequestLineOfAccountingParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
-	/*Service member affiliation, order issue date, and TAC code.
+	/*Service member affiliation, effective date, and TAC code.
 	  Required: true
 	  In: body
 	*/
