@@ -26,7 +26,7 @@ export const ZipCityInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={searchLocationByZipCity}
-      handleOnChange={handleZipCityChange}
+      handleZipCityOnChange={handleZipCityChange}
     />
   );
 };
