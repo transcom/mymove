@@ -32,6 +32,50 @@ const headingInfo = {
   shipmentLocator: 'EVLRPT-01',
 };
 
+const headingAddressInfoMissing = {
+  shipmentID: '1',
+  moveTaskOrderID: '2',
+  shipmentType: 'Household Goods',
+  originCity: 'San Antonio',
+  originState: 'TX',
+  originPostalCode: '98421',
+  destinationAddress: shipmentDestinationAddress,
+  shipmentStatus: 'SUBMITTED',
+  ifMatchEtag: '1234',
+  shipmentLocator: 'EVLRPT-01',
+};
+
+describe('Shipment Heading with full destination address', () => {
+  const wrapper = mount(
+    <ShipmentHeading
+      shipmentInfo={headingAddressInfoMissing}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
+  it('should not render if missing information', () => {
+    expect(wrapper.find({ 'data-testid': 'shipmentAddressInfoHeader' }).exists()).toBe(false);
+  });
+});
+
+describe('Shipment Heading with full destination address', () => {
+  const wrapper = shallow(
+    <ShipmentHeading
+      shipmentInfo={headingInfo}
+      handleUpdateMTOShipmentStatus={jest.fn()}
+      handleShowCancellationModal={jest.fn()}
+    />,
+  );
+
+  it('should render the data passed to it within the heading', () => {
+    expect(wrapper.find('h2').text()).toEqual('Household Goods');
+    expect(wrapper.find('small').text()).toContain('San Antonio, TX 98421');
+    expect(wrapper.find('small').text()).toContain('Tacoma, WA 98421');
+    expect(wrapper.find('small').text()).toContain('27 Mar 2020');
+  });
+});
+
 describe('Shipment Heading with full destination address', () => {
   const wrapper = shallow(
     <ShipmentHeading
