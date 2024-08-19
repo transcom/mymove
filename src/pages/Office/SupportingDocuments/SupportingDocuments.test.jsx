@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, within, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 
 import SupportingDocuments from './SupportingDocuments';
@@ -53,7 +54,11 @@ const mockProps = {
 describe('Supporting Documents Viewer', () => {
   describe('displays viewer', () => {
     it('renders document viewer correctly on load', async () => {
-      render(<SupportingDocuments {...mockProps} />);
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <SupportingDocuments {...mockProps} />
+        </QueryClientProvider>,
+      );
       const docMenuButton = await screen.findByRole('button', { name: /open menu/i });
       expect(docMenuButton).toBeInTheDocument();
 
