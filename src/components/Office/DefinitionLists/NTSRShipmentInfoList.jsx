@@ -38,6 +38,7 @@ const NTSRShipmentInfoList = ({
     counselorRemarks,
     customerRemarks,
     ntsRecordedWeight,
+    requestedPickupDate,
     requestedDeliveryDate,
     scheduledPickupDate,
     actualPickupDate,
@@ -114,6 +115,16 @@ const NTSRShipmentInfoList = ({
     <div className={serviceOrderNumberElementFlags.classes}>
       <dt>Service order #</dt>
       <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
+    </div>
+  );
+
+  const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
+  const requestedPickupDateElement = (
+    <div className={requestedPickupDateElementFlags.classes}>
+      <dt>Requested pickup date</dt>
+      <dd data-testid="requestedPickupDate">
+        {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+      </dd>
     </div>
   );
 
@@ -286,6 +297,7 @@ const NTSRShipmentInfoList = ({
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
+      {requestedPickupDateElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}

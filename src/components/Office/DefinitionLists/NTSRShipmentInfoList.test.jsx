@@ -36,6 +36,7 @@ const shipment = {
     lotNumber: '2222',
   },
   serviceOrderNumber: '12341234',
+  requestedPickupDate: '24 Mar 2020',
   requestedDeliveryDate: '26 Mar 2020',
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -128,6 +129,8 @@ describe('NTSR Shipment Info', () => {
       ['storageFacilityName', shipment.storageFacility.facilityName],
       ['serviceOrderNumber', shipment.serviceOrderNumber],
       ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
+      ['requestedPickupDate', shipment.requestedPickupDate],
+      ['requestedDeliveryDate', shipment.requestedDeliveryDate],
       ['destinationAddress', shipment.destinationAddress.streetAddress1],
       ['secondaryDeliveryAddress', shipment.secondaryDeliveryAddress.streetAddress1],
       ['tertiaryDeliveryAddress', shipment.tertiaryDeliveryAddress.streetAddress1],
