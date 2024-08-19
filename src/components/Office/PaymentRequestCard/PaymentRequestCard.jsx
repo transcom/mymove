@@ -11,12 +11,13 @@ import styles from './PaymentRequestCard.module.scss';
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { nonWeightReliantServiceItems } from 'content/serviceItems';
-import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
+import { toDollarString, formatDateFromIso, formatCents, formatDollarFromMillicents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { formatDateWithUTC } from 'shared/dates';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -133,9 +134,15 @@ const PaymentRequestCard = ({
   const showErrorDetailsChevron = showErrorDetails ? 'chevron-up' : 'chevron-down';
   const showErrorDetailsText = showErrorDetails ? 'Hide EDI error details' : 'Show EDI error details';
   const handleToggleErrorDetails = () => setShowErrorDetails((prevState) => !prevState);
-  const { ediErrorCode, ediErrorDescription, ediErrorType } = paymentRequest;
+  const {
+    ediErrorCode,
+    ediErrorDescription,
+    ediErrorType,
+    tppsInvoiceAmountPaidTotalMillicents,
+    tppsInvoiceSellerPaidDate,
+  } = paymentRequest;
   const ediErrorsExistForPaymentRequest = ediErrorCode || ediErrorDescription || ediErrorType;
-
+  const tppsDataExistsForPaymentRequest = tppsInvoiceAmountPaidTotalMillicents !== undefined;
   const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
 
   const tacs = { HHG: tac, NTS: ntsTac };
@@ -259,6 +266,36 @@ const PaymentRequestCard = ({
   };
 
   const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PAID ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      tppsInvoiceSellerPaidDate
+    ) {
+      return (
+        <div>
+          {tppsInvoiceAmountPaidTotalMillicents > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div>
+                <h2>{toDollarString(formatDollarFromMillicents(tppsInvoiceAmountPaidTotalMillicents))}</h2>
+                <span>TPPS Paid</span>
+                <span> on {formatDateWithUTC(tppsInvoiceSellerPaidDate, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+          {approvedAmount > 0 && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div>
+                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+                <span>Accepted</span>
+                <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
     if (
       (paymentRequestStatus === PAYMENT_REQUEST_STATUS.TPPS_RECEIVED ||
         paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
@@ -428,6 +465,7 @@ const PaymentRequestCard = ({
                 tacs={tacs}
                 sacs={sacs}
                 onEditClick={onEditClick}
+                tppsDataExists={tppsDataExistsForPaymentRequest}
               />
             );
           })}

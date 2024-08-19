@@ -1512,13 +1512,16 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		}
 	}
 
-	TPPSPaidInvoiceReportsForPR := *pr.TPPSPaidInvoiceReports
-	totalTPPSPaidInvoicePriceMillicents := int64(0)
+	var totalTPPSPaidInvoicePriceMillicents *int64
 	var tppsPaidInvoiceSellerPaidDate *time.Time
-	if len(TPPSPaidInvoiceReportsForPR) > 0 {
-		if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents > -1 {
-			totalTPPSPaidInvoicePriceMillicents = TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents.Int64()
-			tppsPaidInvoiceSellerPaidDate = &TPPSPaidInvoiceReportsForPR[0].SellerPaidDate
+	var TPPSPaidInvoiceReportsForPR models.TPPSPaidInvoiceReportEntrys
+	if pr.TPPSPaidInvoiceReports != nil {
+		TPPSPaidInvoiceReportsForPR = *pr.TPPSPaidInvoiceReports
+		if len(TPPSPaidInvoiceReportsForPR) > 0 {
+			if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents > -1 {
+				totalTPPSPaidInvoicePriceMillicents = models.Int64Pointer(int64(TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents))
+				tppsPaidInvoiceSellerPaidDate = &TPPSPaidInvoiceReportsForPR[0].SellerPaidDate
+			}
 		}
 	}
 
@@ -1541,7 +1544,7 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		EdiErrorType:                         &ediErrorInfoEDIType,
 		EdiErrorCode:                         &ediErrorInfoEDICode,
 		EdiErrorDescription:                  &ediErrorInfoEDIDescription,
-		TppsInvoiceAmountPaidTotalMillicents: &totalTPPSPaidInvoicePriceMillicents,
+		TppsInvoiceAmountPaidTotalMillicents: totalTPPSPaidInvoicePriceMillicents,
 		TppsInvoiceSellerPaidDate:            (*strfmt.DateTime)(tppsPaidInvoiceSellerPaidDate),
 	}, nil
 }
