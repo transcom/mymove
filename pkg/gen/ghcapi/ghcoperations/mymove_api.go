@@ -230,6 +230,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TransportationOfficeGetTransportationOfficesOpenHandler: transportation_office.GetTransportationOfficesOpenHandlerFunc(func(params transportation_office.GetTransportationOfficesOpenParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
 		}),
+		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
+		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
 		}),
@@ -343,6 +346,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoServiceItemUpdateServiceItemSitEntryDateHandler: mto_service_item.UpdateServiceItemSitEntryDateHandlerFunc(func(params mto_service_item.UpdateServiceItemSitEntryDateParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateServiceItemSitEntryDate has not yet been implemented")
+		}),
+		UploadsUpdateUploadHandler: uploads.UpdateUploadHandlerFunc(func(params uploads.UpdateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.UpdateUpload has not yet been implemented")
 		}),
 		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
@@ -507,6 +513,8 @@ type MymoveAPI struct {
 	TransportationOfficeGetTransportationOfficesGBLOCsHandler transportation_office.GetTransportationOfficesGBLOCsHandler
 	// TransportationOfficeGetTransportationOfficesOpenHandler sets the operation handler for the get transportation offices open operation
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
+	// UploadsGetUploadHandler sets the operation handler for the get upload operation
+	UploadsGetUploadHandler uploads.GetUploadHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -583,6 +591,8 @@ type MymoveAPI struct {
 	ShipmentUpdateSITServiceItemCustomerExpenseHandler shipment.UpdateSITServiceItemCustomerExpenseHandler
 	// MtoServiceItemUpdateServiceItemSitEntryDateHandler sets the operation handler for the update service item sit entry date operation
 	MtoServiceItemUpdateServiceItemSitEntryDateHandler mto_service_item.UpdateServiceItemSitEntryDateHandler
+	// UploadsUpdateUploadHandler sets the operation handler for the update upload operation
+	UploadsUpdateUploadHandler uploads.UpdateUploadHandler
 	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
 	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
 	// MoveUploadAdditionalDocumentsHandler sets the operation handler for the upload additional documents operation
@@ -834,6 +844,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.TransportationOfficeGetTransportationOfficesOpenHandler == nil {
 		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesOpenHandler")
 	}
+	if o.UploadsGetUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadHandler")
+	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
 	}
@@ -947,6 +960,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoServiceItemUpdateServiceItemSitEntryDateHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateServiceItemSitEntryDateHandler")
+	}
+	if o.UploadsUpdateUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.UpdateUploadHandler")
 	}
 	if o.PpmUpdateWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
@@ -1268,6 +1284,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/uploads/get"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/move_task_orders/{moveTaskOrderID}/mto_service_items"] = mto_service_item.NewListMTOServiceItems(o.context, o.MtoServiceItemListMTOServiceItemsHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1417,6 +1437,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/service-item/{mtoServiceItemID}/entry-date-update"] = mto_service_item.NewUpdateServiceItemSitEntryDate(o.context, o.MtoServiceItemUpdateServiceItemSitEntryDateHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/uploads/{uploadID}/update"] = uploads.NewUpdateUpload(o.context, o.UploadsUpdateUploadHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

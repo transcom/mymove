@@ -1694,6 +1694,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
 
@@ -1762,6 +1763,11 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
@@ -1835,6 +1841,11 @@ func PayloadForUploadModel(
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"

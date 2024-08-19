@@ -3218,6 +3218,8 @@ definitions:
         example: application/pdf
       bytes:
         type: integer
+      rotation:
+        type: integer
       status:
         type: string
         enum:
@@ -3540,6 +3542,10 @@ definitions:
         description: >-
           A hash unique to this service item that should be used as the
           "If-Match" header for any updates.
+      lockedPriceCents:
+        type: integer
+        format: cents
+        x-nullable: true
     required:
       - modelType
       - moveTaskOrderID
