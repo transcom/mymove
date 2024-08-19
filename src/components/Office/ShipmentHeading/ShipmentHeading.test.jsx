@@ -45,7 +45,7 @@ const headingAddressInfoMissing = {
   shipmentLocator: 'EVLRPT-01',
 };
 
-describe('Shipment Heading with full destination address', () => {
+describe('Shipment Heading with incomplete shipment information', () => {
   const wrapper = mount(
     <ShipmentHeading
       shipmentInfo={headingAddressInfoMissing}
@@ -54,7 +54,7 @@ describe('Shipment Heading with full destination address', () => {
     />,
   );
 
-  it('should not render if missing information', () => {
+  it('should not render when missing information', () => {
     expect(wrapper.find({ 'data-testid': 'shipmentAddressInfoHeader' }).exists()).toBe(false);
   });
 });
