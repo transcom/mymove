@@ -119,7 +119,7 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 }
 
 func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
-	officeList, err := FindCounselingOffice(appCtx, dutyLocationID)
+	officeList, err := findCounselingOffice(appCtx, dutyLocationID)
 
 	if err != nil {
 		switch err {
@@ -134,11 +134,9 @@ func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.App
 }
 
 // return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
-func FindCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
+func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
 	var officeList []models.TransportationOffice
 
-	// TO DOS:
-	// do I need to update return to have less data?
 	sqlQuery := `
 		with counseling_offices as (
 		SELECT to2.id, to2.name

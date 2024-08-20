@@ -3023,20 +3023,8 @@ func init() {
           "200": {
             "description": "the instance of the counseling office for a duty location",
             "schema": {
-              "$ref": "#/definitions/TransportationOffices"
+              "$ref": "#/definitions/CounselingOffices"
             }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "matching counseling office not found"
           },
           "500": {
             "description": "internal server error"
@@ -3638,6 +3626,30 @@ func init() {
         "title": {
           "type": "string"
         }
+      }
+    },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
       }
     },
     "CreateBoatShipment": {
@@ -11371,20 +11383,8 @@ func init() {
           "200": {
             "description": "the instance of the counseling office for a duty location",
             "schema": {
-              "$ref": "#/definitions/TransportationOffices"
+              "$ref": "#/definitions/CounselingOffices"
             }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "401": {
-            "description": "request requires user authentication"
-          },
-          "403": {
-            "description": "user is not authorized"
-          },
-          "404": {
-            "description": "matching counseling office not found"
           },
           "500": {
             "description": "internal server error"
@@ -11986,6 +11986,30 @@ func init() {
         "title": {
           "type": "string"
         }
+      }
+    },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
       }
     },
     "CreateBoatShipment": {
