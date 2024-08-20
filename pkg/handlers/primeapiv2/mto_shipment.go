@@ -138,6 +138,11 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 			dbShipment.MTOAgents = agents
 
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				mtoShipment.NTSRecordedWeight = dbShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = dbShipment.PrimeEstimatedWeight
+			}
+
 			// Validate further prime restrictions on model
 			mtoShipment.ShipmentType = dbShipment.ShipmentType
 
