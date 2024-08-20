@@ -526,12 +526,14 @@ export class OfficeApp extends Component {
                         }
                       />
 
-                      {/* QAE/CSR */}
+                      {/* QAE/CSR/GSR */}
                       <Route
                         key="qaeCSRMoveSearchPath"
                         path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                         element={
-                          <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
+                          <PrivateRoute
+                            requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE, roleTypes.GSR]}
+                          >
                             <QAECSRMoveSearch />
                           </PrivateRoute>
                         }
@@ -547,6 +549,7 @@ export class OfficeApp extends Component {
                               roleTypes.TIO,
                               roleTypes.QAE,
                               roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                              roleTypes.GSR,
                               hqRoleFlag ? roleTypes.HQ : undefined,
                             ]}
                           >
@@ -570,9 +573,9 @@ export class OfficeApp extends Component {
                       {activeRole === roleTypes.PRIME_SIMULATOR && (
                         <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                       )}
-                      {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
-                        <Route end path="/" element={<QAECSRMoveSearch />} />
-                      )}
+                      {(activeRole === roleTypes.QAE ||
+                        activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE ||
+                        activeRole === roleTypes.GSR) && <Route end path="/" element={<QAECSRMoveSearch />} />}
 
                       {/* 404 */}
                       <Route path="*" element={<NotFound />} />

@@ -68,6 +68,12 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'customer_service_representative',
       });
     }
+    if (values.governmentSurveillanceRepresentativeCheckbox) {
+      requestedRoles.push({
+        name: 'Government Surveillance Representative',
+        roleType: 'gsr',
+      });
+    }
 
     let body = {
       email: values.officeAccountRequestEmail,
