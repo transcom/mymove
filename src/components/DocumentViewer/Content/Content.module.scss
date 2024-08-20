@@ -27,9 +27,8 @@
 
     .photo-viewer-container {
       align-items: unset; // must override to get it to respect calculating padding-top
-      // spacing for controls/title bar
       padding-top: 75px;
-      padding-bottom: 75px;
+      // no zoom controls at bottom for image viewer, adding bottom padding could distort/make the image unnecessarily smaller
     }
   }
 }
