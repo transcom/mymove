@@ -84,12 +84,12 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
 
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
-  const sitDepartureDate =
-    formatDate(
-      sitStatus.currentSIT?.sitDepartureDate || mostRecentPastSITGroup?.summary.sitDepartureDate,
-      swaggerDateFormat,
-      'DD MMM YYYY',
-    ) || DEFAULT_EMPTY_VALUE;
+
+  const sitDepartureDate = sitStatus.currentSIT
+    ? formatDate(sitStatus.currentSIT.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE
+    : formatDate(mostRecentPastSITGroup?.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') ||
+      DEFAULT_EMPTY_VALUE;
+
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
@@ -136,19 +136,15 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
 
   const showConvertToCustomerExpense = daysRemaining <= 30;
 
-  const customerContactDate =
-    formatDate(
-      sitStatus?.currentSIT?.sitCustomerContacted || mostRecentPastSITGroup?.summary.sitCustomerContacted,
-      swaggerDateFormat,
-      'DD MMM YYYY',
-    ) || DEFAULT_EMPTY_VALUE;
+  const customerContactDate = sitStatus.currentSIT
+    ? formatDate(sitStatus.currentSIT.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE
+    : formatDate(mostRecentPastSITGroup?.summary.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') ||
+      DEFAULT_EMPTY_VALUE;
 
-  const sitRequestedDelivery =
-    formatDate(
-      sitStatus?.currentSIT?.sitRequestedDelivery || mostRecentPastSITGroup?.summary.sitRequestedDelivery,
-      swaggerDateFormat,
-      'DD MMM YYYY',
-    ) || DEFAULT_EMPTY_VALUE;
+  const sitRequestedDelivery = sitStatus.currentSIT
+    ? formatDate(sitStatus.currentSIT.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE
+    : formatDate(mostRecentPastSITGroup?.summary.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') ||
+      DEFAULT_EMPTY_VALUE;
 
   useEffect(() => {
     if (shipment.mtoServiceItems) {
