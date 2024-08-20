@@ -115,8 +115,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.NoError(err)
 		suite.NotNil(sitStatus)
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(dofsit.ID.String(), sitStatus.PastSITs[0].ID.String())
-
+		suite.Equal(dofsit.ID.String(), sitStatus.PastSITs[0].ServiceItems[0].ID.String())
 		suite.Equal(15, sitStatus.TotalSITDaysUsed)
 		suite.Equal(15, sitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(75, sitStatus.TotalDaysRemaining)
@@ -177,6 +176,88 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
 		suite.Nil(shipment.DestinationSITAuthEndDate)
 	})
+
+	// TODO:
+	// The point of this test is to satisfy the following requirement by the PO
+	// - If Origin/Destination SIT is no longer "current", as in it has departed in a day
+	// 	 prior to today, then as long as a second SIT has not been created then it will be returned
+	//   as "current". This is because "CurrentSIT" populates a SIT dashboard modal on the frontend
+	// 	 and we currently do not handle more than 1 SIT on the UI. This is a shoehorn to
+	// 	 remedy SIT date retention per E-05849 https://www13.v1host.com/USTRANSCOM38/Epic.mvc/Summary?oidToken=Epic%3A994028
+	// suite.Run("calculates status for a shipment with origin SIT in the past but no newer SIT is present", func() {
+	// 	shipmentSITAllowance := int(90)
+	// 	year, month, day := time.Now().Add(time.Hour * 24 * -30).Date()
+	// 	aMonthAgo := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
+	// 	testCases := []struct {
+	// 		reServiceCode models.ReServiceCode
+	// 	}{
+	// 		{
+	// 			reServiceCode: models.ReServiceCodeDOFSIT,
+	// 		},
+	// 		{
+	// 			reServiceCode: models.ReServiceCodeDDFSIT,
+	// 		},
+	// 	}
+	// 	for _, tc := range testCases {
+	// 		approvedShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+	// 			{
+	// 				Model: models.MTOShipment{
+	// 					Status:           models.MTOShipmentStatusApproved,
+	// 					SITDaysAllowance: &shipmentSITAllowance,
+	// 				},
+	// 			},
+	// 		}, nil)
+	// 		// Set sit to a month ago
+	// 		aMonthAndADayAgo := aMonthAgo.AddDate(0, 0, -1).UTC()
+	// 		aDayAgo := time.Now().AddDate(0, 0, -1).UTC()
+	// 		sitServiceItem := factory.BuildMTOServiceItem(suite.DB(), []factory.Customization{
+	// 			{
+	// 				Model:    approvedShipment,
+	// 				LinkOnly: true,
+	// 			},
+	// 			{
+	// 				Model: models.MTOServiceItem{
+	// 					SITEntryDate:     &aMonthAndADayAgo,
+	// 					SITDepartureDate: &aDayAgo,
+	// 					Status:           models.MTOServiceItemStatusApproved,
+	// 				},
+	// 			},
+	// 			{
+	// 				Model: models.ReService{
+	// 					Code: tc.reServiceCode,
+	// 				},
+	// 			},
+	// 		}, nil)
+
+	// 		approvedShipment.MTOServiceItems = models.MTOServiceItems{sitServiceItem}
+
+	// 		sitStatus, shipment, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), approvedShipment)
+	// 		suite.NoError(err)
+	// 		suite.NotNil(sitStatus)
+	// 		suite.NotNil(sitStatus.CurrentSIT) // Even though the SIT we created is in the past, since it has not been replaced it should be still considered the "Current" SIT
+	// 		suite.Equal(30, sitStatus.TotalSITDaysUsed)
+	// 		suite.Equal(30, sitStatus.CalculatedTotalDaysInSIT)
+	// 		suite.Equal(60, sitStatus.TotalDaysRemaining)
+	// 		suite.Equal(30, sitStatus.CurrentSIT.DaysInSIT)
+	// 		suite.Equal(aMonthAgo.String(), sitStatus.CurrentSIT.SITEntryDate.String())
+	// 		suite.Nil(sitStatus.CurrentSIT.SITDepartureDate)
+	// 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
+	// 		suite.Len(sitStatus.PastSITs, 0)
+	// 		suite.NotNil(sitStatus.CurrentSIT.SITAuthorizedEndDate)
+	// 		// check that shipment values impacted by current SIT get updated
+	// 		if tc.reServiceCode == models.ReServiceCodeDOFSIT {
+	// 			suite.Equal(OriginSITLocation, sitStatus.CurrentSIT.Location)
+	// 			suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
+	// 			suite.Nil(shipment.DestinationSITAuthEndDate)
+	// 		}
+	// 		if tc.reServiceCode == models.ReServiceCodeDDFSIT {
+	// 			suite.Equal(DestinationSITLocation, sitStatus.CurrentSIT.Location)
+	// 			suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.DestinationSITAuthEndDate)
+	// 			suite.Nil(shipment.OriginSITAuthEndDate)
+	// 		}
+	// 	}
+
+	// })
 
 	suite.Run("combines SIT days sum for shipment with past and current SIT", func() {
 		shipmentSITAllowance := int(90)
@@ -248,7 +329,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ServiceItems[0].ID.String())
 
 		// check that shipment values impacted by current SIT get updated
 		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.OriginSITAuthEndDate)
@@ -325,7 +406,7 @@ func (suite *SITStatusServiceSuite) TestShipmentSITStatus() {
 		suite.Equal(approvedShipment.ID.String(), sitStatus.ShipmentID.String())
 
 		suite.Len(sitStatus.PastSITs, 1)
-		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ID.String())
+		suite.Equal(pastDOFSIT.ID.String(), sitStatus.PastSITs[0].ServiceItems[0].ID.String())
 		// check that shipment values impacted by current SIT get updated
 		suite.Equal(&sitStatus.CurrentSIT.SITAuthorizedEndDate, shipment.DestinationSITAuthEndDate)
 		suite.Nil(shipment.OriginSITAuthEndDate)
