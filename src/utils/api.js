@@ -41,7 +41,7 @@ export async function GetIsLoggedIn() {
 export async function GetAdminUser() {
   const client = await getAdminClient();
   const response = await client.apis.User.getLoggedInAdminUser({});
-  checkResponse(response, 'failed to get user due to server error');
+  checkResponse(response, 'failed to get admin user due to server error');
   return response.body;
 }
 
