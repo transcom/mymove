@@ -2,6 +2,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { QueryClientProvider, QueryClient } from 'react-query';
 
 import DocumentViewer from './DocumentViewer';
 import samplePDF from './sample.pdf';
@@ -42,7 +43,11 @@ const mockFiles = [
 
 describe('DocumentViewer component', () => {
   it('initial state is closed menu and first file selected', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
     const docMenu = await screen.findByTestId('DocViewerMenu');
 
     expect(docMenu.className).toContain('collapsed');
@@ -61,7 +66,11 @@ describe('DocumentViewer component', () => {
   });
 
   it('renders the title bar with the correct props', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
     const title = await screen.findByTestId('documentTitle');
 
@@ -69,7 +78,11 @@ describe('DocumentViewer component', () => {
   });
 
   it('handles the open menu button', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
     const openMenuButton = await screen.findByTestId('openMenu');
 
@@ -83,7 +96,11 @@ describe('DocumentViewer component', () => {
   });
 
   it('handles the close menu button', async () => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
@@ -108,7 +125,11 @@ describe('DocumentViewer component', () => {
     // ['Test File.pdf Uploaded on 14-Jun-2021', 'Test File.pdf - Added on 14 Jun 2021'],  // TODO: figure out why this isn't working...
     ['Test File 2.jpg Uploaded on 12-Jun-2021', 'Test File 2.jpg - Added on 12 Jun 2021'],
   ])('handles selecting a different file (%s)', async (buttonText, titleText) => {
-    render(<DocumentViewer files={mockFiles} />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} />
+      </QueryClientProvider>,
+    );
 
     // defaults to closed so we need to open it first.
     const openMenuButton = await screen.findByTestId('openMenu');
@@ -134,7 +155,11 @@ describe('DocumentViewer component', () => {
 
   it('shows error if file type is unsupported', async () => {
     render(
-      <DocumentViewer files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]} />,
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer
+          files={[{ id: 99, filename: 'archive.zip', contentType: 'zip', url: '/path/to/archive.zip' }]}
+        />
+      </QueryClientProvider>,
     );
 
     // defaults to closed so we need to open it first.
@@ -156,13 +181,21 @@ describe('DocumentViewer component', () => {
   });
 
   it('displays file not found for empty files array', async () => {
-    render(<DocumentViewer />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer />
+      </QueryClientProvider>,
+    );
 
     expect(await screen.findByRole('heading', { name: 'File Not Found' })).toBeInTheDocument();
   });
 
   it('shows the download link option when allowDownload is true', async () => {
-    render(<DocumentViewer files={mockFiles} allowDownload />);
+    render(
+      <QueryClientProvider client={new QueryClient()}>
+        <DocumentViewer files={mockFiles} allowDownload />
+      </QueryClientProvider>,
+    );
 
     expect(await screen.findByText('Download file')).toBeInTheDocument();
   });

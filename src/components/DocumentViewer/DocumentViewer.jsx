@@ -4,7 +4,6 @@ import { Button } from '@trussworks/react-uswds';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { QueryClient } from 'react-query';
 
 import { FileShape } from './types';
 import styles from './DocumentViewer.module.scss';
@@ -35,7 +34,7 @@ const DocumentViewer = ({ files, allowDownload }) => {
 
   const mountedRef = useRef(true);
 
-  const queryClient = useQueryClient(new QueryClient());
+  const queryClient = useQueryClient();
 
   const { mutate: mutateUploads } = useMutation(updateUpload, {
     onSuccess: async (data, variables) => {
