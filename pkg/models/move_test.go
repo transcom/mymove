@@ -37,15 +37,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
-	office := m.TransportationOffice{
-		Name:      "JPSO Supreme",
-		AddressID: uuid.UUID{},
-		Gbloc:     "BMAF",
-		Latitude:  61.1262383,
-		Longitude: -149.9212882,
-		Hours:     m.StringPointer("0900-1800 Mon-Sat"),
-	}
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
 		Show:             m.BoolPointer(true),

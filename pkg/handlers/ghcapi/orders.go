@@ -192,7 +192,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Where("office_users.id = ?", appCtx.Session().OfficeUserID).
 				First(&transportationOffice)
 
-			appCtx.Logger().Error(err.Error())
+			if err != nil {
+				appCtx.Logger().Error(err.Error())
+			}
 
 			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
 				err = apperror.NewBadDataError("SAC cannot be more than 80 characters.")
