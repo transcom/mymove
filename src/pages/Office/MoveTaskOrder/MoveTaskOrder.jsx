@@ -1199,7 +1199,7 @@ export const MoveTaskOrder = (props) => {
             const dutyLocationPostal = { postalCode: order.destinationDutyLocation.address.postalCode };
             const { pickupAddress, destinationAddress } = mtoShipment;
             const formattedScheduledPickup = formatShipmentDate(mtoShipment.scheduledPickupDate);
-            const isPPM = mtoShipment.shipmentType === SHIPMENT_OPTIONS.PPM;
+            const ppmShipment = mtoShipment.shipmentType === SHIPMENT_OPTIONS.PPM ? mtoShipment.ppmShipment : '';
 
             return (
               <ShipmentContainer
@@ -1213,16 +1213,10 @@ export const MoveTaskOrder = (props) => {
                     shipmentID: mtoShipment.id,
                     shipmentType: mtoShipmentTypes[mtoShipment.shipmentType],
                     isDiversion: mtoShipment.diversion,
-                    originCity: isPPM ? mtoShipment?.ppmShipment?.pickupAddress?.city || '' : pickupAddress?.city || '',
-                    originState: isPPM
-                      ? mtoShipment?.ppmShipment?.pickupAddress?.state || ''
-                      : pickupAddress?.state || '',
-                    originPostalCode: isPPM
-                      ? mtoShipment?.ppmShipment?.pickupAddress?.postalCode || ''
-                      : pickupAddress?.postalCode || '',
-                    destinationAddress: isPPM
-                      ? mtoShipment?.ppmShipment?.destinationAddress || ''
-                      : destinationAddress || dutyLocationPostal,
+                    originCity: ppmShipment?.pickupAddress?.city || pickupAddress?.city || '',
+                    originState: ppmShipment?.pickupAddress?.state || pickupAddress?.state || '',
+                    originPostalCode: ppmShipment?.pickupAddress?.postalCode || pickupAddress?.postalCode || '',
+                    destinationAddress: ppmShipment?.destinationAddress || destinationAddress || dutyLocationPostal,
                     scheduledPickupDate: formattedScheduledPickup,
                     shipmentStatus: mtoShipment.status,
                     ifMatchEtag: mtoShipment.eTag,
