@@ -33,24 +33,24 @@ type SITSummary struct {
 	Location interface{} `json:"location,omitempty"`
 
 	// sit authorized end date
-	// Format: date
-	SitAuthorizedEndDate strfmt.Date `json:"sitAuthorizedEndDate,omitempty"`
+	// Format: date-time
+	SitAuthorizedEndDate strfmt.DateTime `json:"sitAuthorizedEndDate,omitempty"`
 
 	// sit customer contacted
-	// Format: date
-	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
+	// Format: date-time
+	SitCustomerContacted *strfmt.DateTime `json:"sitCustomerContacted,omitempty"`
 
 	// sit departure date
-	// Format: date
-	SitDepartureDate *strfmt.Date `json:"sitDepartureDate,omitempty"`
+	// Format: date-time
+	SitDepartureDate *strfmt.DateTime `json:"sitDepartureDate,omitempty"`
 
 	// sit entry date
-	// Format: date
-	SitEntryDate strfmt.Date `json:"sitEntryDate,omitempty"`
+	// Format: date-time
+	SitEntryDate strfmt.DateTime `json:"sitEntryDate,omitempty"`
 
 	// sit requested delivery
-	// Format: date
-	SitRequestedDelivery *strfmt.Date `json:"sitRequestedDelivery,omitempty"`
+	// Format: date-time
+	SitRequestedDelivery *strfmt.DateTime `json:"sitRequestedDelivery,omitempty"`
 }
 
 // Validate validates this s i t summary
@@ -120,7 +120,7 @@ func (m *SITSummary) validateSitAuthorizedEndDate(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.FormatOf("sitAuthorizedEndDate", "body", "date", m.SitAuthorizedEndDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitAuthorizedEndDate", "body", "date-time", m.SitAuthorizedEndDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -132,7 +132,7 @@ func (m *SITSummary) validateSitCustomerContacted(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.FormatOf("sitCustomerContacted", "body", "date", m.SitCustomerContacted.String(), formats); err != nil {
+	if err := validate.FormatOf("sitCustomerContacted", "body", "date-time", m.SitCustomerContacted.String(), formats); err != nil {
 		return err
 	}
 
@@ -144,7 +144,7 @@ func (m *SITSummary) validateSitDepartureDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sitDepartureDate", "body", "date", m.SitDepartureDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitDepartureDate", "body", "date-time", m.SitDepartureDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -156,7 +156,7 @@ func (m *SITSummary) validateSitEntryDate(formats strfmt.Registry) error {
 		return nil
 	}
 
-	if err := validate.FormatOf("sitEntryDate", "body", "date", m.SitEntryDate.String(), formats); err != nil {
+	if err := validate.FormatOf("sitEntryDate", "body", "date-time", m.SitEntryDate.String(), formats); err != nil {
 		return err
 	}
 
@@ -168,7 +168,7 @@ func (m *SITSummary) validateSitRequestedDelivery(formats strfmt.Registry) error
 		return nil
 	}
 
-	if err := validate.FormatOf("sitRequestedDelivery", "body", "date", m.SitRequestedDelivery.String(), formats); err != nil {
+	if err := validate.FormatOf("sitRequestedDelivery", "body", "date-time", m.SitRequestedDelivery.String(), formats); err != nil {
 		return err
 	}
 

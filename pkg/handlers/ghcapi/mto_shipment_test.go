@@ -252,7 +252,6 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Len(payloadShipment.SitStatus.PastSITServiceItemGroupings, 1)
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
-		// FIXME: The SIT summary may not be including the UTC timestamp
 		suite.Equal(lastMonthEntry.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.PastSITServiceItemGroupings[0].Summary.SitEntryDate.String())
 
 		// This one has a destination shipment type

@@ -347,7 +347,7 @@ func daysInSIT(sitEntryDate time.Time, sitDepartureDate *time.Time, today time.T
 	if sitDepartureDate != nil && sitDepartureDate.Before(today) {
 		days = int(sitDepartureDate.Sub(sitEntryDate).Hours()) / 24
 	} else if sitEntryDate.Before(today) || sitEntryDate.Equal(today) {
-		days = int(today.Sub(sitEntryDate).Hours())/24 + 1
+		days = int(today.Sub(sitEntryDate).Hours())/24 + 1 // This is to count start and end as full days
 	}
 	return days
 }

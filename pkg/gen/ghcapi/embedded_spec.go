@@ -11743,25 +11743,25 @@ func init() {
         },
         "sitAuthorizedEndDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "sitCustomerContacted": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "sitRequestedDelivery": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -26872,25 +26872,25 @@ func init() {
         },
         "sitAuthorizedEndDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "sitCustomerContacted": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         },
         "sitDepartureDate": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         },
         "sitEntryDate": {
           "type": "string",
-          "format": "date"
+          "format": "date-time"
         },
         "sitRequestedDelivery": {
           "type": "string",
-          "format": "date",
+          "format": "date-time",
           "x-nullable": true
         }
       }

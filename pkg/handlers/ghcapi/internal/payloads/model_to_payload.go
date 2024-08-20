@@ -1709,11 +1709,11 @@ func SITServiceItemGrouping(s models.SITServiceItemGrouping, storer storage.File
 		FirstDaySITServiceItemID: strfmt.UUID(s.Summary.FirstDaySITServiceItemID.String()),
 		Location:                 s.Summary.Location,
 		DaysInSIT:                handlers.FmtIntPtrToInt64(&s.Summary.DaysInSIT),
-		SitEntryDate:             *handlers.FmtDate(s.Summary.SITEntryDate),
-		SitDepartureDate:         handlers.FmtDatePtr(s.Summary.SITDepartureDate),
-		SitAuthorizedEndDate:     *handlers.FmtDate(s.Summary.SITAuthorizedEndDate),
-		SitCustomerContacted:     handlers.FmtDatePtr(s.Summary.SITCustomerContacted),
-		SitRequestedDelivery:     handlers.FmtDatePtr(s.Summary.SITRequestedDelivery),
+		SitEntryDate:             *handlers.FmtDateTime(s.Summary.SITEntryDate),
+		SitDepartureDate:         handlers.FmtDateTimePtr(s.Summary.SITDepartureDate),
+		SitAuthorizedEndDate:     *handlers.FmtDateTime(s.Summary.SITAuthorizedEndDate),
+		SitCustomerContacted:     handlers.FmtDateTimePtr(s.Summary.SITCustomerContacted),
+		SitRequestedDelivery:     handlers.FmtDateTimePtr(s.Summary.SITRequestedDelivery),
 	}
 
 	serviceItems := MTOServiceItemModels(s.ServiceItems, storer)

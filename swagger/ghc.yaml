@@ -8166,21 +8166,21 @@ definitions:
         minimum: 0
       sitEntryDate:
         type: string
-        format: date
+        format: date-time
       sitDepartureDate:
         type: string
-        format: date
+        format: date-time
         x-nullable: true
       sitAuthorizedEndDate:
         type: string
-        format: date
+        format: date-time
       sitCustomerContacted:
         type: string
-        format: date
+        format: date-time
         x-nullable: true
       sitRequestedDelivery:
         type: string
-        format: date
+        format: date-time
         x-nullable: true
   SITServiceItemGrouping:
     properties:
