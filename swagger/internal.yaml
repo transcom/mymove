@@ -5082,7 +5082,7 @@ paths:
         '403':
           description: user is not authorized
         '404':
-          description: counseling office not found
+          description: transportation office not found
         '500':
           description: internal server error
   /transportation-offices:
