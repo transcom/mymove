@@ -88,6 +88,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
 	addressCreator := address.NewAddressCreator()
 	addressUpdater := address.NewAddressUpdater()
+	usPostRegionCity := address.NewUsPostRegionCity()
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
@@ -261,6 +262,11 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.TransportationOfficesGetTransportationOfficesHandler = GetTransportationOfficesHandler{
 		handlerConfig,
 		transportationOfficeFetcher,
+	}
+
+	internalAPI.AddressesGetLocationByZipCityHandler = GetLocationByZipCityHandler{
+		handlerConfig,
+		usPostRegionCity,
 	}
 
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)

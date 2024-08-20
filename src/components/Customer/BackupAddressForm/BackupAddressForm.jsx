@@ -24,7 +24,23 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
       validateOnMount
       validationSchema={validationSchema}
     >
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
+        const handleZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              backup_mailing_address: {
+                ...values.backup_mailing_address,
+                city: value.city,
+                state: value.state ? value.state : '',
+                county: value.county,
+                postalCode: value.postalCode,
+              },
+            },
+            { shouldValidate: true },
+          );
+        };
+
         return (
           <Form className={formStyles.form}>
             <h1>Backup address</h1>
@@ -35,10 +51,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             </p>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields
-                name={formFieldsName}
-                formikFunctionsToValidatePostalCodeOnChange={{ setFieldTouched, handleChange }}
-              />
+              <AddressFields name={formFieldsName} zipCityEnabled handleZipCityChange={handleZipCityChange} />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
