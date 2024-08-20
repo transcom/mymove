@@ -187,13 +187,15 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			var transportationOffice models.TransportationOffice
-			err = appCtx.DB().Q().
+			transportationOfficeErr := appCtx.DB().Q().
 				Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
 				Where("office_users.id = ?", appCtx.Session().OfficeUserID).
 				First(&transportationOffice)
 
-			if err != nil {
+			if transportationOfficeErr != nil {
+				err = apperror.NewBadDataError("Missing Transportation Office.")
 				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
