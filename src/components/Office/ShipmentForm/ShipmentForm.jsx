@@ -893,9 +893,17 @@ const ShipmentForm = (props) => {
                             />
                           )}
                         </Fieldset>
+
+                        <ContactInfoFields
+                          name="delivery.agent"
+                          legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
                       </>
                     )}
-                    {!isNTS && (
+                    {!isNTS && !isNTSR && (
                       <>
                         <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
                           Delivery location
