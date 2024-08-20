@@ -495,7 +495,7 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "counseling office not found"
+            "description": "transportation office not found"
           },
           "500": {
             "description": "internal server error"
@@ -8521,7 +8521,7 @@ func init() {
             "description": "user is not authorized"
           },
           "404": {
-            "description": "counseling office not found"
+            "description": "transportation office not found"
           },
           "500": {
             "description": "internal server error"
