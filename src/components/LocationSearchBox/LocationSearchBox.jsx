@@ -9,6 +9,7 @@ import { debounce } from 'lodash';
 import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
+import { RequiredTag } from 'components/form/RequiredTag';
 import Hint from 'components/Hint';
 import { DutyLocationShape } from 'types';
 
@@ -87,6 +88,7 @@ export const LocationSearchBoxComponent = ({
   hint,
   placeholder,
   isDisabled,
+  required,
 }) => {
   const { value, onChange, name: inputName } = input;
 
@@ -187,6 +189,7 @@ export const LocationSearchBoxComponent = ({
         <Label htmlFor={inputId} className={labelClasses}>
           {title}
         </Label>
+        {required && <RequiredTag />}
       </div>
       {hint && <Hint className={styles.hint}>{hint}</Hint>}
       <div className={inputContainerClasses}>
