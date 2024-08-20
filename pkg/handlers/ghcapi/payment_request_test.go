@@ -925,7 +925,8 @@ func (suite *HandlerSuite) TestShipmentsSITBalanceHandler() {
 		suite.Equal(shipment.ID.String(), shipmentSITBalance.ShipmentID.String())
 		suite.Equal(int64(120), shipmentSITBalance.TotalSITDaysAuthorized)
 		suite.Equal(int64(60), shipmentSITBalance.PendingSITDaysInvoiced)
-		suite.Equal(int64(-60), shipmentSITBalance.TotalSITDaysRemaining) // Well over entitlement
+		// Since there is no departure date on one of the SITs, +1 is added to the count to count the last day
+		suite.Equal(int64(-61), shipmentSITBalance.TotalSITDaysRemaining) // Well over entitlement
 		suite.Equal(destinationPaymentEndDate.Format("2006-01-02"), shipmentSITBalance.PendingBilledEndDate.String())
 		suite.Equal(int64(30), *shipmentSITBalance.PreviouslyBilledDays)
 	})
