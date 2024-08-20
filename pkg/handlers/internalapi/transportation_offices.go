@@ -68,7 +68,7 @@ type ShowCounselingOfficesHandler struct {
 	services.TransportationOfficesFetcher
 }
 
-// Handle retrieves the counseling office in the system for a given duty location ID
+// Handle retrieves the counseling offices in the system for a given duty location ID
 func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowCounselingOfficesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
@@ -80,7 +80,7 @@ func (h ShowCounselingOfficesHandler) Handle(params transportationofficeop.ShowC
 				return transportationofficeop.NewShowCounselingOfficesInternalServerError(), err
 			}
 
-			returnPayload := payloads.TransportationOffices(*counselingOffices)
+			returnPayload := payloads.CounselingOffices(*counselingOffices)
 			return transportationofficeop.NewShowCounselingOfficesOK().WithPayload(returnPayload), nil
 		})
 }

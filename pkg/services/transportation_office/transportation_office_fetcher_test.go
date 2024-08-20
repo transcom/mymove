@@ -175,7 +175,7 @@ func (suite *TransportationOfficeServiceSuite) Test_FindCounselingOffices() {
 		},
 	}, nil)
 
-	offices, err := FindCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID)
+	offices, err := findCounselingOffice(suite.AppContextForTest(), origDutyLocation.ID)
 
 	suite.NoError(err)
 	suite.Len(offices, 2)

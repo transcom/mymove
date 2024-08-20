@@ -26,7 +26,7 @@ type ShowCounselingOfficesOK struct {
 	/*
 	  In: Body
 	*/
-	Payload internalmessages.TransportationOffices `json:"body,omitempty"`
+	Payload internalmessages.CounselingOffices `json:"body,omitempty"`
 }
 
 // NewShowCounselingOfficesOK creates ShowCounselingOfficesOK with default headers values
@@ -36,13 +36,13 @@ func NewShowCounselingOfficesOK() *ShowCounselingOfficesOK {
 }
 
 // WithPayload adds the payload to the show counseling offices o k response
-func (o *ShowCounselingOfficesOK) WithPayload(payload internalmessages.TransportationOffices) *ShowCounselingOfficesOK {
+func (o *ShowCounselingOfficesOK) WithPayload(payload internalmessages.CounselingOffices) *ShowCounselingOfficesOK {
 	o.Payload = payload
 	return o
 }
 
 // SetPayload sets the payload to the show counseling offices o k response
-func (o *ShowCounselingOfficesOK) SetPayload(payload internalmessages.TransportationOffices) {
+func (o *ShowCounselingOfficesOK) SetPayload(payload internalmessages.CounselingOffices) {
 	o.Payload = payload
 }
 
@@ -53,112 +53,12 @@ func (o *ShowCounselingOfficesOK) WriteResponse(rw http.ResponseWriter, producer
 	payload := o.Payload
 	if payload == nil {
 		// return empty array
-		payload = internalmessages.TransportationOffices{}
+		payload = internalmessages.CounselingOffices{}
 	}
 
 	if err := producer.Produce(rw, payload); err != nil {
 		panic(err) // let the recovery middleware deal with this
 	}
-}
-
-// ShowCounselingOfficesBadRequestCode is the HTTP code returned for type ShowCounselingOfficesBadRequest
-const ShowCounselingOfficesBadRequestCode int = 400
-
-/*
-ShowCounselingOfficesBadRequest invalid request
-
-swagger:response showCounselingOfficesBadRequest
-*/
-type ShowCounselingOfficesBadRequest struct {
-}
-
-// NewShowCounselingOfficesBadRequest creates ShowCounselingOfficesBadRequest with default headers values
-func NewShowCounselingOfficesBadRequest() *ShowCounselingOfficesBadRequest {
-
-	return &ShowCounselingOfficesBadRequest{}
-}
-
-// WriteResponse to the client
-func (o *ShowCounselingOfficesBadRequest) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(400)
-}
-
-// ShowCounselingOfficesUnauthorizedCode is the HTTP code returned for type ShowCounselingOfficesUnauthorized
-const ShowCounselingOfficesUnauthorizedCode int = 401
-
-/*
-ShowCounselingOfficesUnauthorized request requires user authentication
-
-swagger:response showCounselingOfficesUnauthorized
-*/
-type ShowCounselingOfficesUnauthorized struct {
-}
-
-// NewShowCounselingOfficesUnauthorized creates ShowCounselingOfficesUnauthorized with default headers values
-func NewShowCounselingOfficesUnauthorized() *ShowCounselingOfficesUnauthorized {
-
-	return &ShowCounselingOfficesUnauthorized{}
-}
-
-// WriteResponse to the client
-func (o *ShowCounselingOfficesUnauthorized) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(401)
-}
-
-// ShowCounselingOfficesForbiddenCode is the HTTP code returned for type ShowCounselingOfficesForbidden
-const ShowCounselingOfficesForbiddenCode int = 403
-
-/*
-ShowCounselingOfficesForbidden user is not authorized
-
-swagger:response showCounselingOfficesForbidden
-*/
-type ShowCounselingOfficesForbidden struct {
-}
-
-// NewShowCounselingOfficesForbidden creates ShowCounselingOfficesForbidden with default headers values
-func NewShowCounselingOfficesForbidden() *ShowCounselingOfficesForbidden {
-
-	return &ShowCounselingOfficesForbidden{}
-}
-
-// WriteResponse to the client
-func (o *ShowCounselingOfficesForbidden) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(403)
-}
-
-// ShowCounselingOfficesNotFoundCode is the HTTP code returned for type ShowCounselingOfficesNotFound
-const ShowCounselingOfficesNotFoundCode int = 404
-
-/*
-ShowCounselingOfficesNotFound matching counseling office not found
-
-swagger:response showCounselingOfficesNotFound
-*/
-type ShowCounselingOfficesNotFound struct {
-}
-
-// NewShowCounselingOfficesNotFound creates ShowCounselingOfficesNotFound with default headers values
-func NewShowCounselingOfficesNotFound() *ShowCounselingOfficesNotFound {
-
-	return &ShowCounselingOfficesNotFound{}
-}
-
-// WriteResponse to the client
-func (o *ShowCounselingOfficesNotFound) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
-	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
-
-	rw.WriteHeader(404)
 }
 
 // ShowCounselingOfficesInternalServerErrorCode is the HTTP code returned for type ShowCounselingOfficesInternalServerError
