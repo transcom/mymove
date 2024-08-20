@@ -22,6 +22,7 @@ import (
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -44,6 +45,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
+	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -82,7 +84,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
 	)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primev2messages.Address
