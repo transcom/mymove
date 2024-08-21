@@ -34,7 +34,7 @@ REDIS_PORT=6379
 REDIS_PORT_DOCKER=6379
 ifdef CIRCLECI
 	DB_PORT_DEV=5432
-	DB_PORT_TEST=5433
+	DB_PORT_TEST=5432
 	UNAME_S := $(shell uname -s)
 	ifeq ($(UNAME_S),Linux)
 		LDFLAGS=-linkmode external -extldflags -static
