@@ -20,7 +20,7 @@ export function dateSelectionWeekendHolidayCheck(
   setIsDateSelectionAlertVisibleCallback,
   onErrorCallback,
 ) {
-  if (!isNaN(date.getTime())) {
+  if (!Number.isNaN(date.getTime())) {
     // Format date to yyyy-mm-dd format
     const dateSelection = date.toISOString().replace(/T.*/, '');
     dateSelectionIsWeekendHolidayAPI(countryCode, dateSelection)
@@ -53,3 +53,5 @@ export function dateSelectionWeekendHolidayCheck(
       });
   }
 }
+
+export default dateSelectionWeekendHolidayCheck;
