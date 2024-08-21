@@ -193,8 +193,8 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				First(&transportationOffice)
 
 			if transportationOfficeErr != nil {
-				err := apperror.NewBadDataError("Missing Transportation Office.")
-				appCtx.Logger().Error(err.Error())
+				OfficeErr := apperror.NewBadDataError("Missing Transportation Office.")
+				appCtx.Logger().Error(OfficeErr.Error())
 			}
 
 			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
