@@ -46,7 +46,7 @@ type Page1Values struct {
 	SITEntryDates                   string
 	SITEndDates                     string
 	SITDaysInStorage                string
-	PreparationDate                 string
+	PreparationDate1                string
 	MaxObligationGCC100             string
 	TotalWeightAllotmentRepeat      string
 	MaxObligationGCC95              string
@@ -64,7 +64,7 @@ type Page1Values struct {
 // Page2Values is an object representing a Shipment Summary Worksheet
 type Page2Values struct {
 	CUIBanner                   string
-	PreparationDate             string
+	PreparationDate2            string
 	TAC                         string
 	SAC                         string
 	ContractedExpenseMemberPaid string
