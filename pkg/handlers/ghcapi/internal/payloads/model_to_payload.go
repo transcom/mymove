@@ -1521,7 +1521,7 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 	if pr.TPPSPaidInvoiceReports != nil {
 		TPPSPaidInvoiceReportsForPR = pr.TPPSPaidInvoiceReports
 		if len(TPPSPaidInvoiceReportsForPR) > 0 {
-			if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents > -1 {
+			if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents >= 0 {
 				totalTPPSPaidInvoicePriceMillicents = models.Int64Pointer(int64(TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents))
 				tppsPaidInvoiceSellerPaidDate = &TPPSPaidInvoiceReportsForPR[0].SellerPaidDate
 			}
@@ -1583,10 +1583,14 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems, tppsPa
 		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
 
-		tppsDataForPaymentRequest := *tppsPaidReportData
-		for tppsDataRowIndex := range tppsDataForPaymentRequest {
-			if tppsDataForPaymentRequest[tppsDataRowIndex].ProductDescription == payload[i].MtoServiceItemCode {
-				payload[i].TppsInvoiceAmountPaidPerServiceItemMillicents = handlers.FmtMilliCentsPtr(&tppsDataForPaymentRequest[tppsDataRowIndex].LineNetCharge)
+		// We process TPPS Paid Invoice Reports to get payment information for each payment service item
+		// This report tells us how much TPPS paid HS for each item, then we store and display it
+		if *tppsPaidReportData != nil {
+			tppsDataForPaymentRequest := *tppsPaidReportData
+			for tppsDataRowIndex := range tppsDataForPaymentRequest {
+				if tppsDataForPaymentRequest[tppsDataRowIndex].ProductDescription == payload[i].MtoServiceItemCode {
+					payload[i].TppsInvoiceAmountPaidPerServiceItemMillicents = handlers.FmtMilliCentsPtr(&tppsDataForPaymentRequest[tppsDataRowIndex].LineNetCharge)
+				}
 			}
 		}
 	}
