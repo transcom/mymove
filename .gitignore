@@ -64,6 +64,7 @@ public/swagger-ui/*
 !public/swagger-ui/prime_v3.html
 !public/swagger-ui/ghc.html
 !public/swagger-ui/support.html
+!public/swagger-ui/pptas.html
 
 # Playwright integration tests
 playwright/.cache
