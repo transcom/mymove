@@ -111,6 +111,7 @@ export class OfficeApp extends Component {
       oktaLoggedOut: undefined,
       oktaNeedsLoggedOut: undefined,
       hqRoleFlag: !!props.hqRoleFlag,
+      gsrRoleFlag: undefined,
     };
   }
 
@@ -147,6 +148,10 @@ export class OfficeApp extends Component {
         this.setState({
           hqRoleFlag: hqRoleFlagValue,
         });
+        const gsrRoleFlagValue = await isBooleanFlagEnabled('gsr_role');
+        this.setState({
+          gsrRoleFlag: gsrRoleFlagValue,
+        });
       } catch (error) {
         retryPageLoading(error);
       }
@@ -166,7 +171,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -575,7 +580,12 @@ export class OfficeApp extends Component {
                       )}
                       {(activeRole === roleTypes.QAE ||
                         activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE ||
-                        activeRole === roleTypes.GSR) && <Route end path="/" element={<QAECSRMoveSearch />} />}
+                        (activeRole === roleTypes.GSR && gsrRoleFlag)) && (
+                        <Route end path="/" element={<QAECSRMoveSearch />} />
+                      )}
+                      {activeRole === roleTypes.GSR && !gsrRoleFlag && (
+                        <Route end path="/*" element={<InvalidPermissions />} />
+                      )}
 
                       {/* 404 */}
                       <Route path="*" element={<NotFound />} />
