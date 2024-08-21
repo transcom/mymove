@@ -174,7 +174,11 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 
 		// Grab the first day SIT service item ID for payment requests
 		// TODO: Eventually refactor this out and use the entire group for the payment request
-		if (sitServiceItem.ReService.Code == models.ReServiceCodeDOFSIT || sitServiceItem.ReService.Code == models.ReServiceCodeDOASIT) && firstDaySITServiceItemID == uuid.Nil {
+		if (sitServiceItem.ReService.Code == models.ReServiceCodeDOFSIT) && firstDaySITServiceItemID == uuid.Nil {
+			firstDaySITServiceItemID = sitServiceItem.ID
+		}
+
+		if (sitServiceItem.ReService.Code == models.ReServiceCodeDDFSIT) && firstDaySITServiceItemID == uuid.Nil {
 			firstDaySITServiceItemID = sitServiceItem.ID
 		}
 
@@ -212,7 +216,7 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 	return &models.SITSummary{
 		FirstDaySITServiceItemID: firstDaySITServiceItemID,
 		Location:                 location,
-		DaysInSIT:                *calculatedTotalDaysInSIT, // FIXME: This appears to not be calculating properly at the summary level
+		DaysInSIT:                *calculatedTotalDaysInSIT,
 		SITEntryDate:             *earliestSITEntryDate,
 		SITDepartureDate:         earliestSITDepartureDate,
 		SITAuthorizedEndDate:     *earliestSITAuthorizedEndDate,
