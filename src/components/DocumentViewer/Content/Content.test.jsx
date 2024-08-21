@@ -27,10 +27,4 @@ describe('DocViewerContent', () => {
     expect(fileViewer.prop('fileType')).toBe('pdf');
     expect(fileViewer.prop('filePath')).toBe(mockFile.url);
   });
-
-  it('renders the FileViewer with rotation value prop', () => {
-    const fileViewer = component.find('FileViewer');
-    expect(fileViewer.exists()).toBe(true);
-    expect(fileViewer.prop('rotationValue')).toBe(0);
-  });
 });

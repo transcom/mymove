@@ -182,7 +182,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
         let showNumber = shipmentCountByType[shipmentType] > 1;
 
         let isIncomplete = false;
-        switch (shipmentType.toUpperCase()) {
+        switch (shipmentType?.toUpperCase()) {
           case SHIPMENT_OPTIONS.PPM:
             isIncomplete = !isPPMShipmentComplete(shipment);
             break;

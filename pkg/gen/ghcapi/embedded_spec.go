@@ -5741,42 +5741,6 @@ func init() {
         }
       }
     },
-    "/uploads/get/": {
-      "get": {
-        "description": "Gets an upload",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Gets an upload by ID",
-        "operationId": "getUpload",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5817,69 +5781,6 @@ func init() {
           },
           "404": {
             "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadID}/update": {
-      "patch": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
-        "operationId": "updateUpload",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to be updated",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "properties": {
-                "rotation": {
-                  "description": "The rotation of the image",
-                  "type": "integer",
-                  "maximum": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "updated upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "413": {
-            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -8863,6 +8764,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -9066,6 +8970,11 @@ func init() {
           "description": "Timestamp of when a property of this object was created (UTC)",
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
           "readOnly": true
         },
         "heightInInches": {
@@ -13359,10 +13268,6 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
-        },
-        "rotation": {
-          "type": "integer",
-          "example": 2
         },
         "status": {
           "type": "string",
@@ -20907,57 +20812,6 @@ func init() {
         }
       }
     },
-    "/uploads/get/": {
-      "get": {
-        "description": "Gets an upload",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Gets an upload by ID",
-        "operationId": "getUpload",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -20998,70 +20852,6 @@ func init() {
           },
           "404": {
             "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadID}/update": {
-      "patch": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
-        "operationId": "updateUpload",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to be updated",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "properties": {
-                "rotation": {
-                  "description": "The rotation of the image",
-                  "type": "integer",
-                  "maximum": 3,
-                  "minimum": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "updated upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "413": {
-            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -24049,6 +23839,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -24252,6 +24045,11 @@ func init() {
           "description": "Timestamp of when a property of this object was created (UTC)",
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
           "readOnly": true
         },
         "heightInInches": {
@@ -28680,10 +28478,6 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
-        },
-        "rotation": {
-          "type": "integer",
-          "example": 2
         },
         "status": {
           "type": "string",
