@@ -26,7 +26,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/felixge/httpsnoop v1.0.4
 	github.com/gabriel-vasile/mimetype v1.4.3
-	github.com/go-chi/chi/v5 v5.0.13
+	github.com/go-chi/chi/v5 v5.1.0
 	github.com/go-gomail/gomail v0.0.0-20160411212932-81ebce5c23df
 	github.com/go-logr/zapr v1.3.0
 	github.com/go-openapi/errors v0.22.0
@@ -78,7 +78,7 @@ require (
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.18.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.43.0
-	go.opentelemetry.io/contrib/instrumentation/runtime v0.43.0
+	go.opentelemetry.io/contrib/instrumentation/runtime v0.53.0
 	go.opentelemetry.io/contrib/propagators/aws v1.18.0
 	go.opentelemetry.io/otel v1.28.0
 	go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc v1.28.0
