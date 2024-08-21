@@ -263,8 +263,7 @@ func TransportationOffices(transportationOffices models.TransportationOffices) i
 func CounselingOffices(counselingOffices models.TransportationOffices) internalmessages.CounselingOffices {
 	payload := make(internalmessages.CounselingOffices, len(counselingOffices))
 
-	for i, co := range counselingOffices {
-		counselingOffice := co
+	for i, counselingOffice := range counselingOffices {
 		payload[i] = &internalmessages.CounselingOffice{
 			ID:   handlers.FmtUUID(counselingOffice.ID),
 			Name: models.StringPointer(counselingOffice.Name),

@@ -139,19 +139,19 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 
 	sqlQuery := `
 		with counseling_offices as (
-		SELECT to2.id, to2.name
-				FROM postal_code_to_gblocs pctg
-				JOIN addresses a on pctg.postal_code = a.postal_code
-				JOIN duty_locations dl on a.id = dl.address_id
-				JOIN transportation_offices to2 on pctg.gbloc = to2.gbloc
-				WHERE dl.provides_services_counseling = true and dl.id = $1
+		SELECT transportation_offices.id, transportation_offices.name
+				FROM postal_code_to_gblocs
+				JOIN addresses on postal_code_to_gblocs.postal_code = addresses.postal_code
+				JOIN duty_locations on addresses.id = duty_locations.address_id
+				JOIN transportation_offices on postal_code_to_gblocs.gbloc = transportation_offices.gbloc
+				WHERE duty_locations.provides_services_counseling = true and duty_locations.id = $1
 		)
-		SELECT co.id, co.name
-		FROM counseling_offices co
-		JOIN duty_locations dl2 on co.id = dl2.transportation_office_id
-		WHERE dl2.provides_services_counseling = true
-		GROUP BY co.id, co.name
-		ORDER BY co.name asc`
+		SELECT counseling_offices.id, counseling_offices.name
+		FROM counseling_offices
+		JOIN duty_locations duty_locations2 on counseling_offices.id = duty_locations2.transportation_office_id
+		WHERE duty_locations2.provides_services_counseling = true
+		GROUP BY counseling_offices.id, counseling_offices.name
+		ORDER BY counseling_offices.name asc`
 
 	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
 	if err := query.All(&officeList); err != nil {
