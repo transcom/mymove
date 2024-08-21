@@ -185,7 +185,9 @@ class MtoShipmentForm extends Component {
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
-    const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
+    const initialValues = formatMtoShipmentForDisplay(
+      isCreatePage && !mtoShipment?.requestedPickupDate ? {} : mtoShipment, // check if data carried over from boat shipment
+    );
 
     const optionalLabel = <span className={formStyles.optional}>Optional</span>;
 

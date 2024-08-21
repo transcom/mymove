@@ -176,11 +176,11 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // assert that there is a pending SIT extension request
-      await expect(page.getByText('Additional days requested')).toBeVisible();
+      await expect(page.getByText('SIT EXTENSION REQUESTED')).toBeVisible();
 
       // approve SIT extension with an adjusted approved days value of 100 days and change the extension reason
       await page.getByTestId('sitExtensions').getByTestId('button').click();
-      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Review SIT Extension Request' })).toBeVisible();
       await page.getByTestId('daysApproved').clear();
       await page.getByTestId('daysApproved').fill('100');
       await page.getByText('Yes', { exact: true }).click();
@@ -199,11 +199,11 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // assert that there is a pending SIT extension request
-      await expect(page.getByText('Additional days requested')).toBeVisible();
+      await expect(page.getByText('SIT EXTENSION REQUESTED')).toBeVisible();
 
       // deny SIT extension
       await page.getByTestId('sitExtensions').getByTestId('button').click();
-      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Review SIT Extension Request' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
       await page.getByTestId('convertToCustomerExpense');
@@ -220,11 +220,11 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       // assert that there is a pending SIT extension request
-      await expect(page.getByText('Additional days requested')).toBeVisible();
+      await expect(page.getByText('SIT EXTENSION REQUESTED')).toBeVisible();
 
       // deny SIT extension
       await page.getByTestId('sitExtensions').getByTestId('button').click();
-      await expect(page.getByRole('heading', { name: 'Review additional days requested' })).toBeVisible();
+      await expect(page.getByRole('heading', { name: 'Review SIT Extension Request' })).toBeVisible();
       await page.getByText('No', { exact: true }).click();
       await page.getByTestId('officeRemarks').fill('extension request denied');
       await page.getByTestId('convertToCustomerExpense').click();
