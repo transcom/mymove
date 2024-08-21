@@ -53,6 +53,10 @@ type AdminUser struct {
 	// Format: uuid
 	OrganizationID *strfmt.UUID `json:"organizationId"`
 
+	// super
+	// Required: true
+	Super *bool `json:"super"`
+
 	// updated at
 	// Required: true
 	// Read Only: true
@@ -94,6 +98,10 @@ func (m *AdminUser) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOrganizationID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSuper(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -184,6 +192,15 @@ func (m *AdminUser) validateOrganizationID(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("organizationId", "body", "uuid", m.OrganizationID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *AdminUser) validateSuper(formats strfmt.Registry) error {
+
+	if err := validate.Required("super", "body", m.Super); err != nil {
 		return err
 	}
 
