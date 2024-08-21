@@ -193,7 +193,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				First(&transportationOffice)
 
 			if transportationOfficeErr != nil {
-				err = apperror.NewBadDataError("Missing Transportation Office.")
+				err := apperror.NewBadDataError("Missing Transportation Office.")
 				appCtx.Logger().Error(err.Error())
 			}
 
