@@ -1583,6 +1583,8 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems, tppsPa
 		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
 
+		// We process TPPS Paid Invoice Reports to get payment information for each payment service item
+		// This report tells us how much TPPS paid HS for each item, then we store and display it
 		if *tppsPaidReportData != nil {
 			tppsDataForPaymentRequest := *tppsPaidReportData
 			for tppsDataRowIndex := range tppsDataForPaymentRequest {

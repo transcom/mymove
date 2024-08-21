@@ -197,6 +197,9 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 			return nil, errFetchingEdiError
 		}
 
+		// We process TPPS Paid Invoice Reports to get payment information for each payment service item
+		// As well as the total amount paid for the overall payment request, and the date it was paid
+		// This report tells us how much TPPS paid HS, then we store and display it
 		tppsReportEntryList, errFetchingTPPSInformation := fetchTPPSPaidInvoiceReportDataPaymentRequest(appCtx, &paymentRequests[i])
 		if errFetchingTPPSInformation != nil {
 			return nil, errFetchingTPPSInformation
