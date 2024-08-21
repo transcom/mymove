@@ -7848,6 +7848,10 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+      lockedPriceCents:
+        type: integer
+        format: cents
+        x-nullable: true
   MTOServiceItems:
     description: A list of service items connected to this shipment.
     type: array
@@ -8007,6 +8011,12 @@ definitions:
       createdAt:
         description: Timestamp of when a property of this object was created (UTC)
         format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
         type: string
         readOnly: true
   SITLocationType:
@@ -9430,6 +9440,8 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
         $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       shipmentLocator:
