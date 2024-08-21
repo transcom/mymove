@@ -2263,12 +2263,6 @@ func init() {
               "$ref": "#/definitions/Move"
             }
           },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
           "404": {
             "$ref": "#/responses/NotFound"
           },
@@ -2480,15 +2474,6 @@ func init() {
             "schema": {
               "$ref": "#/definitions/Move"
             }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
           },
           "500": {
             "$ref": "#/responses/ServerError"
@@ -9042,6 +9027,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -9151,9 +9145,6 @@ func init() {
           "x-nullable": true,
           "example": "1001-3456"
         },
-        "scAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
-        },
         "serviceCounselingCompletedAt": {
           "type": "string",
           "format": "date-time",
@@ -9170,16 +9161,10 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "tioAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
-        },
         "tioRemarks": {
           "type": "string",
           "x-nullable": true,
           "example": "approved additional weight"
-        },
-        "tooAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "updatedAt": {
           "type": "string",
@@ -16523,18 +16508,6 @@ func init() {
               "$ref": "#/definitions/Move"
             }
           },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
           "404": {
             "description": "The requested resource wasn't found",
             "schema": {
@@ -16796,24 +16769,6 @@ func init() {
             "description": "Successfully updated move",
             "schema": {
               "$ref": "#/definitions/Move"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
             }
           },
           "500": {
@@ -24164,6 +24119,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -24273,9 +24237,6 @@ func init() {
           "x-nullable": true,
           "example": "1001-3456"
         },
-        "scAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
-        },
         "serviceCounselingCompletedAt": {
           "type": "string",
           "format": "date-time",
@@ -24292,16 +24253,10 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
-        "tioAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
-        },
         "tioRemarks": {
           "type": "string",
           "x-nullable": true,
           "example": "approved additional weight"
-        },
-        "tooAssignedUser": {
-          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "updatedAt": {
           "type": "string",

@@ -1,6 +1,8 @@
 package move
 
 import (
+	"database/sql"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -23,7 +25,12 @@ func (s AssignedOfficeUserUpdater) UpdateAssignedOfficeUser(appCtx appcontext.Ap
 	var move models.Move
 	err := appCtx.DB().Q().Find(&move, moveID)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	switch role {
@@ -50,7 +57,12 @@ func (s AssignedOfficeUserUpdater) DeleteAssignedOfficeUser(appCtx appcontext.Ap
 	var move models.Move
 	err := appCtx.DB().Q().Find(&move, moveID)
 	if err != nil {
-		return nil, err
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(moveID, "while looking for move")
+		default:
+			return nil, apperror.NewQueryError("Move", err, "")
+		}
 	}
 
 	switch role {

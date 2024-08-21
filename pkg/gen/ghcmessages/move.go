@@ -19,6 +19,15 @@ import (
 // swagger:model Move
 type Move struct {
 
+	// s c assigned user
+	SCAssignedUser *AssignedOfficeUser `json:"SCAssignedUser,omitempty"`
+
+	// t i o assigned user
+	TIOAssignedUser *AssignedOfficeUser `json:"TIOAssignedUser,omitempty"`
+
+	// t o o assigned user
+	TOOAssignedUser *AssignedOfficeUser `json:"TOOAssignedUser,omitempty"`
+
 	// additional documents
 	AdditionalDocuments *Document `json:"additionalDocuments,omitempty"`
 
@@ -109,9 +118,6 @@ type Move struct {
 	// Example: 1001-3456
 	ReferenceID *string `json:"referenceId,omitempty"`
 
-	// sc assigned user
-	ScAssignedUser *AssignedOfficeUser `json:"scAssignedUser,omitempty"`
-
 	// service counseling completed at
 	// Format: date-time
 	ServiceCounselingCompletedAt *strfmt.DateTime `json:"serviceCounselingCompletedAt,omitempty"`
@@ -126,15 +132,9 @@ type Move struct {
 	// Format: date-time
 	SubmittedAt *strfmt.DateTime `json:"submittedAt,omitempty"`
 
-	// tio assigned user
-	TioAssignedUser *AssignedOfficeUser `json:"tioAssignedUser,omitempty"`
-
 	// tio remarks
 	// Example: approved additional weight
 	TioRemarks *string `json:"tioRemarks,omitempty"`
-
-	// too assigned user
-	TooAssignedUser *AssignedOfficeUser `json:"tooAssignedUser,omitempty"`
 
 	// updated at
 	// Format: date-time
@@ -144,6 +144,18 @@ type Move struct {
 // Validate validates this move
 func (m *Move) Validate(formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.validateSCAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTIOAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTOOAssignedUser(formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.validateAdditionalDocuments(formats); err != nil {
 		res = append(res, err)
@@ -217,10 +229,6 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateScAssignedUser(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateServiceCounselingCompletedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -237,14 +245,6 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTioAssignedUser(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateTooAssignedUser(formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -252,6 +252,63 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Move) validateSCAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.SCAssignedUser) { // not required
+		return nil
+	}
+
+	if m.SCAssignedUser != nil {
+		if err := m.SCAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("SCAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("SCAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateTIOAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.TIOAssignedUser) { // not required
+		return nil
+	}
+
+	if m.TIOAssignedUser != nil {
+		if err := m.TIOAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("TIOAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("TIOAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) validateTOOAssignedUser(formats strfmt.Registry) error {
+	if swag.IsZero(m.TOOAssignedUser) { // not required
+		return nil
+	}
+
+	if m.TOOAssignedUser != nil {
+		if err := m.TOOAssignedUser.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("TOOAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("TOOAssignedUser")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -506,25 +563,6 @@ func (m *Move) validateOrdersID(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateScAssignedUser(formats strfmt.Registry) error {
-	if swag.IsZero(m.ScAssignedUser) { // not required
-		return nil
-	}
-
-	if m.ScAssignedUser != nil {
-		if err := m.ScAssignedUser.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("scAssignedUser")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("scAssignedUser")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *Move) validateServiceCounselingCompletedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ServiceCounselingCompletedAt) { // not required
 		return nil
@@ -583,44 +621,6 @@ func (m *Move) validateSubmittedAt(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *Move) validateTioAssignedUser(formats strfmt.Registry) error {
-	if swag.IsZero(m.TioAssignedUser) { // not required
-		return nil
-	}
-
-	if m.TioAssignedUser != nil {
-		if err := m.TioAssignedUser.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tioAssignedUser")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("tioAssignedUser")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Move) validateTooAssignedUser(formats strfmt.Registry) error {
-	if swag.IsZero(m.TooAssignedUser) { // not required
-		return nil
-	}
-
-	if m.TooAssignedUser != nil {
-		if err := m.TooAssignedUser.Validate(formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tooAssignedUser")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("tooAssignedUser")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -636,6 +636,18 @@ func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 // ContextValidate validate this move based on the context it is used
 func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
+
+	if err := m.contextValidateSCAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTIOAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTOOAssignedUser(ctx, formats); err != nil {
+		res = append(res, err)
+	}
 
 	if err := m.contextValidateAdditionalDocuments(ctx, formats); err != nil {
 		res = append(res, err)
@@ -665,10 +677,6 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateScAssignedUser(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateShipmentGBLOC(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -677,17 +685,72 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTioAssignedUser(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.contextValidateTooAssignedUser(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Move) contextValidateSCAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.SCAssignedUser != nil {
+
+		if swag.IsZero(m.SCAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.SCAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("SCAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("SCAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateTIOAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TIOAssignedUser != nil {
+
+		if swag.IsZero(m.TIOAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.TIOAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("TIOAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("TIOAssignedUser")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *Move) contextValidateTOOAssignedUser(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TOOAssignedUser != nil {
+
+		if swag.IsZero(m.TOOAssignedUser) { // not required
+			return nil
+		}
+
+		if err := m.TOOAssignedUser.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("TOOAssignedUser")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("TOOAssignedUser")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -814,27 +877,6 @@ func (m *Move) contextValidateOrders(ctx context.Context, formats strfmt.Registr
 	return nil
 }
 
-func (m *Move) contextValidateScAssignedUser(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.ScAssignedUser != nil {
-
-		if swag.IsZero(m.ScAssignedUser) { // not required
-			return nil
-		}
-
-		if err := m.ScAssignedUser.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("scAssignedUser")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("scAssignedUser")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
 func (m *Move) contextValidateShipmentGBLOC(ctx context.Context, formats strfmt.Registry) error {
 
 	if swag.IsZero(m.ShipmentGBLOC) { // not required
@@ -866,48 +908,6 @@ func (m *Move) contextValidateStatus(ctx context.Context, formats strfmt.Registr
 			return ce.ValidateName("status")
 		}
 		return err
-	}
-
-	return nil
-}
-
-func (m *Move) contextValidateTioAssignedUser(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.TioAssignedUser != nil {
-
-		if swag.IsZero(m.TioAssignedUser) { // not required
-			return nil
-		}
-
-		if err := m.TioAssignedUser.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tioAssignedUser")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("tioAssignedUser")
-			}
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (m *Move) contextValidateTooAssignedUser(ctx context.Context, formats strfmt.Registry) error {
-
-	if m.TooAssignedUser != nil {
-
-		if swag.IsZero(m.TooAssignedUser) { // not required
-			return nil
-		}
-
-		if err := m.TooAssignedUser.ContextValidate(ctx, formats); err != nil {
-			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tooAssignedUser")
-			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("tooAssignedUser")
-			}
-			return err
-		}
 	}
 
 	return nil
