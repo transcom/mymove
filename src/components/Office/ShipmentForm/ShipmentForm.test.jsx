@@ -1140,7 +1140,8 @@ describe('ShipmentForm component', () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />);
 
       expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
-
+      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility info' })).toBeInTheDocument();
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
@@ -1196,10 +1197,10 @@ describe('ShipmentForm component', () => {
           ),
         ).toHaveClass('usa-alert__text');
         expect(
-          screen.queryAllByText(
+          screen.getByText(
             /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
-        ).toHaveLength(0);
+        ).toHaveClass('usa-alert__text');
       });
     });
 
@@ -1211,6 +1212,8 @@ describe('ShipmentForm component', () => {
       expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
 
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
+      expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
     });
   });
 
@@ -1234,10 +1237,10 @@ describe('ShipmentForm component', () => {
     );
     expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
     expect(
-      screen.queryAllByText(
+      screen.getByText(
         'Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
       ),
-    ).toHaveLength(0);
+    ).toHaveClass('usa-alert__text');
     expect(
       screen.getByText(
         /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
