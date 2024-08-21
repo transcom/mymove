@@ -842,3 +842,7 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
     },
   );
 }
+
+export async function searchLocationByZipCity(search) {
+  return makeGHCRequest('addresses.getLocationByZipCity', { search }, { normalize: false });
+}
