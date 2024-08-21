@@ -216,7 +216,7 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 	return &models.SITSummary{
 		FirstDaySITServiceItemID: firstDaySITServiceItemID,
 		Location:                 location,
-		DaysInSIT:                *calculatedTotalDaysInSIT, // FIXME: This appears to not be calculating properly at the summary level
+		DaysInSIT:                *calculatedTotalDaysInSIT,
 		SITEntryDate:             *earliestSITEntryDate,
 		SITDepartureDate:         earliestSITDepartureDate,
 		SITAuthorizedEndDate:     *earliestSITAuthorizedEndDate,
