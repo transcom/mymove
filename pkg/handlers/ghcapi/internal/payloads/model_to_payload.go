@@ -1521,7 +1521,7 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 	if pr.TPPSPaidInvoiceReports != nil {
 		TPPSPaidInvoiceReportsForPR = pr.TPPSPaidInvoiceReports
 		if len(TPPSPaidInvoiceReportsForPR) > 0 {
-			if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents > -1 {
+			if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents >= 0 {
 				totalTPPSPaidInvoicePriceMillicents = models.Int64Pointer(int64(TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents))
 				tppsPaidInvoiceSellerPaidDate = &TPPSPaidInvoiceReportsForPR[0].SellerPaidDate
 			}
