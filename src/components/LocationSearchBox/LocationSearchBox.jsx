@@ -38,7 +38,9 @@ const formatOptionLabel = (option, input) => {
 
 const formatZipCity = (option, input) => {
   const { inputValue } = input;
-  const outputLabel = `${option.city}, ${option.state} ${option.postalCode} (${option.county})`;
+  const outputLabel = `${option?.city || ''}, ${option?.state || ''} ${option?.postalCode || ''} (${
+    option?.county || ''
+  })`;
   const inputText = inputValue || '';
 
   const searchIndex = outputLabel.toLowerCase().indexOf(inputText.toLowerCase());
