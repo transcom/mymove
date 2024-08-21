@@ -1197,10 +1197,10 @@ describe('ShipmentForm component', () => {
           ),
         ).toHaveClass('usa-alert__text');
         expect(
-          screen.queryAllByText(
+          screen.getByText(
             /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
           ),
-        ).toHaveLength(0);
+        ).toHaveClass('usa-alert__text');
       });
     });
 
@@ -1237,10 +1237,10 @@ describe('ShipmentForm component', () => {
     );
     expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
     expect(
-      screen.queryAllByText(
+      screen.getByText(
         'Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
       ),
-    ).toHaveLength(0);
+    ).toHaveClass('usa-alert__text');
     expect(
       screen.getByText(
         /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
