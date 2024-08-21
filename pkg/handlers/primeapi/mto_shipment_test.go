@@ -1001,6 +1001,57 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 
 	})
 
+	suite.Run("PATCH NTSRecordedWeight and PrimeEstimatedWeight are read only for Prime", func() {
+		// Under test: updateMTOShipmentHandler.Handle
+		// Mocked:     Planner
+		// Set up:     We use the normal (non-minimal) shipment we created earlier
+		//             We provide an update with minimal changes
+		// Expected:   Handler returns OK
+		//             NTSRecordedWeight and PrimeEstimatedWeight are not updated
+		handler, shipment := setupTestData()
+
+		updatedWeight := int64(1000)
+
+		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
+
+		weightUpdate := primemessages.UpdateMTOShipment{
+			NtsRecordedWeight:    &updatedWeight,
+			PrimeEstimatedWeight: &updatedWeight,
+		}
+
+		eTag := etag.GenerateEtag(shipment.UpdatedAt)
+		params := mtoshipmentops.UpdateMTOShipmentParams{
+			HTTPRequest:   req,
+			MtoShipmentID: *handlers.FmtUUID(shipment.ID),
+			Body:          &weightUpdate,
+			IfMatch:       eTag,
+		}
+
+		// CALL FUNCTION UNDER TEST
+
+		// Validate incoming payload
+		suite.NoError(params.Body.Validate(strfmt.Default))
+
+		response := handler.Handle(params)
+
+		// CHECK RESPONSE
+		suite.IsType(&mtoshipmentops.UpdateMTOShipmentOK{}, response)
+		okPayload := response.(*mtoshipmentops.UpdateMTOShipmentOK).Payload
+
+		// Validate outgoing payload
+		suite.NoError(okPayload.Validate(strfmt.Default))
+
+		suite.Equal(shipment.ID.String(), okPayload.ID.String())
+
+		// Confirm PATCH working as expected
+		suite.NotEqual(shipment.NTSRecordedWeight, updatedWeight)
+		suite.NotEqual(shipment.PrimeEstimatedWeight, updatedWeight)
+
+		// Refresh local copy of shipment from DB for etag regeneration in future tests
+		shipment = suite.refreshFromDB(shipment.ID)
+
+	})
+
 	suite.Run("Successful PATCH - Integration Test (PPM)", func() {
 		// Under test: updateMTOShipmentHandler.Handle
 		// Mocked:     Planner, PPMEstimator

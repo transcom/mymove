@@ -138,6 +138,7 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			}
 			dbShipment.MTOAgents = agents
 
+			//NTSRecordedWeight and PrimeEstimatedWeight read only B-20724
 			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 				mtoShipment.NTSRecordedWeight = dbShipment.NTSRecordedWeight
 				mtoShipment.PrimeEstimatedWeight = dbShipment.PrimeEstimatedWeight
