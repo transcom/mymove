@@ -6,6 +6,7 @@ import { milmoveLogger } from 'utils/milmoveLog';
 
 let publicClient = null;
 let ghcClient = null;
+let adminClient = null;
 
 export const requestInterceptor = (req) => {
   if (!req.loadSpec) {
@@ -41,6 +42,16 @@ export async function getGHCClient() {
     });
   }
   return ghcClient;
+}
+
+export async function getAdminClient() {
+  if (!adminClient) {
+    adminClient = await Swagger({
+      url: '/admin/v1/swagger.yaml',
+      requestInterceptor,
+    });
+  }
+  return adminClient;
 }
 
 export async function getSpec() {
