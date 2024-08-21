@@ -128,18 +128,18 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 		return BuildDutyLocation(nil, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Yuma AFB",
+					Name: "Yuma AFB, IA 50309",
 				},
 			},
 		}, nil)
 	}
 	// Check if Yuma Duty Location exists, if not, create it.
-	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
+	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB, IA 50309")
 	if err != nil {
 		return BuildDutyLocation(db, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Yuma AFB",
+					Name: "Yuma AFB, IA 50309",
 				},
 			},
 		}, nil)
