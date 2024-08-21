@@ -1999,26 +1999,24 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
 
-		updatedWeight := int64(1000)
+		updatedWeight := unit.Pound(1000)
 
 		testCases := []struct {
 			shipment models.MTOShipment
 			payload  primemessages.UpdateMTOShipment
 		}{
 			{hhgShipment, primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-				ScheduledPickupDate:  &schedDate,
+				ScheduledPickupDate: &schedDate,
 			}},
 			{ntsShipment, primemessages.UpdateMTOShipment{
-				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
-				ScheduledPickupDate:  &schedDate,
+				ScheduledPickupDate: &schedDate,
 			}},
 			{ntsrShipment, primemessages.UpdateMTOShipment{
 				ScheduledPickupDate: &schedDate,
 			}},
 			{ntsrShipment, primemessages.UpdateMTOShipment{
-				NtsRecordedWeight:    &updatedWeight,
-				PrimeEstimatedWeight: &updatedWeight,
+				NtsRecordedWeight:    handlers.FmtPoundPtr(&updatedWeight),
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&updatedWeight),
 			}},
 		}
 		for _, testCase := range testCases {
