@@ -9,7 +9,7 @@ import interceptorReducer from 'store/interceptor/reducer';
 import generalStateReducer from 'store/general/reducer';
 import { swaggerReducerPublic, swaggerReducerInternal } from 'shared/Swagger/ducks';
 import { requestsReducer } from 'shared/Swagger/requestsReducer';
-import { entitiesReducer } from 'shared/Entities/reducer';
+import { adminEntitiesReducer, entitiesReducer } from 'shared/Entities/reducer';
 
 const authPersistConfig = {
   key: 'auth',
@@ -32,6 +32,12 @@ export const appReducer = () =>
     swaggerInternal: swaggerReducerInternal,
     interceptor: interceptorReducer,
     generalState: generalStateReducer,
+  });
+
+export const adminAppReducer = () =>
+  combineReducers({
+    ...defaultReducers,
+    entities: adminEntitiesReducer,
   });
 
 export default appReducer;
