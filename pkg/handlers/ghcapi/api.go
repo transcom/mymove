@@ -18,6 +18,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	lineofaccounting "github.com/transcom/mymove/pkg/services/line_of_accounting"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
+	mobileHomeShipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/move"
 	movehistory "github.com/transcom/mymove/pkg/services/move_history"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -199,6 +200,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
+	mobileHomeShipmentUpdater := mobileHomeShipment.NewMobileHomeShipmentUpdater()
 
 	noCheckUpdater := mtoshipment.NewMTOShipmentUpdater(queryBuilder,
 		fetch.NewFetcher(queryBuilder),
@@ -209,7 +211,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		paymentRequestShipmentRecalculator,
 		addressUpdater,
 		addressCreator)
-	sitExtensionShipmentUpdater := shipment.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	sitExtensionShipmentUpdater := shipment.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	ghcAPI.MtoServiceItemUpdateServiceItemSitEntryDateHandler = UpdateServiceItemSitEntryDateHandler{
 		HandlerConfig:       handlerConfig,
@@ -352,10 +354,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
+	mobileHomeShipmentCreator := mobileHomeShipment.NewMobileHomeShipmentCreator()
 	ghcAPI.PpmShowAOAPacketHandler = showAOAPacketHandler{handlerConfig, SSWPPMComputer, SSWPPMGenerator, AOAPacketCreator}
 
 	shipmentRouter := mtoshipment.NewShipmentRouter()
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	ghcAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
 		shipmentCreator,
@@ -450,7 +453,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		addressCreator,
 	)
 
-	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	ghcAPI.MoveSearchMovesHandler = SearchMovesHandler{
 		HandlerConfig: handlerConfig,
@@ -637,7 +640,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
-	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
 
 	ghcAPI.CustomerSearchCustomersHandler = SearchCustomersHandler{
