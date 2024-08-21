@@ -44,9 +44,6 @@ type UploadWithOmissions struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
-	// rotation
-	Rotation int64 `json:"rotation,omitempty"`
-
 	// status
 	// Enum: [INFECTED CLEAN PROCESSING]
 	Status string `json:"status,omitempty"`
