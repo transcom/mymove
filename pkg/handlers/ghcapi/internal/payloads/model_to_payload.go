@@ -1583,10 +1583,12 @@ func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems, tppsPa
 		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
 
-		tppsDataForPaymentRequest := *tppsPaidReportData
-		for tppsDataRowIndex := range tppsDataForPaymentRequest {
-			if tppsDataForPaymentRequest[tppsDataRowIndex].ProductDescription == payload[i].MtoServiceItemCode {
-				payload[i].TppsInvoiceAmountPaidPerServiceItemMillicents = handlers.FmtMilliCentsPtr(&tppsDataForPaymentRequest[tppsDataRowIndex].LineNetCharge)
+		if *tppsPaidReportData != nil {
+			tppsDataForPaymentRequest := *tppsPaidReportData
+			for tppsDataRowIndex := range tppsDataForPaymentRequest {
+				if tppsDataForPaymentRequest[tppsDataRowIndex].ProductDescription == payload[i].MtoServiceItemCode {
+					payload[i].TppsInvoiceAmountPaidPerServiceItemMillicents = handlers.FmtMilliCentsPtr(&tppsDataForPaymentRequest[tppsDataRowIndex].LineNetCharge)
+				}
 			}
 		}
 	}
