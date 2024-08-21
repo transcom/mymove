@@ -265,5 +265,11 @@ func NewAdminAPI(handlerConfig handlers.HandlerConfig) *adminops.MymoveAPI {
 		query.NewQueryFilter,
 	}
 
+	adminAPI.UserGetLoggedInAdminUserHandler = GetLoggedInUserHandler{
+		handlerConfig,
+		adminuser.NewAdminUserFetcher(queryBuilder),
+		query.NewQueryFilter,
+	}
+
 	return adminAPI
 }
