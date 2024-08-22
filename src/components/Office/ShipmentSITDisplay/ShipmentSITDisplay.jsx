@@ -112,9 +112,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItemGroupings?.map((sitGroup) => {
     // Build the past SIT text based off the past sit group summary rather than individual service items
-    const sitDaysUsed = moment(sitGroup.summary.sitDepartureDate).diff(sitGroup.summary.sitEntryDate, 'days');
+    // The server provides sitDaysUsed
+    const sitDaysUsed = sitGroup.summary.daysInSIT || DEFAULT_EMPTY_VALUE;
     const location = sitGroup.summary.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
 
+    // Display the dates the server used to calculate sitDaysUsed
     const start = formatDate(sitGroup.summary.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
     const end = formatDate(sitGroup.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
     const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
