@@ -415,7 +415,7 @@ func formatAOADate(signedCertifications []*models.SignedCertification, ppmid uui
 			}
 		}
 	}
-	return "Uncertified"
+	return FormatDate(time.Now())
 }
 
 // The following formats the preparation date, as the preparation date for SSWs is the date the closeout counselor certifies the closeout.
