@@ -10,7 +10,7 @@
     "@opentelemetry/core": "^1.15.1",
     "@tanstack/react-query": "^4.29.12",
     "@tanstack/react-query-devtools": "^5.17.12",
-    "@transcom/react-file-viewer": "git+https://github.com/transcom/react-file-viewer#B20440-amw-zoom-rotate-capability-for-images",
+    "@transcom/react-file-viewer": "git+https://github.com/transcom/react-file-viewer#B20440-amw-zoom-rotate-capability-for-images-followup",
     "@trussworks/react-uswds": "3.2.0",
     "axe-playwright": "^1.2.3",
     "bytes": "^3.1.2",
@@ -92,7 +92,6 @@
     "loader-utils": "^2.0.3",
     "minimist": "^1.2.6",
     "node-fetch": "^2.6.7",
-    "react": "^17.0.1",
     "react-router": "6.24.1",
     "react-router-dom": "6.24.1",
     "recursive-readdir": "^2.2.3",
@@ -192,11 +191,7 @@
       "node_modules/(?!(imask)/)/"
     ],
     "moduleNameMapper": {
-      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js",
-      "@transcom/react-file-viewer": "<rootDir>/node_modules/@transcom/react-file-viewer/dist/index.js"
-    },
-    "globals": {
-      "__webpack_public_path__": "/"
+      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
     }
   }
 }

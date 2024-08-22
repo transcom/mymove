@@ -4617,9 +4617,9 @@
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
-"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#B20440-amw-zoom-rotate-capability-for-images":
+"@transcom/react-file-viewer@git+https://github.com/transcom/react-file-viewer#B20440-amw-zoom-rotate-capability-for-images-followup":
   version "1.2.3"
-  resolved "git+https://github.com/transcom/react-file-viewer#b1193c55560f18213707a5e0ab66e29ad5d33480"
+  resolved "git+https://github.com/transcom/react-file-viewer#475263807db83c6bbd44f2b1c61a2364a3508156"
   dependencies:
     pdfjs-dist "1.8.357"
     prop-types "^15.5.10"
