@@ -655,7 +655,7 @@ ifndef CIRCLECI
 		echo "No database container"
 else
 	@echo "Relying on CircleCI's database setup to destroy the DB."
-	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST) WITH (FORCE);'
+	psql postgres://postgres:$(PGPASSWORD)@localhost:$(DB_PORT_TEST)?sslmode=disable -c 'DROP DATABASE IF EXISTS $(DB_NAME_TEST);'
 endif
 
 .PHONY: db_test_start
