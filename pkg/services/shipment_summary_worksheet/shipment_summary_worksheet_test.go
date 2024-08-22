@@ -657,15 +657,22 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightFinal() {
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertifications() {
 	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-	testDate := time.Now()
-	certifications := Certifications{
+	testDate := time.Now() // due to using updatedAt, time.Now() needs to be used to test cert times and dates
+	aoaCertifications := Certifications{
 		CustomerField: "",
 		OfficeField:   "AOA: Firstname Lastname\nSSW: ",
 		DateField:     "AOA: " + FormatDate(testDate) + "\nSSW: ",
 	}
+	sswCertifications := Certifications{
+		CustomerField: "",
+		OfficeField:   "AOA: Firstname Lastname\nSSW: Firstname Lastname",
+		DateField:     "AOA: " + FormatDate(testDate) + "\nSSW: " + FormatDate(testDate),
+	}
+	prepAOADate := FormatDate(testDate)
+	prepSSWDate := FormatDate(testDate)
 
 	signedCertType := models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT
-	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+	aoaSignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
 			LinkOnly: true,
@@ -681,23 +688,36 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertification
 		},
 	}, nil)
 	var certs []*models.SignedCertification
-	certs = append(certs, &ppmPaymentsignedCertification)
+	certs = append(certs, &aoaSignedCertification)
 
 	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedDate := formatAOADate(certs, move.MTOShipments[0].PPMShipment.ID)
+	suite.Equal(prepAOADate, formattedDate)
+	suite.Equal(aoaCertifications, formattedSignature)
 
-	suite.Equal(certifications, formattedSignature)
-}
+	signedCertType = models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SignedCertification{
+				CertificationType: &signedCertType,
+				CertificationText: "APPROVED",
+				Signature:         "Firstname Lastname",
+				UpdatedAt:         testDate,
+				PpmID:             models.UUIDPointer(move.MTOShipments[0].PPMShipment.ID),
+			},
+		},
+	}, nil)
+	certs = append(certs, &ppmPaymentsignedCertification)
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
+	formattedSignature = formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedDate = formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
+	suite.Equal(prepSSWDate, formattedDate)
+	suite.Equal(sswCertifications, formattedSignature)
 
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
-
-	formattedDate := FormatDate(signature.Date)
-
-	suite.Equal("26 Jan 2019", formattedDate)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
@@ -789,9 +809,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 	result := createTextFields(testData, pages...)
 
 	expectedResult := []textField{
-		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: false},
-		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: false, Locked: false},
-		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: false, Locked: false},
+		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: true, Locked: false},
+		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: true, Locked: false},
+		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: true, Locked: false},
 	}
 
 	suite.Equal(result, expectedResult)

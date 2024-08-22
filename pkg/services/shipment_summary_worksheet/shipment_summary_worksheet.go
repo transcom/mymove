@@ -396,8 +396,6 @@ func formatSignedCertifications(signedCertifications []*models.SignedCertificati
 		}
 	}
 
-	// Add uncertified text?
-	// AOA Can be downloaded on aoa approval before we add the signed certification on move approval.
 	certifications.CustomerField = customerSignature
 	certifications.OfficeField = "AOA: " + aoaSignature + "\nSSW: " + sswSignature
 	certifications.DateField = "AOA: " + aoaDate + "\nSSW: " + sswDate
