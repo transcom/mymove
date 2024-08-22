@@ -25,9 +25,9 @@ const NameForm = ({ initialValues, onSubmit, onBack }) => {
             <h1>Name</h1>
             <SectionWrapper className={formStyles.formSection}>
               <TextField label="First name" name="first_name" id="firstName" required />
-              <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+              <TextField label="Middle name" name="middle_name" id="middleName" optional />
               <TextField label="Last name" name="last_name" id="lastName" required />
-              <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+              <TextField label="Suffix" name="suffix" id="suffix" optional />
             </SectionWrapper>
             <div className={formStyles.formActions}>
               <WizardNavigation

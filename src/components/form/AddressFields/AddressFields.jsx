@@ -75,14 +75,14 @@ export const AddressFields = ({
           />
           <TextField
             label="Address 2"
-            labelHint="Optional"
+            optional
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             validate={validators?.streetAddress2}
           />
           <TextField
             label="Address 3"
-            labelHint="Optional"
+            optional
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
@@ -101,6 +101,7 @@ export const AddressFields = ({
                 id={`state_${addressFieldsUUID.current}`}
                 label="State"
                 options={statesList}
+                required
                 validate={validators?.state}
               />
             </div>
