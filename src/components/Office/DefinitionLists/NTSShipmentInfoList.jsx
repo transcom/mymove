@@ -16,6 +16,8 @@ import {
   fieldValidationShape,
 } from 'utils/displayFlags';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const NTSShipmentInfoList = ({
   className,
@@ -166,12 +168,14 @@ const NTSShipmentInfoList = ({
 
   const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
   const requestedDeliveryDateElement = (
-    <div className={requestedDeliveryDateElementFlags.classes}>
-      <dt>Requested delivery date</dt>
-      <dd data-testid="requestedDeliveryDate">
-        {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}
-      </dd>
-    </div>
+    <Restricted to={permissionTypes.updateShipment}>
+      <div className={requestedDeliveryDateElementFlags.classes}>
+        <dt>Requested delivery date</dt>
+        <dd data-testid="requestedDeliveryDate">
+          {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}
+        </dd>
+      </div>
+    </Restricted>
   );
 
   const scheduledDeliveryDateElementFlags = getDisplayFlags('scheduledDeliveryDate');
@@ -283,7 +287,7 @@ const NTSShipmentInfoList = ({
       {pickupAddressElement}
       {secondaryPickupAddressElement}
       {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
-      {requestedDeliveryDateElement}
+      {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {showElement(releasingAgentFlags) && releasingAgentElement}
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
