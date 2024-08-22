@@ -3616,6 +3616,10 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              paymentRequestCode:
+                type: string
+                example: 9551-6199-2
+                x-nullable: true
               status:
                 type: array
                 description: Filtering for the status.
@@ -3710,7 +3714,13 @@ paths:
   /lines-of-accounting:
     post:
       summary: 'Fetch line of accounting'
-      description: 'Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).'
+      description: >
+        Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC).
+        It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering
+        through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date
+        that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments),
+        or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).
+        Effective date is used to find "Active" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
@@ -3721,7 +3731,7 @@ paths:
       parameters:
         - in: 'body'
           name: 'body'
-          description: 'Service member affiliation, order issue date, and TAC code.'
+          description: 'Service member affiliation, effective date, and TAC code.'
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
@@ -4417,7 +4427,14 @@ definitions:
     properties:
       serviceMemberAffiliation:
         $ref: 'definitions/Affiliation.yaml'
-      ordersIssueDate:
+      effectiveDate:
+        description: >
+          The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date.
+          Effective date is used to find "Active" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.
+          The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments),
+          MTO approval date (For NTS shipments), or even the current date for NTS
+          shipments with no approval yet (Just providing a preview to the office
+          users per customer request).
         type: string
         format: date
         example: '2023-01-01'
@@ -4611,6 +4628,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -5390,6 +5411,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string
@@ -5472,6 +5497,18 @@ definitions:
         x-nullable: true
       receivedByGexAt:
         format: date-time
+        type: string
+        x-nullable: true
+      ediErrorType:
+        description: Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
     type: object
@@ -5737,6 +5774,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: 'definitions/Address.yaml'
@@ -5951,6 +6002,38 @@ definitions:
         allOf:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: 'definitions/Address.yaml'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -6331,6 +6414,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -6445,6 +6533,10 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      paymentRequestCode:
+        type: string
+        example: 9551-6199-2
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'

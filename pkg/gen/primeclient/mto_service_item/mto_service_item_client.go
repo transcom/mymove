@@ -122,6 +122,9 @@ When a DDFSIT is requested, the API will auto-create the following group of serv
   - DDDSIT - Domestic destination SIT delivery
   - DDSFSC - Domestic destination SIT fuel surcharge
 
+**NOTE** When providing the `sitEntryDate` value in the payload, please ensure that the date is not BEFORE
+`firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it is, you will receive an error response.
+
 **DDASIT**
 
 **Addt'l days destination SIT service item**. This represents an additional day of storage for the same item.

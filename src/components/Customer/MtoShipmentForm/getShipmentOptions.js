@@ -7,10 +7,21 @@ import {
   StorageFacilityAddressSchema,
 } from './validationSchemas';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { roleTypes } from 'constants/userRoles';
 
 const hhgShipmentSchema = Yup.object().shape({
+  pickup: RequiredPlaceSchema,
+  delivery: OptionalPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
+  secondaryDelivery: AdditionalAddressSchema,
+  tertiaryPickup: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
+  customerRemarks: Yup.string(),
+  counselorRemarks: Yup.string(),
+});
+
+const boatShipmentLocationInfoSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   delivery: OptionalPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
@@ -22,6 +33,7 @@ const hhgShipmentSchema = Yup.object().shape({
 const ntsShipmentSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
+  tertiaryPickup: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
   serviceOrderNumber: Yup.string().matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
 });
@@ -29,6 +41,7 @@ const ntsShipmentSchema = Yup.object().shape({
 const ntsShipmentTOOSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
+  tertiaryPickup: AdditionalAddressSchema,
   serviceOrderNumber: Yup.string()
     .required('Required')
     .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
@@ -38,12 +51,14 @@ const ntsShipmentTOOSchema = Yup.object().shape({
 const ntsReleaseShipmentSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
   secondaryDelivery: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
 });
 
 const ntsReleaseShipmentCounselorSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
   secondaryDelivery: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
   counselorRemarks: Yup.string(),
   serviceOrderNumber: Yup.string().matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
   storageFacility: StorageFacilityAddressSchema,
@@ -53,6 +68,7 @@ const ntsReleaseShipmentTOOSchema = Yup.object().shape({
   delivery: RequiredPlaceSchema,
   ntsRecordedWeight: Yup.string().required('Required'),
   secondaryDelivery: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
   serviceOrderNumber: Yup.string()
     .required('Required')
     .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
@@ -64,6 +80,14 @@ function getShipmentOptions(shipmentType, userRole) {
     case SHIPMENT_OPTIONS.HHG:
       return {
         schema: hhgShipmentSchema,
+        showPickupFields: true,
+        showDeliveryFields: true,
+      };
+
+    case SHIPMENT_TYPES.BOAT_HAUL_AWAY:
+    case SHIPMENT_TYPES.BOAT_TOW_AWAY:
+      return {
+        schema: boatShipmentLocationInfoSchema,
         showPickupFields: true,
         showDeliveryFields: true,
       };

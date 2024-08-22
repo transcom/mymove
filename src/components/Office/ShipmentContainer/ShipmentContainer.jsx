@@ -13,14 +13,13 @@ const ShipmentContainer = ({ id, className, children, shipmentType }) => {
     {
       'container--accent--default':
         shipmentType === null ||
-        shipmentType === SHIPMENT_OPTIONS.BOAT_HAUL_AWAY ||
-        shipmentType === SHIPMENT_OPTIONS.BOAT_TOW_AWAY ||
         shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME ||
         !Object.values(SHIPMENT_OPTIONS).includes(shipmentType),
       'container--accent--hhg': shipmentType === SHIPMENT_OPTIONS.HHG,
       'container--accent--nts': shipmentType === SHIPMENT_OPTIONS.NTS,
       'container--accent--ntsr': shipmentType === SHIPMENT_OPTIONS.NTSR,
       'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,
+      'container--accent--boat': shipmentType === SHIPMENT_OPTIONS.BOAT,
     },
     className,
   );
