@@ -2,6 +2,7 @@ package address
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
@@ -36,13 +37,11 @@ func (o usPostRegionCity) GetLocationsByZipCity(appCtx appcontext.AppContext, se
 
 func FindLocationsByZipCity(appCtx appcontext.AppContext, search string) (models.UsPostRegionCities, error) {
 	var locationList []models.UsPostRegionCity
-
-	sqlQuery := `
+	sqlQuery := fmt.Sprintf(`
 		select uprc.u_s_post_region_city_nm, uprc.state, uprc.usprc_county_nm, uprc.uspr_zip_id
-			from us_post_region_cities uprc where position(upper($1) in uprc.uspr_zip_id) > 0 or
-			position(upper($1) in uprc.u_s_post_region_city_nm) > 0
-			limit 30`
-	query := appCtx.DB().Q().RawQuery(sqlQuery, &search)
+			from us_post_region_cities uprc where uprc.uspr_zip_id like '%[1]s%%' or
+			uprc.u_s_post_region_city_nm like upper('%[1]s%%') limit 30`, search)
+	query := appCtx.DB().Q().RawQuery(sqlQuery)
 	if err := query.All(&locationList); err != nil {
 		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
 			return locationList, err
