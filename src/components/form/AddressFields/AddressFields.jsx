@@ -121,7 +121,6 @@ export const AddressFields = ({
                 name="zipCity"
                 placeholder="Start typing a Zip Code or City..."
                 label="Zip/City Lookup"
-                displayAddress={false}
                 handleZipCityChange={handleZipCityChange}
               />
               <p data-testid="inaccurateInfo">

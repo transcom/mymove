@@ -49,7 +49,7 @@ ZipCityInput.propTypes = {
 };
 
 ZipCityInput.defaultProps = {
-  displayAddress: true,
+  displayAddress: false,
   hint: '',
   placeholder: '',
   isDisabled: false,
