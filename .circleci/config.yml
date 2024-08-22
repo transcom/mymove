@@ -865,6 +865,7 @@ commands:
             export FEATURE_FLAG_PPM=true
             export FEATURE_FLAG_NTS=true
             export FEATURE_FLAG_NTSR=true
+            export FEATURE_FLAG_BOAT=true
             export FEATURE_FLAG_CAC_VALIDATED_LOGIN=false
             export FEATURE_FLAG_VALIDATION_CODE_REQUIRED=false
             export FEATURE_FLAG_MOVE_LOCK=false
@@ -902,6 +903,7 @@ commands:
             FEATURE_FLAG_PPM: 'true'
             FEATURE_FLAG_NTS: 'true'
             FEATURE_FLAG_NTSR: 'true'
+            FEATURE_FLAG_BOAT: 'true'
             FEATURE_FLAG_CAC_VALIDATED_LOGIN: 'false'
             FEATURE_FLAG_VALIDATION_CODE_REQUIRED: 'false'
             FEATURE_FLAG_MOVE_LOCK: 'false'
@@ -1090,7 +1092,7 @@ commands:
             export MUTUAL_TLS_ENABLED=true
             export MUTUAL_TLS_PORT=9443
             export SERVE_API_PRIME=true
-
+            export SERVE_API_PPTAS=true
             make db_dev_create
             bin/milmove migrate
             # load tests do not need client files

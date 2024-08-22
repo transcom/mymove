@@ -214,6 +214,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                       className="usa-select"
                       name="moveOrderDocumentType"
                       id="moveOrderDocumentType"
+                      title="moveOrderDocumentType"
                     >
                       <option value={MoveOrderDocumentType.ALL}>ALL</option>
                       <option value={MoveOrderDocumentType.ORDERS}>ORDERS</option>
@@ -258,7 +259,7 @@ const MoveDetails = ({ setFlashMessage }) => {
                                 <div className={styles.uploadBtn}>
                                   {SIT_SERVICE_ITEMS_ALLOWED_UPDATE.includes(serviceItem.reServiceCode) ? (
                                     <Link
-                                      className="usa-button usa-button--outline"
+                                      className={classnames(styles.editButton, 'usa-button usa-button--outline')}
                                       to={`../mto-service-items/${serviceItem.id}/update`}
                                       relative="path"
                                     >

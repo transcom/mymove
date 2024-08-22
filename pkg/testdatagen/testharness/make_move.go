@@ -1014,6 +1014,74 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	return *newmove
 }
 
+// MakeGoodTACAndLoaCombination builds a good TAC and LOA and returns the TAC
+// so that e2e_tests can supply a "Valid" TAC that isn't expired
+// or missing a LOA
+func MakeGoodTACAndLoaCombination(appCtx appcontext.AppContext) models.TransportationAccountingCode {
+	// Transcom Relational Database Management (TRDM) TGET data
+	// Creats an active and linked together transportation accounting code and line of accounting
+	// Said TAC and LOA are active within a date range of 1 year
+	ordersIssueDate := time.Now()
+	startDate := ordersIssueDate.AddDate(-1, 0, 0)
+	endDate := ordersIssueDate.AddDate(1, 0, 0)
+	tacCode := factory.MakeRandomString(4)
+	loaSysID := factory.MakeRandomString(10)
+
+	// Ensure all DFAS elements are present
+	factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaBgnDt:               &startDate,
+				LoaEndDt:               &endDate,
+				LoaSysID:               &loaSysID,
+				LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+				LoaDptID:               models.StringPointer("1"),
+				LoaTnsfrDptNm:          models.StringPointer("1"),
+				LoaBafID:               models.StringPointer("1"),
+				LoaTrsySfxTx:           models.StringPointer("1"),
+				LoaMajClmNm:            models.StringPointer("1"),
+				LoaOpAgncyID:           models.StringPointer("1"),
+				LoaAlltSnID:            models.StringPointer("1"),
+				LoaPgmElmntID:          models.StringPointer("1"),
+				LoaTskBdgtSblnTx:       models.StringPointer("1"),
+				LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+				LoaJbOrdNm:             models.StringPointer("1"),
+				LoaSbaltmtRcpntID:      models.StringPointer("1"),
+				LoaWkCntrRcpntNm:       models.StringPointer("1"),
+				LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+				LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+				LoaCustNm:              models.StringPointer("1"),
+				LoaObjClsID:            models.StringPointer("1"),
+				LoaSrvSrcID:            models.StringPointer("1"),
+				LoaSpclIntrID:          models.StringPointer("1"),
+				LoaBdgtAcntClsNm:       models.StringPointer("1"),
+				LoaDocID:               models.StringPointer("1"),
+				LoaClsRefID:            models.StringPointer("1"),
+				LoaInstlAcntgActID:     models.StringPointer("1"),
+				LoaLclInstlID:          models.StringPointer("1"),
+				LoaFmsTrnsactnID:       models.StringPointer("1"),
+				LoaTrnsnID:             models.StringPointer("1"),
+				LoaUic:                 models.StringPointer("1"),
+				LoaBgFyTx:              models.IntPointer(2023),
+				LoaEndFyTx:             models.IntPointer(2025),
+			},
+		},
+	}, nil)
+	// Create the TAC and associate loa based on LoaSysID
+	tac := factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TAC:               tacCode,
+				TrnsprtnAcntBgnDt: &startDate,
+				TrnsprtnAcntEndDt: &endDate,
+				TacFnBlModCd:      models.StringPointer("1"),
+				LoaSysID:          &loaSysID,
+			},
+		},
+	}, nil)
+	return tac
+}
+
 // MakeNTSRMoveWithPaymentRequest is similar to old shared.createNTSRMoveWithPaymentRequest
 func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	userUploader := newUserUploader(appCtx)
@@ -2218,6 +2286,558 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE(appCtx appcontex
 			LinkOnly: true,
 		},
 	}, nil)
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	primeUploader := newPrimeUploader(appCtx)
+
+	msCost := unit.Cents(10000)
+	dlhCost := unit.Cents(99999)
+	csCost := unit.Cents(25000)
+	fscCost := unit.Cents(55555)
+
+	// Create Customer
+	userInfo := newUserInfo("customer")
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
+
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	mtoShipmentHHG := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, nil)
+	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, nil)
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &msCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemMS,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Shuttling service item
+	doshutCost := unit.Cents(623)
+	approvedAtTime := time.Now()
+	serviceItemDOSHUT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAtTime,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &doshutCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDOSHUT,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	currentTime := time.Now()
+
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Crating service item
+	dcrtCost := unit.Cents(623)
+	approvedAtTimeCRT := time.Now()
+	serviceItemDCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAtTimeCRT,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Dom Crating
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDCRT,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	currentTimeDCRT := time.Now()
+
+	basicPaymentServiceItemParamsDCRT := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "32210",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "10",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "12",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "3",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParamsDCRT,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Domestic line haul service item
+	serviceItemDLH := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dlhCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDLH,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
+	additionalPaymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+				SequenceNumber:  2,
+				CreatedAt:       createdAtTime,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	serviceItemCS := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &csCost,
+			},
+		}, {
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemCS,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+	serviceItemFSC := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &fscCost,
+			},
+		}, {
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemFSC,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	posImage2 := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	primeContractor2 := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+
+	// Creates custom test.jpg prime upload
+	file2 := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage2.ID, primeContractor2, uploader.File{File: file2}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
 	// re-fetch the move so that we ensure we have exactly what is in
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)

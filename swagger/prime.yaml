@@ -1162,6 +1162,13 @@ paths:
           * DDDSIT - Domestic destination SIT delivery
           * DDSFSC - Domestic destination SIT fuel surcharge
 
+        **NOTE** When providing the `sitEntryDate` value in the payload, please
+        ensure that the date is not BEFORE
+
+        `firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it
+        is, you will receive an error response.
+
+
         **DDASIT**
 
 
@@ -2100,6 +2107,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -2147,6 +2159,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -3858,6 +3875,7 @@ definitions:
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
         * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
         * `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
+        * `MOBILE_HOME` = Mobile Home shipment that a customer may move.
     type: string
     example: HHG
     enum:
@@ -3868,7 +3886,7 @@ definitions:
       - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
-      - MOTORHOME
+      - MOBILE_HOME
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)

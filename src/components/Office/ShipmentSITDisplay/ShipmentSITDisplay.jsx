@@ -12,7 +12,7 @@ import styles from './ShipmentSITDisplay.module.scss';
 
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
-import { swaggerDateFormat } from 'shared/dates';
+import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
 import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
@@ -92,7 +92,9 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
   const sitEndDate =
-    formatDate(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat, 'DD MMM YYYY') || '\u2014';
+    formatDateForDatePicker(
+      moment(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat).subtract(1, 'days'),
+    ) || '\u2014';
 
   // Previous SIT calculations and date ranges
   const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
@@ -138,7 +140,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   return (
     <>
       <div className={styles.title}>
-        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>Additional Days Requested</Tag>}</p>
+        <p>SIT (STORAGE IN TRANSIT){pendingSITExtension && <Tag>SIT EXTENSION REQUESTED</Tag>}</p>
         {!pendingSITExtension && isConvertedToCustomerExpense && <Tag>Converted To Customer Expense</Tag>}
         {sitStatus.currentSIT &&
           !pendingSITExtension &&

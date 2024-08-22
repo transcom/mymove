@@ -41,7 +41,6 @@ import { pageNames } from 'constants/signInPageNames';
 import InfectedUpload from 'shared/Uploader/InfectedUpload';
 import ProcessingUpload from 'shared/Uploader/ProcessingUpload';
 import Edit from 'scenes/Review/Edit';
-import EditProfile from 'scenes/Review/EditProfile';
 import NotFound from 'components/NotFound/NotFound';
 import PrivacyPolicyStatement from 'components/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'components/Statements/AccessibilityStatement';
@@ -64,6 +63,9 @@ const EditContactInfo = lazy(() => import('pages/MyMove/Profile/EditContactInfo'
 const EditOktaInfo = lazy(() => import('pages/MyMove/Profile/EditOktaInfo'));
 const AmendOrders = lazy(() => import('pages/MyMove/AmendOrders/AmendOrders'));
 const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
+const BoatShipmentLocationInfo = lazy(() =>
+  import('pages/MyMove/Boat/BoatShipmentLocationInfo/BoatShipmentLocationInfo'),
+);
 const EstimatedWeightsProGear = lazy(() =>
   import('pages/MyMove/PPM/Booking/EstimatedWeightsProGear/EstimatedWeightsProGear'),
 );
@@ -244,7 +246,6 @@ export class CustomerApp extends Component {
                     <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
                     <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                     <Route end path="/moves/:moveId/edit" element={<Edit />} />
-                    <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
                     <Route end path={customerRoutes.SERVICE_INFO_EDIT_PATH} element={<EditServiceInfo />} />
                     <Route path={customerRoutes.SHIPMENT_CREATE_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
                     <Route end path={customerRoutes.PROFILE_PATH} element={<Profile />} />
@@ -343,7 +344,6 @@ export class CustomerApp extends Component {
                     <Route end path={customerRoutes.MOVE_HOME_PATH} element={<MoveHome />} />
                     <Route end path={customerRoutes.SHIPMENT_MOVING_INFO_PATH} element={<MovingInfo />} />
                     <Route end path="/moves/:moveId/edit" element={<Edit />} />
-                    <Route end path={customerRoutes.EDIT_PROFILE_PATH} element={<EditProfile />} />
                     <Route end path={customerRoutes.SERVICE_INFO_EDIT_PATH} element={<EditServiceInfo />} />
                     <Route path={customerRoutes.SHIPMENT_CREATE_PATH} element={<ConnectedCreateOrEditMtoShipment />} />
                     <Route end path={customerRoutes.PROFILE_PATH} element={<Profile />} />
@@ -352,6 +352,7 @@ export class CustomerApp extends Component {
                       path={customerRoutes.SHIPMENT_EDIT_PATH}
                       element={<ConnectedCreateOrEditMtoShipment />}
                     />
+                    <Route path={customerRoutes.SHIPMENT_BOAT_LOCATION_INFO} element={<BoatShipmentLocationInfo />} />
                     <Route
                       path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH}
                       element={<EstimatedWeightsProGear />}

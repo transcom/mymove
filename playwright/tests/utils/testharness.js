@@ -41,6 +41,13 @@ export class TestHarness {
    */
 
   /**
+   * @typedef {Object} TransportationAccountingCode
+   * @property {string} id
+   * @property {string} TAC
+   * @property {string} LoaSysID
+   */
+
+  /**
    * @typedef {Object} WebhookSubscription
    * @property {string} ID
    * @property {string} SubscriberID
@@ -341,6 +348,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build hhg move for QAE
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE() {
+    return this.buildDefault('HHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE');
+  }
+
+  /**
    * Use testharness to build hhg move needing SC approval
    * @returns {Promise<Move>}
    */
@@ -386,6 +401,17 @@ export class TestHarness {
    */
   async buildHHGMoveWithNTSAndNeedsSC() {
     return this.buildDefault('HHGMoveWithNTSAndNeedsSC');
+  }
+
+  /**
+   * Use testharness to build a good TAC and LOA combination, return the TAC
+   * so that office users can input the TAC, and preview the LOA (If the
+   * form params are good for the lookup. Eg, service member branch,
+   * effective date, that sort)
+   * @returns {Promise<TransportationAccountingCode>}
+   */
+  async buildGoodTACAndLoaCombination() {
+    return this.buildDefault('GoodTACAndLoaCombination');
   }
 
   /**
