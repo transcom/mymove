@@ -29,7 +29,7 @@ func TestProcessTPPSPaidInvoiceReportSuite(t *testing.T) {
 func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport() {
 	tppsPaidInvoiceReportProcessor := NewTPPSPaidInvoiceReportProcessor()
 
-	suite.Run("successfully proccesses a valid TPPSPaidInvoiceReport and stores it in the database", func() {
+	suite.Run("successfully processes a valid TPPSPaidInvoiceReport and stores it in the database", func() {
 		// payment requests 1-4 with a payment request numbers of 1841-7267-3 and 9436-4123-3,
 		// must exist because the TPPS invoice report's invoice number references the payment
 		// request payment_request_number as a foreign key
@@ -188,7 +188,7 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 		}
 	})
 
-	suite.Run("successfully proccesses a TPPSPaidInvoiceReport from a file directly from the TPPS pickup directory and stores it in the database", func() {
+	suite.Run("successfully processes a TPPSPaidInvoiceReport from a file directly from the TPPS pickup directory and stores it in the database", func() {
 		// payment requests 1-4 with a payment request numbers of 1841-7267-3, 1208-5962-1,
 		// 8801-2773-2, and 8801-2773-3 must exist because the TPPS invoice report's invoice
 		// number references the payment request payment_request_number as a foreign key
