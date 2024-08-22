@@ -2045,8 +2045,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			suite.NoError(responsePayload.Validate(strfmt.Default))
 
 			suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
-			suite.NotNil(responsePayload.RequiredDeliveryDate)
-			suite.NotNil(responsePayload.ScheduledPickupDate)
+			suite.NotNil(*responsePayload.RequiredDeliveryDate)
+			suite.NotNil(*responsePayload.ScheduledPickupDate)
 
 			// Let's double check our maths.
 			expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
