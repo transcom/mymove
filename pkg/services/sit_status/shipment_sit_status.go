@@ -340,10 +340,11 @@ func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.SITServiceItemGroupi
 // return value is Today - SITEntryDate, adding 1 to include today.
 func daysInSIT(sitEntryDate time.Time, sitDepartureDate *time.Time, today time.Time) int {
 	var days int
+	// Per B-20967, the last day should now always be inclusive even if there is a SIT departure date
 	if sitDepartureDate != nil && sitDepartureDate.Before(today) {
-		days = int(sitDepartureDate.Sub(sitEntryDate).Hours()) / 24
+		days = int(sitDepartureDate.Sub(sitEntryDate).Hours())/24 + 1
 	} else if sitEntryDate.Before(today) || sitEntryDate.Equal(today) {
-		days = int(today.Sub(sitEntryDate).Hours())/24 + 1 // This is to count start and end as full days
+		days = int(today.Sub(sitEntryDate).Hours())/24 + 1
 	}
 	return days
 }
