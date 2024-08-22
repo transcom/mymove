@@ -260,6 +260,18 @@ func TransportationOffices(transportationOffices models.TransportationOffices) i
 	return payload
 }
 
+func CounselingOffices(counselingOffices models.TransportationOffices) internalmessages.CounselingOffices {
+	payload := make(internalmessages.CounselingOffices, len(counselingOffices))
+
+	for i, counselingOffice := range counselingOffices {
+		payload[i] = &internalmessages.CounselingOffice{
+			ID:   handlers.FmtUUID(counselingOffice.ID),
+			Name: models.StringPointer(counselingOffice.Name),
+		}
+	}
+	return payload
+}
+
 // OfficeUser internal payload
 func OfficeUser(officeUser *models.OfficeUser) *internalmessages.OfficeUser {
 	if officeUser == nil || officeUser.ID == uuid.Nil {

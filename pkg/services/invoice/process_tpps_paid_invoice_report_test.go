@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/suite"
 
+	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testingsuite"
 	"github.com/transcom/mymove/pkg/unit"
@@ -29,6 +30,52 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 	tppsPaidInvoiceReportProcessor := NewTPPSPaidInvoiceReportProcessor()
 
 	suite.Run("successfully proccesses a valid TPPSPaidInvoiceReport and stores it in the database", func() {
+		// payment request with a payment request number of 1841-7267-3 must exist
+		// because the TPPS invoice report invoice's number references the
+		// payment request payment_request_number as a foreign key
+		paymentRequestOne := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:               models.PaymentRequestStatusPaid,
+					PaymentRequestNumber: "1841-7267-3",
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequestOne,
+				LinkOnly: true,
+			},
+		}, nil)
+		// payment request with a payment request number of 9436-4123-3 must exist
+		// because the TPPS invoice report invoice's number references the
+		// payment request payment_request_number as a foreign key
+		paymentRequestTwo := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequest{
+					Status:               models.PaymentRequestStatusPaid,
+					PaymentRequestNumber: "9436-4123-3",
+				},
+			},
+		}, nil)
+		factory.BuildPaymentRequestToInterchangeControlNumber(suite.DB(), []factory.Customization{
+			{
+				Model: models.PaymentRequestToInterchangeControlNumber{
+					InterchangeControlNumber: 100001251,
+					EDIType:                  models.EDIType858,
+				},
+			},
+			{
+				Model:    paymentRequestTwo,
+				LinkOnly: true,
+			},
+		}, nil)
 
 		testTPPSPaidInvoiceReportFilePath := "../../../pkg/services/invoice/fixtures/tpps_paid_invoice_report_testfile.csv"
 
