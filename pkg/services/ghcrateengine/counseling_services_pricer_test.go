@@ -11,21 +11,29 @@ import (
 )
 
 const (
-	csPriceCents = unit.Cents(8327)
+	csPriceCents = unit.Cents(12303)
 )
 
 var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
+
+var lockedPriceCents = unit.Cents(12303)
+var mtoServiceItem = models.MTOServiceItem{
+	LockedPriceCents: &lockedPriceCents,
+}
+
+var failedMtoServiceItem = models.MTOServiceItem{
+	LockedPriceCents: nil,
+}
 
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	counselingServicesPricer := NewCounselingServicesPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
-		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 		paymentServiceItem := suite.setupCounselingServicesItem()
 
 		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(csPriceCents, priceCents)
+		suite.Equal(lockedPriceCents, priceCents)
 
 		// Check that PricingDisplayParams have been set and are returned
 		expectedParams := services.PricingDisplayParams{
@@ -37,7 +45,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, csAvailableToPrimeAt)
+		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -50,7 +58,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	})
 
 	suite.Run("not finding a rate record", func() {
-		_, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), "BOGUS", csAvailableToPrimeAt)
+		_, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), failedMtoServiceItem)
 		suite.Error(err)
 	})
 }

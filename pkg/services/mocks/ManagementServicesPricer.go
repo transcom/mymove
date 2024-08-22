@@ -10,8 +10,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	time "time"
-
 	unit "github.com/transcom/mymove/pkg/unit"
 )
 
@@ -20,32 +18,32 @@ type ManagementServicesPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, mtoAvailableToPrimeAt
-func (_m *ManagementServicesPricer) Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, mtoAvailableToPrimeAt)
+// Price provides a mock function with given fields: appCtx, serviceItem
+func (_m *ManagementServicesPricer) Price(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, serviceItem)
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOServiceItem) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, serviceItem)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOServiceItem) unit.Cents); ok {
+		r0 = rf(appCtx, serviceItem)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOServiceItem) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, serviceItem)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time) error); ok {
-		r2 = rf(appCtx, contractCode, mtoAvailableToPrimeAt)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, models.MTOServiceItem) error); ok {
+		r2 = rf(appCtx, serviceItem)
 	} else {
 		r2 = ret.Error(2)
 	}
