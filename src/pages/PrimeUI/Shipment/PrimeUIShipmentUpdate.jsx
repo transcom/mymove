@@ -137,7 +137,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     postalCode: '',
   };
 
-  const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
+  const editableWeightEstimateField =
+    !isValidWeight(shipment.primeEstimatedWeight) && shipment.shipmentType !== SHIPMENT_OPTIONS.NTSR;
   const editableWeightActualField = true;
   const editableProGearWeightActualField = true;
   const editableSpouseProGearWeightActualField = true;
