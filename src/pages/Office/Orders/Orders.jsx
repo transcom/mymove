@@ -349,6 +349,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                         setFieldValue={formik.setFieldValue}
                         payGradeOptions={payGradeDropdownOptions}
                         formIsDisabled
+                        touched={formik.touched}
                       />
                     }
                   >
@@ -369,6 +370,7 @@ const Orders = ({ files, amendedDocumentId, updateAmendedDocument }) => {
                       ordersType={order.order_type}
                       setFieldValue={formik.setFieldValue}
                       payGradeOptions={payGradeDropdownOptions}
+                      touched={formik.touched}
                     />
                   </Restricted>
                 </div>

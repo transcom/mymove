@@ -33,7 +33,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ values, isValid, isSubmitting, handleSubmit }) => {
+      {({ values, isValid, isSubmitting, handleSubmit, touched }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         return (
           <Form className={`${formStyles.form}`}>
@@ -80,6 +80,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                 name="originDutyLocation"
                 id="originDutyLocation"
                 required
+                touched={touched}
               />
 
               {isRetirementOrSeparation ? (
@@ -110,10 +111,11 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
                     placeholder="Enter a city or ZIP"
+                    touched={touched}
                   />
                 </>
               ) : (
-                <DutyLocationInput name="newDutyLocation" label="New duty location" required />
+                <DutyLocationInput name="newDutyLocation" label="New duty location" required touched={touched} />
               )}
               <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
             </SectionWrapper>

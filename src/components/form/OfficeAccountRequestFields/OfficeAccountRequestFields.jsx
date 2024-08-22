@@ -27,6 +27,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
             labelHint="optional"
+            optional
           />
           <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" />
           <TextField label="Email" name={emailField} id="officeAccountRequestEmail" />

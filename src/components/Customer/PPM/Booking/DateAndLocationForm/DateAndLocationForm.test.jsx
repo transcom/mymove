@@ -231,7 +231,7 @@ describe('validates form fields and displays error messages', () => {
 
     expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
     await userEvent.click(screen.getByText('Start typing a closeout office...'));
-    expect(screen.getByText('Required')).toBeVisible();
+    expect(screen.getByTestId('errorMessage')).toBeVisible();
   });
   it('displays type errors when input fails validation schema', async () => {
     await act(async () => {

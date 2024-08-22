@@ -313,6 +313,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     validateNTSTac={handleNTSTacValidation}
                     payGradeOptions={payGradeDropdownOptions}
                     hhgLongLineOfAccounting={loaValidationState.longLineOfAccounting}
+                    touched={formik.touched}
                   />
                 </div>
                 <div className={styles.bottom}>

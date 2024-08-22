@@ -38,7 +38,7 @@ export const DropdownInput = (props) => {
       </div>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Dropdown id={inputId.current} {...field} disabled={isDisabled} {...inputProps}>
+      <Dropdown required={required} id={inputId.current} {...field} disabled={isDisabled} {...inputProps}>
         {showDropdownPlaceholderText && <option value="">- Select -</option>}
         {options &&
           options.map(({ key, value }) => (
