@@ -977,3 +977,4 @@
 20240801135811_create_mobile_home.up.sql
 20240801135833_alter_mto_shipment_type_motorhome.up.sql
 20240814144527_remove_allow_pptas_client.up.sql
+20240820125856_allow_pptas_migration.up.sql
