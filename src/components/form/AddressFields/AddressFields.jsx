@@ -127,13 +127,16 @@ export const AddressFields = ({
               />
               {!zipCityError && (
                 <Alert type="info" aria-live="polite" headingLevel="h4">
-                  If you encounter any inaccurate lookup information please contact the Help Desk for further
-                  assistance.
+                  If you encounter any inaccurate lookup information please contact the
+                  <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+                  for further assistance.
                 </Alert>
               )}
               {zipCityError && (
                 <Alert type="error" aria-live="polite" headingLevel="h4">
-                  Not all data was able to populate successfully. Contact the Help Desk for further assistance.
+                  Not all data was able to populate successfully. Contact the
+                  <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+                  for further assistance.
                 </Alert>
               )}
             </>
