@@ -23,8 +23,8 @@ import (
 const (
 	recalculateTestPickupZip                 = "30907"
 	recalculateTestDestinationZip            = "78234"
-	recalculateTestMSFee                     = unit.Cents(25513)
-	recalculateTestCSFee                     = unit.Cents(22399)
+	recalculateTestMSFee                     = unit.Cents(12303)
+	recalculateTestCSFee                     = unit.Cents(12303)
 	recalculateTestDLHPrice                  = unit.Millicents(6000)
 	recalculateTestFSCPrice                  = unit.Millicents(277600)
 	recalculateTestDomOtherPrice             = unit.Cents(2159)
@@ -154,12 +154,12 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeMS,
-			priceCents:     unit.Cents(25513),
+			priceCents:     unit.Cents(12303),
 		},
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeCS,
-			priceCents:     unit.Cents(22399),
+			priceCents:     unit.Cents(12303),
 		},
 		{
 			paymentRequest: &oldPaymentRequest,
@@ -196,13 +196,13 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeMS,
-			priceCents:          unit.Cents(25513),
+			priceCents:          unit.Cents(12303),
 		},
 		{
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeCS,
-			priceCents:          unit.Cents(22399),
+			priceCents:          unit.Cents(12303),
 		},
 		{
 			isNewPaymentRequest: true,
