@@ -149,7 +149,6 @@
     "@testing-library/react": "^12.1.5",
     "@testing-library/react-hooks": "^8.0.1",
     "@testing-library/user-event": "^14.5.1",
-    "@transcom/react-file-viewer": "git+https://github.com/transcom/react-file-viewer#v1.2.3b",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
     "@wojtekmaj/enzyme-adapter-react-17": "^0.8.0",
@@ -192,7 +191,11 @@
       "node_modules/(?!(imask)/)/"
     ],
     "moduleNameMapper": {
-      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
+      "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js",
+      "@transcom/react-file-viewer": "<rootDir>/node_modules/@transcom/react-file-viewer/dist/index.js"
+    },
+    "globals": {
+      "__webpack_public_path__": "/"
     }
   }
 }
