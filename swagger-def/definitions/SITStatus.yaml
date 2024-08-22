@@ -42,5 +42,9 @@ properties:
         type: string
         format: date
         x-nullable: true
-  pastSITServiceItems:
-    $ref: 'MTOServiceItems.yaml'
+  pastSITServiceItemGroupings:
+    $ref: 'SITServiceItemGroupings.yaml'
+    description: >
+      A list of past SIT service item groupings. These will contain the given SIT service items
+      for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT
+      and service items limited explicitly to SIT related Re Service Codes.
