@@ -560,7 +560,7 @@ const testProps = {
     service_member_id: '666',
     status: MOVE_STATUSES.DRAFT,
   },
-  moveIsApproved: false,
+  moveIsApproved: true,
   entitlement: {},
   mtoShipment: {
     id: 'testMtoShipment789',
@@ -614,6 +614,14 @@ describe('Summary page', () => {
       );
     });
 
+    it('displays contact local PPPO office message', async () => {
+      renderWithRouterProp(<Summary {...testProps} />, {
+        path: customerRoutes.MOVE_REVIEW_PATH,
+        params: { moveId: '123' },
+      });
+      expect(await screen.findByText(/\*To change these fields, contact your local PPPO office/)).toBeInTheDocument();
+    });
+
     it('displays a button that opens a modal', async () => {
       renderWithRouterProp(<Summary {...testProps} />, {
         path: customerRoutes.MOVE_REVIEW_PATH,
@@ -657,6 +665,7 @@ describe('Summary page', () => {
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
     });
 
     it('add shipment modal displays still in dev mode', async () => {
@@ -687,6 +696,7 @@ describe('Summary page', () => {
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.PPM);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTS);
       expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.NTSR);
+      expect(isBooleanFlagEnabled).toBeCalledWith(FEATURE_FLAG_KEYS.BOAT);
     });
   });
   afterEach(jest.clearAllMocks);

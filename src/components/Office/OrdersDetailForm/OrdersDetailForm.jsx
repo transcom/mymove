@@ -20,6 +20,7 @@ const OrdersDetailForm = ({
   validateHHGTac,
   validateNTSTac,
   validateHHGLoa,
+  validateNTSLoa,
   showDepartmentIndicator,
   showOrdersNumber,
   showOrdersTypeDetail,
@@ -35,6 +36,7 @@ const OrdersDetailForm = ({
   payGradeOptions,
   formIsDisabled,
   hhgLongLineOfAccounting,
+  ntsLongLineOfAccounting,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
   const reportDateRowLabel = formatLabelReportByDate(formOrdersType);
@@ -116,6 +118,7 @@ const OrdersDetailForm = ({
           id="hhgSacInput"
           data-testid="hhgSacInput"
           isDisabled={formIsDisabled}
+          maxLength="80"
           optional
         />
       )}
@@ -155,11 +158,10 @@ const OrdersDetailForm = ({
           id="ntsSacInput"
           isDisabled={formIsDisabled}
           data-testid="ntsSacInput"
+          maxLength="80"
           optional
         />
       )}
-      {/* This is a placeholder NTS TAC holder */}
-      {/* A future ticket will be placed to add NTS lookup logic on the backend and then it will display here */}
       {showNTSTac && showNTSLoa && (
         <TextField
           name="ntsLoa"
@@ -169,6 +171,8 @@ const OrdersDetailForm = ({
           inputTestId="ntsLoaTextField"
           warning={ntsLoaWarning}
           data-testid="ntsLoaTextField"
+          validate={validateNTSLoa}
+          value={ntsLongLineOfAccounting}
           isDisabled
         />
       )}
@@ -197,6 +201,8 @@ OrdersDetailForm.propTypes = {
   ntsLoaWarning: string,
   validateHHGTac: func,
   validateNTSTac: func,
+  validateHHGLoa: func,
+  validateNTSLoa: func,
   showDepartmentIndicator: bool,
   showOrdersNumber: bool,
   showOrdersTypeDetail: bool,
@@ -212,6 +218,7 @@ OrdersDetailForm.propTypes = {
   payGradeOptions: DropdownArrayOf,
   formIsDisabled: bool,
   hhgLongLineOfAccounting: string,
+  ntsLongLineOfAccounting: string,
 };
 
 OrdersDetailForm.defaultProps = {
@@ -223,6 +230,8 @@ OrdersDetailForm.defaultProps = {
   ordersTypeDetailOptions: null,
   validateHHGTac: null,
   validateNTSTac: null,
+  validateHHGLoa: null,
+  validateNTSLoa: null,
   showDepartmentIndicator: true,
   showOrdersNumber: true,
   showOrdersTypeDetail: true,
@@ -236,6 +245,7 @@ OrdersDetailForm.defaultProps = {
   payGradeOptions: null,
   formIsDisabled: false,
   hhgLongLineOfAccounting: '',
+  ntsLongLineOfAccounting: '',
 };
 
 export default OrdersDetailForm;

@@ -260,7 +260,7 @@ paths:
     patch:
       summary: updatePaymentRequestStatus
       description: |
-        Updates status of a payment request to REVIEWED, SENT_TO_GEX, RECEIVED_BY_GEX, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
+        Updates status of a payment request to REVIEWED, SENT_TO_GEX, TPPS_RECEIVED, REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED, PAID, EDI_ERROR, or DEPRECATED.
 
         A status of REVIEWED can optionally have a `rejectionReason`.
 
@@ -972,6 +972,12 @@ definitions:
           Indicates this MoveTaskOrder is available for Prime API handling.
 
           In production, only MoveTaskOrders for which this is set will be available to the API.
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        description: |
+          Indicates this MoveTaskOrder has been approved by an office user such as the Task Ordering Officer (TOO).
       contractorID:
         type: string
         format: uuid

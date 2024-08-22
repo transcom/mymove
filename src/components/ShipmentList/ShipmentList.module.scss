@@ -75,8 +75,7 @@
 }
 
 .shipment-code {
-  font-size: 15px;
-  font-weight: normal;
+  font-weight: lighter;
   word-wrap: anywhere;
 }
 
@@ -94,6 +93,10 @@
 
 .shipment-list-item-NTS-release {
   border-left: 5px solid $accent-ntsr;
+}
+
+.shipment-list-item-Boat {
+  border-left: 5px solid $accent-boat;
 }
 
 .spaceBetween {

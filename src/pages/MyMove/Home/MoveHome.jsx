@@ -173,10 +173,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
   // determine if at least one advance was APPROVED (advance_status in ppm_shipments table is not nil)
   const hasAdvanceApproved = () => {
-    const appovedAdvances = mtoShipments.filter(
-      (shipment) => shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue,
+    const approvedAdvances = mtoShipments.filter(
+      (shipment) =>
+        shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
+        shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.EDITED.apiValue,
     );
-    return !!appovedAdvances.length;
+    return !!approvedAdvances.length;
   };
 
   // checking if the customer has requested an advance
@@ -269,7 +271,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     }
 
     let destLink = '';
-    if (shipmentType === shipmentTypes.HHG || shipmentType === shipmentTypes.PPM) {
+    if (
+      shipmentType === shipmentTypes.HHG ||
+      shipmentType === shipmentTypes.PPM ||
+      shipmentType === shipmentTypes.BOAT
+    ) {
       destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: move.id,
         mtoShipmentId: shipmentId,
@@ -636,7 +642,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                                   {shipmentTypes[shipment.shipmentType]}
                                   {` ${shipmentNumber} `}
                                 </strong>
-                                {shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue && (
+                                {(shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.APPROVED.apiValue ||
+                                  shipment?.ppmShipment?.advanceStatus === ADVANCE_STATUSES.EDITED.apiValue) && (
                                   // TODO: B-18060 will add link to method that will create the AOA packet and return for download
                                   <p className={styles.downloadLink}>
                                     <AsyncPacketDownloadLink

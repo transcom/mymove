@@ -671,9 +671,19 @@ paths:
 
         after the destination address has already been approved.
 
-        If automatically approved or TOO approves, this will update the final
-        destination address values for destination SIT service items to be the
-        same as the changed destination address that was approved.
+
+        This endpoint and operation only supports the following shipment types:
+
+        - HHG
+
+        - NTSR
+
+
+        For HHG shipments, if automatically approved or TOO approves, this will
+        update the final destination address values for destination SIT service
+        items to be the same as the changed destination address that was
+        approved.
+
 
         Address updates will be automatically approved unless they change:
           - The service area
@@ -1152,6 +1162,13 @@ paths:
           * DDDSIT - Domestic destination SIT delivery
           * DDSFSC - Domestic destination SIT fuel surcharge
 
+        **NOTE** When providing the `sitEntryDate` value in the payload, please
+        ensure that the date is not BEFORE
+
+        `firstAvailableDeliveryDate1` or `firstAvailableDeliveryDate2`. If it
+        is, you will receive an error response.
+
+
         **DDASIT**
 
 
@@ -1227,6 +1244,55 @@ paths:
 
         To create a service item, please use
         [createMTOServiceItem](#mtoServiceItem/createMTOServiceItem)) endpoint.
+
+
+        * Resubmitting rejected SIT service items: This endpoint will handle the
+        logic of changing the status of rejected SIT service items from
+
+        REJECTED to SUBMITTED. Please provide the
+        `requestedApprovalsRequestedStatus: true` when resubmitting as this will
+        give attention to the TOO to
+
+        review the resubmitted SIT service item. Another note, `updateReason`
+        must have a different value than the current `reason` value on the
+        service item.
+
+        If this value is not updated, then an error will be sent back.
+
+
+        The following SIT service items can be resubmitted following a
+        rejection:
+
+        - DDASIT
+
+        - DDDSIT
+
+        - DDFSIT
+
+        - DOASIT
+
+        - DOPSIT
+
+        - DOFSIT
+
+        - DDSFSC
+
+        - DOSFSC
+
+
+        At a MINIMUM, the payload for resubmitting a rejected SIT service item
+        must look like this:
+
+        ```json
+
+        {
+          "reServiceCode": "DDFSIT",
+          "updateReason": "A reason that differs from the previous reason",
+          "modelType": "UpdateMTOServiceItemSIT",
+          "requestApprovalsRequestedStatus": true
+        }
+
+        ```
       operationId: updateMTOServiceItem
       tags:
         - mtoServiceItem
@@ -2041,6 +2107,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -2088,6 +2159,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -2483,9 +2559,13 @@ definitions:
       Using this list, choose the correct modelType in the dropdown,
       corresponding to the service item type.
         * DDDSIT - UpdateMTOServiceItemSIT
+        * DDFSIT - UpdateMTOServiceItemSIT
+        * DDASIT - UpdateMTOServiceItemSIT
         * DOPSIT - UpdateMTOServiceItemSIT
         * DOASIT - UpdateMTOServiceItemSIT
         * DOFSIT - UpdateMTOServiceItemSIT
+        * DOSFSC - UpdateMTOServiceItemSIT
+        * DDSFSC - UpdateMTOServiceItemSIT
         * DDSHUT - UpdateMTOServiceItemShuttle
         * DOSHUT - UpdateMTOServiceItemShuttle
 
@@ -2528,7 +2608,7 @@ definitions:
   UpdateMTOServiceItemSIT:
     description: >
       Subtype used to provide the departure date for origin or destination SIT.
-      This is not creating a new service item but rather updating and existing
+      This is not creating a new service item but rather updating an existing
       service item.
     allOf:
       - $ref: '#/definitions/UpdateMTOServiceItem'
@@ -2540,9 +2620,12 @@ definitions:
             enum:
               - DDDSIT
               - DDASIT
+              - DDFSIT
+              - DDSFSC
               - DOPSIT
               - DOASIT
               - DOFSIT
+              - DOSFSC
           sitDepartureDate:
             format: date
             type: string
@@ -3180,6 +3263,9 @@ definitions:
         $ref: '#/definitions/Entitlements'
       destinationDutyLocation:
         $ref: '#/definitions/DutyLocation'
+      destinationDutyLocationGBLOC:
+        type: string
+        example: KKFA
       originDutyLocation:
         $ref: '#/definitions/DutyLocation'
       originDutyLocationGBLOC:
@@ -3207,7 +3293,7 @@ definitions:
       - REVIEWED
       - REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
       - SENT_TO_GEX
-      - RECEIVED_BY_GEX
+      - TPPS_RECEIVED
       - PAID
       - EDI_ERROR
       - DEPRECATED
@@ -3787,6 +3873,9 @@ definitions:
         * `HHG_INTO_NTS_DOMESTIC` = HHG into Non-temporary storage (NTS)
         * `HHG_OUTOF_NTS_DOMESTIC` = HHG out of Non-temporary storage (NTS Release)
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
+        * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
+        * `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
+        * `MOBILE_HOME` = Mobile Home shipment that a customer may move.
     type: string
     example: HHG
     enum:
@@ -3797,13 +3886,17 @@ definitions:
       - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
-      - MOTORHOME
+      - MOBILE_HOME
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)
       HHG_INTO_NTS_DOMESTIC: HHG into Non-temporary storage (NTS)
       HHG_OUTOF_NTS_DOMESTIC: HHG out of Non-temporary storage (NTS Release)
       PPM: Personally Procured Move also known as Do It Yourself (DITY)
+      BOAT_HAUL_AWAY: >-
+        Boat shipment that requires additional equipment to haul it to it's
+        destination
+      BOAT_TOW_AWAY: Boat shipment that has a road-worthy trailer
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:

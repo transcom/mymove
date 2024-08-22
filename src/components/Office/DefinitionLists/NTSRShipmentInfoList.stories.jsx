@@ -35,6 +35,12 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
+  tertiaryDeliveryAddress: {
+    streetAddress1: '1909 Electric Ave',
+    city: 'Missoula',
+    state: 'MT',
+    postalCode: '59801',
+  },
   mtoAgents: [
     {
       agentType: 'RECEIVING_AGENT',
@@ -94,6 +100,7 @@ export const NTSRWithAllInfo = () => (
       serviceOrderNumber: info.serviceOrderNumber,
       destinationAddress: info.destinationAddress,
       secondaryDeliveryAddress: info.secondaryDeliveryAddress,
+      tertiaryDeliveryAddress: info.tertiaryDeliveryAddress,
       mtoAgents: info.mtoAgents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,

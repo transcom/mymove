@@ -105,6 +105,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                       Customer(&order.ServiceMember),
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   swag.StringValue(order.DestinationGBLOC),
 		Entitlement:                    Entitlement(order.Entitlement),
 		ID:                             strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:             originDutyLocation,
@@ -123,6 +124,7 @@ func Order(order *models.Order) *primev3messages.Order {
 
 	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
+		payload.DestinationDutyLocationGBLOC = "USMC"
 	}
 
 	return &payload
@@ -476,6 +478,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		ShipmentType:                     primev3messages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		ActualProGearWeight:              handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
 		DiversionReason:                  mtoShipment.DiversionReason,

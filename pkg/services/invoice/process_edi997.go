@@ -104,7 +104,7 @@ func (e *edi997Processor) ProcessFile(appCtx appcontext.AppContext, _ string, st
 			return fmt.Errorf("Validation error(s) detected with the EDI997: %w, %v", err, desc)
 		}
 
-		paymentRequest.Status = models.PaymentRequestStatusReceivedByGex
+		paymentRequest.Status = models.PaymentRequestStatusTppsReceived
 		err = txnAppCtx.DB().Update(&paymentRequest)
 		if err != nil {
 			txnAppCtx.Logger().Error("failure updating payment request", zap.Error(err))

@@ -7,7 +7,8 @@ import DocumentViewerSidebar from '../DocumentViewerSidebar/DocumentViewerSideba
 
 import reviewBillableWeightStyles from './ReviewBillableWeight.module.scss';
 
-import { WEIGHT_ADJUSTMENT } from 'constants/shipments';
+import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
+import { WEIGHT_ADJUSTMENT, shipmentModificationTypes } from 'constants/shipments';
 import { MOVES, MTO_SHIPMENTS, ORDERS } from 'constants/queryKeys';
 import { updateMTOShipment, updateMaxBillableWeightAsTIO, updateTIORemarks } from 'services/ghcApi';
 import styles from 'styles/documentViewerWithSidebar.module.scss';
@@ -93,7 +94,8 @@ export default function ReviewBillableWeight() {
     });
   };
 
-  const selectedShipment = filteredShipments ? filteredShipments[selectedShipmentIndex] : {};
+  const selectedShipment =
+    filteredShipments && filteredShipments.length > 0 ? filteredShipments[selectedShipmentIndex] : {};
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
@@ -194,17 +196,32 @@ export default function ReviewBillableWeight() {
     return selectedShipment.primeActualWeight;
   };
 
+  const selectedShipmentIsDiverted = selectedShipment.diversion;
+  const moveContainsDivertedShipment =
+    selectedShipmentIsDiverted || filteredShipments ? filteredShipments.filter((s) => s.diversion).length > 0 : false;
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
+
+  const fileList = getAllFiles();
 
   return (
     <div className={styles.DocumentWrapper}>
       <div className={styles.embed}>
-        <DocumentViewer files={getAllFiles()} />
+        {fileList.length > 0 ? <DocumentViewer files={fileList} /> : <h2>No documents provided</h2>}
       </div>
-      <div className={styles.sidebar}>
+      <div className={reviewBillableWeightStyles.reviewWeightSideBar}>
         {sidebarType === 'MAX' ? (
-          <DocumentViewerSidebar title="Review weights" subtitle="Edit max billable weight" onClose={handleClose}>
+          <DocumentViewerSidebar
+            title="Review weights"
+            subtitle="Edit max billable weight"
+            onClose={handleClose}
+            titleTag={
+              moveContainsDivertedShipment ? (
+                <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.DIVERSION} />
+              ) : null
+            }
+          >
             <DocumentViewerSidebar.Content>
               {totalBillableWeight > maxBillableWeight && (
                 <Alert headingLevel="h4" slim type="error" data-testid="maxBillableWeightAlert">
@@ -251,6 +268,11 @@ export default function ReviewBillableWeight() {
             subtitle="Shipment weights"
             description={`Shipment ${selectedShipmentIndex + 1} of ${filteredShipments?.length}`}
             onClose={handleClose}
+            subtitleTag={
+              selectedShipmentIsDiverted ? (
+                <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.DIVERSION} />
+              ) : null
+            }
           >
             <DocumentViewerSidebar.Content>
               <div className={reviewBillableWeightStyles.contentContainer}>
