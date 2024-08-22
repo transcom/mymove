@@ -2006,17 +2006,17 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			payload  primemessages.UpdateMTOShipment
 		}{
 			{hhgShipment, primemessages.UpdateMTOShipment{
-				ScheduledPickupDate: &schedDate,
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
+				ScheduledPickupDate:  &schedDate,
 			}},
 			{ntsShipment, primemessages.UpdateMTOShipment{
-				ScheduledPickupDate: &schedDate,
-			}},
-			{ntsrShipment, primemessages.UpdateMTOShipment{
-				ScheduledPickupDate: &schedDate,
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&primeEstimatedWeight),
+				ScheduledPickupDate:  &schedDate,
 			}},
 			{ntsrShipment, primemessages.UpdateMTOShipment{
 				NtsRecordedWeight:    handlers.FmtPoundPtr(&updatedWeight),
 				PrimeEstimatedWeight: handlers.FmtPoundPtr(&updatedWeight),
+				ScheduledPickupDate:  &schedDate,
 			}},
 		}
 		for _, testCase := range testCases {
@@ -2045,8 +2045,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			suite.NoError(responsePayload.Validate(strfmt.Default))
 
 			suite.Equal(oldShipment.ID.String(), responsePayload.ID.String())
-			suite.NotNil(*responsePayload.RequiredDeliveryDate)
-			suite.NotNil(*responsePayload.ScheduledPickupDate)
+			suite.NotNil(responsePayload.RequiredDeliveryDate)
+			suite.NotNil(responsePayload.ScheduledPickupDate)
 
 			// Let's double check our maths.
 			expectedRDD := time.Time(*responsePayload.ScheduledPickupDate).AddDate(0, 0, 12)
