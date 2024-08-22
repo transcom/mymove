@@ -30,7 +30,7 @@ export const ZipCityInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={officeUser?.id ? ghcSearchLocationByZipCity : searchLocationByZipCity}
-      handleOnChange={handleZipCityChange}
+      handleZipCityOnChange={handleZipCityChange}
     />
   );
 };
