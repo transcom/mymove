@@ -21,6 +21,9 @@
   h1 {
     font-size: 28px;
     color: $base-darkest;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   h2 {
