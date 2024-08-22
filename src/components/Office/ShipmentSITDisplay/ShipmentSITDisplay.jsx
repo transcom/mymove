@@ -181,20 +181,20 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
       {sitStatus.currentSIT && (
         <>
           <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
-            {/* Sit Start and End table */}
+            {/* Sit Start and End table with total days at current location */}
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
             <DataTable
-              columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
-              dataRow={[sitStartDateElement, sitEndDate, sitStatus.calculatedTotalDaysInSIT]}
+              columnHeaders={[`SIT start date`, 'SIT authorized end date', `Total days in ${currentLocation}`]}
+              dataRow={[sitStartDateElement, sitEndDate, currentDaysInSITElement]}
               custClass={styles.currentLocation}
             />
           </div>
-          <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
-            {/* Total days at current location */}
+          <div className={styles.tableContainer} data-testid="currentSitDepartureDate">
+            {/* Current SIT departure date */}
             <DataTable
-              testID="currentSITDateData"
-              columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
-              dataRow={[currentDaysInSITElement, sitDepartureDate]}
+              testID="currentSITDepartureDate"
+              columnHeaders={[`SIT departure date`]}
+              dataRow={[sitDepartureDate]}
             />
           </div>
         </>

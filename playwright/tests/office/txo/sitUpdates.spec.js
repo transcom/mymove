@@ -24,11 +24,11 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       const target = await page
-        .getByTestId('sitDaysAtCurrentLocation')
+        .getByTestId('currentSitDepartureDate')
         .locator('table[class="DataTable_dataTable__TGt9M table--data-point"]')
         .locator('tbody')
         .locator('td')
-        .nth(1)
+        .nth(0)
         .locator('div')
         .locator('span')
         .textContent();
