@@ -16,6 +16,12 @@ const (
 
 var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
 
+var lockedPriceCents = unit.Cents(8327)
+
+var mtoServiceItem = models.MTOServiceItem{
+	LockedPriceCents: &lockedPriceCents,
+}
+
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	counselingServicesPricer := NewCounselingServicesPricer()
 
@@ -37,7 +43,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, csAvailableToPrimeAt)
+		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -50,7 +56,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	})
 
 	suite.Run("not finding a rate record", func() {
-		_, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), "BOGUS", csAvailableToPrimeAt)
+		_, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
 		suite.Error(err)
 	})
 }

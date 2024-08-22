@@ -37,7 +37,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		priceCents, _, err := managementServicesPricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, msAvailableToPrimeAt)
+		priceCents, _, err := managementServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
 		suite.NoError(err)
 		suite.Equal(msPriceCents, priceCents)
 	})
@@ -54,7 +54,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.Price(suite.AppContextForTest(), "BOGUS", msAvailableToPrimeAt)
+		_, _, err := managementServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
 		suite.Error(err)
 	})
 }

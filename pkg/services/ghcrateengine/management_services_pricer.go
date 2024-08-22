@@ -2,7 +2,8 @@ package ghcrateengine
 
 import (
 	"fmt"
-	"time"
+
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,32 +20,36 @@ func NewManagementServicesPricer() services.ManagementServicesPricer {
 }
 
 // Price determines the price for a management service
-func (p managementServicesPricer) Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, services.PricingDisplayParams, error) {
-	taskOrderFee, err := fetchTaskOrderFee(appCtx, contractCode, models.ReServiceCodeMS, mtoAvailableToPrimeAt)
-	if err != nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not fetch task order fee: %w", err)
+func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem) (unit.Cents, services.PricingDisplayParams, error) {
+
+	if serviceItem.LockedPriceCents == nil {
+		return unit.Cents(0), nil, fmt.Errorf("could not find locked price cents: %s", serviceItem.ID)
 	}
+
 	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(taskOrderFee.PriceCents),
+			Value: FormatCents(*serviceItem.LockedPriceCents),
 		},
 	}
 
-	return taskOrderFee.PriceCents, params, nil
+	return *serviceItem.LockedPriceCents, params, nil
 }
 
 // PriceUsingParams determines the price for a management service given PaymentServiceItemParams
-func (p managementServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
-	contractCode, err := getParamString(params, models.ServiceItemParamNameContractCode)
-	if err != nil {
-		return unit.Cents(0), nil, err
+func (p counselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+
+	var serviceItem models.MTOServiceItem
+	for _, param := range params {
+		if param.PaymentServiceItem.MTOServiceItem.LockedPriceCents != nil {
+			serviceItem = param.PaymentServiceItem.MTOServiceItem
+			break
+		}
 	}
 
-	mtoAvailableToPrimeAt, err := getParamTime(params, models.ServiceItemParamNameMTOAvailableToPrimeAt)
-	if err != nil {
-		return unit.Cents(0), nil, err
+	if serviceItem.ID == uuid.Nil {
+		return unit.Cents(0), nil, fmt.Errorf("could not find id for shipment")
 	}
 
-	return p.Price(appCtx, contractCode, mtoAvailableToPrimeAt)
+	return p.Price(appCtx, serviceItem)
 }
