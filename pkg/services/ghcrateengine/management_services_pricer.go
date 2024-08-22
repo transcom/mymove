@@ -3,8 +3,6 @@ package ghcrateengine
 import (
 	"fmt"
 
-	"github.com/gofrs/uuid"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -47,8 +45,8 @@ func (p counselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext,
 		}
 	}
 
-	if serviceItem.ID == uuid.Nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not find id for shipment")
+	if serviceItem.LockedPriceCents == nil {
+		return unit.Cents(0), nil, fmt.Errorf("Service item did not contain value for locked price cents")
 	}
 
 	return p.Price(appCtx, serviceItem)
