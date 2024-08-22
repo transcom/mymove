@@ -92,6 +92,7 @@
     "loader-utils": "^2.0.3",
     "minimist": "^1.2.6",
     "node-fetch": "^2.6.7",
+    "react": "^17.0.1",
     "react-router": "6.24.1",
     "react-router-dom": "6.24.1",
     "recursive-readdir": "^2.2.3",
