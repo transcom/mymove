@@ -80,7 +80,22 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
 
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleChange, handleSubmit, setFieldTouched, values }) => {
+      {({ isValid, isSubmitting, handleChange, setFieldTouched, handleSubmit, values, setValues }) => {
+        const handleZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              w2Address: {
+                ...values.backup_mailing_address,
+                city: value.city,
+                state: value.state ? value.state : '',
+                county: value.county,
+                postalCode: value.postalCode,
+              },
+            },
+            { shouldValidate: true },
+          );
+        };
         return (
           <div className={classnames(ppmStyles.formContainer, styles.AboutForm)}>
             <Form className={classnames(formStyles.form, ppmStyles.form, styles.W2Address)} data-testid="aboutForm">
@@ -234,7 +249,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </FormGroup>
                 <h2>W-2 address</h2>
                 <p>What is the address on your W-2?</p>
-                <AddressFields name={formFieldsName} className={styles.AddressFieldSet} />
+                <AddressFields name={formFieldsName} zipCityEnabled handleZipCityChange={handleZipCityChange} />
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>
