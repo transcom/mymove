@@ -1767,6 +1767,7 @@ definitions:
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -1774,6 +1775,7 @@ definitions:
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1815,6 +1817,8 @@ definitions:
         $ref: "definitions/PPMShipment.yaml"
       boatShipment:
         $ref: "definitions/BoatShipment.yaml"
+      mobileHomeShipment:
+        $ref: "definitions/MobileHome.yaml"
       shipmentType:
         $ref: "#/definitions/MTOShipmentType"
       status:
@@ -1887,6 +1891,8 @@ definitions:
         $ref: "#/definitions/CreatePPMShipment"
       boatShipment:
         $ref: "#/definitions/CreateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/CreateMobileHomeShipment"
       requestedPickupDate:
         format: date
         type: string
@@ -2142,6 +2148,60 @@ definitions:
         type: boolean
         description: Is the trailer roadworthy
         x-nullable: true
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
+  UpdateMobileHomeShipment:
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Mobile Home
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Mobile Home
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -2153,6 +2213,8 @@ definitions:
         $ref: "#/definitions/UpdatePPMShipment"
       boatShipment:
         $ref: "#/definitions/UpdateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/UpdateMobileHomeShipment"
       requestedPickupDate:
         format: date
         type: string
@@ -2322,6 +2384,23 @@ definitions:
       - date
       - is_weekend
       - is_holiday
+  CounselingOffices:
+    type: array
+    items:
+      $ref: "#/definitions/CounselingOffice"
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
 paths:
   /feature-flags/user-boolean/{key}:
     post:
@@ -3555,6 +3634,29 @@ paths:
           description: user is not authorized
         "404":
           description: matching duty location not found
+        "500":
+          description: internal server error
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: Returns the counseling locations matching the GBLOC from the selected duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportation_offices
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: the instance of the counseling office for a duty location
+          schema:
+            $ref: "#/definitions/CounselingOffices"
         "500":
           description: internal server error
   /duty_locations/{dutyLocationId}/transportation_office:
