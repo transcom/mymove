@@ -5,6 +5,8 @@ import { object, text } from '@storybook/addon-knobs';
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -141,7 +143,11 @@ describe('NTSR Shipment Info', () => {
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <NTSRShipmentInfoList isExpanded shipment={shipment} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         const shipmentFieldElement = screen.getByTestId(shipmentField);
         expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);

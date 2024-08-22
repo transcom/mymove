@@ -4,6 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import NTSShipmentInfoList from './NTSShipmentInfoList';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -82,7 +84,11 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         const shipmentFieldElement = screen.getByTestId(shipmentField);
         expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
