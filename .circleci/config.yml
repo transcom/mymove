@@ -23,7 +23,7 @@ references:
   # see milmove_load_testing for the right config
   load_tester: &load_tester cimg/python:3.11.3
 
-  postgres: &postgres cimg/postgres:16.0
+  postgres: &postgres cimg/postgres:12.11
 
   redis: &redis redis:5.0.6
 
