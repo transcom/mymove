@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset } from '@trussworks/react-uswds';
+import { Fieldset, Alert } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
@@ -29,6 +29,7 @@ export const AddressFields = ({
   render,
   validators,
   zipCityEnabled,
+  zipCityError,
   handleZipCityChange,
   formikFunctionsToValidatePostalCodeOnChange,
 }) => {
@@ -124,9 +125,17 @@ export const AddressFields = ({
                 displayAddress={false}
                 handleZipCityChange={handleZipCityChange}
               />
-              <p data-testid="inaccurateInfo">
-                If you encounter any inaccurate lookup information please contact the Help Desk for further assistance.
-              </p>
+              {!zipCityError && (
+                <Alert type="info" aria-live="polite" headingLevel="h4">
+                  If you encounter any inaccurate lookup information please contact the Help Desk for further
+                  assistance.
+                </Alert>
+              )}
+              {zipCityError && (
+                <Alert type="error" aria-live="polite" headingLevel="h4">
+                  Not all data was able to populate successfully. Contact the Help Desk for further assistance.
+                </Alert>
+              )}
             </>
           )}
           <div className="grid-row grid-gap">
@@ -165,6 +174,7 @@ AddressFields.propTypes = {
   name: PropTypes.string.isRequired,
   render: PropTypes.func,
   zipCityEnabled: PropTypes.bool,
+  zipCityError: PropTypes.bool,
   handleZipCityChange: PropTypes.func,
   validators: PropTypes.shape({
     streetAddress1: PropTypes.func,
@@ -185,6 +195,7 @@ AddressFields.defaultProps = {
   className: '',
   render: (fields) => fields,
   zipCityEnabled: false,
+  zipCityError: false,
   handleZipCityChange: null,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
