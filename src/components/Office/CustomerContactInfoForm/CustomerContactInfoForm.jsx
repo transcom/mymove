@@ -68,10 +68,10 @@ const CustomerContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
                     ...values,
                     backupAddress: {
                       ...values.backupAddress,
-                      city: value.city,
+                      city: value.city ? value.city : '',
                       state: value.state ? value.state : '',
-                      county: value.county,
-                      postalCode: value.postalCode,
+                      county: value.county ? value.county : '',
+                      postalCode: value.postalCode ? value.postalCode : '',
                     },
                   },
                   { shouldValidate: true },
