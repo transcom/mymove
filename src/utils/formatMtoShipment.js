@@ -252,7 +252,7 @@ export function formatMtoShipmentForDisplay({
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
-    displayValues.hasDeliveryAddress = 'yes';
+    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'yes';
   }
 
   if (destinationType) {
@@ -509,6 +509,15 @@ export function toTotalInches(feet, inches) {
   return (Number(feet) || 0) * 12 + (Number(inches) || 0);
 }
 
+// Convert inches to feet and inches
+export function convertInchesToFeetAndInches(totalInches) {
+  if (!totalInches) return { feet: '', inches: '' };
+
+  const feet = Math.floor(totalInches / 12).toString();
+  const inches = (totalInches % 12).toString();
+  return { feet, inches };
+}
+
 export default {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
@@ -517,4 +526,5 @@ export default {
   removeEtag,
   getMtoShipmentLabel,
   toTotalInches,
+  convertInchesToFeetAndInches,
 };
