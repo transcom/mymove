@@ -1,4 +1,4 @@
-import React from 'react';
+import { React, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -15,6 +15,7 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
   const validationSchema = Yup.object().shape({
     [formFieldsName]: requiredAddressSchema.required(),
   });
+  const [isLookupErrorVisible, setIsLookupErrorVisible] = useState(false);
 
   return (
     <Formik
@@ -39,6 +40,12 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             },
             { shouldValidate: true },
           );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsLookupErrorVisible(true);
+          } else {
+            setIsLookupErrorVisible(false);
+          }
         };
 
         return (
@@ -51,7 +58,12 @@ const BackupAddressForm = ({ formFieldsName, initialValues, onSubmit, onBack }) 
             </p>
 
             <SectionWrapper className={formStyles.formSection}>
-              <AddressFields name={formFieldsName} zipCityEnabled handleZipCityChange={handleZipCityChange} />
+              <AddressFields
+                name={formFieldsName}
+                zipCityEnabled
+                zipCityError={isLookupErrorVisible}
+                handleZipCityChange={handleZipCityChange}
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
