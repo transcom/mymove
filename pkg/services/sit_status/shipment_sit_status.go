@@ -138,23 +138,24 @@ func containsReServiceCode(validCodes []models.ReServiceCode, code models.ReServ
 }
 
 // Helper function to generate the SIT Summary for a group of service items
+// This is where the craziest part of the SIT code should ever be (Besides the grouping section)
+// Due to our service item architecture, SIT is split across many service items
+// and due to existing handlers and service objects, it's possible these SIT service items
+// will have discrepancies and information spread across multiple items.
+// This SIT summary is to make it readable down the line, and handle all complex calculations
+// in one, central location.
 func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping, today time.Time) *models.SITSummary {
 	if sit.ServiceItems == nil {
 		// Return nil if there are no service items
 		return nil
 	}
-	// This is where the craziest part of the code should ever be (Besides the grouping section)
-	// Due to our service item architecture, SIT is split across many service items
-	// and due to existing handlers and service objects, it's possible these SIT service items
-	// will have discrepancies and information spread across multiple items.
-	// This SIT summary is to make it readable down the line, and handle all complex calculations
-	// in one, central location.
+
 	var earliestSITEntryDate *time.Time
 	var earliestSITDepartureDate *time.Time
 	var earliestSITAuthorizedEndDate *time.Time
 	var earliestSITCustomerContacted *time.Time
 	var earliestSITRequestedDelivery *time.Time
-	var calculatedTotalDaysInSIT *int
+	var calculatedTotalDaysInSIT int
 	var location string
 	var firstDaySITServiceItemID uuid.UUID
 
@@ -191,18 +192,21 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 		if earliestSITDepartureDate == nil || (sitServiceItem.SITDepartureDate != nil && sitServiceItem.SITDepartureDate.Before(*earliestSITDepartureDate)) {
 			earliestSITDepartureDate = sitServiceItem.SITDepartureDate
 		}
+	}
 
-		// Grab the earliest SIT Authorized End Date
-		// based off of the provided earliest SIT entry date
-		// retrieving the authorized end date requires a SIT entry date
-		if earliestSITAuthorizedEndDate == nil && earliestSITEntryDate != nil {
-			daysInSIT := daysInSIT(*earliestSITEntryDate, earliestSITDepartureDate, today)
-			calculatedTotalDaysInSIT = &daysInSIT
-			earliestSITAuthorizedEndDateValue := CalculateSITAuthorizedEndDate(len(sit.ServiceItems), daysInSIT, *earliestSITEntryDate, *calculatedTotalDaysInSIT)
-			earliestSITAuthorizedEndDate = &earliestSITAuthorizedEndDateValue
-		}
+	// Calculate the days in SIT based on the earliest SIT entry date and earliest SIT departure date if any were discovered from the SIT group
+	if earliestSITEntryDate != nil {
+		calculatedTotalDaysInSIT = daysInSIT(*earliestSITEntryDate, earliestSITDepartureDate, today)
+	}
 
-		// Grab the first Customer Contacted
+	// Calculate the SIT Authorized End Date
+	if earliestSITEntryDate != nil {
+		earliestSITAuthorizedEndDateValue := CalculateSITAuthorizedEndDate(len(sit.ServiceItems), calculatedTotalDaysInSIT, *earliestSITEntryDate, calculatedTotalDaysInSIT)
+		earliestSITAuthorizedEndDate = &earliestSITAuthorizedEndDateValue
+	}
+
+	// Grab the first Customer Contacted
+	for _, sitServiceItem := range sit.ServiceItems {
 		if earliestSITCustomerContacted == nil && sitServiceItem.SITCustomerContacted != nil {
 			earliestSITCustomerContacted = sitServiceItem.SITCustomerContacted
 		}
@@ -216,7 +220,7 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 	return &models.SITSummary{
 		FirstDaySITServiceItemID: firstDaySITServiceItemID,
 		Location:                 location,
-		DaysInSIT:                *calculatedTotalDaysInSIT,
+		DaysInSIT:                calculatedTotalDaysInSIT,
 		SITEntryDate:             *earliestSITEntryDate,
 		SITDepartureDate:         earliestSITDepartureDate,
 		SITAuthorizedEndDate:     *earliestSITAuthorizedEndDate,
