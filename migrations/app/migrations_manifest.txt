@@ -977,4 +977,8 @@
 20240801135811_create_mobile_home.up.sql
 20240801135833_alter_mto_shipment_type_motorhome.up.sql
 20240805234231_update_us_post_region_cities_state.up.sql
+20240806151051_update_pws_violations.up.sql
 20240814144527_remove_allow_pptas_client.up.sql
+20240816200315_update_pws_violations_pt2.up.sql
+20240819164156_update_pws_violations_pt3.up.sql
+20240820125856_allow_pptas_migration.up.sql
