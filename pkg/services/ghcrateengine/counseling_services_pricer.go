@@ -46,7 +46,7 @@ func (p managementServicesPricer) PriceUsingParams(appCtx appcontext.AppContext,
 	}
 
 	if serviceItem.LockedPriceCents == nil {
-		return unit.Cents(0), nil, fmt.Errorf("Service item did not contain value for locked price cents")
+		return unit.Cents(0), nil, fmt.Errorf("service item did not contain value for locked price cents")
 	}
 
 	return p.Price(appCtx, serviceItem)

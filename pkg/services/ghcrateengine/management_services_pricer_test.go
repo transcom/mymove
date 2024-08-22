@@ -54,7 +54,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceManagementServices() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeMS, msPriceCents)
 		managementServicesPricer := NewManagementServicesPricer()
 
-		_, _, err := managementServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
+		_, _, err := managementServicesPricer.Price(suite.AppContextForTest(), failedMtoServiceItem)
 		suite.Error(err)
 	})
 }
