@@ -884,7 +884,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -898,7 +898,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -7463,7 +7463,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -7948,6 +7949,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -8910,6 +8917,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -9319,6 +9331,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -14623,7 +14640,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -14637,7 +14654,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -22397,7 +22414,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -22882,6 +22900,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -23844,6 +23868,11 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -24253,6 +24282,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
