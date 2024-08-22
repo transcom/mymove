@@ -336,9 +336,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	}
 	sswPage1 := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 
-	// Todo: Mock certification and check it here
-	// suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
-
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("E-9", sswPage1.RankGrade)
 	suite.Equal("Air Force", sswPage1.ServiceBranch)
