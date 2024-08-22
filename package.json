@@ -193,9 +193,6 @@
     "moduleNameMapper": {
       "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js",
       "@transcom/react-file-viewer": "<rootDir>/node_modules/@transcom/react-file-viewer/dist/index.js"
-    },
-    "transform": {
-      "^.+\\.jsx?$": ["babel-jest", { "configFile": "./babel.config.js" }]
     }
   }
 }
