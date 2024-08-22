@@ -655,7 +655,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightFinal() {
 	suite.Equal("1,000 lbs - Actual", FormatPPMWeightFinal(pounds))
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertifications() {
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAOASignedCertifications() {
 	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
 	testDate := time.Now() // due to using updatedAt, time.Now() needs to be used to test cert times and dates
 	aoaCertifications := Certifications{
@@ -715,6 +715,43 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertification
 
 	formattedSignature = formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
 	formattedDate = formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
+	suite.Equal(prepSSWDate, formattedDate)
+	suite.Equal(sswCertifications, formattedSignature)
+
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWSignedCertifications() {
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	testDate := time.Now() // due to using updatedAt, time.Now() needs to be used to test cert times and dates
+	sswCertifications := Certifications{
+		CustomerField: "",
+		OfficeField:   "AOA: \nSSW: Firstname Lastname",
+		DateField:     "AOA: " + "\nSSW: " + FormatDate(testDate),
+	}
+	prepSSWDate := FormatDate(testDate)
+
+	var certs []*models.SignedCertification
+
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SignedCertification{
+				CertificationType: &signedCertType,
+				CertificationText: "APPROVED",
+				Signature:         "Firstname Lastname",
+				UpdatedAt:         testDate,
+				PpmID:             models.UUIDPointer(move.MTOShipments[0].PPMShipment.ID),
+			},
+		},
+	}, nil)
+	certs = append(certs, &ppmPaymentsignedCertification)
+
+	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedDate := formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
 	suite.Equal(prepSSWDate, formattedDate)
 	suite.Equal(sswCertifications, formattedSignature)
 
