@@ -2002,6 +2002,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 		tenDaysFromNow := now.AddDate(0, 0, 11)
 		schedDate := strfmt.Date(tenDaysFromNow)
 
+		updatedWeight := unit.Pound(1000)
+
 		testCases := []struct {
 			shipment models.MTOShipment
 			payload  primemessages.UpdateMTOShipment
@@ -2015,7 +2017,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 				ScheduledPickupDate:  &schedDate,
 			}},
 			{ntsrShipment, primemessages.UpdateMTOShipment{
-				ScheduledPickupDate: &schedDate,
+				NtsRecordedWeight:    handlers.FmtPoundPtr(&updatedWeight),
+				PrimeEstimatedWeight: handlers.FmtPoundPtr(&updatedWeight),
+				ScheduledPickupDate:  &schedDate,
 			}},
 		}
 		for _, testCase := range testCases {
@@ -2053,6 +2057,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 			suite.Equal(expectedRDD.Year(), actualRDD.Year())
 			suite.Equal(expectedRDD.Month(), actualRDD.Month())
 			suite.Equal(expectedRDD.Day(), actualRDD.Day())
+
+			suite.NotEqual(responsePayload.NtsRecordedWeight, updatedWeight)
+			suite.NotEqual(responsePayload.PrimeEstimatedWeight, updatedWeight)
 
 			// Confirm PATCH working as expected; non-updated value still exists
 			if testCase.shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom { //ntsr doesn't have a RequestedPickupDate
