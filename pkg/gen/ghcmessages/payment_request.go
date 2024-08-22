@@ -87,6 +87,13 @@ type PaymentRequest struct {
 
 	// status
 	Status PaymentRequestStatus `json:"status,omitempty"`
+
+	// Total amount that TPPS paid for all service items on the payment request in millicents
+	TppsInvoiceAmountPaidTotalMillicents *int64 `json:"tppsInvoiceAmountPaidTotalMillicents,omitempty"`
+
+	// Date that TPPS paid HS for the payment request
+	// Format: date-time
+	TppsInvoiceSellerPaidDate *strfmt.DateTime `json:"tppsInvoiceSellerPaidDate,omitempty"`
 }
 
 // Validate validates this payment request
@@ -134,6 +141,10 @@ func (m *PaymentRequest) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateStatus(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTppsInvoiceSellerPaidDate(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -291,6 +302,18 @@ func (m *PaymentRequest) validateStatus(formats strfmt.Registry) error {
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
 		}
+		return err
+	}
+
+	return nil
+}
+
+func (m *PaymentRequest) validateTppsInvoiceSellerPaidDate(formats strfmt.Registry) error {
+	if swag.IsZero(m.TppsInvoiceSellerPaidDate) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("tppsInvoiceSellerPaidDate", "body", "date-time", m.TppsInvoiceSellerPaidDate.String(), formats); err != nil {
 		return err
 	}
 

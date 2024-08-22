@@ -9,6 +9,7 @@ export const roleTypes = {
   QAE: 'qae',
   HQ: 'headquarters',
   CUSTOMER_SERVICE_REPRESENTATIVE: 'customer_service_representative',
+  GSR: 'gsr',
 };
 
 export const adminOfficeRoles = [
@@ -21,6 +22,7 @@ export const adminOfficeRoles = [
   { roleType: 'qae', name: 'Quality Assurance Evaluator' },
   { roleType: 'headquarters', name: 'Headquarters' },
   { roleType: 'customer_service_representative', name: 'Customer Service Representative' },
+  { roleType: 'gsr', name: 'Government Surveillance Representative' },
 ];
 
 export const officeRoles = [
@@ -31,4 +33,5 @@ export const officeRoles = [
   roleTypes.QAE,
   roleTypes.HQ,
   roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+  roleTypes.GSR,
 ];
