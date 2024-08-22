@@ -18,6 +18,8 @@ import {
 } from 'utils/displayFlags';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -26,6 +28,7 @@ const NTSRShipmentInfoList = ({
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
   isForEvaluationReport,
 }) => {
   const {
@@ -61,7 +64,7 @@ const NTSRShipmentInfoList = ({
     warning: shipmentDefinitionListsStyles.warning,
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
 
   const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
   useEffect(() => {
@@ -120,12 +123,14 @@ const NTSRShipmentInfoList = ({
 
   const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
   const requestedPickupDateElement = (
-    <div className={requestedPickupDateElementFlags.classes}>
-      <dt>Requested pickup date</dt>
-      <dd data-testid="requestedPickupDate">
-        {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
-      </dd>
-    </div>
+    <Restricted to={permissionTypes.updateShipment}>
+      <div className={requestedPickupDateElementFlags.classes}>
+        <dt>Requested pickup date</dt>
+        <dd data-testid="requestedPickupDate">
+          {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+        </dd>
+      </div>
+    </Restricted>
   );
 
   const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
@@ -297,7 +302,7 @@ const NTSRShipmentInfoList = ({
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
-      {requestedPickupDateElement}
+      {showElement(requestedPickupDateElementFlags) && requestedPickupDateElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
@@ -359,6 +364,7 @@ NTSRShipmentInfoList.propTypes = {
   warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
   errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
   isForEvaluationReport: PropTypes.bool,
 };
 
@@ -368,6 +374,7 @@ NTSRShipmentInfoList.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
   isForEvaluationReport: false,
 };
 
