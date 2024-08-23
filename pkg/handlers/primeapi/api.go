@@ -14,6 +14,7 @@ import (
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoagent "github.com/transcom/mymove/pkg/services/mto_agent"
@@ -137,7 +138,8 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
-	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+	shipmentUpdater := shipment.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	primeAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
 		handlerConfig,
@@ -176,9 +178,10 @@ func NewPrimeAPI(handlerConfig handlers.HandlerConfig) *primeoperations.MymoveAP
 	mtoShipmentCreator := mtoshipment.NewMTOShipmentCreatorV1(builder, fetcher, moveRouter, addressCreator)
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
+	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
 	primeAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,

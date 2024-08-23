@@ -12,9 +12,9 @@ import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { customerRoutes, generalRoutes } from 'constants/routes';
 import { boatShipmentTypes } from 'constants/shipments';
 import pageStyles from 'pages/MyMove/PPM/PPM.module.scss';
-import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
+import { createMTOShipment, patchMTOShipment, deleteMTOShipment, getAllMoves } from 'services/internalApi';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
-import { updateMTOShipment } from 'store/entities/actions';
+import { updateMTOShipment, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
 import { MoveShape, ServiceMemberShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
@@ -30,6 +30,7 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
   const [boatShipmentObj, setBoatShipmentObj] = useState(null);
   const [submitValues, setSubmitValues] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const navigate = useNavigate();
   const { moveId } = useParams();
@@ -37,6 +38,7 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const shipmentNumber = searchParams.get('shipmentNumber');
+  const isEditPage = location?.pathname?.includes('/edit');
 
   const isNewShipment = !mtoShipment?.id;
 
@@ -93,75 +95,103 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
     setShowBoatConfirmationModal(false);
   };
 
-  const handleConfirmationSubmit = async () => {
+  const redirectShipment = () => {
+    setTimeout(() => {
+      scrollToTop();
+      const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId });
+      navigate(`${createShipmentPath}?type=${SHIPMENT_TYPES.HHG}`, {
+        state: {
+          mtoShipment,
+        },
+      });
+    }, 100);
+  };
+
+  const handleConfirmationDeleteAndRedirect = () => {
+    if (isDeleting || isSubmitting) return;
+    setIsDeleting(true);
+
+    deleteMTOShipment(mtoShipment?.id)
+      .then(() => {
+        getAllMoves(serviceMember.id).then((res) => {
+          updateAllMoves(res);
+        });
+        redirectShipment();
+      })
+      .catch(() => {
+        const errorMsg = 'There was an error attempting to delete your shipment.';
+        setErrorMessage(errorMsg);
+      })
+      .finally(() => {
+        setIsDeleting(false);
+        setShowBoatConfirmationModal(false);
+      });
+  };
+
+  const handleConfirmationRedirect = () => {
+    setShowBoatConfirmationModal(false);
+    setIsSubmitting(false);
+    redirectShipment();
+  };
+
+  // Submit as a Boat shipment
+  const handleConfirmationContinue = async () => {
     const values = submitValues;
+    setIsSubmitting(true);
+    setErrorMessage(null);
 
-    // Submit as a Boat shipment
-    if (isDimensionsMeetReq) {
-      setIsSubmitting(true);
-      setErrorMessage(null);
+    const mtoShipmentType =
+      boatShipmentObj?.type === boatShipmentTypes.TOW_AWAY
+        ? SHIPMENT_TYPES.BOAT_TOW_AWAY
+        : SHIPMENT_TYPES.BOAT_HAUL_AWAY;
 
-      const mtoShipmentType =
-        boatShipmentObj?.type === boatShipmentTypes.TOW_AWAY
-          ? SHIPMENT_TYPES.BOAT_TOW_AWAY
-          : SHIPMENT_TYPES.BOAT_HAUL_AWAY;
+    const createOrUpdateShipment = {
+      moveTaskOrderID: moveId,
+      shipmentType: mtoShipmentType,
+      boatShipment: { ...boatShipmentObj },
+      customerRemarks: values.customerRemarks,
+    };
 
-      const createOrUpdateShipment = {
-        moveTaskOrderID: moveId,
-        shipmentType: mtoShipmentType,
-        boatShipment: { ...boatShipmentObj },
-        customerRemarks: values.customerRemarks,
-      };
-
-      if (isNewShipment) {
-        createMTOShipment(createOrUpdateShipment)
-          .then((shipmentResponse) => {
-            onShipmentSaveSuccess(shipmentResponse);
-          })
-          .catch((e) => {
-            const { response } = e;
-            let errorMsg = 'There was an error attempting to create your shipment.';
-            if (response?.body?.invalidFields) {
-              const keys = Object.keys(response?.body?.invalidFields);
-              const firstError = response?.body?.invalidFields[keys[0]][0];
-              errorMsg = firstError;
-            }
-            setShowBoatConfirmationModal(false);
-            setIsSubmitting(false);
-            setErrorMessage(errorMsg);
-          });
-      } else {
-        createOrUpdateShipment.id = mtoShipment.id;
-        createOrUpdateShipment.boatShipment.id = mtoShipment.boatShipment?.id;
-
-        patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
-          .then((shipmentResponse) => {
-            onShipmentSaveSuccess(shipmentResponse);
-          })
-          .catch((e) => {
-            const { response } = e;
-            let errorMsg = 'There was an error attempting to update your shipment.';
-            if (response?.body?.invalidFields) {
-              const keys = Object.keys(response?.body?.invalidFields);
-              const firstError = response?.body?.invalidFields[keys[0]][0];
-              errorMsg = firstError;
-            }
-            setErrorMessage(errorMsg);
-            setShowBoatConfirmationModal(false);
-            setIsSubmitting(false);
-          });
-      }
+    if (isNewShipment) {
+      createMTOShipment(createOrUpdateShipment)
+        .then((shipmentResponse) => {
+          onShipmentSaveSuccess(shipmentResponse);
+        })
+        .catch((e) => {
+          const { response } = e;
+          let errorMsg = 'There was an error attempting to create your shipment.';
+          if (response?.body?.invalidFields) {
+            const keys = Object.keys(response?.body?.invalidFields);
+            const firstError = response?.body?.invalidFields[keys[0]][0];
+            errorMsg = firstError;
+          }
+          setShowBoatConfirmationModal(false);
+          setIsSubmitting(false);
+          setErrorMessage(errorMsg);
+        });
     } else {
-      // Redirect to HHG shipment
-      setShowBoatConfirmationModal(false);
-      setIsSubmitting(false);
-      setTimeout(() => {
-        scrollToTop();
-        const createShipmentPath = generatePath(customerRoutes.SHIPMENT_CREATE_PATH, { moveId });
-        navigate(`${createShipmentPath}?type=${SHIPMENT_TYPES.HHG}`);
-      }, 100);
+      createOrUpdateShipment.id = mtoShipment.id;
+      createOrUpdateShipment.boatShipment.id = mtoShipment.boatShipment?.id;
+
+      patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
+        .then((shipmentResponse) => {
+          onShipmentSaveSuccess(shipmentResponse);
+        })
+        .catch((e) => {
+          const { response } = e;
+          let errorMsg = 'There was an error attempting to update your shipment.';
+          if (response?.body?.invalidFields) {
+            const keys = Object.keys(response?.body?.invalidFields);
+            const firstError = response?.body?.invalidFields[keys[0]][0];
+            errorMsg = firstError;
+          }
+          setErrorMessage(errorMsg);
+          setShowBoatConfirmationModal(false);
+          setIsSubmitting(false);
+        });
     }
   };
+
   // open confirmation modal to validate boat shipment
   const handleSubmit = async (values) => {
     const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
@@ -224,8 +254,11 @@ const BoatShipmentCreate = ({ mtoShipment, serviceMember, destinationDutyLocatio
         boatShipmentType={boatShipmentObj?.type}
         isOpen={showBoatConfirmationModal}
         closeModal={closeBoatConfirmationModal}
-        handleConfirmationSubmit={handleConfirmationSubmit}
+        handleConfirmationContinue={handleConfirmationContinue}
+        handleConfirmationRedirect={handleConfirmationRedirect}
+        handleConfirmationDeleteAndRedirect={handleConfirmationDeleteAndRedirect}
         isSubmitting={isSubmitting}
+        isEditPage={isEditPage}
       />
     </>
   );

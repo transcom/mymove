@@ -20,6 +20,11 @@ import (
 // swagger:model ListPrimeMove
 type ListPrimeMove struct {
 
+	// approved at
+	// Read Only: true
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
+
 	// available to prime at
 	// Read Only: true
 	// Format: date-time
@@ -70,6 +75,10 @@ type ListPrimeMove struct {
 func (m *ListPrimeMove) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateApprovedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateAvailableToPrimeAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -97,6 +106,18 @@ func (m *ListPrimeMove) Validate(formats strfmt.Registry) error {
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ListPrimeMove) validateApprovedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -206,6 +227,10 @@ func (m *ListPrimeMove) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *ListPrimeMove) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateApprovedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateAvailableToPrimeAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -229,6 +254,15 @@ func (m *ListPrimeMove) ContextValidate(ctx context.Context, formats strfmt.Regi
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *ListPrimeMove) contextValidateApprovedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "approvedAt", "body", m.ApprovedAt); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -15,9 +15,11 @@ const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+  let tac;
   test.describe('with unapproved HHG + NTS Move', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSShipmentsForTOO();
+      tac = await officePage.testHarness.buildGoodTACAndLoaCombination();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
       await tooFlowPage.waitForLoading();
@@ -174,6 +176,44 @@ test.describe('TOO user', () => {
 
       await expect(details.locator('section header').last().getByText('Accounting codes')).toBeVisible();
       await expect(details.locator('section').last()).toContainText('F123');
+    });
+
+    test('NTS LOA populates on orders page with good TGET data for TOO', async ({ page }) => {
+      await page.getByTestId('edit-orders').click();
+
+      // Fill out the orders details
+      await page.getByLabel('Orders number').fill('1234');
+      await page.getByLabel('Date issued').fill('1234');
+      await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
+      await page
+        .getByLabel('Orders type', { exact: true })
+        .selectOption({ label: 'Permanent Change Of Station (PCS)' });
+      await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
+
+      // Fill out the HHG and NTS accounting codes
+      await page.getByTestId('hhgTacInput').fill(tac.tac);
+      const today = new Date();
+      const formattedDate = new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(today);
+      await page.locator('input[name="issueDate"]').fill(formattedDate);
+
+      await page.getByTestId('hhgSacInput').fill('4K988AS098F');
+      // "GOOD" is a hard-set GOOD TAC by the e2e seed data
+      // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
+      await page.getByTestId('ntsTacInput').fill(tac.tac);
+      const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
+      await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
+
+      const loaMissingErrorMessage = page.getByText('Unable to find a LOA based on the provided details');
+      const loaInvalidErrorMessage = page.getByText(
+        'The LOA identified based on the provided details appears to be invalid',
+      );
+
+      await expect(loaMissingErrorMessage).not.toBeVisible();
+      await expect(loaInvalidErrorMessage).not.toBeVisible();
     });
   });
 
