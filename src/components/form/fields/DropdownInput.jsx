@@ -4,13 +4,24 @@ import { v4 as uuidv4 } from 'uuid';
 import { useField } from 'formik';
 import { Dropdown, FormGroup, Label } from '@trussworks/react-uswds';
 
+import { RequiredTag } from 'components/form/RequiredTag';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 // import { OptionalTag } from 'components/form/OptionalTag';
 import { DropdownArrayOf } from 'types/form';
 import './DropdownInput.module.scss';
 
 export const DropdownInput = (props) => {
-  const { id, name, label, options, showDropdownPlaceholderText, isDisabled, disableErrorLabel, ...inputProps } = props;
+  const {
+    id,
+    name,
+    label,
+    options,
+    showDropdownPlaceholderText,
+    isDisabled,
+    disableErrorLabel,
+    required,
+    ...inputProps
+  } = props;
   const [field, meta] = useField(props);
   const hasError = disableErrorLabel ? false : meta.touched && !!meta.error;
 
@@ -23,11 +34,11 @@ export const DropdownInput = (props) => {
         <Label error={hasError} htmlFor={inputId.current}>
           {label}
         </Label>
-        {/* {optional && <OptionalTag />} */}
+        {required && <RequiredTag />}
       </div>
       <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
       {/* eslint-disable-next-line react/jsx-props-no-spreading */}
-      <Dropdown id={inputId.current} {...field} disabled={isDisabled} {...inputProps}>
+      <Dropdown required={required} id={inputId.current} {...field} disabled={isDisabled} {...inputProps}>
         {showDropdownPlaceholderText && <option value="">- Select -</option>}
         {options &&
           options.map(({ key, value }) => (

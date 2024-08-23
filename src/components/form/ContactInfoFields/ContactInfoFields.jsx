@@ -6,15 +6,24 @@ import { Fieldset } from '@trussworks/react-uswds';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 
-export const ContactInfoFields = ({ legend, className, name, render }) => {
+export const ContactInfoFields = ({ legend, className, name, render, optional }) => {
   const contactInfoFieldsUUID = uuidv4();
-
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
-          <TextField label="First name" id={`firstName_${contactInfoFieldsUUID}`} name={`${name}.firstName`} />
-          <TextField label="Last name" id={`lastName_${contactInfoFieldsUUID}`} name={`${name}.lastName`} />
+          <TextField
+            label="First name"
+            id={`firstName_${contactInfoFieldsUUID}`}
+            name={`${name}.firstName`}
+            optional={optional}
+          />
+          <TextField
+            label="Last name"
+            id={`lastName_${contactInfoFieldsUUID}`}
+            name={`${name}.lastName`}
+            optional={optional}
+          />
 
           <MaskedTextField
             label="Phone"
@@ -23,10 +32,10 @@ export const ContactInfoFields = ({ legend, className, name, render }) => {
             type="tel"
             minimum="12"
             mask="000{-}000{-}0000"
-            required
+            optional={optional}
           />
 
-          <TextField label="Email" id={`email_${contactInfoFieldsUUID}`} name={`${name}.email`} />
+          <TextField label="Email" id={`email_${contactInfoFieldsUUID}`} name={`${name}.email`} optional={optional} />
         </>,
       )}
     </Fieldset>
