@@ -176,6 +176,9 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		// If it's expired, they can no longer update it.
 		latestEstimatedWeight := older.PrimeEstimatedWeight
 		if newer.PrimeEstimatedWeight != nil {
+			if newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				verrs.Add("primeEstimatedWeight", "cannot be updated for nts-release shipments, please contact the TOO directly to request updates to this field")
+			}
 			if older.PrimeEstimatedWeight != nil {
 				verrs.Add("primeEstimatedWeight", "cannot be updated after initial estimation")
 			}
@@ -195,8 +198,8 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		}
 
 		if newer.NTSRecordedWeight != nil {
-			if older.PrimeEstimatedWeight != newer.NTSRecordedWeight || older.PrimeEstimatedWeight != nil {
-				verrs.Add("ntsRecordedWeight", "cannot be updated after initial estimation")
+			if newer.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				verrs.Add("ntsRecordedWeight", "cannot be updated for nts-release shipments, please contact the TOO directly to request updates to this field")
 			}
 		}
 
