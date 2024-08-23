@@ -348,7 +348,7 @@ var (
 	paramLockedPriceCents = models.ServiceItemParamKey{
 		Key:         models.ServiceItemParamNameLockedPriceCents,
 		Description: "locked price cents",
-		Type:        models.ServiceItemParamTypeTimestamp,
+		Type:        models.ServiceItemParamTypeInteger,
 		Origin:      models.ServiceItemParamOriginSystem,
 	}
 	fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemParamKeys{
