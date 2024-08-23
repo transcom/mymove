@@ -621,7 +621,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("models.ShipmentAddressUpdate"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
@@ -650,7 +650,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("models.ShipmentAddressUpdate"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
@@ -680,7 +680,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("models.ShipmentAddressUpdate"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)
@@ -710,7 +710,7 @@ func (suite *HandlerSuite) TestUpdateShipmentDestinationAddressHandler() {
 		mockCreator.On("RequestShipmentDeliveryAddressUpdate",
 			mock.AnythingOfType("*appcontext.appContext"),
 			mock.AnythingOfType("uuid.UUID"),
-			mock.AnythingOfType("models.Address"),
+			mock.AnythingOfType("models.ShipmentAddressUpdate"),
 			mock.AnythingOfType("string"),
 			mock.AnythingOfType("string"),
 		).Return(nil, err)

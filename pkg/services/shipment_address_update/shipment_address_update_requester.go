@@ -280,7 +280,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 	addressUpdate.ContractorRemarks = contractorRemarks
 
-	addressUpdate.createShipmentAddresses(appCtx, shipment)
+	//addressUpdate.createShipmentAddresses(appCtx, shipment)
 
 	address, err := f.addressCreator.CreateAddress(appCtx, &shipmentUpdate.NewAddress)
 	if err != nil {
@@ -358,19 +358,19 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	if !updateNeedsTOOReview {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
@@ -381,12 +381,12 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	if !updateNeedsTOOReview {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}

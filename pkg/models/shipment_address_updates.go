@@ -7,8 +7,6 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
-	"github.com/transcom/mymove/pkg/appcontext"
-	"github.com/transcom/mymove/pkg/models"
 )
 
 // ShipmentAddressUpdateStatus represents the possible statuses for a mto shipment
@@ -80,25 +78,3 @@ func (s ShipmentAddressUpdate) TableName() string {
 // ShipmentAddressUpdates is a slice containing of ShipmentAddressUpdates
 type ShipmentAddressUpdates []ShipmentAddressUpdate
 
-func (addressUpdate ShipmentAddressUpdate) createShipmentAddresses(appCtx appcontext.AppContext, newShipment models.MTOShipment) {
-	address, err := f.addressCreator.CreateAddress(appCtx, &newShipment.NewAddress)
-	if err != nil {
-		return nil, err
-	}
-	addressUpdate.NewAddressID = address.ID
-	addressUpdate.NewAddress = *address
-
-	secondaryAddress, err := f.addressCreator.CreateAddress(appCtx, &newShipment.NewSecondaryAddress)
-	if err != nil {
-		return nil, err
-	}
-	addressUpdate.NewSecondaryAddressID = secondaryAddress.ID
-	addressUpdate.NewSecondaryAddress = *secondaryAddress
-
-	tertiaryAddress, err := f.addressCreator.CreateAddress(appCtx, &newShipment.NewTertiaryAddress)
-	if err != nil {
-		return nil, err
-	}
-	addressUpdate.NewTertiaryAddressID = tertiaryAddress.ID
-	addressUpdate.NewTertiaryAddress = *tertiaryAddress
-}
