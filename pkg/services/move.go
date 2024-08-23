@@ -109,6 +109,7 @@ type SearchMovesParams struct {
 	Order                 *string
 	PickupDate            *time.Time
 	DeliveryDate          *time.Time
+	MoveCreatedDate       *time.Time
 }
 
 type MoveCloseoutOfficeUpdater interface {

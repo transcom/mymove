@@ -77,6 +77,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		return nil, err
 	}
 	isBoatShipment := shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
+	isMobileHomeShipment := shipment.ShipmentType == models.MTOShipmentTypeMobileHome
 
 	// Check shipment fields that should be there or not based on shipment type.
 	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
@@ -84,7 +85,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
 				fmt.Sprintf("RequestedPickupDate should not be set when creating a %s shipment", shipment.ShipmentType))
 		}
-	} else if shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment {
+	} else if shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
 		// No need for a PPM to have a RequestedPickupDate
 		if shipment.RequestedPickupDate == nil || shipment.RequestedPickupDate.IsZero() {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
@@ -120,6 +121,17 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 	}
 
+	// This is to make sure SeqNum for move matches what is currently
+	// in database. DB Trigger updates to moves.shipment_seq_num but we
+	// have to ensure it does not get overwritten with stale data in the
+	// update following this check. If this is not done, stale data will cause
+	// a unique index constraint error for subsequent new shipments due to
+	// shipment_seq_num is not correct.
+	err = ensureMoveShipmentSeqNumIsInSync(f, appCtx, &move)
+	if err != nil {
+		return nil, err
+	}
+
 	if serviceItems != nil {
 		serviceItemsList := make(models.MTOServiceItems, 0, len(serviceItems))
 
@@ -149,8 +161,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	}
 
 	// Populate the destination address fields with the new duty location's address when
-	// we have an HHG with no destination address, but don't copy over any street fields.
-	if shipment.ShipmentType == models.MTOShipmentTypeHHG && shipment.DestinationAddress == nil {
+	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
@@ -202,7 +214,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			}
 			shipment.PickupAddress.County = county
 
-		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment {
+		} else if shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
 			return apperror.NewInvalidInputError(uuid.Nil, nil, nil, "PickupAddress is required to create an HHG or NTS type MTO shipment")
 		}
 
