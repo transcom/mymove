@@ -37,66 +37,56 @@ export const AddressFields = ({
   formikFunctionsToValidatePostalCodeOnChange,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
-  let postalCodeField;
-  let stateField;
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
   const errorStr = 'Not all data was able to populate successfully. Contact the ';
   const assistanceStr = ' for further assistance.';
 
-  if (formikFunctionsToValidatePostalCodeOnChange) {
-    postalCodeField = (
-      <TextField
-        label="ZIP"
-        id={`zip_${addressFieldsUUID.current}`}
-        name={`${name}.postalCode`}
-        maxLength={10}
-        validate={validators?.postalCode}
-        isDisabled={zipCityEnabled}
-        onChange={async (e) => {
-          // If we are validating on change we need to also set the field to touched when it is changed.
-          // Formik, by default, only sets the field to touched on blur.
-          // The validation errors will not show unless the field has been touched. We await the handleChange event,
-          // then we set the field to touched.
-          // We send true for the shouldValidate arg to validate the field at the same time.
-          await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
-          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
-        }}
-      />
-    );
-  } else {
-    postalCodeField = (
-      <TextField
-        label="ZIP"
-        id={`zip_${addressFieldsUUID.current}`}
-        name={`${name}.postalCode`}
-        maxLength={10}
-        validate={validators?.postalCode}
-        isDisabled={zipCityEnabled}
-      />
-    );
-  }
+  const postalCodeField = formikFunctionsToValidatePostalCodeOnChange ? (
+    <TextField
+      label="ZIP"
+      id={`zip_${addressFieldsUUID.current}`}
+      name={`${name}.postalCode`}
+      maxLength={10}
+      validate={validators?.postalCode}
+      isDisabled={zipCityEnabled}
+      onChange={async (e) => {
+        // If we are validating on change we need to also set the field to touched when it is changed.
+        // Formik, by default, only sets the field to touched on blur.
+        // The validation errors will not show unless the field has been touched. We await the handleChange event,
+        // then we set the field to touched.
+        // We send true for the shouldValidate arg to validate the field at the same time.
+        await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+        formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+      }}
+    />
+  ) : (
+    <TextField
+      label="ZIP"
+      id={`zip_${addressFieldsUUID.current}`}
+      name={`${name}.postalCode`}
+      maxLength={10}
+      validate={validators?.postalCode}
+      isDisabled={zipCityEnabled}
+    />
+  );
 
-  if (zipCityEnabled) {
-    stateField = (
-      <TextField
-        name={`${name}.state`}
-        id={`state_${addressFieldsUUID.current}`}
-        label="State"
-        validate={validators?.state}
-        isDisabled={zipCityEnabled}
-      />
-    );
-  } else {
-    stateField = (
-      <DropdownInput
-        name={`${name}.state`}
-        id={`state_${addressFieldsUUID.current}`}
-        label="State"
-        options={statesList}
-        validate={validators?.state}
-      />
-    );
-  }
+  const stateField = zipCityEnabled ? (
+    <TextField
+      name={`${name}.state`}
+      id={`state_${addressFieldsUUID.current}`}
+      label="State"
+      validate={validators?.state}
+      isDisabled={zipCityEnabled}
+    />
+  ) : (
+    <DropdownInput
+      name={`${name}.state`}
+      id={`state_${addressFieldsUUID.current}`}
+      label="State"
+      options={statesList}
+      validate={validators?.state}
+    />
+  );
 
   return (
     <Fieldset legend={legend} className={className}>

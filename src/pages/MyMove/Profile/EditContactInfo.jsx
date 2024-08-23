@@ -43,6 +43,7 @@ export const EditContactInfo = ({
       city: serviceMember.residential_address?.city || '',
       state: serviceMember.residential_address?.state || '',
       postalCode: serviceMember.residential_address?.postalCode || '',
+      county: serviceMember.residential_address?.county || '',
     },
     [backupAddressName]: {
       streetAddress1: serviceMember.backup_mailing_address?.streetAddress1 || '',
@@ -50,6 +51,7 @@ export const EditContactInfo = ({
       city: serviceMember.backup_mailing_address?.city || '',
       state: serviceMember.backup_mailing_address?.state || '',
       postalCode: serviceMember.backup_mailing_address?.postalCode || '',
+      county: serviceMember.backup_mailing_address?.county || '',
     },
     [backupContactName]: {
       name: currentBackupContacts[0]?.name || '',
