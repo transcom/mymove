@@ -189,7 +189,9 @@ class MtoShipmentForm extends Component {
     const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
-    const shipmentNumber = shipmentType === SHIPMENT_OPTIONS.HHG || isBoat ? this.getShipmentNumber() : null;
+    const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
+    const shipmentNumber =
+      shipmentType === SHIPMENT_OPTIONS.HHG || isBoat || isMobileHome ? this.getShipmentNumber() : null;
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 

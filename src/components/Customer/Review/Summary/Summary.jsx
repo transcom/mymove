@@ -56,6 +56,7 @@ export class Summary extends Component {
       enableNTS: true,
       enableNTSR: true,
       enableBoat: true,
+      enableMobileHome: true,
     };
   }
 
@@ -88,6 +89,11 @@ export class Summary extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then((enabled) => {
       this.setState({
         enableBoat: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME).then((enabled) => {
+      this.setState({
+        enableMobileHome: enabled,
       });
     });
   }
@@ -325,6 +331,7 @@ export class Summary extends Component {
       enableNTS,
       enableNTSR,
       enableBoat,
+      enableMobileHome,
     } = this.state;
 
     const { pathname } = router.location;
@@ -462,6 +469,7 @@ export class Summary extends Component {
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}
           enableBoat={enableBoat}
+          enableMobileHome={enableMobileHome}
         />
       </>
     );

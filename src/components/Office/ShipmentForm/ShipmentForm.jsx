@@ -197,6 +197,7 @@ const ShipmentForm = (props) => {
   const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
   const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -211,7 +212,7 @@ const ShipmentForm = (props) => {
 
   const shipmentDestinationAddressOptions = dropdownInputOptions(shipmentDestinationTypes);
 
-  const shipmentNumber = isHHG ? getShipmentNumber() : null;
+  const shipmentNumber = isHHG || isMobileHome ? getShipmentNumber() : null;
   const initialValues = isPPM
     ? formatPpmShipmentForDisplay(
         isCreatePage
@@ -658,7 +659,7 @@ const ShipmentForm = (props) => {
               </SectionWrapper>
 
               <Form className={formStyles.form}>
-                {isTOO && !isHHG && !isPPM && <ShipmentVendor />}
+                {isTOO && !isHHG && !isMobileHome && !isPPM && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
 

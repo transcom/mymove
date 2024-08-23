@@ -21,6 +21,17 @@ const hhgShipmentSchema = Yup.object().shape({
   counselorRemarks: Yup.string(),
 });
 
+const mobileHomeShipmentLocationSchema = Yup.object().shape({
+  pickup: RequiredPlaceSchema,
+  delivery: OptionalPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
+  secondaryDelivery: AdditionalAddressSchema,
+  tertiaryPickup: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
+  customerRemarks: Yup.string(),
+  counselorRemarks: Yup.string(),
+});
+
 const boatShipmentLocationInfoSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   delivery: OptionalPlaceSchema,
@@ -80,6 +91,13 @@ function getShipmentOptions(shipmentType, userRole) {
     case SHIPMENT_OPTIONS.HHG:
       return {
         schema: hhgShipmentSchema,
+        showPickupFields: true,
+        showDeliveryFields: true,
+      };
+
+    case SHIPMENT_OPTIONS.MOBILE_HOME:
+      return {
+        schema: mobileHomeShipmentLocationSchema,
         showPickupFields: true,
         showDeliveryFields: true,
       };

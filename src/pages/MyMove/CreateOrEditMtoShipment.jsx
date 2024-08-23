@@ -6,6 +6,7 @@ import qs from 'query-string';
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
+import MobileHomeShipmentCreate from 'pages/MyMove/MobileHome/MobileHomeShipmentCreate/MobileHomeShipmentCreate';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
@@ -107,6 +108,17 @@ export class CreateOrEditMtoShipment extends Component {
       ) {
         return (
           <BoatShipmentCreate
+            move={move}
+            mtoShipment={mtoShipment}
+            serviceMember={serviceMember}
+            destinationDutyLocation={orders.new_duty_location}
+            serviceMemberMoves={serviceMemberMoves}
+          />
+        );
+      }
+      if (type === SHIPMENT_OPTIONS.MOBILE_HOME) {
+        return (
+          <MobileHomeShipmentCreate
             move={move}
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}

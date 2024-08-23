@@ -9,11 +9,13 @@ export const shipmentTypeLabels = {
   [SHIPMENT_OPTIONS.BOAT]: 'Boat',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
+  [SHIPMENT_TYPES.MOBILE_HOME]: 'Mobile Home',
 };
 
 export const shipmentForm = {
   header: {
     [SHIPMENT_OPTIONS.HHG]: 'Movers pack and transport this shipment',
+    [SHIPMENT_OPTIONS.MOBILE_HOME]: 'Movers pack and transport this shipment',
     [SHIPMENT_OPTIONS.NTS]: 'Where and when should the movers pick up your personal property going into storage?',
     [SHIPMENT_OPTIONS.NTSR]: 'Where and when should the movers deliver your personal property from storage?',
   },
@@ -21,6 +23,7 @@ export const shipmentForm = {
 
 export const shipmentSectionLabels = {
   HHG: 'HHG shipment',
+  MOBILE_HOME: 'MOBILE Home shipment',
   HHG_INTO_NTS_DOMESTIC: 'NTS shipment',
   HHG_OUTOF_NTS_DOMESTIC: 'NTS-release shipment',
 };

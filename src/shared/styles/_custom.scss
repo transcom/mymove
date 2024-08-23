@@ -29,6 +29,7 @@ html {
     &--ppm,
     &--ub,
     &--boat,
+    &--mobile-home,
     &--nts,
     &--ntsr {
       @include u-radius(0);
@@ -55,6 +56,9 @@ html {
     }
     &--boat {
       @include cont-border-top($accent-boat);
+    }
+    &--mobilehome {
+      @include cont-border-top($accent-mobile-home);
     }
   }
 }
