@@ -72,6 +72,7 @@ func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext
 		Join("roles", "users_roles.role_id = roles.id").
 		Where("transportation_office_id = ?", officeID).
 		Where("role_type = ?", role).
+		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
 		Order("last_name asc").
 		All(&officeUsers)

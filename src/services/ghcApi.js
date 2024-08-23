@@ -842,3 +842,14 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
     },
   );
 }
+
+export async function dateSelectionIsWeekendHoliday(countryCode, date) {
+  return makeGHCRequestRaw(
+    'calendar.isDateWeekendHoliday',
+    {
+      countryCode,
+      date,
+    },
+    { normalize: false },
+  );
+}
