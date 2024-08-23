@@ -1,4 +1,0 @@
-description: A list of updates to a SIT service item address.
-type: array
-items:
-  $ref: 'SITAddressUpdate.yaml'

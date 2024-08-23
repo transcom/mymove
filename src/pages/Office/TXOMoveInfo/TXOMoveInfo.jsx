@@ -14,6 +14,7 @@ import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -33,7 +34,6 @@ const SupportingDocuments = lazy(() => import('../SupportingDocuments/Supporting
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
-  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
   const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
     React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
@@ -146,7 +146,6 @@ const TXOMoveInfo = () => {
         <TXOTabNav
           unapprovedShipmentCount={unapprovedShipmentCount}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
-          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
           shipmentsWithDeliveryAddressUpdateRequestedCount={shipmentsWithDeliveryAddressUpdateRequestedCount}
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
@@ -173,7 +172,6 @@ const TXOMoveInfo = () => {
               <MoveDetails
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setShipmentsWithDeliveryAddressUpdateRequestedCount={
                   setShipmentsWithDeliveryAddressUpdateRequestedCount
                 }
@@ -192,7 +190,6 @@ const TXOMoveInfo = () => {
               <MoveTaskOrder
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
                 isMoveLocked={isMoveLocked}
@@ -252,6 +249,21 @@ const TXOMoveInfo = () => {
               element={
                 <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
                   <EvaluationReport
+                    customerInfo={customerData}
+                    grade={order.grade}
+                    destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  />
+                </Restricted>
+              }
+            />
+          )}
+          {order.grade && (
+            <Route
+              path={qaeCSRRoutes.EVALUATION_REPORT_VIEW_PATH}
+              exact
+              element={
+                <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                  <EvaluationReportView
                     customerInfo={customerData}
                     grade={order.grade}
                     destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}

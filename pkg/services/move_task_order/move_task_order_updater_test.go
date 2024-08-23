@@ -390,6 +390,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdatePostCouns
 		suite.NotNil(expectedMTO.ReferenceID)
 		suite.NotNil(expectedMTO.Locator)
 		suite.Nil(expectedMTO.AvailableToPrimeAt)
+		suite.Nil(expectedMTO.ApprovedAt)
 		suite.NotEqual(expectedMTO.Status, models.MoveStatusCANCELED)
 
 		suite.NotNil(expectedMTO.Orders.ServiceMember.FirstName)
@@ -678,6 +679,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.Nil(fetchedMove.AvailableToPrimeAt)
+		suite.Nil(fetchedMove.ApprovedAt)
 	})
 
 	suite.Run("When ETag is stale", func() {
@@ -714,11 +716,13 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		var serviceItems models.MTOServiceItems
 
 		suite.Nil(move.AvailableToPrimeAt)
+		suite.Nil(move.ApprovedAt)
 
 		updatedMove, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, true)
 
 		suite.NoError(err)
 		suite.NotNil(updatedMove.AvailableToPrimeAt)
+		suite.NotNil(updatedMove.ApprovedAt)
 		suite.Equal(models.MoveStatusAPPROVED, updatedMove.Status)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
@@ -728,6 +732,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.NotNil(fetchedMove.AvailableToPrimeAt)
+		suite.NotNil(fetchedMove.ApprovedAt)
 		suite.Equal(models.MoveStatusAPPROVED, fetchedMove.Status)
 	})
 
@@ -749,6 +754,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		var serviceItems models.MTOServiceItems
 
 		suite.Nil(move.AvailableToPrimeAt)
+		suite.Nil(move.ApprovedAt)
 
 		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, true, false)
 
@@ -756,6 +762,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.NotNil(fetchedMove.AvailableToPrimeAt)
+		suite.NotNil(fetchedMove.ApprovedAt)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
 		suite.Len(serviceItems, 1, "Expected to find at most 1 service item")
@@ -776,6 +783,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		var serviceItems models.MTOServiceItems
 
 		suite.Nil(move.AvailableToPrimeAt)
+		suite.Nil(move.ApprovedAt)
 
 		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, false, true)
 
@@ -783,6 +791,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.NotNil(fetchedMove.AvailableToPrimeAt)
+		suite.NotNil(fetchedMove.ApprovedAt)
 		err = suite.DB().Eager("ReService").Where("move_id = ?", move.ID).All(&serviceItems)
 		suite.NoError(err)
 		suite.Len(serviceItems, 1, "Expected to find at most 1 service item")
@@ -801,6 +810,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		fetchedMove := models.Move{}
 
 		suite.Nil(move.AvailableToPrimeAt)
+		suite.Nil(move.ApprovedAt)
 
 		_, err := mtoUpdater.MakeAvailableToPrime(suite.AppContextForTest(), move.ID, eTag, false, false)
 
@@ -809,6 +819,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.NotNil(fetchedMove.AvailableToPrimeAt)
+		suite.NotNil(fetchedMove.ApprovedAt)
 	})
 
 	suite.Run("Does not make move available to prime if Order is missing required fields", func() {
@@ -835,6 +846,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_MakeAvailableTo
 		err = suite.DB().Find(&fetchedMove, move.ID)
 		suite.NoError(err)
 		suite.Nil(fetchedMove.AvailableToPrimeAt)
+		suite.Nil(fetchedMove.ApprovedAt)
 	})
 }
 
