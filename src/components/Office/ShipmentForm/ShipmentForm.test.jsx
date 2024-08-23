@@ -45,12 +45,14 @@ const mockMtoShipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+    county: 'BEXAR',
   },
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
     state: 'WA',
     postalCode: '98421',
+    county: 'PIERCE',
   },
   mtoAgents: [
     {
@@ -176,6 +178,7 @@ const defaultProps = {
     postalCode: '31905',
     streetAddress1: '123 Main',
     streetAddress2: '',
+    county: 'MUSCOGEE',
   },
   originDutyLocationAddress: {
     city: 'Fort Benning',
@@ -183,6 +186,7 @@ const defaultProps = {
     postalCode: '31905',
     streetAddress1: '123 Main',
     streetAddress2: '',
+    county: 'MUSCOGEE',
   },
   serviceMember: {
     weightAllotment: {
@@ -220,6 +224,7 @@ const mockPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -228,6 +233,7 @@ const mockPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42702',
+      county: 'HARDIN',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -236,6 +242,7 @@ const mockPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42703',
+      county: 'HARDIN',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -244,6 +251,7 @@ const mockPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     sitExpected: false,
     estimatedWeight: 4999,
@@ -271,6 +279,7 @@ const mockRejectedPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     secondaryPickupAddress: {
       streetAddress1: '777 Test Street',
@@ -287,6 +296,7 @@ const mockRejectedPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42703',
+      county: 'HARDIN',
     },
     secondaryDestinationAddress: {
       streetAddress1: '444 Test Street',
@@ -295,6 +305,7 @@ const mockRejectedPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     sitExpected: false,
     estimatedWeight: 4999,
@@ -320,6 +331,7 @@ const mockDeliveryAddressUpdate = {
       streetAddress1: '123 Any Street',
       streetAddress2: 'P.O. Box 12345',
       streetAddress3: 'c/o Some Person',
+      county: 'LOS ANGELES',
     },
     originalAddress: {
       city: 'Fairfield',
@@ -331,6 +343,7 @@ const mockDeliveryAddressUpdate = {
       streetAddress1: '987 Any Avenue',
       streetAddress2: 'P.O. Box 9876',
       streetAddress3: 'c/o Some Person',
+      county: 'SOLANO',
     },
     shipmentID: '5c84bcf3-92f7-448f-b0e1-e5378b6806df',
     status: 'REQUESTED',
@@ -1109,6 +1122,7 @@ describe('ShipmentForm component', () => {
             state: 'WA',
             postalCode: '98421',
             streetAddress2: '',
+            county: 'PIERCE',
           },
           pickupAddress: {
             streetAddress1: '812 S 129th St',
@@ -1116,6 +1130,7 @@ describe('ShipmentForm component', () => {
             state: 'TX',
             postalCode: '78234',
             streetAddress2: '',
+            county: 'BEXAR',
           },
           agents: [
             {
@@ -1736,6 +1751,7 @@ describe('ShipmentForm component', () => {
       city: 'Test City',
       state: 'KY',
       postalCode: '42701',
+      county: 'HARDIN',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
@@ -1744,6 +1760,7 @@ describe('ShipmentForm component', () => {
       city: 'Test City',
       state: 'KY',
       postalCode: '42703',
+      county: 'HARDIN',
     },
   };
 

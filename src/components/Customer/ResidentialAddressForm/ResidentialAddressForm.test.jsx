@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import ResidentialAddressForm from './ResidentialAddressForm';
+import { configureStore } from 'shared/store';
 
 describe('ResidentialAddressForm component', () => {
   const formFieldsName = 'current_residence';
@@ -48,7 +50,12 @@ describe('ResidentialAddressForm component', () => {
   };
 
   it('renders the form inputs and help text', async () => {
-    const { getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
+    const mockStore = configureStore({});
+    const { getByLabelText, getByText } = render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddressForm {...testProps} />
+      </Provider>
+    );
 
     await waitFor(() => {
       expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
@@ -66,7 +73,12 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
+    const mockStore = configureStore({});
+    const { getByRole, findAllByRole, getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddressForm {...testProps} />
+      </Provider>
+    );
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
 
@@ -85,7 +97,12 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...dataProps} />);
+    const mockStore = configureStore({});
+    const { getByRole, getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddressForm {...dataProps} />
+      </Provider>
+    );
     const submitBtn = getByRole('button', { name: 'Next' });
 
     await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
@@ -107,7 +124,12 @@ describe('ResidentialAddressForm component', () => {
   });
 
   it('implements the onBack handler when the Back button is clicked', async () => {
-    const { getByRole } = render(<ResidentialAddressForm {...testProps} />);
+    const mockStore = configureStore({});
+    const { getByRole } = render(
+      <Provider store={mockStore.store}>
+        <ResidentialAddressForm {...testProps} />
+      </Provider>
+    );
     const backBtn = getByRole('button', { name: 'Back' });
 
     await userEvent.click(backBtn);

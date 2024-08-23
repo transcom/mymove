@@ -116,7 +116,7 @@ export const AddressFields = ({
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          {zipCityEnabled && (
+          {handleZipCityChange && (
             <>
               <ZipCityInput
                 name="zipCity"
@@ -125,14 +125,14 @@ export const AddressFields = ({
                 handleZipCityChange={handleZipCityChange}
               />
               {!zipCityError && (
-                <Alert type="info" aria-live="polite" headingLevel="h4">
+                <Alert type="info" aria-live="polite" headingLevel="h4" data-testid="zipCityAlert">
                   If you encounter any inaccurate lookup information please contact the
                   <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
                   for further assistance.
                 </Alert>
               )}
               {zipCityError && (
-                <Alert type="error" aria-live="polite" headingLevel="h4">
+                <Alert type="error" aria-live="polite" headingLevel="h4" data-testid="zipCityAlert">
                   Not all data was able to populate successfully. Contact the
                   <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
                   for further assistance.
@@ -149,7 +149,7 @@ export const AddressFields = ({
                 validate={validators?.city}
                 isDisabled={zipCityEnabled}
               />
-              {zipCityEnabled && (
+              {handleZipCityChange && (
                 <TextField
                   label="County"
                   id={`county_${addressFieldsUUID.current}`}
