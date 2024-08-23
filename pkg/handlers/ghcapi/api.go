@@ -290,6 +290,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ghcAPI.OrderCreateOrderHandler = CreateOrderHandler{
 		handlerConfig,
+		transportationOfficeFetcher,
 	}
 
 	ghcAPI.OrderUpdateOrderHandler = UpdateOrderHandler{
