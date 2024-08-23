@@ -201,7 +201,7 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
       {/* Past SIT Service Items Info Section */}
       {sitStatus.pastSITServiceItemGroupings && (
         <>
-          <div className={styles.tableContainer}>
+          <div className={styles.tableContainer} data-testid="previouslyUsedSitTable">
             <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
           </div>
           {!sitStatus.currentSIT && (
