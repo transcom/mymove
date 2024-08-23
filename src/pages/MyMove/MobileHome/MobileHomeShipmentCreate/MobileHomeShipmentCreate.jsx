@@ -20,7 +20,7 @@ import { ShipmentShape } from 'types/shipment';
 import { validatePostalCode } from 'utils/validation';
 import { toTotalInches } from 'utils/formatMtoShipment';
 
-const MoibleHomeShipmentCreate = ({
+const MobileHomeShipmentCreate = ({
   mtoShipment,
   serviceMember,
   destinationDutyLocation,
@@ -126,6 +126,7 @@ const MoibleHomeShipmentCreate = ({
 
   // open confirmation modal to validate mobile home shipment
   const handleSubmit = async (values, { setSubmitting }) => {
+    setIsSubmitting(true);
     setErrorMessage(null);
     const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
     const totalWidthInInches = toTotalInches(values.widthFeet, values.widthInches);
@@ -140,9 +141,6 @@ const MoibleHomeShipmentCreate = ({
       heightInInches: totalHeightInInches,
     };
     setMobileHomeShipmentObj(mobileHomeShipment);
-    // setSubmitValues(values);
-    setIsSubmitting(true);
-    setErrorMessage(null);
 
     const mtoShipmentType = SHIPMENT_TYPES.MOBILE_HOME;
 
@@ -224,16 +222,16 @@ const MoibleHomeShipmentCreate = ({
   );
 };
 
-MoibleHomeShipmentCreate.propTypes = {
+MobileHomeShipmentCreate.propTypes = {
   mtoShipment: ShipmentShape,
   serviceMember: ServiceMemberShape.isRequired,
   destinationDutyLocation: DutyLocationShape.isRequired,
   move: MoveShape,
 };
 
-MoibleHomeShipmentCreate.defaultProps = {
+MobileHomeShipmentCreate.defaultProps = {
   move: {},
   mtoShipment: {},
 };
 
-export default MoibleHomeShipmentCreate;
+export default MobileHomeShipmentCreate;
