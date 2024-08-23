@@ -62,7 +62,7 @@ const MobileHomeShipmentCreate = ({
 
   const onShipmentSaveSuccess = (response, setSubmitting) => {
     // Update submitting state
-    setSubmitting(false);
+    setSubmitting(true);
     const baseMtoShipment = mtoShipment?.id ? mtoShipment : response;
     const data = {
       ...baseMtoShipment,
