@@ -29,7 +29,9 @@ export const DutyLocationInput = (props) => {
   }
 
   const handleChange = (value) => {
-    touched[name] = true;
+    if (touched) {
+      touched[name] = true;
+    }
     helpers.setValue(value);
   };
 
