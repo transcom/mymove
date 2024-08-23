@@ -145,8 +145,6 @@ const PaymentRequestCard = ({
   const tppsDataExistsForPaymentRequest = tppsInvoiceAmountPaidTotalMillicents !== undefined;
   const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
 
-  const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
-
   const tacs = { HHG: tac, NTS: ntsTac };
   const sacs = { HHG: sac, NTS: ntsSac };
 
