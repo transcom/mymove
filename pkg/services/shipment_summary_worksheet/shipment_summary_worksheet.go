@@ -56,11 +56,17 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values) {
-	page1 := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
-	page2 := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
+	page1, err := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
+	if err != nil {
+		return page1, services.Page2Values{}, errors.WithStack(err)
+	}
+	page2, err := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
+	if err != nil {
+		return page1, page2, errors.WithStack(err)
+	}
 
-	return page1, page2
+	return page1, page2, nil
 }
 
 // textField represents a text field within a form.
@@ -202,7 +208,8 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummaryFormData, isPaymentPacket bool) services.Page1Values {
+func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
+	var err error
 	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
 	page1.MaxSITStorageEntitlement = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -246,7 +253,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
 		page1.ShipmentWeights = finalPPMWeight
 		page1.ActualObligationGCC100 = finalPPMWeight + "; " + formattedShipment.FinalIncentive
-		page1.PreparationDate1 = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
+		page1.PreparationDate1, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
+		if err != nil {
+			return page1, err
+		}
 	} else {
 		page1.ShipmentWeights = formattedShipments.ShipmentWeights
 		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " - Estimated lbs; " + formattedShipment.FinalIncentive
@@ -259,12 +269,12 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
 	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
-	return page1
+	return page1, nil
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData, isPaymentPacket bool) services.Page2Values {
-
+func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
+	var err error
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
 	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID)
 	formattedShipments := FormatAllShipments(data.PPMShipments)
@@ -274,7 +284,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	if isPaymentPacket {
-		page2.PreparationDate2 = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
+		page2.PreparationDate2, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
+		if err != nil {
+			return page2, err
+		}
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
@@ -305,7 +318,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
-	return page2
+	return page2, nil
 }
 
 // FormatGrade formats the service member's rank for Shipment Summary Worksheet
@@ -419,19 +432,19 @@ func formatAOADate(signedCertifications []*models.SignedCertification, ppmid uui
 }
 
 // The following formats the preparation date, as the preparation date for SSWs is the date the closeout counselor certifies the closeout.
-func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uuid.UUID) string {
+func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uuid.UUID) (string, error) {
 	// This loop evaluates certs to find Office SSW Signature date
 	for _, cert := range signedCertifications {
 		if cert.PpmID != nil { // Required to avoid error, service members signatures have nil ppm ids
 			if *cert.PpmID == ppmid { // PPM ID needs to be checked to prevent signatures from other PPMs on the same move from populating
 				if *cert.CertificationType == models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT {
 					sswDate := FormatDate(cert.UpdatedAt) // We use updatedat to get the most recent signature dates
-					return sswDate
+					return sswDate, nil
 				}
 			}
 		}
 	}
-	return "Uncertified"
+	return "", errors.New("Payment Packet is not certified")
 }
 
 // FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
