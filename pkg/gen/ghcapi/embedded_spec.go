@@ -8646,6 +8646,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -8849,6 +8852,11 @@ func init() {
           "description": "Timestamp of when a property of this object was created (UTC)",
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
           "readOnly": true
         },
         "heightInInches": {
@@ -23519,6 +23527,9 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -23722,6 +23733,11 @@ func init() {
           "description": "Timestamp of when a property of this object was created (UTC)",
           "type": "string",
           "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
           "readOnly": true
         },
         "heightInInches": {
