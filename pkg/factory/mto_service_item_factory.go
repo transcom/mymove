@@ -345,15 +345,23 @@ var (
 		Type:        models.ServiceItemParamTypeString,
 		Origin:      models.ServiceItemParamOriginPrime,
 	}
+	paramLockedPriceCents = models.ServiceItemParamKey{
+		Key:         models.ServiceItemParamNameLockedPriceCents,
+		Description: "locked price cents",
+		Type:        models.ServiceItemParamTypeInteger,
+		Origin:      models.ServiceItemParamOriginSystem,
+	}
 	fixtureServiceItemParamsMap = map[models.ReServiceCode]models.ServiceItemParamKeys{
 		models.ReServiceCodeCS: {
-			paramContractCode,
 			paramMTOAvailableAToPrimeAt,
+			paramContractCode,
+			paramLockedPriceCents,
 			paramPriceRateOrFactor,
 		},
 		models.ReServiceCodeMS: {
-			paramContractCode,
 			paramMTOAvailableAToPrimeAt,
+			paramContractCode,
+			paramLockedPriceCents,
 			paramPriceRateOrFactor,
 		},
 		models.ReServiceCodeDLH: {

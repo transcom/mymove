@@ -1,8 +1,6 @@
 package ghcrateengine
 
 import (
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -18,36 +16,25 @@ func NewCounselingServicesPricer() services.CounselingServicesPricer {
 }
 
 // Price determines the price for a counseling service
-func (p managementServicesPricer) Price(appCtx appcontext.AppContext, serviceItem models.MTOServiceItem) (unit.Cents, services.PricingDisplayParams, error) {
-
-	if serviceItem.LockedPriceCents == nil {
-		return unit.Cents(0), nil, fmt.Errorf("could not find locked price cents: %s", serviceItem.ID)
-	}
+func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
 
 	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(*serviceItem.LockedPriceCents),
+			Value: FormatCents(lockedPriceCents),
 		},
 	}
 
-	return *serviceItem.LockedPriceCents, params, nil
+	return lockedPriceCents, params, nil
 }
 
 // PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams
-func (p managementServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
+func (p counselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 
-	var serviceItem models.MTOServiceItem
-	for _, param := range params {
-		if param.PaymentServiceItem.MTOServiceItem.LockedPriceCents != nil {
-			serviceItem = param.PaymentServiceItem.MTOServiceItem
-			break
-		}
+	lockedPriceCents, err := getParamInt(params, models.ServiceItemParamNameLockedPriceCents)
+	if err != nil {
+		return unit.Cents(0), nil, err
 	}
 
-	if serviceItem.LockedPriceCents == nil {
-		return unit.Cents(0), nil, fmt.Errorf("service item did not contain value for locked price cents")
-	}
-
-	return p.Price(appCtx, serviceItem)
+	return p.Price(appCtx, unit.Cents(lockedPriceCents))
 }
