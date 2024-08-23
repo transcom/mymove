@@ -9,6 +9,7 @@ import DocViewerContent from './Content';
 const mockFile = {
   contentType: 'pdf',
   url: samplePDF,
+  rotation: 1,
   createdAt: '2021-06-15T15:09:26.979879Z',
 };
 
@@ -31,5 +32,6 @@ describe('DocViewerContent', () => {
   it('renders the FileViewer with rotation value prop', () => {
     const fileViewer = component.find('FileViewer');
     expect(fileViewer.exists()).toBe(true);
+    expect(fileViewer.prop('rotation')).toBe(1);
   });
 });
