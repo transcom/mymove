@@ -73,7 +73,7 @@ type PPMShipmentStatus string
 
 const (
 	// PPMShipmentStatusCancelled captures enum value "DRAFT"
-	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELLED"
+	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELED"
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
