@@ -1,29 +1,15 @@
 package ghcrateengine
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
-	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 const (
 	csPriceCents = unit.Cents(12303)
 )
-
-var csAvailableToPrimeAt = time.Date(testdatagen.TestYear, time.June, 5, 7, 33, 11, 456, time.UTC)
-
-var lockedPriceCents = unit.Cents(12303)
-var mtoServiceItem = models.MTOServiceItem{
-	LockedPriceCents: &lockedPriceCents,
-}
-
-var failedMtoServiceItem = models.MTOServiceItem{
-	LockedPriceCents: nil,
-}
 
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	counselingServicesPricer := NewCounselingServicesPricer()
@@ -33,7 +19,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 
 		priceCents, displayParams, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), paymentServiceItem.PaymentServiceItemParams)
 		suite.NoError(err)
-		suite.Equal(lockedPriceCents, priceCents)
+		suite.Equal(csPriceCents, priceCents)
 
 		// Check that PricingDisplayParams have been set and are returned
 		expectedParams := services.PricingDisplayParams{
@@ -45,7 +31,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), mtoServiceItem)
+		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), csPriceCents)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
@@ -56,11 +42,6 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 		_, _, err := counselingServicesPricer.PriceUsingParams(suite.AppContextForTest(), models.PaymentServiceItemParams{})
 		suite.Error(err)
 	})
-
-	suite.Run("not finding a rate record", func() {
-		_, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), failedMtoServiceItem)
-		suite.Error(err)
-	})
 }
 
 func (suite *GHCRateEngineServiceSuite) setupCounselingServicesItem() models.PaymentServiceItem {
@@ -69,14 +50,9 @@ func (suite *GHCRateEngineServiceSuite) setupCounselingServicesItem() models.Pay
 		models.ReServiceCodeCS,
 		[]factory.CreatePaymentServiceItemParams{
 			{
-				Key:     models.ServiceItemParamNameContractCode,
+				Key:     models.ServiceItemParamNameLockedPriceCents,
 				KeyType: models.ServiceItemParamTypeString,
-				Value:   factory.DefaultContractCode,
-			},
-			{
-				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   csAvailableToPrimeAt.Format(TimestampParamFormat),
+				Value:   csPriceCents.ToMillicents().ToCents().String(),
 			},
 		}, nil, nil,
 	)
