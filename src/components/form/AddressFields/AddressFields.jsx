@@ -5,6 +5,7 @@ import { Fieldset, Alert } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
+import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
 import ZipCityInput from 'components/form/fields/ZipCityInput';
@@ -128,14 +129,18 @@ export const AddressFields = ({
               {!zipCityError && (
                 <Alert type="info" aria-live="polite" headingLevel="h4">
                   If you encounter any inaccurate lookup information please contact the
-                  <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+                  <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                    Technical Help Desk
+                  </a>
                   for further assistance.
                 </Alert>
               )}
               {zipCityError && (
                 <Alert type="error" aria-live="polite" headingLevel="h4">
                   Not all data was able to populate successfully. Contact the
-                  <a href="mailto:usarmy.scott.sddc.mbx.G6-SRC-MilMove-HD@army.mil"> Help Desk </a>
+                  <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                    Technical Help Desk
+                  </a>
                   for further assistance.
                 </Alert>
               )}
