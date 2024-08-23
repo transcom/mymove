@@ -607,10 +607,7 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 
 // UsPostRegionCity payload
 func UsPostRegionCity(usPostRegionCity *models.UsPostRegionCity) *internalmessages.UsPostRegionCity {
-	if usPostRegionCity == nil {
-		return nil
-	}
-	if *usPostRegionCity == (models.UsPostRegionCity{}) {
+	if usPostRegionCity == nil || *usPostRegionCity == (models.UsPostRegionCity{}) {
 		return nil
 	}
 

@@ -36,9 +36,7 @@ export const ZipCityInput = (props) => {
 };
 
 ZipCityInput.propTypes = {
-  // label displayed for input
   label: PropTypes.string.isRequired,
-  // name is for the input
   name: PropTypes.string.isRequired,
   displayAddress: PropTypes.bool,
   hint: PropTypes.node,
