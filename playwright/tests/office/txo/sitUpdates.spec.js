@@ -103,8 +103,8 @@ test.describe('TOO user', () => {
         .textContent();
 
       expect(daysApprovedCapture).toEqual('90');
-      expect(daysUsedCapture).toEqual('61'); // 30 days in past origin sit, 31 days in destination sit
-      expect(daysLeftCapture).toEqual('29'); // of the 90 authorized, 61 have been used
+      expect(daysUsedCapture).toEqual('62'); // 31 days in past origin sit, 31 days in destination sit
+      expect(daysLeftCapture).toEqual('28'); // of the 90 authorized, 62 have been used
     });
 
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
@@ -248,7 +248,7 @@ test.describe('TOO user', () => {
       await expect(page.getByText('Total days remaining')).toBeVisible();
       await expect(page.getByText('SIT start date').nth(0)).toBeVisible();
       await expect(page.getByText('SIT authorized end date')).toBeVisible();
-      await expect(page.getByText('Calculated total SIT days')).toBeVisible();
+      await expect(page.getByText('Total days in destination SIT')).toBeVisible();
     });
     test('is showing the SIT Departure Date section', async ({ page }) => {
       // navigate to MTO tab
