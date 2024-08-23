@@ -8111,6 +8111,12 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -9531,6 +9537,8 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
         $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       shipmentLocator:
