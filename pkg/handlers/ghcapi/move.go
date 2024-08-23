@@ -291,7 +291,7 @@ func (h DeleteAssignedOfficeUserHandler) Handle(params moveop.DeleteAssignedOffi
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
-			role := getRole(params.Body.RoleType)
+			role := getRole(*params.Body.RoleType)
 
 			move, err := h.MoveAssignedOfficeUserUpdater.DeleteAssignedOfficeUser(appCtx, moveID, role)
 			if err != nil {
@@ -319,7 +319,7 @@ func (h UpdateAssignedOfficeUserHandler) Handle(params moveop.UpdateAssignedOffi
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			moveID := uuid.FromStringOrNil(params.MoveID.String())
 
-			role := getRole(params.Body.RoleType)
+			role := getRole(*params.Body.RoleType)
 
 			officeUserID := uuid.FromStringOrNil(params.Body.OfficeUserID.String())
 
@@ -331,7 +331,7 @@ func (h UpdateAssignedOfficeUserHandler) Handle(params moveop.UpdateAssignedOffi
 
 			move, err := h.MoveAssignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx, moveID, &officeUser, role)
 			if err != nil {
-				appCtx.Logger().Error("Error updating move", zap.Error(err))
+				appCtx.Logger().Error("Error updating move with an assigned office user", zap.Error(err))
 				return moveop.NewUpdateAssignedOfficeUserInternalServerError(), err
 			}
 

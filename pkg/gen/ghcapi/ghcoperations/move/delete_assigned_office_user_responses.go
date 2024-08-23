@@ -17,7 +17,7 @@ import (
 const DeleteAssignedOfficeUserOKCode int = 200
 
 /*
-DeleteAssignedOfficeUserOK Successfully updated move
+DeleteAssignedOfficeUserOK Successfully unassigned office user from the move
 
 swagger:response deleteAssignedOfficeUserOK
 */

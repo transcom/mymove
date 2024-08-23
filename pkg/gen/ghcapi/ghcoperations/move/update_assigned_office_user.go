@@ -32,7 +32,7 @@ func NewUpdateAssignedOfficeUser(ctx *middleware.Context, handler UpdateAssigned
 /*
 	UpdateAssignedOfficeUser swagger:route PATCH /moves/{moveID}/assignOfficeUser move updateAssignedOfficeUser
 
-updates a move with an assigned services counselor, task ordering officer, or task invoicing officer
+updates a move by assigning either a services counselor, task ordering officer, or task invoicing officer
 */
 type UpdateAssignedOfficeUser struct {
 	Context *middleware.Context

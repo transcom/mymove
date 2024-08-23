@@ -2235,7 +2235,7 @@ func init() {
     },
     "/moves/{moveID}/assignOfficeUser": {
       "patch": {
-        "description": "updates a move with an assigned services counselor, task ordering officer, or task invoicing officer",
+        "description": "updates a move by assigning either a services counselor, task ordering officer, or task invoicing officer",
         "consumes": [
           "application/json"
         ],
@@ -2258,7 +2258,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move",
+            "description": "Successfully assigned office user to the move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2457,7 +2457,7 @@ func init() {
     },
     "/moves/{moveID}/unassignOfficeUser": {
       "patch": {
-        "description": "updates a move to unassign a services counselor, task ordering officer, or task invoicing officer",
+        "description": "updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer",
         "consumes": [
           "application/json"
         ],
@@ -2470,7 +2470,7 @@ func init() {
         "operationId": "deleteAssignedOfficeUser",
         "responses": {
           "200": {
-            "description": "Successfully updated move",
+            "description": "Successfully unassigned office user from the move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -2493,6 +2493,9 @@ func init() {
           "name": "body",
           "in": "body",
           "schema": {
+            "required": [
+              "roleType"
+            ],
             "properties": {
               "roleType": {
                 "type": "string"
@@ -6089,7 +6092,8 @@ func init() {
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
-        "officeUserId"
+        "officeUserId",
+        "roleType"
       ],
       "properties": {
         "officeUserId": {
@@ -16488,7 +16492,7 @@ func init() {
     },
     "/moves/{moveID}/assignOfficeUser": {
       "patch": {
-        "description": "updates a move with an assigned services counselor, task ordering officer, or task invoicing officer",
+        "description": "updates a move by assigning either a services counselor, task ordering officer, or task invoicing officer",
         "consumes": [
           "application/json"
         ],
@@ -16511,7 +16515,7 @@ func init() {
         ],
         "responses": {
           "200": {
-            "description": "Successfully updated move",
+            "description": "Successfully assigned office user to the move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -16761,7 +16765,7 @@ func init() {
     },
     "/moves/{moveID}/unassignOfficeUser": {
       "patch": {
-        "description": "updates a move to unassign a services counselor, task ordering officer, or task invoicing officer",
+        "description": "updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer",
         "consumes": [
           "application/json"
         ],
@@ -16774,7 +16778,7 @@ func init() {
         "operationId": "deleteAssignedOfficeUser",
         "responses": {
           "200": {
-            "description": "Successfully updated move",
+            "description": "Successfully unassigned office user from the move",
             "schema": {
               "$ref": "#/definitions/Move"
             }
@@ -16800,6 +16804,9 @@ func init() {
           "name": "body",
           "in": "body",
           "schema": {
+            "required": [
+              "roleType"
+            ],
             "properties": {
               "roleType": {
                 "type": "string"
@@ -21185,7 +21192,8 @@ func init() {
     "AssignOfficeUserBody": {
       "type": "object",
       "required": [
-        "officeUserId"
+        "officeUserId",
+        "roleType"
       ],
       "properties": {
         "officeUserId": {

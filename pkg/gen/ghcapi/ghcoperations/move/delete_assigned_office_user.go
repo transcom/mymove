@@ -9,9 +9,11 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/go-openapi/errors"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/go-openapi/validate"
 )
 
 // DeleteAssignedOfficeUserHandlerFunc turns a function with the right signature into a delete assigned office user handler
@@ -35,7 +37,7 @@ func NewDeleteAssignedOfficeUser(ctx *middleware.Context, handler DeleteAssigned
 /*
 	DeleteAssignedOfficeUser swagger:route PATCH /moves/{moveID}/unassignOfficeUser move deleteAssignedOfficeUser
 
-updates a move to unassign a services counselor, task ordering officer, or task invoicing officer
+updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer
 */
 type DeleteAssignedOfficeUser struct {
 	Context *middleware.Context
@@ -64,11 +66,30 @@ func (o *DeleteAssignedOfficeUser) ServeHTTP(rw http.ResponseWriter, r *http.Req
 type DeleteAssignedOfficeUserBody struct {
 
 	// role type
-	RoleType string `json:"roleType,omitempty"`
+	// Required: true
+	RoleType *string `json:"roleType"`
 }
 
 // Validate validates this delete assigned office user body
 func (o *DeleteAssignedOfficeUserBody) Validate(formats strfmt.Registry) error {
+	var res []error
+
+	if err := o.validateRoleType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if len(res) > 0 {
+		return errors.CompositeValidationError(res...)
+	}
+	return nil
+}
+
+func (o *DeleteAssignedOfficeUserBody) validateRoleType(formats strfmt.Registry) error {
+
+	if err := validate.Required("body"+"."+"roleType", "body", o.RoleType); err != nil {
+		return err
+	}
+
 	return nil
 }
 

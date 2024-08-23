@@ -3954,7 +3954,7 @@ paths:
             $ref: '#/definitions/AssignOfficeUserBody'
       responses:
         '200':
-          description: Successfully updated move
+          description: Successfully assigned office user to the move
           schema:
             $ref: '#/definitions/Move'
         '404':
@@ -3963,7 +3963,7 @@ paths:
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: updates a move with an assigned services counselor, task ordering officer, or task invoicing officer
+      description: updates a move by assigning either a services counselor, task ordering officer, or task invoicing officer
       operationId: updateAssignedOfficeUser
   /moves/{moveID}/unassignOfficeUser:
     parameters:
@@ -3979,6 +3979,8 @@ paths:
           properties:
             roleType:
               type: string
+          required:
+            - roleType
     patch:
       consumes:
         - application/json
@@ -3986,14 +3988,14 @@ paths:
         - application/json
       responses:
         '200':
-          description: Successfully updated move
+          description: Successfully unassigned office user from the move
           schema:
             $ref: '#/definitions/Move'
         '500':
           $ref: '#/responses/ServerError'
       tags:
         - move
-      description: updates a move to unassign a services counselor, task ordering officer, or task invoicing officer
+      description: updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer
       operationId: deleteAssignedOfficeUser
 definitions:
   ApplicationParameters:
@@ -7028,6 +7030,7 @@ definitions:
         type: string
     required:
       - officeUserId
+      - roleType
   AssignedOfficeUser:
     type: object
     properties:

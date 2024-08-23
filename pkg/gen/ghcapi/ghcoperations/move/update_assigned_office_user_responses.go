@@ -17,7 +17,7 @@ import (
 const UpdateAssignedOfficeUserOKCode int = 200
 
 /*
-UpdateAssignedOfficeUserOK Successfully updated move
+UpdateAssignedOfficeUserOK Successfully assigned office user to the move
 
 swagger:response updateAssignedOfficeUserOK
 */

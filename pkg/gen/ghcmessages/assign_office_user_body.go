@@ -25,7 +25,8 @@ type AssignOfficeUserBody struct {
 	OfficeUserID *strfmt.UUID `json:"officeUserId"`
 
 	// role type
-	RoleType string `json:"roleType,omitempty"`
+	// Required: true
+	RoleType *string `json:"roleType"`
 }
 
 // Validate validates this assign office user body
@@ -33,6 +34,10 @@ func (m *AssignOfficeUserBody) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateOfficeUserID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateRoleType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -49,6 +54,15 @@ func (m *AssignOfficeUserBody) validateOfficeUserID(formats strfmt.Registry) err
 	}
 
 	if err := validate.FormatOf("officeUserId", "body", "uuid", m.OfficeUserID.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *AssignOfficeUserBody) validateRoleType(formats strfmt.Registry) error {
+
+	if err := validate.Required("roleType", "body", m.RoleType); err != nil {
 		return err
 	}
 
