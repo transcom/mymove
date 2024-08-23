@@ -58,8 +58,6 @@ allOf:
           The reason item has been placed in SIT.
         x-nullable: true
         x-omitempty: false
-      sitAddressUpdates:
-        $ref: 'SitAddressUpdates.yaml'
       sitRequestedDelivery:
         format: date
         type: string
