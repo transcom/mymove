@@ -34,7 +34,11 @@ describe('components/Office/ShipmentWeightInput', () => {
       </Formik>,
     );
 
-    expect(screen.queryByText(/Optional/)).not.toBeInTheDocument();
+    const input = await screen.getByLabelText('Previously recorded weight (lbs)');
+    expect(
+      input.parentElement.getElementsByClassName('labelWrapper')[0].getElementsByTagName('div')[0].textContent ===
+        'Required',
+    );
   });
 
   it('makes Shipment Weight optional for Services Counselor', async () => {
@@ -44,6 +48,7 @@ describe('components/Office/ShipmentWeightInput', () => {
       </Formik>,
     );
 
-    expect(screen.queryByText(/Optional/)).toBeInTheDocument();
+    const input = await screen.getByLabelText('Previously recorded weight (lbs)');
+    expect(input.parentElement.getElementsByClassName('labelWrapper')[0].childElementCount === 1); // Ensure "required" text was not added.
   });
 });

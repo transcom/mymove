@@ -36,6 +36,7 @@ const OrdersDetailForm = ({
   payGradeOptions,
   formIsDisabled,
   hhgLongLineOfAccounting,
+  touched,
   ntsLongLineOfAccounting,
 }) => {
   const [formOrdersType, setFormOrdersType] = useState(ordersType);
@@ -49,6 +50,7 @@ const OrdersDetailForm = ({
         label="Current duty location"
         displayAddress={false}
         isDisabled={formIsDisabled}
+        touched={touched}
       />
       <DutyLocationInput
         name="newDutyLocation"
@@ -56,6 +58,7 @@ const OrdersDetailForm = ({
         displayAddress={false}
         placeholder={isRetirementOrSeparation ? 'Enter a city or ZIP' : 'Start typing a duty location...'}
         isDisabled={formIsDisabled}
+        touched={touched}
       />
       <DropdownInput
         data-testid="payGradeInput"
