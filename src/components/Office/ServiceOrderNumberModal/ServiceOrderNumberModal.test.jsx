@@ -30,7 +30,7 @@ describe('components/Office/ServiceOrderNumberModal', () => {
 
     await userEvent.clear(textbox);
     await userEvent.click(saveButton);
-    await waitFor(() => expect(screen.getByText('Required')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText('Required')).length > 0);
     expect(onSubmit).not.toHaveBeenCalled();
 
     await userEvent.type(textbox, 'ABC123');

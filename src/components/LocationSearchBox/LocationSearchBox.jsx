@@ -1,7 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { FormGroup, Label } from '@trussworks/react-uswds';
+import { ErrorMessage, FormGroup, Label } from '@trussworks/react-uswds';
 import AsyncSelect from 'react-select/async';
 import classNames from 'classnames';
 import { debounce } from 'lodash';
@@ -9,6 +9,7 @@ import { debounce } from 'lodash';
 import styles from './LocationSearchBox.module.scss';
 import { SearchDutyLocations, ShowAddress } from './api';
 
+import { RequiredTag } from 'components/form/RequiredTag';
 import Hint from 'components/Hint';
 import { DutyLocationShape } from 'types';
 
@@ -110,6 +111,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
   handleZipCityOnChange,
+  required,
 }) => {
   const { value, onChange, name: inputName } = input;
 
@@ -214,6 +216,7 @@ export const LocationSearchBoxComponent = ({
         <Label htmlFor={inputId} className={labelClasses}>
           {title}
         </Label>
+        {required && <RequiredTag />}
       </div>
       {hint && <Hint className={styles.hint}>{hint}</Hint>}
       <div className={inputContainerClasses}>
@@ -242,7 +245,7 @@ export const LocationSearchBoxComponent = ({
           {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
       )}
-      {errorMsg && <span className="usa-error-message">{errorMsg}</span>}
+      {errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
     </FormGroup>
   );
 };

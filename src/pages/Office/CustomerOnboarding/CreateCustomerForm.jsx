@@ -262,7 +262,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       label="DoD ID number"
                       name="edipi"
                       id="edipi"
-                      labelHint="Optional"
+                      optional
                       maxLength="10"
                       isDisabled={isSafetyMove}
                     />
@@ -272,7 +272,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         name="emplid"
                         id="emplid"
                         maxLength="7"
-                        labelHint="Optional"
+                        optional
                         inputMode="numeric"
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}
@@ -282,9 +282,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Name</h3>
                     <TextField label="First name" name="first_name" id="firstName" required />
-                    <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+                    <TextField label="Middle name" name="middle_name" id="middleName" optional />
                     <TextField label="Last name" name="last_name" id="lastName" required />
-                    <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+                    <TextField label="Suffix" name="suffix" id="suffix" optional />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Contact Info</h3>
@@ -299,7 +299,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <MaskedTextField
                       label="Alt. phone"
-                      labelHint="Optional"
+                      optional
                       id="altTelephone"
                       name="secondary_telephone"
                       type="tel"
@@ -323,14 +323,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <TextField
                       label="Address 2"
-                      labelHint="Optional"
+                      optional
                       id="mailingAddress2"
                       name="residential_address.streetAddress2"
                       data-testid="res-add-street2"
                     />
                     <TextField
                       label="Address 3"
-                      labelHint="Optional"
+                      optional
                       id="mailingAddress3"
                       name="residential_address.streetAddress3"
                       data-testid="res-add-street3"
@@ -368,14 +368,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <TextField
                       label="Address 2"
-                      labelHint="Optional"
+                      optional
                       id="backupMailingAddress2"
                       name="backup_mailing_address.streetAddress2"
                       data-testid="backup-add-street2"
                     />
                     <TextField
                       label="Address 3"
-                      labelHint="Optional"
+                      optional
                       id="backupMailingAddress3"
                       name="backup_mailing_address.streetAddress3"
                       data-testid="backup-add-street3"
