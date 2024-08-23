@@ -12,34 +12,36 @@ import (
 
 // PPTAS PPTASReport
 type PPTASReport struct {
-	FirstName         *string
-	LastName          *string
-	MiddleInitial     *string
-	Affiliation       *ServiceMemberAffiliation
-	PayGrade          *internalmessages.OrderPayGrade
-	Edipi             *string
-	PhonePrimary      *string
-	PhoneSecondary    *string
-	EmailPrimary      *string
-	EmailSecondary    *string
-	Address           *Address
-	OrdersType        internalmessages.OrdersType
-	OrdersNumber      *string
-	OrdersDate        *time.Time
-	TravelClassCode   *string
-	OriginGBLOC       *string
-	DestinationGBLOC  *string
-	DepCD             bool
-	TAC               *string
-	ShipmentNum       int
-	TransmitCd        *string
-	SCAC              *string
-	CounseledDate     *time.Time
-	WeightAuthorized  *unit.Pound
-	EntitlementWeight *unit.Pound
-	OrderNumber       *string
-	TravelType        *string
-	Shipments         []*pptasmessages.PPTASShipment
+	FirstName              *string
+	LastName               *string
+	MiddleInitial          *string
+	Affiliation            *ServiceMemberAffiliation
+	PayGrade               *internalmessages.OrderPayGrade
+	Edipi                  *string
+	PhonePrimary           *string
+	PhoneSecondary         *string
+	EmailPrimary           *string
+	EmailSecondary         *string
+	Address                *Address
+	OrdersType             internalmessages.OrdersType
+	OrdersNumber           *string
+	OrdersDate             *time.Time
+	TravelClassCode        *string
+	OriginGBLOC            *string
+	DestinationGBLOC       *string
+	DepCD                  bool
+	TAC                    *string
+	ShipmentNum            int
+	TransmitCd             *string
+	SCAC                   *string
+	CounseledDate          *time.Time
+	WeightAuthorized       *unit.Pound
+	EntitlementWeight      *unit.Pound
+	OrderNumber            *string
+	TravelType             *string
+	FinancialReviewFlag    *bool
+	FinancialReviewRemarks *string
+	Shipments              []*pptasmessages.PPTASShipment
 }
 
 type PPTASReports []PPTASReport
@@ -104,5 +106,4 @@ type PPTASShipment struct {
 	DeliveryDate                *time.Time
 	ActualOriginNetWeight       *unit.Pound
 	DestinationReweighNetWeight *unit.Pound
-	FinancialReviewFlag         *bool
 }

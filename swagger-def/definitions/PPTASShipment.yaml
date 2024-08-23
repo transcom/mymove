@@ -244,6 +244,3 @@ properties:
     type: number
     format: double
     x-nullable: true
-  financialReviewFlag:
-    type: boolean
-    x-nullable: true

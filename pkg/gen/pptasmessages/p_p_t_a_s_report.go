@@ -51,6 +51,12 @@ type PPTASReport struct {
 	// entitlement weight
 	EntitlementWeight *int64 `json:"entitlementWeight,omitempty"`
 
+	// financial review flag
+	FinancialReviewFlag *bool `json:"financialReviewFlag,omitempty"`
+
+	// financial review remarks
+	FinancialReviewRemarks *string `json:"financialReviewRemarks,omitempty"`
+
 	// first name
 	// Example: Bob
 	FirstName string `json:"firstName,omitempty"`

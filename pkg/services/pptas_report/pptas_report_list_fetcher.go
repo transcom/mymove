@@ -77,6 +77,13 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.DepCD = orders.HasDependents
 		report.TransmitCd = &transmitCd
 		report.CounseledDate = move.ServiceCounselingCompletedAt
+
+		financialFlag := move.FinancialReviewFlag
+		report.FinancialReviewFlag = &financialFlag
+
+		financialRemarks := move.FinancialReviewRemarks
+		report.FinancialReviewRemarks = financialRemarks
+
 		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress")
 		if addressLoad != nil {
 			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
@@ -198,9 +205,6 @@ func populateShipmentFields(
 
 		netWeight := models.GetTotalNetWeightForMTOShipment(shipment).Int64()
 		pptasShipment.NetWeight = &netWeight
-
-		financialFlag := move.FinancialReviewFlag
-		pptasShipment.FinancialReviewFlag = &financialFlag
 
 		var weightEstimate float64
 		if shipment.PPMShipment != nil {
