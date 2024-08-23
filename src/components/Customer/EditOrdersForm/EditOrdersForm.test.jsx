@@ -322,7 +322,7 @@ describe('EditOrdersForm component', () => {
       expect(submitButton).toBeDisabled();
     });
 
-    const required = screen.getByText('Required');
+    const required = screen.getByTestId('errorMessage');
     expect(required).toBeInTheDocument();
   });
 

@@ -91,6 +91,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   className={classnames(styles.actualMoveDate, 'usa-input')}
                   name="actualMoveDate"
                   label="When did you leave your origin?"
+                  required
                 />
                 <Hint className={ppmStyles.hint}>If it took you more than one day to move out, use the first day.</Hint>
                 <h2>Locations</h2>
