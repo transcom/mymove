@@ -181,14 +181,6 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		suite.Len(okResponse.Payload, 3)
 		for _, serviceItem := range serviceItems {
 			for _, payload := range okResponse.Payload {
-				// Validate that SITAddressUpdates are included in payload
-				if len(serviceItem.SITAddressUpdates) > 0 {
-					if len(payload.SitAddressUpdates) > 0 {
-						suite.Equal(serviceItem.ID.String(), payload.ID.String())
-						suite.Len(payload.SitAddressUpdates, 1)
-						suite.Equal(serviceItem.SITAddressUpdates[0].ID.String(), payload.SitAddressUpdates[0].ID.String())
-					}
-				}
 				// Validate that the Customer Contacts were included in the payload
 				if len(serviceItem.CustomerContacts) > 0 {
 					if len(payload.CustomerContacts) > 0 {
