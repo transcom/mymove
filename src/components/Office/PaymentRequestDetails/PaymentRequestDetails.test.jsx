@@ -52,6 +52,7 @@ const hhgServiceItems = [
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoServiceItemName: 'Domestic linehaul',
+    tppsInvoiceAmountPaidPerServiceItemMillicents: 100001000,
   },
   {
     id: '09474c6a-69b6-4501-8e08-670a12512a5b',
@@ -62,6 +63,7 @@ const hhgServiceItems = [
     status: PAYMENT_SERVICE_ITEM_STATUS.REQUESTED,
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoServiceItemName: 'Fuel surcharge',
+    tppsInvoiceAmountPaidPerServiceItemMillicents: 200001000,
   },
   {
     id: '09474c6a-69b6-4501-8e08-670a12512a5c',
@@ -72,6 +74,7 @@ const hhgServiceItems = [
     status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoServiceItemName: 'Domestic origin price',
+    tppsInvoiceAmountPaidPerServiceItemMillicents: 300001000,
   },
   {
     id: '09474c6a-69b6-4501-8e08-670a12512a5d',
@@ -82,6 +85,7 @@ const hhgServiceItems = [
     status: PAYMENT_SERVICE_ITEM_STATUS.APPROVED,
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoServiceItemName: 'Domestic destination price',
+    tppsInvoiceAmountPaidPerServiceItemMillicents: 400001000,
   },
   {
     id: '09474c6a-69b6-4501-8e08-670a12512a5e',
@@ -92,6 +96,7 @@ const hhgServiceItems = [
     status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoServiceItemName: 'Domestic packing',
+    tppsInvoiceAmountPaidPerServiceItemMillicents: 500001000,
   },
   {
     id: '09474c6a-69b6-4501-8e08-670a12512a5f',
@@ -102,6 +107,7 @@ const hhgServiceItems = [
     status: PAYMENT_SERVICE_ITEM_STATUS.DENIED,
     mtoShipmentType: SHIPMENT_OPTIONS.HHG,
     mtoServiceItemName: 'Domestic unpacking',
+    tppsInvoiceAmountPaidPerServiceItemMillicents: 600001000,
   },
 ];
 
@@ -451,6 +457,87 @@ describe('PaymentRequestDetails', () => {
     );
     it('there is a diversion tag displayed', () => {
       expect(wrapper.find('ShipmentModificationTag').text()).toBe(shipmentModificationTypes.DIVERSION);
+    });
+  });
+
+  describe('when a payment request has TPPS data that needs to be displayed ', () => {
+    const wrapper = mount(
+      <MockProviders>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipment={hhgShipmentDiversion}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+          tppsDataExists
+        />
+      </MockProviders>,
+    );
+
+    it('renders the service item names', () => {
+      const serviceItemNames = wrapper.find({ 'data-testid': 'serviceItemName' });
+      expect(serviceItemNames.at(0).text()).toEqual('Domestic linehaul');
+      expect(serviceItemNames.at(1).text()).toEqual('Fuel surcharge');
+      expect(serviceItemNames.at(2).text()).toEqual('Domestic origin price');
+      expect(serviceItemNames.at(3).text()).toEqual('Domestic destination price');
+      expect(serviceItemNames.at(4).text()).toEqual('Domestic packing');
+      expect(serviceItemNames.at(5).text()).toEqual('Domestic unpacking');
+    });
+
+    it('renders the service item amounts', () => {
+      const serviceItemAmounts = wrapper.find({ 'data-testid': 'serviceItemAmount' });
+      expect(serviceItemAmounts.at(0).text()).toEqual('$1,000.01');
+      expect(serviceItemAmounts.at(1).text()).toEqual('$2,000.01');
+      expect(serviceItemAmounts.at(2).text()).toEqual('$3,000.01');
+      expect(serviceItemAmounts.at(3).text()).toEqual('$4,000.01');
+      expect(serviceItemAmounts.at(4).text()).toEqual('$5,000.01');
+      expect(serviceItemAmounts.at(5).text()).toEqual('$6,000.01');
+    });
+
+    it('renders the service item TPPS Paid amounts', () => {
+      const serviceItemTPPSPaidAmounts = wrapper.find({ 'data-testid': 'serviceItemTPPSPaidAmount' });
+      expect(serviceItemTPPSPaidAmounts.at(0).text()).toEqual('$1,000.01');
+      expect(serviceItemTPPSPaidAmounts.at(1).text()).toEqual('$2,000.01');
+      expect(serviceItemTPPSPaidAmounts.at(2).text()).toEqual('$3,000.01');
+      expect(serviceItemTPPSPaidAmounts.at(3).text()).toEqual('$4,000.01');
+      expect(serviceItemTPPSPaidAmounts.at(4).text()).toEqual('$5,000.01');
+      expect(serviceItemTPPSPaidAmounts.at(5).text()).toEqual('$6,000.01');
+    });
+  });
+
+  describe('does not render TPPS data when a payment request does not have TPPS data that needs to be displayed', () => {
+    const wrapper = mount(
+      <MockProviders>
+        <PaymentRequestDetails
+          serviceItems={hhgServiceItems}
+          shipment={hhgShipmentDiversion}
+          paymentRequestStatus={PAYMENT_REQUEST_STATUSES.PENDING}
+          tppsDataExists={false}
+        />
+      </MockProviders>,
+    );
+
+    it('renders the service item names', () => {
+      const serviceItemNames = wrapper.find({ 'data-testid': 'serviceItemName' });
+      expect(serviceItemNames.at(0).text()).toEqual('Domestic linehaul');
+      expect(serviceItemNames.at(1).text()).toEqual('Fuel surcharge');
+      expect(serviceItemNames.at(2).text()).toEqual('Domestic origin price');
+      expect(serviceItemNames.at(3).text()).toEqual('Domestic destination price');
+      expect(serviceItemNames.at(4).text()).toEqual('Domestic packing');
+      expect(serviceItemNames.at(5).text()).toEqual('Domestic unpacking');
+    });
+
+    it('renders the service item amounts', () => {
+      const serviceItemAmounts = wrapper.find({ 'data-testid': 'serviceItemAmount' });
+      expect(serviceItemAmounts.at(0).text()).toEqual('$1,000.01');
+      expect(serviceItemAmounts.at(1).text()).toEqual('$2,000.01');
+      expect(serviceItemAmounts.at(2).text()).toEqual('$3,000.01');
+      expect(serviceItemAmounts.at(3).text()).toEqual('$4,000.01');
+      expect(serviceItemAmounts.at(4).text()).toEqual('$5,000.01');
+      expect(serviceItemAmounts.at(5).text()).toEqual('$6,000.01');
+    });
+
+    it('does not render the service item TPPS Paid amounts', () => {
+      const serviceItemTPPSPaidAmounts = wrapper.find({ 'data-testid': 'serviceItemTPPSPaidAmount' });
+      expect(serviceItemTPPSPaidAmounts.exists()).toBe(false);
     });
   });
 });

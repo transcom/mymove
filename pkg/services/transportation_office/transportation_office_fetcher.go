@@ -117,3 +117,48 @@ func ListDistinctGBLOCs(appCtx appcontext.AppContext) (models.GBLOCs, error) {
 
 	return gblocList, err
 }
+
+func (o transportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
+	officeList, err := findCounselingOffice(appCtx, dutyLocationID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return &officeList, apperror.NewNotFoundError(uuid.Nil, "dutyLocationID not found")
+		default:
+			return &officeList, err
+		}
+	}
+
+	return &officeList, nil
+}
+
+// return all the transportation offices in the GBLOC of the given duty location where provides_services_counseling = true
+func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (models.TransportationOffices, error) {
+	var officeList []models.TransportationOffice
+
+	sqlQuery := `
+		with counseling_offices as (
+		SELECT transportation_offices.id, transportation_offices.name
+				FROM postal_code_to_gblocs
+				JOIN addresses on postal_code_to_gblocs.postal_code = addresses.postal_code
+				JOIN duty_locations on addresses.id = duty_locations.address_id
+				JOIN transportation_offices on postal_code_to_gblocs.gbloc = transportation_offices.gbloc
+				WHERE duty_locations.provides_services_counseling = true and duty_locations.id = $1
+		)
+		SELECT counseling_offices.id, counseling_offices.name
+		FROM counseling_offices
+		JOIN duty_locations duty_locations2 on counseling_offices.id = duty_locations2.transportation_office_id
+		WHERE duty_locations2.provides_services_counseling = true
+		GROUP BY counseling_offices.id, counseling_offices.name
+		ORDER BY counseling_offices.name asc`
+
+	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
+	if err := query.All(&officeList); err != nil {
+		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+			return officeList, err
+		}
+	}
+
+	return officeList, nil
+}
