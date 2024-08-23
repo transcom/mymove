@@ -89,6 +89,34 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			}
 			/** End of Feature Flag **/
 
+			/** Feature Flag - Mobile Home Shipment **/
+			featureFlagNameMH := "mobile_home"
+			isMobileHomeFeatureOn := false
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
+				isMobileHomeFeatureOn = false
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+
+			// Remove Mobile Home shipments if Mobile Home FF is off
+			if !isMobileHomeFeatureOn {
+				var filteredShipments models.MTOShipments
+				if shipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range shipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, shipments[i])
+				}
+				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
 			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses, h.FileStorer())
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments), sitStatusPayload)
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
@@ -215,6 +243,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
+			}
+
 			var err error
 			mtoShipment, err = h.shipmentCreator.CreateShipment(appCtx, mtoShipment)
 
@@ -338,6 +371,12 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 					), err
 				}
 			}
+
+			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
+				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
+				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
+			}
+
 			updatedMtoShipment, err := h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "ghc")
 			if err != nil {
 				return handleError(err)

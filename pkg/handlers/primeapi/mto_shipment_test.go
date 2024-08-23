@@ -27,6 +27,7 @@ import (
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -51,6 +52,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentCreator := ppmshipment.NewPPMShipmentCreator(&ppmEstimator, addressCreator)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
+	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
 	shipmentRouter := mtoshipment.NewShipmentRouter()
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance",
@@ -88,7 +90,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer()),
 		moveRouter, setUpSignedCertificationCreatorMock(nil, nil), setUpSignedCertificationUpdaterMock(nil, nil),
 	)
-	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	shipmentCreator := shipmentorchestrator.NewShipmentCreator(mtoShipmentCreator, ppmShipmentCreator, boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 	mockCreator := mocks.ShipmentCreator{}
 
 	var pickupAddress primemessages.Address
@@ -779,8 +781,9 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
 		// Add a 12 day transit time for a distance of 400
 		ghcDomesticTransitTime := models.GHCDomesticTransitTime{
@@ -1015,7 +1018,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		addressUpdater := address.NewAddressUpdater()
 		ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 		boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
-		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+		mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+		shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 		handler := UpdateMTOShipmentHandler{
 			suite.HandlerConfig(),
 			shipmentUpdater,
@@ -1027,6 +1031,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -1126,6 +1131,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 			},
 		}, nil)
 		suite.Nil(shipment.MoveTaskOrder.AvailableToPrimeAt)
+		suite.Nil(shipment.MoveTaskOrder.ApprovedAt)
 
 		// Create params
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", shipment.ID.String()), nil)
@@ -1176,6 +1182,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		// Check that they point to the same move and that it's available
 		suite.Equal(ogShipment.MoveTaskOrderID, externalShipment.MoveTaskOrderID)
 		suite.NotNil(ogShipment.MoveTaskOrder.AvailableToPrimeAt)
+		suite.NotNil(ogShipment.MoveTaskOrder.ApprovedAt)
 
 		// Create params
 		req := httptest.NewRequest("PATCH", fmt.Sprintf("/mto-shipments/%s", externalShipment.ID.String()), nil)
@@ -1557,7 +1564,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentAddressLogic() {
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.MTOShipment) {
 		handlerConfig := suite.HandlerConfig()
@@ -1775,7 +1783,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentDateLogic() {
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(mtoShipmentUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 
 	setupTestData := func() (UpdateMTOShipmentHandler, models.Move) {
 		handlerConfig := suite.HandlerConfig()
@@ -2596,6 +2605,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 			{
@@ -2625,6 +2635,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 				},
 			},
 		}, nil)
@@ -2651,6 +2662,7 @@ func (suite *HandlerSuite) TestDeleteMTOShipmentHandler() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: nil,
+					ApprovedAt:         nil,
 				},
 			},
 		}, nil)
