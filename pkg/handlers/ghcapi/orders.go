@@ -164,6 +164,7 @@ func (h CounselingUpdateOrderHandler) Handle(
 // CounselingUpdateOrderHandler create an order via POST /orders
 type CreateOrderHandler struct {
 	handlers.HandlerConfig
+	services.TransportationOfficesFetcher
 }
 
 // Handle ... creates an order as requested by a services counselor
@@ -186,21 +187,10 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			var transportationOffice models.TransportationOffice
-			transportationOfficeErr := appCtx.DB().Q().
-				Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-				Where("office_users.id = ?", appCtx.Session().OfficeUserID).
-				First(&transportationOffice)
-
-			// transportationOffice, err := services.TransportationOfficesFetcher.GetServiceCounselingTransportationOffice(appCtx)
-			// if err != nil {
-			// 	appCtx.Logger().Error(err.Error())
-			// 	return orderop.NewCreateOrderUnprocessableEntity(), err
-			// }
-
-			if transportationOfficeErr != nil {
-				OfficeErr := apperror.NewBadDataError("Missing Transportation Office.")
-				appCtx.Logger().Error(OfficeErr.Error())
+			transportationOffice, err := h.GetServiceCounselingTransportationOffice(appCtx)
+			if err != nil {
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
 			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
@@ -329,7 +319,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			moveOptions := models.MoveOptions{
 				Show:             models.BoolPointer(true),
 				Status:           &status,
-				CounselingOffice: &transportationOffice,
+				CounselingOffice: transportationOffice,
 			}
 
 			if newOrder.OrdersType == "SAFETY" {

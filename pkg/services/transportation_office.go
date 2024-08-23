@@ -12,5 +12,5 @@ type TransportationOfficesFetcher interface {
 	GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error)
 	GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error)
 	GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error)
-	// GetServiceCounselingTransportationOffice(appCtx appcontext.AppContext) (*models.TransportationOffices, error)
+	GetServiceCounselingTransportationOffice(appCtx appcontext.AppContext) (*models.TransportationOffice, error)
 }

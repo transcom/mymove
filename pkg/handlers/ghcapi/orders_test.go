@@ -80,10 +80,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		CreateOrders: payload,
 	}
 
+	officeFetcher := mocks.TransportationOfficesFetcher{}
+	officeFetcher.On("GetServiceCounselingTransportationOffice",
+		mock.AnythingOfType("*appcontext.appContext")).Return(nil, nil)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	handlerConfig := suite.HandlerConfig()
 	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrderHandler{handlerConfig}
+	createHandler := CreateOrderHandler{handlerConfig, &officeFetcher}
 
 	response := createHandler.Handle(params)
 
