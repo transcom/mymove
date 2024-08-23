@@ -194,6 +194,12 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 			newer.PrimeEstimatedWeightRecordedDate = &now
 		}
 
+		if newer.NTSRecordedWeight != nil {
+			if older.PrimeEstimatedWeight != newer.NTSRecordedWeight || older.PrimeEstimatedWeight != nil {
+				verrs.Add("ntsRecordedWeight", "cannot be updated after initial estimation")
+			}
+		}
+
 		// Prime cannot update or add agents with this endpoint, so this should always be empty
 		if len(newer.MTOAgents) > 0 {
 			if len(older.MTOAgents) < len(newer.MTOAgents) {
