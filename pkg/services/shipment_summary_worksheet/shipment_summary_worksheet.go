@@ -223,8 +223,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
-	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyLocation)
+	page1.AuthorizedOrigin = data.CurrentDutyLocation.Name
 	page1.AuthorizedDestination = data.NewDutyLocation.Name
+
 	page1.NewDutyAssignment = data.NewDutyLocation.Name
 
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
@@ -402,11 +403,6 @@ func FormatSignatureDate(signature time.Time) string {
 	dateLayout := "02 Jan 2006" // Removed time to save space on template, per PO it's not needed
 	dt := signature.Format(dateLayout)
 	return dt
-}
-
-// FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyLocation models.DutyLocation) string {
-	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
 }
 
 // FormatAddress retrieves a PPMShipment W2Address and formats it for the SSW Document
