@@ -29,7 +29,7 @@ const MobileHomeShipmentCreate = ({
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
-  const [mobileHomeShipmentObj, setMobileHomeShipmentObj] = useState(null);
+  // const [mobileHomeShipmentObj, setMobileHomeShipmentObj] = useState(null);
   // const [setSubmitValues] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -62,7 +62,7 @@ const MobileHomeShipmentCreate = ({
 
   const onShipmentSaveSuccess = (response, setSubmitting) => {
     // Update submitting state
-    setSubmitting(true);
+    setSubmitting(false);
     const baseMtoShipment = mtoShipment?.id ? mtoShipment : response;
     const data = {
       ...baseMtoShipment,
@@ -81,11 +81,11 @@ const MobileHomeShipmentCreate = ({
       });
     }
 
-    dispatch(updateMTOShipment(data));
+    dispatch(updateMTOShipment(response));
 
     // navigate to the next page
     navigate(
-      generatePath(customerRoutes.SHIPMENT_MOBILE_HOME_INFO, {
+      generatePath(customerRoutes.SHIPMENT_MOBILE_HOME_LOCATION_INFO, {
         moveId,
         mtoShipmentId: response.id,
       }),
@@ -126,28 +126,32 @@ const MobileHomeShipmentCreate = ({
 
   // open confirmation modal to validate mobile home shipment
   const handleSubmit = async (values, { setSubmitting }) => {
-    setIsSubmitting(true);
     setErrorMessage(null);
     const totalLengthInInches = toTotalInches(values.lengthFeet, values.lengthInches);
     const totalWidthInInches = toTotalInches(values.widthFeet, values.widthInches);
     const totalHeightInInches = toTotalInches(values.heightFeet, values.heightInches);
 
-    const mobileHomeShipment = {
-      year: Number(values.year),
-      make: values.make,
-      model: values.model,
-      lengthInInches: totalLengthInInches,
-      widthInInches: totalWidthInInches,
-      heightInInches: totalHeightInInches,
-    };
-    setMobileHomeShipmentObj(mobileHomeShipment);
-
-    const mtoShipmentType = SHIPMENT_TYPES.MOBILE_HOME;
+    // const mobileHomeShipment = {
+    //   year: Number(values.year),
+    //   make: values.make,
+    //   model: values.model,
+    //   lengthInInches: totalLengthInInches,
+    //   widthInInches: totalWidthInInches,
+    //   heightInInches: totalHeightInInches,
+    // };
+    // setMobileHomeShipmentObj(mobileHomeShipment);
 
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
-      shipmentType: mtoShipmentType,
-      mobileHomeShipment: { ...mobileHomeShipmentObj },
+      shipmentType: SHIPMENT_TYPES.MOBILE_HOME,
+      mobileHomeShipment: {
+        year: Number(values.year),
+        make: values.make,
+        model: values.model,
+        lengthInInches: totalLengthInInches,
+        widthInInches: totalWidthInInches,
+        heightInInches: totalHeightInInches,
+      },
       customerRemarks: values.customerRemarks,
     };
 
@@ -157,6 +161,7 @@ const MobileHomeShipmentCreate = ({
           onShipmentSaveSuccess(shipmentResponse, setSubmitting);
         })
         .catch((e) => {
+          setSubmitting(false);
           const { response } = e;
           let errorMsg = 'There was an error attempting to create your shipment.';
           if (response?.body?.invalidFields) {
@@ -164,7 +169,6 @@ const MobileHomeShipmentCreate = ({
             const firstError = response?.body?.invalidFields[keys[0]][0];
             errorMsg = firstError;
           }
-          setIsSubmitting(false);
           setErrorMessage(errorMsg);
         });
     } else {

@@ -357,7 +357,7 @@ export class CustomerApp extends Component {
                     />
                     <Route path={customerRoutes.SHIPMENT_BOAT_LOCATION_INFO} element={<BoatShipmentLocationInfo />} />
                     <Route
-                      path={customerRoutes.SHIPMENT_MOBILE_HOME_INFO}
+                      path={customerRoutes.SHIPMENT_MOBILE_HOME_LOCATION_INFO}
                       element={<MobileHomeShipmentLocationInfo />}
                     />
                     <Route
