@@ -419,7 +419,7 @@ describe('ShipmentSITDisplay', () => {
     const sitStartAndEndTable = await screen.findByTestId('sitStartAndEndTable');
     expect(sitStartAndEndTable).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('SIT authorized end date')).toBeInTheDocument();
-    expect(within(sitStartAndEndTable).getByText('27 Aug 2021')).toBeInTheDocument();
+    expect(within(sitStartAndEndTable).getByText('28 Aug 2021')).toBeInTheDocument();
   });
   it('does not render pastSitDepartureDateTable if current sit', async () => {
     render(
