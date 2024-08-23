@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset, Alert } from '@trussworks/react-uswds';
+import { Fieldset } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
+import Hint from 'components/Hint/index';
+import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
@@ -37,6 +39,9 @@ export const AddressFields = ({
   const addressFieldsUUID = useRef(uuidv4());
   let postalCodeField;
   let stateField;
+  const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
+  const errorStr = 'Not all data was able to populate successfully. Contact the ';
+  const assistanceStr = ' for further assistance.';
 
   if (formikFunctionsToValidatePostalCodeOnChange) {
     postalCodeField = (
@@ -127,22 +132,22 @@ export const AddressFields = ({
                 handleZipCityChange={handleZipCityChange}
               />
               {!zipCityError && (
-                <Alert type="info" aria-live="polite" headingLevel="h4">
-                  If you encounter any inaccurate lookup information please contact the
+                <Hint className={styles.hint} id="zipCityInfo" data-testid="zipCityInfo">
+                  {infoStr}
                   <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                     Technical Help Desk
                   </a>
-                  for further assistance.
-                </Alert>
+                  {assistanceStr}
+                </Hint>
               )}
               {zipCityError && (
-                <Alert type="error" aria-live="polite" headingLevel="h4">
-                  Not all data was able to populate successfully. Contact the
+                <Hint className={styles.hintError} id="zipCityError" data-testid="zipCityError">
+                  {errorStr}
                   <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                     Technical Help Desk
                   </a>
-                  for further assistance.
-                </Alert>
+                  {assistanceStr}
+                </Hint>
               )}
             </>
           )}
@@ -157,6 +162,7 @@ export const AddressFields = ({
               />
               {zipCityEnabled && (
                 <TextField
+                  className={styles.countyInput}
                   label="County"
                   id={`county_${addressFieldsUUID.current}`}
                   name={`${name}.county`}
