@@ -84,6 +84,10 @@ test.describe('TOO user', () => {
       await page.locator('#facilityLotNumber').fill('1111111');
       await page.locator('#facilityLotNumber').blur();
 
+      // Delivery info
+      await page.locator('#requestedDeliveryDate').clear();
+      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
+
       // TAC and SAC
       await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();
       await page.locator('[data-testid="radio"] [for="sacType-HHG"]').click();
@@ -191,7 +195,7 @@ test.describe('TOO user', () => {
       const today = new Date();
       const formattedDate = new Intl.DateTimeFormat('en-GB', {
         day: '2-digit',
-        month: '2-digit',
+        month: 'short',
         year: 'numeric',
       }).format(today);
       await page.locator('input[name="issueDate"]').fill(formattedDate);

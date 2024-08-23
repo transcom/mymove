@@ -7,7 +7,7 @@ import {
   shipmentStatuses,
   boatShipmentTypes,
 } from 'constants/shipments';
-import { LOA_TYPE, SHIPMENT_TYPES } from 'shared/constants';
+import { LOA_TYPE, SHIPMENT_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
@@ -15,7 +15,9 @@ import { SITExtensionShape } from 'types/sitExtensions';
 import { ExistingUploadsShape } from 'types/uploads';
 import { expenseTypesArr } from 'constants/ppmExpenseTypes';
 
-export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_TYPES));
+export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
+
+export const ShipmentTypesOneOf = oneOf(Object.values(SHIPMENT_TYPES));
 
 export const ShipmentStatusesOneOf = oneOf(Object.values(shipmentStatuses));
 
@@ -167,7 +169,7 @@ export const ShipmentShape = shape({
   tertiaryDeliveryAddress: AddressShape,
   customerRemarks: string,
   counselorRemarks: string,
-  shipmentType: ShipmentOptionsOneOf,
+  shipmentType: ShipmentTypesOneOf,
   status: ShipmentStatusesOneOf,
   rejectionReason: string,
   reweigh: shape({

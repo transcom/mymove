@@ -191,9 +191,77 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		for j := range paymentRequests[i].ProofOfServiceDocs {
 			paymentRequests[i].ProofOfServiceDocs[j].PrimeUploads = paymentRequests[i].ProofOfServiceDocs[j].PrimeUploads.FilterDeleted()
 		}
+
+		mostRecentEdiErrorForPaymentRequest, errFetchingEdiError := fetchEDIErrorsForPaymentRequest(appCtx, &paymentRequests[i])
+		if errFetchingEdiError != nil {
+			return nil, errFetchingEdiError
+		}
+
+		// We process TPPS Paid Invoice Reports to get payment information for each payment service item
+		// As well as the total amount paid for the overall payment request, and the date it was paid
+		// This report tells us how much TPPS paid HS, then we store and display it
+		tppsReportEntryList, errFetchingTPPSInformation := fetchTPPSPaidInvoiceReportDataPaymentRequest(appCtx, &paymentRequests[i])
+		if errFetchingTPPSInformation != nil {
+			return nil, errFetchingTPPSInformation
+		}
+
+		paymentRequests[i].EdiErrors = append(paymentRequests[i].EdiErrors, mostRecentEdiErrorForPaymentRequest)
+		paymentRequests[i].TPPSPaidInvoiceReports = tppsReportEntryList
+
 	}
 
 	return &paymentRequests, nil
+}
+
+// fetchEDIErrorsForPaymentRequest returns the edi_error with the most recent created_at date for a payment request
+func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.EdiError, error) {
+
+	// find any associated errors in the edi_errors table from processing the EDI 858, 824, or 997
+	var ediError []models.EdiError
+	ediErrorInfo := models.EdiError{}
+
+	// regardless of PR status, find any associated edi_errors
+	// 997s could have edi_errors logged but not have a status of EDI_ERROR
+	err := appCtx.DB().Q().
+		Where("edi_errors.payment_request_id = $1", pr.ID).
+		Order("created_at DESC").
+		All(&ediError)
+
+	if err != nil {
+		return ediErrorInfo, err
+	} else if len(ediError) == 0 {
+		return ediErrorInfo, nil
+	}
+	if len(ediError) > 0 {
+		// since we ordered by created_at desc, the first result will be the most recent error we want to grab
+		ediErrorInfo = ediError[0]
+	}
+
+	return ediErrorInfo, nil
+}
+
+// fetchTPPSPaidInvoiceReportDataPaymentRequest returns entries in the tpps_paid_invoice_reports
+// for a payment request by matching the payment request number to the TPPS invoice number
+func fetchTPPSPaidInvoiceReportDataPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.TPPSPaidInvoiceReportEntrys, error) {
+
+	var tppsPaidInvoiceReport []models.TPPSPaidInvoiceReportEntry
+	tppsPaidInformation := models.TPPSPaidInvoiceReportEntrys{}
+
+	err := appCtx.DB().Q().
+		Where("tpps_paid_invoice_reports.invoice_number = $1", pr.PaymentRequestNumber).
+		All(&tppsPaidInvoiceReport)
+
+	if err != nil {
+		return tppsPaidInformation, err
+	} else if len(tppsPaidInvoiceReport) == 0 {
+		return tppsPaidInformation, nil
+	}
+	if len(tppsPaidInvoiceReport) > 0 {
+		tppsPaidInformation = tppsPaidInvoiceReport
+		return tppsPaidInformation, nil
+	}
+
+	return tppsPaidInformation, nil
 }
 
 func orderName(query *pop.Query, order *string) *pop.Query {

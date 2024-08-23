@@ -137,6 +137,33 @@ describe('PaymentRequestCard', () => {
       },
     ],
   };
+  const ediErrorPaymentRequest = {
+    id: '29474c6a-69b6-4501-8e08-670a12512e5f',
+    createdAt: '2020-12-01T00:00:00.000Z',
+    moveTaskOrderID: 'f8c2f97f-99e7-4fb1-9cc4-473debd04dbc',
+    paymentRequestNumber: '1843-9061-2',
+    moveTaskOrder: move,
+    status: 'PENDING',
+    serviceItems: [
+      {
+        id: '09474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 2000001,
+        status: 'REQUESTED',
+      },
+      {
+        id: '39474c6a-69b6-4501-8e08-670a12512a5f',
+        createdAt: '2020-12-01T00:00:00.000Z',
+        mtoServiceItemID: 'a8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
+        priceCents: 4000001,
+        status: 'REQUESTED',
+      },
+    ],
+    ediErrorType: '858',
+    ediErrorCode: '1A',
+    ediErrorDescription: 'Test description',
+  };
   const nonWeightReliantPaymentRequest = {
     id: '29474c6a-69b6-4501-8e08-670a12512e5f',
     createdAt: '2020-12-01T00:00:00.000Z',
@@ -194,6 +221,26 @@ describe('PaymentRequestCard', () => {
       const showRequestDetailsButton = wrapper.find('button[data-testid="showRequestDetailsButton"]');
 
       expect(showRequestDetailsButton.length).toBe(0);
+      expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
+    });
+
+    it('does not render error details toggle drawer by default and hides button', () => {
+      render(
+        <MockProviders
+          path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH}
+          params={{ moveCode }}
+          permissions={[permissionTypes.updatePaymentServiceItemStatus]}
+        >
+          <PaymentRequestCard
+            paymentRequest={pendingPaymentRequest}
+            shipmentInfo={shipmentInfo}
+            hasBillableWeightIssues
+          />
+        </MockProviders>,
+      );
+      const showErrorDetailsButton = wrapper.find('button[data-testid="showErrorDetailsButton"]');
+
+      expect(showErrorDetailsButton.length).toBe(0);
       expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
     });
 
@@ -463,6 +510,29 @@ describe('PaymentRequestCard', () => {
       expect(wrapper.find('[data-testid="toggleDrawer"]').length).toBe(1);
     });
 
+    it('renders EDI error details toggle drawer after click', () => {
+      const ediErrors = mount(
+        <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
+          <PaymentRequestCard
+            hasBillableWeightIssues={false}
+            paymentRequest={ediErrorPaymentRequest}
+            shipmentInfo={shipmentInfo}
+          />
+        </MockProviders>,
+      );
+
+      const showErrorDetailsButton = ediErrors.find('button[data-testid="showErrorDetailsButton"]');
+      showErrorDetailsButton.simulate('click');
+
+      expect(ediErrors.find('[data-testid="toggleDrawer"]').length).toBe(2);
+      expect(ediErrors.find('[data-testid="paymentRequestEDIErrorType"]').length).toBe(1);
+      expect(ediErrors.find('[data-testid="paymentRequestEDIErrorTypeText"]').length).toBe(1);
+      expect(ediErrors.find('[data-testid="paymentRequestEDIErrorCode"]').length).toBe(1);
+      expect(ediErrors.find('[data-testid="paymentRequestEDIErrorCodeText"]').length).toBe(1);
+      expect(ediErrors.find('[data-testid="paymentRequestEDIErrorDescription"]').length).toBe(1);
+      expect(ediErrors.find('[data-testid="paymentRequestEDIErrorDescriptionText"]').length).toBe(1);
+    });
+
     it('renders - for the date it was reviewed at if reviewedAt is null', () => {
       reviewedPaymentRequest.reviewedAt = '';
       const wrapperNoReviewedAtDate = mount(
@@ -480,7 +550,7 @@ describe('PaymentRequestCard', () => {
   });
 
   describe('payment request gex statuses', () => {
-    it('renders the Error status tag for edi_error', () => {
+    it('renders the EDI Error status tag for edi_error', () => {
       const sentToGexPaymentRequest = {
         id: '29474c6a-69b6-4501-8e08-670a12512e5f',
         createdAt: '2020-12-01T00:00:00.000Z',
@@ -515,7 +585,7 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Error')).toBe(true);
+      expect(sentToGex.find({ 'data-testid': 'tag' }).contains('EDI Error')).toBe(true);
     });
 
     const sentToGexPaymentRequest = {
@@ -555,8 +625,7 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
-      const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
-      expect(sentToGexAtDate).toBe('on 13 Dec 2020');
+      expect(sentToGex.find({ 'data-testid': 'sentToGexDetails' }).exists()).toBe(true);
     });
 
     it('renders - for the date it was sent to gex if sentToGexAt is null', () => {
@@ -573,8 +642,7 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
-      const sentToGexAtDate = sentToGex.find({ 'data-testid': 'sentToGexDate' }).text();
-      expect(sentToGexAtDate).toBe('on -');
+      expect(sentToGex.find({ 'data-testid': 'sentToGexDetails' }).exists()).toBe(true);
     });
 
     it('renders the Tpps Received Status status tag for TPPS_RECEIVED', () => {
@@ -629,7 +697,7 @@ describe('PaymentRequestCard', () => {
             createdAt: '2020-12-01T00:00:00.000Z',
             mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
             priceCents: 2000001,
-            status: 'DENIED',
+            status: 'APPROVED',
           },
           {
             id: '39474c6a-69b6-4501-8e08-670a12512a5f',
@@ -640,6 +708,8 @@ describe('PaymentRequestCard', () => {
             rejectionReason: 'duplicate charge',
           },
         ],
+        tppsInvoiceAmountPaidTotalMillicents: 115155000,
+        tppsInvoiceSellerPaidDate: '2024-07-30T00:00:00.000Z',
       };
       const paid = mount(
         <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
@@ -650,7 +720,13 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);
+      expect(paid.find({ 'data-testid': 'tag' }).contains('TPPS Paid')).toBe(true);
+      expect(paid.find({ 'data-testid': 'tppsPaidDetails' }).exists()).toBe(true);
+      expect(paid.find({ 'data-testid': 'tppsPaidDetailsDollarAmountTotal' }).exists()).toBe(true);
+      // displays the tpps paid sum, milmove accepted amount, and milmove rejected amount
+      expect(paid.find({ 'data-testid': 'tppsPaidDetailsDollarAmountTotal' }).contains('$1,151.55')).toBe(true);
+      expect(paid.find({ 'data-testid': 'milMoveAcceptedDetailsDollarAmountTotal' }).contains('$20,000.01')).toBe(true);
+      expect(paid.find({ 'data-testid': 'milMoveRejectedDetailsDollarAmountTotal' }).contains('$40,000.01')).toBe(true);
     });
   });
 

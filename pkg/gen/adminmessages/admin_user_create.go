@@ -33,6 +33,9 @@ type AdminUserCreate struct {
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
 	OrganizationID strfmt.UUID `json:"organizationId,omitempty"`
+
+	// super
+	Super bool `json:"super,omitempty"`
 }
 
 // Validate validates this admin user create
