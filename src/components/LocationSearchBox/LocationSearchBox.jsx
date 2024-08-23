@@ -211,7 +211,7 @@ export const LocationSearchBoxComponent = ({
     onChange(null);
   };
 
-  const noOptionsMessage = () => (inputValue.length ? 'No Options' : null);
+  const noOptionsMessage = () => (inputValue.length ? 'No Options' : 'No Options');
   const hasLocation = !!value && !!value.address;
   return (
     <FormGroup>
