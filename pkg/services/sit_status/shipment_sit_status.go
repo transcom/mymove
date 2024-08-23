@@ -30,16 +30,16 @@ func NewShipmentSITStatus() services.ShipmentSITStatus {
 }
 
 type SortedShipmentSITs struct {
-	pastSITs    models.SITServiceItemGroupings
-	currentSITs models.SITServiceItemGroupings
-	futureSITs  models.SITServiceItemGroupings
+	PastSITs    models.SITServiceItemGroupings
+	CurrentSITs models.SITServiceItemGroupings // Takes an array but at this time only a single CurrentSIT is supported. This could potentially be used for partial delivery current SITs
+	FutureSITs  models.SITServiceItemGroupings
 }
 
 func newSortedShipmentSITs() SortedShipmentSITs {
 	return SortedShipmentSITs{
-		pastSITs:    make([]models.SITServiceItemGrouping, 0),
-		currentSITs: make([]models.SITServiceItemGrouping, 0),
-		futureSITs:  make([]models.SITServiceItemGrouping, 0),
+		PastSITs:    make([]models.SITServiceItemGrouping, 0),
+		CurrentSITs: make([]models.SITServiceItemGrouping, 0),
+		FutureSITs:  make([]models.SITServiceItemGrouping, 0),
 	}
 }
 
@@ -48,11 +48,11 @@ func SortShipmentSITs(sitGroupings models.SITServiceItemGroupings, today time.Ti
 	shipmentSITs := newSortedShipmentSITs()
 	for _, sitGrouping := range sitGroupings {
 		if sitGrouping.Summary.SITEntryDate.After(today) {
-			shipmentSITs.futureSITs = append(shipmentSITs.futureSITs, sitGrouping)
+			shipmentSITs.FutureSITs = append(shipmentSITs.FutureSITs, sitGrouping)
 		} else if sitGrouping.Summary.SITDepartureDate != nil && sitGrouping.Summary.SITDepartureDate.Before(today) {
-			shipmentSITs.pastSITs = append(shipmentSITs.pastSITs, sitGrouping)
+			shipmentSITs.PastSITs = append(shipmentSITs.PastSITs, sitGrouping)
 		} else {
-			shipmentSITs.currentSITs = append(shipmentSITs.currentSITs, sitGrouping)
+			shipmentSITs.CurrentSITs = append(shipmentSITs.CurrentSITs, sitGrouping)
 		}
 	}
 	return shipmentSITs
@@ -73,7 +73,7 @@ func Clamp(input, min, max int) (int, error) {
 
 // Retrieve the SIT service item groupings for the provided shipment
 // Each SIT grouping has a top-level summary of the grouped SIT
-func (f shipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shipment models.MTOShipment) models.SITServiceItemGroupings {
+func (f shipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shipment models.MTOShipment) (models.SITServiceItemGroupings, error) {
 	var shipmentSITs models.SITServiceItemGroupings
 
 	year, month, day := time.Now().Date()
@@ -113,16 +113,22 @@ func (f shipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shi
 		}
 	}
 
+	// Get the total SIT allowance for this shipment
+	totalSITAllowance, err := f.CalculateShipmentSITAllowance(appCtx, shipment)
+	if err != nil {
+		return nil, err
+	}
+
 	// Generate summaries for each group and append them to shipmentSITs
 	for _, group := range groupedSITs {
-		summary := f.generateSITSummary(*group, today)
+		summary := f.generateSITSummary(*group, today, totalSITAllowance)
 		if summary != nil {
 			group.Summary = *summary
 			shipmentSITs = append(shipmentSITs, *group)
 		}
 	}
 
-	return shipmentSITs
+	return shipmentSITs, nil
 }
 
 // Helper function to take in an MTO service item's ReServiceCode and validate it
@@ -144,7 +150,7 @@ func containsReServiceCode(validCodes []models.ReServiceCode, code models.ReServ
 // will have discrepancies and information spread across multiple items.
 // This SIT summary is to make it readable down the line, and handle all complex calculations
 // in one, central location.
-func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping, today time.Time) *models.SITSummary {
+func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping, today time.Time, totalSitAllowance int) *models.SITSummary {
 	if sit.ServiceItems == nil {
 		// Return nil if there are no service items
 		return nil
@@ -201,7 +207,7 @@ func (f shipmentSITStatus) generateSITSummary(sit models.SITServiceItemGrouping,
 
 	// Calculate the SIT Authorized End Date
 	if earliestSITEntryDate != nil {
-		earliestSITAuthorizedEndDateValue := CalculateSITAuthorizedEndDate(len(sit.ServiceItems), calculatedTotalDaysInSIT, *earliestSITEntryDate, calculatedTotalDaysInSIT)
+		earliestSITAuthorizedEndDateValue := CalculateSITAuthorizedEndDate(totalSitAllowance, calculatedTotalDaysInSIT, *earliestSITEntryDate, calculatedTotalDaysInSIT, earliestSITDepartureDate)
 		earliestSITAuthorizedEndDate = &earliestSITAuthorizedEndDateValue
 	}
 
@@ -241,7 +247,10 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	year, month, day := time.Now().Date()
 	today := time.Date(year, month, day, 0, 0, 0, 0, time.UTC)
 
-	sitGroupings := f.RetrieveShipmentSIT(appCtx, shipment)
+	sitGroupings, err := f.RetrieveShipmentSIT(appCtx, shipment)
+	if err != nil {
+		return nil, shipment, err
+	}
 
 	// Sort the SIT groupings into past, current, future
 	shipmentSITGroupings := SortShipmentSITs(sitGroupings, today)
@@ -251,7 +260,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	currentSIT := getCurrentSIT(shipmentSITGroupings)
 
 	// There were no relevant SIT service items for this shipment
-	if currentSIT == nil && len(shipmentSITGroupings.pastSITs) == 0 {
+	if currentSIT == nil && len(shipmentSITGroupings.PastSITs) == 0 {
 		return nil, shipment, nil
 	}
 
@@ -267,7 +276,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 	shipmentSITStatus.TotalSITDaysUsed = totalSITDaysUsedClampedResult
 	shipmentSITStatus.CalculatedTotalDaysInSIT = CalculateTotalDaysInSIT(shipmentSITGroupings, today)
 	shipmentSITStatus.TotalDaysRemaining = totalSITAllowance - shipmentSITStatus.TotalSITDaysUsed
-	shipmentSITStatus.PastSITs = shipmentSITGroupings.pastSITs
+	shipmentSITStatus.PastSITs = shipmentSITGroupings.PastSITs
 
 	if currentSIT != nil {
 		location := currentSIT.Summary.Location
@@ -275,7 +284,7 @@ func (f shipmentSITStatus) CalculateShipmentSITStatus(appCtx appcontext.AppConte
 		daysInSIT := daysInSIT(currentSIT.Summary.SITEntryDate, currentSIT.Summary.SITDepartureDate, today)
 		sitEntryDate := currentSIT.Summary.SITEntryDate
 		sitDepartureDate := currentSIT.Summary.SITDepartureDate
-		sitAuthorizedEndDate := CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT)
+		sitAuthorizedEndDate := CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, sitEntryDate, shipmentSITStatus.CalculatedTotalDaysInSIT, sitDepartureDate)
 		var sitCustomerContacted, sitRequestedDelivery *time.Time
 		sitCustomerContacted = currentSIT.Summary.SITCustomerContacted
 		sitRequestedDelivery = currentSIT.Summary.SITRequestedDelivery
@@ -326,10 +335,10 @@ SIT service items that have already started are prioritized, followed by SIT
 service items that start in the future.
 */
 func getCurrentSIT(shipmentSITs SortedShipmentSITs) *models.SITServiceItemGrouping {
-	if len(shipmentSITs.currentSITs) > 0 {
-		return getEarliestSIT(shipmentSITs.currentSITs)
-	} else if len(shipmentSITs.futureSITs) > 0 {
-		return getEarliestSIT(shipmentSITs.futureSITs)
+	if len(shipmentSITs.CurrentSITs) > 0 {
+		return getEarliestSIT(shipmentSITs.CurrentSITs)
+	} else if len(shipmentSITs.FutureSITs) > 0 {
+		return getEarliestSIT(shipmentSITs.FutureSITs)
 	}
 	return nil
 }
@@ -355,10 +364,10 @@ func daysInSIT(sitEntryDate time.Time, sitDepartureDate *time.Time, today time.T
 
 func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {
 	totalDays := 0
-	for _, pastSIT := range shipmentSITs.pastSITs {
+	for _, pastSIT := range shipmentSITs.PastSITs {
 		totalDays += daysInSIT(pastSIT.Summary.SITEntryDate, pastSIT.Summary.SITDepartureDate, today)
 	}
-	for _, currentSIT := range shipmentSITs.currentSITs {
+	for _, currentSIT := range shipmentSITs.CurrentSITs {
 		totalDays += daysInSIT(currentSIT.Summary.SITEntryDate, currentSIT.Summary.SITDepartureDate, today)
 	}
 	return totalDays
@@ -367,14 +376,20 @@ func CalculateTotalDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) i
 // adds up all the days from pastSITs
 func CalculateTotalPastDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Time) int {
 	totalDays := 0
-	for _, pastSIT := range shipmentSITs.pastSITs {
+	for _, pastSIT := range shipmentSITs.PastSITs {
 		totalDays += daysInSIT(pastSIT.Summary.SITEntryDate, pastSIT.Summary.SITDepartureDate, today)
 	}
 	return totalDays
 }
 
-func CalculateSITAuthorizedEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, calculatedTotalDaysInSIT int) time.Time {
-	return sitEntryDate.AddDate(0, 0, (totalSITAllowance - (calculatedTotalDaysInSIT - currentDaysInSIT)))
+func CalculateSITAuthorizedEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, totalDaysInSITSoFar int, sitDepartureDate *time.Time) time.Time {
+	sitAuthorizedEndDate := sitEntryDate.AddDate(0, 0, (totalSITAllowance - (totalDaysInSITSoFar - currentDaysInSIT)))
+	// If the SIT departure date is set and it is before the currently authorized end date
+	// then the original SIT authorized end date should be updated to the departure date
+	if sitDepartureDate != nil && (sitDepartureDate.Before(sitAuthorizedEndDate) && sitDepartureDate.After(sitEntryDate)) {
+		sitAuthorizedEndDate = *sitDepartureDate
+	}
+	return sitAuthorizedEndDate
 }
 
 func (f shipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]services.SITStatus {
