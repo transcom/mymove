@@ -192,6 +192,12 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Where("office_users.id = ?", appCtx.Session().OfficeUserID).
 				First(&transportationOffice)
 
+			// transportationOffice, err := services.TransportationOfficesFetcher.GetServiceCounselingTransportationOffice(appCtx)
+			// if err != nil {
+			// 	appCtx.Logger().Error(err.Error())
+			// 	return orderop.NewCreateOrderUnprocessableEntity(), err
+			// }
+
 			if transportationOfficeErr != nil {
 				OfficeErr := apperror.NewBadDataError("Missing Transportation Office.")
 				appCtx.Logger().Error(OfficeErr.Error())
