@@ -116,7 +116,7 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentSe
 		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameLockedPriceCents,
-				KeyType: models.ServiceItemParamTypeString,
+				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   msPriceCents.ToMillicents().ToCents().String(),
 			},
 		}, nil, nil,

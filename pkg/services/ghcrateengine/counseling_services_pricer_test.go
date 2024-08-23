@@ -51,7 +51,7 @@ func (suite *GHCRateEngineServiceSuite) setupCounselingServicesItem() models.Pay
 		[]factory.CreatePaymentServiceItemParams{
 			{
 				Key:     models.ServiceItemParamNameLockedPriceCents,
-				KeyType: models.ServiceItemParamTypeString,
+				KeyType: models.ServiceItemParamTypeInteger,
 				Value:   csPriceCents.ToMillicents().ToCents().String(),
 			},
 		}, nil, nil,
