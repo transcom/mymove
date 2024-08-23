@@ -71,7 +71,10 @@ const customStyles = {
     borderRadius: '0px',
     borderColor: uswdsBlack,
     padding: '0.1rem',
-    maxWidth: '32rem',
+    maxWidth: '100%',
+    '@media (max-width: 768px)': {
+      maxWidth: '32em',
+    },
     ':hover': {
       ...styles[':hover'],
       borderColor: uswdsBlack,
@@ -208,7 +211,7 @@ export const LocationSearchBoxComponent = ({
     onChange(null);
   };
 
-  const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
+  const noOptionsMessage = () => (inputValue.length ? 'No Options' : null);
   const hasLocation = !!value && !!value.address;
   return (
     <FormGroup>

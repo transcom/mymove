@@ -1,10 +1,12 @@
 import React, { useRef } from 'react';
 import PropTypes from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Fieldset, Alert } from '@trussworks/react-uswds';
+import { Fieldset } from '@trussworks/react-uswds';
 
 import { statesList } from '../../../constants/states';
 
+import Hint from 'components/Hint/index';
+import styles from 'components/form/AddressFields/AddressFields.module.scss';
 import { technicalHelpDeskURL } from 'shared/constants';
 import TextField from 'components/form/fields/TextField/TextField';
 import { DropdownInput } from 'components/form/fields/DropdownInput';
@@ -35,63 +37,56 @@ export const AddressFields = ({
   formikFunctionsToValidatePostalCodeOnChange,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
-  let postalCodeField;
-  let stateField;
+  const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
+  const errorStr = 'Not all data was able to populate successfully. Contact the ';
+  const assistanceStr = ' for further assistance.';
 
-  if (formikFunctionsToValidatePostalCodeOnChange) {
-    postalCodeField = (
-      <TextField
-        label="ZIP"
-        id={`zip_${addressFieldsUUID.current}`}
-        name={`${name}.postalCode`}
-        maxLength={10}
-        validate={validators?.postalCode}
-        isDisabled={zipCityEnabled}
-        onChange={async (e) => {
-          // If we are validating on change we need to also set the field to touched when it is changed.
-          // Formik, by default, only sets the field to touched on blur.
-          // The validation errors will not show unless the field has been touched. We await the handleChange event,
-          // then we set the field to touched.
-          // We send true for the shouldValidate arg to validate the field at the same time.
-          await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
-          formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
-        }}
-      />
-    );
-  } else {
-    postalCodeField = (
-      <TextField
-        label="ZIP"
-        id={`zip_${addressFieldsUUID.current}`}
-        name={`${name}.postalCode`}
-        maxLength={10}
-        validate={validators?.postalCode}
-        isDisabled={zipCityEnabled}
-      />
-    );
-  }
+  const postalCodeField = formikFunctionsToValidatePostalCodeOnChange ? (
+    <TextField
+      label="ZIP"
+      id={`zip_${addressFieldsUUID.current}`}
+      name={`${name}.postalCode`}
+      maxLength={10}
+      validate={validators?.postalCode}
+      isDisabled={zipCityEnabled}
+      onChange={async (e) => {
+        // If we are validating on change we need to also set the field to touched when it is changed.
+        // Formik, by default, only sets the field to touched on blur.
+        // The validation errors will not show unless the field has been touched. We await the handleChange event,
+        // then we set the field to touched.
+        // We send true for the shouldValidate arg to validate the field at the same time.
+        await formikFunctionsToValidatePostalCodeOnChange.handleChange(e);
+        formikFunctionsToValidatePostalCodeOnChange.setFieldTouched(`${name}.postalCode`, true, true);
+      }}
+    />
+  ) : (
+    <TextField
+      label="ZIP"
+      id={`zip_${addressFieldsUUID.current}`}
+      name={`${name}.postalCode`}
+      maxLength={10}
+      validate={validators?.postalCode}
+      isDisabled={zipCityEnabled}
+    />
+  );
 
-  if (zipCityEnabled) {
-    stateField = (
-      <TextField
-        name={`${name}.state`}
-        id={`state_${addressFieldsUUID.current}`}
-        label="State"
-        validate={validators?.state}
-        isDisabled={zipCityEnabled}
-      />
-    );
-  } else {
-    stateField = (
-      <DropdownInput
-        name={`${name}.state`}
-        id={`state_${addressFieldsUUID.current}`}
-        label="State"
-        options={statesList}
-        validate={validators?.state}
-      />
-    );
-  }
+  const stateField = zipCityEnabled ? (
+    <TextField
+      name={`${name}.state`}
+      id={`state_${addressFieldsUUID.current}`}
+      label="State"
+      validate={validators?.state}
+      isDisabled={zipCityEnabled}
+    />
+  ) : (
+    <DropdownInput
+      name={`${name}.state`}
+      id={`state_${addressFieldsUUID.current}`}
+      label="State"
+      options={statesList}
+      validate={validators?.state}
+    />
+  );
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -127,22 +122,22 @@ export const AddressFields = ({
                 handleZipCityChange={handleZipCityChange}
               />
               {!zipCityError && (
-                <Alert type="info" aria-live="polite" headingLevel="h4">
-                  If you encounter any inaccurate lookup information please contact the
+                <Hint className={styles.hint} id="zipCityInfo" data-testid="zipCityInfo">
+                  {infoStr}
                   <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                     Technical Help Desk
                   </a>
-                  for further assistance.
-                </Alert>
+                  {assistanceStr}
+                </Hint>
               )}
               {zipCityError && (
-                <Alert type="error" aria-live="polite" headingLevel="h4">
-                  Not all data was able to populate successfully. Contact the
+                <Hint className={styles.hintError} id="zipCityError" data-testid="zipCityError">
+                  {errorStr}
                   <a href={technicalHelpDeskURL} target="_blank" rel="noreferrer">
                     Technical Help Desk
                   </a>
-                  for further assistance.
-                </Alert>
+                  {assistanceStr}
+                </Hint>
               )}
             </>
           )}
@@ -157,6 +152,7 @@ export const AddressFields = ({
               />
               {zipCityEnabled && (
                 <TextField
+                  className={styles.countyInput}
                   label="County"
                   id={`county_${addressFieldsUUID.current}`}
                   name={`${name}.county`}
