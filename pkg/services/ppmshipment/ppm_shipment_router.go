@@ -116,7 +116,6 @@ func (p *ppmShipmentRouter) SubmitCloseOutDocumentation(_ appcontext.AppContext,
 	return nil
 }
 
-// SubmitReviewedDocuments sets the PPM shipment status to the CLOSEOUT_COMPLETE if all docs approved otherwise WAITING_ON_CUSTOMER
 func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	if ppmShipment.Status != models.PPMShipmentStatusNeedsCloseout {
 		return apperror.NewConflictError(
@@ -128,39 +127,9 @@ func (p *ppmShipmentRouter) SubmitReviewedDocuments(_ appcontext.AppContext, ppm
 		)
 	}
 
-	hasRejectedDocuments := false
-	if len(ppmShipment.WeightTickets) >= 1 {
-		for _, weightTicket := range ppmShipment.WeightTickets {
-			if weightTicket.Status != nil && *weightTicket.Status == models.PPMDocumentStatusRejected {
-				hasRejectedDocuments = true
-				break
-			}
-		}
-	}
-
-	if len(ppmShipment.ProgearWeightTickets) >= 1 && !hasRejectedDocuments {
-		for _, progear := range ppmShipment.ProgearWeightTickets {
-			if progear.Status != nil && *progear.Status == models.PPMDocumentStatusRejected {
-				hasRejectedDocuments = true
-				break
-			}
-		}
-	}
-
-	if len(ppmShipment.MovingExpenses) >= 1 && !hasRejectedDocuments {
-		for _, movingExpenses := range ppmShipment.MovingExpenses {
-			if movingExpenses.Status != nil && *movingExpenses.Status == models.PPMDocumentStatusRejected {
-				hasRejectedDocuments = true
-				break
-			}
-		}
-	}
-
-	if hasRejectedDocuments {
-		ppmShipment.Status = models.PPMShipmentStatusWaitingOnCustomer
-	} else {
-		ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
-	}
+	// SubmitReviewedDocuments sets the PPM shipment status to the CLOSEOUT_COMPLETE when
+	// reviewer CONFIRMS regardless if any are REJECTED/EXCLUDED -- B-20824
+	ppmShipment.Status = models.PPMShipmentStatusCloseoutComplete
 
 	return nil
 }
