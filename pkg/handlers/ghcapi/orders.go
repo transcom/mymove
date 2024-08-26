@@ -164,7 +164,6 @@ func (h CounselingUpdateOrderHandler) Handle(
 // CounselingUpdateOrderHandler create an order via POST /orders
 type CreateOrderHandler struct {
 	handlers.HandlerConfig
-	services.TransportationOfficesFetcher
 }
 
 // Handle ... creates an order as requested by a services counselor
@@ -187,7 +186,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
-			transportationOffice, err := h.GetServiceCounselingTransportationOffice(appCtx)
+			officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), appCtx.Session().OfficeUserID)
 			if err != nil {
 				appCtx.Logger().Error(err.Error())
 				return orderop.NewCreateOrderUnprocessableEntity(), err
@@ -317,9 +316,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			moveOptions := models.MoveOptions{
-				Show:             models.BoolPointer(true),
-				Status:           &status,
-				CounselingOffice: transportationOffice,
+				Show:               models.BoolPointer(true),
+				Status:             &status,
+				CounselingOfficeID: &officeUser.TransportationOfficeID,
 			}
 
 			if newOrder.OrdersType == "SAFETY" {

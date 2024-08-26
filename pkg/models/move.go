@@ -109,9 +109,9 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show             *bool
-	Status           *MoveStatus
-	CounselingOffice *TransportationOffice
+	Show               *bool
+	Status             *MoveStatus
+	CounselingOfficeID *uuid.UUID
 }
 
 type Moves []Move
@@ -273,9 +273,9 @@ func createNewMove(db *pop.Connection,
 	if moveOptions.Status != nil {
 		status = *moveOptions.Status
 	}
-	var counselingOffice TransportationOffice
-	if moveOptions.CounselingOffice != nil {
-		counselingOffice = *moveOptions.CounselingOffice
+	var counselingOfficeID uuid.UUID
+	if moveOptions.CounselingOfficeID != nil {
+		counselingOfficeID = *moveOptions.CounselingOfficeID
 	}
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
@@ -291,14 +291,14 @@ func createNewMove(db *pop.Connection,
 	if orders.OrdersType != "SAFETY" {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
-				Orders:           orders,
-				OrdersID:         orders.ID,
-				Locator:          GenerateLocator(),
-				Status:           status,
-				Show:             show,
-				ContractorID:     &contractor.ID,
-				ReferenceID:      &referenceID,
-				CounselingOffice: &counselingOffice,
+				Orders:             orders,
+				OrdersID:           orders.ID,
+				Locator:            GenerateLocator(),
+				Status:             status,
+				Show:               show,
+				ContractorID:       &contractor.ID,
+				ReferenceID:        &referenceID,
+				CounselingOfficeID: &counselingOfficeID,
 			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
@@ -321,14 +321,14 @@ func createNewMove(db *pop.Connection,
 	} else {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
-				Orders:           orders,
-				OrdersID:         orders.ID,
-				Locator:          GenerateSafetyMoveLocator(db),
-				Status:           status,
-				Show:             show,
-				ContractorID:     &contractor.ID,
-				ReferenceID:      &referenceID,
-				CounselingOffice: &counselingOffice,
+				Orders:             orders,
+				OrdersID:           orders.ID,
+				Locator:            GenerateSafetyMoveLocator(db),
+				Status:             status,
+				Show:               show,
+				ContractorID:       &contractor.ID,
+				ReferenceID:        &referenceID,
+				CounselingOfficeID: &counselingOfficeID,
 			}
 
 			verrs, err := db.ValidateAndCreate(&move)

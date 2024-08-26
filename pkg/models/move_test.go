@@ -40,8 +40,8 @@ func (suite *ModelSuite) TestCreateNewMoveValidLocatorString() {
 	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
-		Show:             m.BoolPointer(true),
-		CounselingOffice: &office,
+		Show:               m.BoolPointer(true),
+		CounselingOfficeID: &office.ID,
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -237,8 +237,7 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
-		Show:             m.BoolPointer(true),
-		CounselingOffice: &m.TransportationOffice{},
+		Show: m.BoolPointer(true),
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
