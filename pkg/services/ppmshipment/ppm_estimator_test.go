@@ -494,7 +494,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 		mockedPlanner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 			"50309", "30813").Return(2294, nil)
 
-		linehaul, fuel, origin, dest, packing, unpacking, err := ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
+		linehaul, fuel, origin, dest, packing, unpacking, _, err := ppmEstimator.PriceBreakdown(suite.AppContextForTest(), &ppmShipment)
 		suite.NilOrNoVerrs(err)
 
 		mockedPlanner.AssertCalled(suite.T(), "ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),

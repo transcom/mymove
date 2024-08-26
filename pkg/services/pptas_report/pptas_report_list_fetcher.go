@@ -382,7 +382,7 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessages.PPTASShipment, shipment models.MTOShipment, estimator services.PPMEstimator) error {
 	var travelAdvance float64
 
-	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
+	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking, ppmStorage float64
 	if shipment.PPMShipment != nil && (shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete || shipment.PPMShipment.Status == models.PPMShipmentStatusComplete) {
 		// query the ppmshipment for all it's child needs for the price breakdown
 		var ppmShipment models.PPMShipment
@@ -440,7 +440,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		}
 
 		// do the ppm cost breakdown here
-		linehaul, fuel, origin, dest, packing, unpacking, err := estimator.PriceBreakdown(appCtx, &ppmShipment)
+		linehaul, fuel, origin, dest, packing, unpacking, storage, err := estimator.PriceBreakdown(appCtx, &ppmShipment)
 		if err != nil {
 			return apperror.NewUnprocessableEntityError("ppm price breakdown")
 		}
@@ -451,7 +451,8 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		ppmDestPrice += dest.Float64()
 		ppmPacking += packing.Float64()
 		ppmUnpacking += unpacking.Float64()
-		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
+		ppmStorage += storage.Float64()
+		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking + ppmStorage
 
 		pptasShipment.PpmLinehaul = &ppmLinehaul
 		pptasShipment.PpmFuelRateAdjTotal = &ppmFuel
@@ -459,6 +460,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		pptasShipment.PpmDestPrice = &ppmDestPrice
 		pptasShipment.PpmPacking = &ppmPacking
 		pptasShipment.PpmUnpacking = &ppmUnpacking
+		pptasShipment.PpmStorage = &ppmStorage
 		pptasShipment.PpmTotal = &ppmTotal
 	}
 
