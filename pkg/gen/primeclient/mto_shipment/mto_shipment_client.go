@@ -32,7 +32,7 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOption) (*CreateMTOAgentOK, error)
 
-	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error)
+	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) error
 
 	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
 
@@ -106,19 +106,11 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOpti
 /*
 	CreateMTOShipment creates m t o shipment
 
-	_[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.
+	_[Deprecated: this endpoint was deprecated on August 5th, 2024]_
 
-Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
-
-Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
-need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
-approve it before the contractor can proceed with billing.
-
-**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
-one of their moves. Otherwise, the Prime can fetch the related move using the
-[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
+Please use the new endpoint at `/prime/v3/createMTOShipment` instead.
 */
-func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error) {
+func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) error {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateMTOShipmentParams()
@@ -139,18 +131,11 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...Clie
 		opt(op)
 	}
 
-	result, err := a.transport.Submit(op)
+	_, err := a.transport.Submit(op)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	success, ok := result.(*CreateMTOShipmentOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for createMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
+	return nil
 }
 
 /*
