@@ -40,7 +40,7 @@ type ClientService interface {
 
 	UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error)
 
-	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) error
+	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error)
 
 	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams, opts ...ClientOption) (*UpdateMTOShipmentAddressOK, error)
 
@@ -297,11 +297,28 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOpti
 /*
 	UpdateMTOShipment updates m t o shipment
 
-	_[Deprecated: this endpoint was deprecated on August 5th, 2024]_
+	_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.
 
-Please use the new endpoint at `/prime/v3/updateMTOShipment` instead.
+Please use the new endpoint at `/prime/v2/updateMTOShipment` instead.
+
+**DEPRECATION ON AUGUST 5TH, 2024**
+Following deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address
+for SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require
+deprecation for this change.
+
+Updates an existing shipment for a move.
+
+Note that there are some restrictions on nested objects:
+
+* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
+* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
+* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
+
+These restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.
+
+Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
 */
-func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) error {
+func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error) {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOShipmentParams()
@@ -322,11 +339,18 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 		opt(op)
 	}
 
-	_, err := a.transport.Submit(op)
+	result, err := a.transport.Submit(op)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	success, ok := result.(*UpdateMTOShipmentOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
+	msg := fmt.Sprintf("unexpected success response for updateMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
+	panic(msg)
 }
 
 /*
