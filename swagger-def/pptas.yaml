@@ -22,16 +22,10 @@ tags:
 paths:
   /moves:
     get:
-      summary: listMoves
+      summary: PPTASReports
       description: |
-        Gets all moves that have been reviewed and approved by the TOO. The `since` parameter can be used to filter this
-        list down to only the moves that have been updated since the provided timestamp. A move will be considered
-        updated if the `updatedAt` timestamp on the move or on its orders, shipments, service items, or payment
-        requests, is later than the provided date and time.
-
-        **WIP**: Include what causes moves to leave this list. Currently, once the `availableToPrimeAt` timestamp has
-        been set, that move will always appear in this list.
-      operationId: listMoves
+        Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and Transportation Accounting Codes and Lines of Accounting.
+      operationId: pptasReports
       tags:
         - moves
       produces:
@@ -44,9 +38,9 @@ paths:
           description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
       responses:
         '200':
-          description: Successfully retrieved moves. A successful fetch might still return zero moves.
+          description: Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.
           schema:
-            $ref: 'definitions/ListMoves.yaml'
+            $ref: 'definitions/PPTASReports.yaml'
         '401':
           $ref: 'responses/PermissionDenied.yaml'
         '403':
