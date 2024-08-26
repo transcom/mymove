@@ -17,13 +17,13 @@ import (
 	"github.com/transcom/mymove/pkg/gen/pptasmessages"
 )
 
-// InitListMovesFlags declares which flags are enabled
-func InitListMovesFlags(flag *pflag.FlagSet) {
+// InitPPTASReportsFlags declares which flags are enabled
+func InitPPTASReportsFlags(flag *pflag.FlagSet) {
 	flag.String(utils.SinceFlag, "", "Timestamp for filtering moves. Returns moves updated since this time.")
 	flag.SortFlags = false
 }
 
-func checkListMovesConfig(v *viper.Viper, logger *log.Logger) error {
+func checkPPTASReportsConfig(v *viper.Viper, logger *log.Logger) error {
 	err := utils.CheckRootConfig(v)
 	if err != nil {
 		logger.Fatal(err)
@@ -32,8 +32,8 @@ func checkListMovesConfig(v *viper.Viper, logger *log.Logger) error {
 	return nil
 }
 
-// ListMoves creates a gateway and sends the request to the endpoint
-func ListMoves(cmd *cobra.Command, args []string) error {
+// PPTASReports creates a gateway and sends the request to the endpoint
+func PPTASReports(cmd *cobra.Command, args []string) error {
 	v := viper.New()
 
 	//Create the logger
@@ -46,13 +46,13 @@ func ListMoves(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check the config before talking to the CAC
-	err := checkListMovesConfig(v, logger)
+	err := checkPPTASReportsConfig(v, logger)
 	if err != nil {
 		logger.Fatal(err)
 	}
 
 	// Get the since param, if any
-	var params moves.ListMovesParams
+	var params moves.PptasReportsParams
 	since := v.GetString(utils.SinceFlag)
 	if since != "" {
 		sinceDateTime, sinceErr := strfmt.ParseDateTime(since)
@@ -81,10 +81,10 @@ func ListMoves(cmd *cobra.Command, args []string) error {
 	// commands, so start with list moves for now
 	wait := v.GetDuration(utils.WaitFlag)
 	params.SetTimeout(wait)
-	var payload pptasmessages.ListMoves
+	var payload pptasmessages.PPTASReports
 	// loop until we either time out or get a successful response
 	for {
-		resp, err := primeGateway.Moves.ListMoves(&params)
+		resp, err := primeGateway.Moves.PptasReports(&params)
 		if err != nil {
 			currentTime := time.Now()
 			if currentTime.Sub(startTime) > wait {
