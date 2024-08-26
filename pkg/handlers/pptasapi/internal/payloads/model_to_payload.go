@@ -93,6 +93,10 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 		payload.EntitlementWeight = models.Int64Pointer(pptasReport.EntitlementWeight.Int64())
 	}
 
+	if pptasReport.WeightAuthorized != nil {
+		payload.WeightAuthorized = models.Float64Pointer(pptasReport.WeightAuthorized.Float64())
+	}
+
 	if pptasReport.TravelType != nil {
 		payload.TravelType = *pptasReport.TravelType
 	}
