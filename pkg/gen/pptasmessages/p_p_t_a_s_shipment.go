@@ -64,9 +64,6 @@ type PPTASShipment struct {
 	// destination reweigh net weight
 	DestinationReweighNetWeight *float64 `json:"destinationReweighNetWeight,omitempty"`
 
-	// financial review flag
-	FinancialReviewFlag *bool `json:"financialReviewFlag,omitempty"`
-
 	// fiscal year
 	FiscalYear *string `json:"fiscalYear,omitempty"`
 

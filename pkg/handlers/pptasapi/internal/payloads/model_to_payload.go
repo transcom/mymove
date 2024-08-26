@@ -33,19 +33,20 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 	}
 
 	payload := &pptasmessages.PPTASReport{
-		MiddleInitial:    pptasReport.MiddleInitial,
-		PhoneSecondary:   pptasReport.PhoneSecondary,
-		EmailSecondary:   pptasReport.EmailSecondary,
-		OrdersType:       string(pptasReport.OrdersType),
-		PayGrade:         (*string)(pptasReport.PayGrade),
-		OriginGbloc:      pptasReport.OriginGBLOC,
-		DestinationGbloc: pptasReport.DestinationGBLOC,
-		DepCD:            &pptasReport.DepCD,
-		Affiliation:      (*pptasmessages.Affiliation)(pptasReport.Affiliation),
-		Tac:              pptasReport.TAC,
-		ShipmentNum:      int64(pptasReport.ShipmentNum),
-		TransmitCD:       pptasReport.TransmitCd,
-		Scac:             pptasReport.SCAC,
+		MiddleInitial:       pptasReport.MiddleInitial,
+		PhoneSecondary:      pptasReport.PhoneSecondary,
+		EmailSecondary:      pptasReport.EmailSecondary,
+		OrdersType:          string(pptasReport.OrdersType),
+		PayGrade:            (*string)(pptasReport.PayGrade),
+		OriginGbloc:         pptasReport.OriginGBLOC,
+		DestinationGbloc:    pptasReport.DestinationGBLOC,
+		DepCD:               &pptasReport.DepCD,
+		Affiliation:         (*pptasmessages.Affiliation)(pptasReport.Affiliation),
+		Tac:                 pptasReport.TAC,
+		ShipmentNum:         int64(pptasReport.ShipmentNum),
+		TransmitCD:          pptasReport.TransmitCd,
+		Scac:                pptasReport.SCAC,
+		FinancialReviewFlag: pptasReport.FinancialReviewFlag,
 	}
 
 	if len(pptasReport.Shipments) > 0 {
@@ -92,6 +93,10 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 		payload.EntitlementWeight = models.Int64Pointer(pptasReport.EntitlementWeight.Int64())
 	}
 
+	if pptasReport.WeightAuthorized != nil {
+		payload.WeightAuthorized = models.Float64Pointer(pptasReport.WeightAuthorized.Float64())
+	}
+
 	if pptasReport.TravelType != nil {
 		payload.TravelType = *pptasReport.TravelType
 	}
@@ -102,6 +107,10 @@ func PPTASReport(appCtx appcontext.AppContext, pptasReport *models.PPTASReport) 
 
 	if pptasReport.CounseledDate != nil {
 		payload.CounseledDate = strfmt.Date(*pptasReport.CounseledDate)
+	}
+
+	if pptasReport.FinancialReviewRemarks != nil {
+		payload.FinancialReviewRemarks = pptasReport.FinancialReviewRemarks
 	}
 
 	return payload

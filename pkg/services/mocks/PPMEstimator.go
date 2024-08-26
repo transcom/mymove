@@ -130,7 +130,7 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 }
 
 // PriceBreakdown provides a mock function with given fields: appCtx, ppmShipment
-func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
+func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment)
 
 	var r0 unit.Cents
@@ -139,8 +139,9 @@ func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment
 	var r3 unit.Cents
 	var r4 unit.Cents
 	var r5 unit.Cents
-	var r6 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error)); ok {
+	var r6 unit.Cents
+	var r7 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error)); ok {
 		return rf(appCtx, ppmShipment)
 	}
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
@@ -179,13 +180,19 @@ func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment
 		r5 = ret.Get(5).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(6).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+	if rf, ok := ret.Get(6).(func(appcontext.AppContext, *models.PPMShipment) unit.Cents); ok {
 		r6 = rf(appCtx, ppmShipment)
 	} else {
-		r6 = ret.Error(6)
+		r6 = ret.Get(6).(unit.Cents)
 	}
 
-	return r0, r1, r2, r3, r4, r5, r6
+	if rf, ok := ret.Get(7).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
+		r7 = rf(appCtx, ppmShipment)
+	} else {
+		r7 = ret.Error(7)
+	}
+
+	return r0, r1, r2, r3, r4, r5, r6, r7
 }
 
 // NewPPMEstimator creates a new instance of PPMEstimator. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

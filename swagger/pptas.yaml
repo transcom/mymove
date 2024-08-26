@@ -530,9 +530,6 @@ definitions:
         type: number
         format: double
         x-nullable: true
-      financialReviewFlag:
-        type: boolean
-        x-nullable: true
   PPTASReport:
     description: >
       Report for Navy PPTAS, contains information about Service Members, Orders,
@@ -686,6 +683,12 @@ definitions:
       travelClassCode:
         example: PCS
         type: string
+      financialReviewFlag:
+        type: boolean
+        x-nullable: true
+      financialReviewRemarks:
+        type: string
+        x-nullable: true
       shipments:
         type: array
         items:

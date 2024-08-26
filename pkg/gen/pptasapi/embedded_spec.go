@@ -398,6 +398,14 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "financialReviewFlag": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "financialReviewRemarks": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "example": "Bob"
@@ -622,10 +630,6 @@ func init() {
         "destinationReweighNetWeight": {
           "type": "number",
           "format": "double",
-          "x-nullable": true
-        },
-        "financialReviewFlag": {
-          "type": "boolean",
           "x-nullable": true
         },
         "fiscalYear": {
@@ -1277,6 +1281,14 @@ func init() {
           "type": "integer",
           "x-nullable": true
         },
+        "financialReviewFlag": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "financialReviewRemarks": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "example": "Bob"
@@ -1501,10 +1513,6 @@ func init() {
         "destinationReweighNetWeight": {
           "type": "number",
           "format": "double",
-          "x-nullable": true
-        },
-        "financialReviewFlag": {
-          "type": "boolean",
           "x-nullable": true
         },
         "fiscalYear": {

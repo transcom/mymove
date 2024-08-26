@@ -77,6 +77,13 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 		report.DepCD = orders.HasDependents
 		report.TransmitCd = &transmitCd
 		report.CounseledDate = move.ServiceCounselingCompletedAt
+
+		financialFlag := move.FinancialReviewFlag
+		report.FinancialReviewFlag = &financialFlag
+
+		financialRemarks := move.FinancialReviewRemarks
+		report.FinancialReviewRemarks = financialRemarks
+
 		addressLoad := appCtx.DB().Load(&orders.ServiceMember, "ResidentialAddress")
 		if addressLoad != nil {
 			return nil, apperror.NewQueryError("failed to load residential address", addressLoad, ".")
@@ -97,6 +104,8 @@ func (f *pptasReportListFetcher) BuildPPTASReportsFromMoves(appCtx appcontext.Ap
 				report.WeightAuthorized = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
 			} else {
 				totalWeight = unit.Pound(weightAllotment.TotalWeightSelf)
+
+				report.WeightAuthorized = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
 			}
 		}
 
@@ -198,9 +207,6 @@ func populateShipmentFields(
 
 		netWeight := models.GetTotalNetWeightForMTOShipment(shipment).Int64()
 		pptasShipment.NetWeight = &netWeight
-
-		financialFlag := move.FinancialReviewFlag
-		pptasShipment.FinancialReviewFlag = &financialFlag
 
 		var weightEstimate float64
 		if shipment.PPMShipment != nil {
@@ -376,7 +382,7 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessages.PPTASShipment, shipment models.MTOShipment, estimator services.PPMEstimator) error {
 	var travelAdvance float64
 
-	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking float64
+	var ppmLinehaul, ppmFuel, ppmOriginPrice, ppmDestPrice, ppmPacking, ppmUnpacking, ppmStorage float64
 	if shipment.PPMShipment != nil && (shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete || shipment.PPMShipment.Status == models.PPMShipmentStatusComplete) {
 		// query the ppmshipment for all it's child needs for the price breakdown
 		var ppmShipment models.PPMShipment
@@ -434,7 +440,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		}
 
 		// do the ppm cost breakdown here
-		linehaul, fuel, origin, dest, packing, unpacking, err := estimator.PriceBreakdown(appCtx, &ppmShipment)
+		linehaul, fuel, origin, dest, packing, unpacking, storage, err := estimator.PriceBreakdown(appCtx, &ppmShipment)
 		if err != nil {
 			return apperror.NewUnprocessableEntityError("ppm price breakdown")
 		}
@@ -445,7 +451,8 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		ppmDestPrice += dest.Float64()
 		ppmPacking += packing.Float64()
 		ppmUnpacking += unpacking.Float64()
-		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking
+		ppmStorage += storage.Float64()
+		ppmTotal := ppmLinehaul + ppmFuel + ppmOriginPrice + ppmDestPrice + ppmPacking + ppmUnpacking + ppmStorage
 
 		pptasShipment.PpmLinehaul = &ppmLinehaul
 		pptasShipment.PpmFuelRateAdjTotal = &ppmFuel
@@ -453,6 +460,7 @@ func populatePPMFields(appCtx appcontext.AppContext, pptasShipment *pptasmessage
 		pptasShipment.PpmDestPrice = &ppmDestPrice
 		pptasShipment.PpmPacking = &ppmPacking
 		pptasShipment.PpmUnpacking = &ppmUnpacking
+		pptasShipment.PpmStorage = &ppmStorage
 		pptasShipment.PpmTotal = &ppmTotal
 	}
 

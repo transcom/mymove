@@ -150,8 +150,13 @@ properties:
   travelClassCode:
     example: PCS
     type: string
+  financialReviewFlag:
+    type: boolean
+    x-nullable: true
+  financialReviewRemarks:
+    type: string
+    x-nullable: true
   shipments:
     type: array
     items:
       $ref: 'PPTASShipment.yaml'
-
