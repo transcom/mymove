@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -19,12 +19,14 @@ const PrimeUIShipmentCreateForm = () => {
   const { values } = useFormikContext();
   const { shipmentType } = values;
   const { sitExpected, hasProGear, hasSecondaryDestinationAddress, hasSecondaryPickupAddress } = values.ppmShipment;
+  const { hasTrailer } = values.boatShipment;
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
 
   // if a shipment is a diversion, then the parent shipment id will be required for input
   const toggleParentShipmentIdTextBox = (checkboxValue) => {
@@ -56,11 +58,11 @@ const PrimeUIShipmentCreateForm = () => {
       <DropdownInput
         label="Shipment type"
         name="shipmentType"
-        options={Object.values(SHIPMENT_OPTIONS).map((value) => ({ key: value, value }))}
+        options={Object.values(SHIPMENT_TYPES).map((value) => ({ key: value, value }))}
         id="shipmentType"
       />
 
-      {isPPM ? (
+      {isPPM && (
         <>
           <h2 className={styles.sectionHeader}>Dates</h2>
           <DatePickerInput
@@ -223,52 +225,108 @@ const PrimeUIShipmentCreateForm = () => {
           <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
           <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
         </>
-      ) : (
-        hasShipmentType && (
-          <>
-            <h2 className={styles.sectionHeader}>Shipment Dates</h2>
-            <DatePickerInput name="requestedPickupDate" label="Requested pickup" />
+      )}
+      {hasShipmentType && !isPPM && (
+        <>
+          <h2 className={styles.sectionHeader}>Shipment Dates</h2>
+          <DatePickerInput name="requestedPickupDate" label="Requested pickup" />
 
-            <h2 className={styles.sectionHeader}>Diversion</h2>
+          <h2 className={styles.sectionHeader}>Diversion</h2>
+          <CheckboxField
+            id="diversion"
+            name="diversion"
+            label="Diversion"
+            onChange={(e) => toggleParentShipmentIdTextBox(e.target.checked)}
+          />
+          {isChecked && (
+            <TextField
+              data-testid="divertedFromShipmentIdInput"
+              label="Diverted from Shipment ID"
+              id="divertedFromShipmentIdInput"
+              name="divertedFromShipmentId"
+              labelHint="Required if diversion box is checked"
+              validate={(value) => validateUUID(value)}
+            />
+          )}
+
+          <h2 className={styles.sectionHeader}>Shipment Weights</h2>
+
+          <MaskedTextField
+            data-testid="estimatedWeightInput"
+            defaultValue="0"
+            name="estimatedWeight"
+            label="Estimated weight (lbs)"
+            id="estimatedWeightInput"
+            mask={Number}
+            scale={0} // digits after point, 0 for integers
+            signed={false} // disallow negative
+            thousandsSeparator=","
+            lazy={false} // immediate masking evaluation
+          />
+
+          <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
+          <h5 className={styles.sectionHeader}>Pickup Address</h5>
+          <AddressFields name="pickupAddress" />
+          <h5 className={styles.sectionHeader}>Destination Address</h5>
+          <AddressFields name="destinationAddress" />
+        </>
+      )}
+      {isBoat && (
+        <>
+          <h2 className={styles.sectionHeader}>Boat Model Info</h2>
+          <MaskedTextField label="Year" id="boatShipment.yearInput" name="boatShipment.year" mask={Number} />
+          <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" />
+          <TextField label="Model" id="boatShipment.modelInput" name="boatShipment.model" />
+          <h2 className={styles.sectionHeader}>Boat Dimensions</h2>
+          <MaskedTextField
+            label="Length (Feet)"
+            id="boatShipment.lengthFeetInput"
+            name="boatShipment.lengthFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Length (Inches)"
+            id="boatShipment.lengthInchesInput"
+            name="boatShipment.lengthInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Feet)"
+            id="boatShipment.widthFeetInput"
+            name="boatShipment.widthFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Inches)"
+            id="boatShipment.widthInchesInput"
+            name="boatShipment.widthInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Feet)"
+            id="boatShipment.heightFeetInput"
+            name="boatShipment.heightFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Inches)"
+            id="boatShipment.heightInchesInput"
+            name="boatShipment.heightInches"
+            mask={Number}
+          />
+          <h2 className={styles.sectionHeader}>Trailer</h2>
+          <CheckboxField label="Has Trailer" id="boatShipment.hasTrailerInput" name="boatShipment.hasTrailer" />
+          {hasTrailer && (
             <CheckboxField
-              id="diversion"
-              name="diversion"
-              label="Diversion"
-              onChange={(e) => toggleParentShipmentIdTextBox(e.target.checked)}
+              label="Trailer is Roadworthy"
+              id="boatShipment.isRoadworthyInput"
+              name="boatShipment.isRoadworthy"
             />
-            {isChecked && (
-              <TextField
-                data-testid="divertedFromShipmentIdInput"
-                label="Diverted from Shipment ID"
-                id="divertedFromShipmentIdInput"
-                name="divertedFromShipmentId"
-                labelHint="Required if diversion box is checked"
-                validate={(value) => validateUUID(value)}
-              />
-            )}
-
-            <h2 className={styles.sectionHeader}>Shipment Weights</h2>
-
-            <MaskedTextField
-              data-testid="estimatedWeightInput"
-              defaultValue="0"
-              name="estimatedWeight"
-              label="Estimated weight (lbs)"
-              id="estimatedWeightInput"
-              mask={Number}
-              scale={0} // digits after point, 0 for integers
-              signed={false} // disallow negative
-              thousandsSeparator=","
-              lazy={false} // immediate masking evaluation
-            />
-
-            <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
-            <h5 className={styles.sectionHeader}>Pickup Address</h5>
-            <AddressFields name="pickupAddress" />
-            <h5 className={styles.sectionHeader}>Destination Address</h5>
-            <AddressFields name="destinationAddress" />
-          </>
-        )
+          )}
+          <h2 className={styles.sectionHeader}>Remarks</h2>
+          <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
+          <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
+        </>
       )}
     </SectionWrapper>
   );

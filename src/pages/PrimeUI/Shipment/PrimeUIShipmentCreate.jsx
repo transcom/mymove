@@ -21,7 +21,7 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { requiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 
 const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const [errorMessage, setErrorMessage] = useState();
@@ -70,6 +70,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
   const onSubmit = (values, { setSubmitting }) => {
     const { shipmentType } = values;
     const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+    const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
 
     let body;
     if (isPPM) {
@@ -123,6 +124,44 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           ...(hasProGear && {
             proGearWeight: proGearWeight ? parseInt(proGearWeight, 10) : null,
             spouseProGearWeight: spouseProGearWeight ? parseInt(spouseProGearWeight, 10) : null,
+          }),
+        },
+      };
+    } else if (isBoat) {
+      const {
+        counselorRemarks,
+        boatShipment: {
+          year,
+          make,
+          model,
+          lengthFeet,
+          lengthInches,
+          widthFeet,
+          widthInches,
+          heightFeet,
+          heightInches,
+          hasTrailer,
+          isRoadworthy,
+        },
+      } = values;
+
+      body = {
+        moveTaskOrderID: moveCodeOrID,
+        shipmentType,
+        counselorRemarks: counselorRemarks || null,
+        boatShipment: {
+          year: year ? parseInt(year, 10) : null,
+          make: make || null,
+          model: model || null,
+          lengthFeet: lengthFeet ? parseInt(lengthFeet, 10) : null,
+          lengthInches: lengthInches ? parseInt(lengthInches, 10) : null,
+          widthFeet: widthFeet ? parseInt(widthFeet, 10) : null,
+          widthInches: widthInches ? parseInt(widthInches, 10) : null,
+          heightFeet: heightFeet ? parseInt(heightFeet, 10) : null,
+          heightInches: heightInches ? parseInt(heightInches, 10) : null,
+          hasTrailer,
+          ...(hasTrailer && {
+            isRoadworthy,
           }),
         },
       };
@@ -201,6 +240,21 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
       hasSecondaryDestinationAddress: 'false',
     },
 
+    // Boat Shipment
+    boatShipment: {
+      year: null,
+      make: '',
+      model: '',
+      lengthFeet: null,
+      lengthInches: null,
+      widthFeet: null,
+      widthInches: null,
+      heightFeet: null,
+      heightInches: null,
+      hasTrailer: false,
+      isRoadworthy: false,
+    },
+
     // Other shipment types
     requestedPickupDate: '',
     estimatedWeight: '',
@@ -259,6 +313,29 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         }),
     }),
     // counselorRemarks is an optional string
+
+    // Boat Shipment
+    boatShipment: Yup.object().when('shipmentType', {
+      is: (shipmentType) =>
+        shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY,
+      then: () =>
+        Yup.object().shape({
+          year: Yup.number().positive('Must be a postive number').required('Required'),
+          make: Yup.string().min(1).trim().required('Required'),
+          model: Yup.string().min(1).trim().required('Required'),
+          lengthFeet: Yup.number().moreThan(-1, 'Must be a positive number').required('Required'),
+          lengthInches: Yup.number().moreThan(-1, 'Must be a positive number').max(11).required('Required'),
+          widthFeet: Yup.number().moreThan(-1, 'Must be a positive number').required('Required'),
+          widthInches: Yup.number().moreThan(-1, 'Must be a positive number').max(11).required('Required'),
+          heightFeet: Yup.number().moreThan(-1, 'Must be a positive number').required('Required'),
+          heightInches: Yup.number().moreThan(-1, 'Must be a positive number').max(11).required('Required'),
+          hasTrailer: Yup.boolean().required(),
+          isRoadworthy: Yup.boolean().when('hasTrailer', {
+            is: true,
+            then: (schema) => schema.required('Required'),
+          }),
+        }),
+    }),
 
     // Other shipment types
     requestedPickupDate: Yup.date().when('shipmentType', {
