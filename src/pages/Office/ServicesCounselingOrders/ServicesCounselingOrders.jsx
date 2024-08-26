@@ -370,6 +370,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     payGradeOptions={payGradeDropdownOptions}
                     hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
+                    touched={formik.touched}
                   />
                 </div>
                 <div className={styles.bottom}>

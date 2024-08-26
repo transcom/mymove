@@ -75,7 +75,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                   <TextField label="First name" name="first_name" id="firstName" required />
                 </Grid>
                 <Grid mobileLg={{ col: 6 }}>
-                  <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
+                  <TextField label="Middle name" name="middle_name" id="middleName" optional />
                 </Grid>
               </Grid>
 
@@ -84,7 +84,7 @@ const ServiceInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                   <TextField label="Last name" name="last_name" id="lastName" required />
                 </Grid>
                 <Grid mobileLg={{ col: 6 }}>
-                  <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
+                  <TextField label="Suffix" name="suffix" id="suffix" optional />
                 </Grid>
               </Grid>
 
