@@ -51,6 +51,18 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 	return nil
 }
 
+func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
+	if officeUser != nil {
+		payload := ghcmessages.AssignedOfficeUser{
+			ID:        strfmt.UUID(officeUser.ID.String()),
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+		}
+		return &payload
+	}
+	return nil
+}
+
 // Move payload
 func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
@@ -103,6 +115,9 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:          additionalDocumentsPayload,
+		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
