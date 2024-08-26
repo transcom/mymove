@@ -1730,7 +1730,6 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		Description:                   handlers.FmtStringPtr(s.Description),
 		Dimensions:                    MTOServiceItemDimensions(s.Dimensions),
 		CustomerContacts:              MTOServiceItemCustomerContacts(s.CustomerContacts),
-		SitAddressUpdates:             SITAddressUpdates(s.SITAddressUpdates),
 		SitOriginHHGOriginalAddress:   Address(s.SITOriginHHGOriginalAddress),
 		SitOriginHHGActualAddress:     Address(s.SITOriginHHGActualAddress),
 		SitDestinationOriginalAddress: Address(s.SITDestinationOriginalAddress),
@@ -1797,31 +1796,6 @@ func MTOServiceItemCustomerContacts(c models.MTOServiceItemCustomerContacts) ghc
 	for i, item := range c {
 		copyOfServiceItem := item // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = MTOServiceItemCustomerContact(&copyOfServiceItem)
-	}
-	return payload
-}
-
-// SITAddressUpdate payload
-func SITAddressUpdate(u models.SITAddressUpdate) *ghcmessages.SITAddressUpdate {
-	return &ghcmessages.SITAddressUpdate{
-		ID:                *handlers.FmtUUID(u.ID),
-		MtoServiceItemID:  *handlers.FmtUUID(u.MTOServiceItemID),
-		Distance:          handlers.FmtInt64(int64(u.Distance)),
-		ContractorRemarks: u.ContractorRemarks,
-		OfficeRemarks:     u.OfficeRemarks,
-		Status:            u.Status,
-		OldAddress:        Address(&u.OldAddress),
-		NewAddress:        Address(&u.NewAddress),
-		CreatedAt:         strfmt.DateTime(u.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(u.UpdatedAt),
-		ETag:              etag.GenerateEtag(u.UpdatedAt)}
-}
-
-// SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) ghcmessages.SITAddressUpdates {
-	payload := make(ghcmessages.SITAddressUpdates, len(u))
-	for i, item := range u {
-		payload[i] = SITAddressUpdate(item)
 	}
 	return payload
 }

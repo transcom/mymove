@@ -7787,58 +7787,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItemDimension'
-  SITAddressUpdate:
-    type: object
-    description: An update to a SIT service item address.
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoServiceItemID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      distance:
-        description: The distance between the old address and the new address in miles.
-        example: 54
-        minimum: 0
-        type: integer
-      contractorRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      officeRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      status:
-        enum:
-          - REQUESTED
-          - APPROVED
-          - REJECTED
-      oldAddress:
-        $ref: '#/definitions/Address'
-      newAddress:
-        $ref: '#/definitions/Address'
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        type: string
-        readOnly: true
-  SITAddressUpdates:
-    description: A list of updates to a SIT service item address.
-    type: array
-    items:
-      $ref: '#/definitions/SITAddressUpdate'
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -7944,8 +7892,6 @@ definitions:
         $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
-      sitAddressUpdates:
-        $ref: '#/definitions/SITAddressUpdates'
       sitDeliveryMiles:
         type: integer
         x-nullable: true
