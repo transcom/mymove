@@ -4149,8 +4149,8 @@ paths:
       tags:
         - move
       description: >-
-        updates a move by assigning either a services counselor, task ordering
-        officer, or task invoicing officer
+        assigns either a services counselor, task ordering officer, or task
+        invoicing officer to the move
       operationId: updateAssignedOfficeUser
   /moves/{moveID}/unassignOfficeUser:
     parameters:
@@ -4183,8 +4183,8 @@ paths:
       tags:
         - move
       description: >-
-        updates a move by unassigning a services counselor, task ordering
-        officer, or task invoicing officer
+        unassigns either a services counselor, task ordering officer, or task
+        invoicing officer from the move
       operationId: deleteAssignedOfficeUser
 definitions:
   ApplicationParameters:

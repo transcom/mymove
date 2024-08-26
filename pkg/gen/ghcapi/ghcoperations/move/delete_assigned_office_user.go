@@ -37,7 +37,7 @@ func NewDeleteAssignedOfficeUser(ctx *middleware.Context, handler DeleteAssigned
 /*
 	DeleteAssignedOfficeUser swagger:route PATCH /moves/{moveID}/unassignOfficeUser move deleteAssignedOfficeUser
 
-updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer
+unassigns either a services counselor, task ordering officer, or task invoicing officer from the move
 */
 type DeleteAssignedOfficeUser struct {
 	Context *middleware.Context
