@@ -481,115 +481,16 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "_[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.\nPlease use the new endpoint at ` + "`" + `/prime/v2/createMTOShipment` + "`" + ` instead.\n\nCreates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "description": "_[Deprecated: this endpoint was deprecated on August 5th, 2024]_\nPlease use the new endpoint at ` + "`" + `/prime/v3/createMTOShipment` + "`" + ` instead.\n",
         "tags": [
           "mtoShipment"
         ],
         "summary": "createMTOShipment",
         "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "x-examples": {
-              "application/json": {
-                "hhg": {
-                  "summary": "HHG",
-                  "value": {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "pickupAddress": {
-                      "city": "Muldraugh",
-                      "postalCode": "40155",
-                      "state": "KY",
-                      "streetAddress1": "204 South Prospect Lane"
-                    },
-                    "requestedPickupDate": "2022-12-31",
-                    "shipmentType": "HHG"
-                  }
-                },
-                "nts": {
-                  "summary": "NTS",
-                  "value": {
-                    "agents": [
-                      {
-                        "agentType": "RELEASING_AGENT",
-                        "email": "edgar.taylor@example.com",
-                        "firstName": "Edgar",
-                        "lastName": "Taylor",
-                        "phone": "555-555-5555"
-                      }
-                    ],
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "pickupAddress": {
-                      "city": "Muldraugh",
-                      "postalCode": "40155",
-                      "state": "KY",
-                      "streetAddress1": "204 South Prospect Lane"
-                    },
-                    "requestedPickupDate": "2022-12-31",
-                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
-                  }
-                },
-                "nts-r": {
-                  "summary": "NTS Release",
-                  "value": {
-                    "agents": [
-                      {
-                        "agentType": "RECEIVING_AGENT",
-                        "email": "edgar.taylor@example.com",
-                        "firstName": "Edgar",
-                        "lastName": "Taylor",
-                        "phone": "555-555-5555"
-                      }
-                    ],
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
-                  }
-                },
-                "ppm": {
-                  "summary": "PPM",
-                  "value": {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ppmShipment": {
-                      "estimatedWeight": 4999,
-                      "expectedDepartureDate": "2022-10-01",
-                      "hasProGear": false,
-                      "sitExpected": false
-                    },
-                    "shipmentType": "PPM"
-                  }
-                }
-              }
-            },
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateMTOShipment"
-            }
-          }
-        ],
+        "deprecated": true,
         "responses": {
-          "200": {
-            "description": "Successfully created a MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
+          "410": {
+            "description": "This endpoint is deprecated. Please use ` + "`" + `/prime/v3/createMTOShipment` + "`" + ` instead."
           }
         }
       }
@@ -5154,127 +5055,16 @@ func init() {
     },
     "/mto-shipments": {
       "post": {
-        "description": "_[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.\nPlease use the new endpoint at ` + "`" + `/prime/v2/createMTOShipment` + "`" + ` instead.\n\nCreates a new shipment within the specified move. This endpoint should be used whenever the movers identify a\nneed for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must\napprove it before the contractor can proceed with billing.\n\n**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to\none of their moves. Otherwise, the Prime can fetch the related move using the\n[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status ` + "`" + `\"APPROVED\"` + "`" + `.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "description": "_[Deprecated: this endpoint was deprecated on August 5th, 2024]_\nPlease use the new endpoint at ` + "`" + `/prime/v3/createMTOShipment` + "`" + ` instead.\n",
         "tags": [
           "mtoShipment"
         ],
         "summary": "createMTOShipment",
         "operationId": "createMTOShipment",
-        "parameters": [
-          {
-            "x-examples": {
-              "application/json": {
-                "hhg": {
-                  "summary": "HHG",
-                  "value": {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "pickupAddress": {
-                      "city": "Muldraugh",
-                      "postalCode": "40155",
-                      "state": "KY",
-                      "streetAddress1": "204 South Prospect Lane"
-                    },
-                    "requestedPickupDate": "2022-12-31",
-                    "shipmentType": "HHG"
-                  }
-                },
-                "nts": {
-                  "summary": "NTS",
-                  "value": {
-                    "agents": [
-                      {
-                        "agentType": "RELEASING_AGENT",
-                        "email": "edgar.taylor@example.com",
-                        "firstName": "Edgar",
-                        "lastName": "Taylor",
-                        "phone": "555-555-5555"
-                      }
-                    ],
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "pickupAddress": {
-                      "city": "Muldraugh",
-                      "postalCode": "40155",
-                      "state": "KY",
-                      "streetAddress1": "204 South Prospect Lane"
-                    },
-                    "requestedPickupDate": "2022-12-31",
-                    "shipmentType": "HHG_INTO_NTS_DOMESTIC"
-                  }
-                },
-                "nts-r": {
-                  "summary": "NTS Release",
-                  "value": {
-                    "agents": [
-                      {
-                        "agentType": "RECEIVING_AGENT",
-                        "email": "edgar.taylor@example.com",
-                        "firstName": "Edgar",
-                        "lastName": "Taylor",
-                        "phone": "555-555-5555"
-                      }
-                    ],
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "shipmentType": "HHG_OUTOF_NTS_DOMESTIC"
-                  }
-                },
-                "ppm": {
-                  "summary": "PPM",
-                  "value": {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ppmShipment": {
-                      "estimatedWeight": 4999,
-                      "expectedDepartureDate": "2022-10-01",
-                      "hasProGear": false,
-                      "sitExpected": false
-                    },
-                    "shipmentType": "PPM"
-                  }
-                }
-              }
-            },
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateMTOShipment"
-            }
-          }
-        ],
+        "deprecated": true,
         "responses": {
-          "200": {
-            "description": "Successfully created a MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The request was unprocessable, likely due to bad input from the requester.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
+          "410": {
+            "description": "This endpoint is deprecated. Please use ` + "`" + `/prime/v3/createMTOShipment` + "`" + ` instead."
           }
         }
       }

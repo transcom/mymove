@@ -110,25 +110,6 @@ func main() {
 	support.InitCreateMTOFlags(createMTOCommand.Flags())
 	root.AddCommand(createMTOCommand)
 
-	createMTOShipmentCommand := &cobra.Command{
-		Use:   "create-mto-shipment",
-		Short: "Create MTO shipment",
-		Long: `
-	This command creates a MTO shipment.
-	It requires the caller to pass in a file using the --filename arg.
-	The file should contain a body defining the MTOShipment object.
-	Endpoint path: /mto-shipments
-	The file should contain json as follows:
-		{
-			"body": <MTOShipment>,
-		}
-	Please see API documentation for full details on the endpoint definition.`,
-		RunE:         prime.CreateMTOShipment,
-		SilenceUsage: true,
-	}
-	prime.InitCreateMTOShipmentFlags(createMTOShipmentCommand.Flags())
-	root.AddCommand(createMTOShipmentCommand)
-
 	updateMTOShipmentCommand := &cobra.Command{
 		Use:   "update-mto-shipment",
 		Short: "Update MTO shipment",
