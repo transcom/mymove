@@ -24,6 +24,10 @@ type MobileHome struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt,omitempty"`
 
+	// A hash unique to this shipment that should be used as the "If-Match" header for any updates.
+	// Read Only: true
+	ETag string `json:"eTag,omitempty"`
+
 	// height in inches
 	HeightInInches int64 `json:"heightInInches,omitempty"`
 
@@ -142,6 +146,10 @@ func (m *MobileHome) ContextValidate(ctx context.Context, formats strfmt.Registr
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateETag(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateID(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -163,6 +171,15 @@ func (m *MobileHome) ContextValidate(ctx context.Context, formats strfmt.Registr
 func (m *MobileHome) contextValidateCreatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "createdAt", "body", strfmt.DateTime(m.CreatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MobileHome) contextValidateETag(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "eTag", "body", string(m.ETag)); err != nil {
 		return err
 	}
 
