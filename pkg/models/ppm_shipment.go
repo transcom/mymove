@@ -72,7 +72,7 @@ type PPMSITEstimatedCostInfo struct {
 type PPMShipmentStatus string
 
 const (
-	// PPMShipmentStatusCancelled captures enum value "DRAFT"
+	// PPMShipmentStatusCanceled captures enum value "DRAFT"
 	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELED"
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
