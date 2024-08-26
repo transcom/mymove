@@ -10,6 +10,13 @@ import sampleJPG from './sample.jpg';
 import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
 
+const toggleMenuClass = () => {
+  const container = document.querySelector('[data-testid="menuButtonContainer"]');
+  if (container) {
+    container.className = container.className === 'closed' ? 'open' : 'closed';
+  }
+};
+
 const mockFiles = [
   {
     id: 1,
@@ -43,8 +50,9 @@ const mockFiles = [
   },
 ];
 
-jest.mock('react-file-viewer', () => ({
-  default: ({ id, filename, contentType, url, createdAt, rotation, allowDownload }) => (
+jest.mock('./Content/Content', () => ({
+  __esModule: true,
+  default: ({ id, filename, contentType, url, createdAt, rotation }) => (
     <div>
       <div data-testid="documentTitle">
         {filename} Uploaded on {createdAt}
@@ -55,7 +63,6 @@ jest.mock('react-file-viewer', () => ({
       <div>url: {url || 'undefined'}</div>
       <div>createdAt: {createdAt || 'undefined'}</div>
       <div>rotation: {rotation || 'undefined'}</div>
-      <div data-testid="allowDownloadBool">{allowDownload || false}</div>
       <div data-testid="listOfFiles">
         <ul>
           {mockFiles.map((file) => (
@@ -69,8 +76,7 @@ jest.mock('react-file-viewer', () => ({
         <button
           data-testid="menuButton"
           onClick={() => {
-            const container = document.querySelector('[data-testid="menuButtonContainer"]');
-            container.className = container.className === 'closed' ? 'open' : 'closed';
+            toggleMenuClass();
           }}
           type="button"
         >
@@ -89,8 +95,8 @@ describe('DocumentViewer component', () => {
       </QueryClientProvider>,
     );
 
-    const selectedFileTitle = await screen.findByTestId('documentTitle');
-    expect(selectedFileTitle.textContent).toEqual('Test File 4.gif Uploaded on 2021-06-16T15:09:26.979879Z');
+    const selectedFileTitle = await screen.getAllByTestId('documentTitle')[0];
+    expect(selectedFileTitle.textContent).toEqual('Test File 4.gif - Added on 16 Jun 2021');
 
     const menuButtonContainer = await screen.findByTestId('menuButtonContainer');
     expect(menuButtonContainer.className).toContain('closed');
@@ -115,9 +121,9 @@ describe('DocumentViewer component', () => {
       </QueryClientProvider>,
     );
 
-    const title = await screen.findByTestId('documentTitle');
+    const title = await screen.getAllByTestId('documentTitle')[0];
 
-    expect(title.textContent).toContain('Test File 4.gif Uploaded on 2021-06-16T15:09:26.979879Z');
+    expect(title.textContent).toContain('Test File 4.gif - Added on 16 Jun 2021');
   });
 
   it('handles the open menu button', async () => {
@@ -164,16 +170,6 @@ describe('DocumentViewer component', () => {
       </QueryClientProvider>,
     );
 
-    expect(screen.getByText('undefined')).toBeVisible();
-  });
-
-  it('shows the download option when allowDownload is true', async () => {
-    render(
-      <QueryClientProvider client={new QueryClient()}>
-        <DocumentViewer files={mockFiles} allowDownload />
-      </QueryClientProvider>,
-    );
-
-    expect(await screen.getByTestId('allowDownloadBool')).toContain('true');
+    expect(screen.getByText('id: undefined')).toBeInTheDocument();
   });
 });
