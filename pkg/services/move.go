@@ -9,6 +9,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -25,6 +26,7 @@ type MoveListFetcher interface {
 //go:generate mockery --name MoveFetcher
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
+	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
 }
 
 //go:generate mockery --name MoveSearcher
@@ -117,4 +119,9 @@ type MoveCloseoutOfficeUpdater interface {
 
 type MoveCanceler interface {
 	CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error)
+}
+
+type MoveAssignedOfficeUserUpdater interface {
+	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, role roles.RoleType) (*models.Move, error)
+	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, role roles.RoleType) (*models.Move, error)
 }
