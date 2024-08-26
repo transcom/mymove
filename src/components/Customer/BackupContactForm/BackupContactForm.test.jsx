@@ -52,7 +52,7 @@ describe('BackupContactForm Component', () => {
   });
 
   it('shows an error message when trying to submit an invalid form', async () => {
-    const { getAllByText, getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
+    const { getAllByTestId, getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
     // Touch all of the required fields so that they show error messages
@@ -62,7 +62,7 @@ describe('BackupContactForm Component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
+      expect(getAllByTestId('errorMessage').length).toBe(3);
     });
 
     expect(testProps.onSubmit).not.toHaveBeenCalled();
