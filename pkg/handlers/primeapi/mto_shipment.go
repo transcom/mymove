@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi/payloads"
@@ -146,6 +147,74 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 			}
 			returnPayload := payloads.ShipmentAddressUpdate(response)
 			return mtoshipmentops.NewUpdateShipmentDestinationAddressCreated().WithPayload(returnPayload), nil
+		})
+}
+
+// UpdateMTOShipmentHandler is the handler to update MTO shipments
+type UpdateMTOShipmentHandler struct {
+	handlers.HandlerConfig
+	services.ShipmentUpdater
+}
+
+// Handle handler that updates a mto shipment
+func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
+
+			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID,
+				"DestinationAddress",
+				"SecondaryPickupAddress",
+				"SecondaryDeliveryAddress",
+				"TertiaryPickupAddress",
+				"TertiaryDeliveryAddress",
+				"StorageFacility",
+				"PPMShipment")
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
+					payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			if dbShipment.Status == models.MTOShipmentStatusApproved &&
+				(params.Body.DestinationAddress.City != nil ||
+					params.Body.DestinationAddress.State != nil ||
+					params.Body.DestinationAddress.PostalCode != nil) {
+				return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"This shipment is approved, please use the updateShipmentDestinationAddress endpoint to update the destination address", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+			}
+
+			var agents []models.MTOAgent
+			err = appCtx.DB().Scope(utilities.ExcludeDeletedScope()).Where("mto_shipment_id = ?", mtoShipment.ID).All(&agents)
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+			dbShipment.MTOAgents = agents
+
+			// Validate further prime restrictions on model
+			mtoShipment.ShipmentType = dbShipment.ShipmentType
+
+			appCtx.Logger().Info("primeapi.UpdateMTOShipmentHandler info", zap.String("pointOfContact", params.Body.PointOfContact))
+			mtoShipment, err = h.ShipmentUpdater.UpdateShipment(appCtx, mtoShipment, params.IfMatch, "prime")
+			if err != nil {
+				appCtx.Logger().Error("primeapi.UpdateMTOShipmentHandler error", zap.Error(err))
+				switch e := err.(type) {
+				case apperror.NotFoundError:
+					return mtoshipmentops.NewUpdateMTOShipmentNotFound().WithPayload(
+						payloads.ClientError(handlers.NotFoundMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.InvalidInputError:
+					payload := payloads.ValidationError(err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)
+					return mtoshipmentops.NewUpdateMTOShipmentUnprocessableEntity().WithPayload(payload), err
+				case apperror.PreconditionFailedError:
+					return mtoshipmentops.NewUpdateMTOShipmentPreconditionFailed().WithPayload(
+						payloads.ClientError(handlers.PreconditionErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				default:
+					return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+						payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				}
+			}
+			mtoShipmentPayload := payloads.MTOShipment(mtoShipment)
+			return mtoshipmentops.NewUpdateMTOShipmentOK().WithPayload(mtoShipmentPayload), nil
 		})
 }
 
