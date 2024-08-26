@@ -25,8 +25,32 @@ const validationShape = {
   year: Yup.number().required('Required').min(1700, 'Invalid year').max(maxYear, 'Invalid year'),
   make: Yup.string().required('Required'),
   model: Yup.string().required('Required'),
+  lengthFeet: Yup.number()
+    .min(0)
+    .nullable()
+    .when('lengthInches', {
+      is: (lengthInches) => !lengthInches,
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   lengthInches: Yup.number(),
+  widthFeet: Yup.number()
+    .min(0)
+    .nullable()
+    .when('widthInches', {
+      is: (widthInches) => !widthInches,
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   widthInches: Yup.number().min(0),
+  heightFeet: Yup.number()
+    .min(0)
+    .nullable()
+    .when('heightInches', {
+      is: (heightInches) => !heightInches,
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema.notRequired(),
+    }),
   heightInches: Yup.number().min(0),
   customerRemarks: Yup.string(),
 };

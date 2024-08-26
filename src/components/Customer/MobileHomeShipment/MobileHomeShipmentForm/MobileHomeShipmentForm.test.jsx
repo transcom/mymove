@@ -66,7 +66,17 @@ describe('MobileHomeShipmentForm component', () => {
     it('marks required inputs when left empty', async () => {
       render(<MobileHomeShipmentForm {...emptyInfoProps} />);
 
-      const requiredFields = ['year', 'make', 'model', 'lengthInches', 'widthInches', 'heightInches'];
+      const requiredFields = [
+        'year',
+        'make',
+        'model',
+        'lengthFeet',
+        'lengthInches',
+        'widthFeet',
+        'widthInches',
+        'heightFeet',
+        'heightInches',
+      ];
 
       await act(async () => {
         requiredFields.forEach(async (field) => {
