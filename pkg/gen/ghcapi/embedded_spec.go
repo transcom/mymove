@@ -2288,7 +2288,7 @@ func init() {
     },
     "/moves/{moveID}/assignOfficeUser": {
       "patch": {
-        "description": "updates a move by assigning either a services counselor, task ordering officer, or task invoicing officer",
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
         "consumes": [
           "application/json"
         ],
@@ -2562,7 +2562,7 @@ func init() {
     },
     "/moves/{moveID}/unassignOfficeUser": {
       "patch": {
-        "description": "updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer",
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
         "consumes": [
           "application/json"
         ],
@@ -16826,7 +16826,7 @@ func init() {
     },
     "/moves/{moveID}/assignOfficeUser": {
       "patch": {
-        "description": "updates a move by assigning either a services counselor, task ordering officer, or task invoicing officer",
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
         "consumes": [
           "application/json"
         ],
@@ -17169,7 +17169,7 @@ func init() {
     },
     "/moves/{moveID}/unassignOfficeUser": {
       "patch": {
-        "description": "updates a move by unassigning a services counselor, task ordering officer, or task invoicing officer",
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
         "consumes": [
           "application/json"
         ],
