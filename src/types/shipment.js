@@ -211,6 +211,7 @@ export const ShipmentShape = shape({
   }),
   ppmShipment: PPMShipmentShape,
   boatShipment: BoatShipmentShape,
+  mobileHomeShipment: MobileHomeShipmentShape,
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
   actual_pro_gear_weight: number,
   actual_spouse_pro_gear_weight: number,
