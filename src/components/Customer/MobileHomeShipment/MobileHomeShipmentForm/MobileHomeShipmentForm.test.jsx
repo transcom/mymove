@@ -7,8 +7,8 @@ import MobileHomeShipmentForm from './MobileHomeShipmentForm';
 const mtoShipment = {
   mobileHomeShipment: {
     year: '2022',
-    make: 'Yamaha',
-    model: '242X',
+    make: 'Skyline Homes',
+    model: 'Crown',
     lengthInInches: 288, // 24 feet
     widthInInches: 102, // 8 feet 6 inches
     heightInInches: 84, // 7 feet
@@ -45,7 +45,7 @@ describe('MobileHomeShipmentForm component', () => {
   describe('displays form', () => {
     it('renders filled form on load', async () => {
       render(<MobileHomeShipmentForm {...defaultProps} />);
-      expect(await screen.getByTestId('year')).toHaveValue(mtoShipment.mobileHomeShipment.year);
+      expect(screen.getByTestId('year')).toHaveValue(mtoShipment.mobileHomeShipment.year);
       expect(screen.getByTestId('make')).toHaveValue(mtoShipment.mobileHomeShipment.make);
       expect(screen.getByTestId('model')).toHaveValue(mtoShipment.mobileHomeShipment.model);
       expect(screen.getByTestId('lengthFeet')).toHaveValue('24');
@@ -87,7 +87,7 @@ describe('MobileHomeShipmentForm component', () => {
         });
       });
 
-      expect(screen.getAllByText('Required').length).toBe(requiredFields.length);
+      expect(screen.getAllByTestId('errorMessage').length).toBe(requiredFields.length);
     });
   });
 
