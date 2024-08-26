@@ -26,8 +26,6 @@ const mobileHomeShipmentLocationSchema = Yup.object().shape({
   delivery: OptionalPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
   secondaryDelivery: AdditionalAddressSchema,
-  tertiaryPickup: AdditionalAddressSchema,
-  tertiaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
   counselorRemarks: Yup.string(),
 });

@@ -29,7 +29,7 @@ html {
     &--ppm,
     &--ub,
     &--boat,
-    &--mobile-home,
+    &--mobilehome,
     &--nts,
     &--ntsr {
       @include u-radius(0);
@@ -145,8 +145,6 @@ table {
       @include u-border(0);
       @include u-border-bottom(1px);
       @include u-border('base-darker');
-    }
-    td {
     }
   }
   &.table--stacked {

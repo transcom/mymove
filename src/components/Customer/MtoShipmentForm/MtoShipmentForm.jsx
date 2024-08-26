@@ -16,6 +16,7 @@ import {
 } from '@trussworks/react-uswds';
 
 import boatShipmentstyles from '../BoatShipment/BoatShipmentForm/BoatShipmentForm.module.scss';
+import mobileHomeShipmentstyles from '../MobileHomeShipment/MobileHomeShipmentForm/MobileHomeShipmentForm.module.scss';
 
 import getShipmentOptions from './getShipmentOptions';
 import styles from './MtoShipmentForm.module.scss';

@@ -21,6 +21,7 @@ import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipme
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
 import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
+import MobileHomeShipmentCard from 'components/Customer/Review/ShipmentCard/MobileHomeShipmentCard/MobileHomeShipmentCard';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
@@ -170,6 +171,7 @@ export class Summary extends Component {
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
     let boatShipmentNumber = 0;
+    let mobileHomeShipmentNumber = 0;
     return sortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
@@ -265,6 +267,35 @@ export class Summary extends Component {
             requestedPickupDate={shipment.requestedPickupDate}
             shipmentId={shipment.id}
             shipmentNumber={boatShipmentNumber}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
+          />
+        );
+      }
+      if (shipment.shipmentType === SHIPMENT_TYPES.MOBILE_HOME) {
+        mobileHomeShipmentNumber += 1;
+        return (
+          <MobileHomeShipmentCard
+            key={shipment.id}
+            shipment={shipment}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
+            destinationLocation={shipment?.destinationAddress}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
+            pickupLocation={shipment.pickupAddress}
+            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentNumber={mobileHomeShipmentNumber}
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}

@@ -172,9 +172,9 @@ const MobileHomeShipmentCreate = ({
           setErrorMessage(errorMsg);
         });
     } else {
+      // console.log('Create output: ', errorMsg);
       createOrUpdateShipment.id = mtoShipment.id;
       createOrUpdateShipment.mobileHomeShipment.id = mtoShipment.mobileHomeShipment?.id;
-
       patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
         .then((shipmentResponse) => {
           onShipmentSaveSuccess(shipmentResponse, setSubmitting);
@@ -216,7 +216,7 @@ const MobileHomeShipmentCreate = ({
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
               handleConfirmationDeleteAndRedirect={handleConfirmationDeleteAndRedirect}
-              isSubmitting={isSubmitting}
+              isSubmitting={false}
               isEditPage={isEditPage}
             />
           </Grid>

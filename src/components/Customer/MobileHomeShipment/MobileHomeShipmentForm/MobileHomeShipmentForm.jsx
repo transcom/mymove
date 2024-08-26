@@ -116,8 +116,8 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </div>
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Mobile home Dimensions</h2>
-                <p>Enter the total outside dimensions of the mobile home.</p>
+                <h2>Mobile Home Dimensions</h2>
+                <p>Enter all of the dimensions of the mobile home.</p>
                 <div>
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
