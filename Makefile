@@ -169,7 +169,6 @@ client_deps: .check_hosts.stamp .client_deps.stamp ## Install client dependencie
 .client_build.stamp: .client_deps.stamp $(shell find src -type f)
 	REACT_APP_GIT_COMMIT=$(GIT_COMMIT) \
 	REACT_APP_GIT_BRANCH=$(GIT_BRANCH) \
-	yarn cache clean
 	yarn build
 	touch .client_build.stamp
 
