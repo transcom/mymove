@@ -3884,9 +3884,18 @@ paths:
   /lines-of-accounting:
     post:
       summary: Fetch line of accounting
-      description: >-
+      description: >
         Fetches a line of accounting based on provided service member
-        affiliation, order issue date, and Transportation Accounting Code (TAC).
+        affiliation, effective date, and Transportation Accounting Code (TAC).
+        It uses these parameters to filter the correct Line of Accounting for
+        the provided TAC. It does this by filtering through both TAC and LOAs
+        based on the provided code and effective date. The 'Effective Date' is
+        the date that can be either the orders issued date (For HHG shipments),
+        MTO approval date (For NTS shipments), or even the current date for NTS
+        shipments with no approval yet (Just providing a preview to the office
+        users per customer request). Effective date is used to find "Active"
+        TGET data by searching for the TACs and LOAs with begin and end dates
+        containing this date.
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
@@ -3897,7 +3906,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Service member affiliation, order issue date, and TAC code.
+          description: Service member affiliation, effective date, and TAC code.
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
@@ -4642,7 +4651,17 @@ definitions:
     properties:
       serviceMemberAffiliation:
         $ref: '#/definitions/Affiliation'
-      ordersIssueDate:
+      effectiveDate:
+        description: >
+          The effective date for the Line Of Accounting (LOA) being fetched. Eg,
+          the orders issue date or the Non-Temporary Storage (NTS) Move Task
+          Order (MTO) approval date. Effective date is used to find "Active"
+          TGET data by searching for the TACs and LOAs with begin and end dates
+          containing this date. The 'Effective Date' is the date that can be
+          either the orders issued date (For HHG shipments), MTO approval date
+          (For NTS shipments), or even the current date for NTS shipments with
+          no approval yet (Just providing a preview to the office users per
+          customer request).
         type: string
         format: date
         example: '2023-01-01'
@@ -4836,6 +4855,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -5644,6 +5667,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -6700,6 +6727,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -7676,58 +7708,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItemDimension'
-  SITAddressUpdate:
-    type: object
-    description: An update to a SIT service item address.
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoServiceItemID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      distance:
-        description: The distance between the old address and the new address in miles.
-        example: 54
-        minimum: 0
-        type: integer
-      contractorRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      officeRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      status:
-        enum:
-          - REQUESTED
-          - APPROVED
-          - REJECTED
-      oldAddress:
-        $ref: '#/definitions/Address'
-      newAddress:
-        $ref: '#/definitions/Address'
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        type: string
-        readOnly: true
-  SITAddressUpdates:
-    description: A list of updates to a SIT service item address.
-    type: array
-    items:
-      $ref: '#/definitions/SITAddressUpdate'
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -7833,8 +7813,6 @@ definitions:
         $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
-      sitAddressUpdates:
-        $ref: '#/definitions/SITAddressUpdates'
       sitDeliveryMiles:
         type: integer
         x-nullable: true
@@ -8052,6 +8030,12 @@ definitions:
       createdAt:
         description: Timestamp of when a property of this object was created (UTC)
         format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
         type: string
         readOnly: true
   SITLocationType:
@@ -9474,6 +9458,8 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
         $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       shipmentLocator:

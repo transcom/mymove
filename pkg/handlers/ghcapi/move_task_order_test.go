@@ -68,6 +68,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Assertions.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
 	suite.Nil(moveTaskOrderPayload.AvailableToPrimeAt)
+	suite.Nil(moveTaskOrderPayload.ApprovedAt)
 	// TODO: Check that the *moveTaskOrderPayload.Status is not "canceled"
 	// suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.OrdersID.String()), moveTaskOrderPayload.OrderID)
@@ -173,6 +174,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusOK{}, response)
 		suite.Equal(strfmt.UUID(move.ID.String()), movePayload.ID)
 		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotNil(movePayload.ApprovedAt)
 		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 
 		// also check MTO level service items are properly created

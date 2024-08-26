@@ -772,94 +772,97 @@ const ShipmentForm = (props) => {
                         onChange={handlePickupDateChange}
                       />
                     </Fieldset>
-
-                    <AddressFields
-                      name="pickup.address"
-                      legend="Pickup location"
-                      render={(fields) => (
-                        <>
-                          <p>What address are the movers picking up from?</p>
-                          <Checkbox
-                            data-testid="useCurrentResidence"
-                            label="Use current address"
-                            name="useCurrentResidence"
-                            onChange={handleUseCurrentResidenceChange}
-                            id="useCurrentResidenceCheckbox"
-                          />
-                          {fields}
-                          <h4>Second pickup location</h4>
-                          <FormGroup>
-                            <p>Do you want movers to pick up any belongings from a second address?</p>
-                            <div className={formStyles.radioGroup}>
-                              <Field
-                                as={Radio}
-                                id="has-secondary-pickup"
-                                data-testid="has-secondary-pickup"
-                                label="Yes"
-                                name="hasSecondaryPickup"
-                                value="yes"
-                                title="Yes, I have a second pickup location"
-                                checked={hasSecondaryPickup === 'yes'}
-                              />
-                              <Field
-                                as={Radio}
-                                id="no-secondary-pickup"
-                                data-testid="no-secondary-pickup"
-                                label="No"
-                                name="hasSecondaryPickup"
-                                value="no"
-                                title="No, I do not have a second pickup location"
-                                checked={hasSecondaryPickup !== 'yes'}
-                              />
-                            </div>
-                          </FormGroup>
-                          {hasSecondaryPickup === 'yes' && (
+                    {!isNTSR && (
+                      <>
+                        <AddressFields
+                          name="pickup.address"
+                          legend="Pickup location"
+                          render={(fields) => (
                             <>
-                              <AddressFields name="secondaryPickup.address" />
-                              {isTertiaryAddressEnabled && (
+                              <p>What address are the movers picking up from?</p>
+                              <Checkbox
+                                data-testid="useCurrentResidence"
+                                label="Use current address"
+                                name="useCurrentResidence"
+                                onChange={handleUseCurrentResidenceChange}
+                                id="useCurrentResidenceCheckbox"
+                              />
+                              {fields}
+                              <h4>Second pickup location</h4>
+                              <FormGroup>
+                                <p>Do you want movers to pick up any belongings from a second address?</p>
+                                <div className={formStyles.radioGroup}>
+                                  <Field
+                                    as={Radio}
+                                    id="has-secondary-pickup"
+                                    data-testid="has-secondary-pickup"
+                                    label="Yes"
+                                    name="hasSecondaryPickup"
+                                    value="yes"
+                                    title="Yes, I have a second pickup location"
+                                    checked={hasSecondaryPickup === 'yes'}
+                                  />
+                                  <Field
+                                    as={Radio}
+                                    id="no-secondary-pickup"
+                                    data-testid="no-secondary-pickup"
+                                    label="No"
+                                    name="hasSecondaryPickup"
+                                    value="no"
+                                    title="No, I do not have a second pickup location"
+                                    checked={hasSecondaryPickup !== 'yes'}
+                                  />
+                                </div>
+                              </FormGroup>
+                              {hasSecondaryPickup === 'yes' && (
                                 <>
-                                  <h4>Third pickup location</h4>
-                                  <FormGroup>
-                                    <p>Do you want movers to pick up any belongings from a third address?</p>
-                                    <div className={formStyles.radioGroup}>
-                                      <Field
-                                        as={Radio}
-                                        id="has-tertiary-pickup"
-                                        data-testid="has-tertiary-pickup"
-                                        label="Yes"
-                                        name="hasTertiaryPickup"
-                                        value="yes"
-                                        title="Yes, I have a third pickup location"
-                                        checked={hasTertiaryPickup === 'yes'}
-                                      />
-                                      <Field
-                                        as={Radio}
-                                        id="no-tertiary-pickup"
-                                        data-testid="no-tertiary-pickup"
-                                        label="No"
-                                        name="hasTertiaryPickup"
-                                        value="no"
-                                        title="No, I do not have a third pickup location"
-                                        checked={hasTertiaryPickup !== 'yes'}
-                                      />
-                                    </div>
-                                  </FormGroup>
-                                  {hasTertiaryPickup === 'yes' && <AddressFields name="tertiaryPickup.address" />}
+                                  <AddressFields name="secondaryPickup.address" />
+                                  {isTertiaryAddressEnabled && (
+                                    <>
+                                      <h4>Third pickup location</h4>
+                                      <FormGroup>
+                                        <p>Do you want movers to pick up any belongings from a third address?</p>
+                                        <div className={formStyles.radioGroup}>
+                                          <Field
+                                            as={Radio}
+                                            id="has-tertiary-pickup"
+                                            data-testid="has-tertiary-pickup"
+                                            label="Yes"
+                                            name="hasTertiaryPickup"
+                                            value="yes"
+                                            title="Yes, I have a third pickup location"
+                                            checked={hasTertiaryPickup === 'yes'}
+                                          />
+                                          <Field
+                                            as={Radio}
+                                            id="no-tertiary-pickup"
+                                            data-testid="no-tertiary-pickup"
+                                            label="No"
+                                            name="hasTertiaryPickup"
+                                            value="no"
+                                            title="No, I do not have a third pickup location"
+                                            checked={hasTertiaryPickup !== 'yes'}
+                                          />
+                                        </div>
+                                      </FormGroup>
+                                      {hasTertiaryPickup === 'yes' && <AddressFields name="tertiaryPickup.address" />}
+                                    </>
+                                  )}
                                 </>
                               )}
                             </>
                           )}
-                        </>
-                      )}
-                    />
+                        />
 
-                    <ContactInfoFields
-                      name="pickup.agent"
-                      legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
-                      render={(fields) => {
-                        return fields;
-                      }}
-                    />
+                        <ContactInfoFields
+                          name="pickup.agent"
+                          legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
+                      </>
+                    )}
                   </SectionWrapper>
                 )}
 
@@ -894,8 +897,7 @@ const ShipmentForm = (props) => {
                         onChange={handleDeliveryDateChange}
                       />
                     </Fieldset>
-
-                    {isNTSR ? (
+                    {isNTSR && (
                       <>
                         {deliveryAddressUpdateRequested && (
                           <Alert type="error" slim className={styles.deliveryAddressUpdateAlert} id="delivery-location">
@@ -996,8 +998,17 @@ const ShipmentForm = (props) => {
                             />
                           )}
                         </Fieldset>
+
+                        <ContactInfoFields
+                          name="delivery.agent"
+                          legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
                       </>
-                    ) : (
+                    )}
+                    {!isNTS && !isNTSR && (
                       <>
                         <p className={classNames('usa-legend', styles.mockLegend)} id="delivery-location">
                           Delivery location
@@ -1152,16 +1163,16 @@ const ShipmentForm = (props) => {
                             </div>
                           )}
                         </Fieldset>
+
+                        <ContactInfoFields
+                          name="delivery.agent"
+                          legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
+                          render={(fields) => {
+                            return fields;
+                          }}
+                        />
                       </>
                     )}
-
-                    <ContactInfoFields
-                      name="delivery.agent"
-                      legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
-                      render={(fields) => {
-                        return fields;
-                      }}
-                    />
                   </SectionWrapper>
                 )}
 

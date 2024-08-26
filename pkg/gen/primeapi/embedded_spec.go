@@ -1382,60 +1382,6 @@ func init() {
           }
         }
       }
-    },
-    "/sit-address-updates": {
-      "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "sitAddressUpdate"
-        ],
-        "summary": "createSITAddressUpdateRequest",
-        "operationId": "createSITAddressUpdateRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateSITAddressUpdateRequest"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Succesfully created a SIT address update request.",
-            "schema": {
-              "$ref": "#/definitions/SitAddressUpdate"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "409": {
-            "$ref": "#/responses/Conflict"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -1842,27 +1788,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreateSITExtension": {
       "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
       "type": "object",
@@ -2118,6 +2043,12 @@ func init() {
         "amendments": {
           "$ref": "#/definitions/Amendments"
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -2372,9 +2303,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitAddressUpdates": {
-              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -2964,6 +2892,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -3978,91 +3912,6 @@ func init() {
       },
       "readOnly": true
     },
-    "SitAddressUpdate": {
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "type": "integer",
-          "maximum": 50,
-          "readOnly": true,
-          "example": 25
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
-        },
-        "mtoServiceItemId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "status": {
-          "$ref": "#/definitions/SitAddressUpdateStatus"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitAddressUpdateStatus": {
-      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "REJECTED"
-      ]
-    },
-    "SitAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitAddressUpdate"
-      }
-    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -4678,10 +4527,6 @@ func init() {
     {
       "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**. A service item can be on multiple payment requests if necessary.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest** after the payment\nrequest is created via the endpoint [createUpload](#operation/createUpload).\n\nAll weight entered should be in *pounds* and no other unit of measurement.\n",
       "name": "paymentRequest"
-    },
-    {
-      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
-      "name": "sitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -4691,8 +4536,7 @@ func init() {
         "moveTaskOrder",
         "mtoShipment",
         "mtoServiceItem",
-        "paymentRequest",
-        "sitAddressUpdate"
+        "paymentRequest"
       ]
     }
   ]
@@ -6471,81 +6315,6 @@ func init() {
           }
         }
       }
-    },
-    "/sit-address-updates": {
-      "post": {
-        "description": "**Functionality:**\nCreates an update request for a SIT service item's final delivery address.\nA newly created update request is assigned the status 'REQUESTED'  if the change in address\nis \u003e 50 miles and automatically approved otherwise.\n\n**Limitations:**\nThe update can be requested for APPROVED SIT service items only.\nOnly ONE request is allowed per approved SIT service item.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, when updating a service item's final delivery address, you will need to update the shipment's destination address. This will update the destination SIT service items' final delivery address upon approval.\nFor ` + "`" + `APPROVED` + "`" + ` shipments, you can use [updateShipmentDestinationAddress](#mtoShipment/updateShipmentDestinationAddress)\nFor shipments in any other status, you can use [updateMTOShipmentAddress](#mtoShipment/updateMTOShipmentAddress)\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "sitAddressUpdate"
-        ],
-        "summary": "createSITAddressUpdateRequest",
-        "operationId": "createSITAddressUpdateRequest",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "$ref": "#/definitions/CreateSITAddressUpdateRequest"
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Succesfully created a SIT address update request.",
-            "schema": {
-              "$ref": "#/definitions/SitAddressUpdate"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "409": {
-            "description": "The request could not be processed because of conflict in the current state of the resource.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The request was unprocessable, likely due to bad input from the requester.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
@@ -6952,27 +6721,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreateSITExtension": {
       "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
       "type": "object",
@@ -7228,6 +6976,12 @@ func init() {
         "amendments": {
           "$ref": "#/definitions/Amendments"
         },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -7482,9 +7236,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitAddressUpdates": {
-              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -8074,6 +7825,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -9093,91 +8850,6 @@ func init() {
       },
       "readOnly": true
     },
-    "SitAddressUpdate": {
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "type": "integer",
-          "maximum": 50,
-          "readOnly": true,
-          "example": 25
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
-        },
-        "mtoServiceItemId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "status": {
-          "$ref": "#/definitions/SitAddressUpdateStatus"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitAddressUpdateStatus": {
-      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "REJECTED"
-      ]
-    },
-    "SitAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitAddressUpdate"
-      }
-    },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
       "type": "object",
@@ -9793,10 +9465,6 @@ func init() {
     {
       "description": "The contractor submits a **paymentRequest** to the TIO for approval in order to be reimbursed for 1 or more\n**mtoServiceItems** on a **moveTaskOrder**. A service item can be on multiple payment requests if necessary.\n\nProof of service documentation may be uploaded for each **mtoServiceItem** in a **paymentRequest** after the payment\nrequest is created via the endpoint [createUpload](#operation/createUpload).\n\nAll weight entered should be in *pounds* and no other unit of measurement.\n",
       "name": "paymentRequest"
-    },
-    {
-      "description": "**THIS ENDPOINT WILL BE DEPRECATED ON AUGUST 5TH, 2024 - REFER TO DESCRIPTION FOR DETAILS**\n\nA **sitAddressUpdate** is submitted when the prime or office user wishes to update the final address for an\napproved service item. sitAddressUpdates with a distance less than or equal to 50 miles will be automatically\napproved while a distance greater than 50 miles will typically require office user approval.\n",
-      "name": "sitAddressUpdate"
     }
   ],
   "x-tagGroups": [
@@ -9806,8 +9474,7 @@ func init() {
         "moveTaskOrder",
         "mtoShipment",
         "mtoServiceItem",
-        "paymentRequest",
-        "sitAddressUpdate"
+        "paymentRequest"
       ]
     }
   ]

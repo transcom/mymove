@@ -41,6 +41,13 @@ export class TestHarness {
    */
 
   /**
+   * @typedef {Object} TransportationAccountingCode
+   * @property {string} id
+   * @property {string} TAC
+   * @property {string} LoaSysID
+   */
+
+  /**
    * @typedef {Object} WebhookSubscription
    * @property {string} ID
    * @property {string} SubscriberID
@@ -397,6 +404,17 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a good TAC and LOA combination, return the TAC
+   * so that office users can input the TAC, and preview the LOA (If the
+   * form params are good for the lookup. Eg, service member branch,
+   * effective date, that sort)
+   * @returns {Promise<TransportationAccountingCode>}
+   */
+  async buildGoodTACAndLoaCombination() {
+    return this.buildDefault('GoodTACAndLoaCombination');
+  }
+
+  /**
    * Use testharness to build move with minimal NTS-R
    * @returns {Promise<Move>}
    */
@@ -551,7 +569,7 @@ export class TestHarness {
    * @returns {Promise<Object>}
    */
 
-  async bulidNTSRMoveWithAddressChangeRequest() {
+  async buildNTSRMoveWithAddressChangeRequest() {
     return this.buildDefault('NTSRMoveWithAddressChangeRequest');
   }
 }
