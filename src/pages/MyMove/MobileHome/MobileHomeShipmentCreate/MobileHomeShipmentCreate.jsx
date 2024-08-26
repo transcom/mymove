@@ -29,8 +29,6 @@ const MobileHomeShipmentCreate = ({
 }) => {
   const [errorMessage, setErrorMessage] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
-  // const [mobileHomeShipmentObj, setMobileHomeShipmentObj] = useState(null);
-  // const [setSubmitValues] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -131,16 +129,6 @@ const MobileHomeShipmentCreate = ({
     const totalWidthInInches = toTotalInches(values.widthFeet, values.widthInches);
     const totalHeightInInches = toTotalInches(values.heightFeet, values.heightInches);
 
-    // const mobileHomeShipment = {
-    //   year: Number(values.year),
-    //   make: values.make,
-    //   model: values.model,
-    //   lengthInInches: totalLengthInInches,
-    //   widthInInches: totalWidthInInches,
-    //   heightInInches: totalHeightInInches,
-    // };
-    // setMobileHomeShipmentObj(mobileHomeShipment);
-
     const createOrUpdateShipment = {
       moveTaskOrderID: moveId,
       shipmentType: SHIPMENT_TYPES.MOBILE_HOME,
@@ -172,7 +160,6 @@ const MobileHomeShipmentCreate = ({
           setErrorMessage(errorMsg);
         });
     } else {
-      // console.log('Create output: ', errorMsg);
       createOrUpdateShipment.id = mtoShipment.id;
       createOrUpdateShipment.mobileHomeShipment.id = mtoShipment.mobileHomeShipment?.id;
       patchMTOShipment(mtoShipment.id, createOrUpdateShipment, mtoShipment.eTag)
