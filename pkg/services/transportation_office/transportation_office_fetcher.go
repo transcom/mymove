@@ -37,25 +37,6 @@ func (o transportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.
 	return &transportationOffice, nil
 }
 
-func (o transportationOfficesFetcher) GetServiceCounselingTransportationOffice(appCtx appcontext.AppContext) (*models.TransportationOffice, error) {
-	var transportationOffice models.TransportationOffice
-	officeUserID := appCtx.Session().OfficeUserID
-	err := appCtx.DB().Q().
-		Join("office_users", "transportation_offices.id = office_users.transportation_office_id").
-		Where("office_users.id = ?", officeUserID).
-		First(&transportationOffice)
-
-	if err != nil {
-		switch err {
-		case sql.ErrNoRows:
-			return nil, apperror.NewNotFoundError(officeUserID, "while looking for TransportationOffice")
-		default:
-			return nil, apperror.NewQueryError("GetTransportationOffice by transportationOfficeID", err, "")
-		}
-	}
-	return &transportationOffice, nil
-}
-
 func (o transportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
 	officeList, err := FindTransportationOffice(appCtx, search, forPpm)
 
