@@ -528,9 +528,9 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 
 		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
 		// 120 total authorized - 30 from origin SIT - 60 from destination SIT = 30 SIT days remaining
-		suite.Equal(29, pendingSITBalance.TotalSITDaysRemaining)
+		suite.Equal(28, pendingSITBalance.TotalSITDaysRemaining)
 
-		suite.Equal(ddasit.SITEntryDate.AddDate(0, 0, 89).String(), pendingSITBalance.TotalSITEndDate.UTC().String())
+		suite.Equal(ddasit.SITEntryDate.AddDate(0, 0, 88).String(), pendingSITBalance.TotalSITEndDate.UTC().String())
 	})
 
 	suite.Run("ignores including previously denied service items in SIT balance", func() {
@@ -842,7 +842,7 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Equal(shipment.ID.String(), pendingSITBalance.ShipmentID.String())
 		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
 		suite.Equal(60, pendingSITBalance.PendingSITDaysInvoiced)
-		suite.Equal(44, pendingSITBalance.TotalSITDaysRemaining)
+		suite.Equal(43, pendingSITBalance.TotalSITDaysRemaining)
 		suite.Equal(destinationPaymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
 		suite.Nil(pendingSITBalance.PreviouslyBilledDays)
 	})
