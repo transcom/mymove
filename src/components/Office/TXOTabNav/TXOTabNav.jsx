@@ -14,7 +14,6 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 const TXOTabNav = ({
   unapprovedShipmentCount,
   unapprovedServiceItemCount,
-  unapprovedSITAddressUpdateCount,
   excessWeightRiskCount,
   pendingPaymentRequestCount,
   unapprovedSITExtensionCount,
@@ -50,9 +49,6 @@ const TXOTabNav = ({
   }
   if (unapprovedSITExtensionCount > 0) {
     moveTaskOrderTagCount += unapprovedSITExtensionCount;
-  }
-  if (unapprovedSITAddressUpdateCount > 0) {
-    moveTaskOrderTagCount += unapprovedSITAddressUpdateCount;
   }
 
   const items = [
@@ -125,7 +121,6 @@ const TXOTabNav = ({
 TXOTabNav.defaultProps = {
   unapprovedShipmentCount: 0,
   unapprovedServiceItemCount: 0,
-  unapprovedSITAddressUpdateCount: 0,
   excessWeightRiskCount: 0,
   pendingPaymentRequestCount: 0,
   unapprovedSITExtensionCount: 0,
@@ -136,7 +131,6 @@ TXOTabNav.propTypes = {
   order: OrdersShape.isRequired,
   unapprovedShipmentCount: PropTypes.number,
   unapprovedServiceItemCount: PropTypes.number,
-  unapprovedSITAddressUpdateCount: PropTypes.number,
   excessWeightRiskCount: PropTypes.number,
   pendingPaymentRequestCount: PropTypes.number,
   unapprovedSITExtensionCount: PropTypes.number,
