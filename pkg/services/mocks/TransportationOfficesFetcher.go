@@ -42,27 +42,6 @@ func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContex
 	return r0, r1
 }
 
-
-// GetServiceCounselingTransportationOffice provides a mock function with given fields: appCtx
-func (_m *TransportationOfficesFetcher) GetServiceCounselingTransportationOffice(appCtx appcontext.AppContext) (*models.TransportationOffice, error) {
-	ret := _m.Called(appCtx)
-
-	var r0 *models.TransportationOffice
-	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (*models.TransportationOffice, error)); ok {
-		return rf(appCtx)
-	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext) *models.TransportationOffice); ok {
-		r0 = rf(appCtx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.TransportationOffice)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext) error); ok {
-		r1 = rf(appCtx)
-    
 // GetCounselingOffices provides a mock function with given fields: appCtx, dutyLocationID
 func (_m *TransportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.AppContext, dutyLocationID uuid.UUID) (*models.TransportationOffices, error) {
 	ret := _m.Called(appCtx, dutyLocationID)
