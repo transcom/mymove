@@ -28,7 +28,7 @@ describe('NameForm component', () => {
 
   it('shows an error message and disables submit when fields are invalid', async () => {
     const onSubmit = jest.fn();
-    const { getByRole, getAllByText, getByLabelText } = render(
+    const { getByRole, getAllByTestId, getByLabelText } = render(
       <NameForm
         onSubmit={onSubmit}
         onBack={jest.fn()}
@@ -45,7 +45,7 @@ describe('NameForm component', () => {
     });
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(2);
+      expect(getAllByTestId('errorMessage').length).toBe(2);
     });
     expect(onSubmit).not.toHaveBeenCalled();
   });

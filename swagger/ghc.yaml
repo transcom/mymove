@@ -4129,78 +4129,6 @@ paths:
           description: not found
         '500':
           description: server error
-  /uploads/get/:
-    get:
-      produces:
-        - application/json
-      parameters: []
-      responses:
-        '200':
-          description: Successfully retrieved upload
-          schema:
-            $ref: '#/definitions/Upload'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: '#/responses/PermissionDenied'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '500':
-          $ref: '#/responses/ServerError'
-      tags:
-        - uploads
-      description: Gets an upload
-      operationId: getUpload
-      summary: Gets an upload by ID
-  /uploads/{uploadID}/update:
-    patch:
-      summary: >-
-        Update an existing upload. This is only needed currently for updating
-        the image rotation.
-      description: >-
-        Uploads represent a single digital file, such as a JPEG or PDF. The
-        rotation is relevant to how it is displayed on the page.
-      operationId: updateUpload
-      tags:
-        - uploads
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      parameters:
-        - in: path
-          name: uploadID
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the upload to be updated
-        - in: body
-          name: body
-          required: true
-          schema:
-            properties:
-              rotation:
-                type: integer
-                description: The rotation of the image
-                minimum: 0
-                maximum: 3
-      responses:
-        '201':
-          description: updated upload
-          schema:
-            $ref: '#/definitions/Upload'
-        '400':
-          description: invalid request
-        '403':
-          description: not authorized
-        '404':
-          description: not found
-        '413':
-          description: payload is too large
-        '500':
-          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -4226,6 +4154,45 @@ paths:
           description: request requires user authentication
         '500':
           description: server error
+  /calendar/{countryCode}/is-weekend-holiday/{date}:
+    get:
+      summary: Validate  move date selection
+      description: |
+        Utility API to determine if input date falls on weekend and/or holiday.
+      produces:
+        - application/json
+      operationId: isDateWeekendHoliday
+      tags:
+        - calendar
+      parameters:
+        - description: country code for context of date
+          in: path
+          name: countryCode
+          required: true
+          type: string
+          enum:
+            - US
+        - description: input date to determine if weekend/holiday for given country.
+          in: path
+          name: date
+          required: true
+          type: string
+          format: date
+      responses:
+        '200':
+          description: >-
+            Successfully determine if given date is weekend and/or holiday for
+            given country.
+          schema:
+            $ref: '#/definitions/IsDateWeekendHolidayInfo'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   ApplicationParameters:
     type: object
@@ -5842,6 +5809,18 @@ definitions:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
+      tppsInvoiceAmountPaidTotalMillicents:
+        type: integer
+        format: millients
+        title: >-
+          Total amount that TPPS paid for all service items on the payment
+          request in millicents
+        x-nullable: true
+      tppsInvoiceSellerPaidDate:
+        type: string
+        format: date-time
+        title: Date that TPPS paid HS for the payment request
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5901,6 +5880,11 @@ definitions:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
+      tppsInvoiceAmountPaidPerServiceItemMillicents:
+        type: integer
+        format: millicents
+        title: Amount that TPPS paid for the individual service item in millicents
+        x-nullable: true
     type: object
   PaymentRequestStatus:
     type: string
@@ -6067,6 +6051,8 @@ definitions:
         $ref: '#/definitions/StorageFacility'
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/UpdateBoatShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -6195,6 +6181,47 @@ definitions:
         x-nullable: true
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
+        x-nullable: true
+  UpdateBoatShipment:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+        x-nullable: true
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+        x-nullable: true
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6437,6 +6464,8 @@ definitions:
         $ref: '#/definitions/MobileHome'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -6525,6 +6554,48 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: Boat shipment information for the move.
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
   RejectShipment:
     properties:
       rejectionReason:
@@ -7337,6 +7408,29 @@ definitions:
       - created_at
       - updated_at
       - eTag
+  IsDateWeekendHolidayInfo:
+    type: object
+    properties:
+      country_code:
+        type: string
+      country_name:
+        type: string
+      date:
+        type: string
+        format: date
+        example: '2018-09-25'
+      is_weekend:
+        type: boolean
+      is_holiday:
+        type: boolean
+      details:
+        type: string
+    required:
+      - country_code
+      - country_name
+      - date
+      - is_weekend
+      - is_holiday
   Address:
     description: A postal address
     type: object
@@ -7624,10 +7718,6 @@ definitions:
       bytes:
         type: integer
         readOnly: true
-      rotation:
-        type: integer
-        readOnly: false
-        example: 2
       status:
         type: string
         enum:
@@ -8222,6 +8312,64 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/SITExtension'
+  SITSummary:
+    properties:
+      firstDaySITServiceItemID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        enum:
+          - ORIGIN
+          - DESTINATION
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitAuthorizedEndDate:
+        type: string
+        format: date-time
+      sitCustomerContacted:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date-time
+        x-nullable: true
+  SITServiceItemGrouping:
+    properties:
+      summary:
+        $ref: '#/definitions/SITSummary'
+        description: >
+          Holds the top level summary of a Service Item Grouping, detailing the
+          ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT),
+          the location (ORIGIN/DESTINATION), how many days the provided instance
+          of SIT has been in storage, SIT entry date, departure date, authorized
+          end date, customer contacted date, requested delivery date.
+
+          This is provided at a top level because due to our service item
+          architecture, SIT information is sometimes split across multiple
+          service items, and this summary is a compilation of said information.
+          This prevents the need to loop over many service items.
+      serviceItems:
+        $ref: '#/definitions/MTOServiceItems'
+  SITServiceItemGroupings:
+    description: >
+      Holds groupings of SIT service items and their summaries, detailing the
+      summary ServiceItemID of the first day SIT service item (Eg, DOFSIT,
+      DOASIT), the location (ORIGIN/DESTINATION), how many days the provided
+      instance of SIT has been in storage, SIT entry date, departure date,
+      authorized end date, customer contacted date, requested delivery date.
+    type: array
+    items:
+      $ref: '#/definitions/SITServiceItemGrouping'
   SITStatus:
     properties:
       totalSITDaysUsed:
@@ -8267,8 +8415,13 @@ definitions:
             type: string
             format: date
             x-nullable: true
-      pastSITServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
+      pastSITServiceItemGroupings:
+        $ref: '#/definitions/SITServiceItemGroupings'
+        description: >
+          A list of past SIT service item groupings. These will contain the
+          given SIT service items for an instance of SIT (Either Origin or
+          Destination), grouped by the date they went into SIT and service items
+          limited explicitly to SIT related Re Service Codes.
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:

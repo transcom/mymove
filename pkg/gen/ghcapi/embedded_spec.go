@@ -73,6 +73,59 @@ func init() {
         }
       }
     },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -5741,42 +5794,6 @@ func init() {
         }
       }
     },
-    "/uploads/get/": {
-      "get": {
-        "description": "Gets an upload",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Gets an upload by ID",
-        "operationId": "getUpload",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5817,69 +5834,6 @@ func init() {
           },
           "404": {
             "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadID}/update": {
-      "patch": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
-        "operationId": "updateUpload",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to be updated",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "properties": {
-                "rotation": {
-                  "description": "The rotation of the image",
-                  "type": "integer",
-                  "maximum": 3
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "updated upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "413": {
-            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -6493,6 +6447,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -6617,6 +6626,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -7742,6 +7754,38 @@ func init() {
           "additionalProperties": {
             "type": "string"
           }
+        }
+      }
+    },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
         }
       }
     },
@@ -11022,6 +11066,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsInvoiceAmountPaidTotalMillicents": {
+          "type": "integer",
+          "format": "millients",
+          "title": "Total amount that TPPS paid for all service items on the payment request in millicents",
+          "x-nullable": true
+        },
+        "tppsInvoiceSellerPaidDate": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -11109,6 +11165,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsInvoiceAmountPaidPerServiceItemMillicents": {
+          "type": "integer",
+          "format": "millicents",
+          "title": "Amount that TPPS paid for the individual service item in millicents",
+          "x-nullable": true
         }
       }
     },
@@ -11744,6 +11806,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -11793,14 +11873,56 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer"
         },
         "totalSITDaysUsed": {
           "type": "integer"
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -12536,6 +12658,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -13047,6 +13222,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -13253,10 +13431,6 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
-        },
-        "rotation": {
-          "type": "integer",
-          "example": 2
         },
         "status": {
           "type": "string",
@@ -13692,6 +13866,71 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -20801,57 +21040,6 @@ func init() {
         }
       }
     },
-    "/uploads/get/": {
-      "get": {
-        "description": "Gets an upload",
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Gets an upload by ID",
-        "operationId": "getUpload",
-        "responses": {
-          "200": {
-            "description": "Successfully retrieved upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "401": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "403": {
-            "description": "The request was denied",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          },
-          "500": {
-            "description": "A server error occurred",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
-          }
-        }
-      }
-    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -20892,70 +21080,6 @@ func init() {
           },
           "404": {
             "description": "not found"
-          },
-          "500": {
-            "description": "server error"
-          }
-        }
-      }
-    },
-    "/uploads/{uploadID}/update": {
-      "patch": {
-        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "tags": [
-          "uploads"
-        ],
-        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
-        "operationId": "updateUpload",
-        "parameters": [
-          {
-            "type": "string",
-            "format": "uuid",
-            "description": "UUID of the upload to be updated",
-            "name": "uploadID",
-            "in": "path",
-            "required": true
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "properties": {
-                "rotation": {
-                  "description": "The rotation of the image",
-                  "type": "integer",
-                  "maximum": 3,
-                  "minimum": 0
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "updated upload",
-            "schema": {
-              "$ref": "#/definitions/Upload"
-            }
-          },
-          "400": {
-            "description": "invalid request"
-          },
-          "403": {
-            "description": "not authorized"
-          },
-          "404": {
-            "description": "not found"
-          },
-          "413": {
-            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -21573,6 +21697,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -21697,6 +21876,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -22822,6 +23004,38 @@ func init() {
           "additionalProperties": {
             "type": "string"
           }
+        }
+      }
+    },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
         }
       }
     },
@@ -26175,6 +26389,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsInvoiceAmountPaidTotalMillicents": {
+          "type": "integer",
+          "format": "millients",
+          "title": "Total amount that TPPS paid for all service items on the payment request in millicents",
+          "x-nullable": true
+        },
+        "tppsInvoiceSellerPaidDate": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -26262,6 +26488,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsInvoiceAmountPaidPerServiceItemMillicents": {
+          "type": "integer",
+          "format": "millicents",
+          "title": "Amount that TPPS paid for the individual service item in millicents",
+          "x-nullable": true
         }
       }
     },
@@ -26899,6 +27131,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -26950,8 +27200,9 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -27004,6 +27255,48 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -27746,6 +28039,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -28258,6 +28604,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -28468,10 +28817,6 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
-        },
-        "rotation": {
-          "type": "integer",
-          "example": 2
         },
         "status": {
           "type": "string",

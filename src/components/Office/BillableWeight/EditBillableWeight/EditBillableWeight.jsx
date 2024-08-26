@@ -9,6 +9,7 @@ import styles from './EditBillableWeight.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { formatWeight } from 'utils/formatters';
+import RequiredTag from 'components/form/RequiredTag';
 
 function BillableWeightHintText({
   billableWeight,
@@ -166,6 +167,7 @@ export default function EditBillableWeight({
                   lbs
                 </MaskedTextField>
                 <Label htmlFor="remarks">Remarks</Label>
+                <RequiredTag />
                 <ErrorMessage
                   className={styles.errorMessage}
                   display={!!touched.billableWeightJustification && !!errors.billableWeightJustification}

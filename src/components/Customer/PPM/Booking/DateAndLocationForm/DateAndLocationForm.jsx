@@ -138,7 +138,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
       validateOnMount
       validateOnChange
     >
-      {({ isValid, isSubmitting, handleSubmit, setValues, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, setValues, values, touched }) => {
         const handleUseCurrentResidenceChange = (e) => {
           const { checked } = e.target;
           if (checked) {
@@ -404,6 +404,8 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                       placeholder="Start typing a closeout office..."
                       searchLocations={searchTransportationOffices}
                       metaOverride={meta}
+                      touched={touched}
+                      required
                     />
                     <Hint className={ppmStyles.hint}>
                       If you have more than one PPM for this move, your closeout office will be the same for all your
@@ -456,7 +458,11 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
               </SectionWrapper>
               <SectionWrapper className={classnames(ppmStyles.sectionWrapper, formStyles.formSection)}>
                 <h2>Departure date</h2>
-                <DatePickerInput name="expectedDepartureDate" label="When do you plan to start moving your PPM?" />
+                <DatePickerInput
+                  name="expectedDepartureDate"
+                  label="When do you plan to start moving your PPM?"
+                  required
+                />
                 <Hint className={ppmStyles.hint}>
                   Enter the first day you expect to move things. It&apos;s OK if the actual date is different. We will
                   ask for your actual departure date when you document and complete your PPM.

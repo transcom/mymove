@@ -29,4 +29,3 @@ export const PPMACTUALWEIGHT = 'ppmActualWeight';
 export const SC_CUSTOMER_SEARCH = 'scCustomerSearch';
 export const PPMSIT_ESTIMATED_COST = 'ppmSITEstimatedCost';
 export const GBLOCS = 'gblocs';
-export const UPLOADS = 'uploads';
