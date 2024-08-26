@@ -569,7 +569,7 @@ export class TestHarness {
    * @returns {Promise<Object>}
    */
 
-  async bulidNTSRMoveWithAddressChangeRequest() {
+  async buildNTSRMoveWithAddressChangeRequest() {
     return this.buildDefault('NTSRMoveWithAddressChangeRequest');
   }
 }
