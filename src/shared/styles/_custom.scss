@@ -157,10 +157,10 @@ table {
     }
     .error {
       th {
-      @include u-border-left(0.5);
-      @include u-border-left('error');
+        @include u-border-left(0.5);
+        @include u-border-left('error');
       }
-      td{
+      td {
         @include u-border-left(0);
         @include u-text('error');
         @include u-text('bold');

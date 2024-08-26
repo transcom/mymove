@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import qs from 'query-string';
 
+import MobileHomeShipmentCreate from 'pages/MyMove/MobileHome/MobileHomeShipmentCreate/MobileHomeShipmentCreate';
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
