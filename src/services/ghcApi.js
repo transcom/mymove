@@ -867,3 +867,7 @@ export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
     body: { roleType },
   });
 }
+
+export async function searchLocationByZipCity(search) {
+  return makeGHCRequest('addresses.getLocationByZipCity', { search }, { normalize: false });
+}

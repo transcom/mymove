@@ -1,13 +1,17 @@
 import { useField } from 'formik';
 import React from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import './DropdownInput.module.scss';
 import LocationSearchBox from 'components/LocationSearchBox/LocationSearchBox';
 import { searchLocationByZipCity } from 'services/internalApi';
+import { searchLocationByZipCity as ghcSearchLocationByZipCity } from 'services/ghcApi';
+import { selectLoggedInUser } from 'store/entities/selectors';
+import { OfficeUserInfoShape } from 'types/index';
 
 export const ZipCityInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, handleZipCityChange } = props;
+  const { label, name, displayAddress, hint, placeholder, isDisabled, handleZipCityChange, officeUser } = props;
   const [field, meta, helpers] = useField(props);
   const errorString = meta.value?.name ? meta.error?.name || meta.error : '';
 
@@ -25,7 +29,7 @@ export const ZipCityInput = (props) => {
       hint={hint}
       placeholder={placeholder}
       isDisabled={isDisabled}
-      searchLocations={searchLocationByZipCity}
+      searchLocations={officeUser?.id ? ghcSearchLocationByZipCity : searchLocationByZipCity}
       handleZipCityOnChange={handleZipCityChange}
     />
   );
@@ -39,13 +43,25 @@ ZipCityInput.propTypes = {
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   handleZipCityChange: PropTypes.func.isRequired,
+  officeUser: OfficeUserInfoShape,
 };
 
 ZipCityInput.defaultProps = {
-  displayAddress: true,
+  displayAddress: false,
   hint: '',
   placeholder: '',
   isDisabled: false,
+  officeUser: {},
 };
 
-export default ZipCityInput;
+const mapStateToProps = (state) => {
+  const user = selectLoggedInUser(state);
+
+  return {
+    officeUser: user?.office_user || {},
+  };
+};
+
+const mapDispatchToProps = {};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ZipCityInput);

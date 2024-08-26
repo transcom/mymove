@@ -112,13 +112,12 @@ export const AddressFields = ({
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
-          {zipCityEnabled && (
+          {handleZipCityChange && (
             <>
               <ZipCityInput
                 name="zipCity"
                 placeholder="Start typing a Zip Code or City..."
                 label="Zip/City Lookup"
-                displayAddress={false}
                 handleZipCityChange={handleZipCityChange}
               />
               {!zipCityError && (
@@ -150,7 +149,7 @@ export const AddressFields = ({
                 validate={validators?.city}
                 isDisabled={zipCityEnabled}
               />
-              {zipCityEnabled && (
+              {handleZipCityChange && (
                 <TextField
                   className={styles.countyInput}
                   label="County"
