@@ -191,7 +191,6 @@
       "node_modules/(?!(imask)/)/"
     ],
     "moduleNameMapper": {
-      "@transcom/react-file-viewer": "<rootDir>/mockFileViewer/FileViewer.js",
       "react-markdown": "<rootDir>/node_modules/react-markdown/react-markdown.min.js"
     }
   }
