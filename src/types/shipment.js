@@ -102,6 +102,20 @@ export const BoatShipmentShape = shape({
   eTag: string,
 });
 
+export const MobileHomeShipmentShape = shape({
+  id: string,
+  shipmentId: string,
+  shipmentLocator: string,
+  createdAt: string,
+  year: number,
+  make: string,
+  model: string,
+  lengthInInches: number,
+  heightInInches: number,
+  widthInInches: number,
+  eTag: string,
+});
+
 export const PPMCloseoutShape = shape({
   id: string,
   plannedMoveDate: string,
