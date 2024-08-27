@@ -1,5 +1,0 @@
-description: The status of a SIT address update, indicating where it is in the TOO's approval process.
-enum:
-  - REQUESTED
-  - APPROVED
-  - REJECTED

@@ -62,9 +62,6 @@ type MTOServiceItemDestSIT struct {
 	// Required: true
 	Reason *string `json:"reason"`
 
-	// sit address updates
-	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
-
 	// Date when the customer contacted the prime for a delivery out of SIT.
 	// Format: date
 	SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -215,9 +212,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
-		// sit address updates
-		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
-
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
 		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -313,7 +307,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
-	result.SitAddressUpdates = data.SitAddressUpdates
 	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
@@ -359,9 +352,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
-		// sit address updates
-		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
-
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
 		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -404,8 +394,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ReServiceCode: m.ReServiceCode,
 
 		Reason: m.Reason,
-
-		SitAddressUpdates: m.SitAddressUpdates,
 
 		SitCustomerContacted: m.SitCustomerContacted,
 
@@ -514,10 +502,6 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitAddressUpdates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -725,24 +709,6 @@ func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDestSIT) validateSitAddressUpdates(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SitAddressUpdates) { // not required
-		return nil
-	}
-
-	if err := m.SitAddressUpdates.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sitAddressUpdates")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sitAddressUpdates")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemDestSIT) validateSitCustomerContacted(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitCustomerContacted) { // not required
@@ -869,10 +835,6 @@ func (m *MTOServiceItemDestSIT) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -958,20 +920,6 @@ func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, forma
 			return ve.ValidateName("status")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDestSIT) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sitAddressUpdates")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sitAddressUpdates")
 		}
 		return err
 	}

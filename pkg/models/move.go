@@ -99,6 +99,8 @@ type Move struct {
 	TOOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	CounselingOfficeID           *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
+	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -463,6 +465,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.TertiaryPickupAddress",
 		"MTOShipments.PPMShipment.TertiaryDestinationAddress",
 		"MTOShipments.BoatShipment",
+		"MTOShipments.MobileHome",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",
