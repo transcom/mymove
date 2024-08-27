@@ -541,18 +541,13 @@ func init() {
         }
       },
       "patch": {
-        "description": "_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.\nPlease use the new endpoint at ` + "`" + `/prime/v2/updateMTOShipment` + "`" + ` instead.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address\nfor SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require\ndeprecation for this change.\n\nUpdates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "description": "_[Deprecated: this endpoint was deprecated on August 5th, 2024]_\nPlease use the new endpoint at ` + "`" + `/prime/v3/updateMTOShipment` + "`" + ` instead.\n",
         "tags": [
           "mtoShipment"
         ],
         "summary": "updateMTOShipment",
         "operationId": "updateMTOShipment",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -561,108 +556,11 @@ func init() {
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
-          },
-          {
-            "x-examples": {
-              "application/json": {
-                "hhg": {
-                  "summary": "HHG",
-                  "value": {
-                    "actualPickupDate": "2022-12-29",
-                    "destinationAddress": {
-                      "city": "Great Bend",
-                      "postalCode": "13643",
-                      "state": "NY",
-                      "streetAddress1": "6622 Airport Way S",
-                      "streetAddress2": "#1430"
-                    },
-                    "firstAvailableDeliveryDate": "2023-01-04",
-                    "pointOfContact": "peyton.wing@example.com",
-                    "primeActualWeight": 4500,
-                    "primeEstimatedWeight": 4250,
-                    "scheduledPickupDate": "2022-12-30"
-                  }
-                },
-                "nts": {
-                  "summary": "NTS",
-                  "value": {
-                    "actualPickupDate": "2022-12-29",
-                    "actualWeight": 4500,
-                    "counselorRemarks": "Beware of dogs on property",
-                    "estimatedWeight": 4250,
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "scheduledPickupDate": "2022-12-30"
-                  }
-                },
-                "nts-r": {
-                  "summary": "NTS Release",
-                  "value": {
-                    "destinationAddress": {
-                      "city": "San Antonio",
-                      "postalCode": "78245",
-                      "state": "TX",
-                      "streetAddress1": "812 S 129th Street"
-                    },
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ntsRecordedWeight": 4500
-                  }
-                },
-                "ppm": {
-                  "summary": "PPM",
-                  "value": {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ppmShipment": {
-                      "hasProGear": true,
-                      "proGearWeight": 830,
-                      "sitEstimatedDepartureDate": "2022-10-13",
-                      "sitEstimatedEntryDate": "2022-10-06",
-                      "sitEstimatedWeight": 1760,
-                      "sitExpected": true,
-                      "sitLocation": "DESTINATION",
-                      "spouseProGearWeight": 366
-                    }
-                  }
-                }
-              }
-            },
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMTOShipment"
-            }
-          },
-          {
-            "$ref": "#/parameters/ifMatch"
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully updated the MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "$ref": "#/responses/InvalidRequest"
-          },
-          "401": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "403": {
-            "$ref": "#/responses/PermissionDenied"
-          },
-          "404": {
-            "$ref": "#/responses/NotFound"
-          },
-          "412": {
-            "$ref": "#/responses/PreconditionFailed"
-          },
-          "422": {
-            "$ref": "#/responses/UnprocessableEntity"
-          },
-          "500": {
-            "$ref": "#/responses/ServerError"
+          "410": {
+            "description": "This endpoint is deprecated. Please use ` + "`" + `/prime/v3/updateMTOShipment` + "`" + ` instead."
           }
         }
       }
@@ -4313,6 +4211,9 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "rotation": {
+          "type": "integer"
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -5133,18 +5034,13 @@ func init() {
         }
       },
       "patch": {
-        "description": "_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.\nPlease use the new endpoint at ` + "`" + `/prime/v2/updateMTOShipment` + "`" + ` instead.\n\n**DEPRECATION ON AUGUST 5TH, 2024**\nFollowing deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address\nfor SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require\ndeprecation for this change.\n\nUpdates an existing shipment for a move.\n\nNote that there are some restrictions on nested objects:\n\n* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.\n* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.\n* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.\n\nThese restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.\n\nNote that some fields cannot be manually changed but will still be updated automatically, such as ` + "`" + `primeEstimatedWeightRecordedDate` + "`" + ` and ` + "`" + `requiredDeliveryDate` + "`" + `.\n",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
+        "description": "_[Deprecated: this endpoint was deprecated on August 5th, 2024]_\nPlease use the new endpoint at ` + "`" + `/prime/v3/updateMTOShipment` + "`" + ` instead.\n",
         "tags": [
           "mtoShipment"
         ],
         "summary": "updateMTOShipment",
         "operationId": "updateMTOShipment",
+        "deprecated": true,
         "parameters": [
           {
             "type": "string",
@@ -5153,133 +5049,11 @@ func init() {
             "name": "mtoShipmentID",
             "in": "path",
             "required": true
-          },
-          {
-            "x-examples": {
-              "application/json": {
-                "hhg": {
-                  "summary": "HHG",
-                  "value": {
-                    "actualPickupDate": "2022-12-29",
-                    "destinationAddress": {
-                      "city": "Great Bend",
-                      "postalCode": "13643",
-                      "state": "NY",
-                      "streetAddress1": "6622 Airport Way S",
-                      "streetAddress2": "#1430"
-                    },
-                    "firstAvailableDeliveryDate": "2023-01-04",
-                    "pointOfContact": "peyton.wing@example.com",
-                    "primeActualWeight": 4500,
-                    "primeEstimatedWeight": 4250,
-                    "scheduledPickupDate": "2022-12-30"
-                  }
-                },
-                "nts": {
-                  "summary": "NTS",
-                  "value": {
-                    "actualPickupDate": "2022-12-29",
-                    "actualWeight": 4500,
-                    "counselorRemarks": "Beware of dogs on property",
-                    "estimatedWeight": 4250,
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "scheduledPickupDate": "2022-12-30"
-                  }
-                },
-                "nts-r": {
-                  "summary": "NTS Release",
-                  "value": {
-                    "destinationAddress": {
-                      "city": "San Antonio",
-                      "postalCode": "78245",
-                      "state": "TX",
-                      "streetAddress1": "812 S 129th Street"
-                    },
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ntsRecordedWeight": 4500
-                  }
-                },
-                "ppm": {
-                  "summary": "PPM",
-                  "value": {
-                    "moveTaskOrderId": "5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8",
-                    "ppmShipment": {
-                      "hasProGear": true,
-                      "proGearWeight": 830,
-                      "sitEstimatedDepartureDate": "2022-10-13",
-                      "sitEstimatedEntryDate": "2022-10-06",
-                      "sitEstimatedWeight": 1760,
-                      "sitExpected": true,
-                      "sitLocation": "DESTINATION",
-                      "spouseProGearWeight": 366
-                    }
-                  }
-                }
-              }
-            },
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/UpdateMTOShipment"
-            }
-          },
-          {
-            "type": "string",
-            "description": "Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
-            "name": "If-Match",
-            "in": "header",
-            "required": true
           }
         ],
         "responses": {
-          "200": {
-            "description": "Successfully updated the MTO shipment.",
-            "schema": {
-              "$ref": "#/definitions/MTOShipment"
-            }
-          },
-          "400": {
-            "description": "The request payload is invalid.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "401": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "403": {
-            "description": "The request was denied.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "404": {
-            "description": "The requested resource wasn't found.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "412": {
-            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
-            "schema": {
-              "$ref": "#/definitions/ClientError"
-            }
-          },
-          "422": {
-            "description": "The request was unprocessable, likely due to bad input from the requester.",
-            "schema": {
-              "$ref": "#/definitions/ValidationError"
-            }
-          },
-          "500": {
-            "description": "A server error occurred.",
-            "schema": {
-              "$ref": "#/definitions/Error"
-            }
+          "410": {
+            "description": "This endpoint is deprecated. Please use ` + "`" + `/prime/v3/updateMTOShipment` + "`" + ` instead."
           }
         }
       }
@@ -9145,6 +8919,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "status": {
           "type": "string",
