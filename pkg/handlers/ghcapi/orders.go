@@ -188,6 +188,7 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 			officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), appCtx.Session().OfficeUserID)
 			if err != nil {
+				err = apperror.NewBadDataError("Unable to fetch office user.")
 				appCtx.Logger().Error(err.Error())
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
