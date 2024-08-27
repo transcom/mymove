@@ -12,7 +12,6 @@ describe('ServiceItemsTable', () => {
   const defaultProps = {
     handleUpdateMTOServiceItemStatus: jest.fn(),
     handleShowRejectionDialog: jest.fn(),
-    handleRequestSITAddressUpdateModal: jest.fn(),
     handleShowEditSitAddressModal: jest.fn(),
     handleShowEditSitEntryDateModal: jest.fn(),
     serviceItemAddressUpdateAlert: {

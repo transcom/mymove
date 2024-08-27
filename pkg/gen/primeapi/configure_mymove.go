@@ -15,7 +15,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/payment_request"
-	"github.com/transcom/mymove/pkg/gen/primeapi/primeoperations/sit_address_update"
 )
 
 //go:generate swagger generate server --target ../../gen --name Mymove --spec ../../../swagger/prime.yaml --api-package primeoperations --model-package primemessages --server-package primeapi --principal interface{} --exclude-main
@@ -74,11 +73,6 @@ func configureAPI(api *primeoperations.MymoveAPI) http.Handler {
 	if api.PaymentRequestCreatePaymentRequestHandler == nil {
 		api.PaymentRequestCreatePaymentRequestHandler = payment_request.CreatePaymentRequestHandlerFunc(func(params payment_request.CreatePaymentRequestParams) middleware.Responder {
 			return middleware.NotImplemented("operation payment_request.CreatePaymentRequest has not yet been implemented")
-		})
-	}
-	if api.SitAddressUpdateCreateSITAddressUpdateRequestHandler == nil {
-		api.SitAddressUpdateCreateSITAddressUpdateRequestHandler = sit_address_update.CreateSITAddressUpdateRequestHandlerFunc(func(params sit_address_update.CreateSITAddressUpdateRequestParams) middleware.Responder {
-			return middleware.NotImplemented("operation sit_address_update.CreateSITAddressUpdateRequest has not yet been implemented")
 		})
 	}
 	if api.MtoShipmentCreateSITExtensionHandler == nil {
