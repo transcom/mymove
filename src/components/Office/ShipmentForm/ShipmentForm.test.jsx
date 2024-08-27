@@ -297,6 +297,7 @@ const mockRejectedPPMShipment = {
       city: 'Test City',
       state: 'KY',
       postalCode: '42702',
+      county: 'HARDIN',
     },
     destinationAddress: {
       streetAddress1: '222 Test Street',
