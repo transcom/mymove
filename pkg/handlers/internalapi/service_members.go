@@ -235,9 +235,8 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.Telephone != nil {
 		serviceMember.Telephone = payload.Telephone
 	}
-	if payload.SecondaryTelephone != nil {
-		serviceMember.SecondaryTelephone = payload.SecondaryTelephone
-	}
+	// Need to be able to accept a nil value for this optional field
+	serviceMember.SecondaryTelephone = payload.SecondaryTelephone
 	if payload.PersonalEmail != nil {
 		serviceMember.PersonalEmail = payload.PersonalEmail
 	}
