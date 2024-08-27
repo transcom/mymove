@@ -118,9 +118,9 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
   { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
   { key: SHIPMENT_OPTIONS.BOAT, label: 'Boat' },
+  { key: SHIPMENT_OPTIONS.MOBILE_HOME, label: 'MobileHome' },
   { key: SHIPMENT_TYPES.BOAT_HAUL_AWAY, label: 'Boat' },
   { key: SHIPMENT_TYPES.BOAT_TOW_AWAY, label: 'Boat' },
-  { key: SHIPMENT_TYPES.MOBILE_HOME, label: 'Mobile Home' },
 ];
 
 export const SERVICE_ITEM_STATUS = {

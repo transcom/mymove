@@ -193,7 +193,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             isIncomplete = !isBoatShipmentComplete(shipment);
             break;
 
-          case SHIPMENT_OPTIONS.MOBILE_HOME:
+          case SHIPMENT_OPTIONS.MOBILE_HOME.replace('_', ''):
             isIncomplete = !isMobileHomeShipmentComplete(shipment);
             break;
 
