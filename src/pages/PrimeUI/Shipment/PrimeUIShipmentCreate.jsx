@@ -130,6 +130,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     } else if (isBoat) {
       const {
         counselorRemarks,
+        requestedPickupDate,
+        estimatedWeight,
+        pickupAddress,
+        destinationAddress,
+        diversion,
+        divertedFromShipmentId,
         boatShipment: {
           year,
           make,
@@ -166,6 +172,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             isRoadworthy,
           }),
         },
+        requestedPickupDate: requestedPickupDate ? formatSwaggerDate(requestedPickupDate) : null,
+        primeEstimatedWeight: isValidWeight(estimatedWeight) ? parseInt(estimatedWeight, 10) : null,
+        pickupAddress: isEmpty(pickupAddress) ? null : formatAddressForPrimeAPI(pickupAddress),
+        destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
+        diversion: diversion || null,
+        divertedFromShipmentId: divertedFromShipmentId || null,
       };
     } else {
       const {
