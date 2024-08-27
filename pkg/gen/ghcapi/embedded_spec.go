@@ -6006,11 +6006,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -20883,11 +20886,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
