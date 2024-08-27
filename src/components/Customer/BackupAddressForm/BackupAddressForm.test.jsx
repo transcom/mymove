@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import BackupAddressForm from './BackupAddressForm';
+
 import { configureStore } from 'shared/store';
 
 describe('BackupAddressForm component', () => {
@@ -55,7 +56,7 @@ describe('BackupAddressForm component', () => {
     const { getByLabelText } = render(
       <Provider store={mockStore.store}>
         <BackupAddressForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     await waitFor(() => {
@@ -74,9 +75,9 @@ describe('BackupAddressForm component', () => {
   it('shows an error message if trying to submit an invalid form', async () => {
     const mockStore = configureStore({});
     const { getByRole, findAllByRole, getByLabelText } = render(
-      <Provider store={mockStore.store}>  
+      <Provider store={mockStore.store}>
         <BackupAddressForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
@@ -99,7 +100,7 @@ describe('BackupAddressForm component', () => {
     const { getByRole, getByLabelText } = render(
       <Provider store={mockStore.store}>
         <BackupAddressForm {...dataProps} />
-      </Provider>    
+      </Provider>,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
@@ -126,7 +127,7 @@ describe('BackupAddressForm component', () => {
     const { getByRole } = render(
       <Provider store={mockStore.store}>
         <BackupAddressForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
     const backBtn = getByRole('button', { name: 'Back' });
 

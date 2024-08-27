@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Provider } from 'react-redux';
 
 import ResidentialAddressForm from './ResidentialAddressForm';
+
 import { configureStore } from 'shared/store';
 
 describe('ResidentialAddressForm component', () => {
@@ -54,7 +55,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByLabelText, getByText } = render(
       <Provider store={mockStore.store}>
         <ResidentialAddressForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     await waitFor(() => {
@@ -77,7 +78,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, findAllByRole, getByLabelText } = render(
       <Provider store={mockStore.store}>
         <ResidentialAddressForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
@@ -101,7 +102,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, getByLabelText } = render(
       <Provider store={mockStore.store}>
         <ResidentialAddressForm {...dataProps} />
-      </Provider>
+      </Provider>,
     );
     const submitBtn = getByRole('button', { name: 'Next' });
 
@@ -128,7 +129,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole } = render(
       <Provider store={mockStore.store}>
         <ResidentialAddressForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
     const backBtn = getByRole('button', { name: 'Back' });
 

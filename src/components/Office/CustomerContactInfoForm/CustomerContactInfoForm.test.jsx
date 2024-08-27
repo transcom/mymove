@@ -3,6 +3,7 @@ import { render, waitFor, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 
 import CustomerContactInfoForm from './CustomerContactInfoForm';
+
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 
@@ -75,12 +76,12 @@ describe('CustomerContactInfoForm Component', () => {
 
   it('renders the form inputs', async () => {
     const mockStore = configureStore({
-      ...loggedInTOOState
+      ...loggedInTOOState,
     });
     render(
       <Provider store={mockStore.store}>
         <CustomerContactInfoForm {...testProps} />
-      </Provider>    
+      </Provider>,
     );
 
     await waitFor(() => {
@@ -131,12 +132,12 @@ describe('CustomerContactInfoForm Component', () => {
 
   it('does not allow submission without cac_validated value', async () => {
     const mockStore = configureStore({
-      ...loggedInTOOState
+      ...loggedInTOOState,
     });
     render(
       <Provider store={mockStore.store}>
         <CustomerContactInfoForm {...testPropsCacValidated} />
-      </Provider>
+      </Provider>,
     );
 
     await waitFor(() => {
