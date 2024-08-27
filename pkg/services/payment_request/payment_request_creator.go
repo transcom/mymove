@@ -150,8 +150,13 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 						return apperror.NewBadDataError(errStr)
 					}
 
+					if paymentServiceItem.MTOServiceItem.SITEntryDate != nil && paymentServiceItem.MTOServiceItem.SITEntryDate.After(paymentDate) {
+						return apperror.NewConflictError(paymentRequestArg.ID, "cannot have payment date earlier than SIT Entry date")
+
+					}
+
 					// Check if payment date is later than SIT dates
-					if paymentServiceItem.MTOServiceItem.SITEntryDate.After(paymentDate) || paymentServiceItem.MTOServiceItem.SITDepartureDate.After(paymentDate) {
+					if paymentServiceItem.MTOServiceItem.SITDepartureDate != nil && paymentServiceItem.MTOServiceItem.SITDepartureDate.After(paymentDate) {
 						return apperror.NewConflictError(paymentRequestArg.ID, "cannot have payment date earlier than SIT Entry date")
 					}
 				}
