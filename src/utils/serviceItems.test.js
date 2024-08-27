@@ -1,10 +1,4 @@
-import {
-  sortServiceItemsByGroup,
-  formatDimensions,
-  hasCounseling,
-  hasMoveManagement,
-  findSITAddressUpdate,
-} from './serviceItems';
+import { sortServiceItemsByGroup, formatDimensions, hasCounseling, hasMoveManagement } from './serviceItems';
 
 import { formatToThousandthInches } from 'utils/formatters';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -285,33 +279,6 @@ describe('serviceItems utils', () => {
       });
       it('returns true when given an array of service items with only counseling', () => {
         expect(hasMoveManagement([serviceItems.MS])).toBe(true);
-      });
-    });
-    describe('find SIT address update function', () => {
-      // This isn't a fully accurate representation of a service item - only including what's needed for this test
-      const serviceItem = {
-        id: 'ec88a98e-1d42-4b4c-95b8-4bb72084f4bb',
-        sitAddressUpdates: [
-          {
-            contractorRemarks: 'test contractor remarks',
-            id: '1a45e869-0146-488a-9cdf-55e65d07bd55',
-            mtoServiceItemID: 'ec88a98e-1d42-4b4c-95b8-4bb72084f4bb',
-            status: 'APPROVED',
-          },
-          {
-            contractorRemarks: 'This should be the returned address update for this test',
-            id: '2a45e869-0146-488a-9cdf-55e65d07bd66',
-            mtoServiceItemID: 'ec88a98e-1d42-4b4c-95b8-4bb72084f4bb',
-            status: 'REQUESTED',
-          },
-        ],
-      };
-
-      it('should return the expected sit address update for the service item', () => {
-        const addressUpdate = findSITAddressUpdate(serviceItem.id, serviceItem.sitAddressUpdates);
-
-        expect(addressUpdate.id).toEqual('2a45e869-0146-488a-9cdf-55e65d07bd66');
-        expect(addressUpdate.contractorRemarks).toEqual('This should be the returned address update for this test');
       });
     });
   });
