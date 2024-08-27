@@ -273,10 +273,10 @@ func createNewMove(db *pop.Connection,
 	if moveOptions.Status != nil {
 		status = *moveOptions.Status
 	}
-	var counselingOfficeID uuid.UUID
-	if moveOptions.CounselingOfficeID != nil {
-		counselingOfficeID = *moveOptions.CounselingOfficeID
-	}
+	// var counselingOfficeID uuid.UUID
+	// if moveOptions.CounselingOfficeID != nil {
+	// 	counselingOfficeID = *moveOptions.CounselingOfficeID
+	// }
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
@@ -291,14 +291,17 @@ func createNewMove(db *pop.Connection,
 	if orders.OrdersType != "SAFETY" {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
-				Orders:             orders,
-				OrdersID:           orders.ID,
-				Locator:            GenerateLocator(),
-				Status:             status,
-				Show:               show,
-				ContractorID:       &contractor.ID,
-				ReferenceID:        &referenceID,
-				CounselingOfficeID: &counselingOfficeID,
+				Orders:       orders,
+				OrdersID:     orders.ID,
+				Locator:      GenerateLocator(),
+				Status:       status,
+				Show:         show,
+				ContractorID: &contractor.ID,
+				ReferenceID:  &referenceID,
+				// 	CounselingOfficeID: &counselingOfficeID,
+			}
+			if moveOptions.CounselingOfficeID != nil {
+				move.CloseoutOfficeID = moveOptions.CounselingOfficeID
 			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
@@ -321,16 +324,18 @@ func createNewMove(db *pop.Connection,
 	} else {
 		for i := 0; i < maxLocatorAttempts; i++ {
 			move := Move{
-				Orders:             orders,
-				OrdersID:           orders.ID,
-				Locator:            GenerateSafetyMoveLocator(db),
-				Status:             status,
-				Show:               show,
-				ContractorID:       &contractor.ID,
-				ReferenceID:        &referenceID,
-				CounselingOfficeID: &counselingOfficeID,
+				Orders:       orders,
+				OrdersID:     orders.ID,
+				Locator:      GenerateSafetyMoveLocator(db),
+				Status:       status,
+				Show:         show,
+				ContractorID: &contractor.ID,
+				ReferenceID:  &referenceID,
+				// CounselingOfficeID: &counselingOfficeID,
 			}
-
+			if moveOptions.CounselingOfficeID != nil {
+				move.CloseoutOfficeID = moveOptions.CounselingOfficeID
+			}
 			verrs, err := db.ValidateAndCreate(&move)
 			if verrs.HasAny() {
 				return nil, verrs, nil
