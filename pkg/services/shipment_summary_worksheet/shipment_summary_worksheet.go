@@ -554,11 +554,9 @@ func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkS
 	formattedSIT := WorkSheetSIT{}
 
 	for _, expense := range expenseDocuments {
-		if *expense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
-			formattedSIT.EntryDates = FormatSITDate(*expense.SITStartDate)
-			formattedSIT.EndDates = FormatSITDate(*expense.SubmittedSITEndDate)
-			formattedSIT.DaysInStorage = FormatSITDaysInStorage(*expense.SITStartDate, *expense.SubmittedSITEndDate)
-		}
+		formattedSIT.EntryDates = FormatSITDate(expense.SITStartDate)
+		formattedSIT.EndDates = FormatSITDate(expense.SubmittedSITEndDate)
+		formattedSIT.DaysInStorage = FormatSITDaysInStorage(expense.SITStartDate, expense.SubmittedSITEndDate)
 	}
 
 	return formattedSIT
@@ -568,9 +566,11 @@ func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkS
 func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
 
-	formattedSIT.EntryDates = FormatSITDate(*ppm.SITEstimatedEntryDate)
-	formattedSIT.EndDates = FormatSITDate(*ppm.SITEstimatedDepartureDate)
-	formattedSIT.DaysInStorage = FormatSITDaysInStorage(*ppm.SITEstimatedEntryDate, *ppm.SITEstimatedDepartureDate)
+	if ppm.SITEstimatedEntryDate != nil && ppm.SITEstimatedDepartureDate != nil {
+		formattedSIT.EntryDates = FormatSITDate(ppm.SITEstimatedEntryDate)
+		formattedSIT.EndDates = FormatSITDate(ppm.SITEstimatedDepartureDate)
+		formattedSIT.DaysInStorage = FormatSITDaysInStorage(ppm.SITEstimatedEntryDate, ppm.SITEstimatedDepartureDate)
+	}
 
 	return formattedSIT
 }
@@ -665,20 +665,20 @@ func FormatPPMPickupDate(ppm models.PPMShipment) string {
 }
 
 // FormatSITEntryDate formats a SIT Date for the Shipment Summary Worksheet
-func FormatSITDate(sitDate time.Time) string {
-	if sitDate.IsZero() {
+func FormatSITDate(sitDate *time.Time) string {
+	if sitDate == nil {
 		return "No SIT date" // Return string if no date found
 	}
-	return FormatDate(sitDate)
+	return FormatDate(*sitDate)
 }
 
 // FormatSITDaysInStorage formats a SIT DaysInStorage for the Shipment Summary Worksheet
-func FormatSITDaysInStorage(entryDate time.Time, departureDate time.Time) string {
-	if entryDate.IsZero() || departureDate.IsZero() {
+func FormatSITDaysInStorage(entryDate *time.Time, departureDate *time.Time) string {
+	if entryDate == nil || departureDate == nil {
 		return "No Entry/Departure Data" // Return string if no SIT attached
 	}
-	firstDate := departureDate
-	secondDate := entryDate
+	firstDate := *departureDate
+	secondDate := *entryDate
 	difference := firstDate.Sub(secondDate)
 	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24)+1)
 	return formattedDifference
