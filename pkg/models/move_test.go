@@ -89,10 +89,12 @@ func (suite *ModelSuite) TestFetchMove() {
 		// Set up:           Create an HHG move, then fetch it, then move to status completed, fetch again
 		// Expected outcome: Move found, in both cases
 		session, order := setupTestData()
+		office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		// Create HHG Move
 		moveOptions := m.MoveOptions{
-			Show: m.BoolPointer(true),
+			Show:               m.BoolPointer(true),
+			CounselingOfficeID: &office.ID,
 		}
 		move, verrs, err := order.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -137,11 +139,13 @@ func (suite *ModelSuite) TestFetchMove() {
 		//                   Fetch the second user's move, but with the first user logged in.
 		// Expected outcome: Move not found, ErrFetchForbidden
 		session, _ := setupTestData()
+		office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 		// Create a second sm and a move only on that sm
 		order2 := factory.BuildOrder(suite.DB(), nil, nil)
 		moveOptions := m.MoveOptions{
-			Show: m.BoolPointer(true),
+			Show:               m.BoolPointer(true),
+			CounselingOfficeID: &office.ID,
 		}
 		move2, verrs, err := order2.CreateNewMove(suite.DB(), moveOptions)
 		suite.NoError(err)
@@ -215,9 +219,11 @@ func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = ""
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
-		Show: m.BoolPointer(true),
+		Show:               m.BoolPointer(true),
+		CounselingOfficeID: &office.ID,
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
@@ -235,9 +241,11 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	orders.Status = m.OrderStatusSUBMITTED
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
-		Show: m.BoolPointer(true),
+		Show:               m.BoolPointer(true),
+		CounselingOfficeID: &office.ID,
 	}
 	move, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
