@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/db/utilities"
 	mtoshipmentops "github.com/transcom/mymove/pkg/gen/primev3api/primev3operations/mto_shipment"
+	"github.com/transcom/mymove/pkg/gen/primev3messages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/primeapi"
 	"github.com/transcom/mymove/pkg/handlers/primeapiv3/payloads"
@@ -37,6 +38,23 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				appCtx.Logger().Error(err.Error())
 				return mtoshipmentops.NewCreateMTOShipmentBadRequest().WithPayload(payloads.ClientError(handlers.BadRequestErrMessage,
 					err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
+
+			/** Feature Flag - Boat Shipment **/
+			featureFlagName := "boat"
+			isBoatFeatureOn := false
+			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+				isBoatFeatureOn = false
+			} else {
+				isBoatFeatureOn = flag.Match
+			}
+
+			// Return an error if boat shipment is sent while the feature flag is turned off.
+			if !isBoatFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeBOATHAULAWAY || *params.Body.ShipmentType == primev3messages.MTOShipmentTypeBOATTOWAWAY) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Boat shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
