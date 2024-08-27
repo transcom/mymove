@@ -269,7 +269,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
+	page1.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 	return page1, nil
 }
 
@@ -289,6 +289,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 		if err != nil {
 			return page2, err
 		}
+		page2.Disbursement = formatDisbursement(expensesMap, data.PPMRemainingEntitlement)
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
@@ -686,11 +687,28 @@ func FormatSITDaysInStorage(ppm models.PPMShipment) string {
 	return formattedDifference
 }
 
+func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement float64) string {
+	disbursementGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+	disbursementGTCCB := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"]
+	// Disbursement GTCC is the lowest value of the above 2 calculations
+	if disbursementGTCCB < disbursementGTCC {
+		disbursementGTCC = disbursementGTCCB
+	}
+	// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
+	disbursementMember := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
+	if disbursementMember < 0 {
+		disbursementMember = 0
+	}
+	// Return formatted values in string
+	disbursementString := "GTCC: " + FormatDollars(disbursementGTCC) + "\nMember: " + FormatDollars(disbursementMember)
+	return disbursementString
+}
+
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
 func FormatOrdersTypeAndOrdersNumber(order models.Order) string {
-	issuingBranch := FormatOrdersType(order)
+	orderType := FormatOrdersType(order)
 	ordersNumber := derefStringTypes(order.OrdersNumber)
-	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
+	return fmt.Sprintf("%s/%s", orderType, ordersNumber)
 }
 
 // FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
@@ -801,10 +819,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
-	if err != nil {
-		return nil, err
-	}
+	ppmRemainingEntitlement := float64(0)
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
 	if err != nil {
