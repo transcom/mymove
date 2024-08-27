@@ -146,7 +146,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 				if param.IncomingKey == "SITPaymentRequestStart" || param.IncomingKey == "SITPaymentRequestEnd" {
 					paymentDate, err := time.Parse("2006-01-02", param.Value)
 					if err != nil {
-						errStr := fmt.Sprint("failure to parse %s", param.IncomingKey)
+						errStr := "failed to parse " + param.IncomingKey
 						return apperror.NewBadDataError(errStr)
 					}
 
