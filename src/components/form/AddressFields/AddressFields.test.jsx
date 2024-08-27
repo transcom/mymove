@@ -2,8 +2,14 @@ import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Formik } from 'formik';
+import { Provider } from 'react-redux';
 
 import { AddressFields } from './AddressFields';
+
+import { configureStore } from 'shared/store';
+
+
+const handleZipCityChange = {};
 
 describe('AddressFields component', () => {
   it('renders a legend and all address inputs', () => {
@@ -133,11 +139,14 @@ describe('AddressFields component', () => {
           county: 'NEW YORK',
         },
       };
+      const mockStore = configureStore({});
 
       const { getByLabelText, getByTestId } = render(
-        <Formik initialValues={initialValues}>
-          <AddressFields legend="Address Form" name="address" zipCityEnabled />
-        </Formik>,
+        <Provider store={mockStore.store}>
+          <Formik initialValues={initialValues}>
+            <AddressFields legend="Address Form" name="address" zipCityEnabled handleZipCityChange={handleZipCityChange}/>
+          </Formik>
+        </Provider>,
       );
       expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);
@@ -157,11 +166,14 @@ describe('AddressFields component', () => {
           county: 'NEW YORK',
         },
       };
+      const mockStore = configureStore({});
 
       const { getByLabelText, getByTestId } = render(
-        <Formik initialValues={initialValues}>
-          <AddressFields legend="Address Form" name="address" zipCityEnabled zipCityError />
-        </Formik>,
+        <Provider store={mockStore.store}>
+          <Formik initialValues={initialValues}>
+            <AddressFields legend="Address Form" name="address" zipCityEnabled zipCityError handleZipCityChange={handleZipCityChange}/>
+          </Formik>
+        </Provider>,
       );
       expect(getByLabelText('Address 1')).toHaveValue(initialValues.address.streetAddress1);
       expect(getByLabelText(/Address 2/)).toHaveValue(initialValues.address.streetAddress2);

@@ -64,12 +64,12 @@ describe('BackupAddress page', () => {
   it('renders the BackupAddressForm', async () => {
     const testProps = generateTestProps(blankAddress);
     const mockStore = configureStore({
-      ...loggedInTOOState
+      ...loggedInTOOState,
     });
     const { queryByRole } = render(
       <Provider store={mockStore.store}>
         <BackupAddress {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     await waitFor(() => {
@@ -80,12 +80,12 @@ describe('BackupAddress page', () => {
   it('back button goes to the Residential address step', async () => {
     const testProps = generateTestProps(blankAddress);
     const mockStore = configureStore({
-      ...loggedInTOOState
+      ...loggedInTOOState,
     });
     const { findByRole } = render(
       <Provider store={mockStore.store}>
         <BackupAddress {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const backButton = await findByRole('button', { name: 'Back' });
@@ -98,7 +98,7 @@ describe('BackupAddress page', () => {
   it('next button submits the form and goes to the Backup contact step', async () => {
     const testProps = generateTestProps(fakeAddress);
     const mockStore = configureStore({
-      ...loggedInTOOState
+      ...loggedInTOOState,
     });
     const expectedServiceMemberPayload = { ...testProps.serviceMember, backup_mailing_address: fakeAddress };
 
@@ -107,7 +107,7 @@ describe('BackupAddress page', () => {
     const { getByRole } = render(
       <Provider store={mockStore.store}>
         <BackupAddress {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const submitButton = getByRole('button', { name: 'Next' });
@@ -129,7 +129,7 @@ describe('BackupAddress page', () => {
   it('shows an error if the patchServiceMember API returns an error', async () => {
     const testProps = generateTestProps(fakeAddress);
     const mockStore = configureStore({
-      ...loggedInTOOState
+      ...loggedInTOOState,
     });
     patchServiceMember.mockImplementation(() =>
       // Disable this rule because makeSwaggerRequest does not throw an error if the API call fails
@@ -147,7 +147,7 @@ describe('BackupAddress page', () => {
     const { getByRole, queryByText } = render(
       <Provider store={mockStore.store}>
         <BackupAddress {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const submitButton = getByRole('button', { name: 'Next' });

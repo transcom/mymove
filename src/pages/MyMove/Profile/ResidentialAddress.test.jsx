@@ -58,8 +58,8 @@ describe('ResidentialAddress page', () => {
     render(
       <Provider store={mockStore.store}>
         <ResidentialAddress {...testProps} />
-      </Provider>  
-      );
+      </Provider>,
+    );
 
     await waitFor(() => {
       expect(screen.getByRole('heading', { name: 'Current address', level: 1 })).toBeInTheDocument();
@@ -73,7 +73,7 @@ describe('ResidentialAddress page', () => {
     render(
       <Provider store={mockStore.store}>
         <ResidentialAddress {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const backButton = await screen.findByRole('button', { name: 'Back' });
@@ -97,7 +97,7 @@ describe('ResidentialAddress page', () => {
     render(
       <Provider store={mockStore.store}>
         <ResidentialAddress {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
@@ -135,8 +135,8 @@ describe('ResidentialAddress page', () => {
     render(
       <Provider store={mockStore.store}>
         <ResidentialAddress {...testProps} />
-      </Provider>
-      );
+      </Provider>,
+    );
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();
