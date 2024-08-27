@@ -1,8 +1,11 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import EditContactInfoForm from './EditContactInfoForm';
+
+import { configureStore } from 'shared/store';
 
 describe('EditContactInfoForm component', () => {
   const testProps = {
@@ -37,7 +40,13 @@ describe('EditContactInfoForm component', () => {
   };
 
   it('renders the form inputs', async () => {
-    render(<EditContactInfoForm {...testProps} />);
+    const mockStore = configureStore({});
+
+    render(
+      <Provider store={mockStore.store}>
+        <EditContactInfoForm {...testProps} />
+      </Provider>
+    );
 
     const telephoneInput = await screen.findByLabelText('Best contact phone');
 
@@ -159,7 +168,13 @@ describe('EditContactInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    render(<EditContactInfoForm {...testProps} />);
+    const mockStore = configureStore({});
+
+    render(
+      <Provider store={mockStore.store}>
+        <EditContactInfoForm {...testProps} />
+      </Provider>
+    );
 
     const saveButton = await screen.findByRole('button', { name: 'Save' });
 
@@ -180,7 +195,13 @@ describe('EditContactInfoForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    render(<EditContactInfoForm {...testProps} />);
+    const mockStore = configureStore({});
+
+    render(
+      <Provider store={mockStore.store}>
+        <EditContactInfoForm {...testProps} />
+      </Provider>
+    );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
 
@@ -196,7 +217,13 @@ describe('EditContactInfoForm component', () => {
   });
 
   it('implements the onCancel handler when the Cancel button is clicked', async () => {
-    render(<EditContactInfoForm {...testProps} />);
+    const mockStore = configureStore({});
+
+    render(
+      <Provider store={mockStore.store}>
+        <EditContactInfoForm {...testProps} />
+      </Provider>
+    );
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
 
