@@ -198,114 +198,15 @@ paths:
     post:
       summary: createMTOShipment
       description: |
-        _[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.
-        Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
-
-        Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
-        need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
-        approve it before the contractor can proceed with billing.
-
-        **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
-        one of their moves. Otherwise, the Prime can fetch the related move using the
-        [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        _[Deprecated: this endpoint was deprecated on August 5th, 2024]_
+        Please use the new endpoint at `/prime/v3/createMTOShipment` instead.
       operationId: createMTOShipment
       tags:
         - mtoShipment
-      parameters:
-        - in: body
-          name: body
-          schema:
-            $ref: '#/definitions/CreateMTOShipment'
-          x-examples:
-            application/json:
-              hhg:
-                summary: HHG
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG',
-                    'requestedPickupDate': '2022-12-31',
-                    'pickupAddress':
-                      {
-                        'streetAddress1': '204 South Prospect Lane',
-                        'city': 'Muldraugh',
-                        'state': 'KY',
-                        'postalCode': '40155',
-                      },
-                  }
-              nts:
-                summary: NTS
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG_INTO_NTS_DOMESTIC',
-                    'requestedPickupDate': '2022-12-31',
-                    'pickupAddress':
-                      {
-                        'streetAddress1': '204 South Prospect Lane',
-                        'city': 'Muldraugh',
-                        'state': 'KY',
-                        'postalCode': '40155',
-                      },
-                    'agents':
-                      [
-                        {
-                          'firstName': 'Edgar',
-                          'lastName': 'Taylor',
-                          'email': 'edgar.taylor@example.com',
-                          'phone': '555-555-5555',
-                          'agentType': 'RELEASING_AGENT',
-                        },
-                      ],
-                  }
-              nts-r:
-                summary: NTS Release
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG_OUTOF_NTS_DOMESTIC',
-                    'agents':
-                      [
-                        {
-                          'firstName': 'Edgar',
-                          'lastName': 'Taylor',
-                          'email': 'edgar.taylor@example.com',
-                          'phone': '555-555-5555',
-                          'agentType': 'RECEIVING_AGENT',
-                        },
-                      ],
-                  }
-              ppm:
-                summary: PPM
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'PPM',
-                    'ppmShipment':
-                      {
-                        'expectedDepartureDate': '2022-10-01',
-                        'estimatedWeight': 4999,
-                        'hasProGear': false,
-                        'sitExpected': false,
-                      },
-                  }
+      deprecated: true
       responses:
-        '200':
-          description: Successfully created a MTO shipment.
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '404':
-          $ref: 'responses/NotFound.yaml'
-        '422':
-          $ref: 'responses/UnprocessableEntity.yaml'
-        '500':
-          $ref: '#/responses/ServerError'
+        '410':
+          description: This endpoint is deprecated. Please use `/prime/v3/createMTOShipment` instead.
   /mto-shipments/{mtoShipmentID}:
     patch:
       summary: updateMTOShipment
