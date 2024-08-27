@@ -699,6 +699,7 @@ func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement 
 		disbursementGTCC = disbursementGTCCB
 	}
 	// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
+	// Check this calc with Danny
 	disbursementMember := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
 	if disbursementMember < 0 {
 		disbursementMember = 0
@@ -710,9 +711,9 @@ func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement 
 
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
 func FormatOrdersTypeAndOrdersNumber(order models.Order) string {
-	issuingBranch := FormatOrdersType(order)
+	orderType := FormatOrdersType(order)
 	ordersNumber := derefStringTypes(order.OrdersNumber)
-	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
+	return fmt.Sprintf("%s/%s", orderType, ordersNumber)
 }
 
 // FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
