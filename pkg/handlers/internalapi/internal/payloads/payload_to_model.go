@@ -32,6 +32,20 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 	}
 }
 
+// UsPostRegionCityModel model
+func UsPostRegionCityModel(usPostRegionCity *internalmessages.UsPostRegionCity) *models.UsPostRegionCity {
+	if usPostRegionCity == nil {
+		return nil
+	}
+
+	return &models.UsPostRegionCity{
+		USPostRegionCityNm: usPostRegionCity.City,
+		State:              usPostRegionCity.State,
+		UsprZipID:          usPostRegionCity.PostalCode,
+		UsprcCountyNm:      *usPostRegionCity.County,
+	}
+}
+
 // MTOAgentModel model
 func MTOAgentModel(mtoAgent *internalmessages.MTOAgent) *models.MTOAgent {
 	if mtoAgent == nil {
