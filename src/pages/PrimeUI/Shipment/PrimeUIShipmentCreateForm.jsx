@@ -278,40 +278,50 @@ const PrimeUIShipmentCreateForm = () => {
           <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" />
           <TextField label="Model" id="boatShipment.modelInput" name="boatShipment.model" />
           <h2 className={styles.sectionHeader}>Boat Dimensions</h2>
+          <figure>
+            <figcaption>
+              Dimensions must meet at least one of the following criteria to qualify as a separate boat shipment:
+            </figcaption>
+            <ul>
+              <li>Over 14 feet in length</li>
+              <li>Over 6 feet 10 inches in width</li>
+              <li>Over 6 feet 5 inches in height</li>
+            </ul>
+          </figure>
           <MaskedTextField
             label="Length (Feet)"
-            id="boatShipment.lengthFeetInput"
-            name="boatShipment.lengthFeet"
+            id="boatShipment.lengthInFeetInput"
+            name="boatShipment.lengthInFeet"
             mask={Number}
           />
           <MaskedTextField
             label="Length (Inches)"
-            id="boatShipment.lengthInchesInput"
-            name="boatShipment.lengthInches"
+            id="boatShipment.lengthInInchesInput"
+            name="boatShipment.lengthInInches"
             mask={Number}
           />
           <MaskedTextField
             label="Width (Feet)"
-            id="boatShipment.widthFeetInput"
-            name="boatShipment.widthFeet"
+            id="boatShipment.widthInFeetInput"
+            name="boatShipment.widthInFeet"
             mask={Number}
           />
           <MaskedTextField
             label="Width (Inches)"
-            id="boatShipment.widthInchesInput"
-            name="boatShipment.widthInches"
+            id="boatShipment.widthInInchesInput"
+            name="boatShipment.widthInInches"
             mask={Number}
           />
           <MaskedTextField
             label="Height (Feet)"
-            id="boatShipment.heightFeetInput"
-            name="boatShipment.heightFeet"
+            id="boatShipment.heightInFeetInput"
+            name="boatShipment.heightInFeet"
             mask={Number}
           />
           <MaskedTextField
             label="Height (Inches)"
-            id="boatShipment.heightInchesInput"
-            name="boatShipment.heightInches"
+            id="boatShipment.heightInInchesInput"
+            name="boatShipment.heightInInches"
             mask={Number}
           />
           <h2 className={styles.sectionHeader}>Trailer</h2>
