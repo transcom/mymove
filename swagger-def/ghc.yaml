@@ -4074,6 +4074,70 @@ paths:
           $ref: "#/responses/NotFound"
         "500":
           $ref: "#/responses/ServerError"
+  /moves/{moveID}/assignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AssignOfficeUserBody'
+      responses:
+        '200':
+          description: Successfully assigned office user to the move
+          schema:
+            $ref: '#/definitions/Move'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: assigns either a services counselor, task ordering officer, or task invoicing officer to the move
+      operationId: updateAssignedOfficeUser
+  /moves/{moveID}/unassignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+      - in: body
+        name: body
+        schema:
+          properties:
+            roleType:
+              type: string
+          required:
+            - roleType
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unassigned office user from the move
+          schema:
+            $ref: '#/definitions/Move'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: unassigns either a services counselor, task ordering officer, or task invoicing officer from the move
+      operationId: deleteAssignedOfficeUser
 definitions:
   ApplicationParameters:
     type: object
@@ -4866,6 +4930,12 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
+      SCAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TIOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
       id:
@@ -6617,6 +6687,9 @@ definitions:
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -7216,6 +7289,28 @@ definitions:
       - date
       - is_weekend
       - is_holiday
+  AssignOfficeUserBody:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+      roleType:
+        type: string
+    required:
+      - officeUserId
+      - roleType
+  AssignedOfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      firstName:
+        type: string
+      lastName:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

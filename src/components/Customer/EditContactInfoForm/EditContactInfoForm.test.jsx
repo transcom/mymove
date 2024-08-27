@@ -106,10 +106,10 @@ describe('EditContactInfoForm component', () => {
 
     const [residentialState, backupState] = stateInputs;
 
-    expect(residentialState).toBeInstanceOf(HTMLSelectElement);
+    expect(residentialState).toBeInstanceOf(HTMLInputElement);
     expect(residentialState).toHaveValue(testProps.initialValues.residential_address.state);
 
-    expect(backupState).toBeInstanceOf(HTMLSelectElement);
+    expect(backupState).toBeInstanceOf(HTMLInputElement);
     expect(backupState).toHaveValue(testProps.initialValues.backup_mailing_address.state);
 
     const zipInputs = await screen.findAllByLabelText('ZIP');

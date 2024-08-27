@@ -616,3 +616,27 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 
 	return model
 }
+
+// UsPostRegionCity payload
+func UsPostRegionCity(usPostRegionCity *models.UsPostRegionCity) *internalmessages.UsPostRegionCity {
+	if usPostRegionCity == nil || *usPostRegionCity == (models.UsPostRegionCity{}) {
+		return nil
+	}
+
+	return &internalmessages.UsPostRegionCity{
+		City:       usPostRegionCity.USPostRegionCityNm,
+		State:      usPostRegionCity.State,
+		PostalCode: usPostRegionCity.UsprZipID,
+		County:     &usPostRegionCity.UsprcCountyNm,
+	}
+}
+
+// UsPostRegionCities payload
+func UsPostRegionCities(usPostRegionCities models.UsPostRegionCities) internalmessages.UsPostRegionCities {
+	payload := make(internalmessages.UsPostRegionCities, len(usPostRegionCities))
+	for i, usPostRegionCity := range usPostRegionCities {
+		copyOfUsPostRegionCity := usPostRegionCity
+		payload[i] = UsPostRegionCity(&copyOfUsPostRegionCity)
+	}
+	return payload
+}
