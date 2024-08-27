@@ -666,7 +666,7 @@ class MtoShipmentForm extends Component {
                         <p>You can change details about your move by talking with your counselor or your movers</p>
                       </Hint>
 
-                      {isBoat ? (
+                      {isBoat || isMobileHome ? (
                         <div className={boatShipmentstyles.buttonContainer}>
                           <Button
                             className={boatShipmentstyles.backButton}
