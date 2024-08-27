@@ -135,25 +135,6 @@ export function createPrimeMTOShipmentV3({ normalize = false, schemaKey = 'mtoSh
   );
 }
 
-export function updatePrimeMTOShipment({
-  mtoShipmentID,
-  ifMatchETag,
-  normalize = true,
-  schemaKey = 'mtoShipment',
-  body,
-}) {
-  const operationPath = 'mtoShipment.updateMTOShipment';
-  return makePrimeSimulatorRequest(
-    operationPath,
-    {
-      mtoShipmentID,
-      'If-Match': ifMatchETag,
-      body,
-    },
-    { schemaKey, normalize },
-  );
-}
-
 export function updatePrimeMTOShipmentV2({
   mtoShipmentID,
   ifMatchETag,
