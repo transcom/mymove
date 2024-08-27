@@ -298,7 +298,7 @@ func createNewMove(db *pop.Connection,
 				ReferenceID:  &referenceID,
 			}
 			if moveOptions.CounselingOfficeID != nil {
-				move.CloseoutOfficeID = moveOptions.CounselingOfficeID
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
 			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
@@ -330,7 +330,7 @@ func createNewMove(db *pop.Connection,
 				ReferenceID:  &referenceID,
 			}
 			if moveOptions.CounselingOfficeID != nil {
-				move.CloseoutOfficeID = moveOptions.CounselingOfficeID
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
 			}
 			verrs, err := db.ValidateAndCreate(&move)
 			if verrs.HasAny() {
