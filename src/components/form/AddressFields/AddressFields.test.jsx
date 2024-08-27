@@ -8,7 +8,6 @@ import { AddressFields } from './AddressFields';
 
 import { configureStore } from 'shared/store';
 
-
 const handleZipCityChange = {};
 
 describe('AddressFields component', () => {
@@ -144,7 +143,12 @@ describe('AddressFields component', () => {
       const { getByLabelText, getByTestId } = render(
         <Provider store={mockStore.store}>
           <Formik initialValues={initialValues}>
-            <AddressFields legend="Address Form" name="address" zipCityEnabled handleZipCityChange={handleZipCityChange}/>
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              zipCityEnabled
+              handleZipCityChange={handleZipCityChange}
+            />
           </Formik>
         </Provider>,
       );
@@ -171,7 +175,13 @@ describe('AddressFields component', () => {
       const { getByLabelText, getByTestId } = render(
         <Provider store={mockStore.store}>
           <Formik initialValues={initialValues}>
-            <AddressFields legend="Address Form" name="address" zipCityEnabled zipCityError handleZipCityChange={handleZipCityChange}/>
+            <AddressFields
+              legend="Address Form"
+              name="address"
+              zipCityEnabled
+              zipCityError
+              handleZipCityChange={handleZipCityChange}
+            />
           </Formik>
         </Provider>,
       );
