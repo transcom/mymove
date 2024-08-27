@@ -80,12 +80,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 	isMobileHomeShipment := shipment.ShipmentType == models.MTOShipmentTypeMobileHome
 
 	// Check shipment fields that should be there or not based on shipment type.
-	if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-		if shipment.RequestedPickupDate != nil {
-			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,
-				fmt.Sprintf("RequestedPickupDate should not be set when creating a %s shipment", shipment.ShipmentType))
-		}
-	} else if shipment.ShipmentType != models.MTOShipmentTypePPM && !isBoatShipment && !isMobileHomeShipment {
+	if shipment.ShipmentType != models.MTOShipmentTypePPM && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom && !isBoatShipment && !isMobileHomeShipment {
 		// No need for a PPM to have a RequestedPickupDate
 		if shipment.RequestedPickupDate == nil || shipment.RequestedPickupDate.IsZero() {
 			return nil, apperror.NewInvalidInputError(uuid.Nil, nil, verrs,

@@ -1,5 +1,5 @@
 import classnames from 'classnames';
-import React from 'react';
+import { React, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -11,12 +11,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import {
-  backupContactInfoSchema,
-  contactInfoSchema,
-  requiredAddressSchema,
-  preferredContactMethodValidation,
-} from 'utils/validation';
+import { backupContactInfoSchema, contactInfoSchema, requiredAddressSchema } from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFields';
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
@@ -27,26 +22,62 @@ export const backupAddressName = 'backup_mailing_address';
 export const backupContactName = 'backup_contact';
 
 const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
-  const validationSchema = Yup.object()
-    .shape({
-      ...contactInfoSchema.fields,
-      [residentialAddressName]: requiredAddressSchema.required(),
-      [backupAddressName]: requiredAddressSchema.required(),
-      [backupContactName]: backupContactInfoSchema.required(),
-    })
-    .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
+  const validationSchema = Yup.object().shape({
+    ...contactInfoSchema.fields,
+    [residentialAddressName]: requiredAddressSchema.required(),
+    [backupAddressName]: requiredAddressSchema.required(),
+    [backupContactName]: backupContactInfoSchema.required(),
+  });
 
   const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
+  const [isCurrentLookupErrorVisible, setIsCurrentLookupErrorVisible] = useState(false);
+  const [isBackupLookupErrorVisible, setIsBackupLookupErrorVisible] = useState(false);
 
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-      validateOnMount
-      validationSchema={validationSchema}
-      initialTouched={{ telephone: true }}
-    >
-      {({ isValid, isSubmitting, handleSubmit }) => {
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
+      {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
+        const handleCurrentZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              residential_address: {
+                ...values.residential_address,
+                city: value.city ? value.city : '',
+                state: value.state ? value.state : '',
+                county: value.county ? value.county : '',
+                postalCode: value.postalCode ? value.postalCode : '',
+              },
+            },
+            { shouldValidate: true },
+          );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsCurrentLookupErrorVisible(true);
+          } else {
+            setIsCurrentLookupErrorVisible(false);
+          }
+        };
+        const handleBackupZipCityChange = (value) => {
+          setValues(
+            {
+              ...values,
+              backup_mailing_address: {
+                ...values.backup_mailing_address,
+                city: value.city ? value.city : '',
+                state: value.state ? value.state : '',
+                county: value.county ? value.county : '',
+                postalCode: value.postalCode ? value.postalCode : '',
+              },
+            },
+            { shouldValidate: true },
+          );
+
+          if (!value.city || !value.state || !value.county || !value.postalCode) {
+            setIsBackupLookupErrorVisible(true);
+          } else {
+            setIsBackupLookupErrorVisible(false);
+          }
+        };
         return (
           <Form className={classnames(formStyles.form, editContactInfoFormStyle.form)}>
             <h1>Edit contact info</h1>
@@ -60,7 +91,12 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Current address</h2>
 
-              <AddressFields name={residentialAddressName} />
+              <AddressFields
+                name={residentialAddressName}
+                zipCityEnabled
+                zipCityError={isCurrentLookupErrorVisible}
+                handleZipCityChange={handleCurrentZipCityChange}
+              />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -70,7 +106,12 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 transit during your move.
               </p>
 
-              <AddressFields name={backupAddressName} />
+              <AddressFields
+                name={backupAddressName}
+                zipCityEnabled
+                zipCityError={isBackupLookupErrorVisible}
+                handleZipCityChange={handleBackupZipCityChange}
+              />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>

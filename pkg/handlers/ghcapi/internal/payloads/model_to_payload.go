@@ -51,6 +51,18 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 	return nil
 }
 
+func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
+	if officeUser != nil {
+		payload := ghcmessages.AssignedOfficeUser{
+			ID:        strfmt.UUID(officeUser.ID.String()),
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+		}
+		return &payload
+	}
+	return nil
+}
+
 // Move payload
 func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
@@ -103,6 +115,9 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:          additionalDocumentsPayload,
+		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -1853,6 +1868,11 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
@@ -1926,6 +1946,11 @@ func PayloadForUploadModel(
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"

@@ -11,6 +11,7 @@ func (suite *FactorySuite) TestBuildUsPostRegionCity() {
 		UsprcPrfdLstLineCtystNm: "MacDill",
 		UsprcCountyNm:           "Hillsborough",
 		CtryGencDgphCd:          "US",
+		State:                   "FL",
 	}
 
 	suite.Run("Successful creation of default UsPostRegionCity", func() {

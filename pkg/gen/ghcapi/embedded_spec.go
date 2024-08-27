@@ -2286,6 +2286,55 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/cancel": {
       "post": {
         "description": "cancels a move",
@@ -2508,6 +2557,56 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -5794,6 +5893,42 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5834,6 +5969,69 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -6092,6 +6290,38 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
         }
       }
     },
@@ -9108,6 +9338,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -11383,6 +11622,10 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -13431,6 +13674,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
@@ -16680,6 +16927,61 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/cancel": {
       "post": {
         "description": "cancels a move",
@@ -16965,6 +17267,59 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -21040,6 +21395,57 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -21080,6 +21486,70 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3,
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -21338,6 +21808,38 @@ func init() {
             "OTHER"
           ],
           "example": "AWAITING_COMPLETION_OF_RESIDENCE"
+        }
+      }
+    },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
         }
       }
     },
@@ -24358,6 +24860,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -26708,6 +27219,10 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
@@ -28817,6 +29332,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",

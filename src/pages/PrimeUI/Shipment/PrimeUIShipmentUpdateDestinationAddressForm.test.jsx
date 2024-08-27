@@ -133,7 +133,7 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     (await screen.getByLabelText('Address 1')).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(screen.getByTestId('errorMessage')).toBeInTheDocument();
     });
   });
 
@@ -151,7 +151,7 @@ describe('PrimeUIShipmentUpdateDestinationAddressForm', () => {
     (await screen.getByLabelText('City')).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(screen.getByTestId('errorMessage')).toBeInTheDocument();
     });
   });
 });

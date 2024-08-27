@@ -12,3 +12,8 @@ type AddressCreator interface {
 type AddressUpdater interface {
 	UpdateAddress(appCtx appcontext.AppContext, address *models.Address, eTag string) (*models.Address, error)
 }
+
+//go:generate mockery --name UsPostRegionCity
+type UsPostRegionCity interface {
+	GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.UsPostRegionCities, error)
+}

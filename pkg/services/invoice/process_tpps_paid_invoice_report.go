@@ -89,21 +89,22 @@ func getPriceParts(rawPrice string) (int, int, int, error) {
 
 	// Split the string on the decimal point.
 	priceParts := strings.Split(basePrice, ".")
-	if len(priceParts) != 2 {
-		return 0, 0, 0, fmt.Errorf("expected 2 price parts but found %d for price [%s]", len(priceParts), rawPrice)
-	}
 
 	integerPart, err := strconv.Atoi(priceParts[0])
 	if err != nil {
 		return 0, 0, 0, fmt.Errorf("could not convert integer part of price [%s]", rawPrice)
 	}
 
+	decimalsExistOnDollarAmount := len(priceParts) == 2
 	expectedDecimalPlaces := 0
-	if len(priceParts[1]) > 0 {
+	if decimalsExistOnDollarAmount && len(priceParts[1]) > 0 {
 		expectedDecimalPlaces = len(priceParts[1])
 	}
 
-	fractionalPart, err := strconv.Atoi(priceParts[1])
+	fractionalPart := 0
+	if decimalsExistOnDollarAmount {
+		fractionalPart, err = strconv.Atoi(priceParts[1])
+	}
 	if err != nil {
 		return 0, 0, 0, fmt.Errorf("could not convert fractional part of price [%s]", rawPrice)
 	}
