@@ -1013,6 +1013,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
 	expensesMap := make(map[string]float64)
 
 	// Test case 1: GTCC calculation B is less than GTCC calculation A
+	// Additionally, Member should not be less than 0
 	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0)
 	expensesMap["TotalGTCCPaid"] = 200.00
 	expensesMap["StorageGTCCPaid"] = 300.00

@@ -699,7 +699,6 @@ func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement 
 		disbursementGTCC = disbursementGTCCB
 	}
 	// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
-	// Check this calc with Danny
 	disbursementMember := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
 	if disbursementMember < 0 {
 		disbursementMember = 0
