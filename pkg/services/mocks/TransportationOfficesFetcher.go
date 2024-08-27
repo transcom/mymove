@@ -61,7 +61,6 @@ func (_m *TransportationOfficesFetcher) GetCounselingOffices(appCtx appcontext.A
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, dutyLocationID)
-
 	} else {
 		r1 = ret.Error(1)
 	}
