@@ -262,6 +262,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	} else if mtoShipment.BoatShipment != nil {
 		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
 		model.BoatShipment.Shipment = *model
+	} else if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome = MobileHomeShipmentModelFromCreate(mtoShipment.MobileHomeShipment)
+		model.MobileHome.Shipment = *model
 	}
 
 	return model
@@ -388,6 +391,44 @@ func BoatShipmentModelFromCreate(boatShipment *ghcmessages.CreateBoatShipment) *
 
 	if model.HasTrailer == models.BoolPointer(false) {
 		model.IsRoadworthy = nil
+	}
+
+	return model
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mobileHomeShipment *ghcmessages.CreateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	model := &models.MobileHome{
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
 	}
 
 	return model
@@ -522,6 +563,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		}
 		model.BoatShipment = BoatShipmentModelFromUpdate(mtoShipment.BoatShipment)
 		model.BoatShipment.Shipment = *model
+	}
+
+	if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome = MobileHomeShipmentModelFromUpdate(mtoShipment.MobileHomeShipment)
+		model.MobileHome.Shipment = *model
 	}
 
 	return model
@@ -672,6 +718,44 @@ func BoatShipmentModelFromUpdate(boatShipment *ghcmessages.UpdateBoatShipment) *
 	}
 
 	return boatModel
+}
+
+func MobileHomeShipmentModelFromUpdate(mobileHomeShipment *ghcmessages.UpdateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	mobileHomeModel := &models.MobileHome{
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return mobileHomeModel
 }
 
 // ProgearWeightTicketModelFromUpdate model
