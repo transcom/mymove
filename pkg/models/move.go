@@ -273,10 +273,7 @@ func createNewMove(db *pop.Connection,
 	if moveOptions.Status != nil {
 		status = *moveOptions.Status
 	}
-	// var counselingOfficeID uuid.UUID
-	// if moveOptions.CounselingOfficeID != nil {
-	// 	counselingOfficeID = *moveOptions.CounselingOfficeID
-	// }
+
 	var contractor Contractor
 	err := db.Where("type='Prime'").First(&contractor)
 	if err != nil {
@@ -298,7 +295,6 @@ func createNewMove(db *pop.Connection,
 				Show:         show,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
-				// 	CounselingOfficeID: &counselingOfficeID,
 			}
 			if moveOptions.CounselingOfficeID != nil {
 				move.CloseoutOfficeID = moveOptions.CounselingOfficeID
@@ -331,7 +327,6 @@ func createNewMove(db *pop.Connection,
 				Show:         show,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
-				// CounselingOfficeID: &counselingOfficeID,
 			}
 			if moveOptions.CounselingOfficeID != nil {
 				move.CloseoutOfficeID = moveOptions.CounselingOfficeID
