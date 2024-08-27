@@ -326,13 +326,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </Fieldset>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset
-                  legend={
-                    <div className={formStyles.legendContent}>
-                      Remarks <span className={formStyles.optional}>Optional</span>
-                    </div>
-                  }
-                >
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                   <Label htmlFor="customerRemarks">
                     Are there things about this boat shipment that your counselor or movers should know or discuss with
                     you?
