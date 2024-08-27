@@ -6903,8 +6903,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -7015,9 +7015,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -13058,6 +13091,41 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "properties": {
@@ -13507,6 +13575,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -22425,8 +22496,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -22537,9 +22608,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -28711,6 +28815,41 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "properties": {
@@ -29161,6 +29300,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
