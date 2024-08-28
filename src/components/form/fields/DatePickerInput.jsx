@@ -6,7 +6,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 import styles from './DatePickerInput.module.scss';
 
-import { RequiredTag } from 'components/form/RequiredTag';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import { datePickerFormat, formatDate } from 'shared/dates';
@@ -41,7 +40,6 @@ export const DatePickerInput = (props) => {
               {label}
               {showOptional && <div className={styles.optionalLabel}>Optional</div>}
             </Label>
-            {required && <RequiredTag />}
           </div>
           {hint && <Hint className={styles.hint}>{hint}</Hint>}
           <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>

@@ -182,6 +182,8 @@ class MtoShipmentForm extends Component {
 
     const initialValues = formatMtoShipmentForDisplay(isCreatePage ? {} : mtoShipment);
 
+    const optionalLabel = <span className={formStyles.optional}>Optional</span>;
+
     return (
       <Formik
         initialValues={initialValues}
@@ -268,7 +270,6 @@ class MtoShipmentForm extends Component {
                               label="Preferred pickup date"
                               id="requestedPickupDate"
                               validate={validateDate}
-                              required
                             />
                           </Fieldset>
 
@@ -358,9 +359,8 @@ class MtoShipmentForm extends Component {
                           />
 
                           <ContactInfoFields
-                            optional
                             name="pickup.agent"
-                            legend={<div className={formStyles.legendContent}>Releasing agent</div>}
+                            legend={<div className={formStyles.legendContent}>Releasing agent {optionalLabel}</div>}
                             render={(fields) => (
                               <>
                                 <p>Who can let the movers pick up your personal property if you are not there?</p>
@@ -384,7 +384,6 @@ class MtoShipmentForm extends Component {
                               label="Preferred delivery date"
                               id="requestedDeliveryDate"
                               validate={validateDate}
-                              required
                             />
                           </Fieldset>
 
@@ -519,9 +518,8 @@ class MtoShipmentForm extends Component {
                           </Fieldset>
 
                           <ContactInfoFields
-                            optional
                             name="delivery.agent"
-                            legend={<div className={formStyles.legendContent}>Receiving agent</div>}
+                            legend={<div className={formStyles.legendContent}>Receiving agent {optionalLabel}</div>}
                             render={(fields) => (
                               <>
                                 <p>Who can take delivery for you if the movers arrive and you are not there?</p>
@@ -548,7 +546,7 @@ class MtoShipmentForm extends Component {
                       )}
 
                       <SectionWrapper className={formStyles.formSection}>
-                        <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
+                        <Fieldset legend={<div className={formStyles.legendContent}>Remarks {optionalLabel}</div>}>
                           <Label htmlFor="customerRemarks">
                             Are there things about this shipment that your counselor or movers should discuss with you?
                           </Label>

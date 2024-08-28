@@ -70,8 +70,14 @@ const EditOrdersForm = ({
   let newDutyMeta = '';
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={validationSchema}
+      validateOnMount
+      initialTouched={{ orders_type: true, issue_date: true, report_by_date: true, has_dependents: true, grade: true }}
+    >
+      {({ isValid, isSubmitting, handleSubmit, values }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         if (!values.origin_duty_location) originMeta = 'Required';
@@ -140,7 +146,6 @@ const EditOrdersForm = ({
                 id="origin_duty_location"
                 required
                 metaOverride={originMeta}
-                touched={touched}
               />
 
               {isRetirementOrSeparation ? (
@@ -173,8 +178,6 @@ const EditOrdersForm = ({
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
-                    touched={touched}
-                    required
                   />
                 </>
               ) : (
@@ -183,8 +186,6 @@ const EditOrdersForm = ({
                   label="New duty location"
                   displayAddress={false}
                   metaOverride={newDutyMeta}
-                  touched={touched}
-                  required
                 />
               )}
               <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
