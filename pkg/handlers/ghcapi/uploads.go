@@ -13,6 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/upload"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -84,6 +85,38 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+type UpdateUploadHandler struct {
+	handlers.HandlerConfig
+	services.UploadInformationFetcher
+}
+
+func (h UpdateUploadHandler) Handle(params uploadop.UpdateUploadParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().IsOfficeApp() {
+				forbiddenError := apperror.NewForbiddenError("User is not an Office User.")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return uploadop.NewUpdateUploadForbidden(), forbiddenError
+			}
+
+			uploadID, _ := uuid.FromString(params.UploadID.String())
+			updater := upload.NewUploadUpdater()
+			newUpload, err := updater.UpdateUploadForRotation(appCtx, uploadID, params.Body.Rotation)
+			if err != nil {
+				return nil, apperror.NewBadDataError("unable to update upload")
+			}
+
+			url, err := h.FileStorer().PresignedURL(newUpload.StorageKey, newUpload.ContentType)
+			if err != nil {
+				return nil, err
+			}
+
+			uploadPayload := payloads.Upload(h.FileStorer(), *newUpload, url)
+
+			return uploadop.NewUpdateUploadCreated().WithPayload(uploadPayload), nil
 		})
 }
 

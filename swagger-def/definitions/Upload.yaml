@@ -23,6 +23,10 @@ properties:
   bytes:
     type: integer
     readOnly: true
+  rotation:
+    type: integer
+    readOnly: false
+    example: 2
   status:
     type: string
     enum:
