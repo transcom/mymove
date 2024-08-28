@@ -362,7 +362,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
 	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
-	suite.Equal("3,000", sswPage1.PPMRemainingEntitlement)
+	suite.Equal("$3,000.00", sswPage1.PPMRemainingEntitlement)
 
 	// quick test when there is no PPM actual move date
 	PPMShipmentsWithoutActualMoveDate := []models.PPMShipment{
