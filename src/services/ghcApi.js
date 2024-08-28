@@ -848,6 +848,10 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
   );
 }
 
+export async function searchLocationByZipCity(search) {
+  return makeGHCRequest('addresses.getLocationByZipCity', { search }, { normalize: false });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeGHCRequestRaw(
     'calendar.isDateWeekendHoliday',
@@ -871,8 +875,4 @@ export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
     moveID,
     body: { roleType },
   });
-}
-
-export async function searchLocationByZipCity(search) {
-  return makeGHCRequest('addresses.getLocationByZipCity', { search }, { normalize: false });
 }

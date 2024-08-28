@@ -27,6 +27,7 @@ const mockTransportationOffice = [
       postalCode: '',
       state: '',
       streetAddress1: '',
+      county: '',
     },
     address_id: '46c4640b-c35e-4293-a2f1-36c7b629f903',
     affiliation: 'AIR_FORCE',
@@ -63,6 +64,7 @@ jest.mock('components/LocationSearchBox/api', () => ({
       postalCode: '85309',
       state: 'AZ',
       streetAddress1: 'n/a',
+      county: 'MARICOPA',
     }),
   ),
 }));
@@ -81,6 +83,7 @@ const useEditShipmentQueriesReturnValue = {
         city: 'Fort Knox',
         state: 'KY',
         postalCode: '40121',
+        county: 'HARDIN',
       },
     },
     destinationDutyLocation: {
@@ -89,6 +92,7 @@ const useEditShipmentQueriesReturnValue = {
         city: 'Fort Irwin',
         state: 'CA',
         postalCode: '92310',
+        county: 'SAN BERNARDINO',
       },
     },
     customer: {
