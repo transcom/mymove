@@ -68,13 +68,13 @@ const moveData = [
   {
     id: 'move3',
     customer: {
-      agency: 'MARINE_CORPS',
+      agency: 'MARINES',
       first_name: 'will',
       last_name: 'robinson',
       dodID: '6666666666',
     },
     locator: 'PREP',
-    departmentIndicator: 'MARINE_CORPS',
+    departmentIndicator: 'MARINES',
     shipmentsCount: 1,
     status: 'SUBMITTED',
     originDutyLocation: {

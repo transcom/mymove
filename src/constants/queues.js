@@ -52,7 +52,7 @@ export const BRANCH_OPTIONS = [
   { value: 'AIR_FORCE', label: 'Air Force' },
   { value: 'COAST_GUARD', label: 'Coast Guard' },
   { value: 'SPACE_FORCE', label: 'Space Force' },
-  { value: 'MARINE_CORPS', label: 'Marine Corps' },
+  { value: 'MARINES', label: 'Marine Corps' },
 ];
 
 export const SERVICE_COUNSELING_PPM_STATUS_OPTIONS = [
