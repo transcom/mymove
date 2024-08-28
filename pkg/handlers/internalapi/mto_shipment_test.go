@@ -413,6 +413,9 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		ntsrShipmentType := internalmessages.MTOShipmentTypeHHGOUTOFNTSDOMESTIC
 		params.Body.ShipmentType = &ntsrShipmentType
 		params.Body.RequestedPickupDate = strfmt.Date(time.Time{})
+		params.Body.PickupAddress = nil
+		params.Body.SecondaryPickupAddress = nil
+		params.Body.SecondaryDeliveryAddress = nil
 
 		response := subtestData.handler.Handle(subtestData.params)
 
