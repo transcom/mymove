@@ -10,6 +10,7 @@ import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
 
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import ConnectedBoatInfoModal from 'components/Customer/modals/BoatInfoModal/BoatInfoModal';
 import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -32,10 +33,12 @@ export class SelectShipmentType extends Component {
     this.state = {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
+      showBoatInfoModal: false,
       errorMessage: null,
       enablePPM: false,
       enableNTS: false,
       enableNTSR: false,
+      enableBoat: false,
     };
   }
 
@@ -57,6 +60,11 @@ export class SelectShipmentType extends Component {
         enableNTSR: enabled,
       });
     });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then((enabled) => {
+      this.setState({
+        enableBoat: enabled,
+      });
+    });
   }
 
   setShipmentType = (e) => {
@@ -72,6 +80,12 @@ export class SelectShipmentType extends Component {
   toggleMoveInfoModal = () => {
     this.setState((state) => ({
       showMoveInfoModal: !state.showMoveInfoModal,
+    }));
+  };
+
+  toggleBoatInfoModal = () => {
+    this.setState((state) => ({
+      showBoatInfoModal: !state.showBoatInfoModal,
     }));
   };
 
@@ -92,8 +106,17 @@ export class SelectShipmentType extends Component {
       move,
       mtoShipments,
     } = this.props;
-    const { shipmentType, showStorageInfoModal, showMoveInfoModal, enablePPM, enableNTS, enableNTSR, errorMessage } =
-      this.state;
+    const {
+      shipmentType,
+      showStorageInfoModal,
+      showMoveInfoModal,
+      showBoatInfoModal,
+      enablePPM,
+      enableNTS,
+      enableNTSR,
+      enableBoat,
+      errorMessage,
+    } = this.state;
 
     const shipmentInfo = determineShipmentInfo(move, mtoShipments);
 
@@ -112,6 +135,8 @@ export class SelectShipmentType extends Component {
     const ntsrCardText = shipmentInfo.isNTSRSelectable
       ? 'Movers pick up personal property you put into NTS during an earlier move and ship them to your new destination. This is an NTS-release (non-temporary storage release) shipment.'
       : 'You’ve already asked to have things taken out of storage for this move. Talk to your movers to change or add to your request.';
+
+    const boatCardText = 'Provide information about your boat and we will determine how it will ship.';
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setShipmentType(e),
@@ -221,6 +246,26 @@ export class SelectShipmentType extends Component {
                   )}
                 </>
               ) : null}
+              {enableBoat && (
+                <>
+                  <h3 className={styles.longTermStorageHeader} data-testid="long-term-storage-heading">
+                    Boats & Mobile Homes
+                  </h3>
+                  <p>
+                    Moving a boat or mobile home? Please provide additional info to determine how it will be shipped.
+                  </p>
+                  <SelectableCard
+                    {...selectableCardDefaultProps}
+                    label="Move a boat"
+                    value={SHIPMENT_OPTIONS.BOAT}
+                    id={SHIPMENT_OPTIONS.BOAT}
+                    cardText={boatCardText}
+                    checked={shipmentType === SHIPMENT_OPTIONS.BOAT && shipmentInfo.isBoatSelectable}
+                    disabled={!shipmentInfo.isBoatSelectable}
+                    onHelpClick={this.toggleBoatInfoModal}
+                  />
+                </>
+              )}
 
               {!shipmentInfo.hasShipment && (
                 <p data-testid="helper-footer" className={styles.footer}>
@@ -251,6 +296,11 @@ export class SelectShipmentType extends Component {
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}
           closeModal={this.toggleStorageModal}
+        />
+        <ConnectedBoatInfoModal
+          isOpen={showBoatInfoModal}
+          enablePPM={enableBoat}
+          closeModal={this.toggleBoatInfoModal}
         />
       </>
     );

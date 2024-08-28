@@ -7,10 +7,10 @@ import { Tag, Button } from '@trussworks/react-uswds';
 import styles from './ShipmentList.module.scss';
 
 import { shipmentTypes, WEIGHT_ADJUSTMENT } from 'constants/shipments';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { formatWeight } from 'utils/formatters';
-import { isPPMShipmentComplete } from 'utils/shipments';
+import { isPPMShipmentComplete, isBoatShipmentComplete } from 'utils/shipments';
 import { shipmentIsOverweight } from 'utils/shipmentWeights';
 import ToolTip from 'shared/ToolTip/ToolTip';
 
@@ -26,17 +26,21 @@ export const ShipmentListItem = ({
   isOverweight,
   isMissingWeight,
 }) => {
+  const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isBoat =
+    shipment.shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY || shipment.shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY;
+
   const shipmentClassName = classnames({
     [styles[`shipment-list-item-NTS-release`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTSR,
     [styles[`shipment-list-item-NTS`]]: shipment.shipmentType === SHIPMENT_OPTIONS.NTS,
     [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
-    [styles[`shipment-list-item-PPM`]]: shipment.shipmentType === SHIPMENT_OPTIONS.PPM,
+    [styles[`shipment-list-item-PPM`]]: isPPM,
+    [styles[`shipment-list-item-Boat`]]: isBoat,
   });
-  const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
   const estimated = 'Estimated';
   const actual = 'Actual';
   let requestedWeightPPM = 0;
-  if (shipment.shipmentType === SHIPMENT_OPTIONS.PPM) {
+  if (isPPM) {
     if (shipment.ppmShipment?.weightTickets !== undefined) {
       const wt = shipment.ppmShipment.weightTickets;
       for (let i = 0; i < wt.length; i += 1) {
@@ -57,7 +61,9 @@ export const ShipmentListItem = ({
           {showNumber && ` ${shipmentNumber}`}
         </strong>{' '}
         <br />
-        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG || shipment.shipmentType === SHIPMENT_OPTIONS.NTS) && (
+        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
+          shipment.shipmentType === SHIPMENT_OPTIONS.NTS ||
+          isBoat) && (
           <>
             <span>{formatWeight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT)} </span>
             <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
@@ -152,7 +158,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
-    const { shipmentType } = shipment;
+    const shipmentType = shipmentTypes[shipment?.shipmentType];
     if (shipmentCountByType[shipmentType]) {
       shipmentCountByType[shipmentType] += 1;
     } else {
@@ -163,7 +169,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
   return (
     <div>
       {shipments.map((shipment) => {
-        const { shipmentType } = shipment;
+        const shipmentType = shipmentTypes[shipment?.shipmentType];
         if (shipmentNumbersByType[shipmentType]) {
           shipmentNumbersByType[shipmentType] += 1;
         } else {
@@ -174,13 +180,26 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
         let isOverweight;
         let isMissingWeight;
         let showNumber = shipmentCountByType[shipmentType] > 1;
-        const ppmIsIncomplete = shipmentType === SHIPMENT_OPTIONS.PPM && !isPPMShipmentComplete(shipment);
+
+        let isIncomplete = false;
+        switch (shipmentType?.toUpperCase()) {
+          case SHIPMENT_OPTIONS.PPM:
+            isIncomplete = !isPPMShipmentComplete(shipment);
+            break;
+
+          case SHIPMENT_OPTIONS.BOAT:
+            isIncomplete = !isBoatShipmentComplete(shipment);
+            break;
+
+          default:
+            break;
+        }
 
         if (showShipmentWeight) {
           canEditOrDelete = false;
           showNumber = false;
           switch (shipmentType) {
-            case SHIPMENT_OPTIONS.NTSR:
+            case shipmentTypes[SHIPMENT_OPTIONS.NTSR]:
               // don't want “Over weight” or “Missing weight” warnings for NTSR
               break;
             default:
@@ -201,9 +220,9 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             showShipmentWeight={showShipmentWeight}
             canEditOrDelete={canEditOrDelete}
             isOverweight={isOverweight}
-            showIncomplete={ppmIsIncomplete}
+            showIncomplete={isIncomplete}
             isMissingWeight={isMissingWeight}
-            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipmentType)}
+            onShipmentClick={() => onShipmentClick(shipment.id, shipmentNumber, shipment?.shipmentType)}
             onDeleteClick={() => onDeleteClick(shipment.id)}
             shipment={shipment}
           />

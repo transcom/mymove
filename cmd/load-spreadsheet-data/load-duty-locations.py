@@ -43,7 +43,6 @@ def delete_dl_and_parents(dl_id):
         "mto_service_item_dimensions",
         "payment_service_items",
         "service_request_documents",
-        "sit_address_updates",
     ]:
         f.write(
             f"DELETE from {t} where mto_service_item_id IN {mto_service_item_query};\n"

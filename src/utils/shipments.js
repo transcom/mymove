@@ -115,3 +115,6 @@ export function isPPMOnly(mtoShipments) {
   }
   return !!mtoShipments?.every(isPPM);
 }
+export function isBoatShipmentComplete(mtoShipment) {
+  return mtoShipment?.requestedPickupDate;
+}

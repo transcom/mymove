@@ -22,7 +22,7 @@ type OfficeUserFetcher interface {
 //go:generate mockery --name OfficeUserFetcherPop
 type OfficeUserFetcherPop interface {
 	FetchOfficeUserByID(appCtx appcontext.AppContext, id uuid.UUID) (models.OfficeUser, error)
-	FetchOfficeUserByRoleAndGbloc(appCtx appcontext.AppContext, role roles.RoleType, gbloc string) ([]models.OfficeUser, error)
+	FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error)
 }
 
 // OfficeUserGblocFetcher is the exported interface for fetching the GBLOC of the
