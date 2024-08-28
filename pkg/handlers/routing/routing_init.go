@@ -607,7 +607,7 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				handlers.NewFileHandler(routingConfig.FileSystem,
 					routingConfig.PPTASSwaggerPath))
 			if routingConfig.ServeSwaggerUI {
-				appCtx.Logger().Info("Prime Simulator API Swagger UI serving is enabled")
+				appCtx.Logger().Info("PPTAS Simulator API Swagger UI serving is enabled")
 				r.Method("GET", "/docs",
 					handlers.NewFileHandler(routingConfig.FileSystem,
 						path.Join(routingConfig.BuildRoot, "swagger-ui", "pptas.html")))
@@ -621,7 +621,7 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				rAuth.Use(addAuditUserToRequestContextMiddleware)
 				rAuth.Use(authentication.PrimeSimulatorAuthorizationMiddleware(appCtx.Logger()))
 				rAuth.Use(middleware.NoCache())
-				api := primeapi.NewPrimeAPI(routingConfig.HandlerConfig)
+				api := pptasapi.NewPPTASAPI(routingConfig.HandlerConfig)
 				tracingMiddleware := middleware.OpenAPITracing(api)
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
