@@ -23,9 +23,9 @@ func (suite *HandlerSuite) TestGetLocationByZipCityHandler() {
 		suite.Equal(usPostRegionCity.UsprZipID, fetchedUsPostRegionCity.UsprZipID)
 
 		usPostRegionCityService := address.NewUsPostRegionCity()
-		move := factory.BuildMove(suite.DB(), nil, nil)
+		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		req := httptest.NewRequest("GET", "/addresses/zip_city_lookup/"+usPostRegionCity.UsprZipID, nil)
-		req = suite.AuthenticateRequest(req, move.Orders.ServiceMember)
+		req = suite.AuthenticateOfficeRequest(req, officeUser)
 		params := addressop.GetLocationByZipCityParams{
 			HTTPRequest: req,
 			Search:      usPostRegionCity.UsprZipID,

@@ -45,7 +45,7 @@ describe('EditContactInfoForm component', () => {
     render(
       <Provider store={mockStore.store}>
         <EditContactInfoForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const telephoneInput = await screen.findByLabelText('Best contact phone');
@@ -173,7 +173,7 @@ describe('EditContactInfoForm component', () => {
     render(
       <Provider store={mockStore.store}>
         <EditContactInfoForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const saveButton = await screen.findByRole('button', { name: 'Save' });
@@ -200,7 +200,7 @@ describe('EditContactInfoForm component', () => {
     render(
       <Provider store={mockStore.store}>
         <EditContactInfoForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const saveButton = screen.getByRole('button', { name: 'Save' });
@@ -222,7 +222,7 @@ describe('EditContactInfoForm component', () => {
     render(
       <Provider store={mockStore.store}>
         <EditContactInfoForm {...testProps} />
-      </Provider>
+      </Provider>,
     );
 
     const cancelButton = screen.getByRole('button', { name: 'Cancel' });
