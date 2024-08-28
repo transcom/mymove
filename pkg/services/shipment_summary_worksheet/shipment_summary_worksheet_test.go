@@ -344,7 +344,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 	suite.NoError(err)
 
-	suite.Equal("01-Jan-2019", sswPage1.PreparationDate1)
+	suite.Equal("28-Aug-2024", sswPage1.PreparationDate1)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("E-9", sswPage1.RankGrade)
