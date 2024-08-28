@@ -102,7 +102,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
 	suite.Equal(ppmShipment.AdvanceAmountRequested, ssd.PPMShipments[0].AdvanceAmountRequested)
-	// suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
@@ -272,7 +271,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
 	suite.Equal(ppmShipment.AdvanceAmountRequested, ssd.PPMShipments[0].AdvanceAmountRequested)
-	// suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
@@ -316,12 +314,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
 	netWeight := unit.Pound(4000)
 	cents := unit.Cents(1000)
+	estIncentive := unit.Cents(1000000)
 	PPMShipments := []models.PPMShipment{
 		{
 			ActualMoveDate:         &pickupDate,
 			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
 			EstimatedWeight:        &netWeight,
 			AdvanceAmountRequested: &cents,
+			EstimatedIncentive:     &estIncentive,
 		},
 	}
 	ssd := services.ShipmentSummaryFormData{
@@ -329,10 +329,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		Order:               order,
 		CurrentDutyLocation: yuma,
 		NewDutyLocation:     fortGordon,
-		// PPMRemainingEntitlement: 3000,
-		WeightAllotment: wtgEntitlements,
-		PreparationDate: time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipments:    PPMShipments,
+		WeightAllotment:     wtgEntitlements,
+		PreparationDate:     time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipments:        PPMShipments,
+		PPMShipment:         PPMShipments[0],
 	}
 	sswPage1, err := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 	suite.NoError(err)
@@ -347,36 +347,20 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("444-555-8888", sswPage1.PreferredPhoneNumber)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
 	suite.Equal("1234567890", sswPage1.DODId)
-
 	suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
-
 	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.NewDutyAssignment)
-
 	suite.Equal("15,000", sswPage1.WeightAllotment)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
-
 	suite.Equal("01 - PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
-
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-
-	// All obligation tests must be temporarily stopped until calculator is rebuilt
-
-	// suite.Equal("$6,000.00", sswPage1.MaxObligationGCC100)
-	// suite.Equal("$5,700.00", sswPage1.MaxObligationGCC95)
-	// suite.Equal("$530.00", sswPage1.MaxObligationSIT)
-	// suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
-
-	// suite.Equal("$5,000.00", sswPage1.ActualObligationGCC100)
-	// suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
-	// suite.Equal("$300.00", sswPage1.ActualObligationSIT)
-	// suite.Equal("$10.00", sswPage1.ActualObligationAdvance)
+	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
 
 	// quick test when there is no PPM actual move date
 	PPMShipmentsWithoutActualMoveDate := []models.PPMShipment{
