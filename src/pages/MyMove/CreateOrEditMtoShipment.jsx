@@ -116,7 +116,7 @@ export class CreateOrEditMtoShipment extends Component {
           />
         );
       }
-      if (type === SHIPMENT_OPTIONS.MOBILE_HOME) {
+      if (type === SHIPMENT_OPTIONS.MOBILE_HOME || mtoShipment?.shipmentType === SHIPMENT_TYPES.MOBILE_HOME) {
         return (
           <MobileHomeShipmentCreate
             move={move}
