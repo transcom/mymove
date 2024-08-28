@@ -122,7 +122,7 @@ export const AddressFields = ({
           {handleZipCityChange && (
             <>
               <ZipCityInput
-                name="zipCity"
+                name={`${name}-zipCity`}
                 placeholder="Start typing a Zip Code or City..."
                 label="Zip/City Lookup"
                 handleZipCityChange={handleZipCityChange}
