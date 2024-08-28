@@ -161,9 +161,8 @@ export class ServiceCounselorPage extends OfficePage {
     await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
     await storageAddress.getByLabel('City').fill('Sample City');
-    await storageAddress.getByLabel('State').fill('GA');
+    await storageAddress.getByLabel('State').selectOption({ label: 'GA' });
     await storageAddress.getByLabel('ZIP').fill('30301');
-    await storageAddress.getByLabel('County').fill('FULTON');
     await storageAddress.getByLabel('Lot number').fill('1111111');
 
     // Requested delivery date
