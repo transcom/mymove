@@ -5990,6 +5990,22 @@ func init() {
         }
       }
     },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -11163,6 +11179,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "closeoutInitiated": {
           "type": "string",
@@ -20870,6 +20890,22 @@ func init() {
         }
       }
     },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -26122,6 +26158,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "closeoutInitiated": {
           "type": "string",

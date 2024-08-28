@@ -6373,6 +6373,9 @@ definitions:
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -6949,6 +6952,17 @@ definitions:
       - created_at
       - updated_at
       - eTag
+  AssignedOfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      firstName:
+        type: string
+      lastName:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

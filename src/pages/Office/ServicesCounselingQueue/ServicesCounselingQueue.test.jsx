@@ -414,6 +414,7 @@ describe('ServicesCounselingQueue', () => {
         expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
         expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
         expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+        expect(screen.getByText(/Assigned/)).toBeInTheDocument();
       } else if (showsCounselingTab === 'closeout') {
         // Make sure "PPM Closeout" is the active tab.
         const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
