@@ -129,9 +129,10 @@ func (t *tppsPaidInvoiceReportProcessor) EDIType() models.EDIType {
 
 func (t *tppsPaidInvoiceReportProcessor) logTPPSInvoiceReportWithPaymentRequest(appCtx appcontext.AppContext, tppsResponse tppsReponse.TPPSData, paymentRequest models.PaymentRequest) {
 	appCtx.Logger().Info("TPPS Paid Invoice Report log",
+		zap.String("TPPSPaidInvoiceReportEntry.InvoiceNumber", tppsResponse.InvoiceNumber),
 		zap.String("PaymentRequestNumber", paymentRequest.PaymentRequestNumber),
 		zap.String("PaymentRequest.Status", string(paymentRequest.Status)),
-		zap.String("TPPSPaidInvoiceReportEntry.InvoiceNumber", tppsResponse.InvoiceNumber),
+		zap.String("PaymentRequest.ID", paymentRequest.ID.String()),
 	)
 }
 
