@@ -146,6 +146,7 @@ export const AddressFields = ({
                 label="City"
                 id={`city_${addressFieldsUUID.current}`}
                 name={`${name}.city`}
+                data-testid={`${name}.city`}
                 validate={validators?.city}
                 isDisabled={zipCityEnabled}
               />
@@ -155,6 +156,7 @@ export const AddressFields = ({
                   label="County"
                   id={`county_${addressFieldsUUID.current}`}
                   name={`${name}.county`}
+                  data-testid={`${name}.county`}
                   validate={validators?.county}
                   isDisabled={zipCityEnabled}
                 />
