@@ -37,6 +37,28 @@ const formatOptionLabel = (option, input) => {
   );
 };
 
+const formatZipCity = (option, input) => {
+  const { inputValue } = input;
+  const outputLabel = `${option?.city || ''}, ${option?.state || ''} ${option?.postalCode || ''} (${
+    option?.county || ''
+  })`;
+  const inputText = inputValue || '';
+
+  const searchIndex = outputLabel.toLowerCase().indexOf(inputText.toLowerCase());
+
+  if (searchIndex === -1) {
+    return <span>{outputLabel}</span>;
+  }
+
+  return (
+    <span>
+      {outputLabel.substr(0, searchIndex)}
+      <mark>{outputLabel.substr(searchIndex, inputText.length)}</mark>
+      {outputLabel.substr(searchIndex + inputText.length)}
+    </span>
+  );
+};
+
 const uswdsBlack = '#565c65';
 const uswdsBlue = '#2491ff';
 
@@ -49,7 +71,10 @@ const customStyles = {
     borderRadius: '0px',
     borderColor: uswdsBlack,
     padding: '0.1rem',
-    maxWidth: '32rem',
+    maxWidth: '100%',
+    '@media (max-width: 768px)': {
+      maxWidth: '32em',
+    },
     ':hover': {
       ...styles[':hover'],
       borderColor: uswdsBlack,
@@ -88,6 +113,7 @@ export const LocationSearchBoxComponent = ({
   hint,
   placeholder,
   isDisabled,
+  handleZipCityOnChange,
   required,
 }) => {
   const { value, onChange, name: inputName } = input;
@@ -140,7 +166,7 @@ export const LocationSearchBoxComponent = ({
   }, DEBOUNCE_TIMER_MS);
 
   const selectOption = async (selectedValue) => {
-    if (!selectedValue.address) {
+    if (!selectedValue.address && !handleZipCityOnChange) {
       const address = await showAddress(selectedValue.address_id);
       const newValue = {
         ...selectedValue,
@@ -152,6 +178,10 @@ export const LocationSearchBoxComponent = ({
     }
 
     onChange(selectedValue);
+
+    if (handleZipCityOnChange !== null) {
+      handleZipCityOnChange(selectedValue);
+    }
     return selectedValue;
   };
 
@@ -181,7 +211,7 @@ export const LocationSearchBoxComponent = ({
     onChange(null);
   };
 
-  const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
+  const noOptionsMessage = () => (inputValue.length ? 'No Options' : 'No Options');
   const hasLocation = !!value && !!value.address;
   return (
     <FormGroup>
@@ -195,10 +225,11 @@ export const LocationSearchBoxComponent = ({
       <div className={inputContainerClasses}>
         <AsyncSelect
           name={name}
+          data-testid={inputId}
           inputId={inputId}
           className={dutyInputClasses}
           cacheOptions
-          formatOptionLabel={formatOptionLabel}
+          formatOptionLabel={handleZipCityOnChange ? formatZipCity : formatOptionLabel}
           getOptionValue={getOptionName}
           loadOptions={loadOptions}
           onChange={selectOption}
@@ -241,6 +272,7 @@ LocationSearchBoxContainer.propTypes = {
   placeholder: PropTypes.string,
   isDisabled: PropTypes.bool,
   searchLocations: PropTypes.func,
+  handleZipCityOnChange: PropTypes.func,
 };
 
 LocationSearchBoxContainer.defaultProps = {
@@ -256,6 +288,7 @@ LocationSearchBoxContainer.defaultProps = {
   placeholder: 'Start typing a duty location...',
   isDisabled: false,
   searchLocations: SearchDutyLocations,
+  handleZipCityOnChange: null,
 };
 
 LocationSearchBoxComponent.propTypes = {
