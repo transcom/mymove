@@ -28,6 +28,23 @@ describe('BackupAddressForm component', () => {
     city: 'El Paso',
     state: 'TX',
     postalCode: '79912',
+    county: 'El Paso',
+  };
+
+  const dataProps = {
+    formFieldsName,
+    initialValues: {
+      [formFieldsName]: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: fakeAddress.city,
+        state: fakeAddress.state,
+        postalCode: fakeAddress.postalCode,
+        county: fakeAddress.county,
+      },
+    },
+    onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),
+    onBack: jest.fn(),
   };
 
   it('renders the form inputs', async () => {
@@ -40,7 +57,7 @@ describe('BackupAddressForm component', () => {
 
       expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
     });
@@ -50,15 +67,12 @@ describe('BackupAddressForm component', () => {
     const { getByRole, findAllByRole, getByLabelText } = render(<BackupAddressForm {...testProps} />);
     await userEvent.click(getByLabelText('Address 1'));
     await userEvent.click(getByLabelText(/Address 2/));
-    await userEvent.click(getByLabelText('City'));
-    await userEvent.click(getByLabelText('ZIP'));
-    await userEvent.click(getByLabelText('State'));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     const alerts = await findAllByRole('alert');
-    expect(alerts.length).toBe(4);
+    expect(alerts.length).toBe(1);
 
     alerts.forEach((alert) => {
       expect(alert).toHaveTextContent('Required');
@@ -68,14 +82,11 @@ describe('BackupAddressForm component', () => {
   });
 
   it('submits the form when its valid', async () => {
-    const { getByRole, getByLabelText } = render(<BackupAddressForm {...testProps} />);
+    const { getByRole, getByLabelText } = render(<BackupAddressForm {...dataProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
     await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
     await userEvent.tab();
 
     await waitFor(() => {
@@ -88,7 +99,7 @@ describe('BackupAddressForm component', () => {
     };
 
     await waitFor(() => {
-      expect(testProps.onSubmit).toHaveBeenCalledWith(expectedParams, expect.anything());
+      expect(dataProps.onSubmit).toHaveBeenCalledWith(expectedParams, expect.anything());
     });
   });
 

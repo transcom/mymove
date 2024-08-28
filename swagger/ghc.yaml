@@ -4129,6 +4129,78 @@ paths:
           description: not found
         '500':
           description: server error
+  /uploads/get/:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - uploads
+      description: Gets an upload
+      operationId: getUpload
+      summary: Gets an upload by ID
+  /uploads/{uploadID}/update:
+    patch:
+      summary: >-
+        Update an existing upload. This is only needed currently for updating
+        the image rotation.
+      description: >-
+        Uploads represent a single digital file, such as a JPEG or PDF. The
+        rotation is relevant to how it is displayed on the page.
+      operationId: updateUpload
+      tags:
+        - uploads
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be updated
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              rotation:
+                type: integer
+                description: The rotation of the image
+                minimum: 0
+                maximum: 3
+      responses:
+        '201':
+          description: updated upload
+          schema:
+            $ref: '#/definitions/Upload'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -6127,6 +6199,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -6296,6 +6370,33 @@ definitions:
       isRoadworthy:
         type: boolean
         description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6534,8 +6635,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
-      mobileHome:
-        $ref: '#/definitions/MobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
@@ -6543,9 +6644,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: '#/definitions/MobileHome'
   CreatePPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -6670,6 +6768,34 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
@@ -7817,6 +7943,10 @@ definitions:
       bytes:
         type: integer
         readOnly: true
+      rotation:
+        type: integer
+        readOnly: false
+        example: 2
       status:
         type: string
         enum:
@@ -8233,55 +8363,6 @@ definitions:
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       eTag:
-        type: string
-        readOnly: true
-  MobileHome:
-    description: >-
-      A mobile home is a type of shipment that a service member moves a mobile
-      home.
-    x-nullable: true
-    properties:
-      id:
-        description: Primary auto-generated unique identifier of the Mobile Home object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      shipmentId:
-        description: The id of the parent MTOShipment object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      make:
-        description: The make of the mobile home
-        type: string
-      model:
-        description: The model of the mobile home.
-        type: string
-      year:
-        description: The year the mobile home was made.
-        type: integer
-      lengthInInches:
-        type: integer
-      widthInInches:
-        type: integer
-      heightInInches:
-        type: integer
-      updatedAt:
-        description: Timestamp of when a property of this object was last updated (UTC)
-        format: date-time
-        type: string
-        readOnly: true
-      createdAt:
-        description: Timestamp of when a property of this object was created (UTC)
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        description: >-
-          A hash unique to this shipment that should be used as the "If-Match"
-          header for any updates.
         type: string
         readOnly: true
   SITLocationType:
@@ -9491,6 +9572,55 @@ definitions:
       - heightInInches
       - hasTrailer
       - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status

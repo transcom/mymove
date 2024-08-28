@@ -353,7 +353,11 @@ func (f estimatePPM) calculatePrice(appCtx appcontext.AppContext, ppmShipment *m
 		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		mtoShipment = MapPPMShipmentEstimatedFields(*ppmShipment)
+		mtoShipment, err = MapPPMShipmentEstimatedFields(appCtx, *ppmShipment)
+		if err != nil {
+			logger.Error("unable to map PPM estimated fields", zap.Error(err))
+			return nil, err
+		}
 	}
 
 	totalPrice := unit.Cents(0)
@@ -493,7 +497,10 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
 	} else {
-		mtoShipment = MapPPMShipmentEstimatedFields(*ppmShipment)
+		mtoShipment, err = MapPPMShipmentEstimatedFields(appCtx, *ppmShipment)
+		if err != nil {
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+		}
 	}
 
 	doSITCalculation := *ppmShipment.SITExpected
@@ -841,15 +848,27 @@ func priceAdditionalDaySIT(appCtx appcontext.AppContext, pricer services.ParamsP
 
 // mapPPMShipmentEstimatedFields remaps our PPMShipment specific information into the fields where the service param lookups
 // expect to find them on the MTOShipment model.  This is only in-memory and shouldn't get saved to the database.
-func MapPPMShipmentEstimatedFields(ppmShipment models.PPMShipment) models.MTOShipment {
+func MapPPMShipmentEstimatedFields(appCtx appcontext.AppContext, ppmShipment models.PPMShipment) (models.MTOShipment, error) {
+	// we have access to the MoveTaskOrderID in the ppmShipment object so we can use that to get the customer's maximum weight entitlement
+	var move models.Move
+	err := appCtx.DB().Q().Eager(
+		"Orders.Entitlement",
+	).Where("show = TRUE").Find(&move, ppmShipment.Shipment.MoveTaskOrderID)
+	if err != nil {
+		return models.MTOShipment{}, apperror.NewNotFoundError(ppmShipment.ID, " error querying move")
+	}
+	orders := move.Orders
+	if orders.Entitlement.DBAuthorizedWeight == nil {
+		return models.MTOShipment{}, apperror.NewNotFoundError(ppmShipment.ID, " DB authorized weight cannot be nil")
+	}
 
 	ppmShipment.Shipment.ActualPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.RequestedPickupDate = &ppmShipment.ExpectedDepartureDate
 	ppmShipment.Shipment.PickupAddress = &models.Address{PostalCode: ppmShipment.PickupAddress.PostalCode}
 	ppmShipment.Shipment.DestinationAddress = &models.Address{PostalCode: ppmShipment.DestinationAddress.PostalCode}
-	ppmShipment.Shipment.PrimeActualWeight = ppmShipment.EstimatedWeight
+	ppmShipment.Shipment.PrimeActualWeight = (*unit.Pound)(orders.Entitlement.DBAuthorizedWeight)
 
-	return ppmShipment.Shipment
+	return ppmShipment.Shipment, nil
 }
 
 // mapPPMShipmentFinalFields remaps our PPMShipment specific information into the fields where the service param lookups
