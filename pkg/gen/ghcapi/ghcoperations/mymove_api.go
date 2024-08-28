@@ -117,6 +117,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
+		MoveDeleteAssignedOfficeUserHandler: move.DeleteAssignedOfficeUserHandlerFunc(func(params move.DeleteAssignedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.DeleteAssignedOfficeUser has not yet been implemented")
+		}),
 		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
 		}),
@@ -231,6 +234,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		TransportationOfficeGetTransportationOfficesOpenHandler: transportation_office.GetTransportationOfficesOpenHandlerFunc(func(params transportation_office.GetTransportationOfficesOpenParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_office.GetTransportationOfficesOpen has not yet been implemented")
 		}),
+		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
+		}),
 		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
 		}),
@@ -291,6 +297,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrderUpdateAllowanceHandler: order.UpdateAllowanceHandlerFunc(func(params order.UpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateAllowance has not yet been implemented")
 		}),
+		MoveUpdateAssignedOfficeUserHandler: move.UpdateAssignedOfficeUserHandlerFunc(func(params move.UpdateAssignedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateAssignedOfficeUser has not yet been implemented")
+		}),
 		OrderUpdateBillableWeightHandler: order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
 		}),
@@ -347,6 +356,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		MtoServiceItemUpdateServiceItemSitEntryDateHandler: mto_service_item.UpdateServiceItemSitEntryDateHandlerFunc(func(params mto_service_item.UpdateServiceItemSitEntryDateParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.UpdateServiceItemSitEntryDate has not yet been implemented")
+		}),
+		UploadsUpdateUploadHandler: uploads.UpdateUploadHandlerFunc(func(params uploads.UpdateUploadParams) middleware.Responder {
+			return middleware.NotImplemented("operation uploads.UpdateUpload has not yet been implemented")
 		}),
 		PpmUpdateWeightTicketHandler: ppm.UpdateWeightTicketHandlerFunc(func(params ppm.UpdateWeightTicketParams) middleware.Responder {
 			return middleware.NotImplemented("operation ppm.UpdateWeightTicket has not yet been implemented")
@@ -435,6 +447,8 @@ type MymoveAPI struct {
 	OfficeUsersCreateRequestedOfficeUserHandler office_users.CreateRequestedOfficeUserHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
 	UploadsCreateUploadHandler uploads.CreateUploadHandler
+	// MoveDeleteAssignedOfficeUserHandler sets the operation handler for the delete assigned office user operation
+	MoveDeleteAssignedOfficeUserHandler move.DeleteAssignedOfficeUserHandler
 	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
@@ -511,6 +525,8 @@ type MymoveAPI struct {
 	TransportationOfficeGetTransportationOfficesGBLOCsHandler transportation_office.GetTransportationOfficesGBLOCsHandler
 	// TransportationOfficeGetTransportationOfficesOpenHandler sets the operation handler for the get transportation offices open operation
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
+	// UploadsGetUploadHandler sets the operation handler for the get upload operation
+	UploadsGetUploadHandler uploads.GetUploadHandler
 	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
 	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
@@ -551,6 +567,8 @@ type MymoveAPI struct {
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
 	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
+	// MoveUpdateAssignedOfficeUserHandler sets the operation handler for the update assigned office user operation
+	MoveUpdateAssignedOfficeUserHandler move.UpdateAssignedOfficeUserHandler
 	// OrderUpdateBillableWeightHandler sets the operation handler for the update billable weight operation
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
 	// MoveUpdateCloseoutOfficeHandler sets the operation handler for the update closeout office operation
@@ -589,6 +607,8 @@ type MymoveAPI struct {
 	ShipmentUpdateSITServiceItemCustomerExpenseHandler shipment.UpdateSITServiceItemCustomerExpenseHandler
 	// MtoServiceItemUpdateServiceItemSitEntryDateHandler sets the operation handler for the update service item sit entry date operation
 	MtoServiceItemUpdateServiceItemSitEntryDateHandler mto_service_item.UpdateServiceItemSitEntryDateHandler
+	// UploadsUpdateUploadHandler sets the operation handler for the update upload operation
+	UploadsUpdateUploadHandler uploads.UpdateUploadHandler
 	// PpmUpdateWeightTicketHandler sets the operation handler for the update weight ticket operation
 	PpmUpdateWeightTicketHandler ppm.UpdateWeightTicketHandler
 	// MoveUploadAdditionalDocumentsHandler sets the operation handler for the upload additional documents operation
@@ -726,6 +746,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.UploadsCreateUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.CreateUploadHandler")
 	}
+	if o.MoveDeleteAssignedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "move.DeleteAssignedOfficeUserHandler")
+	}
 	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
 	}
@@ -840,6 +863,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.TransportationOfficeGetTransportationOfficesOpenHandler == nil {
 		unregistered = append(unregistered, "transportation_office.GetTransportationOfficesOpenHandler")
 	}
+	if o.UploadsGetUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.GetUploadHandler")
+	}
 	if o.CalendarIsDateWeekendHolidayHandler == nil {
 		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
 	}
@@ -900,6 +926,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrderUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.UpdateAllowanceHandler")
 	}
+	if o.MoveUpdateAssignedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "move.UpdateAssignedOfficeUserHandler")
+	}
 	if o.OrderUpdateBillableWeightHandler == nil {
 		unregistered = append(unregistered, "order.UpdateBillableWeightHandler")
 	}
@@ -956,6 +985,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoServiceItemUpdateServiceItemSitEntryDateHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.UpdateServiceItemSitEntryDateHandler")
+	}
+	if o.UploadsUpdateUploadHandler == nil {
+		unregistered = append(unregistered, "uploads.UpdateUploadHandler")
 	}
 	if o.PpmUpdateWeightTicketHandler == nil {
 		unregistered = append(unregistered, "ppm.UpdateWeightTicketHandler")
@@ -1122,6 +1154,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{moveID}/unassignOfficeUser"] = move.NewDeleteAssignedOfficeUser(o.context, o.MoveDeleteAssignedOfficeUserHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -1277,6 +1313,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/uploads/get"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/calendar/{countryCode}/is-weekend-holiday/{date}"] = calendar.NewIsDateWeekendHoliday(o.context, o.CalendarIsDateWeekendHolidayHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -1357,6 +1397,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
+	o.handlers["PATCH"]["/moves/{moveID}/assignOfficeUser"] = move.NewUpdateAssignedOfficeUser(o.context, o.MoveUpdateAssignedOfficeUserHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
 	o.handlers["PATCH"]["/orders/{orderID}/update-billable-weight"] = order.NewUpdateBillableWeight(o.context, o.OrderUpdateBillableWeightHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
@@ -1430,6 +1474,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/service-item/{mtoServiceItemID}/entry-date-update"] = mto_service_item.NewUpdateServiceItemSitEntryDate(o.context, o.MtoServiceItemUpdateServiceItemSitEntryDateHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/uploads/{uploadID}/update"] = uploads.NewUpdateUpload(o.context, o.UploadsUpdateUploadHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
