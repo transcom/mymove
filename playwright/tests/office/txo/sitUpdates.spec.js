@@ -60,12 +60,12 @@ test.describe('TOO user', () => {
       ).toBeVisible();
 
       // get authorized end date as 90 days from the origin start date (two months ago)
-      const ninetyDaysFromStartDate = new Date(twoMonthsAgo);
-      ninetyDaysFromStartDate.setDate(ninetyDaysFromStartDate.getDate() + 90);
+      const ninetyDaysFromStartDateInclusive = new Date(twoMonthsAgo);
+      ninetyDaysFromStartDateInclusive.setDate(ninetyDaysFromStartDateInclusive.getDate() + 89); // Use 89 because the last day is counted as a whole day
       // format
-      const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(ninetyDaysFromStartDate);
-      const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(ninetyDaysFromStartDate);
-      const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(ninetyDaysFromStartDate);
+      const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(ninetyDaysFromStartDateInclusive);
+      const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(ninetyDaysFromStartDateInclusive);
+      const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(ninetyDaysFromStartDateInclusive);
       const expectedAuthorizedEndDate = `${day} ${month} ${year}`;
       // assert
       await expect(
