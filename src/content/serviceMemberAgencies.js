@@ -13,7 +13,7 @@ export const SERVICE_MEMBER_AGENCY_LABELS = {
   ARMY: 'Army',
   COAST_GUARD: 'Coast Guard',
   NAVY: 'Navy',
-  MARINE_CORPS: 'Marine Corps',
+  MARINES: 'Marine Corps',
   SPACE_FORCE: 'Space Force',
   OTHER: 'Other',
 };
