@@ -1158,3 +1158,27 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentShipment() {
 
 	}
 }
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
+	expensesMap := make(map[string]float64)
+
+	// Test case 1: GTCC calculation B is less than GTCC calculation A
+	// Additionally, Member should not be less than 0
+	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0)
+	expensesMap["TotalGTCCPaid"] = 200.00
+	expensesMap["StorageGTCCPaid"] = 300.00
+	ppmRemainingEntitlement := 60.00
+	expensesMap["StorageMemberPaid"] = 40.00
+	result := formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
+	// Test case 2: GTCC calculation A is less than GTCC calculation B
+	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(400.00)
+	expensesMap = make(map[string]float64)
+	expensesMap["TotalGTCCPaid"] = 60.00
+	expensesMap["StorageGTCCPaid"] = 40.00
+	ppmRemainingEntitlement = 300.00
+	expensesMap["StorageMemberPaid"] = 200.00
+	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+}

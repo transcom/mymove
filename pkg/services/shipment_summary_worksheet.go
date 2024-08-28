@@ -90,6 +90,7 @@ type Page2Values struct {
 	TotalMemberPaidSIT          string
 	TotalGTCCPaidSIT            string
 	TotalPaidSIT                string
+	Disbursement                string
 	ShipmentPickupDates         string
 	TrustedAgentName            string
 	FormattedMovingExpenses
@@ -149,6 +150,7 @@ type ShipmentSummaryFormData struct {
 	PreparationDate          time.Time
 	Obligations              Obligations
 	MovingExpenses           models.MovingExpenses
+	PPMRemainingEntitlement  float64
 	SignedCertifications     []*models.SignedCertification
 	MaxSITStorageEntitlement int
 }

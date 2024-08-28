@@ -284,12 +284,16 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	if isPaymentPacket {
+		data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		page2.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 		page2.PreparationDate2, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
 			return page2, err
 		}
+		page2.Disbursement = formatDisbursement(expensesMap, data.PPMRemainingEntitlement)
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
+		page2.PPMRemainingEntitlement = "N/A"
 	}
 	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
 	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
@@ -319,11 +323,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
 
-	if isPaymentPacket {
-		page2.PPMRemainingEntitlement = FormatDollars(CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived))
-	} else {
-		page2.PPMRemainingEntitlement = "N/A"
-	}
 	return page2, nil
 }
 
@@ -696,11 +695,28 @@ func FormatSITDaysInStorage(ppm models.PPMShipment) string {
 	return formattedDifference
 }
 
+func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement float64) string {
+	disbursementGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+	disbursementGTCCB := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"]
+	// Disbursement GTCC is the lowest value of the above 2 calculations
+	if disbursementGTCCB < disbursementGTCC {
+		disbursementGTCC = disbursementGTCCB
+	}
+	// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
+	disbursementMember := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
+	if disbursementMember < 0 {
+		disbursementMember = 0
+	}
+	// Return formatted values in string
+	disbursementString := "GTCC: " + FormatDollars(disbursementGTCC) + "\nMember: " + FormatDollars(disbursementMember)
+	return disbursementString
+}
+
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
 func FormatOrdersTypeAndOrdersNumber(order models.Order) string {
-	issuingBranch := FormatOrdersType(order)
+	orderType := FormatOrdersType(order)
 	ordersNumber := derefStringTypes(order.OrdersNumber)
-	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
+	return fmt.Sprintf("%s/%s", orderType, ordersNumber)
 }
 
 // FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
