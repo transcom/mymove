@@ -39,7 +39,12 @@ import { MOVES, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { servicesCounselingRoutes, tooRoutes } from 'constants/routes';
 import { ADDRESS_UPDATE_STATUS, shipmentDestinationTypes } from 'constants/shipments';
 import { officeRoles, roleTypes } from 'constants/userRoles';
-import { deleteShipment, reviewShipmentAddressUpdate, updateMoveCloseoutOffice } from 'services/ghcApi';
+import {
+  deleteShipment,
+  reviewShipmentAddressUpdate,
+  updateMoveCloseoutOffice,
+  dateSelectionIsWeekendHoliday,
+} from 'services/ghcApi';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
@@ -55,6 +60,8 @@ import {
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { dateSelectionWeekendHolidayCheck } from 'utils/calendar';
+import { datePickerFormat, formatDate } from 'shared/dates';
 
 const ShipmentForm = (props) => {
   const {
@@ -102,6 +109,12 @@ const ShipmentForm = (props) => {
   }, []);
 
   const shipments = mtoShipments;
+
+  const [isRequestedPickupDateAlertVisible, setIsRequestedPickupDateAlertVisible] = useState(false);
+  const [isRequestedDeliveryDateAlertVisible, setIsRequestedDeliveryDateAlertVisible] = useState(false);
+  const [requestedPickupDateAlertMessage, setRequestedPickupDateAlertMessage] = useState('');
+  const [requestedDeliveryDateAlertMessage, setRequestedDeliveryDateAlertMessage] = useState('');
+  const DEFAULT_COUNTRY_CODE = 'US';
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipmentStatus } = useMutation(deleteShipment, {
@@ -184,6 +197,40 @@ const ShipmentForm = (props) => {
   const handleShowCancellationModal = () => {
     setIsCancelModalVisible(true);
   };
+
+  // onload validate pickup date
+  useEffect(() => {
+    const onErrorHandler = (e) => {
+      const { response } = e;
+      setErrorMessage(response?.body?.detail);
+    };
+    dateSelectionWeekendHolidayCheck(
+      dateSelectionIsWeekendHoliday,
+      DEFAULT_COUNTRY_CODE,
+      new Date(mtoShipment.requestedPickupDate),
+      'Requested pickup date',
+      setRequestedPickupDateAlertMessage,
+      setIsRequestedPickupDateAlertVisible,
+      onErrorHandler,
+    );
+  }, [mtoShipment.requestedPickupDate]);
+
+  // onload validate delivery date
+  useEffect(() => {
+    const onErrorHandler = (e) => {
+      const { response } = e;
+      setErrorMessage(response?.body?.detail);
+    };
+    dateSelectionWeekendHolidayCheck(
+      dateSelectionIsWeekendHoliday,
+      DEFAULT_COUNTRY_CODE,
+      new Date(mtoShipment.requestedDeliveryDate),
+      'Requested delivery date',
+      setRequestedDeliveryDateAlertMessage,
+      setIsRequestedDeliveryDateAlertVisible,
+      onErrorHandler,
+    );
+  }, [mtoShipment.requestedDeliveryDate]);
 
   const successMessageAlertControl = (
     <Button type="button" onClick={() => setSuccessMessage(null)} unstyled>
@@ -571,6 +618,52 @@ const ShipmentForm = (props) => {
           }
         };
 
+        const handlePickupDateChange = (e) => {
+          setValues({
+            ...values,
+            pickup: {
+              ...values.pickup,
+              requestedDate: formatDate(e, datePickerFormat),
+            },
+          });
+          const onErrorHandler = (errResponse) => {
+            const { response } = errResponse;
+            setErrorMessage(response?.body?.detail);
+          };
+          dateSelectionWeekendHolidayCheck(
+            dateSelectionIsWeekendHoliday,
+            DEFAULT_COUNTRY_CODE,
+            new Date(e),
+            'Requested pickup date',
+            setRequestedPickupDateAlertMessage,
+            setIsRequestedPickupDateAlertVisible,
+            onErrorHandler,
+          );
+        };
+
+        const handleDeliveryDateChange = (e) => {
+          setValues({
+            ...values,
+            delivery: {
+              ...values.delivery,
+              requestedDate: formatDate(e, datePickerFormat),
+            },
+          });
+          const onErrorHandler = (errResponse) => {
+            const { response } = errResponse;
+            setErrorMessage(response?.body?.detail);
+          };
+          dateSelectionWeekendHolidayCheck(
+            dateSelectionIsWeekendHoliday,
+            DEFAULT_COUNTRY_CODE,
+            new Date(e),
+            'Requested delivery date',
+            setRequestedDeliveryDateAlertMessage,
+            setIsRequestedDeliveryDateAlertVisible,
+            onErrorHandler,
+          );
+        };
+
         return (
           <>
             <ConnectedDestructiveShipmentConfirmationModal
@@ -666,11 +759,17 @@ const ShipmentForm = (props) => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h2 className={styles.SectionHeaderExtraSpacing}>Pickup details</h2>
                     <Fieldset>
+                      {isRequestedPickupDateAlertVisible && (
+                        <Alert type="warning" aria-live="polite" headingLevel="h4">
+                          {requestedPickupDateAlertMessage}
+                        </Alert>
+                      )}
                       <DatePickerInput
                         name="pickup.requestedDate"
                         label="Requested pickup date"
                         id="requestedPickupDate"
                         validate={validateDate}
+                        onChange={handlePickupDateChange}
                       />
                     </Fieldset>
                     {!isNTSR && (
@@ -785,11 +884,17 @@ const ShipmentForm = (props) => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h2 className={styles.SectionHeaderExtraSpacing}>Delivery details</h2>
                     <Fieldset>
+                      {isRequestedDeliveryDateAlertVisible && (
+                        <Alert type="warning" aria-live="polite" headingLevel="h4">
+                          {requestedDeliveryDateAlertMessage}
+                        </Alert>
+                      )}
                       <DatePickerInput
                         name="delivery.requestedDate"
                         label="Requested delivery date"
                         id="requestedDeliveryDate"
                         validate={validateDate}
+                        onChange={handleDeliveryDateChange}
                       />
                     </Fieldset>
                     {isNTSR && (
