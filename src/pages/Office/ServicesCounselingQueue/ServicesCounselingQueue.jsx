@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { generatePath, useNavigate, Navigate, useParams, NavLink } from 'react-router-dom';
-import { Button } from '@trussworks/react-uswds';
+import { Button, Dropdown } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './ServicesCounselingQueue.module.scss';
@@ -48,6 +48,7 @@ import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
+import { formatAvailableOfficeUsersForRow } from 'utils/queues';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor) => [
   createHeader(
@@ -184,6 +185,20 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor) 
           return row.originDutyLocation?.name;
         },
       }),
+  createHeader(
+    'Assigned',
+    (row) => {
+      const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
+      return (
+        <div data-label="assignedSelect">
+          <Dropdown defaultValue={assignedToUser?.value}>{formattedAvailableOfficeUsers}</Dropdown>
+        </div>
+      );
+    },
+    {
+      id: 'assignedTo',
+    },
+  ),
 ];
 export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(
@@ -336,7 +351,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
   }),
 ];
 
-const ServicesCounselingQueue = ({ userPrivileges }) => {
+const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -396,8 +411,11 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
     // if the user clicked the profile icon to edit, we want to route them elsewhere
     // since we don't have innerText, we are using the data-label property
     const editProfileDiv = e.target.closest('div[data-label="editProfile"]');
+    const assignedSelect = e.target.closest('div[data-label="assignedSelect"]');
     if (editProfileDiv) {
       navigate(generatePath(servicesCounselingRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
+    } else if (assignedSelect) {
+      // do nothing
     } else {
       navigate(generatePath(servicesCounselingRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
     }
@@ -584,6 +602,8 @@ const ServicesCounselingQueue = ({ userPrivileges }) => {
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
+          isSupervisor={!!supervisor}
+          currentUserId={currentUserId}
         />
       </div>
     );
