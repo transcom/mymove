@@ -11663,7 +11663,6 @@ func init() {
           "x-nullable": true
         },
         "assignedTo": {
-          "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "closeoutInitiated": {
@@ -27342,7 +27341,6 @@ func init() {
           "x-nullable": true
         },
         "assignedTo": {
-          "x-nullable": true,
           "$ref": "#/definitions/AssignedOfficeUser"
         },
         "closeoutInitiated": {
