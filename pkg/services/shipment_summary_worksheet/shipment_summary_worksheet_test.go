@@ -325,14 +325,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		},
 	}
 	ssd := services.ShipmentSummaryFormData{
-		ServiceMember:           serviceMember,
-		Order:                   order,
-		CurrentDutyLocation:     yuma,
-		NewDutyLocation:         fortGordon,
-		PPMRemainingEntitlement: 3000,
-		WeightAllotment:         wtgEntitlements,
-		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipments:            PPMShipments,
+		ServiceMember:       serviceMember,
+		Order:               order,
+		CurrentDutyLocation: yuma,
+		NewDutyLocation:     fortGordon,
+		// PPMRemainingEntitlement: 3000,
+		WeightAllotment: wtgEntitlements,
+		PreparationDate: time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipments:    PPMShipments,
 	}
 	sswPage1 := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 
@@ -374,7 +374,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	// suite.Equal("$530.00", sswPage1.MaxObligationSIT)
 	// suite.Equal("$3,600.00", sswPage1.MaxObligationGCCMaxAdvance)
 
-	suite.Equal("3,000", sswPage1.PPMRemainingEntitlement)
 	// suite.Equal("$5,000.00", sswPage1.ActualObligationGCC100)
 	// suite.Equal("$4,750.00", sswPage1.ActualObligationGCC95)
 	// suite.Equal("$300.00", sswPage1.ActualObligationSIT)
@@ -389,14 +388,13 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		},
 	}
 	ssdWithoutPPMActualMoveDate := services.ShipmentSummaryFormData{
-		ServiceMember:           serviceMember,
-		Order:                   order,
-		CurrentDutyLocation:     yuma,
-		NewDutyLocation:         fortGordon,
-		PPMRemainingEntitlement: 3000,
-		WeightAllotment:         wtgEntitlements,
-		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipments:            PPMShipmentsWithoutActualMoveDate,
+		ServiceMember:       serviceMember,
+		Order:               order,
+		CurrentDutyLocation: yuma,
+		NewDutyLocation:     fortGordon,
+		WeightAllotment:     wtgEntitlements,
+		PreparationDate:     time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipments:        PPMShipmentsWithoutActualMoveDate,
 	}
 	sswPage1NoActualMoveDate := FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
 	suite.Equal("N/A", sswPage1NoActualMoveDate.ShipmentPickUpDates)
@@ -475,6 +473,110 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("SAC", sswPage2.SAC)
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
+	storageExpense := models.MovingExpenseReceiptTypeStorage
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType:      &storageExpense,
+			Amount:                 &amount,
+			PaidWithGTCC:           models.BoolPointer(false),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+		},
+	}
+
+	PPMShipments := []models.PPMShipment{
+		{
+			FinalIncentive:        models.CentPointer(unit.Cents(500)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(200)),
+		},
+	}
+
+	ssd := services.ShipmentSummaryFormData{
+		MovingExpenses: movingExpenses,
+		PPMShipment:    PPMShipments[0],
+	}
+
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	suite.Equal("$4.00", sswPage2.PPMRemainingEntitlement)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
+	storageExpense := models.MovingExpenseReceiptTypeStorage
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType:      &storageExpense,
+			Amount:                 &amount,
+			PaidWithGTCC:           models.BoolPointer(false),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+		},
+	}
+
+	PPMShipments := []models.PPMShipment{
+		{
+			FinalIncentive:        models.CentPointer(unit.Cents(500)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(200)),
+		},
+	}
+
+	ssd := services.ShipmentSummaryFormData{
+		MovingExpenses: movingExpenses,
+		PPMShipment:    PPMShipments[0],
+	}
+
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	suite.Equal("N/A", sswPage2.PPMRemainingEntitlement)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiveAndAOAPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
+	storageExpense := models.MovingExpenseReceiptTypeStorage
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType:      &storageExpense,
+			Amount:                 &amount,
+			PaidWithGTCC:           models.BoolPointer(false),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+		},
+	}
+
+	ssd := services.ShipmentSummaryFormData{
+		MovingExpenses: movingExpenses,
+		PPMShipment:    models.PPMShipment{},
+	}
+
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	suite.Equal("$1.00", sswPage2.PPMRemainingEntitlement)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
+	storageExpense := models.MovingExpenseReceiptTypeStorage
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType:      &storageExpense,
+			Amount:                 &amount,
+			PaidWithGTCC:           models.BoolPointer(true),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(200)),
+		},
+	}
+
+	PPMShipments := []models.PPMShipment{
+		{
+			FinalIncentive:        models.CentPointer(unit.Cents(600)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(100)),
+		},
+	}
+
+	ssd := services.ShipmentSummaryFormData{
+		MovingExpenses: movingExpenses,
+		PPMShipment:    PPMShipments[0],
+	}
+
+	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	suite.Equal("$105.00", sswPage2.PPMRemainingEntitlement)
+}
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
