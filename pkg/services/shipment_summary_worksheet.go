@@ -52,7 +52,6 @@ type Page1Values struct {
 	MaxObligationGCC95              string
 	MaxObligationSIT                string
 	MaxObligationGCCMaxAdvance      string
-	PPMRemainingEntitlement         string
 	ActualObligationGCC100          string
 	ActualObligationGCC95           string
 	ActualObligationAdvance         string
@@ -98,6 +97,7 @@ type Page2Values struct {
 	PPPOPPSORepresentative string
 	SignatureDate          string
 	FormattedOtherExpenses
+	PPMRemainingEntitlement string
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
@@ -149,7 +149,6 @@ type ShipmentSummaryFormData struct {
 	PreparationDate          time.Time
 	Obligations              Obligations
 	MovingExpenses           models.MovingExpenses
-	PPMRemainingEntitlement  unit.Pound
 	SignedCertifications     []*models.SignedCertification
 	MaxSITStorageEntitlement int
 }
