@@ -334,9 +334,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PreparationDate: time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PPMShipments:    PPMShipments,
 	}
-	sswPage1 := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
-
-	suite.Equal("01-Jan-2019", sswPage1.PreparationDate)
+	sswPage1, err := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
+	suite.NoError(err)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("E-9", sswPage1.RankGrade)
@@ -396,7 +395,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PreparationDate:     time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PPMShipments:        PPMShipmentsWithoutActualMoveDate,
 	}
-	sswPage1NoActualMoveDate := FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
+	sswPage1NoActualMoveDate, err := FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
+	suite.NoError(err)
 	suite.Equal("N/A", sswPage1NoActualMoveDate.ShipmentPickUpDates)
 }
 
@@ -462,7 +462,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		MovingExpenses: movingExpenses,
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	sswPage2, err := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	suite.NoError(err)
 	suite.Equal("$200.00", sswPage2.TollsGTCCPaid)
 	suite.Equal("$200.00", sswPage2.TollsMemberPaid)
 	suite.Equal("$200.00", sswPage2.OilMemberPaid)
@@ -485,19 +486,33 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEnt
 		},
 	}
 
+	id := uuid.Must(uuid.NewV4())
 	PPMShipments := []models.PPMShipment{
 		{
 			FinalIncentive:        models.CentPointer(unit.Cents(500)),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(200)),
+			ID:                    id,
 		},
 	}
 
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	cert := models.SignedCertification{
+		CertificationType: &signedCertType,
+		CertificationText: "APPROVED",
+		Signature:         "Firstname Lastname",
+		UpdatedAt:         time.Now(),
+		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
+	}
+	var certs []*models.SignedCertification
+	certs = append(certs, &cert)
+
 	ssd := services.ShipmentSummaryFormData{
-		MovingExpenses: movingExpenses,
-		PPMShipment:    PPMShipments[0],
+		MovingExpenses:       movingExpenses,
+		PPMShipment:          PPMShipments[0],
+		SignedCertifications: certs,
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	sswPage2, _ := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
 	suite.Equal("$4.00", sswPage2.PPMRemainingEntitlement)
 }
 
@@ -525,7 +540,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFo
 		PPMShipment:    PPMShipments[0],
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	sswPage2, _ := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
 	suite.Equal("N/A", sswPage2.PPMRemainingEntitlement)
 }
 
@@ -541,12 +556,32 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiv
 		},
 	}
 
-	ssd := services.ShipmentSummaryFormData{
-		MovingExpenses: movingExpenses,
-		PPMShipment:    models.PPMShipment{},
+	id := uuid.Must(uuid.NewV4())
+	PPMShipments := []models.PPMShipment{
+		{
+
+			ID: id,
+		},
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	cert := models.SignedCertification{
+		CertificationType: &signedCertType,
+		CertificationText: "APPROVED",
+		Signature:         "Firstname Lastname",
+		UpdatedAt:         time.Now(),
+		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
+	}
+	var certs []*models.SignedCertification
+	certs = append(certs, &cert)
+
+	ssd := services.ShipmentSummaryFormData{
+		MovingExpenses:       movingExpenses,
+		PPMShipment:          PPMShipments[0],
+		SignedCertifications: certs,
+	}
+
+	sswPage2, _ := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
 	suite.Equal("$1.00", sswPage2.PPMRemainingEntitlement)
 }
 
@@ -562,19 +597,33 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 		},
 	}
 
+	id := uuid.Must(uuid.NewV4())
 	PPMShipments := []models.PPMShipment{
 		{
 			FinalIncentive:        models.CentPointer(unit.Cents(600)),
 			AdvanceAmountReceived: models.CentPointer(unit.Cents(100)),
+			ID:                    id,
 		},
 	}
 
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	cert := models.SignedCertification{
+		CertificationType: &signedCertType,
+		CertificationText: "APPROVED",
+		Signature:         "Firstname Lastname",
+		UpdatedAt:         time.Now(),
+		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
+	}
+	var certs []*models.SignedCertification
+	certs = append(certs, &cert)
+
 	ssd := services.ShipmentSummaryFormData{
-		MovingExpenses: movingExpenses,
-		PPMShipment:    PPMShipments[0],
+		MovingExpenses:       movingExpenses,
+		PPMShipment:          PPMShipments[0],
+		SignedCertifications: certs,
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	sswPage2, _ := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
 	suite.Equal("$105.00", sswPage2.PPMRemainingEntitlement)
 }
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
@@ -756,17 +805,25 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatPPMWeightFinal() {
 	suite.Equal("1,000 lbs - Actual", FormatPPMWeightFinal(pounds))
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertifications() {
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAOASignedCertifications() {
+	var err error
 	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-	testDate := time.Now()
-	certifications := Certifications{
+	testDate := time.Now() // due to using updatedAt, time.Now() needs to be used to test cert times and dates
+	aoaCertifications := Certifications{
 		CustomerField: "",
 		OfficeField:   "AOA: Firstname Lastname\nSSW: ",
-		DateField:     "AOA: " + FormatSignatureDate(testDate) + "\nSSW: ",
+		DateField:     "AOA: " + FormatDate(testDate) + "\nSSW: ",
 	}
+	sswCertifications := Certifications{
+		CustomerField: "",
+		OfficeField:   "AOA: Firstname Lastname\nSSW: Firstname Lastname",
+		DateField:     "AOA: " + FormatDate(testDate) + "\nSSW: " + FormatDate(testDate),
+	}
+	prepAOADate := FormatDate(testDate)
+	prepSSWDate := FormatDate(testDate)
 
 	signedCertType := models.SignedCertificationTypePreCloseoutReviewedPPMPAYMENT
-	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+	aoaSignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
 		{
 			Model:    move,
 			LinkOnly: true,
@@ -782,23 +839,76 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignedCertification
 		},
 	}, nil)
 	var certs []*models.SignedCertification
+	certs = append(certs, &aoaSignedCertification)
+
+	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedDate := formatAOADate(certs, move.MTOShipments[0].PPMShipment.ID)
+	suite.Equal(prepAOADate, formattedDate)
+	suite.Equal(aoaCertifications, formattedSignature)
+
+	signedCertType = models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SignedCertification{
+				CertificationType: &signedCertType,
+				CertificationText: "APPROVED",
+				Signature:         "Firstname Lastname",
+				UpdatedAt:         testDate,
+				PpmID:             models.UUIDPointer(move.MTOShipments[0].PPMShipment.ID),
+			},
+		},
+	}, nil)
+	certs = append(certs, &ppmPaymentsignedCertification)
+
+	formattedSignature = formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedDate, err = formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
+	suite.NoError(err)
+	suite.Equal(prepSSWDate, formattedDate)
+	suite.Equal(sswCertifications, formattedSignature)
+
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWSignedCertifications() {
+	var err error
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	testDate := time.Now() // due to using updatedAt, time.Now() needs to be used to test cert times and dates
+	sswCertifications := Certifications{
+		CustomerField: "",
+		OfficeField:   "AOA: \nSSW: Firstname Lastname",
+		DateField:     "AOA: " + "\nSSW: " + FormatDate(testDate),
+	}
+	prepSSWDate := FormatDate(testDate)
+
+	var certs []*models.SignedCertification
+
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	ppmPaymentsignedCertification := factory.BuildSignedCertification(suite.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model: models.SignedCertification{
+				CertificationType: &signedCertType,
+				CertificationText: "APPROVED",
+				Signature:         "Firstname Lastname",
+				UpdatedAt:         testDate,
+				PpmID:             models.UUIDPointer(move.MTOShipments[0].PPMShipment.ID),
+			},
+		},
+	}, nil)
 	certs = append(certs, &ppmPaymentsignedCertification)
 
 	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedDate, err := formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
+	suite.NoError(err)
+	suite.Equal(prepSSWDate, formattedDate)
+	suite.Equal(sswCertifications, formattedSignature)
 
-	suite.Equal(certifications, formattedSignature)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSignatureDate() {
-	signatureDate := time.Date(2019, time.January, 26, 14, 40, 0, 0, time.UTC)
-
-	signature := models.SignedCertification{
-		Date: signatureDate,
-	}
-
-	formattedDate := FormatSignatureDate(signature.Date)
-
-	suite.Equal("26 Jan 2019", formattedDate)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
@@ -890,9 +1000,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 	result := createTextFields(testData, pages...)
 
 	expectedResult := []textField{
-		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: false},
-		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: false, Locked: false},
-		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: false, Locked: false},
+		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: true, Locked: false},
+		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: true, Locked: false},
+		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: true, Locked: false},
 	}
 
 	suite.Equal(result, expectedResult)
@@ -955,7 +1065,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
-	page1Data, page2Data := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
+	page1Data, page2Data, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
+	suite.NoError(err)
 	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem

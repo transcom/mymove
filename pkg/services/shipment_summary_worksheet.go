@@ -46,7 +46,7 @@ type Page1Values struct {
 	SITEntryDates                   string
 	SITEndDates                     string
 	SITDaysInStorage                string
-	PreparationDate                 string
+	PreparationDate1                string
 	MaxObligationGCC100             string
 	TotalWeightAllotmentRepeat      string
 	MaxObligationGCC95              string
@@ -63,7 +63,7 @@ type Page1Values struct {
 // Page2Values is an object representing a Shipment Summary Worksheet
 type Page2Values struct {
 	CUIBanner                   string
-	PreparationDate             string
+	PreparationDate2            string
 	TAC                         string
 	SAC                         string
 	ContractedExpenseMemberPaid string
@@ -180,7 +180,7 @@ type SSWMaxWeightEntitlement struct {
 type SSWPPMComputer interface {
 	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*ShipmentSummaryFormData, error)
 	ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (Obligations, error)
-	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values)
+	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, error)
 }
 
 //go:generate mockery --name SSWPPMGenerator
