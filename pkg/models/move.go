@@ -99,6 +99,8 @@ type Move struct {
 	TOOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	CounselingOfficeID           *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
+	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -108,8 +110,9 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show   *bool
-	Status *MoveStatus
+	Show               *bool
+	Status             *MoveStatus
+	CounselingOfficeID *uuid.UUID
 }
 
 type Moves []Move
@@ -294,6 +297,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
 				continue
@@ -323,7 +329,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
-
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			verrs, err := db.ValidateAndCreate(&move)
 			if verrs.HasAny() {
 				return nil, verrs, nil
@@ -463,6 +471,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.TertiaryPickupAddress",
 		"MTOShipments.PPMShipment.TertiaryDestinationAddress",
 		"MTOShipments.BoatShipment",
+		"MTOShipments.MobileHome",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",
@@ -603,6 +612,18 @@ func GetTotalNetWeightForMove(m Move) unit.Pound {
 	}
 	return totalNetWeight
 
+}
+
+// gets total weight from all ppm and hhg shipments within a move
+func GetTotalNetWeightForMTOShipment(s MTOShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	if s.ShipmentType == MTOShipmentTypePPM && s.PPMShipment != nil {
+		totalNetWeight += GetPPMNetWeight(*s.PPMShipment)
+	} else if s.PrimeActualWeight != nil {
+		totalNetWeight += *s.PrimeActualWeight
+	}
+
+	return totalNetWeight
 }
 
 // HasPPM returns true if at least one shipment type is "PPM" associated with the move, false otherwise

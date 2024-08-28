@@ -39,6 +39,44 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
+    "/addresses/zip_city_lookup/{search}": {
+      "get": {
+        "description": "Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string",
+        "operationId": "getLocationByZipCity",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested list of city, state, county, and postal code matches",
+            "schema": {
+              "$ref": "#/definitions/UsPostRegionCities"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/addresses/{addressId}": {
       "get": {
         "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
@@ -284,6 +322,59 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
           }
         }
       }
@@ -2998,6 +3089,40 @@ func init() {
         }
       }
     },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the counseling office for a duty location",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -3594,6 +3719,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CreateBoatShipment": {
       "description": "Boat shipment information for the move.",
       "required": [
@@ -3683,6 +3832,43 @@ func init() {
             "format": "uuid",
             "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
           }
+        }
+      }
+    },
+    "CreateMobileHomeShipment": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
         }
       }
     },
@@ -3884,6 +4070,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -4392,6 +4581,38 @@ func init() {
         }
       }
     },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
+        }
+      }
+    },
     "LoggedInUserPayload": {
       "type": "object",
       "required": [
@@ -4567,6 +4788,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -4641,7 +4865,8 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY"
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -4649,6 +4874,7 @@ func init() {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -4671,6 +4897,64 @@ func init() {
         "GTCC": "GTCC",
         "MIL_PAY": "MilPay",
         "OTHER_DD": "Other account"
+      },
+      "x-nullable": true
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
       },
       "x-nullable": true
     },
@@ -6089,7 +6373,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -7002,6 +7287,40 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -7299,6 +7618,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -7428,6 +7750,10 @@ func init() {
         "isWeightTicket": {
           "type": "boolean"
         },
+        "rotation": {
+          "type": "integer",
+          "example": 2
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -7457,6 +7783,146 @@ func init() {
           "format": "uri",
           "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "UsPostRegionCities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/UsPostRegionCity"
+      }
+    },
+    "UsPostRegionCity": {
+      "description": "A postal code and city lookup",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
         }
       }
     },
@@ -7900,6 +8366,44 @@ func init() {
   },
   "basePath": "/internal",
   "paths": {
+    "/addresses/zip_city_lookup/{search}": {
+      "get": {
+        "description": "Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.",
+        "tags": [
+          "addresses"
+        ],
+        "summary": "Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string",
+        "operationId": "getLocationByZipCity",
+        "parameters": [
+          {
+            "type": "string",
+            "name": "search",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the requested list of city, state, county, and postal code matches",
+            "schema": {
+              "$ref": "#/definitions/UsPostRegionCities"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/addresses/{addressId}": {
       "get": {
         "description": "Find by API using address ID that returns an address json object containing address 1, address 2, address 3, city and postal code.",
@@ -8154,6 +8658,71 @@ func init() {
           },
           "500": {
             "description": "internal server error"
+          }
+        }
+      }
+    },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -11300,6 +11869,40 @@ func init() {
         }
       }
     },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the counseling office for a duty location",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -11896,6 +12499,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CreateBoatShipment": {
       "description": "Boat shipment information for the move.",
       "required": [
@@ -11985,6 +12612,43 @@ func init() {
             "format": "uuid",
             "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
           }
+        }
+      }
+    },
+    "CreateMobileHomeShipment": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
         }
       }
     },
@@ -12186,6 +12850,9 @@ func init() {
         },
         "destinationAddress": {
           "$ref": "#/definitions/Address"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -12696,6 +13363,38 @@ func init() {
         }
       }
     },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
+        }
+      }
+    },
     "LoggedInUserPayload": {
       "type": "object",
       "required": [
@@ -12871,6 +13570,9 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -12945,7 +13647,8 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "PPM",
         "BOAT_HAUL_AWAY",
-        "BOAT_TOW_AWAY"
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
@@ -12953,6 +13656,7 @@ func init() {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -12975,6 +13679,64 @@ func init() {
         "GTCC": "GTCC",
         "MIL_PAY": "MilPay",
         "OTHER_DD": "Other account"
+      },
+      "x-nullable": true
+    },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
       },
       "x-nullable": true
     },
@@ -14395,7 +15157,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -15310,6 +16073,40 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "required": [
@@ -15608,6 +16405,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
+        },
         "pickupAddress": {
           "$ref": "#/definitions/Address"
         },
@@ -15741,6 +16541,10 @@ func init() {
         "isWeightTicket": {
           "type": "boolean"
         },
+        "rotation": {
+          "type": "integer",
+          "example": 2
+        },
         "status": {
           "type": "string",
           "enum": [
@@ -15770,6 +16574,146 @@ func init() {
           "format": "uri",
           "readOnly": true,
           "example": "https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "UsPostRegionCities": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/UsPostRegionCity"
+      }
+    },
+    "UsPostRegionCity": {
+      "description": "A postal code and city lookup",
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "title": "City",
+          "example": "Anytown"
+        },
+        "county": {
+          "type": "string",
+          "title": "County",
+          "x-nullable": true,
+          "example": "LOS ANGELES"
+        },
+        "postalCode": {
+          "type": "string",
+          "format": "zip",
+          "title": "ZIP",
+          "pattern": "^(\\d{5}([\\-]\\d{4})?)$",
+          "example": "90210"
+        },
+        "state": {
+          "type": "string",
+          "title": "State",
+          "enum": [
+            "AL",
+            "AK",
+            "AR",
+            "AZ",
+            "CA",
+            "CO",
+            "CT",
+            "DC",
+            "DE",
+            "FL",
+            "GA",
+            "HI",
+            "IA",
+            "ID",
+            "IL",
+            "IN",
+            "KS",
+            "KY",
+            "LA",
+            "MA",
+            "MD",
+            "ME",
+            "MI",
+            "MN",
+            "MO",
+            "MS",
+            "MT",
+            "NC",
+            "ND",
+            "NE",
+            "NH",
+            "NJ",
+            "NM",
+            "NV",
+            "NY",
+            "OH",
+            "OK",
+            "OR",
+            "PA",
+            "RI",
+            "SC",
+            "SD",
+            "TN",
+            "TX",
+            "UT",
+            "VA",
+            "VT",
+            "WA",
+            "WI",
+            "WV",
+            "WY"
+          ],
+          "x-display-value": {
+            "AK": "AK",
+            "AL": "AL",
+            "AR": "AR",
+            "AZ": "AZ",
+            "CA": "CA",
+            "CO": "CO",
+            "CT": "CT",
+            "DC": "DC",
+            "DE": "DE",
+            "FL": "FL",
+            "GA": "GA",
+            "HI": "HI",
+            "IA": "IA",
+            "ID": "ID",
+            "IL": "IL",
+            "IN": "IN",
+            "KS": "KS",
+            "KY": "KY",
+            "LA": "LA",
+            "MA": "MA",
+            "MD": "MD",
+            "ME": "ME",
+            "MI": "MI",
+            "MN": "MN",
+            "MO": "MO",
+            "MS": "MS",
+            "MT": "MT",
+            "NC": "NC",
+            "ND": "ND",
+            "NE": "NE",
+            "NH": "NH",
+            "NJ": "NJ",
+            "NM": "NM",
+            "NV": "NV",
+            "NY": "NY",
+            "OH": "OH",
+            "OK": "OK",
+            "OR": "OR",
+            "PA": "PA",
+            "RI": "RI",
+            "SC": "SC",
+            "SD": "SD",
+            "TN": "TN",
+            "TX": "TX",
+            "UT": "UT",
+            "VA": "VA",
+            "VT": "VT",
+            "WA": "WA",
+            "WI": "WI",
+            "WV": "WV",
+            "WY": "WY"
+          }
         }
       }
     },

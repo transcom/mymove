@@ -6,6 +6,7 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
+import { RequiredTag } from 'components/form/RequiredTag';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
@@ -18,6 +19,8 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 
+let originMeta;
+let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
@@ -39,8 +42,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
+
+        if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
+        else originMeta = null;
+
+        if (!values.new_duty_location && touched.new_duty_location) newDutyMeta = 'Required';
+        else newDutyMeta = null;
 
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
@@ -64,6 +73,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
               <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
               <FormGroup>
                 <Label>Are dependents included in your orders?</Label>
+                <RequiredTag />
                 <div>
                   <Field
                     as={Radio}
@@ -91,6 +101,8 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 name="origin_duty_location"
                 id="origin_duty_location"
                 required
+                metaOverride={originMeta}
+                touched={touched}
               />
 
               {isRetirementOrSeparation ? (
@@ -121,11 +133,21 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
+                    touched={touched}
+                    required
                   />
                 </>
               ) : (
-                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput
+                  name="new_duty_location"
+                  label="New duty location"
+                  displayAddress={false}
+                  touched={touched}
+                  metaOverride={newDutyMeta}
+                  required
+                />
               )}
 
               <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />

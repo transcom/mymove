@@ -7,7 +7,18 @@ import './DropdownInput.module.scss';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyLocationInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, searchLocations, metaOverride } = props;
+  const {
+    label,
+    name,
+    displayAddress,
+    hint,
+    placeholder,
+    isDisabled,
+    searchLocations,
+    metaOverride,
+    touched,
+    required,
+  } = props;
   const [field, meta, helpers] = useField(props);
 
   let errorString = '';
@@ -17,13 +28,20 @@ export const DutyLocationInput = (props) => {
     errorString = meta.value?.name ? meta.error?.name || meta.error : '';
   }
 
+  const handleChange = (value) => {
+    if (touched) {
+      touched[name] = true;
+    }
+    helpers.setValue(value);
+  };
+
   return (
     <LocationSearchBox
       title={label}
       name={name}
       input={{
         value: field.value,
-        onChange: helpers.setValue,
+        onChange: handleChange,
         name,
       }}
       errorMsg={errorString}
@@ -32,6 +50,7 @@ export const DutyLocationInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={searchLocations}
+      required={required}
     />
   );
 };

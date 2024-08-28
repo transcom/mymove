@@ -29,6 +29,41 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
+  /open/requested-office-users:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
+
+        Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
+        An identification method must be present. The following 2 fields have an "OR" requirement.
+        - edipi
+        - other_unique_id
+        One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   '/customer':
     post:
       summary: Creates a customer with Okta option
@@ -67,41 +102,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /open/requested-office-users:
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      summary: Create an Office User
-      description: >
-        This endpoint is publicly accessible as it is utilized for individuals who do not have an office account to request the creation of an office account.
-
-        Request the creation of an office user. An administrator will need to approve them after creation. Note on requirements:
-        An identification method must be present. The following 2 fields have an "OR" requirement.
-        - edipi
-        - other_unique_id
-        One of these two fields MUST be present to serve as identification for the office user being created. This logic is handled at the application level.
-      operationId: createRequestedOfficeUser
-      tags:
-        - officeUsers
-      parameters:
-        - in: body
-          name: officeUser
-          description: Office User information
-          schema:
-            $ref: '#/definitions/OfficeUserCreate'
-      responses:
-        '201':
-          description: successfully requested the creation of provided office user
-          schema:
-            $ref: '#/definitions/OfficeUser'
-        '422':
-          description: validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: internal server error
   '/customer/{customerID}':
     parameters:
       - description: ID of customer to use
@@ -368,6 +368,42 @@ paths:
       description: Returns counseling evaluation reports for the specified move that are visible to the current office user
       summary: Returns counseling evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  '/moves/{moveID}/cancel':
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
@@ -3908,6 +3944,74 @@ paths:
           description: not found
         '500':
           description: server error
+  /uploads/get/:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - uploads
+      description: Gets an upload
+      operationId: getUpload
+      summary: Gets an upload by ID
+  /uploads/{uploadID}/update:
+    patch:
+      summary: Update an existing upload. This is only needed currently for updating the image rotation.
+      description: Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.
+      operationId: updateUpload
+      tags:
+        - uploads
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be updated
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              rotation:
+                type: integer
+                description: The rotation of the image
+                minimum: 0
+                maximum: 3
+      responses:
+        '201':
+          description: updated upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -3933,6 +4037,107 @@ paths:
           description: request requires user authentication
         '500':
           description: server error
+  /calendar/{countryCode}/is-weekend-holiday/{date}:
+    get:
+      summary: Validate  move date selection
+      description: |
+        Utility API to determine if input date falls on weekend and/or holiday.
+      produces:
+        - application/json
+      operationId: isDateWeekendHoliday
+      tags:
+        - calendar
+      parameters:
+        - description: country code for context of date
+          in: path
+          name: countryCode
+          required: true
+          type: string
+          enum:
+            - US
+        - description: input date to determine if weekend/holiday for given country.
+          in: path
+          name: date
+          required: true
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Successfully determine if given date is weekend and/or holiday for given country.
+          schema:
+            $ref: "#/definitions/IsDateWeekendHolidayInfo"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "500":
+          $ref: "#/responses/ServerError"
+  /moves/{moveID}/assignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AssignOfficeUserBody'
+      responses:
+        '200':
+          description: Successfully assigned office user to the move
+          schema:
+            $ref: '#/definitions/Move'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: assigns either a services counselor, task ordering officer, or task invoicing officer to the move
+      operationId: updateAssignedOfficeUser
+  /moves/{moveID}/unassignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+      - in: body
+        name: body
+        schema:
+          properties:
+            roleType:
+              type: string
+          required:
+            - roleType
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unassigned office user from the move
+          schema:
+            $ref: '#/definitions/Move'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: unassigns either a services counselor, task ordering officer, or task invoicing officer from the move
+      operationId: deleteAssignedOfficeUser
 definitions:
   ApplicationParameters:
     type: object
@@ -4474,6 +4679,7 @@ definitions:
         x-nullable: true
       dodID:
         type: string
+        example: 1234567890
         x-nullable: true
       emplid:
         type: string
@@ -4724,6 +4930,12 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
+      SCAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TIOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
       id:
@@ -5511,6 +5723,16 @@ definitions:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
+      tppsInvoiceAmountPaidTotalMillicents:
+        type: integer
+        format: millients
+        title: Total amount that TPPS paid for all service items on the payment request in millicents
+        x-nullable: true
+      tppsInvoiceSellerPaidDate:
+        type: string
+        format: date-time
+        title: Date that TPPS paid HS for the payment request
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5570,6 +5792,11 @@ definitions:
         $ref: 'definitions/PaymentServiceItemParams.yaml'
       eTag:
         type: string
+      tppsInvoiceAmountPaidPerServiceItemMillicents:
+        type: integer
+        format: millicents
+        title: Amount that TPPS paid for the individual service item in millicents
+        x-nullable: true
     type: object
   PaymentRequestStatus:
     $ref: 'definitions/PaymentRequestStatus.yaml'
@@ -5723,6 +5950,10 @@ definitions:
         $ref: 'definitions/StorageFacility.yaml'
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -5849,6 +6080,74 @@ definitions:
         x-nullable: true
       advanceStatus:
         $ref: 'definitions/PPMAdvanceStatus.yaml'
+        x-nullable: true
+  UpdateBoatShipment:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+        x-nullable: true
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+        x-nullable: true
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6065,16 +6364,15 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
-      mobileHome:
-        $ref: '#/definitions/CreateMobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: "#/definitions/CreateBoatShipment"
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: 'definitions/MobileHome.yaml'
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -6155,6 +6453,76 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: Boat shipment information for the move.
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
@@ -6301,7 +6669,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      fullName:
+      lastName:
+        type: string
+      firstName:
         type: string
       hasSafetyPrivilege:
         type: boolean
@@ -6370,6 +6740,9 @@ definitions:
         x-nullable: true
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
+        x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
         x-nullable: true
   QueueMovesResult:
     type: object
@@ -6558,12 +6931,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -6947,6 +7320,51 @@ definitions:
       - created_at
       - updated_at
       - eTag
+  IsDateWeekendHolidayInfo:
+    type: object
+    properties:
+      country_code:
+        type: string
+      country_name:
+        type: string
+      date:
+        type: string
+        format: date
+        example: "2018-09-25"
+      is_weekend:
+        type: boolean
+      is_holiday:
+        type: boolean
+      details:
+        type: string
+    required:
+      - country_code
+      - country_name
+      - date
+      - is_weekend
+      - is_holiday
+  AssignOfficeUserBody:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+      roleType:
+        type: string
+    required:
+      - officeUserId
+      - roleType
+  AssignedOfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      firstName:
+        type: string
+      lastName:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

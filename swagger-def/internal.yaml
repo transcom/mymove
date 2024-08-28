@@ -589,6 +589,10 @@ definitions:
     type: array
     items:
       $ref: "definitions/TransportationOffice.yaml"
+  UsPostRegionCities:
+    type: array
+    items:
+      $ref: "definitions/UsPostRegionCity.yaml"
   OfficeUser:
     type: object
     properties:
@@ -1398,7 +1402,7 @@ definitions:
         example: 7000
         x-nullable: true
       entitlement:
-        $ref: '#/definitions/Entitlement'
+        $ref: "#/definitions/Entitlement"
       providesServicesCounseling:
         type: boolean
         x-omitempty: false
@@ -1767,6 +1771,7 @@ definitions:
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -1774,6 +1779,7 @@ definitions:
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1815,6 +1821,8 @@ definitions:
         $ref: "definitions/PPMShipment.yaml"
       boatShipment:
         $ref: "definitions/BoatShipment.yaml"
+      mobileHomeShipment:
+        $ref: "definitions/MobileHome.yaml"
       shipmentType:
         $ref: "#/definitions/MTOShipmentType"
       status:
@@ -1887,6 +1895,8 @@ definitions:
         $ref: "#/definitions/CreatePPMShipment"
       boatShipment:
         $ref: "#/definitions/CreateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/CreateMobileHomeShipment"
       requestedPickupDate:
         format: date
         type: string
@@ -1965,7 +1975,7 @@ definitions:
       pickupAddress:
         $ref: "definitions/Address.yaml"
       secondaryPickupAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
@@ -1988,7 +1998,7 @@ definitions:
       destinationAddress:
         $ref: "definitions/Address.yaml"
       secondaryDestinationAddress:
-        $ref: 'definitions/Address.yaml'
+        $ref: "definitions/Address.yaml"
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -2142,6 +2152,60 @@ definitions:
         type: boolean
         description: Is the trailer roadworthy
         x-nullable: true
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
+  UpdateMobileHomeShipment:
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Mobile Home
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Mobile Home
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -2153,6 +2217,8 @@ definitions:
         $ref: "#/definitions/UpdatePPMShipment"
       boatShipment:
         $ref: "#/definitions/UpdateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/UpdateMobileHomeShipment"
       requestedPickupDate:
         format: date
         type: string
@@ -2289,9 +2355,9 @@ definitions:
         readOnly: true
         x-nullable: true
       mtoShipments:
-        $ref: '#/definitions/MTOShipments'
+        $ref: "#/definitions/MTOShipments"
       closeoutOffice:
-        $ref: 'definitions/TransportationOffice.yaml'
+        $ref: "definitions/TransportationOffice.yaml"
       eTag:
         type: string
         readOnly: true
@@ -2299,6 +2365,46 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+  IsDateWeekendHolidayInfo:
+    type: object
+    properties:
+      country_code:
+        type: string
+      country_name:
+        type: string
+      date:
+        type: string
+        format: date
+        example: "2018-09-25"
+      is_weekend:
+        type: boolean
+      is_holiday:
+        type: boolean
+      details:
+        type: string
+    required:
+      - country_code
+      - country_name
+      - date
+      - is_weekend
+      - is_holiday
+  CounselingOffices:
+    type: array
+    items:
+      $ref: "#/definitions/CounselingOffice"
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
 paths:
   /feature-flags/user-boolean/{key}:
     post:
@@ -3057,16 +3163,16 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '403':
-          $ref: '#/responses/PermissionDenied'
-        '404':
-          $ref: '#/responses/NotFound'
-        '422':
-          $ref: '#/responses/UnprocessableEntity'
-        '500':
-          $ref: '#/responses/ServerError'
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "403":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "422":
+          $ref: "#/responses/UnprocessableEntity"
+        "500":
+          $ref: "#/responses/ServerError"
   /ppm-shipments/{ppmShipmentId}/payment-packet:
     get:
       summary: Returns PPM payment packet
@@ -3084,7 +3190,7 @@ paths:
       produces:
         - application/pdf
       responses:
-        '200':
+        "200":
           headers:
             Content-Disposition:
               type: string
@@ -3093,15 +3199,15 @@ paths:
           schema:
             format: binary
             type: file
-        '400':
+        "400":
           description: invalid request
-        '401':
+        "401":
           description: request requires user authentication
-        '403':
+        "403":
           description: user is not authorized
-        '404':
+        "404":
           description: ppm not found
-        '500':
+        "500":
           description: internal server error
 
   /documents:
@@ -3532,6 +3638,29 @@ paths:
           description: user is not authorized
         "404":
           description: matching duty location not found
+        "500":
+          description: internal server error
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: Returns the counseling locations matching the GBLOC from the selected duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportation_offices
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: the instance of the counseling office for a duty location
+          schema:
+            $ref: "#/definitions/CounselingOffices"
         "500":
           description: internal server error
   /duty_locations/{dutyLocationId}/transportation_office:
@@ -4241,6 +4370,31 @@ paths:
           description: not found
         "500":
           description: server error
+  /addresses/zip_city_lookup/{search}:
+    get:
+      summary: Returns City, State, Postal Code, and County associated with the specified full/partial Postal Code or City string
+      description: Find by API using full/partial Postal Code or City name that returns an us_post_region_cities json object containing city, state, county and postal code.
+      operationId: getLocationByZipCity
+      tags:
+        - addresses
+      parameters:
+      - in: path
+        name: search
+        type: string
+        required: true
+      responses:
+        "200":
+          description: the requested list of city, state, county, and postal code matches
+          schema:
+            $ref: "#/definitions/UsPostRegionCities"
+        "400":
+          description: invalid request
+        "403":
+          description: not authorized
+        "404":
+          description: not found
+        "500":
+          description: server error
   "/mto_shipments":
     post:
       summary: createMTOShipment
@@ -4465,6 +4619,43 @@ paths:
             $ref: "#/responses/UnprocessableEntity"
         "500":
           description: internal server error
+  /calendar/{countryCode}/is-weekend-holiday/{date}:
+    get:
+      summary: Validate  move date selection
+      description: |
+        Utility API to determine if input date falls on weekend and/or holiday.
+      produces:
+        - application/json
+      operationId: isDateWeekendHoliday
+      tags:
+        - calendar
+      parameters:
+        - description: country code for context of date
+          in: path
+          name: countryCode
+          required: true
+          type: string
+          enum:
+            - US
+        - description: input date to determine if weekend/holiday for given country.
+          in: path
+          name: date
+          required: true
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Successfully determine if given date is weekend and/or holiday for given country.
+          schema:
+            $ref: "#/definitions/IsDateWeekendHolidayInfo"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "500":
+          $ref: "#/responses/ServerError"
 responses:
   InvalidRequest:
     description: The request payload is invalid.

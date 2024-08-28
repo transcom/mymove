@@ -16,9 +16,14 @@ import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
+import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
+import RequiredTag from 'components/form/RequiredTag';
+
+const currentYear = new Date().getFullYear();
+const maxYear = currentYear + 2;
 
 const validationShape = {
-  year: Yup.number().required('Required').min(0),
+  year: Yup.number().required('Required').min(1700, 'Invalid year').max(maxYear, 'Invalid year'),
   make: Yup.string().required('Required'),
   model: Yup.string().required('Required'),
   lengthFeet: Yup.number()
@@ -56,14 +61,6 @@ const validationShape = {
   customerRemarks: Yup.string(),
 };
 
-const convertInchesToFeetAndInches = (totalInches) => {
-  if (!totalInches) return { feet: '', inches: '' };
-
-  const feet = Math.floor(totalInches / 12).toString();
-  const inches = (totalInches % 12).toString();
-  return { feet, inches };
-};
-
 const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
   const { year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
     mtoShipment?.boatShipment || {};
@@ -73,7 +70,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
   const height = convertInchesToFeetAndInches(heightInInches);
 
   const initialValues = {
-    year: year?.toString(),
+    year: year?.toString() || null,
     make: make || '',
     model: model || '',
     lengthFeet: length.feet,
@@ -92,11 +89,9 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
       initialValues={initialValues}
       validationSchema={Yup.object().shape(validationShape)}
       onSubmit={onSubmit}
-      validateOnBlur
       validateOnMount
-      validateOnChange
     >
-      {({ isValid, handleSubmit, values, errors, touched, setFieldTouched }) => {
+      {({ isValid, handleSubmit, values, errors, touched, setFieldTouched, setFieldError, validateForm }) => {
         const lengthHasError = !!(
           (touched.lengthFeet && errors.lengthFeet) ||
           (touched.lengthInches && errors.lengthFeet)
@@ -115,6 +110,10 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
         if (touched.heightInches && !touched.heightFeet) {
           setFieldTouched('heightFeet', true);
         }
+        // manually turn off 'required' error when page loads if field is empty.
+        if (values.year === null && !touched.year && errors.year === 'Required') {
+          setFieldError('year', null);
+        }
         return (
           <div className={styles.formContainer}>
             <Form className={formStyles.form}>
@@ -129,9 +128,17 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                       id="year"
                       maxLength={4}
                       mask={Number}
-                      scale={0} // digits after point, 0 for integers
-                      signed="false" // disallow negative
-                      lazy={false} // immediate masking evaluation
+                      scale={0}
+                      signed="false"
+                      lazy={false}
+                      onChange={() => {
+                        setFieldError('year', null);
+                      }}
+                      onBlur={() => {
+                        setFieldTouched('year', true);
+                        setFieldError('year', null);
+                        validateForm();
+                      }}
                       required
                     />
                   </div>
@@ -152,6 +159,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Length</legend>
+                      <RequiredTag />
                       <ErrorMessage display={lengthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -167,6 +175,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Length in feet"
+                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -182,6 +191,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Length in inches"
+                          optional
                         />
                       </div>
                     </div>
@@ -189,6 +199,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Width</legend>
+                      <RequiredTag />
                       <ErrorMessage display={widthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -204,6 +215,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Width in feet"
+                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -219,6 +231,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Width in inches"
+                          optional
                         />
                       </div>
                     </div>
@@ -226,6 +239,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Height</legend>
+                      <RequiredTag />
                       <ErrorMessage display={heightHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -241,6 +255,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Height in feet"
+                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -256,6 +271,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Height in inches"
+                          optional
                         />
                       </div>
                     </div>
@@ -310,13 +326,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </Fieldset>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset
-                  legend={
-                    <div className={formStyles.legendContent}>
-                      Remarks <span className={formStyles.optional}>Optional</span>
-                    </div>
-                  }
-                >
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                   <Label htmlFor="customerRemarks">
                     Are there things about this boat shipment that your counselor or movers should know or discuss with
                     you?

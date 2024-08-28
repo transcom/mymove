@@ -111,6 +111,7 @@ export class OfficeApp extends Component {
       oktaLoggedOut: undefined,
       oktaNeedsLoggedOut: undefined,
       hqRoleFlag: !!props.hqRoleFlag,
+      gsrRoleFlag: undefined,
     };
   }
 
@@ -147,6 +148,10 @@ export class OfficeApp extends Component {
         this.setState({
           hqRoleFlag: hqRoleFlagValue,
         });
+        const gsrRoleFlagValue = await isBooleanFlagEnabled('gsr_role');
+        this.setState({
+          gsrRoleFlag: gsrRoleFlagValue,
+        });
       } catch (error) {
         retryPageLoading(error);
       }
@@ -166,7 +171,7 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag } = this.state;
     const {
       activeRole,
       officeUserId,
@@ -302,11 +307,19 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue />
+                              <ServicesCounselingQueue userPrivileges={userPrivileges} />
                             </PrivateRoute>
                           }
                         />
                       )}
+                      <Route
+                        path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
+                        element={
+                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
+                            <CreateCustomerForm userPrivileges={userPrivileges} />
+                          </PrivateRoute>
+                        }
+                      />
                       <Route
                         path={`${servicesCounselingRoutes.BASE_CUSTOMERS_CUSTOMER_INFO_PATH}/*`}
                         element={
@@ -357,14 +370,6 @@ export class OfficeApp extends Component {
                           }
                         />
                       )}
-                      <Route
-                        path={servicesCounselingRoutes.CREATE_CUSTOMER_PATH}
-                        element={
-                          <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                            <CreateCustomerForm userPrivileges={userPrivileges} />
-                          </PrivateRoute>
-                        }
-                      />
                       <Route
                         key="servicesCounselingMoveInfoRoute"
                         path={`${servicesCounselingRoutes.BASE_COUNSELING_MOVE_PATH}/*`}
@@ -526,12 +531,14 @@ export class OfficeApp extends Component {
                         }
                       />
 
-                      {/* QAE/CSR */}
+                      {/* QAE/CSR/GSR */}
                       <Route
                         key="qaeCSRMoveSearchPath"
                         path={qaeCSRRoutes.MOVE_SEARCH_PATH}
                         element={
-                          <PrivateRoute requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]}>
+                          <PrivateRoute
+                            requiredRoles={[roleTypes.QAE, roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE, roleTypes.GSR]}
+                          >
                             <QAECSRMoveSearch />
                           </PrivateRoute>
                         }
@@ -547,6 +554,7 @@ export class OfficeApp extends Component {
                               roleTypes.TIO,
                               roleTypes.QAE,
                               roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE,
+                              roleTypes.GSR,
                               hqRoleFlag ? roleTypes.HQ : undefined,
                             ]}
                           >
@@ -570,8 +578,13 @@ export class OfficeApp extends Component {
                       {activeRole === roleTypes.PRIME_SIMULATOR && (
                         <Route end path="/" element={<PrimeSimulatorAvailableMoves />} />
                       )}
-                      {(activeRole === roleTypes.QAE || activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE) && (
+                      {(activeRole === roleTypes.QAE ||
+                        activeRole === roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE ||
+                        (activeRole === roleTypes.GSR && gsrRoleFlag)) && (
                         <Route end path="/" element={<QAECSRMoveSearch />} />
+                      )}
+                      {activeRole === roleTypes.GSR && !gsrRoleFlag && (
+                        <Route end path="/*" element={<InvalidPermissions />} />
                       )}
 
                       {/* 404 */}

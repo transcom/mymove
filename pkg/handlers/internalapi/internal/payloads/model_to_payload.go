@@ -148,6 +148,29 @@ func BoatShipment(storer storage.FileStorer, boatShipment *models.BoatShipment) 
 	return payloadBoatShipment
 }
 
+// MobileHomeShipment payload
+func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.MobileHome) *internalmessages.MobileHome {
+	if mobileHomeShipment == nil || mobileHomeShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadMobileHomeShipment := &internalmessages.MobileHome{
+		ID:             *handlers.FmtUUID(mobileHomeShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(mobileHomeShipment.ShipmentID),
+		Make:           *mobileHomeShipment.Make,
+		Model:          *mobileHomeShipment.Model,
+		Year:           *handlers.FmtIntPtrToInt64(mobileHomeShipment.Year),
+		LengthInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.LengthInInches),
+		HeightInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.HeightInInches),
+		WidthInInches:  *handlers.FmtIntPtrToInt64(mobileHomeShipment.WidthInInches),
+		CreatedAt:      strfmt.DateTime(mobileHomeShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(mobileHomeShipment.UpdatedAt),
+		ETag:           etag.GenerateEtag(mobileHomeShipment.UpdatedAt),
+	}
+
+	return payloadMobileHomeShipment
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -173,6 +196,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
 		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
+		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
@@ -232,6 +256,18 @@ func TransportationOffices(transportationOffices models.TransportationOffices) i
 	for i, to := range transportationOffices {
 		transportationOffice := to
 		payload[i] = TransportationOffice(transportationOffice)
+	}
+	return payload
+}
+
+func CounselingOffices(counselingOffices models.TransportationOffices) internalmessages.CounselingOffices {
+	payload := make(internalmessages.CounselingOffices, len(counselingOffices))
+
+	for i, counselingOffice := range counselingOffices {
+		payload[i] = &internalmessages.CounselingOffice{
+			ID:   handlers.FmtUUID(counselingOffice.ID),
+			Name: models.StringPointer(counselingOffice.Name),
+		}
 	}
 	return payload
 }
@@ -479,10 +515,10 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		FullDocumentID:                    *handlers.FmtUUID(weightTicket.FullDocumentID),
 		FullDocument:                      fullDocument,
 		OwnsTrailer:                       weightTicket.OwnsTrailer,
-		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
 		SubmittedOwnsTrailer:              weightTicket.SubmittedOwnsTrailer,
-		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
+		TrailerMeetsCriteria:              weightTicket.TrailerMeetsCriteria,
 		SubmittedTrailerMeetsCriteria:     weightTicket.SubmittedTrailerMeetsCriteria,
+		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
@@ -579,4 +615,28 @@ func SignedCertification(signedCertification *models.SignedCertification) *inter
 	}
 
 	return model
+}
+
+// UsPostRegionCity payload
+func UsPostRegionCity(usPostRegionCity *models.UsPostRegionCity) *internalmessages.UsPostRegionCity {
+	if usPostRegionCity == nil || *usPostRegionCity == (models.UsPostRegionCity{}) {
+		return nil
+	}
+
+	return &internalmessages.UsPostRegionCity{
+		City:       usPostRegionCity.USPostRegionCityNm,
+		State:      usPostRegionCity.State,
+		PostalCode: usPostRegionCity.UsprZipID,
+		County:     &usPostRegionCity.UsprcCountyNm,
+	}
+}
+
+// UsPostRegionCities payload
+func UsPostRegionCities(usPostRegionCities models.UsPostRegionCities) internalmessages.UsPostRegionCities {
+	payload := make(internalmessages.UsPostRegionCities, len(usPostRegionCities))
+	for i, usPostRegionCity := range usPostRegionCities {
+		copyOfUsPostRegionCity := usPostRegionCity
+		payload[i] = UsPostRegionCity(&copyOfUsPostRegionCity)
+	}
+	return payload
 }

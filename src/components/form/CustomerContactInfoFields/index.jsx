@@ -2,6 +2,9 @@ import React, { useRef } from 'react';
 import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
 import { Label, Fieldset } from '@trussworks/react-uswds';
+import classnames from 'classnames';
+
+import RequiredTag from '../RequiredTag';
 
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -32,7 +35,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Alt. phone"
-                labelHint="Optional"
+                optional
                 id={`secondaryTelephone_${CustomerContactInfoFieldsUUID.current}`}
                 name="secondary_telephone"
                 type="tel"
@@ -48,7 +51,8 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
             required
           />
           <Label>Preferred contact method</Label>
-          <div className={formStyles.radioGroup}>
+          <RequiredTag />
+          <div className={classnames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
             <CheckboxField
               id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID.current}`}
               label="Phone"

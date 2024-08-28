@@ -244,5 +244,14 @@ func processEDIs(_ *cobra.Command, _ []string) error {
 		logger.Info("Successfully processed EDI824 application advice responses")
 	}
 
+	// Process TPPS paid invoice report
+	pathTPPSPaidInvoiceReport := v.GetString(cli.SFTPTPPSPaidInvoiceReportPickupDirectory)
+	_, err = syncadaSFTPSession.FetchAndProcessSyncadaFiles(appCtx, pathTPPSPaidInvoiceReport, lastReadTime, invoice.NewTPPSPaidInvoiceReportProcessor())
+	if err != nil {
+		logger.Error("Error reading TPPS Paid Invoice Report application advice responses", zap.Error(err))
+	} else {
+		logger.Info("Successfully processed TPPS Paid Invoice Report application advice responses")
+	}
+
 	return nil
 }

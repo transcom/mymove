@@ -142,6 +142,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MovesGetAllMovesHandler: moves.GetAllMovesHandlerFunc(func(params moves.GetAllMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.GetAllMoves has not yet been implemented")
 		}),
+		AddressesGetLocationByZipCityHandler: addresses.GetLocationByZipCityHandlerFunc(func(params addresses.GetLocationByZipCityParams) middleware.Responder {
+			return middleware.NotImplemented("operation addresses.GetLocationByZipCity has not yet been implemented")
+		}),
 		TransportationOfficesGetTransportationOfficesHandler: transportation_offices.GetTransportationOfficesHandlerFunc(func(params transportation_offices.GetTransportationOfficesParams) middleware.Responder {
 			return middleware.NotImplemented("operation transportation_offices.GetTransportationOffices has not yet been implemented")
 		}),
@@ -156,6 +159,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CertificationIndexSignedCertificationHandler: certification.IndexSignedCertificationHandlerFunc(func(params certification.IndexSignedCertificationParams) middleware.Responder {
 			return middleware.NotImplemented("operation certification.IndexSignedCertification has not yet been implemented")
+		}),
+		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
+			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
 		}),
 		UsersIsLoggedInUserHandler: users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
@@ -183,6 +189,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		CalendarShowAvailableMoveDatesHandler: calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")
+		}),
+		TransportationOfficesShowCounselingOfficesHandler: transportation_offices.ShowCounselingOfficesHandlerFunc(func(params transportation_offices.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.ShowCounselingOffices has not yet been implemented")
 		}),
 		DocumentsShowDocumentHandler: documents.ShowDocumentHandlerFunc(func(params documents.ShowDocumentParams) middleware.Responder {
 			return middleware.NotImplemented("operation documents.ShowDocument has not yet been implemented")
@@ -365,6 +374,8 @@ type MymoveAPI struct {
 	PpmDeleteWeightTicketHandler ppm.DeleteWeightTicketHandler
 	// MovesGetAllMovesHandler sets the operation handler for the get all moves operation
 	MovesGetAllMovesHandler moves.GetAllMovesHandler
+	// AddressesGetLocationByZipCityHandler sets the operation handler for the get location by zip city operation
+	AddressesGetLocationByZipCityHandler addresses.GetLocationByZipCityHandler
 	// TransportationOfficesGetTransportationOfficesHandler sets the operation handler for the get transportation offices operation
 	TransportationOfficesGetTransportationOfficesHandler transportation_offices.GetTransportationOfficesHandler
 	// EntitlementsIndexEntitlementsHandler sets the operation handler for the index entitlements operation
@@ -375,6 +386,8 @@ type MymoveAPI struct {
 	BackupContactsIndexServiceMemberBackupContactsHandler backup_contacts.IndexServiceMemberBackupContactsHandler
 	// CertificationIndexSignedCertificationHandler sets the operation handler for the index signed certification operation
 	CertificationIndexSignedCertificationHandler certification.IndexSignedCertificationHandler
+	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
+	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// UsersIsLoggedInUserHandler sets the operation handler for the is logged in user operation
 	UsersIsLoggedInUserHandler users.IsLoggedInUserHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -393,6 +406,8 @@ type MymoveAPI struct {
 	AddressesShowAddressHandler addresses.ShowAddressHandler
 	// CalendarShowAvailableMoveDatesHandler sets the operation handler for the show available move dates operation
 	CalendarShowAvailableMoveDatesHandler calendar.ShowAvailableMoveDatesHandler
+	// TransportationOfficesShowCounselingOfficesHandler sets the operation handler for the show counseling offices operation
+	TransportationOfficesShowCounselingOfficesHandler transportation_offices.ShowCounselingOfficesHandler
 	// DocumentsShowDocumentHandler sets the operation handler for the show document operation
 	DocumentsShowDocumentHandler documents.ShowDocumentHandler
 	// TransportationOfficesShowDutyLocationTransportationOfficeHandler sets the operation handler for the show duty location transportation office operation
@@ -607,6 +622,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.MovesGetAllMovesHandler == nil {
 		unregistered = append(unregistered, "moves.GetAllMovesHandler")
 	}
+	if o.AddressesGetLocationByZipCityHandler == nil {
+		unregistered = append(unregistered, "addresses.GetLocationByZipCityHandler")
+	}
 	if o.TransportationOfficesGetTransportationOfficesHandler == nil {
 		unregistered = append(unregistered, "transportation_offices.GetTransportationOfficesHandler")
 	}
@@ -621,6 +639,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CertificationIndexSignedCertificationHandler == nil {
 		unregistered = append(unregistered, "certification.IndexSignedCertificationHandler")
+	}
+	if o.CalendarIsDateWeekendHolidayHandler == nil {
+		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
 	}
 	if o.UsersIsLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.IsLoggedInUserHandler")
@@ -648,6 +669,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CalendarShowAvailableMoveDatesHandler == nil {
 		unregistered = append(unregistered, "calendar.ShowAvailableMoveDatesHandler")
+	}
+	if o.TransportationOfficesShowCounselingOfficesHandler == nil {
+		unregistered = append(unregistered, "transportation_offices.ShowCounselingOfficesHandler")
 	}
 	if o.DocumentsShowDocumentHandler == nil {
 		unregistered = append(unregistered, "documents.ShowDocumentHandler")
@@ -928,6 +952,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/addresses/zip_city_lookup/{search}"] = addresses.NewGetLocationByZipCity(o.context, o.AddressesGetLocationByZipCityHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/transportation-offices"] = transportation_offices.NewGetTransportationOffices(o.context, o.TransportationOfficesGetTransportationOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -945,6 +973,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/signed_certifications"] = certification.NewIndexSignedCertification(o.context, o.CertificationIndexSignedCertificationHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/calendar/{countryCode}/is-weekend-holiday/{date}"] = calendar.NewIsDateWeekendHoliday(o.context, o.CalendarIsDateWeekendHolidayHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
@@ -981,6 +1013,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/calendar/available_move_dates"] = calendar.NewShowAvailableMoveDates(o.context, o.CalendarShowAvailableMoveDatesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/transportation_offices/{dutyLocationId}/counseling_offices"] = transportation_offices.NewShowCounselingOffices(o.context, o.TransportationOfficesShowCounselingOfficesHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

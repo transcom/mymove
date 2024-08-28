@@ -215,7 +215,7 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText } = render(<OrdersInfoForm {...testProps} />);
+    const { getByRole, getAllByTestId } = render(<OrdersInfoForm {...testProps} />);
 
     // Touch required fields to show validation errors
     await userEvent.click(screen.getByLabelText('Orders type'));
@@ -227,7 +227,7 @@ describe('OrdersInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(4);
+      expect(getAllByTestId('errorMessage').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });

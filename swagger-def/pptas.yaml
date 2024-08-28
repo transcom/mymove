@@ -1,0 +1,49 @@
+swagger: '2.0'
+info:
+  title: MilMove PPTAS API
+  version: 0.0.1
+  license:
+    name: MIT
+    url: 'https://opensource.org/licenses/MIT'
+  contact:
+    email: milmove-developers@caci.com
+  description:
+    $ref: 'info/pptas_description.md'
+basePath: /pptas/v1
+host: primelocal
+consumes:
+  - application/json
+produces:
+  - application/json
+schemes:
+  - http
+tags:
+  - name: moves
+paths:
+  /moves:
+    get:
+      summary: PPTASReports
+      description: |
+        Gets all reports that have been approved. Based on payment requests, includes data from Move, Shipments, Orders, and Transportation Accounting Codes and Lines of Accounting.
+      operationId: pptasReports
+      tags:
+        - moves
+      produces:
+        - application/json
+      parameters:
+        - in: query
+          name: since
+          type: string
+          format: date-time
+          description: Only return moves updated since this time. Formatted like "2021-07-23T18:30:47.116Z"
+      responses:
+        '200':
+          description: Successfully retrieved pptas reports. A successful fetch might still return zero pptas reports.
+          schema:
+            $ref: 'definitions/PPTASReports.yaml'
+        '401':
+          $ref: 'responses/PermissionDenied.yaml'
+        '403':
+          $ref: 'responses/PermissionDenied.yaml'
+        '500':
+          $ref: 'responses/ServerError.yaml'

@@ -9,6 +9,14 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: gsr_role
+  name: Government Surveillance Representative Role feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: false
+  rollouts:
+  - segment:
+      key: mil-app
+      value: false
 - key: safety_move
   name: Safety Move feature flag
   type: BOOLEAN_FLAG_TYPE
@@ -57,6 +65,22 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 - key: okta_dodid_input
   name: Customer DODID input being pulled from Okta and disabling text input
   type: BOOLEAN_FLAG_TYPE
@@ -91,6 +115,14 @@ flags:
       value: true
 - key: boat
   name: Boat feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: mobile_home
+  name: Mobile Home feature flag
   type: BOOLEAN_FLAG_TYPE
   enabled: true
   rollouts:

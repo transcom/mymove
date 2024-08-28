@@ -86,11 +86,11 @@ export const requiredW2AddressSchema = Yup.object().shape({
 });
 
 export const addressSchema = Yup.object().shape({
-  streetAddress1: Yup.string(),
+  streetAddress1: Yup.string().required('Required'),
   streetAddress2: Yup.string(),
-  city: Yup.string(),
-  state: Yup.string().length(2, 'Must use state abbreviation'),
-  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
+  city: Yup.string().required('Required'),
+  state: Yup.string().length(2, 'Must use state abbreviation').required('Required'),
+  postalCode: Yup.string().matches(ZIP_CODE_REGEX, 'Must be valid zip code').required('Required'),
 });
 
 export const phoneSchema = Yup.string().matches(
@@ -103,25 +103,23 @@ export const emailSchema = Yup.string().matches(
   'Must be a valid email address',
 );
 
-const validatePreferredContactMethod = (value, testContext) => {
-  return testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred;
+export const preferredContactMethodValidation = (value) => {
+  return (
+    value?.phone_is_preferred ||
+    value?.email_is_preferred ||
+    new Yup.ValidationError('Please select a preferred method of contact.', null, 'preferredContactMethod')
+  );
 };
 
-export const contactInfoSchema = Yup.object().shape({
-  telephone: phoneSchema.required('Required'),
-  secondary_telephone: phoneSchema,
-  personal_email: emailSchema.required('Required'),
-  phone_is_preferred: Yup.bool().test(
-    'contactMethodRequired',
-    'Please select a preferred method of contact.',
-    validatePreferredContactMethod,
-  ),
-  email_is_preferred: Yup.bool().test(
-    'contactMethodRequired',
-    'Please select a preferred method of contact.',
-    validatePreferredContactMethod,
-  ),
-});
+export const contactInfoSchema = Yup.object()
+  .shape({
+    telephone: phoneSchema.required('Required'),
+    secondary_telephone: phoneSchema,
+    personal_email: emailSchema.required('Required'),
+    phone_is_preferred: Yup.bool(),
+    email_is_preferred: Yup.bool(),
+  })
+  .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
 export const backupContactInfoSchema = Yup.object().shape({
   name: Yup.string().required('Required'),
@@ -185,9 +183,10 @@ const validateRoleRequestedMethod = (value, testContext) => {
     testContext.parent.taskInvoicingOfficerCheckBox ||
     testContext.parent.servicesCounselorCheckBox ||
     testContext.parent.transportationContractingOfficerCheckBox ||
-    testContext.parent.qualityAssuranceEvaluatorCheckBox ||
     testContext.parent.headquartersCheckBox ||
-    testContext.parent.customerSupportRepresentativeCheckBox
+    testContext.parent.qualityAssuranceEvaluatorCheckBox ||
+    testContext.parent.customerSupportRepresentativeCheckBox ||
+    testContext.parent.governmentSurveillanceRepresentativeCheckbox
   );
 };
 
@@ -272,6 +271,11 @@ export const officeAccountRequestSchema = Yup.object().shape({
     validateRoleRequestedMethod,
   ),
   customerSupportRepresentativeCheckBox: Yup.bool().test(
+    'roleRequestedRequired',
+    'You must select at least one role.',
+    validateRoleRequestedMethod,
+  ),
+  governmentSurveillanceRepresentativeCheckbox: Yup.bool().test(
     'roleRequestedRequired',
     'You must select at least one role.',
     validateRoleRequestedMethod,

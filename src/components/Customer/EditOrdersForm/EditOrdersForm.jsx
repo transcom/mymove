@@ -66,10 +66,19 @@ const EditOrdersForm = ({
 
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
+  let originMeta;
+  let newDutyMeta = '';
+
   return (
     <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
+
+        if (!values.origin_duty_location) originMeta = 'Required';
+        else originMeta = null;
+
+        if (!values.new_duty_location) newDutyMeta = 'Required';
+        else newDutyMeta = null;
 
         return (
           <Form className={`${formStyles.form} ${styles.EditOrdersForm}`}>
@@ -130,6 +139,8 @@ const EditOrdersForm = ({
                 name="origin_duty_location"
                 id="origin_duty_location"
                 required
+                metaOverride={originMeta}
+                touched={touched}
               />
 
               {isRetirementOrSeparation ? (
@@ -161,10 +172,20 @@ const EditOrdersForm = ({
                     displayAddress={false}
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
+                    metaOverride={newDutyMeta}
+                    touched={touched}
+                    required
                   />
                 </>
               ) : (
-                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput
+                  name="new_duty_location"
+                  label="New duty location"
+                  displayAddress={false}
+                  metaOverride={newDutyMeta}
+                  touched={touched}
+                  required
+                />
               )}
               <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
 

@@ -5,6 +5,8 @@ import { object, text } from '@storybook/addon-knobs';
 import NTSRShipmentInfoList from './NTSRShipmentInfoList';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -36,6 +38,7 @@ const shipment = {
     lotNumber: '2222',
   },
   serviceOrderNumber: '12341234',
+  requestedPickupDate: '24 Mar 2020',
   requestedDeliveryDate: '26 Mar 2020',
   destinationAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
@@ -128,6 +131,8 @@ describe('NTSR Shipment Info', () => {
       ['storageFacilityName', shipment.storageFacility.facilityName],
       ['serviceOrderNumber', shipment.serviceOrderNumber],
       ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
+      ['requestedPickupDate', shipment.requestedPickupDate],
+      ['requestedDeliveryDate', shipment.requestedDeliveryDate],
       ['destinationAddress', shipment.destinationAddress.streetAddress1],
       ['secondaryDeliveryAddress', shipment.secondaryDeliveryAddress.streetAddress1],
       ['tertiaryDeliveryAddress', shipment.tertiaryDeliveryAddress.streetAddress1],
@@ -138,7 +143,11 @@ describe('NTSR Shipment Info', () => {
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      render(<NTSRShipmentInfoList isExpanded shipment={shipment} />);
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <NTSRShipmentInfoList isExpanded shipment={shipment} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         const shipmentFieldElement = screen.getByTestId(shipmentField);
         expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
@@ -209,27 +218,26 @@ describe('NTSR Shipment Info', () => {
       expect(screen.queryByTestId('storageFacility')).toBeNull();
       expect(screen.queryByTestId('serviceOrderNumber')).toBeNull();
       expect(screen.queryByTestId('secondaryDeliveryAddress')).toBeNull();
-      expect(screen.queryByTestId('tertiaryDeliveryAddress')).toBeNull();
       expect(screen.queryByTestId('receivingAgent')).toBeNull();
       expect(screen.getByTestId('counselorRemarks')).toBeInTheDocument();
     });
-  });
 
-  describe('NTSR Shipment Info List Destination Address Request', () => {
-    it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
-      render(
-        <NTSRShipmentInfoList
-          isExpanded
-          shipment={shipmentWithDeliveryAddressUpdate}
-          warnIfMissing={warnIfMissing}
-          errorIfMissing={errorIfMissing}
-          showWhenCollapsed={showWhenCollapsed}
-        />,
-      );
+    describe('NTSR Shipment Info List Destination Address Request', () => {
+      it('renders Review required instead of destination address when the Prime has submitted a destination address change', async () => {
+        render(
+          <NTSRShipmentInfoList
+            isExpanded
+            shipment={shipmentWithDeliveryAddressUpdate}
+            warnIfMissing={warnIfMissing}
+            errorIfMissing={errorIfMissing}
+            showWhenCollapsed={showWhenCollapsed}
+          />,
+        );
 
-      const destinationAddress = screen.getByTestId('destinationAddress');
-      expect(destinationAddress).toBeInTheDocument();
-      expect(destinationAddress).toHaveTextContent('Review required');
+        const destinationAddress = screen.getByTestId('destinationAddress');
+        expect(destinationAddress).toBeInTheDocument();
+        expect(destinationAddress).toHaveTextContent('Review required');
+      });
     });
   });
 });

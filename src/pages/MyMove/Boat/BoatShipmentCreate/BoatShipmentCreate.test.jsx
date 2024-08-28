@@ -5,7 +5,7 @@ import { generatePath } from 'react-router';
 
 import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
 import { customerRoutes } from 'constants/routes';
-import { createMTOShipment } from 'services/internalApi';
+import { createMTOShipment, patchMTOShipment } from 'services/internalApi';
 import { updateMTOShipment } from 'store/entities/actions';
 import { renderWithRouter } from 'testUtils';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
@@ -31,8 +31,7 @@ jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
   createMTOShipment: jest.fn(),
   patchMTOShipment: jest.fn(),
-  patchMove: jest.fn(),
-  searchTransportationOffices: jest.fn(),
+  deleteMTOShipment: jest.fn(),
   getAllMoves: jest.fn(),
 }));
 
@@ -48,15 +47,13 @@ jest.mock('react-redux', () => ({
 }));
 
 const serviceMember = {
-  serviceMember: {
-    id: '8',
-    residential_address: {
-      streetAddress1: '123 Any St',
-      streetAddress2: '',
-      city: 'Norfolk',
-      state: 'VA',
-      postalCode: '20001',
-    },
+  id: '8',
+  residential_address: {
+    streetAddress1: '123 Any St',
+    streetAddress2: '',
+    city: 'Norfolk',
+    state: 'VA',
+    postalCode: '20001',
   },
 };
 
@@ -71,36 +68,40 @@ const defaultProps = {
     },
   },
   postalCodeValidator: jest.fn(),
-  ...serviceMember,
+  serviceMember,
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-const renderBoatShipmentCreate = (props) => {
-  renderWithRouter(<BoatShipmentCreate {...defaultProps} {...props} />, {
-    path: customerRoutes.SHIPMENT_BOAT_CREATE_PATH,
-    params: { moveId: 'move123' },
+const renderBoatShipmentCreate = async (props) => {
+  await act(async () => {
+    renderWithRouter(<BoatShipmentCreate {...defaultProps} {...props} />, {
+      path: customerRoutes.SHIPMENT_BOAT_CREATE_PATH,
+      params: { moveId: 'move123' },
+    });
   });
 };
 
 describe('BoatShipmentCreate component', () => {
   describe('creating a new Boat shipment', () => {
-    it('renders the heading and empty form', () => {
-      renderBoatShipmentCreate();
+    it('renders the heading and empty form', async () => {
+      await renderBoatShipmentCreate();
 
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Boat details and measurements');
     });
 
     it('routes back to the new shipment type screen when back is clicked', async () => {
-      renderBoatShipmentCreate();
+      await renderBoatShipmentCreate();
       const selectShipmentType = generatePath(customerRoutes.SHIPMENT_SELECT_TYPE_PATH, {
         moveId: mockMoveId,
       });
 
       const backButton = await screen.getByRole('button', { name: 'Back' });
-      await userEvent.click(backButton);
+      await act(async () => {
+        await userEvent.click(backButton);
+      });
 
       expect(mockNavigate).toHaveBeenCalledWith(selectShipmentType);
     });
@@ -109,7 +110,7 @@ describe('BoatShipmentCreate component', () => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       createMTOShipment.mockResolvedValueOnce({ id: mockNewShipmentId });
 
-      renderBoatShipmentCreate();
+      await renderBoatShipmentCreate();
 
       await act(async () => {
         await userEvent.type(screen.getByTestId('year'), '2022');
@@ -119,13 +120,14 @@ describe('BoatShipmentCreate component', () => {
         await userEvent.type(screen.getByTestId('widthFeet'), '8');
         await userEvent.type(screen.getByTestId('heightFeet'), '7');
         await userEvent.click(screen.getByTestId('hasTrailerNo'));
+        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
-
-      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat Haul-Away (BHA)');
 
-      await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
+      });
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -145,7 +147,9 @@ describe('BoatShipmentCreate component', () => {
           customerRemarks: undefined,
         });
 
-        expect(mockDispatch).toHaveBeenCalledWith(updateMTOShipment({ id: mockNewShipmentId }));
+        expect(mockDispatch).toHaveBeenCalledWith(
+          updateMTOShipment(expect.objectContaining({ id: mockNewShipmentId })),
+        );
         expect(mockNavigate).toHaveBeenCalledWith(
           generatePath(customerRoutes.SHIPMENT_BOAT_LOCATION_INFO, {
             moveId: mockMoveId,
@@ -153,11 +157,13 @@ describe('BoatShipmentCreate component', () => {
           }),
         );
       });
-    }, 10000);
+    });
 
     it('displays an error alert when the create shipment fails', async () => {
-      createMTOShipment.mockRejectedValueOnce('fatal error');
-      renderBoatShipmentCreate();
+      createMTOShipment.mockRejectedValueOnce({
+        response: { body: { invalidFields: { model: ['Some error message'] } } },
+      });
+      await renderBoatShipmentCreate();
 
       await act(async () => {
         await userEvent.type(screen.getByTestId('year'), '2022');
@@ -167,13 +173,14 @@ describe('BoatShipmentCreate component', () => {
         await userEvent.type(screen.getByTestId('widthFeet'), '8');
         await userEvent.type(screen.getByTestId('heightFeet'), '7');
         await userEvent.click(screen.getByTestId('hasTrailerNo'));
+        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       });
-
-      await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
       expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat Haul-Away (BHA)');
 
-      await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
+      });
 
       await waitFor(() => {
         expect(createMTOShipment).toHaveBeenCalledWith({
@@ -193,7 +200,90 @@ describe('BoatShipmentCreate component', () => {
           customerRemarks: undefined,
         });
 
-        expect(screen.getByText('There was an error attempting to create your shipment.')).toBeInTheDocument();
+        expect(screen.getByText('Some error message')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('editing an existing Boat shipment', () => {
+    const existingShipment = {
+      id: 'existingShipment123',
+      eTag: 'someETag',
+      boatShipment: {
+        id: 'boat123',
+        type: 'TOW_AWAY',
+        year: 2020,
+        make: 'Sea Ray',
+        model: 'Sundancer',
+        lengthInInches: 240,
+        widthInInches: 96,
+        heightInInches: 84,
+        hasTrailer: true,
+        isRoadworthy: true,
+      },
+    };
+
+    it('calls patch shipment endpoint and formats required payload values', async () => {
+      patchMTOShipment.mockResolvedValueOnce({ id: existingShipment.id });
+
+      await renderBoatShipmentCreate({ mtoShipment: existingShipment });
+
+      await act(async () => {
+        await userEvent.clear(screen.getByTestId('year'));
+        await userEvent.type(screen.getByTestId('year'), '2021');
+        await userEvent.clear(screen.getByTestId('make'));
+        await userEvent.type(screen.getByTestId('make'), 'Bayliner');
+        await userEvent.clear(screen.getByTestId('model'));
+        await userEvent.type(screen.getByTestId('model'), 'Ciera');
+        await userEvent.clear(screen.getByTestId('lengthFeet'));
+        await userEvent.type(screen.getByTestId('lengthFeet'), '25');
+        await userEvent.clear(screen.getByTestId('widthFeet'));
+        await userEvent.type(screen.getByTestId('widthFeet'), '8');
+        await userEvent.clear(screen.getByTestId('heightFeet'));
+        await userEvent.type(screen.getByTestId('heightFeet'), '7');
+        await userEvent.click(screen.getByTestId('hasTrailerYes'));
+        await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
+      });
+
+      expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Boat Tow-Away (BTA)');
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('boatConfirmationContinue'));
+      });
+
+      await waitFor(() => {
+        expect(patchMTOShipment).toHaveBeenCalledWith(
+          existingShipment.id,
+          {
+            moveTaskOrderID: mockMoveId,
+            shipmentType: 'BOAT_TOW_AWAY',
+            boatShipment: {
+              id: 'boat123',
+              type: 'TOW_AWAY',
+              year: 2021,
+              make: 'Bayliner',
+              model: 'Ciera',
+              lengthInInches: 300,
+              widthInInches: 96,
+              heightInInches: 84,
+              hasTrailer: true,
+              isRoadworthy: true,
+            },
+            customerRemarks: undefined,
+            id: 'existingShipment123',
+          },
+          'someETag',
+        );
+
+        expect(mockDispatch).toHaveBeenCalledWith(
+          updateMTOShipment(expect.objectContaining({ id: existingShipment.id })),
+        );
+        expect(mockNavigate).toHaveBeenCalledWith(
+          generatePath(customerRoutes.SHIPMENT_BOAT_LOCATION_INFO, {
+            moveId: mockMoveId,
+            mtoShipmentId: existingShipment.id,
+          }),
+        );
       });
     });
   });
