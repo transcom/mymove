@@ -46,6 +46,7 @@ export const AddressFields = ({
       label="ZIP"
       id={`zip_${addressFieldsUUID.current}`}
       name={`${name}.postalCode`}
+      data-testid={`${name}.postalCode`}
       maxLength={10}
       validate={validators?.postalCode}
       isDisabled={zipCityEnabled}
@@ -64,6 +65,7 @@ export const AddressFields = ({
       label="ZIP"
       id={`zip_${addressFieldsUUID.current}`}
       name={`${name}.postalCode`}
+      data-testid={`${name}.postalCode`}
       maxLength={10}
       validate={validators?.postalCode}
       isDisabled={zipCityEnabled}
@@ -73,6 +75,7 @@ export const AddressFields = ({
   const stateField = zipCityEnabled ? (
     <TextField
       name={`${name}.state`}
+      data-testid={`${name}.state`}
       id={`state_${addressFieldsUUID.current}`}
       label="State"
       validate={validators?.state}
@@ -81,6 +84,7 @@ export const AddressFields = ({
   ) : (
     <DropdownInput
       name={`${name}.state`}
+      data-testid={`${name}.state`}
       id={`state_${addressFieldsUUID.current}`}
       label="State"
       options={statesList}
@@ -96,6 +100,7 @@ export const AddressFields = ({
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
+            data-testid={`${name}.streetAddress1`}
             validate={validators?.streetAddress1}
           />
           <TextField
@@ -103,6 +108,7 @@ export const AddressFields = ({
             labelHint="Optional"
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
+            data-testid={`${name}.streetAddress2`}
             validate={validators?.streetAddress2}
           />
           <TextField
@@ -110,6 +116,7 @@ export const AddressFields = ({
             labelHint="Optional"
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
+            data-testid={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
           />
           {handleZipCityChange && (

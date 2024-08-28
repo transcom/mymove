@@ -446,14 +446,14 @@ describe('ShipmentForm component', () => {
         await user.click(screen.getByLabelText('Use current address'));
       });
 
-      expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
+      expect(await screen.getByTestId('pickup.address.streetAddress1')).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
       );
 
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postalCode);
+      expect(screen.getByTestId('pickup.address.streetAddress2')).toHaveValue('');
+      expect(screen.getByTestId('pickup.address.city')).toHaveValue(defaultProps.currentResidence.city);
+      expect(screen.getByTestId('pickup.address.state')).toHaveValue(defaultProps.currentResidence.state);
+      expect(screen.getByTestId('pickup.address.postalCode')).toHaveValue(defaultProps.currentResidence.postalCode);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -543,11 +543,11 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
       expect(screen.getByLabelText('Use current address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
+      expect(screen.getByTestId('pickup.address.streetAddress2')).toHaveValue('');
+      expect(screen.getByTestId('pickup.address.city')).toHaveValue('San Antonio');
+      expect(screen.getByTestId('pickup.address.state')).toHaveValue('TX');
+      expect(screen.getByTestId('pickup.address.postalCode')).toHaveValue('78234');
       expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
@@ -591,11 +591,11 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
       expect(screen.getByLabelText('Use current address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
-      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
+      expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
+      expect(screen.getByTestId('pickup.address.streetAddress2')).toHaveValue('');
+      expect(screen.getByTestId('pickup.address.city')).toHaveValue('San Antonio');
+      expect(screen.getByTestId('pickup.address.state')).toHaveValue('TX');
+      expect(screen.getByTestId('pickup.address.postalCode')).toHaveValue('78234');
       expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
@@ -1080,17 +1080,17 @@ describe('ShipmentForm component', () => {
       await act(async () => {
         await userEvent.type(screen.getByLabelText('Planned Departure Date'), '26 Mar 2022');
 
-        await userEvent.type(screen.getAllByLabelText('Address 1')[0], 'Test Street 1');
-        await userEvent.type(screen.getAllByLabelText('City')[0], 'TestOne City');
-        const pickupStateInput = screen.getAllByLabelText('State')[0];
+        await userEvent.type(screen.getByTestId('pickup.address.streetAddress1'), 'Test Street 1');
+        await userEvent.type(screen.getByTestId('pickup.address.city'), 'TestOne City');
+        const pickupStateInput = screen.getByTestId('pickup.address.state');
         await userEvent.selectOptions(pickupStateInput, 'CA');
-        await userEvent.type(screen.getAllByLabelText('ZIP')[0], '90210');
+        await userEvent.type(screen.getByTestId('pickup.address.postalCode'), '90210');
 
-        await userEvent.type(screen.getAllByLabelText('Address 1')[1], 'Test Street 3');
-        await userEvent.type(screen.getAllByLabelText('City')[1], 'TestTwo City');
-        const destinationStateInput = screen.getAllByLabelText('State')[1];
+        await userEvent.type(screen.getByTestId('destination.address.streetAddress1'), 'Test Street 3');
+        await userEvent.type(screen.getByTestId('destination.address.city'), 'TestTwo City');
+        const destinationStateInput = screen.getByTestId('destination.address.state');
         await userEvent.selectOptions(destinationStateInput, 'CA');
-        await userEvent.type(screen.getAllByLabelText('ZIP')[1], '90210');
+        await userEvent.type(screen.getByTestId('destination.address.postalCode'), '90210');
 
         await userEvent.type(screen.getByLabelText('Estimated PPM weight'), '1000');
 
@@ -1266,63 +1266,67 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+      expect(await screen.getByTestId('pickup.address.streetAddress1')).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
+      expect(await screen.getByTestId('pickup.address.streetAddress2')).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.city);
-      expect(await screen.getAllByLabelText('State')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.state);
-      expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(
+      expect(await screen.getByTestId('pickup.address.city')).toHaveValue(
+        mockPPMShipment.ppmShipment.pickupAddress.city,
+      );
+      expect(await screen.getByTestId('pickup.address.state')).toHaveValue(
+        mockPPMShipment.ppmShipment.pickupAddress.state,
+      );
+      expect(await screen.getByTestId('pickup.address.postalCode')).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+      expect(await screen.getByTestId('secondaryPickup.address.streetAddress1')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
+      expect(await screen.getByTestId('secondaryPickup.address.streetAddress2')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+      expect(await screen.getByTestId('secondaryPickup.address.city')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.city,
       );
-      expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+      expect(await screen.getByTestId('secondaryPickup.address.state')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+      expect(await screen.getByTestId('secondaryPickup.address.postalCode')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      expect(await screen.getByTestId('destination.address.streetAddress1')).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
+      expect(await screen.getByTestId('destination.address.streetAddress2')).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[2]).toHaveValue(
+      expect(await screen.getByTestId('destination.address.city')).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.city,
       );
-      expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
+      expect(await screen.getByTestId('destination.address.state')).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+      expect(await screen.getByTestId('destination.address.postalCode')).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      expect(await screen.getByTestId('secondaryDestination.address.streetAddress1')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
-      expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
+      expect(await screen.getByTestId('secondaryDestination.address.streetAddress2')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+      expect(await screen.getByTestId('secondaryDestination.address.city')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
       );
-      expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
+      expect(await screen.getByTestId('secondaryDestination.address.state')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+      expect(await screen.getByTestId('secondaryDestination.address.postalCode')).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
@@ -1389,63 +1393,67 @@ describe('ShipmentForm component', () => {
 
         expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-        expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
+        expect(await screen.getByTestId('pickup.address.streetAddress1')).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
         );
-        expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
+        expect(await screen.getByTestId('pickup.address.streetAddress2')).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
         );
-        expect(await screen.getAllByLabelText('City')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.city);
-        expect(await screen.getAllByLabelText('State')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.state);
-        expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(
+        expect(await screen.getByTestId('pickup.address.city')).toHaveValue(
+          mockPPMShipment.ppmShipment.pickupAddress.city,
+        );
+        expect(await screen.getByTestId('pickup.address.state')).toHaveValue(
+          mockPPMShipment.ppmShipment.pickupAddress.state,
+        );
+        expect(await screen.getByTestId('pickup.address.postalCode')).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
+        expect(await screen.getByTestId('secondaryPickup.address.streetAddress1')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
         );
-        expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
+        expect(await screen.getByTestId('secondaryPickup.address.streetAddress2')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
         );
-        expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+        expect(await screen.getByTestId('secondaryPickup.address.city')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.city,
         );
-        expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
+        expect(await screen.getByTestId('secondaryPickup.address.state')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
+        expect(await screen.getByTestId('secondaryPickup.address.postalCode')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+        expect(await screen.getByTestId('destination.address.streetAddress1')).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
         );
-        expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
+        expect(await screen.getByTestId('destination.address.streetAddress2')).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress2,
         );
-        expect(await screen.getAllByLabelText('City')[2]).toHaveValue(
+        expect(await screen.getByTestId('destination.address.city')).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.city,
         );
-        expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
+        expect(screen.getByTestId('destination.address.state')).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
+        expect(await screen.getByTestId('destination.address.postalCode')).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+        expect(await screen.getByTestId('secondaryDestination.address.streetAddress1')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
         );
-        expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
+        expect(await screen.getByTestId('secondaryDestination.address.streetAddress2')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
         );
-        expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
+        expect(await screen.getByTestId('secondaryDestination.address.city')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
         );
-        expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
+        expect(await screen.getByTestId('secondaryDestination.address.state')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
         );
-        expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+        expect(await screen.getByTestId('secondaryDestination.address.postalCode')).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
         );
 
