@@ -182,7 +182,7 @@ func (h UpdateShipmentDestinationAddressHandler) Handle(params mtoshipmentops.Up
 
 			eTag := params.IfMatch
 
-			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, addressUpdate.NewAddress, addressUpdate.ContractorRemarks, eTag)
+			response, err := h.ShipmentAddressUpdateRequester.RequestShipmentDeliveryAddressUpdate(appCtx, shipmentID, *addressUpdate, addressUpdate.ContractorRemarks, eTag)
 
 			if err != nil {
 				appCtx.Logger().Error("primeapi.UpdateShipmentDestinationAddressHandler error", zap.Error(err))

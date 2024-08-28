@@ -170,13 +170,11 @@ func (a *Address) Copy() *Address {
 }
 
 func (a Address) IsAddressEmpty() bool {
-	return a.ID == uuid.Nil &&
-		a.StreetAddress1 == "" &&
-		(a.StreetAddress2 == nil || *a.StreetAddress2 == "") &&
-		(a.StreetAddress3 == nil || *a.StreetAddress3 == "") &&
-		a.City == "" &&
-		a.State == "" &&
-		a.PostalCode == "" &&
-		(a.Country == nil || *a.Country == "") &&
-		a.County == ""
+	return IsNullEmptyOrWhitespace(a.StreetAddress1) &&
+		IsNullEmptyOrWhitespace(a.City) &&
+		IsNullEmptyOrWhitespace(a.State) &&
+		IsNullEmptyOrWhitespace(a.PostalCode)
+}
+func IsNullEmptyOrWhitespace(s string) bool {
+    return len(strings.TrimSpace(s)) == 0
 }

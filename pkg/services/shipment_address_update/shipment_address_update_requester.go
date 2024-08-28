@@ -231,7 +231,7 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 }
 
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
-func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, shipmentUpdate models.ShipmentAddressUpdate, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, NewAddress models.ShipmentAddressUpdate, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
 	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "StorageFacility.Address","SecondaryPickupAddress","TertiaryPickupAddress", "MTOServiceItems.ReService", "DestinationAddress","SecondaryDeliveryAddress","TertiaryDeliveryAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
@@ -259,10 +259,6 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 			// If we didn't find an existing update, we'll need to make a new one
 			addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
 			addressUpdate.OriginalAddress = *shipment.DestinationAddress
-			addressUpdate.OriginalSecondaryAddress = *shipment.SecondaryDeliveryAddress
-			addressUpdate.OriginalSecondaryAddressID = *shipment.SecondaryDeliveryAddressID
-			addressUpdate.OriginalTertiaryAddress = *shipment.TertiaryDeliveryAddress
-			addressUpdate.OriginalTertiaryAddressID = *shipment.TertiaryDeliveryAddressID
 			addressUpdate.ShipmentID = shipmentID
 			addressUpdate.OfficeRemarks = nil
 		} else {
@@ -271,8 +267,14 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	} else {
 		addressUpdate.OriginalAddressID = *shipment.DestinationAddressID
 		addressUpdate.OriginalAddress = *shipment.DestinationAddress
+	}
+
+	if shipment.SecondaryDeliveryAddress != nil {
 		addressUpdate.OriginalSecondaryAddress = *shipment.SecondaryDeliveryAddress
 		addressUpdate.OriginalSecondaryAddressID = *shipment.SecondaryDeliveryAddressID
+	}
+
+	if shipment.TertiaryDeliveryAddress != nil {
 		addressUpdate.OriginalTertiaryAddress = *shipment.TertiaryDeliveryAddress
 		addressUpdate.OriginalTertiaryAddressID = *shipment.TertiaryDeliveryAddressID
 	}
@@ -282,26 +284,33 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	//addressUpdate.createShipmentAddresses(appCtx, shipment)
 
-	address, err := f.addressCreator.CreateAddress(appCtx, &shipmentUpdate.NewAddress)
+	address, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewAddress)
 	if err != nil {
 		return nil, err
 	}
 	addressUpdate.NewAddressID = address.ID
 	addressUpdate.NewAddress = *address
 
-	secondaryAddress, err := f.addressCreator.CreateAddress(appCtx, &shipmentUpdate.NewSecondaryAddress)
+	if !NewAddress.NewSecondaryAddress.IsAddressEmpty() {
+	 secondaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewSecondaryAddress)
 	if err != nil {
 		return nil, err
 	}
 	addressUpdate.NewSecondaryAddressID = secondaryAddress.ID
 	addressUpdate.NewSecondaryAddress = *secondaryAddress
+}
 
-	tertiaryAddress, err := f.addressCreator.CreateAddress(appCtx, &shipmentUpdate.NewTertiaryAddress)
+	if !NewAddress.NewTertiaryAddress.IsAddressEmpty() {
+		tertiaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewTertiaryAddress)
 	if err != nil {
 		return nil, err
 	}
 	addressUpdate.NewTertiaryAddressID = tertiaryAddress.ID
 	addressUpdate.NewTertiaryAddress = *tertiaryAddress
+	}
+
+
+
 
 
 	// if the shipment contains destination SIT service items, we need to update the addressUpdate data

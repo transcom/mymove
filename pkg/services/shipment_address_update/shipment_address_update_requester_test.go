@@ -87,8 +87,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "94535",
 			Country:        models.StringPointer("United States"),
 		}
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -115,8 +118,12 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     shipment.DestinationAddress.PostalCode,
 			Country:        models.StringPointer("United States"),
 		}
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+
 		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt.Add(-1)))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt.Add(-1)))
 		suite.Error(err)
 		suite.Nil(update)
 	})
@@ -143,7 +150,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "90210",
 			Country:        models.StringPointer("United States"),
 		}
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
 		suite.Nil(update)
 	})
@@ -184,7 +194,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 				},
 			},
 		}, nil)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 	})
@@ -203,7 +216,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 				LinkOnly: true,
 			},
 		}, nil)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
 		suite.Nil(update)
 	})
@@ -216,6 +232,9 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "90210",
 			Country:        models.StringPointer("United States"),
 		}
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
 			{
@@ -227,7 +246,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 				LinkOnly: true,
 			},
 		}, nil)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 	})
@@ -251,8 +270,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			"94535",
 			"94535",
 		).Return(2500, nil).Twice()
-
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -263,7 +284,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 		err = suite.DB().Find(&updatedShipment, shipment.ID)
 		suite.NoError(err)
 
-		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address again", etag.GenerateEtag(updatedShipment.UpdatedAt))
+		update, err = addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address again", etag.GenerateEtag(updatedShipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -302,8 +323,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -347,8 +371,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			PostalCode:     "89503",
 			Country:        models.StringPointer("United States"),
 		}
-
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -433,8 +459,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 				Type: &factory.Addresses.DeliveryAddress,
 			},
 		}, nil)
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -498,8 +527,12 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			mock.AnythingOfType("string"),
 			"87053",
 		).Return(501, nil).Once()
+
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		suite.NotEmpty(move.MTOShipments)
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 		suite.Equal(models.ShipmentAddressUpdateStatusRequested, update.Status)
@@ -561,14 +594,15 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			"94535",
 			"90210",
 		).Return(501, nil).Once()
-
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		// request the update
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.NoError(err)
 		suite.NotNil(update)
 
 		// querying the address update to make sure that SIT data was populated
-		var addressUpdate models.ShipmentAddressUpdate
 		err = suite.DB().Find(&addressUpdate, update.ID)
 		suite.NoError(err)
 		suite.Equal(*addressUpdate.NewSitDistanceBetween, 501)
@@ -816,9 +850,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     "89503",
 			Country:        models.StringPointer("United States"),
 		}
-
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
-		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
@@ -887,9 +923,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     "89503",
 			Country:        models.StringPointer("United States"),
 		}
-
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
-		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
@@ -929,8 +967,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			"94535",
 			"94535",
 		).Return(2500, nil).Once()
-
-		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
 
 		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.ShipmentID, "APPROVED", officeRemarks)
@@ -982,9 +1022,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     "89503",
 			Country:        models.StringPointer("United States"),
 		}
-
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
-		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
@@ -1044,8 +1086,11 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		factory.BuildRealMTOServiceItemWithAllDeps(suite.DB(), models.ReServiceCodeDSH, move, shipment, nil, nil)
 		factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeDLH)
 
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
 		// Trigger the prime address update to get move in correct state for DSH -> DLH
-		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressChange, _ := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		officeRemarks := "This is a TOO remark"
 
 		// TOO Approves address change
@@ -1088,8 +1133,10 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			PostalCode:     shipment.DestinationAddress.PostalCode,
 			Country:        shipment.DestinationAddress.Country,
 		}
-
-		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "Submitting same address", etag.GenerateEtag(shipment.UpdatedAt))
+		addressUpdate := models.ShipmentAddressUpdate{
+			NewAddress: newAddress,
+		}
+		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, addressUpdate, "Submitting same address", etag.GenerateEtag(shipment.UpdatedAt))
 
 		suite.NoError(err)
 		suite.NotNil(update)

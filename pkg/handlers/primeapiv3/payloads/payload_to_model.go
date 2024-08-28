@@ -221,12 +221,12 @@ func ShipmentAddressUpdateModel(nonSITAddressUpdate *primev3messages.UpdateShipm
 	}
 
 	secondaryAddressModel := AddressModel(nonSITAddressUpdate.NewSecondaryAddress)
-	if addressModel != nil {
+	if addressModel != nil && secondaryAddressModel != nil {
 		model.NewSecondaryAddress = *secondaryAddressModel
 	}
 
 	tertiaryAddressModel := AddressModel(nonSITAddressUpdate.NewTertiaryAddress)
-	if addressModel != nil {
+	if addressModel != nil && tertiaryAddressModel != nil {
 		model.NewTertiaryAddress = *tertiaryAddressModel
 	}
 

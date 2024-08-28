@@ -335,12 +335,12 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 			},
 			{
 				Model:    tertiaryDeliveryAddress,
-				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+				Type:     &factory.Addresses.TertiaryDeliveryAddress,
 				LinkOnly: true,
 			},
 			{
 				Model:    tertiaryPickupAddress,
-				Type:     &factory.Addresses.SecondaryPickupAddress,
+				Type:     &factory.Addresses.TertiaryPickupAddress,
 				LinkOnly: true,
 			},
 			{
