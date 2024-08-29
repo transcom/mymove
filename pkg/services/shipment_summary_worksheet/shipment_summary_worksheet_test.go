@@ -1053,6 +1053,16 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 		},
 	}, nil)
 
+	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	movingExpense := models.MovingExpense{
+		MovingExpenseType: &storageExpenseType,
+		Amount:            models.CentPointer(unit.Cents(67899)),
+		SITStartDate:      models.TimePointer(time.Now()),
+		SITEndDate:        models.TimePointer(time.Now()),
+	}
+
+	factory.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment, nil, &movingExpense)
+
 	ppmShipmentID := ppmShipment.ID
 
 	serviceMemberID := ppmShipment.Shipment.MoveTaskOrder.Orders.ServiceMemberID
