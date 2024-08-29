@@ -27,6 +27,7 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name={middleInitialFieldName}
             id="officeAccountRequestMiddleInitial"
             labelHint="optional"
+            optional
           />
           <TextField label="Last Name" name={lastNameFieldName} id="officeAccountRequestLastName" />
           <TextField label="Email" name={emailField} id="officeAccountRequestEmail" />
@@ -96,6 +97,13 @@ export const OfficeAccountRequestFields = ({ render }) => {
             name="customerSupportRepresentativeCheckBox"
             label="Customer Support Representative"
           />
+          {/* this will be uncommented in B-20809
+          <CheckboxField
+            id="governmentSurveillanceRepresentativeCheckbox"
+            data-testid="governmentSurveillanceRepresentativeCheckbox"
+            name="governmentSurveillanceRepresentativeCheckbox"
+            label="Government Surveillance Representative"
+          /> */}
         </>,
       )}
     </Fieldset>

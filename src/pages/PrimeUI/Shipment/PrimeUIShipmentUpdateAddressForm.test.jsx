@@ -132,10 +132,11 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
       />,
     );
     await userEvent.clear(screen.getByLabelText('Address 1'));
-    (await screen.getByLabelText('Address 1')).blur();
+    const input = await screen.getByLabelText('Address 1');
+    await input.blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(input.parentElement.parentElement.classList.contains('usa-input-error'));
     });
   });
 
@@ -149,11 +150,12 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         name="pickupAddress.address"
       />,
     );
-    await userEvent.clear(screen.getByLabelText('City'));
-    (await screen.getByLabelText('City')).blur();
+    const input = await screen.getByLabelText('City');
+    await userEvent.clear(input);
+    await input.blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(screen.getByText('Required')).toBeInTheDocument();
+      expect(input.parentElement.parentElement.classList.contains('usa-input-error'));
     });
   });
 });

@@ -51,6 +51,18 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 	return nil
 }
 
+func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
+	if officeUser != nil {
+		payload := ghcmessages.AssignedOfficeUser{
+			ID:        strfmt.UUID(officeUser.ID.String()),
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+		}
+		return &payload
+	}
+	return nil
+}
+
 // Move payload
 func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
@@ -103,6 +115,9 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:          additionalDocumentsPayload,
+		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -921,6 +936,55 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(storer storage.FileStorer, boatShipment *models.BoatShipment) *ghcmessages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadBoatShipment := &ghcmessages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           models.StringPointer(string(boatShipment.Type)),
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadBoatShipment
+}
+
+// MobileHomeShipment payload
+func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.MobileHome) *ghcmessages.MobileHome {
+	if mobileHomeShipment == nil || mobileHomeShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadMobileHomeShipment := &ghcmessages.MobileHome{
+		ID:             *handlers.FmtUUID(mobileHomeShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(mobileHomeShipment.ShipmentID),
+		Make:           *mobileHomeShipment.Make,
+		Model:          *mobileHomeShipment.Model,
+		Year:           *handlers.FmtIntPtrToInt64(mobileHomeShipment.Year),
+		LengthInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.LengthInInches),
+		HeightInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.HeightInInches),
+		WidthInInches:  *handlers.FmtIntPtrToInt64(mobileHomeShipment.WidthInInches),
+		CreatedAt:      strfmt.DateTime(mobileHomeShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(mobileHomeShipment.UpdatedAt),
+		ETag:           etag.GenerateEtag(mobileHomeShipment.UpdatedAt),
+	}
+
+	return payloadMobileHomeShipment
+}
+
 // ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
 func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*ghcmessages.ProGearWeightTicket {
 	payload := make([]*ghcmessages.ProGearWeightTicket, len(proGearWeightTickets))
@@ -1342,6 +1406,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
+		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
@@ -1826,6 +1892,11 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
@@ -1899,6 +1970,11 @@ func PayloadForUploadModel(
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"

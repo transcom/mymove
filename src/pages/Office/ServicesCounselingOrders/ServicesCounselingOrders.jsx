@@ -250,12 +250,12 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = async (values) => {
-    const response = await getOrder(null, orderId);
-    let newEtag = order.eTag;
-    if (response) {
-      newEtag = response.orders[orderId].eTag;
+    const orderResponse = await getOrder(null, orderId);
+    let newOrderEtag = order.eTag;
+    if (orderResponse) {
+      newOrderEtag = orderResponse.orders[orderId].eTag;
     }
-    const body = {
+    const orderBody = {
       ...values,
       originDutyLocationId: values.originDutyLocation.id,
       newDutyLocationId: values.newDutyLocation.id,
@@ -264,7 +264,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
       ordersType: values.ordersType,
       grade: values.payGrade,
     };
-    mutateOrders({ orderID: orderId, ifMatchETag: newEtag, body });
+    mutateOrders({ orderID: orderId, ifMatchETag: newOrderEtag, body: orderBody });
   };
 
   const initialValues = {
@@ -370,6 +370,7 @@ const ServicesCounselingOrders = ({ files, amendedDocumentId, updateAmendedDocum
                     payGradeOptions={payGradeDropdownOptions}
                     hhgLongLineOfAccounting={loaValidationState[LOA_TYPE.HHG].longLineOfAccounting}
                     ntsLongLineOfAccounting={loaValidationState[LOA_TYPE.NTS].longLineOfAccounting}
+                    touched={formik.touched}
                   />
                 </div>
                 <div className={styles.bottom}>

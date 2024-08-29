@@ -50,7 +50,7 @@ describe('DodInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...testProps} />);
+    const { getByRole, getAllByTestId, getByLabelText } = render(<DodInfoForm {...testProps} />);
     await userEvent.click(getByLabelText('Branch of service'));
     await userEvent.click(getByLabelText('DOD ID number'));
 
@@ -58,7 +58,7 @@ describe('DodInfoForm component', () => {
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(1);
+      expect(getAllByTestId('errorMessage').length).toBe(1);
       expect(submitBtn).toBeDisabled();
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
@@ -94,7 +94,7 @@ describe('DodInfoForm component', () => {
 
   describe('Coast Guard Customers', () => {
     it('shows an error message if EMPLID not present ', async () => {
-      const { getByRole, getAllByText, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);
+      const { getByRole, getAllByTestId, getByLabelText } = render(<DodInfoForm {...coastGuardTestProps} />);
       await userEvent.click(getByLabelText('Branch of service'));
       await userEvent.click(getByLabelText('DOD ID number'));
       await userEvent.click(getByLabelText('EMPLID'));
@@ -103,7 +103,7 @@ describe('DodInfoForm component', () => {
       await userEvent.click(submitBtn);
 
       await waitFor(() => {
-        expect(getAllByText('Required').length).toBe(1);
+        expect(getAllByTestId('errorMessage').length).toBe(1);
         expect(submitBtn).toBeDisabled();
       });
       expect(testProps.onSubmit).not.toHaveBeenCalled();

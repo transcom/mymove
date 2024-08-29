@@ -29,6 +29,7 @@ export const customerRoutes = {
   SHIPMENT_CREATE_PATH: '/moves/:moveId/new-shipment',
   SHIPMENT_EDIT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/edit',
   SHIPMENT_BOAT_LOCATION_INFO: '/moves/:moveId/shipments/:mtoShipmentId/location-info',
+  SHIPMENT_MOBILE_HOME_LOCATION_INFO: '/moves/:moveId/shipments/:mtoShipmentId/location-info',
   SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH: '/moves/:moveId/shipments/:mtoShipmentId/estimated-weight',
   SHIPMENT_PPM_ESTIMATED_INCENTIVE_PATH: '/moves/:moveId/shipments/:mtoShipmentId/estimated-incentive',
   SHIPMENT_PPM_ADVANCES_PATH: '/moves/:moveId/shipments/:mtoShipmentId/advances',
@@ -131,7 +132,7 @@ export const tooRoutes = {
   CUSTOMER_INFO_EDIT_PATH: 'customer',
 };
 
-// QAE and CSR share all routes, just different permission levels
+// QAE, CSR, and GSR share all routes, just different permission levels
 export const qaeCSRRoutes = {
   MOVE_SEARCH_PATH: '/qaecsr/search',
   BASE_EVALUATION_REPORTS_PATH: `${BASE_MOVES_PATH}/evaluation-reports`,
