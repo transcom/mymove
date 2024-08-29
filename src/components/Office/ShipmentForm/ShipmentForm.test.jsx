@@ -195,7 +195,6 @@ const defaultProps = {
     postalCode: '31905',
     streetAddress1: '123 Main',
     streetAddress2: '',
-    county: 'MUSCOGEE',
   },
   serviceMember: {
     weightAllotment: {
