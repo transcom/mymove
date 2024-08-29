@@ -1884,7 +1884,8 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
 
 		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
-			FullName:           officeUser.LastName + ", " + officeUser.FirstName,
+			LastName:           officeUser.LastName,
+			FirstName:          officeUser.FirstName,
 			OfficeUserID:       *handlers.FmtUUID(officeUser.ID),
 			HasSafetyPrivilege: swag.BoolValue(&hasSafety),
 		}
