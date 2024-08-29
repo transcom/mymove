@@ -149,7 +149,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
-		if v.GetString(cli.EnvironmentFlag) != "development" {
+		if v.GetString(cli.EnvironmentFlag) == "prd" || v.GetString(cli.EnvironmentFlag) == "stg" {
 			err = setupAWS(v, lockedPR, edi858cString)
 			if err != nil {
 				return fmt.Errorf("failure storing 858 to s3%w", err)
