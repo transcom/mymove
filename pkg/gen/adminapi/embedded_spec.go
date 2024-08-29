@@ -1385,6 +1385,36 @@ func init() {
         }
       }
     },
+    "/user": {
+      "get": {
+        "description": "Returns the admin user info for the currently logged in user",
+        "tags": [
+          "User"
+        ],
+        "summary": "Gets the data about the currently signed in admin user",
+        "operationId": "getLoggedInAdminUser",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Admin User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "description": "This endpoint returns a list of Users. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
@@ -1952,6 +1982,7 @@ func init() {
         "userId",
         "organizationId",
         "active",
+        "super",
         "createdAt",
         "updatedAt"
       ],
@@ -1984,6 +2015,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "super": {
+          "type": "boolean"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -2015,6 +2049,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "super": {
+          "type": "boolean"
         }
       }
     },
@@ -2033,6 +2070,10 @@ func init() {
         "lastName": {
           "type": "string",
           "title": "Last Name",
+          "x-nullable": true
+        },
+        "super": {
+          "type": "boolean",
           "x-nullable": true
         }
       }
@@ -2080,6 +2121,9 @@ func init() {
           "type": "boolean"
         },
         "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPPTAS": {
           "type": "boolean"
         },
         "allowPrime": {
@@ -2156,6 +2200,9 @@ func init() {
         "allowOrdersAPI": {
           "type": "boolean"
         },
+        "allowPPTAS": {
+          "type": "boolean"
+        },
         "allowPrime": {
           "type": "boolean"
         },
@@ -2221,6 +2268,10 @@ func init() {
           "x-nullable": true
         },
         "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPPTAS": {
           "type": "boolean",
           "x-nullable": true
         },
@@ -3334,7 +3385,7 @@ func init() {
     },
     {
       "description": "Information about requested office users",
-      "name": "Requested Office Users",
+      "name": "Requested office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }
@@ -4723,6 +4774,36 @@ func init() {
         }
       }
     },
+    "/user": {
+      "get": {
+        "description": "Returns the admin user info for the currently logged in user",
+        "tags": [
+          "User"
+        ],
+        "summary": "Gets the data about the currently signed in admin user",
+        "operationId": "getLoggedInAdminUser",
+        "responses": {
+          "200": {
+            "description": "success",
+            "schema": {
+              "$ref": "#/definitions/AdminUser"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "401": {
+            "description": "request requires user authentication"
+          },
+          "404": {
+            "description": "Admin User not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/users": {
       "get": {
         "description": "This endpoint returns a list of Users. Do not use this endpoint directly as it\nis meant to be used with the Admin UI exclusively.\n",
@@ -5290,6 +5371,7 @@ func init() {
         "userId",
         "organizationId",
         "active",
+        "super",
         "createdAt",
         "updatedAt"
       ],
@@ -5322,6 +5404,9 @@ func init() {
           "type": "string",
           "format": "uuid"
         },
+        "super": {
+          "type": "boolean"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -5353,6 +5438,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "super": {
+          "type": "boolean"
         }
       }
     },
@@ -5371,6 +5459,10 @@ func init() {
         "lastName": {
           "type": "string",
           "title": "Last Name",
+          "x-nullable": true
+        },
+        "super": {
+          "type": "boolean",
           "x-nullable": true
         }
       }
@@ -5418,6 +5510,9 @@ func init() {
           "type": "boolean"
         },
         "allowOrdersAPI": {
+          "type": "boolean"
+        },
+        "allowPPTAS": {
           "type": "boolean"
         },
         "allowPrime": {
@@ -5494,6 +5589,9 @@ func init() {
         "allowOrdersAPI": {
           "type": "boolean"
         },
+        "allowPPTAS": {
+          "type": "boolean"
+        },
         "allowPrime": {
           "type": "boolean"
         },
@@ -5559,6 +5657,10 @@ func init() {
           "x-nullable": true
         },
         "allowOrdersAPI": {
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "allowPPTAS": {
           "type": "boolean",
           "x-nullable": true
         },
@@ -6677,7 +6779,7 @@ func init() {
     },
     {
       "description": "Information about requested office users",
-      "name": "Requested Office Users",
+      "name": "Requested office users",
       "externalDocs": {
         "url": "https://transcom.github.io/mymove-docs/docs/api"
       }

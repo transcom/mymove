@@ -157,6 +157,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		CertificationIndexSignedCertificationHandler: certification.IndexSignedCertificationHandlerFunc(func(params certification.IndexSignedCertificationParams) middleware.Responder {
 			return middleware.NotImplemented("operation certification.IndexSignedCertification has not yet been implemented")
 		}),
+		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
+			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
+		}),
 		UsersIsLoggedInUserHandler: users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
 		}),
@@ -375,6 +378,8 @@ type MymoveAPI struct {
 	BackupContactsIndexServiceMemberBackupContactsHandler backup_contacts.IndexServiceMemberBackupContactsHandler
 	// CertificationIndexSignedCertificationHandler sets the operation handler for the index signed certification operation
 	CertificationIndexSignedCertificationHandler certification.IndexSignedCertificationHandler
+	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
+	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// UsersIsLoggedInUserHandler sets the operation handler for the is logged in user operation
 	UsersIsLoggedInUserHandler users.IsLoggedInUserHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -621,6 +626,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.CertificationIndexSignedCertificationHandler == nil {
 		unregistered = append(unregistered, "certification.IndexSignedCertificationHandler")
+	}
+	if o.CalendarIsDateWeekendHolidayHandler == nil {
+		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
 	}
 	if o.UsersIsLoggedInUserHandler == nil {
 		unregistered = append(unregistered, "users.IsLoggedInUserHandler")
@@ -945,6 +953,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/moves/{moveId}/signed_certifications"] = certification.NewIndexSignedCertification(o.context, o.CertificationIndexSignedCertificationHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/calendar/{countryCode}/is-weekend-holiday/{date}"] = calendar.NewIsDateWeekendHoliday(o.context, o.CalendarIsDateWeekendHolidayHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
