@@ -198,239 +198,35 @@ paths:
     post:
       summary: createMTOShipment
       description: |
-        _[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.
-        Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
-
-        Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
-        need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
-        approve it before the contractor can proceed with billing.
-
-        **WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
-        one of their moves. Otherwise, the Prime can fetch the related move using the
-        [getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
-      consumes:
-        - application/json
-      produces:
-        - application/json
+        _[Deprecated: this endpoint was deprecated on August 5th, 2024]_
+        Please use the new endpoint at `/prime/v3/createMTOShipment` instead.
       operationId: createMTOShipment
       tags:
         - mtoShipment
-      parameters:
-        - in: body
-          name: body
-          schema:
-            $ref: '#/definitions/CreateMTOShipment'
-          x-examples:
-            application/json:
-              hhg:
-                summary: HHG
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG',
-                    'requestedPickupDate': '2022-12-31',
-                    'pickupAddress':
-                      {
-                        'streetAddress1': '204 South Prospect Lane',
-                        'city': 'Muldraugh',
-                        'state': 'KY',
-                        'postalCode': '40155',
-                      },
-                  }
-              nts:
-                summary: NTS
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG_INTO_NTS_DOMESTIC',
-                    'requestedPickupDate': '2022-12-31',
-                    'pickupAddress':
-                      {
-                        'streetAddress1': '204 South Prospect Lane',
-                        'city': 'Muldraugh',
-                        'state': 'KY',
-                        'postalCode': '40155',
-                      },
-                    'agents':
-                      [
-                        {
-                          'firstName': 'Edgar',
-                          'lastName': 'Taylor',
-                          'email': 'edgar.taylor@example.com',
-                          'phone': '555-555-5555',
-                          'agentType': 'RELEASING_AGENT',
-                        },
-                      ],
-                  }
-              nts-r:
-                summary: NTS Release
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'HHG_OUTOF_NTS_DOMESTIC',
-                    'agents':
-                      [
-                        {
-                          'firstName': 'Edgar',
-                          'lastName': 'Taylor',
-                          'email': 'edgar.taylor@example.com',
-                          'phone': '555-555-5555',
-                          'agentType': 'RECEIVING_AGENT',
-                        },
-                      ],
-                  }
-              ppm:
-                summary: PPM
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'shipmentType': 'PPM',
-                    'ppmShipment':
-                      {
-                        'expectedDepartureDate': '2022-10-01',
-                        'estimatedWeight': 4999,
-                        'hasProGear': false,
-                        'sitExpected': false,
-                      },
-                  }
+      deprecated: true
       responses:
-        '200':
-          description: Successfully created a MTO shipment.
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '404':
-          $ref: 'responses/NotFound.yaml'
-        '422':
-          $ref: 'responses/UnprocessableEntity.yaml'
-        '500':
-          $ref: '#/responses/ServerError'
+        '410':
+          description: This endpoint is deprecated. Please use `/prime/v3/createMTOShipment` instead.
   /mto-shipments/{mtoShipmentID}:
     patch:
       summary: updateMTOShipment
       description: |
-        _[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.
-        Please use the new endpoint at `/prime/v2/updateMTOShipment` instead.
-
-        **DEPRECATION ON AUGUST 5TH, 2024**
-        Following deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address
-        for SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require
-        deprecation for this change.
-
-        Updates an existing shipment for a move.
-
-        Note that there are some restrictions on nested objects:
-
-        * Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
-        * Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
-        * Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
-
-        These restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.
-
-        Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+        _[Deprecated: this endpoint was deprecated on August 5th, 2024]_
+        Please use the new endpoint at `/prime/v3/updateMTOShipment` instead.
       operationId: updateMTOShipment
       tags:
         - mtoShipment
-      consumes:
-        - application/json
-      produces:
-        - application/json
+      deprecated: true
       parameters:
         - in: path
           name: mtoShipmentID
           description: UUID of the shipment being updated.
           required: true
-          format: uuid
           type: string
-        - in: body
-          name: body
-          required: true
-          schema:
-            $ref: '#/definitions/UpdateMTOShipment'
-          x-examples:
-            application/json:
-              hhg:
-                summary: HHG
-                value:
-                  {
-                    'scheduledPickupDate': '2022-12-30',
-                    'actualPickupDate': '2022-12-29',
-                    'firstAvailableDeliveryDate': '2023-01-04',
-                    'primeEstimatedWeight': 4250,
-                    'primeActualWeight': 4500,
-                    'destinationAddress':
-                      {
-                        'streetAddress1': '6622 Airport Way S',
-                        'streetAddress2': '#1430',
-                        'city': 'Great Bend',
-                        'state': 'NY',
-                        'postalCode': '13643',
-                      },
-                    'pointOfContact': 'peyton.wing@example.com',
-                  }
-              nts:
-                summary: NTS
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'scheduledPickupDate': '2022-12-30',
-                    'actualPickupDate': '2022-12-29',
-                    'estimatedWeight': 4250,
-                    'actualWeight': 4500,
-                    'counselorRemarks': 'Beware of dogs on property',
-                  }
-              nts-r:
-                summary: NTS Release
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'ntsRecordedWeight': 4500,
-                    'destinationAddress':
-                      {
-                        'streetAddress1': '812 S 129th Street',
-                        'city': 'San Antonio',
-                        'state': 'TX',
-                        'postalCode': '78245',
-                      },
-                  }
-              ppm:
-                summary: PPM
-                value:
-                  {
-                    'moveTaskOrderId': '5691c951-c35c-49a8-a1d5-a4b7ea7b7ad8',
-                    'ppmShipment':
-                      {
-                        'hasProGear': true,
-                        'proGearWeight': 830,
-                        'spouseProGearWeight': 366,
-                        'sitExpected': true,
-                        'sitLocation': 'DESTINATION',
-                        'sitEstimatedWeight': 1760,
-                        'sitEstimatedEntryDate': '2022-10-06',
-                        'sitEstimatedDepartureDate': '2022-10-13',
-                      },
-                  }
-        - $ref: 'parameters/ifMatch.yaml'
+          format: uuid
       responses:
-        '200':
-          description: Successfully updated the MTO shipment.
-          schema:
-            $ref: '#/definitions/MTOShipment'
-        '400':
-          $ref: '#/responses/InvalidRequest'
-        '401':
-          $ref: 'responses/PermissionDenied.yaml'
-        '403':
-          $ref: 'responses/PermissionDenied.yaml'
-        '404':
-          $ref: 'responses/NotFound.yaml'
-        '412':
-          $ref: '#/responses/PreconditionFailed'
-        '422':
-          $ref: 'responses/UnprocessableEntity.yaml'
-        '500':
-          $ref: '#/responses/ServerError'
+        '410':
+          description: This endpoint is deprecated. Please use `/prime/v3/updateMTOShipment` instead.
     delete:
       summary: deleteMTOShipment
       description: |
