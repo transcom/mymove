@@ -434,7 +434,6 @@ func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppCont
 
 // checkSITDepartureDate checks that the SITDepartureDate:
 // - is not later than the authorized end date
-// - is not before the current entry date
 func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext) error {
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
