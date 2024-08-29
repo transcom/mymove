@@ -11,6 +11,7 @@ import (
 	calendarop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/services"
 )
 
 // ShowAvailableMoveDatesHandler returns the available move dates starting at a given date.
@@ -49,5 +50,28 @@ func (h ShowAvailableMoveDatesHandler) Handle(params calendarop.ShowAvailableMov
 			availableMoveDatesPayload.Available = datesPayload
 
 			return calendarop.NewShowAvailableMoveDatesOK().WithPayload(&availableMoveDatesPayload), nil
+		})
+}
+
+type IsDateWeekendHolidayHandler struct {
+	handlers.HandlerConfig
+	services.DateSelectionChecker
+}
+
+func (h IsDateWeekendHolidayHandler) Handle(params calendarop.IsDateWeekendHolidayParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			date := time.Time(params.Date)
+			info, err := h.DateSelectionChecker.IsDateWeekendHoliday(appCtx, params.CountryCode, date)
+			if err != nil {
+				return calendarop.NewIsDateWeekendHolidayInternalServerError().WithPayload(nil), nil
+			}
+			var isDateWeekendHolidayInfo internalmessages.IsDateWeekendHolidayInfo
+			isDateWeekendHolidayInfo.CountryCode = &info.CountryCode
+			isDateWeekendHolidayInfo.CountryName = &info.CountryName
+			isDateWeekendHolidayInfo.Date = handlers.FmtDate(info.Date)
+			isDateWeekendHolidayInfo.IsWeekend = &info.IsWeekend
+			isDateWeekendHolidayInfo.IsHoliday = &info.IsHoliday
+			return calendarop.NewIsDateWeekendHolidayOK().WithPayload(&isDateWeekendHolidayInfo), nil
 		})
 }

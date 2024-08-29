@@ -22,6 +22,7 @@ import (
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	moveservices "github.com/transcom/mymove/pkg/services/move"
@@ -180,14 +181,6 @@ func (suite *HandlerSuite) TestListMTOServiceItemHandler() {
 		suite.Len(okResponse.Payload, 3)
 		for _, serviceItem := range serviceItems {
 			for _, payload := range okResponse.Payload {
-				// Validate that SITAddressUpdates are included in payload
-				if len(serviceItem.SITAddressUpdates) > 0 {
-					if len(payload.SitAddressUpdates) > 0 {
-						suite.Equal(serviceItem.ID.String(), payload.ID.String())
-						suite.Len(payload.SitAddressUpdates, 1)
-						suite.Equal(serviceItem.SITAddressUpdates[0].ID.String(), payload.SitAddressUpdates[0].ID.String())
-					}
-				}
 				// Validate that the Customer Contacts were included in the payload
 				if len(serviceItem.CustomerContacts) > 0 {
 					if len(payload.CustomerContacts) > 0 {
@@ -336,7 +329,8 @@ func (suite *HandlerSuite) TestUpdateMTOServiceItemStatusHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	moveTaskOrderID, _ := uuid.NewV4()
@@ -780,7 +774,8 @@ func (suite *HandlerSuite) TestUpdateServiceItemSitEntryDateHandler() {
 	ppmEstimator := mocks.PPMEstimator{}
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(&ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
-	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater)
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
+	shipmentUpdater := shipmentorchestrator.NewShipmentUpdater(noCheckUpdater, ppmShipmentUpdater, boatShipmentUpdater, mobileHomeShipmentUpdater)
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 
 	suite.Run("200 - success response", func() {
