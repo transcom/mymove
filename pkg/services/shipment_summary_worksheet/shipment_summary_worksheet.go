@@ -291,6 +291,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 		page2.Disbursement = formatDisbursement(expensesMap, data.PPMRemainingEntitlement)
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
+		page2.Disbursement = "N/A"
 	}
 	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
 	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
