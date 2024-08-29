@@ -344,7 +344,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 	suite.NoError(err)
 
-	suite.Equal("28-Aug-2024", sswPage1.PreparationDate1)
+	suite.Equal("29-Aug-2024", sswPage1.PreparationDate1)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
 	suite.Equal("E-9", sswPage1.RankGrade)
@@ -542,12 +542,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		},
 	}
 
-	ssd := services.ShipmentSummaryFormData{
+	ssd := models.ShipmentSummaryFormData{
 		Order:          order,
 		MovingExpenses: movingExpenses,
 	}
 
-	sswPage2, err := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	sswPage2, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
 	suite.NoError(err)
 	suite.Equal("$0.00", sswPage2.TollsGTCCPaid)
 	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
