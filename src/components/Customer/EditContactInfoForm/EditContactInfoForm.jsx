@@ -54,13 +54,13 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Your contact info</h2>
 
-              <CustomerContactInfoFields />
+              <CustomerContactInfoFields labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
               <h2>Current address</h2>
 
-              <AddressFields name={residentialAddressName} />
+              <AddressFields name={residentialAddressName} labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -70,7 +70,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 transit during your move.
               </p>
 
-              <AddressFields name={backupAddressName} />
+              <AddressFields name={backupAddressName} labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -80,7 +80,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 years of age or older.
               </p>
 
-              <BackupContactInfoFields name={backupContactName} />
+              <BackupContactInfoFields name={backupContactName} labelHint="Required" />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

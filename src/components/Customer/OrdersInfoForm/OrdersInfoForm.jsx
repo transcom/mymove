@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
-import { Radio, FormGroup, Label, Link as USWDSLink, ErrorMessage } from '@trussworks/react-uswds';
+import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-uswds';
 
 import styles from './OrdersInfoForm.module.scss';
 
@@ -40,20 +40,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
   });
 
   return (
-    <Formik
-      initialValues={initialValues}
-      validateOnMount
-      validationSchema={validationSchema}
-      onSubmit={onSubmit}
-      initialTouched={{ orders_type: true, issue_date: true, report_by_date: true, has_dependents: true, grade: true }}
-    >
-      {({ isValid, isSubmitting, handleSubmit, values, errors }) => {
+    <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
+      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
-        if (!values.origin_duty_location) originMeta = 'Required';
+        if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
         else originMeta = null;
 
-        if (!values.new_duty_location) newDutyMeta = 'Required';
+        if (!values.new_duty_location && touched.new_duty_location) newDutyMeta = 'Required';
         else newDutyMeta = null;
 
         return (
@@ -61,11 +55,18 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
-              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
+              <DropdownInput
+                label="Orders type"
+                name="orders_type"
+                options={ordersTypeOptions}
+                required
+                hint="Required"
+              />
               <DatePickerInput
                 name="issue_date"
                 label="Orders date"
                 required
+                hint="Required"
                 renderInput={(input) => (
                   <>
                     {input}
@@ -75,10 +76,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
+              <DatePickerInput
+                hint="Required"
+                name="report_by_date"
+                label={formatLabelReportByDate(values.orders_type)}
+                required
+              />
               <FormGroup>
-                <Label>Are dependents included in your orders?</Label>
-                {errors.has_dependents ? <ErrorMessage>{errors.has_dependents}</ErrorMessage> : null}
+                <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -103,6 +108,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
               <DutyLocationInput
                 label="Current duty location"
+                hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 required
@@ -136,7 +142,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
                   />
@@ -146,11 +152,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   name="new_duty_location"
                   label="New duty location"
                   displayAddress={false}
+                  hint="Required"
                   metaOverride={newDutyMeta}
                 />
               )}
 
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                hint="Required"
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

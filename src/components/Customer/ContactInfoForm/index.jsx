@@ -11,20 +11,14 @@ import { contactInfoSchema } from 'utils/validation';
 
 const ContactInfoForm = ({ initialValues, onSubmit, onBack }) => {
   return (
-    <Formik
-      initialValues={initialValues}
-      onSubmit={onSubmit}
-      validationSchema={contactInfoSchema}
-      validateOnMount
-      initialTouched={{ telephone: true }}
-    >
+    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={contactInfoSchema} validateOnMount>
       {({ isValid, isSubmitting, handleSubmit }) => {
         return (
           <Form className={formStyles.form}>
             <h1>Your contact info</h1>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
-                <CustomerContactInfoFields />
+                <CustomerContactInfoFields labelHint="Required" />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>
