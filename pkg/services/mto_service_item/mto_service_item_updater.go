@@ -371,9 +371,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 		// the authorized end date, we need to update the shipment authorized end date
 		// to be equal to the departure date
 		err = setShipmentAuthorizedEndDateToDepartureDate(appCtx, *updatedServiceItem, shipment)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	return updatedServiceItem, err
