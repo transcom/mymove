@@ -61,15 +61,6 @@ export function formatDimensions(dimensions, conversion = convertFromThousandthI
   )}${symbol}`;
 }
 
-export function findSITAddressUpdate(serviceItemID, sitAddressUpdates) {
-  const addressUpdate = sitAddressUpdates.find(
-    // Only one update with a REQUESTED status should exist at one time
-    (update) => update.mtoServiceItemID === serviceItemID && update.status === 'REQUESTED',
-  );
-
-  return addressUpdate;
-}
-
 export function isCounseling(serviceItem) {
   return serviceItem?.reServiceCode === SERVICE_ITEM_CODES.CS;
 }
