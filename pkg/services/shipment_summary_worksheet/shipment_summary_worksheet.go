@@ -270,7 +270,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.SITEndDates = formattedSIT.EndDates
 	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.EstimatedIncentive
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -590,6 +590,10 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		if expense.MovingExpenseType == nil || expense.Amount == nil {
 			continue
 		} // Added quick nil check to ensure SSW returns while moving expenses are being added still
+		var nilPPMDocumentStatus *models.PPMDocumentStatus
+		if expense.Status != nilPPMDocumentStatus && (*expense.Status == models.PPMDocumentStatusRejected || *expense.Status == models.PPMDocumentStatusExcluded) {
+			continue
+		}
 		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 

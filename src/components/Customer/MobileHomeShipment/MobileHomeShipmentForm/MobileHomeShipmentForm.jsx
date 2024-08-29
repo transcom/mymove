@@ -2,10 +2,10 @@ import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
-import { Button, Form, Radio, Label, Textarea } from '@trussworks/react-uswds';
+import { Button, Form, Label, Textarea } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import styles from './BoatShipmentForm.module.scss';
+import styles from './MobileHomeShipmentForm.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
@@ -53,17 +53,11 @@ const validationShape = {
       otherwise: (schema) => schema.notRequired(),
     }),
   heightInches: Yup.number().min(0),
-  hasTrailer: Yup.boolean().required('Required'),
-  isRoadworthy: Yup.boolean().when('hasTrailer', {
-    is: true,
-    then: (schema) => schema.required('Required'),
-  }),
   customerRemarks: Yup.string(),
 };
 
-const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
-  const { year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
-    mtoShipment?.boatShipment || {};
+const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
+  const { year, make, model, lengthInInches, widthInInches, heightInInches } = mtoShipment?.mobileHomeShipment || {};
 
   const length = convertInchesToFeetAndInches(lengthInInches);
   const width = convertInchesToFeetAndInches(widthInInches);
@@ -79,8 +73,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
     widthInches: width.inches,
     heightFeet: height.feet,
     heightInches: height.inches,
-    hasTrailer: hasTrailer ? 'true' : 'false',
-    isRoadworthy: isRoadworthy === null ? '' : isRoadworthy?.toString(),
     customerRemarks: mtoShipment?.customerRemarks,
   };
 
@@ -118,7 +110,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
           <div className={styles.formContainer}>
             <Form className={formStyles.form}>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Boat Information</h2>
+                <h2>Mobile home Information</h2>
                 <div className="grid-row grid-gap">
                   <div className="mobile-lg:grid-col-3">
                     <MaskedTextField
@@ -149,12 +141,8 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </div>
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Boat Dimensions</h2>
-                <p>
-                  Enter the total outside dimensions of the boat and the trailer (if a trailer is included) with the
-                  boat sitting on the trailer. If there is no trailer, then enter the outside dimensions of the boat
-                  itself.
-                </p>
+                <h2>Mobile Home Dimensions</h2>
+                <p>Enter all of the dimensions of the mobile home.</p>
                 <div>
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
@@ -278,66 +266,25 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   </Fieldset>
                 </div>
               </SectionWrapper>
-              <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection)}>
-                <h2>Trailer Status</h2>
-                <Fieldset>
-                  <legend className="usa-label">Does the boat have a trailer?</legend>
-                  <Field
-                    as={Radio}
-                    id="hasTrailerYes"
-                    data-testid="hasTrailerYes"
-                    label="Yes"
-                    name="hasTrailer"
-                    value="true"
-                    checked={values.hasTrailer === 'true'}
-                  />
-                  <Field
-                    as={Radio}
-                    id="hasTrailerNo"
-                    data-testid="hasTrailerNo"
-                    label="No"
-                    name="hasTrailer"
-                    value="false"
-                    checked={values.hasTrailer === 'false'}
-                  />
-                  {values.hasTrailer === 'true' && (
-                    <Fieldset className={styles.formFieldContainer}>
-                      <legend className="usa-label">Is the trailer roadworthy?</legend>
-                      <Field
-                        as={Radio}
-                        id="isRoadworthyYes"
-                        data-testid="isRoadworthyYes"
-                        label="Yes"
-                        name="isRoadworthy"
-                        value="true"
-                        checked={values.isRoadworthy === 'true'}
-                      />
-                      <Field
-                        as={Radio}
-                        id="isRoadworthyNo"
-                        data-testid="isRoadworthyNo"
-                        label="No"
-                        name="isRoadworthy"
-                        value="false"
-                        checked={values.isRoadworthy === 'false'}
-                      />
-                    </Fieldset>
-                  )}
-                </Fieldset>
-              </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
+                <Fieldset
+                  legend={
+                    <div className={formStyles.legendContent}>
+                      Remarks <span className={formStyles.optional}>Optional</span>
+                    </div>
+                  }
+                >
                   <Label htmlFor="customerRemarks">
-                    Are there things about this boat shipment that your counselor or movers should know or discuss with
-                    you?
+                    Are there things about this mobile home shipment that your counselor or movers should know or
+                    discuss with you?
                   </Label>
 
                   <Callout>
                     Examples
                     <ul>
                       <li>
-                        Dimensions of the boat on the trailer are signigicantly different than one would expect given
-                        their individual dimensions
+                        Dimensions of the mobile home on the trailer are signigicantly different than one would expect
+                        given their individual dimensions
                       </li>
 
                       <li>Access info for your origin or destination address/marina</li>
@@ -374,14 +321,14 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
   );
 };
 
-BoatShipmentForm.propTypes = {
+MobileHomeShipmentForm.propTypes = {
   mtoShipment: ShipmentShape,
   onBack: func.isRequired,
   onSubmit: func.isRequired,
 };
 
-BoatShipmentForm.defaultProps = {
+MobileHomeShipmentForm.defaultProps = {
   mtoShipment: undefined,
 };
 
-export default BoatShipmentForm;
+export default MobileHomeShipmentForm;
