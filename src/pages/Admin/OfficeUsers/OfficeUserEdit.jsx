@@ -10,10 +10,12 @@ import {
   AutocompleteInput,
   ReferenceInput,
 } from 'react-admin';
+import { connect } from 'react-redux';
 
 import { RolesPrivilegesCheckboxInput } from 'scenes/SystemAdmin/shared/RolesPrivilegesCheckboxes';
 import { phoneValidators } from 'scenes/SystemAdmin/shared/form_validators';
 import { roleTypes } from 'constants/userRoles';
+import { selectAdminUser } from 'store/entities/selectors';
 
 const OfficeUserEditToolbar = (props) => {
   return (
@@ -57,7 +59,7 @@ const validateForm = (values) => {
   return errors;
 };
 
-const OfficeUserEdit = () => (
+const OfficeUserEdit = ({ adminUser }) => (
   <Edit>
     <SimpleForm
       toolbar={<OfficeUserEditToolbar />}
@@ -81,7 +83,7 @@ const OfficeUserEdit = () => (
         ]}
         sx={{ width: 256 }}
       />
-      <RolesPrivilegesCheckboxInput source="roles" validate={required()} />
+      <RolesPrivilegesCheckboxInput source="roles" validate={required()} adminUser={adminUser} />
       <ReferenceInput
         label="Transportation Office"
         reference="offices"
@@ -97,4 +99,10 @@ const OfficeUserEdit = () => (
   </Edit>
 );
 
-export default OfficeUserEdit;
+function mapStateToProps(state) {
+  return {
+    adminUser: selectAdminUser(state),
+  };
+}
+
+export default connect(mapStateToProps)(OfficeUserEdit);
