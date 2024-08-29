@@ -477,6 +477,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2ExcludeRejectedOrExcludedExpensesFromTotal() {
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	orderIssueDate := time.Date(2018, time.December, 23, 0, 0, 0, 0, time.UTC)
+	locator := "ABCDEF-01"
+	singlePPM := models.PPMShipment{
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
 
 	order := models.Order{
 		IssueDate:         orderIssueDate,
@@ -548,6 +554,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	ssd := services.ShipmentSummaryFormData{
 		Order:          order,
 		MovingExpenses: movingExpenses,
+		PPMShipment:    singlePPM,
 	}
 
 	sswPage2, err := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
@@ -979,6 +986,16 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 			},
 		},
 	}, nil)
+
+	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	movingExpense := models.MovingExpense{
+		MovingExpenseType: &storageExpenseType,
+		Amount:            models.CentPointer(unit.Cents(67899)),
+		SITStartDate:      models.TimePointer(time.Now()),
+		SITEndDate:        models.TimePointer(time.Now()),
+	}
+
+	factory.AddMovingExpenseToPPMShipment(suite.DB(), &ppmShipment, nil, &movingExpense)
 
 	ppmShipmentID := ppmShipment.ID
 
