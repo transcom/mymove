@@ -275,8 +275,8 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
 	var err error
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
-	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID)
 	formattedShipments := FormatShipment(data.PPMShipment, isPaymentPacket)
+	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID, isPaymentPacket)
 
 	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
@@ -383,7 +383,7 @@ func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 
 }
 
-func formatSignedCertifications(signedCertifications []*models.SignedCertification, ppmid uuid.UUID) Certifications {
+func formatSignedCertifications(signedCertifications []*models.SignedCertification, ppmid uuid.UUID, isPaymentPacket bool) Certifications {
 	certifications := Certifications{}
 	// Strings used to build return values
 	var customerSignature string
@@ -409,10 +409,15 @@ func formatSignedCertifications(signedCertifications []*models.SignedCertificati
 			}
 		}
 	}
-
 	certifications.CustomerField = customerSignature
-	certifications.OfficeField = "AOA: " + aoaSignature + "\nSSW: " + sswSignature
-	certifications.DateField = "AOA: " + aoaDate + "\nSSW: " + sswDate
+	certifications.OfficeField = "AOA: " + aoaSignature
+	certifications.DateField = "AOA: " + aoaDate
+
+	if isPaymentPacket {
+		certifications.OfficeField = "AOA: " + aoaSignature + "\nSSW: " + sswSignature
+		certifications.DateField = "AOA: " + aoaDate + "\nSSW: " + sswDate
+	}
+
 	return certifications
 }
 
