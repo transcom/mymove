@@ -661,8 +661,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAOASignedCertificat
 	testDate := time.Now() // due to using updatedAt, time.Now() needs to be used to test cert times and dates
 	aoaCertifications := Certifications{
 		CustomerField: "",
-		OfficeField:   "AOA: Firstname Lastname\nSSW: ",
-		DateField:     "AOA: " + FormatDate(testDate) + "\nSSW: ",
+		OfficeField:   "AOA: Firstname Lastname",
+		DateField:     "AOA: " + FormatDate(testDate),
 	}
 	sswCertifications := Certifications{
 		CustomerField: "",
@@ -691,7 +691,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAOASignedCertificat
 	var certs []*models.SignedCertification
 	certs = append(certs, &aoaSignedCertification)
 
-	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID, false)
 	formattedDate := formatAOADate(certs, move.MTOShipments[0].PPMShipment.ID)
 	suite.Equal(prepAOADate, formattedDate)
 	suite.Equal(aoaCertifications, formattedSignature)
@@ -714,7 +714,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAOASignedCertificat
 	}, nil)
 	certs = append(certs, &ppmPaymentsignedCertification)
 
-	formattedSignature = formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedSignature = formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID, true)
 	formattedDate, err = formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
 	suite.NoError(err)
 	suite.Equal(prepSSWDate, formattedDate)
@@ -753,7 +753,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWSignedCertificat
 	}, nil)
 	certs = append(certs, &ppmPaymentsignedCertification)
 
-	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID)
+	formattedSignature := formatSignedCertifications(certs, move.MTOShipments[0].PPMShipment.ID, true)
 	formattedDate, err := formatSSWDate(certs, move.MTOShipments[0].PPMShipment.ID)
 	suite.NoError(err)
 	suite.Equal(prepSSWDate, formattedDate)
