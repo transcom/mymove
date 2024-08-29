@@ -29,10 +29,10 @@ func TestProcessTPPSPaidInvoiceReportSuite(t *testing.T) {
 func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport() {
 	tppsPaidInvoiceReportProcessor := NewTPPSPaidInvoiceReportProcessor()
 
-	suite.Run("successfully processes a valid TPPSPaidInvoiceReport and stores it in the database", func() {
-		// payment requests 1-4 with a payment request numbers of 1841-7267-3 and 9436-4123-3,
-		// must exist because the TPPS invoice report's invoice number references the payment
-		// request payment_request_number as a foreign key
+	suite.Run("successfully proccesses a valid TPPSPaidInvoiceReport and stores it in the database", func() {
+		// payment request with a payment request number of 1841-7267-3 must exist
+		// because the TPPS invoice report invoice's number references the
+		// payment request payment_request_number as a foreign key
 		paymentRequestOne := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequest{
@@ -53,6 +53,9 @@ func (suite *ProcessTPPSPaidInvoiceReportSuite) TestParsingTPPSPaidInvoiceReport
 				LinkOnly: true,
 			},
 		}, nil)
+		// payment request with a payment request number of 9436-4123-3 must exist
+		// because the TPPS invoice report invoice's number references the
+		// payment request payment_request_number as a foreign key
 		paymentRequestTwo := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
 			{
 				Model: models.PaymentRequest{

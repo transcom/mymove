@@ -10950,6 +10950,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsInvoiceAmountPaidTotalMillicents": {
+          "type": "integer",
+          "format": "millients",
+          "title": "Total amount that TPPS paid for all service items on the payment request in millicents",
+          "x-nullable": true
+        },
+        "tppsInvoiceSellerPaidDate": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -11037,6 +11049,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsInvoiceAmountPaidPerServiceItemMillicents": {
+          "type": "integer",
+          "format": "millicents",
+          "title": "Amount that TPPS paid for the individual service item in millicents",
+          "x-nullable": true
         }
       }
     },
@@ -26004,6 +26022,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsInvoiceAmountPaidTotalMillicents": {
+          "type": "integer",
+          "format": "millients",
+          "title": "Total amount that TPPS paid for all service items on the payment request in millicents",
+          "x-nullable": true
+        },
+        "tppsInvoiceSellerPaidDate": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -26091,6 +26121,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsInvoiceAmountPaidPerServiceItemMillicents": {
+          "type": "integer",
+          "format": "millicents",
+          "title": "Amount that TPPS paid for the individual service item in millicents",
+          "x-nullable": true
         }
       }
     },
