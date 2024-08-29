@@ -102,17 +102,6 @@ export async function createServiceRequestDocumentUpload({ mtoServiceItemID, fil
   );
 }
 
-export function createPrimeMTOShipment({ normalize = false, schemaKey = 'mtoShipment', body }) {
-  const operationPath = 'mtoShipment.createMTOShipment';
-  return makePrimeSimulatorRequest(
-    operationPath,
-    {
-      body,
-    },
-    { schemaKey, normalize },
-  );
-}
-
 export function createPrimeMTOShipmentV2({ normalize = false, schemaKey = 'mtoShipment', body }) {
   const operationPath = 'mtoShipment.createMTOShipment';
   return makePrimeSimulatorRequestV2(

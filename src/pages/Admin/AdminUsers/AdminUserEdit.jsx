@@ -1,5 +1,8 @@
 import React from 'react';
 import { Edit, SimpleForm, TextInput, SelectInput, required, Toolbar, SaveButton } from 'react-admin';
+import { connect } from 'react-redux';
+
+import { selectAdminUser } from 'store/entities/selectors';
 
 const AdminUserEditToolbar = (props) => (
   <Toolbar {...props}>
@@ -7,7 +10,21 @@ const AdminUserEditToolbar = (props) => (
   </Toolbar>
 );
 
-const AdminUserEdit = () => (
+const AdminUserSuperAttribute = () => {
+  return (
+    <SelectInput
+      source="super"
+      choices={[
+        { id: true, name: 'Yes' },
+        { id: false, name: 'No' },
+      ]}
+      sx={{ width: 256 }}
+      disabled
+    />
+  );
+};
+
+const AdminUserEdit = ({ adminUser }) => (
   <Edit>
     <SimpleForm
       toolbar={<AdminUserEditToolbar />}
@@ -28,10 +45,17 @@ const AdminUserEdit = () => (
         ]}
         sx={{ width: 256 }}
       />
+      {adminUser?.super && <AdminUserSuperAttribute />}
       <TextInput source="createdAt" disabled />
       <TextInput source="updatedAt" disabled />
     </SimpleForm>
   </Edit>
 );
 
-export default AdminUserEdit;
+function mapStateToProps(state) {
+  return {
+    adminUser: selectAdminUser(state),
+  };
+}
+
+export default connect(mapStateToProps)(AdminUserEdit);
