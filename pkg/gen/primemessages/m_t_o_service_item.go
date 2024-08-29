@@ -37,6 +37,10 @@ type MTOServiceItem interface {
 	ID() strfmt.UUID
 	SetID(strfmt.UUID)
 
+	// locked price cents
+	LockedPriceCents() *int64
+	SetLockedPriceCents(*int64)
+
 	// model type
 	// Required: true
 	ModelType() MTOServiceItemModelType
@@ -83,6 +87,8 @@ type mTOServiceItem struct {
 
 	idField strfmt.UUID
 
+	lockedPriceCentsField *int64
+
 	modelTypeField MTOServiceItemModelType
 
 	moveTaskOrderIdField *strfmt.UUID
@@ -116,6 +122,16 @@ func (m *mTOServiceItem) ID() strfmt.UUID {
 // SetID sets the id of this polymorphic type
 func (m *mTOServiceItem) SetID(val strfmt.UUID) {
 	m.idField = val
+}
+
+// LockedPriceCents gets the locked price cents of this polymorphic type
+func (m *mTOServiceItem) LockedPriceCents() *int64 {
+	return m.lockedPriceCentsField
+}
+
+// SetLockedPriceCents sets the locked price cents of this polymorphic type
+func (m *mTOServiceItem) SetLockedPriceCents(val *int64) {
+	m.lockedPriceCentsField = val
 }
 
 // ModelType gets the model type of this polymorphic type

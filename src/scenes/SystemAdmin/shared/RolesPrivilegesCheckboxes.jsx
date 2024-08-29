@@ -8,6 +8,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 const RolesPrivilegesCheckboxInput = (props) => {
   let rolesSelected = [];
   let privilegesSelected = [];
+  const { adminUser } = props;
 
   const [isHeadquartersRoleFF, setHeadquartersRoleFF] = useState(false);
 
@@ -126,6 +127,14 @@ const RolesPrivilegesCheckboxInput = (props) => {
     }, []);
   };
 
+  // filter the privileges to exclude the Safety Moves checkbox if the admin user is NOT a super admin
+  const filteredPrivileges = officeUserPrivileges.filter((privilege) => {
+    if (privilege.privilegeType === elevatedPrivilegeTypes.SAFETY && !adminUser?.super) {
+      return false;
+    }
+    return true;
+  });
+
   return (
     <>
       <CheckboxGroupInput
@@ -141,7 +150,7 @@ const RolesPrivilegesCheckboxInput = (props) => {
         source="privileges"
         format={makePrivilegesArray}
         parse={parsePrivilegesCheckboxInput}
-        choices={officeUserPrivileges}
+        choices={filteredPrivileges}
         optionValue="privilegeType"
       />
       <span style={{ marginTop: '-20px', marginBottom: '20px', fontWeight: 'bold' }}>

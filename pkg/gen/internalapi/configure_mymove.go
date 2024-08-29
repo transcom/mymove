@@ -220,6 +220,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation certification.IndexSignedCertification has not yet been implemented")
 		})
 	}
+	if api.CalendarIsDateWeekendHolidayHandler == nil {
+		api.CalendarIsDateWeekendHolidayHandler = calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
+			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
+		})
+	}
 	if api.UsersIsLoggedInUserHandler == nil {
 		api.UsersIsLoggedInUserHandler = users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
