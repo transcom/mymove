@@ -314,17 +314,21 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		SpouseHasProGear:  true,
 		Grade:             &grade,
 	}
-	pickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
 	netWeight := unit.Pound(4000)
 	cents := unit.Cents(1000)
+	locator := "ABCDEF-01"
 	estIncentive := unit.Cents(1000000)
-	PPMShipments := []models.PPMShipment{
-		{
-			ActualMoveDate:         &pickupDate,
-			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
-			EstimatedWeight:        &netWeight,
-			AdvanceAmountRequested: &cents,
-			EstimatedIncentive:     &estIncentive,
+	PPMShipment := models.PPMShipment{
+		ExpectedDepartureDate:  expectedPickupDate,
+		ActualMoveDate:         &actualPickupDate,
+		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+		EstimatedWeight:        &netWeight,
+		AdvanceAmountRequested: &cents,
+		EstimatedIncentive:     &estIncentive,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
 		},
 	}
 	ssd := models.ShipmentSummaryFormData{
@@ -335,8 +339,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipments:            PPMShipments,
-		PPMShipment:             PPMShipments[0],
+		PPMShipment:             PPMShipment,
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
@@ -364,7 +367,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
-	suite.Equal("01 - PPM", sswPage1.ShipmentNumberAndTypes)
+
+	suite.Equal(locator, sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
@@ -373,13 +377,15 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("3,000", sswPage1.PPMRemainingEntitlement)
 
 	// quick test when there is no PPM actual move date
-	PPMShipmentsWithoutActualMoveDate := []models.PPMShipment{
-		{
-			Status:                 models.PPMShipmentStatusWaitingOnCustomer,
-			EstimatedWeight:        &netWeight,
-			AdvanceAmountRequested: &cents,
+	PPMShipmentWithoutActualMoveDate := models.PPMShipment{
+		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+		EstimatedWeight:        &netWeight,
+		AdvanceAmountRequested: &cents,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
 		},
 	}
+
 	ssdWithoutPPMActualMoveDate := models.ShipmentSummaryFormData{
 		ServiceMember:           serviceMember,
 		Order:                   order,
@@ -388,7 +394,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipments:            PPMShipmentsWithoutActualMoveDate,
+		PPMShipment:             PPMShipmentWithoutActualMoveDate,
 	}
 	sswPage1NoActualMoveDate, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
 	suite.NoError(err)
@@ -398,6 +404,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2() {
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
+	locator := "ABCDEF-01"
+	shipment := models.PPMShipment{
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
 
 	order := models.Order{
 		IssueDate:         orderIssueDate,
@@ -455,6 +467,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	ssd := models.ShipmentSummaryFormData{
 		Order:          order,
 		MovingExpenses: movingExpenses,
+		PPMShipment:    shipment,
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
@@ -474,6 +487,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage2ExcludeRejectedOrExcludedExpensesFromTotal() {
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
 	orderIssueDate := time.Date(2018, time.December, 23, 0, 0, 0, 0, time.UTC)
+	locator := "ABCDEF-01"
+	singlePPM := models.PPMShipment{
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
 
 	order := models.Order{
 		IssueDate:         orderIssueDate,
@@ -545,6 +564,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	ssd := models.ShipmentSummaryFormData{
 		Order:          order,
 		MovingExpenses: movingExpenses,
+		PPMShipment:    singlePPM,
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
@@ -671,92 +691,28 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatRank() {
 	suite.Equal("O-1 or Service Academy Graduate", FormatGrade(&multipleGrades))
 }
 
+// This is the test
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndType() {
-	singlePPM := models.PPMShipments{models.PPMShipment{}}
-	multiplePPMs := models.PPMShipments{models.PPMShipment{}, models.PPMShipment{}}
+	locator := "ABCDEF-01"
+	singlePPM := models.PPMShipment{
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	wtgEntitlements := models.SSWMaxWeightEntitlement{
+		Entitlement:   15000,
+		ProGear:       2000,
+		SpouseProGear: 500,
+		TotalWeight:   17500,
+	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
-	grade := models.ServiceMemberGradeE9
-	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	orderIssueDate := time.Date(2018, time.December, 21, 0, 0, 0, 0, time.UTC)
-
-	order := models.Order{
-		IssueDate:         orderIssueDate,
-		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
-		OrdersNumber:      models.StringPointer("012345"),
-		NewDutyLocationID: fortGordon.ID,
-		TAC:               models.StringPointer("NTA4"),
-		SAC:               models.StringPointer("SAC"),
-		HasDependents:     true,
-		SpouseHasProGear:  true,
-		Grade:             &grade,
-	}
-
-	paidWithGTCCFalse := false
-	tollExpense := models.MovingExpenseReceiptTypeTolls
-	oilExpense := models.MovingExpenseReceiptTypeOil
-	amount := unit.Cents(10000)
-	paidWithGTCCTrue := true
-
-	movingExpenses := models.MovingExpenses{
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCFalse,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCFalse,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCTrue,
-		},
-		{
-			MovingExpenseType: &oilExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCFalse,
-		},
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCTrue,
-		},
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCTrue,
-		},
-		{
-			MovingExpenseType: &tollExpense,
-			Amount:            &amount,
-			PaidWithGTCC:      &paidWithGTCCFalse,
-		},
-	}
-
-	ssdMultiplePPMs := models.ShipmentSummaryFormData{
-		Order:          order,
-		MovingExpenses: movingExpenses,
-		PPMShipments:   multiplePPMs,
-	}
-
-	ssdSinglePPM := models.ShipmentSummaryFormData{
-		Order:          order,
-		MovingExpenses: movingExpenses,
-		PPMShipments:   singlePPM,
-	}
-
-	multiplePPMsFormatted := sswPPMComputer.FormatAllShipments(ssdMultiplePPMs)
-	singlePPMFormatted := sswPPMComputer.FormatAllShipments(ssdSinglePPM)
+	singlePPMFormatted := sswPPMComputer.FormatShipment(singlePPM, wtgEntitlements, false)
 
 	// testing single shipment moves
-	suite.Equal("01 - PPM", singlePPMFormatted.ShipmentNumberAndTypes)
-
-	// testing multiple ppm moves
-	suite.Equal("01 - PPM\n\n02 - PPM", multiplePPMsFormatted.ShipmentNumberAndTypes)
+	suite.Equal("ABCDEF-01", singlePPMFormatted.ShipmentNumberAndTypes)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatWeights() {
@@ -1111,62 +1067,75 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {
 
 }
 
-type mockPPMShipment struct {
-	FinalIncentive        *unit.Cents
-	EstimatedIncentive    *unit.Cents
-	AdvanceAmountReceived *unit.Cents
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatCurrentShipment() {
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 	exampleValue1 := unit.Cents(5000)
 	exampleValue2 := unit.Cents(3000)
 	exampleValue3 := unit.Cents(1000)
+	locator := "ABCDEF-01"
+
+	wtgEntitlements := models.SSWMaxWeightEntitlement{
+		Entitlement:   15000,
+		ProGear:       2000,
+		SpouseProGear: 500,
+		TotalWeight:   17500,
+	}
+
 	tests := []struct {
 		name           string
-		shipment       mockPPMShipment
-		expectedResult WorkSheetShipment
+		shipment       models.PPMShipment
+		expectedResult models.WorkSheetShipment
+		entitlements   models.SSWMaxWeightEntitlement
 	}{
 		{
 			name: "All fields present",
-			shipment: mockPPMShipment{
+			shipment: models.PPMShipment{
 				FinalIncentive:        &exampleValue1, // Example value
 				EstimatedIncentive:    &exampleValue2, // Example value
 				AdvanceAmountReceived: &exampleValue3, // Example value
+				Shipment: models.MTOShipment{
+					ShipmentLocator: &locator,
+				},
 			},
-			expectedResult: WorkSheetShipment{
-				FinalIncentive:        "$50.00", // Example expected result
-				MaxAdvance:            "$18.00", // Assuming formatMaxAdvance correctly formats
-				EstimatedIncentive:    "$30.00", // Example expected result
-				AdvanceAmountReceived: "$10.00", // Example expected result
+			expectedResult: models.WorkSheetShipment{
+				FinalIncentive:         "$50.00", // Example expected result
+				MaxAdvance:             "$18.00", // Assuming formatMaxAdvance correctly formats
+				EstimatedIncentive:     "$30.00", // Example expected result
+				AdvanceAmountReceived:  "$10.00", // Example expected result
+				ShipmentNumberAndTypes: locator,
 			},
+			entitlements: wtgEntitlements,
 		},
 		{
 			name: "Final Incentive nil",
-			shipment: mockPPMShipment{
+			shipment: models.PPMShipment{
 				FinalIncentive:        nil,
 				EstimatedIncentive:    &exampleValue2, // Example value
 				AdvanceAmountReceived: &exampleValue3, // Example value
+				Shipment: models.MTOShipment{
+					ShipmentLocator: &locator,
+				},
 			},
-			expectedResult: WorkSheetShipment{
-				FinalIncentive:        "No final incentive.",
-				MaxAdvance:            "$18.00", // Assuming formatMaxAdvance correctly formats
-				EstimatedIncentive:    "$30.00", // Example expected result
-				AdvanceAmountReceived: "$10.00", // Example expected result
+			expectedResult: models.WorkSheetShipment{
+				FinalIncentive:         "No final incentive.",
+				MaxAdvance:             "$18.00", // Assuming formatMaxAdvance correctly formats
+				EstimatedIncentive:     "$30.00", // Example expected result
+				AdvanceAmountReceived:  "$10.00", // Example expected result
+				ShipmentNumberAndTypes: locator,
 			},
+			entitlements: wtgEntitlements,
 		},
 	}
 
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+
 	for _, tt := range tests {
-		result := FormatCurrentShipment(models.PPMShipment{
-			FinalIncentive:        tt.shipment.FinalIncentive,
-			EstimatedIncentive:    tt.shipment.EstimatedIncentive,
-			AdvanceAmountReceived: tt.shipment.AdvanceAmountReceived,
-		})
+		result := sswPPMComputer.FormatShipment(tt.shipment, tt.entitlements, false)
 
 		suite.Equal(tt.expectedResult.FinalIncentive, result.FinalIncentive)
 		suite.Equal(tt.expectedResult.MaxAdvance, result.MaxAdvance)
 		suite.Equal(tt.expectedResult.EstimatedIncentive, result.EstimatedIncentive)
 		suite.Equal(tt.expectedResult.AdvanceAmountReceived, result.AdvanceAmountReceived)
-
+		suite.Equal(tt.expectedResult.ShipmentNumberAndTypes, result.ShipmentNumberAndTypes)
 	}
 }

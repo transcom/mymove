@@ -15,6 +15,19 @@ type WorkSheetShipments struct {
 	CurrentShipmentStatuses     string
 }
 
+// WorkSheetShipment is an object representing specific shipment items on Shipment Summary Worksheet
+type WorkSheetShipment struct {
+	EstimatedIncentive          string
+	MaxAdvance                  string
+	FinalIncentive              string
+	AdvanceAmountReceived       string
+	ShipmentNumberAndTypes      string
+	PickUpDates                 string
+	ShipmentWeights             string
+	ShipmentWeightForObligation string
+	CurrentShipmentStatuses     string
+}
+
 // SSWMaxWeightEntitlement weight allotment for the shipment summary worksheet.
 type SSWMaxWeightEntitlement struct {
 	Entitlement   unit.Pound
