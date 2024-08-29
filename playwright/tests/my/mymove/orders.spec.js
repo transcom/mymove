@@ -127,3 +127,54 @@ test.describe('(MultiMove) Orders', () => {
     await expect(page.getByText('AF Orders Sample.pdf')).not.toBeVisible();
   });
 });
+
+test.describe('Download Orders', () => {
+  test('Users can download their orders for viewing', async ({ page, customerPage }) => {
+    // Generate a move that has the status of SUBMITTED
+    const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    const userId = move.Orders.ServiceMember.user_id;
+
+    // Sign-in and navigate to move home page
+    await customerPage.signInAsExistingCustomer(userId);
+    if (multiMoveEnabled === 'true') {
+      await customerPage.navigateFromMMDashboardToMove(move);
+    }
+    await customerPage.waitForPage.home();
+
+    // Go to the Edit Orders page
+    await page.getByTestId('review-and-submit-btn').click();
+    await page.getByTestId('edit-orders-table').click();
+
+    // Upload second set of orders
+    const filepondContainer = page.locator('.filepond--wrapper');
+    await customerPage.uploadFileViaFilepond(filepondContainer, 'secondOrders.pdf');
+
+    // Verify filename is a downloadable link
+    await expect(page.getByRole('link', { name: 'secondOrders.pdf' })).toBeVisible();
+  });
+});
+
+test.describe('Download Amended Orders', () => {
+  test('Users can download their amended orders for viewing', async ({ page, customerPage }) => {
+    // Generate a move that has the status of SUBMITTED
+    const move = await customerPage.testHarness.buildSubmittedMoveWithPPMShipmentForSC();
+    const userId = move.Orders.ServiceMember.user_id;
+
+    // Sign-in and navigate to move home page
+    await customerPage.signInAsExistingCustomer(userId);
+    if (multiMoveEnabled === 'true') {
+      await customerPage.navigateFromMMDashboardToMove(move);
+    }
+    await customerPage.waitForPage.home();
+
+    // Go to the Upload Amended Documents page
+    await page.getByRole('button', { name: 'Upload documents' }).click();
+
+    // Upload amended orders
+    const filepondContainer = page.locator('.filepond--wrapper');
+    await customerPage.uploadFileViaFilepond(filepondContainer, 'amendedOrders.pdf');
+
+    // Verify filename is a downloadable link
+    await expect(page.getByRole('link', { name: 'amendedOrders.pdf' })).toBeVisible();
+  });
+});

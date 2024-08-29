@@ -469,6 +469,10 @@ definitions:
         allOf:
           - $ref: 'definitions/SITLocationType.yaml'
           - x-nullable: true
+      sitReimburseableAmount:
+        description: The amount of SIT that will be reimbursed
+        type: integer
+        x-nullable: true
     required:
       - movingExpenseType
       - description
@@ -1761,11 +1765,17 @@ definitions:
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
       - PPM
+      - BOAT_HAUL_AWAY
+      - BOAT_TOW_AWAY
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
       PPM: PPM
+      BOAT_HAUL_AWAY: Boat Haul-Away
+      BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
   MTOShipment:
     properties:
       moveTaskOrderID:
@@ -1805,6 +1815,10 @@ definitions:
         x-nullable: true
       ppmShipment:
         $ref: "definitions/PPMShipment.yaml"
+      boatShipment:
+        $ref: "definitions/BoatShipment.yaml"
+      mobileHomeShipment:
+        $ref: "definitions/MobileHome.yaml"
       shipmentType:
         $ref: "#/definitions/MTOShipmentType"
       status:
@@ -1819,9 +1833,21 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       secondaryDeliveryAddress:
         $ref: "definitions/Address.yaml"
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDeliveryAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -1863,6 +1889,10 @@ definitions:
         $ref: "#/definitions/MTOShipmentType"
       ppmShipment:
         $ref: "#/definitions/CreatePPMShipment"
+      boatShipment:
+        $ref: "#/definitions/CreateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/CreateMobileHomeShipment"
       requestedPickupDate:
         format: date
         type: string
@@ -1877,9 +1907,13 @@ definitions:
         $ref: "definitions/Address.yaml"
       secondaryPickupAddress:
         $ref: "definitions/Address.yaml"
+      tertiaryPickupAddress:
+        $ref: "definitions/Address.yaml"
       destinationAddress:
         $ref: "definitions/Address.yaml"
       secondaryDeliveryAddress:
+        $ref: "definitions/Address.yaml"
+      tertiaryDeliveryAddress:
         $ref: "definitions/Address.yaml"
       agents:
         $ref: "#/definitions/MTOAgents"
@@ -1902,6 +1936,18 @@ definitions:
         $ref: "definitions/Address.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
+      tertiaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
+      tertiaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       sitExpected:
         type: boolean
     required:
@@ -1930,6 +1976,12 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: 'definitions/Address.yaml'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled once the customer has moved the shipment.
@@ -1944,6 +1996,12 @@ definitions:
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        $ref: 'definitions/Address.yaml'
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -2007,6 +2065,143 @@ definitions:
         type: integer
         format: cents
         x-nullable: true
+  CreateBoatShipment:
+    description: Boat shipment information for the move.
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+  UpdateBoatShipment:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+        x-nullable: true
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+        x-nullable: true
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
+  UpdateMobileHomeShipment:
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Mobile Home
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Mobile Home
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+        x-nullable: true
   UpdateShipment:
     type: object
     properties:
@@ -2016,6 +2211,10 @@ definitions:
         $ref: "#/definitions/MTOShipmentType"
       ppmShipment:
         $ref: "#/definitions/UpdatePPMShipment"
+      boatShipment:
+        $ref: "#/definitions/UpdateBoatShipment"
+      mobileHomeShipment:
+        $ref: "#/definitions/UpdateMobileHomeShipment"
       requestedPickupDate:
         format: date
         type: string
@@ -2036,11 +2235,23 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       destinationAddress:
         $ref: "definitions/Address.yaml"
       secondaryDeliveryAddress:
         $ref: "definitions/Address.yaml"
       hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
+        $ref: "definitions/Address.yaml"
+      hasTertiaryDeliveryAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -2150,6 +2361,29 @@ definitions:
         format: date-time
         type: string
         readOnly: true
+  IsDateWeekendHolidayInfo:
+    type: object
+    properties:
+      country_code:
+        type: string
+      country_name:
+        type: string
+      date:
+        type: string
+        format: date
+        example: "2018-09-25"
+      is_weekend:
+        type: boolean
+      is_holiday:
+        type: boolean
+      details:
+        type: string
+    required:
+      - country_code
+      - country_name
+      - date
+      - is_weekend
+      - is_holiday
 paths:
   /feature-flags/user-boolean/{key}:
     post:
@@ -4316,6 +4550,43 @@ paths:
             $ref: "#/responses/UnprocessableEntity"
         "500":
           description: internal server error
+  /calendar/{countryCode}/is-weekend-holiday/{date}:
+    get:
+      summary: Validate  move date selection
+      description: |
+        Utility API to determine if input date falls on weekend and/or holiday.
+      produces:
+        - application/json
+      operationId: isDateWeekendHoliday
+      tags:
+        - calendar
+      parameters:
+        - description: country code for context of date
+          in: path
+          name: countryCode
+          required: true
+          type: string
+          enum:
+            - US
+        - description: input date to determine if weekend/holiday for given country.
+          in: path
+          name: date
+          required: true
+          type: string
+          format: date
+      responses:
+        "200":
+          description: Successfully determine if given date is weekend and/or holiday for given country.
+          schema:
+            $ref: "#/definitions/IsDateWeekendHolidayInfo"
+        "400":
+          $ref: "#/responses/InvalidRequest"
+        "401":
+          $ref: "#/responses/PermissionDenied"
+        "404":
+          $ref: "#/responses/NotFound"
+        "500":
+          $ref: "#/responses/ServerError"
 responses:
   InvalidRequest:
     description: The request payload is invalid.

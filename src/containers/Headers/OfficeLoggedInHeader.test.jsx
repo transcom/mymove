@@ -18,6 +18,29 @@ jest.mock('utils/api', () => ({
   LogoutUser: jest.fn(() => ({ then: () => {} })),
 }));
 
+const localStorageMock = (() => {
+  let store = {};
+
+  return {
+    getItem(key) {
+      return store[key] || null;
+    },
+    setItem(key, value) {
+      store[key] = value.toString();
+    },
+    removeItem(key) {
+      delete store[key];
+    },
+    clear() {
+      store = {};
+    },
+  };
+})();
+
+Object.defineProperty(window, 'sessionStorage', {
+  value: localStorageMock,
+});
+
 describe('OfficeLoggedInHeader', () => {
   it('renders the office logged in header', () => {
     render(
@@ -136,6 +159,7 @@ describe('OfficeLoggedInHeader', () => {
   });
 
   it('signs out the user when sign out is clicked', async () => {
+    const sessionStorageClearSpy = jest.spyOn(window.sessionStorage, 'clear');
     render(
       <MockProviders>
         <ConnectedOfficeLoggedInHeader />
@@ -149,5 +173,42 @@ describe('OfficeLoggedInHeader', () => {
 
     expect(logOut).toHaveBeenCalled();
     expect(LogoutUser).toHaveBeenCalled();
+    expect(sessionStorageClearSpy).toHaveBeenCalled();
+  });
+
+  it('renders the GBLOC switcher when the current user is signed in with the HQ role', async () => {
+    const testState = {
+      auth: {
+        activeRole: roleTypes.HQ,
+        isLoading: false,
+        isLoggedIn: true,
+      },
+      entities: {
+        user: {
+          userId123: {
+            id: 'userId123',
+            roles: [{ roleType: roleTypes.HQ }],
+            office_user: {
+              first_name: 'Amanda',
+              last_name: 'Gorman',
+              transportation_office: {
+                gbloc: 'KKFA',
+              },
+            },
+          },
+        },
+      },
+    };
+
+    render(
+      <MockProviders initialState={testState}>
+        <ConnectedOfficeLoggedInHeader />
+      </MockProviders>,
+    );
+
+    const gblocSwitcher = screen.getByTestId('gbloc_switcher');
+    expect(gblocSwitcher).toBeInstanceOf(HTMLDivElement);
+    expect(gblocSwitcher.firstChild).toBeInstanceOf(HTMLSelectElement);
+    expect(gblocSwitcher.firstChild.firstChild).toBeInstanceOf(HTMLOptionElement);
   });
 });

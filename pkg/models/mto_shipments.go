@@ -34,8 +34,8 @@ const (
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
 	MTOShipmentTypeHHGOutOfNTSDom MTOShipmentType = NTSrRaw
-	// MTOShipmentTypeMotorhome is a Shipment Type for Motorhome
-	MTOShipmentTypeMotorhome MTOShipmentType = "MOTORHOME"
+	// MTOShipmentTypeMobileHome is a Shipment Type for MobileHome
+	MTOShipmentTypeMobileHome MTOShipmentType = "MOBILE_HOME"
 	// MTOShipmentTypeBoatHaulAway is a Shipment Type for Boat Haul Away
 	MTOShipmentTypeBoatHaulAway MTOShipmentType = "BOAT_HAUL_AWAY"
 	// MTOShipmentTypeBoatTowAway is a Shipment Type for Boat Tow Away
@@ -120,6 +120,12 @@ type MTOShipment struct {
 	SecondaryDeliveryAddress         *Address               `belongs_to:"addresses" fk_id:"secondary_delivery_address_id"`
 	SecondaryDeliveryAddressID       *uuid.UUID             `db:"secondary_delivery_address_id"`
 	HasSecondaryDeliveryAddress      *bool                  `db:"has_secondary_delivery_address"`
+	TertiaryPickupAddress            *Address               `belongs_to:"addresses" fk_id:"tertiary_pickup_address_id"`
+	TertiaryPickupAddressID          *uuid.UUID             `db:"tertiary_pickup_address_id"`
+	HasTertiaryPickupAddress         *bool                  `db:"has_tertiary_pickup_address"`
+	TertiaryDeliveryAddress          *Address               `belongs_to:"addresses" fk_id:"tertiary_delivery_address_id"`
+	TertiaryDeliveryAddressID        *uuid.UUID             `db:"tertiary_delivery_address_id"`
+	HasTertiaryDeliveryAddress       *bool                  `db:"has_tertiary_delivery_address"`
 	SITDaysAllowance                 *int                   `db:"sit_days_allowance"`
 	SITDurationUpdates               SITDurationUpdates     `has_many:"sit_extensions" fk_id:"mto_shipment_id"`
 	PrimeEstimatedWeight             *unit.Pound            `db:"prime_estimated_weight"`
@@ -145,6 +151,7 @@ type MTOShipment struct {
 	TACType                          *LOAType               `db:"tac_type"`
 	SACType                          *LOAType               `db:"sac_type"`
 	PPMShipment                      *PPMShipment           `has_one:"ppm_shipment" fk_id:"shipment_id"`
+	BoatShipment                     *BoatShipment          `has_one:"boat_shipment" fk_id:"shipment_id"`
 	DeliveryAddressUpdate            *ShipmentAddressUpdate `has_one:"shipment_address_update" fk_id:"shipment_id"`
 	CreatedAt                        time.Time              `db:"created_at"`
 	UpdatedAt                        time.Time              `db:"updated_at"`
@@ -152,6 +159,7 @@ type MTOShipment struct {
 	ShipmentLocator                  *string                `db:"shipment_locator"`
 	OriginSITAuthEndDate             *time.Time             `db:"origin_sit_auth_end_date"`
 	DestinationSITAuthEndDate        *time.Time             `db:"dest_sit_auth_end_date"`
+	MobileHome                       *MobileHome            `has_one:"mobile_home" fk_id:"shipment_id"`
 }
 
 // TableName overrides the table name used by Pop.

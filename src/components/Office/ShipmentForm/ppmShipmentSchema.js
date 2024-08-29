@@ -21,6 +21,7 @@ const ppmShipmentSchema = ({
   hasRequestedAdvance,
   isAdvancePage,
   showCloseoutOffice,
+  sitEstimatedWeightMax,
 }) => {
   const estimatedWeightLimit = weightAllotment.totalWeightSelf || 0;
   const proGearWeightLimit = weightAllotment.proGearWeight || 0;
@@ -39,6 +40,12 @@ const ppmShipmentSchema = ({
     secondaryDestination: Yup.object().shape({
       address: OptionalAddressSchema,
     }),
+    tertiaryPickup: Yup.object().shape({
+      address: OptionalAddressSchema,
+    }),
+    tertiaryDestination: Yup.object().shape({
+      address: OptionalAddressSchema,
+    }),
 
     expectedDepartureDate: Yup.date()
       .typeError('Enter a complete date in DD MMM YYYY format (day, month, year).')
@@ -46,6 +53,12 @@ const ppmShipmentSchema = ({
     sitExpected: Yup.boolean().required('Required'),
     sitEstimatedWeight: Yup.number()
       .min(1, 'Enter a weight greater than 0 lbs')
+      .max(
+        sitEstimatedWeightMax,
+        `Enter a weight no greater than the shipment's estimated weight (${Number(
+          sitEstimatedWeightMax,
+        ).toLocaleString()}).`,
+      )
       .when('sitExpected', {
         is: true,
         then: (schema) => schema.required('Required'),

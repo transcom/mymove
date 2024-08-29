@@ -182,7 +182,7 @@ func MakeWithShipmentMove(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 
@@ -311,21 +311,6 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), mto, MTOShipment, &threeMonthsAgo, &twoMonthsAgo)
 	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), mto, MTOShipment, &twoMonthsAgo, nil)...)
 	for i := range sitItems {
-		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    sitItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-			originalAddress := sitAddressUpdate.OldAddress
-			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&sitItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
 		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PaymentServiceItem{
@@ -509,13 +494,13 @@ func MakeHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO(appCtx appconte
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -822,7 +807,7 @@ func MakePrimeSimulatorMoveNeedsShipmentUpdate(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -940,7 +925,7 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -1009,9 +994,77 @@ func MakeHHGMoveWithNTSAndNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
+}
+
+// MakeGoodTACAndLoaCombination builds a good TAC and LOA and returns the TAC
+// so that e2e_tests can supply a "Valid" TAC that isn't expired
+// or missing a LOA
+func MakeGoodTACAndLoaCombination(appCtx appcontext.AppContext) models.TransportationAccountingCode {
+	// Transcom Relational Database Management (TRDM) TGET data
+	// Creats an active and linked together transportation accounting code and line of accounting
+	// Said TAC and LOA are active within a date range of 1 year
+	ordersIssueDate := time.Now()
+	startDate := ordersIssueDate.AddDate(-1, 0, 0)
+	endDate := ordersIssueDate.AddDate(1, 0, 0)
+	tacCode := factory.MakeRandomString(4)
+	loaSysID := factory.MakeRandomString(10)
+
+	// Ensure all DFAS elements are present
+	factory.BuildLineOfAccounting(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.LineOfAccounting{
+				LoaBgnDt:               &startDate,
+				LoaEndDt:               &endDate,
+				LoaSysID:               &loaSysID,
+				LoaHsGdsCd:             models.StringPointer(models.LineOfAccountingHouseholdGoodsCodeOfficer),
+				LoaDptID:               models.StringPointer("1"),
+				LoaTnsfrDptNm:          models.StringPointer("1"),
+				LoaBafID:               models.StringPointer("1"),
+				LoaTrsySfxTx:           models.StringPointer("1"),
+				LoaMajClmNm:            models.StringPointer("1"),
+				LoaOpAgncyID:           models.StringPointer("1"),
+				LoaAlltSnID:            models.StringPointer("1"),
+				LoaPgmElmntID:          models.StringPointer("1"),
+				LoaTskBdgtSblnTx:       models.StringPointer("1"),
+				LoaDfAgncyAlctnRcpntID: models.StringPointer("1"),
+				LoaJbOrdNm:             models.StringPointer("1"),
+				LoaSbaltmtRcpntID:      models.StringPointer("1"),
+				LoaWkCntrRcpntNm:       models.StringPointer("1"),
+				LoaMajRmbsmtSrcID:      models.StringPointer("1"),
+				LoaDtlRmbsmtSrcID:      models.StringPointer("1"),
+				LoaCustNm:              models.StringPointer("1"),
+				LoaObjClsID:            models.StringPointer("1"),
+				LoaSrvSrcID:            models.StringPointer("1"),
+				LoaSpclIntrID:          models.StringPointer("1"),
+				LoaBdgtAcntClsNm:       models.StringPointer("1"),
+				LoaDocID:               models.StringPointer("1"),
+				LoaClsRefID:            models.StringPointer("1"),
+				LoaInstlAcntgActID:     models.StringPointer("1"),
+				LoaLclInstlID:          models.StringPointer("1"),
+				LoaFmsTrnsactnID:       models.StringPointer("1"),
+				LoaTrnsnID:             models.StringPointer("1"),
+				LoaUic:                 models.StringPointer("1"),
+				LoaBgFyTx:              models.IntPointer(2023),
+				LoaEndFyTx:             models.IntPointer(2025),
+			},
+		},
+	}, nil)
+	// Create the TAC and associate loa based on LoaSysID
+	tac := factory.BuildTransportationAccountingCodeWithoutAttachedLoa(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.TransportationAccountingCode{
+				TAC:               tacCode,
+				TrnsprtnAcntBgnDt: &startDate,
+				TrnsprtnAcntEndDt: &endDate,
+				TacFnBlModCd:      models.StringPointer("1"),
+				LoaSysID:          &loaSysID,
+			},
+		},
+	}, nil)
+	return tac
 }
 
 // MakeNTSRMoveWithPaymentRequest is similar to old shared.createNTSRMoveWithPaymentRequest
@@ -1086,6 +1139,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	serviceOrderNumber := testdatagen.MakeRandomNumberString(4)
 	estimatedWeight := unit.Pound(1400)
 	actualWeight := unit.Pound(2000)
+	ntsRecordedWeight := unit.Pound(2000)
 	ntsrShipment := factory.BuildNTSRShipment(appCtx.DB(), []factory.Customization{
 		{
 			Model:    move,
@@ -1104,6 +1158,7 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 			Model: models.MTOShipment{
 				PrimeEstimatedWeight: &estimatedWeight,
 				PrimeActualWeight:    &actualWeight,
+				NTSRecordedWeight:    &ntsRecordedWeight,
 				ApprovedDate:         models.TimePointer(time.Now()),
 				TACType:              &tacType,
 				Status:               models.MTOShipmentStatusApproved,
@@ -1183,13 +1238,13 @@ func MakeNTSRMoveWithPaymentRequest(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -1704,13 +1759,13 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestsForTIO(appCtx appcontext.AppCo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -2220,13 +2275,565 @@ func MakeHHGMoveWithServiceItemsandPaymentRequestReviewedForQAE(appCtx appcontex
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
+	}
+
+	return *newmove
+}
+
+func MakeHHGMoveWithServiceItemsandPaymentRequestWithDocsReviewedForQAE(appCtx appcontext.AppContext) models.Move {
+	userUploader := newUserUploader(appCtx)
+	primeUploader := newPrimeUploader(appCtx)
+
+	msCost := unit.Cents(10000)
+	dlhCost := unit.Cents(99999)
+	csCost := unit.Cents(25000)
+	fscCost := unit.Cents(55555)
+
+	// Create Customer
+	userInfo := newUserInfo("customer")
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	mto := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+	}, nil)
+
+	shipmentPickupAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				// This is a postal code that maps to the default office user gbloc KKFA in the PostalCodeToGBLOC table
+				PostalCode: "85004",
+			},
+		},
+	}, nil)
+
+	estimatedWeight := unit.Pound(1400)
+	actualWeight := unit.Pound(2000)
+	mtoShipmentHHG := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model:    shipmentPickupAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.PickupAddress,
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Create Releasing Agent
+	agentUserInfo := newUserInfo("agent")
+	factory.BuildMTOAgent(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.MTOAgent{
+				ID:           uuid.Must(uuid.NewV4()),
+				FirstName:    &agentUserInfo.firstName,
+				LastName:     &agentUserInfo.lastName,
+				Email:        &agentUserInfo.email,
+				MTOAgentType: models.MTOAgentReleasing,
+			},
+		},
+	}, nil)
+
+	paymentRequestHHG := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusPending,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, nil)
+	posImage := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		},
+	}, nil)
+	primeContractor := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+
+	// Creates custom test.jpg prime upload
+	file := testdatagen.Fixture("test.jpg")
+	_, verrs, err := primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage.ID, primeContractor, uploader.File{File: file}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	serviceItemMS := factory.BuildMTOServiceItemBasic(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("1130e612-94eb-49a7-973d-72f33685e551"), // MS - Move Management
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &msCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemMS,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	// Shuttling service item
+	doshutCost := unit.Cents(623)
+	approvedAtTime := time.Now()
+	serviceItemDOSHUT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAtTime,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("d979e8af-501a-44bb-8532-2799753a5810"), // DOSHUT - Dom Origin Shuttling
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &doshutCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDOSHUT,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	currentTime := time.Now()
+
+	basicPaymentServiceItemParams := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractCode,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTime.Format("2006-01-02"),
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightOriginal,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightBilled,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   fmt.Sprintf("%d", int(unit.Pound(4000))),
+		},
+		{
+			Key:     models.ServiceItemParamNameWeightEstimated,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "1400",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDOSHUT,
+		basicPaymentServiceItemParams,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Crating service item
+	dcrtCost := unit.Cents(623)
+	approvedAtTimeCRT := time.Now()
+	serviceItemDCRT := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status:          models.MTOServiceItemStatusApproved,
+				ApprovedAt:      &approvedAtTimeCRT,
+				EstimatedWeight: &estimatedWeight,
+				ActualWeight:    &actualWeight,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipmentHHG,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("68417bd7-4a9d-4472-941e-2ba6aeaf15f4"), // DCRT - Dom Crating
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dcrtCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDCRT,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	currentTimeDCRT := time.Now()
+
+	basicPaymentServiceItemParamsDCRT := []factory.CreatePaymentServiceItemParams{
+		{
+			Key:     models.ServiceItemParamNameContractYearName,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   factory.DefaultContractCode,
+		},
+		{
+			Key:     models.ServiceItemParamNameEscalationCompounded,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   strconv.FormatFloat(1.125, 'f', 5, 64),
+		},
+		{
+			Key:     models.ServiceItemParamNamePriceRateOrFactor,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "1.71",
+		},
+		{
+			Key:     models.ServiceItemParamNameRequestedPickupDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameReferenceDate,
+			KeyType: models.ServiceItemParamTypeDate,
+			Value:   currentTimeDCRT.Format("2006-01-03"),
+		},
+		{
+			Key:     models.ServiceItemParamNameCubicFeetBilled,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "4.00",
+		},
+		{
+			Key:     models.ServiceItemParamNameServicesScheduleOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   strconv.Itoa(2),
+		},
+		{
+			Key:     models.ServiceItemParamNameServiceAreaOrigin,
+			KeyType: models.ServiceItemParamTypeInteger,
+			Value:   "004",
+		},
+		{
+			Key:     models.ServiceItemParamNameZipPickupAddress,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "32210",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionHeight,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "10",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionLength,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "12",
+		},
+		{
+			Key:     models.ServiceItemParamNameDimensionWidth,
+			KeyType: models.ServiceItemParamTypeString,
+			Value:   "3",
+		},
+	}
+
+	factory.BuildPaymentServiceItemWithParams(
+		appCtx.DB(),
+		models.ReServiceCodeDCRT,
+		basicPaymentServiceItemParamsDCRT,
+		[]factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model:    mtoShipmentHHG,
+				LinkOnly: true,
+			},
+			{
+				Model:    paymentRequestHHG,
+				LinkOnly: true,
+			},
+		}, nil,
+	)
+
+	// Domestic line haul service item
+	serviceItemDLH := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("8d600f25-1def-422d-b159-617c7d59156e"), // DLH - Domestic Linehaul
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &dlhCost,
+			},
+		}, {
+			Model:    paymentRequestHHG,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemDLH,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	createdAtTime := time.Now().Add(time.Duration(time.Hour * -24))
+	additionalPaymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+				SequenceNumber:  2,
+				CreatedAt:       createdAtTime,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	serviceItemCS := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOServiceItem{
+				Status: models.MTOServiceItemStatusApproved,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("9dc919da-9b66-407b-9f17-05c0f03fcb50"), // CS - Counseling Services
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &csCost,
+			},
+		}, {
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemCS,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	MTOShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				PrimeEstimatedWeight: &estimatedWeight,
+				PrimeActualWeight:    &actualWeight,
+				ShipmentType:         models.MTOShipmentTypeHHG,
+				ApprovedDate:         models.TimePointer(time.Now()),
+				Status:               models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+	}, nil)
+	serviceItemFSC := factory.BuildMTOServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model:    mto,
+			LinkOnly: true,
+		},
+		{
+			Model:    MTOShipment,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ReService{
+				ID: uuid.FromStringOrNil("4780b30c-e846-437a-b39a-c499a6b09872"), // FSC - Fuel Surcharge
+			},
+		},
+	}, nil)
+
+	factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentServiceItem{
+				PriceCents: &fscCost,
+			},
+		}, {
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		}, {
+			Model:    serviceItemFSC,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildPrimeUpload(appCtx.DB(), []factory.Customization{
+		{
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	posImage2 := factory.BuildProofOfServiceDoc(appCtx.DB(), []factory.Customization{
+		{
+			Model:    additionalPaymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	primeContractor2 := uuid.FromStringOrNil("5db13bb4-6d29-4bdb-bc81-262f4513ecf6")
+
+	// Creates custom test.jpg prime upload
+	file2 := testdatagen.Fixture("test.jpg")
+	_, verrs, err = primeUploader.CreatePrimeUploadForDocument(appCtx, &posImage2.ID, primeContractor2, uploader.File{File: file2}, uploader.AllowedTypesPaymentRequest)
+	if verrs.HasAny() || err != nil {
+		appCtx.Logger().Error("errors encountered saving test.jpg prime upload", zap.Error(err))
+	}
+
+	// re-fetch the move so that we ensure we have exactly what is in
+	// the db
+	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, mto.ID)
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
+	}
+
+	// load payment requests so tests can confirm
+	err = appCtx.DB().Load(newmove, "PaymentRequests")
+	if err != nil {
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -2855,13 +3462,13 @@ func MakeNTSRMoveWithServiceItemsAndPaymentRequest(appCtx appcontext.AppContext)
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -2894,7 +3501,7 @@ func MakeHHGMoveWithRetireeForTOO(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2908,7 +3515,7 @@ func MakeHHGMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2938,7 +3545,7 @@ func MakeHHGMoveWithPPMShipmentsForTOO(appCtx appcontext.AppContext, readyForClo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2953,7 +3560,7 @@ func MakeHHGMoveWithExternalNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -2979,7 +3586,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	orders := newmove.Orders
@@ -3029,7 +3636,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err = models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3043,7 +3650,7 @@ func MakeMoveWithNTSShipmentsForTOO(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3057,7 +3664,7 @@ func MakeHHGMoveWithNTSRShipmentsForTOO(appCtx appcontext.AppContext) models.Mov
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3083,7 +3690,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	orders := newmove.Orders
@@ -3133,7 +3740,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err = models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3148,7 +3755,7 @@ func MakeHHGMoveWithExternalNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3164,7 +3771,7 @@ func MakeMoveWithMinimalNTSRNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3180,7 +3787,7 @@ func MakeHHGMoveNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3195,7 +3802,7 @@ func MakeHHGMoveNeedsServicesCounselingUSMC(appCtx appcontext.AppContext) models
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3211,7 +3818,7 @@ func MakeHHGMoveWithAmendedOrders(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3229,7 +3836,7 @@ func MakeHHGMoveForSeparationNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3247,7 +3854,7 @@ func MakeHHGMoveForRetireeNeedsSC(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3381,12 +3988,12 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch duty location: %w", err))
 	}
 	return *newmove
 }
@@ -3484,21 +4091,6 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 		},
 	}, nil)
 	for i := range sitItems {
-		if sitItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    sitItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-			originalAddress := sitAddressUpdate.OldAddress
-			sitItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			sitItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&sitItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
 		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
 			{
 				Model: models.PaymentServiceItem{
@@ -3568,12 +4160,12 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseoutWithSIT(appCtx appcontext.AppCo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	newmove.Orders.NewDutyLocation, err = models.FetchDutyLocation(appCtx.DB(), newmove.Orders.NewDutyLocationID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch duty location: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch duty location: %w", err))
 	}
 	return *newmove
 }
@@ -3603,7 +4195,7 @@ func MakePPMMoveWithCloseout(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 	return *newmove
 }
@@ -3628,13 +4220,13 @@ func MakePPMMoveWithCloseoutOffice(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	var closeoutOffice models.TransportationOffice
 	err = appCtx.DB().Find(&closeoutOffice, newmove.CloseoutOfficeID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch closeout office: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch closeout office: %w", err))
 	}
 
 	newmove.CloseoutOffice = &closeoutOffice
@@ -3663,7 +4255,7 @@ func MakeSubmittedMoveWithPPMShipmentForSC(appCtx appcontext.AppContext) models.
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3705,7 +4297,7 @@ func MakeApprovedMoveWithPPM(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3744,7 +4336,7 @@ func MakeUnSubmittedMoveWithPPMShipmentThroughEstimatedWeights(appCtx appcontext
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3795,7 +4387,7 @@ func MakeApprovedMoveWithPPMWithAboutFormComplete(appCtx appcontext.AppContext) 
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3836,7 +4428,7 @@ func MakeUnsubmittedMoveWithMultipleFullPPMShipmentComplete(appCtx appcontext.Ap
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3907,7 +4499,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicket(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -3984,7 +4576,7 @@ func MakeApprovedMoveWithPPMProgearWeightTicketOffice(appCtx appcontext.AppConte
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4050,7 +4642,7 @@ func MakeApprovedMoveWithPPMWeightTicketOffice(appCtx appcontext.AppContext) mod
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4139,7 +4731,7 @@ func MakeApprovedMoveWithPPMWeightTicketOfficeWithHHG(appCtx appcontext.AppConte
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4161,7 +4753,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-
+	storageStart := time.Now()
+	storageEnd := storageStart.Add(7 * time.Hour * 24)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -4181,10 +4774,48 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITEstimatedEntryDate:       &storageStart,
+			SITEstimatedDepartureDate:   &storageEnd,
+			SITExpected:                 models.BoolPointer(true),
 		},
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4209,6 +4840,8 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -4222,8 +4855,10 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 			Model: models.MovingExpense{
 				MovingExpenseType: &storageExpenseType,
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
-				SITStartDate:      models.TimePointer(time.Now()),
-				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITStartDate:      &storageStart,
+				SITEndDate:        &storageEnd,
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -4232,7 +4867,7 @@ func MakeApprovedMoveWithPPMMovingExpense(appCtx appcontext.AppContext) models.M
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4260,7 +4895,8 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 
 	approvedAt := time.Date(2022, 4, 15, 12, 30, 0, 0, time.UTC)
 	address := factory.BuildAddress(appCtx.DB(), nil, nil)
-
+	storageStart := time.Now()
+	storageEnd := storageStart.Add(7 * time.Hour * 24)
 	assertions := testdatagen.Assertions{
 		UserUploader: userUploader,
 		Move: models.Move{
@@ -4280,10 +4916,48 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 			HasReceivedAdvance:          models.BoolPointer(true),
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			W2Address:                   &address,
+			ExpectedDepartureDate:       time.Date(testdatagen.GHCTestYear, time.March, 15, 0, 0, 0, 0, time.UTC),
+			SITEstimatedEntryDate:       &storageStart,
+			SITEstimatedDepartureDate:   &storageEnd,
+			SITExpected:                 models.BoolPointer(true),
 		},
 	}
 
 	move, shipment := scenario.CreateGenericMoveWithPPMShipment(appCtx, moveInfo, false, userUploader, &assertions.MTOShipment, &assertions.Move, assertions.PPMShipment)
+	threeMonthsAgo := time.Now().AddDate(0, -3, 0)
+	twoMonthsAgo := threeMonthsAgo.AddDate(0, 1, 0)
+	sitCost := unit.Cents(200000)
+	sitItems := factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment.Shipment, &threeMonthsAgo, &twoMonthsAgo)
+	sitItems = append(sitItems, factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment.Shipment, &twoMonthsAgo, nil)...)
+	paymentRequest := factory.BuildPaymentRequest(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.PaymentRequest{
+				ID:              uuid.Must(uuid.NewV4()),
+				IsFinal:         false,
+				Status:          models.PaymentRequestStatusReviewed,
+				RejectionReason: nil,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+	for i := range sitItems {
+		factory.BuildPaymentServiceItem(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PaymentServiceItem{
+					PriceCents: &sitCost,
+				},
+			}, {
+				Model:    paymentRequest,
+				LinkOnly: true,
+			}, {
+				Model:    sitItems[i],
+				LinkOnly: true,
+			},
+		}, nil)
+	}
 
 	factory.BuildWeightTicket(appCtx.DB(), []factory.Customization{
 		{
@@ -4307,6 +4981,8 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	}, nil)
 
 	storageExpenseType := models.MovingExpenseReceiptTypeStorage
+	sitLocation := models.SITLocationTypeOrigin
+	weightStored := 2000
 	factory.BuildMovingExpense(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -4320,8 +4996,10 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 			Model: models.MovingExpense{
 				MovingExpenseType: &storageExpenseType,
 				Description:       models.StringPointer("Storage R Us monthly rental unit"),
-				SITStartDate:      models.TimePointer(time.Now()),
-				SITEndDate:        models.TimePointer(time.Now().Add(30 * 24 * time.Hour)),
+				SITStartDate:      &storageStart,
+				SITEndDate:        &storageEnd,
+				SITLocation:       &sitLocation,
+				WeightStored:      (*unit.Pound)(&weightStored),
 			},
 		},
 	}, nil)
@@ -4330,7 +5008,7 @@ func MakeApprovedMoveWithPPMMovingExpenseOffice(appCtx appcontext.AppContext) mo
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4418,7 +5096,7 @@ func MakeApprovedMoveWithPPMAllDocTypesOffice(appCtx appcontext.AppContext) mode
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4458,7 +5136,7 @@ func MakeDraftMoveWithPPMWithDepartureDate(appCtx appcontext.AppContext) models.
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	return *newmove
@@ -4638,26 +5316,7 @@ func MakeHHGMoveInSIT(appCtx appcontext.AppContext) models.Move {
 	twoMonthsAgo := now.AddDate(0, 0, -60)
 	oneMonthAgo := now.AddDate(0, 0, -30)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	return move
 }
@@ -4733,7 +5392,6 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 
 	requestedPickupDate := now.AddDate(0, 3, 0)
 	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
-	// pickupAddress := factory.BuildAddress(appCtx.DB(), nil, nil)
 
 	shipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
 		{
@@ -4771,26 +5429,7 @@ func MakeHHGMoveInSITNoExcessWeight(appCtx appcontext.AppContext) models.Move {
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	return move
 }
@@ -4904,26 +5543,7 @@ func MakeHHGMoveInSITWithPendingExtension(appCtx appcontext.AppContext) models.M
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 	factory.BuildSITDurationUpdate(appCtx.DB(), []factory.Customization{
 		{
 			Model:    shipment,
@@ -5014,25 +5634,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestOver50Miles(appCtx appcontext.AppCo
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &originalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
@@ -5151,26 +5753,7 @@ func MakeHHGMoveInSITWithAddressChangeRequestUnder50Miles(appCtx appcontext.AppC
 	twoMonthsAgo := now.AddDate(0, -2, 0)
 	oneMonthAgo := now.AddDate(0, -1, 0)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateUnder50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &oneMonthAgo, nil)
 
 	newMove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
@@ -6088,6 +6671,14 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 		},
 	}, nil)
 
+	tertiaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "123 3rd Address",
+			},
+		},
+	}, nil)
+
 	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
@@ -6122,9 +6713,109 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			},
 		},
 		{
+			Model:    tertiaryDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.TertiaryDeliveryAddress,
+		},
+		{
 			Model:    secondaryDeliveryAddress,
 			LinkOnly: true,
 			Type:     &factory.Addresses.SecondaryDeliveryAddress,
+		},
+		{
+			Model:    originalDeliveryAddress,
+			LinkOnly: true,
+			Type:     &factory.Addresses.DeliveryAddress,
+		},
+	}, nil)
+
+	return shipmentAddressUpdate
+}
+
+func MakeNTSRMoveWithAddressChangeRequest(appCtx appcontext.AppContext) models.ShipmentAddressUpdate {
+	userUploader := newUserUploader(appCtx)
+	userInfo := newUserInfo("customer")
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				OktaEmail: userInfo.email,
+				Active:    true,
+			},
+		},
+	}, nil)
+	customer := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				PersonalEmail: &userInfo.email,
+				FirstName:     &userInfo.firstName,
+				LastName:      &userInfo.lastName,
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	orders := factory.BuildOrder(appCtx.DB(), []factory.Customization{
+		{
+			Model:    customer,
+			LinkOnly: true,
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	originalDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.Address{
+				StreetAddress1: "7 Q st",
+				StreetAddress2: models.StringPointer("Apt 1"),
+				City:           "Fort Eisenhower",
+				State:          "GA",
+				PostalCode:     "30813",
+			},
+		},
+	}, nil)
+
+	now := time.Now()
+	requestedPickupDate := now.AddDate(0, 3, 0)
+	requestedDeliveryDate := requestedPickupDate.AddDate(0, 1, 0)
+
+	NTSRecordedWeight := unit.Pound(1400)
+	serviceOrderNumber := "1234"
+	shipmentAddressUpdate := factory.BuildShipmentAddressUpdate(appCtx.DB(), []factory.Customization{
+		{
+			Model:    orders,
+			LinkOnly: true,
+		},
+		{
+			Model: models.ShipmentAddressUpdate{
+				Status: models.ShipmentAddressUpdateStatusRequested,
+			},
+		},
+		{
+			Model: models.Move{
+				Status:             models.MoveStatusAPPROVALSREQUESTED,
+				AvailableToPrimeAt: models.TimePointer(time.Now()),
+			},
+		},
+		{
+			Model: models.MTOShipment{
+				Status:                models.MTOShipmentStatusApproved,
+				ShipmentType:          models.MTOShipmentTypeHHGOutOfNTSDom,
+				NTSRecordedWeight:     &NTSRecordedWeight,
+				ServiceOrderNumber:    &serviceOrderNumber,
+				RequestedPickupDate:   &requestedPickupDate,
+				RequestedDeliveryDate: &requestedDeliveryDate,
+			},
 		},
 		{
 			Model:    originalDeliveryAddress,
@@ -6763,13 +7454,13 @@ func MakeMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 	// re-fetch the move so that we ensure we have exactly what is in the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove
@@ -7405,13 +8096,13 @@ func MakeCoastGuardMoveReadyForEDI(appCtx appcontext.AppContext) models.Move {
 	// the db
 	newmove, err := models.FetchMove(appCtx.DB(), &auth.Session{}, move.ID)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move: %w", err))
 	}
 
 	// load payment requests so tests can confirm
 	err = appCtx.DB().Load(newmove, "PaymentRequests")
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to fetch move payment requestse: %w", err))
+		log.Panic(fmt.Errorf("failed to fetch move payment requestse: %w", err))
 	}
 
 	return *newmove

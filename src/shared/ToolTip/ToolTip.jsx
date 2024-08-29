@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import styles from './ToolTip.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const ToolTip = ({ text, position, icon, color }) => {
+const ToolTip = ({ text, position, icon, color, closeOnLeave }) => {
   // this state determines if the text is visible on mousehover/leave
   const [isVisible, setIsVisible] = useState(false);
   const tooltipRef = useRef(null);
@@ -32,6 +32,12 @@ const ToolTip = ({ text, position, icon, color }) => {
     }
   };
 
+  const closeOnMouseLeave = () => {
+    if (closeOnLeave) {
+      setIsVisible(false);
+    }
+  };
+
   useEffect(() => {
     document.addEventListener('click', handleClickOutside);
     return () => {
@@ -43,6 +49,7 @@ const ToolTip = ({ text, position, icon, color }) => {
     <div
       className={styles.tooltipContainer}
       onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => closeOnMouseLeave()}
       onClick={() => determineIsVisible()}
       ref={tooltipRef}
     >

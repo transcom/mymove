@@ -33,6 +33,17 @@ func NewUserUploader(storer storage.FileStorer, fileSizeLimit ByteSize) (*UserUp
 	}, nil
 }
 
+// NewOfficeUploader creates and returns a new uploader
+func NewOfficeUploader(storer storage.FileStorer, fileSizeLimit ByteSize) (*UserUploader, error) {
+	uploader, err := NewUploader(storer, fileSizeLimit, models.UploadTypeOFFICE)
+	if err != nil {
+		return nil, fmt.Errorf("could not create uploader.UserUploader for UserUpload: %w", err)
+	}
+	return &UserUploader{
+		uploader: uploader,
+	}, nil
+}
+
 // PrepareFileForUpload calls Uploader.PrepareFileForUpload
 func (u *UserUploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption

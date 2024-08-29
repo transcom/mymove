@@ -71,7 +71,7 @@ func (a *aoaPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext,
 
 // CreateAOAPacket creates an AOA packet for a PPM Shipment, containing the shipment summary worksheet (SSW) and
 // uploaded orders.
-func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) (afero.File, error) {
+func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error) {
 	errMsgPrefix := "error creating AOA packet"
 
 	// First we begin by fetching SSW Data, computing obligations, formatting, and filling the SSWPDF
@@ -80,7 +80,7 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
-	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+	page1Data, page2Data := a.SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, isPaymentPacket)
 
 	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data)
 	if err != nil {

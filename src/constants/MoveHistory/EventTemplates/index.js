@@ -46,6 +46,8 @@ export { default as updateMTOServiceItemMoveStatus } from './CreateMTOServiceIte
 export { default as updateMoveEstimatedExcessWeight } from './UpdateMTOShipment/updateMTOShipmentPrimeEstimatedExcessWeight';
 export { default as updateMTOStatusServiceCounselingCompleted } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompleted';
 export { default as updateMTOStatusServiceCounselingCompletedPPM } from './UpdateMTOStatusServiceCounselingCompleted/updateMTOStatusServiceCounselingCompletedPPM';
+export { default as updateMTOStatusPrimeCounselingCompleted } from './UpdateMTOPostCounselingInformation/updateMTOStatusPrimeCounselingCompleted';
+export { default as updateMTOStatusPrimeCounselingCompletedPPM } from './UpdateMTOPostCounselingInformation/updateMTOStatusPrimeCounselingCompletedPPM';
 export { default as updateAllowanceByCounselor } from './UpdateAllowances/updateAllowanceByCounselor';
 export { default as updateServiceMemberByCounselor } from './UpdateServiceMember/updateServiceMemberByCounselor';
 export { default as updateServiceMemberByTOO } from './UpdateServiceMember/updateServiceMemberByTOO';
@@ -58,10 +60,6 @@ export { default as updateServiceMemberBackupContacts } from './UpdateServiceMem
 export { default as createServiceMemberBackupContacts } from './CreateServiceMemberBackupContact/createServiceMemberBackupContact';
 export { default as updateCustomer } from './UpdateCustomer/updateCustomer';
 export { default as updateServiceItemSitEntryDate } from './UpdateSITEntryDate/updateSitEntryDate';
-export { default as createDestinationSITUpdateRequest } from './CreateSITRequest/CreateSITAddressUpdateRequest';
-export { default as approveSITAddressUpdate } from './UpdateSITAddress/ApproveSITAddressUpdate';
-export { default as rejectSITAddressUpdate } from './UpdateSITAddress/RejectSITAddressUpdate';
-export { default as createSITAddressUpdate } from './UpdateSITAddress/CreateSITAddressUpdate';
 export { default as updateMTOShipmentPPMDetails } from './UpdateMTOShipment/UpdateMTOShipmentPPMDetails';
 export { default as updateWeightTicket } from './UpdateWeightTicket/UpdateWeightTicket';
 export { default as updateMovingExpense } from './UpdateMovingExpense/UpdateMovingExpense';

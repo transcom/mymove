@@ -12,6 +12,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"strconv"
+	"strings"
 	"testing"
 	"time"
 
@@ -228,6 +229,65 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	suite.NoError(err)
 	suite.Equal(appnames.OfficeServername, redirectURI.Hostname())
 	suite.Equal(strconv.Itoa(suite.callbackPort), redirectURI.Port())
+}
+
+func (suite *AuthSuite) TestLogoutOktaRedirectHandler() {
+	// this sets up a user with a valid ID and Access token
+	// calls /auth/logoutOktaRedirect which should clear those tokens
+	// checks to make sure those values are not present in session
+
+	OktaID := "2400c3c5-019d-4031-9c27-8a553e022297"
+
+	user := models.User{
+		OktaID:    OktaID,
+		OktaEmail: "email@example.com",
+		Active:    true,
+	}
+	suite.MustSave(&user)
+
+	fakeToken := "some_token"
+	fakeAccessToken := "some_access_token"
+
+	handlerConfig := suite.HandlerConfig()
+	appnames := handlerConfig.AppNames()
+
+	baseReq := httptest.NewRequest("POST", fmt.Sprintf("http://%s/auth/logoutOktaRedirect", appnames.MilServername), nil)
+	session := auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		IDToken:         fakeToken,
+		AccessToken:     fakeAccessToken,
+		Hostname:        appnames.MilServername,
+	}
+	sessionManagers := handlerConfig.SessionManagers()
+	milSession := sessionManagers.Mil
+	authContext := suite.AuthContext()
+
+	oktaProvider := okta.NewOktaProvider(suite.Logger())
+	err := oktaProvider.RegisterOktaProvider("milProvider", "OrgURL", "CallbackURL", fakeToken, "secret", []string{"openid", "profile", "email"})
+	suite.NoError(err)
+	handler := milSession.LoadAndSave(NewLogoutOktaRedirectHandler(authContext, handlerConfig))
+
+	rr := httptest.NewRecorder()
+	req := suite.SetupSessionRequest(baseReq, &session, sessionManagers.Office)
+	handler.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusOK, rr.Code, "handler returned wrong status code")
+
+	// Read and parse the body to extract the URL
+	body := rr.Body.String()
+	parsedURL, err := url.Parse(body)
+	suite.NoError(err)
+
+	rawQuery := parsedURL.RawQuery
+	values, err := url.ParseQuery(rawQuery)
+	suite.NoError(err)
+
+	// parsing the redirect url which should end in auth/okta
+	// this redirects the user back to the sign in page for Okta and not the MilMove home page
+	postLogoutRedirectURI := values.Get("post_logout_redirect_uri")
+	suite.NotEmpty(postLogoutRedirectURI, "post_logout_redirect_uri is empty")
+	suite.True(strings.HasSuffix(postLogoutRedirectURI, "/auth/okta"), "post_logout_redirect_uri does not end with /auth/okta")
 }
 
 func (suite *AuthSuite) TestRequireAuthMiddleware() {
@@ -1689,6 +1749,31 @@ func (suite *AuthSuite) TestAuthorizePrime() {
 	// no cert in request
 	rr = httptest.NewRecorder()
 	req = httptest.NewRequest("GET", fmt.Sprintf("http://%s/prime/v1", appnames.PrimeServername), nil)
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusUnauthorized, rr.Code)
+}
+
+func (suite *AuthSuite) TestAuthorizePPTAS() {
+	clientCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
+
+	handlerConfig := suite.HandlerConfig()
+	appnames := handlerConfig.AppNames()
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/pptas/v1", appnames.PrimeServername), nil)
+
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
+	middleware := PPTASAuthorizationMiddleware(suite.Logger())(handler)
+	rr := httptest.NewRecorder()
+
+	ctx := SetClientCertInRequestContext(req, &clientCert)
+	req = req.WithContext(ctx)
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusOK, rr.Code)
+
+	// no cert in request
+	rr = httptest.NewRecorder()
+	req = httptest.NewRequest("GET", fmt.Sprintf("http://%s/pptas/v1", appnames.PrimeServername), nil)
 	middleware.ServeHTTP(rr, req)
 
 	suite.Equal(http.StatusUnauthorized, rr.Code)

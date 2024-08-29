@@ -217,6 +217,26 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.DestinationAddress = addressModel
 	}
 
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
+	}
+
 	if mtoShipment.DestinationType != nil {
 		valDestinationType := models.DestinationType(*mtoShipment.DestinationType)
 		model.DestinationType = &valDestinationType
@@ -239,6 +259,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
 		model.PPMShipment.Shipment = *model
+	} else if mtoShipment.BoatShipment != nil {
+		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
 	}
 
 	return model
@@ -276,6 +299,12 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -285,6 +314,12 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -308,6 +343,51 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	if model.HasProGear != nil && *model.HasProGear {
 		model.ProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight)
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
+	}
+
+	return model
+}
+
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(boatShipment *ghcmessages.CreateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	model := &models.BoatShipment{
+		Type:           models.BoatShipmentType(*boatShipment.Type),
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if model.HasTrailer == models.BoolPointer(false) {
+		model.IsRoadworthy = nil
 	}
 
 	return model
@@ -379,6 +459,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
@@ -393,6 +475,17 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
 		if *mtoShipment.HasSecondaryDeliveryAddress {
 			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+		}
+	}
+
+	if mtoShipment.HasTertiaryPickupAddress != nil {
+		if *mtoShipment.HasTertiaryPickupAddress {
+			model.TertiaryPickupAddress = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+		}
+	}
+	if mtoShipment.HasTertiaryDeliveryAddress != nil {
+		if *mtoShipment.HasTertiaryDeliveryAddress {
+			model.TertiaryDeliveryAddress = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
 		}
 	}
 
@@ -420,6 +513,17 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		model.PPMShipment.Shipment = *model
 	}
 
+	// making sure both shipmentType and boatShipment.Type match
+	if mtoShipment.BoatShipment != nil && mtoShipment.BoatShipment.Type != nil {
+		if *mtoShipment.BoatShipment.Type == string(models.BoatShipmentTypeHaulAway) {
+			model.ShipmentType = models.MTOShipmentTypeBoatHaulAway
+		} else {
+			model.ShipmentType = models.MTOShipmentTypeBoatTowAway
+		}
+		model.BoatShipment = BoatShipmentModelFromUpdate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
+	}
+
 	return model
 }
 
@@ -439,6 +543,8 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		AdvanceAmountRequested:         handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountRequested),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		AdvanceAmountReceived:          handlers.FmtInt64PtrToPopPtr(ppmShipment.AdvanceAmountReceived),
 		HasReceivedAdvance:             ppmShipment.HasReceivedAdvance,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
@@ -465,6 +571,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SecondaryPickupAddressID = &secondaryPickupAddressID
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -475,6 +588,13 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SecondaryDestinationAddress = addressModel
 		secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
 	}
 
 	if ppmShipment.W2Address != nil {
@@ -504,6 +624,54 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	}
 
 	return model
+}
+
+// BoatShipmentModelFromUpdate model
+func BoatShipmentModelFromUpdate(boatShipment *ghcmessages.UpdateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	boatModel := &models.BoatShipment{
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if boatShipment.Type != nil {
+		boatModel.Type = models.BoatShipmentType(*boatShipment.Type)
+	}
+
+	if boatShipment.HasTrailer == models.BoolPointer(false) {
+		boatModel.IsRoadworthy = nil
+	}
+
+	return boatModel
 }
 
 // ProgearWeightTicketModelFromUpdate model
@@ -569,6 +737,8 @@ func MovingExpenseModelFromUpdate(movingExpense *ghcmessages.UpdateMovingExpense
 	model.Status = (*models.PPMDocumentStatus)(handlers.FmtString(string(movingExpense.Status)))
 	model.Reason = handlers.FmtString(movingExpense.Reason)
 	model.WeightStored = handlers.PoundPtrFromInt64Ptr(&movingExpense.WeightStored)
+	model.SITEstimatedCost = handlers.FmtInt64PtrToPopPtr(movingExpense.SitEstimatedCost)
+	model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
 
 	return &model
 }

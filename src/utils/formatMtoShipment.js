@@ -102,6 +102,15 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     hasSecondaryPickup: ppmShipment.hasSecondaryPickupAddress ? 'true' : 'false',
     hasSecondaryDestination: ppmShipment.hasSecondaryDestinationAddress ? 'true' : 'false',
 
+    tertiaryPickup: {
+      address: { ...emptyAddressShape },
+    },
+    tertiaryDestination: {
+      address: { ...emptyAddressShape },
+    },
+    hasTertiaryPickup: ppmShipment.hasTertiaryPickupAddress ? 'true' : 'false',
+    hasTertiaryDestination: ppmShipment.hasTertiaryDestinationAddress ? 'true' : 'false',
+
     sitExpected: !!ppmShipment.sitExpected,
     sitLocation: ppmShipment.sitLocation ?? LOCATION_TYPES.DESTINATION,
     sitEstimatedWeight: (ppmShipment.sitEstimatedWeight || '').toString(),
@@ -129,6 +138,14 @@ export function formatPpmShipmentForDisplay({ counselorRemarks = '', ppmShipment
     displayValues.secondaryDestination.address = { ...emptyAddressShape, ...ppmShipment.secondaryDestinationAddress };
   }
 
+  if (ppmShipment.hasTertiaryPickupAddress) {
+    displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...ppmShipment.tertiaryPickupAddress };
+  }
+
+  if (ppmShipment.hasTertiaryDestinationAddress) {
+    displayValues.tertiaryDestination.address = { ...emptyAddressShape, ...ppmShipment.tertiaryDestinationAddress };
+  }
+
   return displayValues;
 }
 
@@ -148,6 +165,8 @@ export function formatMtoShipmentForDisplay({
   moveTaskOrderID,
   secondaryPickupAddress,
   secondaryDeliveryAddress,
+  tertiaryPickupAddress,
+  tertiaryDeliveryAddress,
   ntsRecordedWeight,
   tacType,
   sacType,
@@ -178,9 +197,17 @@ export function formatMtoShipmentForDisplay({
     secondaryDelivery: {
       address: { ...emptyAddressShape },
     },
+    tertiaryPickup: {
+      address: { ...emptyAddressShape },
+    },
+    tertiaryDelivery: {
+      address: { ...emptyAddressShape },
+    },
     hasDeliveryAddress: 'no',
     hasSecondaryPickup: 'no',
     hasSecondaryDelivery: 'no',
+    hasTertiaryPickup: 'no',
+    hasTertiaryDelivery: 'no',
     ntsRecordedWeight,
     tacType,
     sacType,
@@ -218,10 +245,14 @@ export function formatMtoShipmentForDisplay({
     displayValues.secondaryPickup.address = { ...emptyAddressShape, ...secondaryPickupAddress };
     displayValues.hasSecondaryPickup = 'yes';
   }
+  if (tertiaryPickupAddress) {
+    displayValues.tertiaryPickup.address = { ...emptyAddressShape, ...tertiaryPickupAddress };
+    displayValues.hasTertiaryPickup = 'yes';
+  }
 
   if (destinationAddress) {
     displayValues.delivery.address = { ...emptyAddressShape, ...destinationAddress };
-    displayValues.hasDeliveryAddress = 'yes';
+    if (destinationAddress.streetAddress1 !== 'N/A') displayValues.hasDeliveryAddress = 'yes';
   }
 
   if (destinationType) {
@@ -231,6 +262,10 @@ export function formatMtoShipmentForDisplay({
   if (secondaryDeliveryAddress) {
     displayValues.secondaryDelivery.address = { ...emptyAddressShape, ...secondaryDeliveryAddress };
     displayValues.hasSecondaryDelivery = 'yes';
+  }
+  if (tertiaryDeliveryAddress) {
+    displayValues.tertiaryDelivery.address = { ...emptyAddressShape, ...tertiaryDeliveryAddress };
+    displayValues.hasTertiaryDelivery = 'yes';
   }
 
   if (requestedDeliveryDate) {
@@ -267,6 +302,8 @@ export function formatPpmShipmentForAPI(formValues) {
     advanceStatus: formValues.advanceStatus,
     hasSecondaryPickupAddress: formValues.hasSecondaryPickup === 'true',
     hasSecondaryDestinationAddress: formValues.hasSecondaryDestination === 'true',
+    hasTertiaryPickupAddress: formValues.hasTertiaryPickup === 'true',
+    hasTertiaryDestinationAddress: formValues.hasTertiaryDestination === 'true',
   };
 
   if (ppmShipmentValues.hasSecondaryPickupAddress) {
@@ -280,6 +317,20 @@ export function formatPpmShipmentForAPI(formValues) {
     ppmShipmentValues = {
       ...ppmShipmentValues,
       secondaryDestinationAddress: formatAddressForAPI(formValues.secondaryDestination.address),
+    };
+  }
+
+  if (ppmShipmentValues.hasTertiaryPickupAddress) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      tertiaryPickupAddress: formatAddressForAPI(formValues.tertiaryPickup.address),
+    };
+  }
+
+  if (ppmShipmentValues.hasTertiaryDestinationAddress) {
+    ppmShipmentValues = {
+      ...ppmShipmentValues,
+      tertiaryDestinationAddress: formatAddressForAPI(formValues.tertiaryDestination.address),
     };
   }
 
@@ -332,8 +383,12 @@ export function formatMtoShipmentForAPI({
   counselorRemarks,
   hasSecondaryPickup,
   secondaryPickup,
+  hasTertiaryPickup,
+  tertiaryPickup,
   hasSecondaryDelivery,
   secondaryDelivery,
+  hasTertiaryDelivery,
+  tertiaryDelivery,
   ntsRecordedWeight,
   tacType,
   sacType,
@@ -394,6 +449,16 @@ export function formatMtoShipmentForAPI({
     formattedMtoShipment.secondaryDeliveryAddress = formatAddressForAPI(secondaryDelivery.address);
   }
 
+  formattedMtoShipment.hasTertiaryPickupAddress = hasTertiaryPickup;
+  if (hasTertiaryPickup && tertiaryPickup?.address) {
+    formattedMtoShipment.tertiaryPickupAddress = formatAddressForAPI(tertiaryPickup.address);
+  }
+
+  formattedMtoShipment.hasTertiaryDeliveryAddress = hasTertiaryDelivery;
+  if (hasTertiaryDelivery && tertiaryDelivery?.address) {
+    formattedMtoShipment.tertiaryDeliveryAddress = formatAddressForAPI(tertiaryDelivery.address);
+  }
+
   if (!formattedMtoShipment.agents?.length) {
     formattedMtoShipment.agents = undefined;
   }
@@ -439,6 +504,20 @@ export function getMtoShipmentLabel({ context }) {
   return mtoShipmentLabels;
 }
 
+// Convert feet and inches to all inches for Boat & Mobile Homes
+export function toTotalInches(feet, inches) {
+  return (Number(feet) || 0) * 12 + (Number(inches) || 0);
+}
+
+// Convert inches to feet and inches
+export function convertInchesToFeetAndInches(totalInches) {
+  if (!totalInches) return { feet: '', inches: '' };
+
+  const feet = Math.floor(totalInches / 12).toString();
+  const inches = (totalInches % 12).toString();
+  return { feet, inches };
+}
+
 export default {
   formatMtoShipmentForAPI,
   formatMtoShipmentForDisplay,
@@ -446,4 +525,6 @@ export default {
   formatStorageFacilityForAPI,
   removeEtag,
   getMtoShipmentLabel,
+  toTotalInches,
+  convertInchesToFeetAndInches,
 };

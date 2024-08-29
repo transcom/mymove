@@ -37,6 +37,11 @@ type Upload struct {
 	// Format: date-time
 	CreatedAt strfmt.DateTime `json:"createdAt"`
 
+	// deleted at
+	// Read Only: true
+	// Format: date-time
+	DeletedAt *strfmt.DateTime `json:"deletedAt,omitempty"`
+
 	// filename
 	// Example: filename.pdf
 	// Required: true
@@ -64,6 +69,12 @@ type Upload struct {
 	// Format: date-time
 	UpdatedAt strfmt.DateTime `json:"updatedAt"`
 
+	// upload type
+	// Example: OFFICE
+	// Read Only: true
+	// Enum: [USER PRIME OFFICE]
+	UploadType string `json:"uploadType,omitempty"`
+
 	// url
 	// Example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Required: true
@@ -88,6 +99,10 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateDeletedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateFilename(formats); err != nil {
 		res = append(res, err)
 	}
@@ -101,6 +116,10 @@ func (m *Upload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateUpdatedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateUploadType(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -139,6 +158,18 @@ func (m *Upload) validateCreatedAt(formats strfmt.Registry) error {
 	}
 
 	if err := validate.FormatOf("createdAt", "body", "date-time", m.CreatedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) validateDeletedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.DeletedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("deletedAt", "body", "date-time", m.DeletedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -225,6 +256,51 @@ func (m *Upload) validateUpdatedAt(formats strfmt.Registry) error {
 	return nil
 }
 
+var uploadTypeUploadTypePropEnum []interface{}
+
+func init() {
+	var res []string
+	if err := json.Unmarshal([]byte(`["USER","PRIME","OFFICE"]`), &res); err != nil {
+		panic(err)
+	}
+	for _, v := range res {
+		uploadTypeUploadTypePropEnum = append(uploadTypeUploadTypePropEnum, v)
+	}
+}
+
+const (
+
+	// UploadUploadTypeUSER captures enum value "USER"
+	UploadUploadTypeUSER string = "USER"
+
+	// UploadUploadTypePRIME captures enum value "PRIME"
+	UploadUploadTypePRIME string = "PRIME"
+
+	// UploadUploadTypeOFFICE captures enum value "OFFICE"
+	UploadUploadTypeOFFICE string = "OFFICE"
+)
+
+// prop value enum
+func (m *Upload) validateUploadTypeEnum(path, location string, value string) error {
+	if err := validate.EnumCase(path, location, value, uploadTypeUploadTypePropEnum, true); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (m *Upload) validateUploadType(formats strfmt.Registry) error {
+	if swag.IsZero(m.UploadType) { // not required
+		return nil
+	}
+
+	// value enum
+	if err := m.validateUploadTypeEnum("uploadType", "body", m.UploadType); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Upload) validateURL(formats strfmt.Registry) error {
 
 	if err := validate.Required("url", "body", strfmt.URI(m.URL)); err != nil {
@@ -254,6 +330,10 @@ func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateDeletedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateFilename(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -267,6 +347,10 @@ func (m *Upload) ContextValidate(ctx context.Context, formats strfmt.Registry) e
 	}
 
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateUploadType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -307,6 +391,15 @@ func (m *Upload) contextValidateCreatedAt(ctx context.Context, formats strfmt.Re
 	return nil
 }
 
+func (m *Upload) contextValidateDeletedAt(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "deletedAt", "body", m.DeletedAt); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (m *Upload) contextValidateFilename(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "filename", "body", string(m.Filename)); err != nil {
@@ -337,6 +430,15 @@ func (m *Upload) contextValidateStatus(ctx context.Context, formats strfmt.Regis
 func (m *Upload) contextValidateUpdatedAt(ctx context.Context, formats strfmt.Registry) error {
 
 	if err := validate.ReadOnly(ctx, "updatedAt", "body", strfmt.DateTime(m.UpdatedAt)); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Upload) contextValidateUploadType(ctx context.Context, formats strfmt.Registry) error {
+
+	if err := validate.ReadOnly(ctx, "uploadType", "body", string(m.UploadType)); err != nil {
 		return err
 	}
 

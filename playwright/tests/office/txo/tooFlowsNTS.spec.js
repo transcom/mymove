@@ -15,12 +15,15 @@ const SearchRBSelection = ['Move Code', 'DOD ID', 'Customer Name'];
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+  let tac;
   test.describe('with unapproved HHG + NTS Move', () => {
     test.beforeEach(async ({ officePage }) => {
       const move = await officePage.testHarness.buildHHGMoveWithNTSShipmentsForTOO();
+      tac = await officePage.testHarness.buildGoodTACAndLoaCombination();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     // TODO FOR NTS-RELEASE
@@ -55,31 +58,35 @@ test.describe('TOO user', () => {
       await page.locator('[data-testid="ShipmentContainer"] .usa-button').last().click();
       // Basic info
       await page.locator('#requestedPickupDate').clear();
-      await page.locator('#requestedPickupDate').type('16 Mar 2022');
+      await page.locator('#requestedPickupDate').fill('16 Mar 2022');
       await page.getByText('Use current address').click();
 
       // Storage facility info
-      await page.locator('#facilityName').type('Sample Facility Name');
+      await page.locator('#facilityName').fill('Sample Facility Name');
       await page.locator('#facilityName').blur();
-      await page.locator('#facilityPhone').type('999-999-9999');
+      await page.locator('#facilityPhone').fill('999-999-9999');
       await page.locator('#facilityPhone').blur();
-      await page.locator('#facilityEmail').type('sample@example.com');
+      await page.locator('#facilityEmail').fill('sample@example.com');
       await page.locator('#facilityEmail').blur();
-      await page.locator('#facilityServiceOrderNumber').type('999999');
+      await page.locator('#facilityServiceOrderNumber').fill('999999');
       await page.locator('#facilityServiceOrderNumber').blur();
 
       // Storage facility address
-      await page.locator('input[name="storageFacility.address.streetAddress1"]').type('148 S East St');
+      await page.locator('input[name="storageFacility.address.streetAddress1"]').fill('148 S East St');
       await page.locator('input[name="storageFacility.address.streetAddress1"]').blur();
-      await page.locator('input[name="storageFacility.address.streetAddress2"]').type('Suite 7A');
+      await page.locator('input[name="storageFacility.address.streetAddress2"]').fill('Suite 7A');
       await page.locator('input[name="storageFacility.address.streetAddress2"]').blur();
-      await page.locator('input[name="storageFacility.address.city"]').type('Sample City');
+      await page.locator('input[name="storageFacility.address.city"]').fill('Sample City');
       await page.locator('input[name="storageFacility.address.city"]').blur();
       await page.locator('select[name="storageFacility.address.state"]').selectOption({ label: 'GA' });
-      await page.locator('input[name="storageFacility.address.postalCode"]').type('30301');
+      await page.locator('input[name="storageFacility.address.postalCode"]').fill('30301');
       await page.locator('input[name="storageFacility.address.postalCode"]').blur();
-      await page.locator('#facilityLotNumber').type('1111111');
+      await page.locator('#facilityLotNumber').fill('1111111');
       await page.locator('#facilityLotNumber').blur();
+
+      // Delivery info
+      await page.locator('#requestedDeliveryDate').clear();
+      await page.locator('#requestedDeliveryDate').fill('16 Mar 2022');
 
       // TAC and SAC
       await page.locator('[data-testid="radio"] [for="tacType-NTS"]').click();
@@ -170,6 +177,44 @@ test.describe('TOO user', () => {
       await expect(details.locator('section header').last().getByText('Accounting codes')).toBeVisible();
       await expect(details.locator('section').last()).toContainText('F123');
     });
+
+    test('NTS LOA populates on orders page with good TGET data for TOO', async ({ page }) => {
+      await page.getByTestId('edit-orders').click();
+
+      // Fill out the orders details
+      await page.getByLabel('Orders number').fill('1234');
+      await page.getByLabel('Date issued').fill('1234');
+      await page.getByLabel('Department indicator').selectOption({ label: '21 Army' });
+      await page
+        .getByLabel('Orders type', { exact: true })
+        .selectOption({ label: 'Permanent Change Of Station (PCS)' });
+      await page.getByLabel('Orders type detail').selectOption({ label: 'Shipment of HHG Permitted' });
+
+      // Fill out the HHG and NTS accounting codes
+      await page.getByTestId('hhgTacInput').fill(tac.tac);
+      const today = new Date();
+      const formattedDate = new Intl.DateTimeFormat('en-GB', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      }).format(today);
+      await page.locator('input[name="issueDate"]').fill(formattedDate);
+
+      await page.getByTestId('hhgSacInput').fill('4K988AS098F');
+      // "GOOD" is a hard-set GOOD TAC by the e2e seed data
+      // Today's date will fall valid under the TAC and LOA and the NTS LOA should then populate
+      await page.getByTestId('ntsTacInput').fill(tac.tac);
+      const ntsLoaTextField = await page.getByTestId('ntsLoaTextField');
+      await expect(ntsLoaTextField).toHaveValue('1*1*20232025*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1*1');
+
+      const loaMissingErrorMessage = page.getByText('Unable to find a LOA based on the provided details');
+      const loaInvalidErrorMessage = page.getByText(
+        'The LOA identified based on the provided details appears to be invalid',
+      );
+
+      await expect(loaMissingErrorMessage).not.toBeVisible();
+      await expect(loaInvalidErrorMessage).not.toBeVisible();
+    });
   });
 
   test.describe('with approved HHG + NTS Move', () => {
@@ -179,7 +224,7 @@ test.describe('TOO user', () => {
       move = await officePage.testHarness.buildHHGMoveWithApprovedNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-
+      await tooFlowPage.waitForLoading();
       const searchTab = officePage.page.getByTitle(TOOTabsTitles[1]);
       await searchTab.click();
     });
@@ -189,7 +234,7 @@ test.describe('TOO user', () => {
       // tooFlowsNTSR.
       const selectedRadio = page.getByRole('group').locator(`label:text("${SearchRBSelection[0]}")`);
       await selectedRadio.click();
-      await page.getByTestId('searchText').type(move.locator);
+      await page.getByTestId('searchText').fill(move.locator);
       await page.getByTestId('searchTextSubmit').click();
 
       await expect(page.getByText('Results (1)')).toBeVisible();
@@ -225,19 +270,19 @@ test.describe('TOO user', () => {
       let modal = page.getByTestId('modal');
       // Storage facility info
       await modal.locator('#facilityName').clear();
-      await modal.locator('#facilityName').type('New Facility Name');
+      await modal.locator('#facilityName').fill('New Facility Name');
       await modal.locator('#facilityPhone').clear();
-      await modal.locator('#facilityPhone').type('999-999-9999');
+      await modal.locator('#facilityPhone').fill('999-999-9999');
       await modal.locator('#facilityEmail').clear();
-      await modal.locator('#facilityEmail').type('new@example.com');
+      await modal.locator('#facilityEmail').fill('new@example.com');
       await modal.locator('#facilityServiceOrderNumber').clear();
-      await modal.locator('#facilityServiceOrderNumber').type('098098');
+      await modal.locator('#facilityServiceOrderNumber').fill('098098');
 
       // Storage facility address
       await modal.locator('input[name="storageFacility.address.streetAddress1"]').clear();
-      await modal.locator('input[name="storageFacility.address.streetAddress1"]').type('265 S East St');
+      await modal.locator('input[name="storageFacility.address.streetAddress1"]').fill('265 S East St');
       await modal.locator('#facilityLotNumber').clear();
-      await modal.locator('#facilityLotNumber').type('1111111');
+      await modal.locator('#facilityLotNumber').fill('1111111');
 
       await modal.locator('button[type="submit"]').click();
       await expect(modal).not.toBeVisible();
@@ -256,7 +301,7 @@ test.describe('TOO user', () => {
       modal = page.getByTestId('modal');
 
       await modal.locator('[data-testid="textInput"]').clear();
-      await modal.locator('[data-testid="textInput"]').type('ORDER456');
+      await modal.locator('[data-testid="textInput"]').fill('ORDER456');
 
       await modal.locator('button[type="submit"]').click();
       await expect(modal).not.toBeVisible();
@@ -291,7 +336,8 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildHHGMoveWithExternalNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('can approve an shipment', async ({ page }) => {
@@ -337,7 +383,8 @@ test.describe('TOO user', () => {
       const move = await officePage.testHarness.buildMoveWithNTSShipmentsForTOO();
       await officePage.signInAsNewTOOUser();
       tooFlowPage = new TooFlowPage(officePage, move);
-      await officePage.tooNavigateToMove(move.locator);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
     });
 
     test('can submit service items', async ({ page }) => {

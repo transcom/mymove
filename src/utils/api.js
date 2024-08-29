@@ -3,7 +3,7 @@
 
 import Swagger from 'swagger-client';
 
-import { checkResponse, getClient, requestInterceptor } from 'shared/Swagger/api';
+import { checkResponse, getAdminClient, getClient, requestInterceptor } from 'shared/Swagger/api';
 
 export const getQueriesStatus = (queries) => {
   // Queries should be an array of statuses returned by useQuery (https://react-query.tanstack.com/docs/api#usequery)
@@ -38,12 +38,34 @@ export async function GetIsLoggedIn() {
   return response.body;
 }
 
+export async function GetAdminUser() {
+  const client = await getAdminClient();
+  const response = await client.apis.User.getLoggedInAdminUser({});
+  checkResponse(response, 'failed to get admin user due to server error');
+  return response.body;
+}
+
+// logs a user out of MilMove and Okta
+// redirects them back to their respective MilMove sign in page
 export function LogoutUser() {
   const logoutEndpoint = '/auth/logout';
   const req = {
     url: logoutEndpoint,
     method: 'POST',
     credentials: 'same-origin', // Passes through CSRF cookies
+    requestInterceptor,
+  };
+  return Swagger.http(req);
+}
+
+// logs a user out of MilMove & Okta
+// redirects them back to the Okta sign in page
+export function LogoutUserWithOktaRedirect() {
+  const logoutEndpoint = '/auth/logoutOktaRedirect';
+  const req = {
+    url: logoutEndpoint,
+    method: 'POST',
+    credentials: 'same-origin',
     requestInterceptor,
   };
   return Swagger.http(req);

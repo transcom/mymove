@@ -28,30 +28,50 @@ describe('for all shipments that are approved, have a cancellation requested, or
     let mtoShipments = [
       {
         calculatedBillableWeight: 10,
+        primeEstimatedWeight: 10,
+        primeActualWeight: 10,
+        shipmentType: 'HHG',
         status: shipmentStatuses.DRAFT,
       },
       {
         calculatedBillableWeight: 500,
+        primeEstimatedWeight: 10,
+        primeActualWeight: 10,
+        shipmentType: 'HHG',
         status: shipmentStatuses.APPROVED,
       },
       {
         calculatedBillableWeight: 200,
+        primeEstimatedWeight: 10,
+        primeActualWeight: 10,
+        shipmentType: 'HHG',
         status: shipmentStatuses.CANCELLATION_REQUESTED,
       },
       {
         calculatedBillableWeight: 300,
+        primeEstimatedWeight: 10,
+        primeActualWeight: 10,
+        shipmentType: 'HHG',
         status: shipmentStatuses.DIVERSION_REQUESTED,
       },
     ];
 
     const { result, rerender } = renderHook(() => useCalculatedTotalBillableWeight(mtoShipments));
 
-    expect(result.current).toBe(1000);
+    expect(result.current).toBe(30);
 
-    mtoShipments = mtoShipments.concat([{ calculatedBillableWeight: 100, status: shipmentStatuses.APPROVED }]);
+    mtoShipments = mtoShipments.concat([
+      {
+        calculatedBillableWeight: 300,
+        primeEstimatedWeight: 100,
+        primeActualWeight: 100,
+        shipmentType: 'HHG',
+        status: shipmentStatuses.APPROVED,
+      },
+    ]);
     rerender();
 
-    expect(result.current).toBe(1100);
+    expect(result.current).toBe(130);
   });
 
   it('useCalculatedWeightRequested returns the calculated billable weight using the lower value between the prime actual weight and the reweigh weight', () => {

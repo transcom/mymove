@@ -36,6 +36,8 @@ func (o *moveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidden
 			"MTOShipments.DestinationAddress",
 			"MTOShipments.SecondaryPickupAddress",
 			"MTOShipments.SecondaryDeliveryAddress",
+			"MTOShipments.TertiaryPickupAddress",
+			"MTOShipments.TertiaryDeliveryAddress",
 			"MTOShipments.MTOAgents",
 		).
 		Where("show = ?", models.BoolPointer(true)).

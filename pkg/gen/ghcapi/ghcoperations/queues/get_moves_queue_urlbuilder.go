@@ -20,16 +20,18 @@ type GetMovesQueueURL struct {
 	Branch                  *string
 	DestinationDutyLocation *string
 	DodID                   *string
+	Emplid                  *string
 	LastName                *string
 	Locator                 *string
 	Order                   *string
 	OrderType               *string
-	OriginDutyLocation      *string
+	OriginDutyLocation      []string
 	Page                    *int64
 	PerPage                 *int64
 	RequestedMoveDate       *string
 	Sort                    *string
 	Status                  []string
+	ViewAsGBLOC             *string
 
 	_basePath string
 	// avoid unkeyed usage
@@ -97,6 +99,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		qs.Set("dodID", dodIDQ)
 	}
 
+	var emplidQ string
+	if o.Emplid != nil {
+		emplidQ = *o.Emplid
+	}
+	if emplidQ != "" {
+		qs.Set("emplid", emplidQ)
+	}
+
 	var lastNameQ string
 	if o.LastName != nil {
 		lastNameQ = *o.LastName
@@ -129,12 +139,18 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		qs.Set("orderType", orderTypeQ)
 	}
 
-	var originDutyLocationQ string
-	if o.OriginDutyLocation != nil {
-		originDutyLocationQ = *o.OriginDutyLocation
+	var originDutyLocationIR []string
+	for _, originDutyLocationI := range o.OriginDutyLocation {
+		originDutyLocationIS := originDutyLocationI
+		if originDutyLocationIS != "" {
+			originDutyLocationIR = append(originDutyLocationIR, originDutyLocationIS)
+		}
 	}
-	if originDutyLocationQ != "" {
-		qs.Set("originDutyLocation", originDutyLocationQ)
+
+	originDutyLocation := swag.JoinByFormat(originDutyLocationIR, "multi")
+
+	for _, qsv := range originDutyLocation {
+		qs.Add("originDutyLocation", qsv)
 	}
 
 	var pageQ string
@@ -184,6 +200,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 		if qsv != "" {
 			qs.Set("status", qsv)
 		}
+	}
+
+	var viewAsGBLOCQ string
+	if o.ViewAsGBLOC != nil {
+		viewAsGBLOCQ = *o.ViewAsGBLOC
+	}
+	if viewAsGBLOCQ != "" {
+		qs.Set("viewAsGBLOC", viewAsGBLOCQ)
 	}
 
 	_result.RawQuery = qs.Encode()

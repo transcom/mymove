@@ -73,6 +73,59 @@ func init() {
         }
       }
     },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -246,6 +299,9 @@ func init() {
           "404": {
             "$ref": "#/responses/NotFound"
           },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
           "412": {
             "$ref": "#/responses/PreconditionFailed"
           },
@@ -390,6 +446,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -410,6 +473,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -543,6 +607,43 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/documents/{documentId}": {
       "get": {
@@ -836,7 +937,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -850,7 +951,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1818,6 +1919,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -1841,6 +1949,11 @@ func init() {
                   "description": "requested page of results",
                   "type": "integer"
                 },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
+                },
                 "perPage": {
                   "type": "integer"
                 },
@@ -1858,6 +1971,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -2344,6 +2458,65 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves/{moveID}/uploadAdditionalDocuments": {
+      "patch": {
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Patch the additional documents for a given move",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        },
+        "x-permissions": [
+          "create.supportingDocuments"
+        ]
+      }
     },
     "/mto-shipments": {
       "post": {
@@ -2896,6 +3069,62 @@ func init() {
         }
       ]
     },
+    "/orders/{orderID}/upload_amended_orders": {
+      "post": {
+        "description": "Create an amended order for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Create an amended order for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "orderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
     "/payment-requests/{paymentRequestID}": {
       "get": {
         "description": "Fetches an instance of a payment request by id",
@@ -3380,6 +3609,66 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/ppm-sit": {
+      "patch": {
+        "description": "Updates a PPM shipment's SIT values\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's SIT values",
+        "operationId": "updatePPMSIT",
+        "parameters": [
+          {
+            "$ref": "#/parameters/ppmShipmentId"
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/PPMShipmentSIT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished PPM SIT update",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -3443,6 +3732,82 @@ func init() {
         },
         {
           "$ref": "#/parameters/proGearWeightTicketId"
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
+      "get": {
+        "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the SIT estimated cost for a PPM shipment",
+        "operationId": "getPPMSITEstimatedCost",
+        "responses": {
+          "200": {
+            "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMSITEstimatedCost"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/parameters/ppmShipmentId"
+        },
+        {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ],
+          "type": "string",
+          "format": "string",
+          "description": "location of sit",
+          "name": "sitLocation",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date entered into SIT",
+          "name": "sitEntryDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date departed SIT",
+          "name": "sitDepartureDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "integer",
+          "description": "Weight stored in SIT",
+          "name": "weightStored",
+          "in": "query",
+          "required": true
         }
       ]
     },
@@ -3573,6 +3938,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3627,6 +3993,12 @@ func init() {
           },
           {
             "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "description": "filters the requested pickup date of a shipment on the move",
             "name": "requestedMoveDate",
             "in": "query"
@@ -3645,7 +4017,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -3714,6 +4091,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3721,6 +4104,41 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
             }
           },
           "403": {
@@ -3760,6 +4178,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -3805,6 +4224,16 @@ func init() {
           },
           {
             "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -3845,6 +4274,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -3860,11 +4295,7 @@ func init() {
           "500": {
             "$ref": "#/responses/ServerError"
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -3887,6 +4318,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -3946,6 +4378,11 @@ func init() {
           },
           {
             "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "name": "destinationDutyLocation",
             "in": "query"
           },
@@ -3976,6 +4413,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -5208,6 +5651,42 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -5256,6 +5735,53 @@ func init() {
           },
           "413": {
             "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderID",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"
@@ -5530,6 +6056,31 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -5552,6 +6103,96 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
+    },
+    "BoatShipment": {
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer",
+        "eTag"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when the Boat Shipment was initially created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Boat shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "ClientError": {
       "type": "object",
@@ -5754,6 +6395,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -5783,6 +6479,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
@@ -5873,6 +6575,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -5895,6 +6600,29 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "mobileHome": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -5945,6 +6673,22 @@ func init() {
             }
           ]
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
@@ -5966,12 +6710,32 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "usesExternalVendor": {
           "type": "boolean",
           "x-nullable": true,
           "example": false
         }
       }
+    },
+    "CreateMobileHome": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "$ref": "#/definitions/MobileHome"
     },
     "CreateOrders": {
       "type": "object",
@@ -6093,6 +6857,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -6149,6 +6923,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -6268,6 +7056,10 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -6785,7 +7577,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -6827,6 +7620,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
@@ -6894,6 +7693,49 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "InvalidRequestResponsePayload": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
+        }
+      }
     },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
@@ -7253,6 +8095,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -7325,6 +8173,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {
@@ -7494,6 +8365,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -7541,9 +8417,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -7839,6 +8712,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/BoatShipment"
+        },
         "calculatedBillableWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -7906,10 +8782,23 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -8043,6 +8932,14 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -8075,14 +8972,20 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -8093,10 +8996,76 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
+    },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -8423,6 +9392,77 @@ func init() {
         }
       }
     },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
@@ -8439,6 +9479,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -8606,6 +9651,13 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -8618,6 +9670,12 @@ func init() {
               "x-omitempty": false
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -8944,6 +10002,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -9011,6 +10072,9 @@ func init() {
         "order_type_detail": {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "orders_type": {
+          "$ref": "#/definitions/OrdersType"
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -9323,6 +10387,104 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMSITEstimatedCost": {
+      "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
+      "required": [
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
+      ],
+      "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
+        "sitCost": {
+          "type": "integer",
+          "example": 2000
+        }
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -9451,6 +10613,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -9589,6 +10761,32 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -9601,6 +10799,34 @@ func init() {
         },
         "weightTickets": {
           "$ref": "#/definitions/WeightTickets"
+        }
+      },
+      "x-nullable": true
+    },
+    "PPMShipmentSIT": {
+      "description": "SIT related items for a PPM shipment",
+      "required": [
+        "sitLocation"
+      ],
+      "properties": {
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true
@@ -9714,6 +10940,21 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -9747,12 +10988,22 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
         "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sentToGexAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -9773,7 +11024,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -9907,6 +11158,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {
@@ -10139,6 +11400,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -10226,6 +11490,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -10376,73 +11643,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
       }
     },
     "SITExtension": {
@@ -10605,6 +11805,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -10623,6 +11827,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -10677,6 +11882,10 @@ func init() {
           "x-nullable": true,
           "example": 1234567890
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -10716,6 +11925,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -11312,6 +12526,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -11441,6 +12708,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -11450,6 +12724,13 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -11635,6 +12916,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -11692,6 +12983,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "w2Address": {
           "x-nullable": true,
@@ -11785,6 +13090,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -11811,6 +13119,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -11872,6 +13190,20 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "tertiaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -11948,6 +13280,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -11975,6 +13313,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",
@@ -12390,6 +13738,71 @@ func init() {
         }
       }
     },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -12605,6 +14018,12 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
           "412": {
             "description": "Precondition failed",
             "schema": {
@@ -12791,6 +14210,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "order": {
                   "type": "string",
                   "enum": [
@@ -12811,6 +14237,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "personalEmail",
                     "telephone"
@@ -12986,6 +14413,46 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/documents": {
+      "post": {
+        "description": "Documents represent a physical artifact such as a scanned document or a PDF file",
+        "tags": [
+          "ghcDocuments"
+        ],
+        "summary": "Create a new document",
+        "operationId": "createDocument",
+        "parameters": [
+          {
+            "name": "documentPayload",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/PostDocumentPayload"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created document",
+            "schema": {
+              "$ref": "#/definitions/Document"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/documents/{documentId}": {
       "get": {
@@ -13375,7 +14842,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -13389,7 +14856,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -14639,6 +16106,13 @@ func init() {
                   "minLength": 10,
                   "x-nullable": true
                 },
+                "emplid": {
+                  "description": "EMPLID",
+                  "type": "string",
+                  "maxLength": 7,
+                  "minLength": 7,
+                  "x-nullable": true
+                },
                 "locator": {
                   "description": "Move locator",
                   "type": "string",
@@ -14662,6 +16136,11 @@ func init() {
                   "description": "requested page of results",
                   "type": "integer"
                 },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
+                },
                 "perPage": {
                   "type": "integer"
                 },
@@ -14679,6 +16158,7 @@ func init() {
                   "enum": [
                     "customerName",
                     "dodID",
+                    "emplid",
                     "branch",
                     "locator",
                     "status",
@@ -15285,6 +16765,65 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/moves/{moveID}/uploadAdditionalDocuments": {
+      "patch": {
+        "description": "Customers will on occaision need the ability to upload additional supporting documents, for a variety of reasons. This does not include amended order.",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Patch the additional documents for a given move",
+        "operationId": "uploadAdditionalDocuments",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "moveID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        },
+        "x-permissions": [
+          "create.supportingDocuments"
+        ]
+      }
     },
     "/mto-shipments": {
       "post": {
@@ -15966,6 +17505,62 @@ func init() {
           "required": true
         }
       ]
+    },
+    "/orders/{orderID}/upload_amended_orders": {
+      "post": {
+        "description": "Create an amended order for a given order",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "tags": [
+          "order"
+        ],
+        "summary": "Create an amended order for a given order",
+        "operationId": "uploadAmendedOrders",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the order",
+            "name": "orderID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "file",
+            "description": "The file to upload.",
+            "name": "file",
+            "in": "formData",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "created upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
     },
     "/payment-requests/{paymentRequestID}": {
       "get": {
@@ -16618,6 +18213,89 @@ func init() {
         }
       }
     },
+    "/ppm-shipments/{ppmShipmentId}/ppm-sit": {
+      "patch": {
+        "description": "Updates a PPM shipment's SIT values\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Updates a PPM shipment's SIT values",
+        "operationId": "updatePPMSIT",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the PPM shipment",
+            "name": "ppmShipmentId",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "$ref": "#/definitions/PPMShipmentSIT"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully finished PPM SIT update",
+            "schema": {
+              "$ref": "#/definitions/PPMShipment"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/ppm-shipments/{ppmShipmentId}/pro-gear-weight-tickets/{proGearWeightTicketId}": {
       "patch": {
         "description": "Updates a PPM shipment's pro-gear weight ticket with new information. Only some of the fields are editable\nbecause some have to be set by the customer, e.g. the description.\n",
@@ -16715,6 +18393,103 @@ func init() {
           "description": "UUID of the pro-gear weight ticket",
           "name": "proGearWeightTicketId",
           "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/ppm-shipments/{ppmShipmentId}/sit_location/{sitLocation}/sit-estimated-cost": {
+      "get": {
+        "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "ppm"
+        ],
+        "summary": "Get the SIT estimated cost for a PPM shipment",
+        "operationId": "getPPMSITEstimatedCost",
+        "responses": {
+          "200": {
+            "description": "Calculates and returns the SIT estimated cost for the specified PPM shipment.",
+            "schema": {
+              "$ref": "#/definitions/PPMSITEstimatedCost"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "UUID of the PPM shipment",
+          "name": "ppmShipmentId",
+          "in": "path",
+          "required": true
+        },
+        {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ],
+          "type": "string",
+          "format": "string",
+          "description": "location of sit",
+          "name": "sitLocation",
+          "in": "path",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date entered into SIT",
+          "name": "sitEntryDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date departed SIT",
+          "name": "sitDepartureDate",
+          "in": "query",
+          "required": true
+        },
+        {
+          "minimum": 0,
+          "type": "integer",
+          "description": "Weight stored in SIT",
+          "name": "weightStored",
+          "in": "query",
           "required": true
         }
       ]
@@ -16893,6 +18668,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -16947,6 +18723,12 @@ func init() {
           },
           {
             "type": "string",
+            "description": "filters to match the unique service member's EMPLID",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "description": "filters the requested pickup date of a shipment on the move",
             "name": "requestedMoveDate",
             "in": "query"
@@ -16965,7 +18747,12 @@ func init() {
             "in": "query"
           },
           {
-            "type": "string",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "description": "filters the name of the origin duty location on the orders",
             "name": "originDutyLocation",
             "in": "query"
@@ -17034,6 +18821,12 @@ func init() {
             "description": "filters the status of the PPM shipment",
             "name": "ppmStatus",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -17041,6 +18834,47 @@ func init() {
             "description": "Successfully returned all moves matching the criteria",
             "schema": {
               "$ref": "#/definitions/QueueMovesResult"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
+    "/queues/counseling/origin-list": {
+      "get": {
+        "description": "An office services counselor user will be assigned a transportation office that will determine which moves are displayed in their queue based on the origin duty location. This pulls the availalble origin duty locations.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "queues"
+        ],
+        "summary": "Gets queued list of all moves origin locations in the counselors queue",
+        "operationId": "getServicesCounselingOriginList",
+        "parameters": [
+          {
+            "type": "boolean",
+            "description": "Only used for Services Counseling queue. If true, show PPM moves origin locations that are ready for closeout. Otherwise, show all other moves origin locations.",
+            "name": "needsPPMCloseout",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully returned all moves matching the criteria",
+            "schema": {
+              "$ref": "#/definitions/Locations"
             }
           },
           "403": {
@@ -17086,6 +18920,7 @@ func init() {
             "enum": [
               "lastName",
               "dodID",
+              "emplid",
               "branch",
               "locator",
               "status",
@@ -17131,6 +18966,16 @@ func init() {
           },
           {
             "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi",
             "name": "originDutyLocation",
             "in": "query"
           },
@@ -17171,6 +19016,12 @@ func init() {
             "description": "order type",
             "name": "orderType",
             "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
+            "in": "query"
           }
         ],
         "responses": {
@@ -17192,11 +19043,7 @@ func init() {
               "$ref": "#/definitions/Error"
             }
           }
-        },
-        "x-permissions": [
-          "update.move",
-          "create.serviceItem"
-        ]
+        }
       }
     },
     "/queues/payment-requests": {
@@ -17219,6 +19066,7 @@ func init() {
               "branch",
               "status",
               "dodID",
+              "emplid",
               "age",
               "originDutyLocation"
             ],
@@ -17278,6 +19126,11 @@ func init() {
           },
           {
             "type": "string",
+            "name": "emplid",
+            "in": "query"
+          },
+          {
+            "type": "string",
             "name": "destinationDutyLocation",
             "in": "query"
           },
@@ -17308,6 +19161,12 @@ func init() {
             "type": "string",
             "description": "order type",
             "name": "orderType",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.\n",
+            "name": "viewAsGBLOC",
             "in": "query"
           }
         ],
@@ -18873,6 +20732,57 @@ func init() {
         }
       }
     },
+    "/transportation-offices/gblocs": {
+      "get": {
+        "description": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportationOffice"
+        ],
+        "summary": "Returns a list of distinct GBLOCs that exist in the transportation offices table",
+        "operationId": "getTransportationOfficesGBLOCs",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved transportation offices",
+            "schema": {
+              "$ref": "#/definitions/GBLOCs"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF. Currently, office application uploads are only for Services Counselors to upload files for orders, but this may be expanded in the future.",
@@ -18921,6 +20831,53 @@ func init() {
           },
           "413": {
             "description": "payload is too large"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}": {
+      "delete": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Deletes an upload",
+        "operationId": "deleteUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be deleted",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID of the order that the upload belongs to",
+            "name": "orderID",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "deleted"
+          },
+          "400": {
+            "description": "invalid request",
+            "schema": {
+              "$ref": "#/definitions/InvalidRequestResponsePayload"
+            }
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
           },
           "500": {
             "description": "server error"
@@ -19195,6 +21152,31 @@ func init() {
         }
       }
     },
+    "AvailableOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "hasSafetyPrivilege": {
+          "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        }
+      }
+    },
+    "AvailableOfficeUsers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AvailableOfficeUser"
+      }
+    },
     "BackupContact": {
       "type": "object",
       "required": [
@@ -19217,6 +21199,96 @@ func init() {
           "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$"
         }
       }
+    },
+    "BoatShipment": {
+      "required": [
+        "id",
+        "shipmentId",
+        "createdAt",
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer",
+        "eTag"
+      ],
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when the Boat Shipment was initially created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Boat shipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
     },
     "ClientError": {
       "type": "object",
@@ -19423,6 +21495,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -19452,6 +21579,12 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "maxLength": 7,
+          "x-nullable": true,
+          "example": "9485155"
         },
         "firstName": {
           "type": "string",
@@ -19542,6 +21675,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -19564,6 +21700,29 @@ func init() {
         },
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
+        },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "mobileHome": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -19614,6 +21773,22 @@ func init() {
             }
           ]
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
@@ -19635,12 +21810,32 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "usesExternalVendor": {
           "type": "boolean",
           "x-nullable": true,
           "example": false
         }
       }
+    },
+    "CreateMobileHome": {
+      "description": "A mobile home shipment that the prime moves for a service member.",
+      "$ref": "#/definitions/MobileHome"
     },
     "CreateOrders": {
       "type": "object",
@@ -19762,6 +21957,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -19818,6 +22023,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -19937,6 +22156,10 @@ func init() {
         },
         "emailIsPreferred": {
           "type": "boolean"
+        },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
         },
         "first_name": {
           "type": "string",
@@ -20454,7 +22677,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -20496,6 +22720,12 @@ func init() {
         "MLNQ",
         "XXXX"
       ]
+    },
+    "GBLOCs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "Grade": {
       "type": "string",
@@ -20563,6 +22793,49 @@ func init() {
         "W_5": "W-5"
       },
       "x-nullable": true
+    },
+    "InvalidRequestResponsePayload": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
+        }
+      }
     },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
@@ -20922,6 +23195,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -20994,6 +23273,29 @@ func init() {
         "totalCount": {
           "type": "integer"
         }
+      }
+    },
+    "Location": {
+      "type": "object",
+      "required": [
+        "label",
+        "value"
+      ],
+      "properties": {
+        "label": {
+          "type": "string",
+          "example": "Label for display"
+        },
+        "value": {
+          "type": "string",
+          "example": "Value for location"
+        }
+      }
+    },
+    "Locations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Location"
       }
     },
     "LockedOfficeUser": {
@@ -21163,6 +23465,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -21210,9 +23517,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -21508,6 +23812,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/BoatShipment"
+        },
         "calculatedBillableWeight": {
           "type": "integer",
           "x-nullable": true,
@@ -21575,10 +23882,23 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -21712,6 +24032,14 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -21744,14 +24072,20 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "PPM"
+        "PPM",
+        "BOAT_HAUL_AWAY",
+        "BOAT_TOW_AWAY",
+        "MOBILE_HOME"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat Haul-Away",
+        "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
         "HHG_INTO_NTS_DOMESTIC": "NTS",
         "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "INTERNATIONAL_HHG": "International HHG",
         "INTERNATIONAL_UB": "International UB",
+        "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM"
       },
       "example": "HHG"
@@ -21762,10 +24096,76 @@ func init() {
         "$ref": "#/definitions/MTOShipment"
       }
     },
+    "MobileHome": {
+      "description": "A mobile home is a type of shipment that a service member moves a mobile home.",
+      "properties": {
+        "createdAt": {
+          "description": "Timestamp of when a property of this object was created (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
+        "heightInInches": {
+          "type": "integer"
+        },
+        "id": {
+          "description": "Primary auto-generated unique identifier of the Mobile Home object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lengthInInches": {
+          "type": "integer"
+        },
+        "make": {
+          "description": "The make of the mobile home",
+          "type": "string"
+        },
+        "model": {
+          "description": "The model of the mobile home.",
+          "type": "string"
+        },
+        "shipmentId": {
+          "description": "The id of the parent MTOShipment object",
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "widthInInches": {
+          "type": "integer"
+        },
+        "year": {
+          "description": "The year the mobile home was made.",
+          "type": "integer"
+        }
+      },
+      "x-nullable": true
+    },
     "Move": {
       "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -22092,6 +24492,77 @@ func init() {
         }
       }
     },
+    "MovePayload": {
+      "type": "object",
+      "required": [
+        "id",
+        "orders_id",
+        "locator",
+        "created_at",
+        "updated_at",
+        "eTag"
+      ],
+      "properties": {
+        "additionalDocuments": {
+          "$ref": "#/definitions/Document"
+        },
+        "cancel_reason": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "Change of orders"
+        },
+        "closeout_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "eTag": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "locator": {
+          "type": "string",
+          "example": "12432"
+        },
+        "mto_shipments": {
+          "$ref": "#/definitions/MTOShipments"
+        },
+        "orders_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "primeCounselingCompletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "readOnly": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "status": {
+          "$ref": "#/definitions/MoveStatus"
+        },
+        "submitted_at": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "MoveStatus": {
       "type": "string",
       "enum": [
@@ -22108,6 +24579,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -22275,6 +24751,13 @@ func init() {
           "x-omitempty": false,
           "example": "2018-05-26"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -22287,6 +24770,12 @@ func init() {
               "x-omitempty": false
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -22613,6 +25102,9 @@ func init() {
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
         },
+        "destinationDutyLocationGBLOC": {
+          "$ref": "#/definitions/GBLOC"
+        },
         "eTag": {
           "type": "string"
         },
@@ -22680,6 +25172,9 @@ func init() {
         "order_type_detail": {
           "x-nullable": true,
           "$ref": "#/definitions/OrdersTypeDetail"
+        },
+        "orders_type": {
+          "$ref": "#/definitions/OrdersType"
         },
         "originDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
@@ -22993,6 +25488,176 @@ func init() {
       "x-nullable": true,
       "x-omitempty": false
     },
+    "PPMSITEstimatedCost": {
+      "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
+      "required": [
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
+      ],
+      "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
+        "sitCost": {
+          "type": "integer",
+          "example": 2000
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsAdditionalDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "numberDaysSIT": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "30"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "0.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsFirstDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "20.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        }
+      }
+    },
     "PPMShipment": {
       "description": "A personally procured move is a type of shipment that a service member moves themselves.",
       "required": [
@@ -23121,6 +25786,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -23259,6 +25934,32 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
         "updatedAt": {
           "description": "Timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -23271,6 +25972,34 @@ func init() {
         },
         "weightTickets": {
           "$ref": "#/definitions/WeightTickets"
+        }
+      },
+      "x-nullable": true
+    },
+    "PPMShipmentSIT": {
+      "description": "SIT related items for a PPM shipment",
+      "required": [
+        "sitLocation"
+      ],
+      "properties": {
+        "sitLocation": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/SITLocationType"
+            },
+            {
+              "x-nullable": true
+            },
+            {
+              "x-omitempty": false
+            }
+          ]
+        },
+        "updatedAt": {
+          "description": "Timestamp of when a property of this object was last updated (UTC)",
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
         }
       },
       "x-nullable": true
@@ -23384,6 +26113,21 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -23417,12 +26161,22 @@ func init() {
           "readOnly": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "receivedByGexAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "rejectionReason": {
           "type": "string",
           "x-nullable": true,
           "example": "documentation was incomplete"
         },
         "reviewedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sentToGexAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -23443,7 +26197,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -23577,6 +26331,16 @@ func init() {
       "type": "array",
       "items": {
         "$ref": "#/definitions/PaymentServiceItem"
+      }
+    },
+    "PostDocumentPayload": {
+      "type": "object",
+      "properties": {
+        "service_member_id": {
+          "type": "string",
+          "format": "uuid",
+          "title": "The service member this document belongs to"
+        }
       }
     },
     "ProGearWeightTicket": {
@@ -23811,6 +26575,9 @@ func init() {
     "QueueMovesResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -23898,6 +26665,9 @@ func init() {
     "QueuePaymentRequestsResult": {
       "type": "object",
       "properties": {
+        "availableOfficeUsers": {
+          "$ref": "#/definitions/AvailableOfficeUsers"
+        },
         "page": {
           "type": "integer"
         },
@@ -24048,74 +26818,6 @@ func init() {
           "format": "date-time",
           "readOnly": true
         }
-      }
-    },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "minimum": 0,
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
       }
     },
     "SITExtension": {
@@ -24327,6 +27029,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -24345,6 +27051,7 @@ func init() {
           "type": "string",
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "x-nullable": true,
           "example": "personalEmail@email.com"
         },
         "telephone": {
@@ -24399,6 +27106,10 @@ func init() {
           "x-nullable": true,
           "example": 1234567890
         },
+        "emplid": {
+          "type": "string",
+          "x-nullable": true
+        },
         "firstName": {
           "type": "string",
           "x-nullable": true,
@@ -24438,6 +27149,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -25040,6 +27756,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -25169,6 +27938,13 @@ func init() {
           "type": "string",
           "format": "date"
         },
+        "sitEstimatedCost": {
+          "description": "The estimated amount that the government will pay the service member to put their goods into storage. This estimated storage cost is separate from the estimated incentive.",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "sitLocation": {
           "allOf": [
             {
@@ -25178,6 +27954,13 @@ func init() {
               "x-nullable": true
             }
           ]
+        },
+        "sitReimburseableAmount": {
+          "description": "The amount of SIT that will be reimbursed",
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true,
+          "x-omitempty": false
         },
         "sitStartDate": {
           "description": "The date the shipment entered storage, applicable for the ` + "`" + `STORAGE` + "`" + ` movingExpenseType only",
@@ -25363,6 +28146,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -25420,6 +28213,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "w2Address": {
           "x-nullable": true,
@@ -25514,6 +28321,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -25540,6 +28350,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -25601,6 +28421,20 @@ func init() {
         },
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
+        },
+        "tertiaryDeliveryAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "usesExternalVendor": {
           "type": "boolean",
@@ -25681,6 +28515,12 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "filename": {
           "type": "string",
           "readOnly": true,
@@ -25708,6 +28548,16 @@ func init() {
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        },
+        "uploadType": {
+          "type": "string",
+          "enum": [
+            "USER",
+            "PRIME",
+            "OFFICE"
+          ],
+          "readOnly": true,
+          "example": "OFFICE"
         },
         "url": {
           "type": "string",

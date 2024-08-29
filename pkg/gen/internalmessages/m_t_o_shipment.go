@@ -28,6 +28,9 @@ type MTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// boat shipment
+	BoatShipment *BoatShipment `json:"boatShipment,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -50,11 +53,20 @@ type MTOShipment struct {
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
+	// has tertiary delivery address
+	HasTertiaryDeliveryAddress *bool `json:"hasTertiaryDeliveryAddress"`
+
+	// has tertiary pickup address
+	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
 	// id
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Read Only: true
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
+
+	// mobile home shipment
+	MobileHomeShipment *MobileHome `json:"mobileHomeShipment,omitempty"`
 
 	// move task order ID
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -95,6 +107,12 @@ type MTOShipment struct {
 	// status
 	Status MTOShipmentStatus `json:"status,omitempty"`
 
+	// tertiary delivery address
+	TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
+
+	// tertiary pickup address
+	TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
+
 	// updated at
 	// Read Only: true
 	// Format: date-time
@@ -109,6 +127,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBoatShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -118,6 +140,10 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMobileHomeShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -157,6 +183,14 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateUpdatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -179,6 +213,25 @@ func (m *MTOShipment) validateAgents(formats strfmt.Registry) error {
 			return ce.ValidateName("agents")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateBoatShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.BoatShipment) { // not required
+		return nil
+	}
+
+	if m.BoatShipment != nil {
+		if err := m.BoatShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -222,6 +275,25 @@ func (m *MTOShipment) validateID(formats strfmt.Registry) error {
 
 	if err := validate.FormatOf("id", "body", "uuid", m.ID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateMobileHomeShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.MobileHomeShipment) { // not required
+		return nil
+	}
+
+	if m.MobileHomeShipment != nil {
+		if err := m.MobileHomeShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -373,6 +445,44 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *MTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	if m.TertiaryDeliveryAddress != nil {
+		if err := m.TertiaryDeliveryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tertiaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tertiaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	if m.TertiaryPickupAddress != nil {
+		if err := m.TertiaryPickupAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tertiaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tertiaryPickupAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *MTOShipment) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -393,6 +503,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateBoatShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCreatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -406,6 +520,10 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 	}
 
 	if err := m.contextValidateID(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMobileHomeShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -449,6 +567,14 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateUpdatedAt(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -468,6 +594,27 @@ func (m *MTOShipment) contextValidateAgents(ctx context.Context, formats strfmt.
 			return ce.ValidateName("agents")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateBoatShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BoatShipment != nil {
+
+		if swag.IsZero(m.BoatShipment) { // not required
+			return nil
+		}
+
+		if err := m.BoatShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -516,6 +663,27 @@ func (m *MTOShipment) contextValidateID(ctx context.Context, formats strfmt.Regi
 
 	if err := validate.ReadOnly(ctx, "id", "body", strfmt.UUID(m.ID)); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateMobileHomeShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MobileHomeShipment != nil {
+
+		if swag.IsZero(m.MobileHomeShipment) { // not required
+			return nil
+		}
+
+		if err := m.MobileHomeShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -672,6 +840,48 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 			return ce.ValidateName("status")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TertiaryDeliveryAddress != nil {
+
+		if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+			return nil
+		}
+
+		if err := m.TertiaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tertiaryDeliveryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tertiaryDeliveryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MTOShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.TertiaryPickupAddress != nil {
+
+		if swag.IsZero(m.TertiaryPickupAddress) { // not required
+			return nil
+		}
+
+		if err := m.TertiaryPickupAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("tertiaryPickupAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("tertiaryPickupAddress")
+			}
+			return err
+		}
 	}
 
 	return nil

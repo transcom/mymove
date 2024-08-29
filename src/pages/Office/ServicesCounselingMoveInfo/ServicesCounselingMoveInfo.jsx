@@ -35,11 +35,11 @@ const ReviewDocuments = lazy(() => import('pages/Office/PPM/ReviewDocuments/Revi
 const ServicesCounselingReviewShipmentWeights = lazy(() =>
   import('pages/Office/ServicesCounselingReviewShipmentWeights/ServicesCounselingReviewShipmentWeights'),
 );
+const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
 const ServicesCounselingMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
-  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
@@ -66,6 +66,15 @@ const ServicesCounselingMoveInfo = () => {
   const { move, order, customerData, isLoading, isError } = useTXOMoveInfoQueries(moveCode);
   const { data } = useUserQueries();
   const officeUserID = data?.office_user?.id;
+
+  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -184,7 +193,6 @@ const ServicesCounselingMoveInfo = () => {
           unapprovedShipmentCount={unapprovedShipmentCount}
           moveCode={moveCode}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
-          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
           excessWeightRiskCount={excessWeightRiskCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
         />
@@ -228,7 +236,6 @@ const ServicesCounselingMoveInfo = () => {
               <MoveTaskOrder
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
                 isMoveLocked={isMoveLocked}
@@ -236,6 +243,13 @@ const ServicesCounselingMoveInfo = () => {
             }
           />
           <Route path={servicesCounselingRoutes.MOVE_HISTORY_PATH} end element={<MoveHistory moveCode={moveCode} />} />
+          {supportingDocsFF && (
+            <Route
+              path={servicesCounselingRoutes.SUPPORTING_DOCUMENTS_PATH}
+              end
+              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+            />
+          )}
           <Route
             path={servicesCounselingRoutes.ALLOWANCES_EDIT_PATH}
             end

@@ -247,6 +247,13 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 			verrs.Add("secondaryDeliveryAddress", "the secondary delivery address already exists and cannot be updated with this endpoint")
 		}
 
+		if older.TertiaryPickupAddress != nil && newer.TertiaryPickupAddress != nil { // If both are populated, return error
+			verrs.Add("tertiaryPickupAddress", "the tertiary pickup address already exists and cannot be updated with this endpoint")
+		}
+		if older.TertiaryDeliveryAddress != nil && newer.TertiaryDeliveryAddress != nil {
+			verrs.Add("tertiaryDeliveryAddress", "the tertiary delivery address already exists and cannot be updated with this endpoint")
+		}
+
 		// If we have all the data, calculate RDD
 		if latestSchedPickupDate != nil && (latestEstimatedWeight != nil || (older.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom &&
 			older.NTSRecordedWeight != nil)) && latestPickupAddress != nil && latestDestinationAddress != nil {

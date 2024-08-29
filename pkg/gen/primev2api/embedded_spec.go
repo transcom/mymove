@@ -691,27 +691,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreateSITExtension": {
       "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
       "type": "object",
@@ -766,6 +745,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
+        },
+        "emplid": {
+          "type": "string"
         },
         "firstName": {
           "type": "string",
@@ -1013,6 +995,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -1119,9 +1106,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitAddressUpdates": {
-              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -1414,7 +1398,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -1425,10 +1409,12 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILE_HOME",
         "PPM"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
+        "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
@@ -1709,6 +1695,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -1824,6 +1816,10 @@ func init() {
         },
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
         },
         "eTag": {
           "type": "string",
@@ -2177,7 +2173,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -2707,91 +2703,6 @@ func init() {
         "REQUESTED": "REQUESTED"
       },
       "readOnly": true
-    },
-    "SitAddressUpdate": {
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "type": "integer",
-          "maximum": 50,
-          "readOnly": true,
-          "example": 25
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
-        },
-        "mtoServiceItemId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "status": {
-          "$ref": "#/definitions/SitAddressUpdateStatus"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitAddressUpdateStatus": {
-      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "REJECTED"
-      ]
-    },
-    "SitAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitAddressUpdate"
-      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -4115,27 +4026,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreateSITExtension": {
       "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
       "type": "object",
@@ -4190,6 +4080,9 @@ func init() {
           "format": "x-email",
           "pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
           "example": "fake@example.com"
+        },
+        "emplid": {
+          "type": "string"
         },
         "firstName": {
           "type": "string",
@@ -4437,6 +4330,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -4543,9 +4441,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitAddressUpdates": {
-              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -4838,7 +4733,7 @@ func init() {
       }
     },
     "MTOShipmentType": {
-      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n",
+      "description": "The type of shipment.\n  * ` + "`" + `HHG` + "`" + ` = Household goods move\n  * ` + "`" + `HHG_INTO_NTS_DOMESTIC` + "`" + ` = HHG into Non-temporary storage (NTS)\n  * ` + "`" + `HHG_OUTOF_NTS_DOMESTIC` + "`" + ` = HHG out of Non-temporary storage (NTS Release)\n  * ` + "`" + `PPM` + "`" + ` = Personally Procured Move also known as Do It Yourself (DITY)\n  * ` + "`" + `BOAT_HAUL_AWAY` + "`" + ` = Boat shipment that requires additional equipment to haul it to it's destination\n  * ` + "`" + `BOAT_TOW_AWAY` + "`" + ` = Boat shipment that has a road-worthy trailer\n  * ` + "`" + `MOBILE_HOME` + "`" + ` = Mobile Home shipment that a customer may move.\n",
       "type": "string",
       "title": "Shipment Type",
       "enum": [
@@ -4849,10 +4744,12 @@ func init() {
         "HHG_OUTOF_NTS_DOMESTIC",
         "INTERNATIONAL_HHG",
         "INTERNATIONAL_UB",
-        "MOTORHOME",
+        "MOBILE_HOME",
         "PPM"
       ],
       "x-display-value": {
+        "BOAT_HAUL_AWAY": "Boat shipment that requires additional equipment to haul it to it's destination",
+        "BOAT_TOW_AWAY": "Boat shipment that has a road-worthy trailer",
         "HHG": "Household goods move (HHG)",
         "HHG_INTO_NTS_DOMESTIC": "HHG into Non-temporary storage (NTS)",
         "HHG_OUTOF_NTS_DOMESTIC": "HHG out of Non-temporary storage (NTS Release)",
@@ -5133,6 +5030,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -5248,6 +5151,10 @@ func init() {
         },
         "destinationDutyLocation": {
           "$ref": "#/definitions/DutyLocation"
+        },
+        "destinationDutyLocationGBLOC": {
+          "type": "string",
+          "example": "KKFA"
         },
         "eTag": {
           "type": "string",
@@ -5601,7 +5508,7 @@ func init() {
         "REVIEWED",
         "REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED",
         "SENT_TO_GEX",
-        "RECEIVED_BY_GEX",
+        "TPPS_RECEIVED",
         "PAID",
         "EDI_ERROR",
         "DEPRECATED"
@@ -6133,91 +6040,6 @@ func init() {
         "REQUESTED": "REQUESTED"
       },
       "readOnly": true
-    },
-    "SitAddressUpdate": {
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "type": "integer",
-          "maximum": 50,
-          "readOnly": true,
-          "example": 25
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
-        },
-        "mtoServiceItemId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "status": {
-          "$ref": "#/definitions/SitAddressUpdateStatus"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitAddressUpdateStatus": {
-      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "REJECTED"
-      ]
-    },
-    "SitAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitAddressUpdate"
-      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",

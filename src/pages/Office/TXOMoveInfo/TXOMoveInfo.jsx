@@ -14,6 +14,7 @@ import { useTXOMoveInfoQueries, useUserQueries } from 'hooks/queries';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import LockedMoveBanner from 'components/LockedMoveBanner/LockedMoveBanner';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import EvaluationReportView from 'components/Office/EvaluationReportView/EvaluationReportView';
 
 const MoveDetails = lazy(() => import('pages/Office/MoveDetails/MoveDetails'));
 const MoveDocumentWrapper = lazy(() => import('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper'));
@@ -28,11 +29,11 @@ const MoveHistory = lazy(() => import('pages/Office/MoveHistory/MoveHistory'));
 const CustomerInfo = lazy(() => import('pages/Office/CustomerInfo/CustomerInfo'));
 const MovePaymentRequests = lazy(() => import('pages/Office/MovePaymentRequests/MovePaymentRequests'));
 const Forbidden = lazy(() => import('pages/Office/Forbidden/Forbidden'));
+const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
-  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
   const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
     React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
@@ -60,6 +61,15 @@ const TXOMoveInfo = () => {
     };
     fetchData();
   }, [move, officeUserID, moveLockFlag]);
+
+  const [supportingDocsFF, setSupportingDocsFF] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setSupportingDocsFF(await isBooleanFlagEnabled('manage_supporting_docs'));
+    };
+    fetchData();
+  }, []);
 
   const hideNav =
     matchPath(
@@ -136,7 +146,6 @@ const TXOMoveInfo = () => {
         <TXOTabNav
           unapprovedShipmentCount={unapprovedShipmentCount}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
-          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
           shipmentsWithDeliveryAddressUpdateRequestedCount={shipmentsWithDeliveryAddressUpdateRequestedCount}
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
@@ -163,7 +172,6 @@ const TXOMoveInfo = () => {
               <MoveDetails
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setShipmentsWithDeliveryAddressUpdateRequestedCount={
                   setShipmentsWithDeliveryAddressUpdateRequestedCount
                 }
@@ -182,13 +190,19 @@ const TXOMoveInfo = () => {
               <MoveTaskOrder
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
                 isMoveLocked={isMoveLocked}
               />
             }
           />
+          {supportingDocsFF && (
+            <Route
+              path="supporting-documents"
+              end
+              element={<SupportingDocuments move={move} uploads={move?.additionalDocuments?.uploads} />}
+            />
+          )}
           <Route path="payment-requests/:paymentRequestId" end element={<PaymentRequestReview order={order} />} />
           <Route
             path="payment-requests"
@@ -235,6 +249,21 @@ const TXOMoveInfo = () => {
               element={
                 <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
                   <EvaluationReport
+                    customerInfo={customerData}
+                    grade={order.grade}
+                    destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}
+                  />
+                </Restricted>
+              }
+            />
+          )}
+          {order.grade && (
+            <Route
+              path={qaeCSRRoutes.EVALUATION_REPORT_VIEW_PATH}
+              exact
+              element={
+                <Restricted to={permissionTypes.updateEvaluationReport} fallback={<Forbidden />}>
+                  <EvaluationReportView
                     customerInfo={customerData}
                     grade={order.grade}
                     destinationDutyLocationPostalCode={order?.destinationDutyLocation?.address?.postalCode}

@@ -3,7 +3,6 @@ import { render, screen, within } from '@testing-library/react';
 
 import {
   missingSomeWeightQuery,
-  riskOfExcessWeightQuery,
   reviewWeightsQuery,
   reviewWeightsNoProGearQuery,
 } from '../MoveTaskOrder/moveTaskOrderUnitTestData';
@@ -59,14 +58,6 @@ describe('Services Counseling Review Shipment Weights', () => {
       const weightDisplays = await screen.findAllByTestId('weight-display');
       const totalMoveWeight = weightDisplays[3];
       expect(totalMoveWeight).toHaveTextContent('125 lbs');
-    });
-
-    it('displays risk of excess tag', async () => {
-      useReviewShipmentWeightsQuery.mockReturnValue(riskOfExcessWeightQuery);
-      render(<ServicesCounselingReviewShipmentWeights moveCode="ABC123" />);
-
-      const riskOfExcessTag = screen.getByText(/Risk of excess/);
-      expect(riskOfExcessTag).toBeInTheDocument();
     });
 
     it('displays PPM shipments weights list', async () => {

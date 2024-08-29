@@ -199,6 +199,51 @@ const mockNoPrimeEstimatedWeightShipment = {
   actualPickupDate: '2021-08-31',
 };
 
+const mockDivertedMtoShipments = [
+  {
+    id: 1,
+    status: shipmentStatuses.APPROVED,
+    shipmentType: 'HHG',
+    calculatedBillableWeight: 2000,
+    billableWeightCap: 2000,
+    primeEstimatedWeight: 1500,
+    primeActualWeight: 1250,
+    reweigh: {},
+    pickupAddress: { city: 'Las Vegas', state: 'NV', postalCode: '88901' },
+    destinationAddress: { city: 'Miami', state: 'FL', postalCode: '33607' },
+    actualPickupDate: '2021-08-31',
+    diversion: true,
+  },
+  {
+    id: 2,
+    status: shipmentStatuses.APPROVED,
+    shipmentType: 'HHG',
+    calculatedBillableWeight: 2000,
+    billableWeightCap: 2000,
+    primeEstimatedWeight: 1500,
+    primeActualWeight: 1250,
+    reweigh: {},
+    pickupAddress: { city: 'Miami', state: 'FL', postalCode: '33101' },
+    destinationAddress: { city: 'Portland', state: 'ME', postalCode: '04109' },
+    actualPickupDate: '2021-09-01',
+    diversion: true,
+  },
+  {
+    id: 3,
+    status: shipmentStatuses.APPROVED,
+    shipmentType: 'HHG',
+    calculatedBillableWeight: 2000,
+    billableWeightCap: 2000,
+    primeEstimatedWeight: 2000,
+    primeActualWeight: 1800,
+    reweigh: {},
+    pickupAddress: { city: 'Las Vegas', state: 'NV', postalCode: '88901' },
+    destinationAddress: { city: 'Portland', state: 'ME', postalCode: '04109' },
+    actualPickupDate: '2021-08-31',
+    diversion: false,
+  },
+];
+
 const mockPaymentRequest = [
   {
     proofOfServiceDocs: [
@@ -258,6 +303,13 @@ const useMissingShipmentWeightNoPrimeEstimatedWeightReturnValue = {
 const noAlertsReturnValue = {
   order: mockOrders['1'],
   mtoShipments: [mockHasAllInformationShipment],
+  move,
+  paymentRequests: mockPaymentRequest,
+};
+
+const useDivertedMovePaymentRequestsReturnValue = {
+  order: mockOrders['1'],
+  mtoShipments: mockDivertedMtoShipments,
   move,
   paymentRequests: mockPaymentRequest,
 };
@@ -325,7 +377,7 @@ describe('ReviewBillableWeight', () => {
         formatWeight(useMovePaymentRequestsReturnValue.order.entitlement.totalWeight),
       );
       expect(screen.getByTestId('weightRequested').textContent).toBe('900 lbs');
-      expect(screen.getByTestId('totalBillableWeight').textContent).toBe('8,000 lbs');
+      expect(screen.getByTestId('totalBillableWeight').textContent).toBe('6,100 lbs');
     });
 
     it('renders 110% estimated weight and edit view', async () => {
@@ -518,25 +570,6 @@ describe('ReviewBillableWeight', () => {
 
   describe('check that the various alerts show up when expected', () => {
     describe('max billable weight alert', () => {
-      it('renders in shipment view when billable weight is exceeded', async () => {
-        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-
-        renderWithProviders(<ReviewBillableWeight />);
-
-        await userEvent.click(screen.getByText('Edit'));
-        await userEvent.click(screen.getByText('Review shipment weights'));
-        expect(screen.queryByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-      });
-
-      it('renders in edit view when billable weight is exceeded', async () => {
-        useMovePaymentRequestsQueries.mockReturnValue(useMovePaymentRequestsReturnValue);
-
-        renderWithProviders(<ReviewBillableWeight />);
-
-        await userEvent.click(screen.getByText('Edit'));
-        expect(await screen.findByTestId('maxBillableWeightAlert')).toBeInTheDocument();
-      });
-
       it('does not render in edit view when billable weight is not exceeded', async () => {
         useMovePaymentRequestsQueries.mockReturnValue(useNonMaxBillableWeightExceededReturnValue);
 
@@ -653,6 +686,38 @@ describe('ReviewBillableWeight', () => {
 
         expect(screen.queryByTestId('shipmentBillableWeightExceeds110OfEstimated')).not.toBeInTheDocument();
       });
+    });
+  });
+
+  describe('handles diverted shipments', () => {
+    it('displays diversion tags where appropriate', async () => {
+      useMovePaymentRequestsQueries.mockReturnValue(useDivertedMovePaymentRequestsReturnValue);
+
+      renderWithProviders(<ReviewBillableWeight />);
+
+      expect(screen.getByText('Review weights')).toBeInTheDocument();
+      expect(screen.queryByTestId('tag', { name: 'DIVERSION' })).toBeInTheDocument();
+      const sidebarTitle = screen.queryAllByText('Review weights');
+      expect(sidebarTitle[0].lastChild.textContent).toEqual('DIVERSION');
+
+      const reviewShipmentWeights = screen.getByRole('button', { name: 'Review shipment weights' });
+      await userEvent.click(reviewShipmentWeights);
+
+      expect(screen.getByText('Shipment 1 of 3')).toBeInTheDocument();
+      let sidebarSubTitle = screen.queryAllByText('Shipment weights');
+      expect(sidebarSubTitle[0].lastChild.textContent).toEqual('DIVERSION');
+
+      const nextShipment = screen.getByRole('button', { name: 'Next Shipment' });
+      await userEvent.click(nextShipment);
+
+      expect(screen.getByText('Shipment 2 of 3')).toBeInTheDocument();
+      sidebarSubTitle = screen.queryAllByText('Shipment weights');
+      expect(sidebarSubTitle[0].lastChild.textContent).toEqual('DIVERSION');
+
+      await userEvent.click(nextShipment);
+
+      expect(screen.getByText('Shipment 3 of 3')).toBeInTheDocument();
+      expect(screen.queryByTestId('tag', { name: 'DIVERSION' })).not.toBeInTheDocument();
     });
   });
 });

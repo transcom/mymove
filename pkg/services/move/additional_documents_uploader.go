@@ -33,13 +33,19 @@ func (u *additionalDocumentsUploader) CreateAdditionalDocumentsUpload(
 	file io.ReadCloser,
 	filename string,
 	storer storage.FileStorer,
+	uploadType models.UploadType,
 ) (models.Upload, string, *validate.Errors, error) {
 	moveToUpdate, findErr := u.findMoveWithAdditionalDocuments(appCtx, moveID)
 	if findErr != nil {
 		return models.Upload{}, "", nil, findErr
 	}
 
-	userUpload, url, verrs, err := u.additionalDoc(appCtx, userID, *moveToUpdate, file, filename, storer)
+	serviceMemberID, memberFindErr := findServiceMemberIDWithOrderID(appCtx, moveToUpdate.OrdersID)
+	if memberFindErr != nil {
+		return models.Upload{}, "", nil, memberFindErr
+	}
+
+	userUpload, url, verrs, err := u.additionalDoc(appCtx, userID, *serviceMemberID, *moveToUpdate, file, filename, storer, uploadType)
 	if verrs.HasAny() || err != nil {
 		return models.Upload{}, "", verrs, err
 	}
@@ -66,13 +72,13 @@ func (u *additionalDocumentsUploader) findMoveWithAdditionalDocuments(appCtx app
 	return &move, nil
 }
 
-func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext, userID uuid.UUID, move models.Move, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
+func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext, userID uuid.UUID, serviceMemberID uuid.UUID, move models.Move, file io.ReadCloser, filename string, storer storage.FileStorer, uploadType models.UploadType) (models.UserUpload, string, *validate.Errors, error) {
 	// If move does not have a Document for additional document uploads, then create a new one
 	var err error
 	savedAdditionalDoc := move.AdditionalDocuments
 	if move.AdditionalDocuments == nil {
 		additionalDocument := &models.Document{
-			ServiceMemberID: appCtx.Session().ServiceMemberID,
+			ServiceMemberID: serviceMemberID,
 		}
 		savedAdditionalDoc, err = u.saveAdditionalDocumentForMove(appCtx, additionalDocument)
 		if err != nil {
@@ -101,6 +107,7 @@ func (u *additionalDocumentsUploader) additionalDoc(appCtx appcontext.AppContext
 		uploader.MaxCustomerUserUploadFileSizeLimit,
 		uploader.AllowedTypesServiceMember,
 		&savedAdditionalDoc.ID,
+		uploadType,
 	)
 
 	if verrs.HasAny() || err != nil {
@@ -162,4 +169,23 @@ func updateMoveInTx(appCtx appcontext.AppContext, move models.Move) (*models.Mov
 	}
 
 	return &move, nil
+}
+
+func findServiceMemberIDWithOrderID(appCtx appcontext.AppContext, orderID uuid.UUID) (*uuid.UUID, error) {
+	var order models.Order
+
+	err := appCtx.DB().Q().EagerPreload("ServiceMember.User",
+		"ServiceMemberID").
+		Find(&order, orderID)
+
+	if err != nil {
+		switch err {
+		case sql.ErrNoRows:
+			return nil, apperror.NewNotFoundError(orderID, "while looking for order")
+		default:
+			return nil, apperror.NewQueryError("Order", err, "")
+		}
+	}
+
+	return &order.ServiceMemberID, nil
 }

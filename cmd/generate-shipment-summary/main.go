@@ -169,7 +169,7 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd)
+	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, false)
 	noErr(err)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)

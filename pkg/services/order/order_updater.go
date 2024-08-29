@@ -32,6 +32,7 @@ func NewOrderUpdater(moveRouter services.MoveRouter) services.OrderUpdater {
 
 // UpdateOrderAsTOO updates an order as permitted by a TOO
 func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	const SAC_LIMIT = 80
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -40,6 +41,10 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	if payload.Sac.Present && payload.Sac.Value != nil && len(*payload.Sac.Value) > SAC_LIMIT {
+		return &models.Order{}, uuid.Nil, apperror.NewInvalidInputError(orderID, nil, nil, "SAC cannot be more than 80 characters")
 	}
 
 	orderToUpdate := orderFromTOOPayload(appCtx, *order, payload)
@@ -49,6 +54,7 @@ func (f *orderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uu
 
 // UpdateOrderAsCounselor updates an order as permitted by a service counselor
 func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
+	const SAC_LIMIT = 80
 	order, err := f.findOrder(appCtx, orderID)
 	if err != nil {
 		return &models.Order{}, uuid.Nil, err
@@ -57,6 +63,10 @@ func (f *orderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orde
 	existingETag := etag.GenerateEtag(order.UpdatedAt)
 	if existingETag != eTag {
 		return &models.Order{}, uuid.Nil, apperror.NewPreconditionFailedError(orderID, query.StaleIdentifierError{StaleIdentifier: eTag})
+	}
+
+	if payload.Sac.Present && payload.Sac.Value != nil && len(*payload.Sac.Value) > SAC_LIMIT {
+		return &models.Order{}, uuid.Nil, apperror.NewInvalidInputError(orderID, nil, nil, "SAC cannot be more than 80 characters")
 	}
 
 	orderToUpdate := orderFromCounselingPayload(*order, payload)
@@ -105,7 +115,22 @@ func (f *orderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContex
 		return models.Upload{}, "", nil, findErr
 	}
 
-	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer)
+	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer, models.UploadTypeUSER)
+	if verrs.HasAny() || err != nil {
+		return models.Upload{}, "", verrs, err
+	}
+
+	return userUpload.Upload, url, nil, nil
+}
+
+// UploadAmendedOrdersAsOffice add amended order documents to an existing order
+func (f *orderUpdater) UploadAmendedOrdersAsOffice(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
+	orderToUpdate, findErr := f.findOrderWithAmendedOrders(appCtx, orderID)
+	if findErr != nil {
+		return models.Upload{}, "", nil, findErr
+	}
+
+	userUpload, url, verrs, err := f.amendedOrder(appCtx, userID, *orderToUpdate, file, filename, storer, models.UploadTypeOFFICE)
 	if verrs.HasAny() || err != nil {
 		return models.Upload{}, "", verrs, err
 	}
@@ -244,7 +269,7 @@ func orderFromTOOPayload(_ appcontext.AppContext, existingOrder models.Order, pa
 	return order
 }
 
-func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer) (models.UserUpload, string, *validate.Errors, error) {
+func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UUID, order models.Order, file io.ReadCloser, filename string, storer storage.FileStorer, uploadType models.UploadType) (models.UserUpload, string, *validate.Errors, error) {
 	// If Order does not have a Document for amended orders uploads, then create a new one
 	var err error
 	savedAmendedOrdersDoc := order.UploadedAmendedOrders
@@ -279,6 +304,7 @@ func (f *orderUpdater) amendedOrder(appCtx appcontext.AppContext, userID uuid.UU
 		uploader.MaxCustomerUserUploadFileSizeLimit,
 		uploader.AllowedTypesServiceMember,
 		&savedAmendedOrdersDoc.ID,
+		uploadType,
 	)
 
 	if verrs.HasAny() || err != nil {
@@ -625,8 +651,20 @@ func updateOrderInTx(appCtx appcontext.AppContext, order models.Order, checks ..
 				return nil, apperror.NewQueryError("DutyLocation", err, "")
 			}
 		}
+
+		newDestinationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), newDutyLocation.Address.PostalCode)
+		if err != nil {
+			switch err {
+			case sql.ErrNoRows:
+				return nil, apperror.NewNotFoundError(order.NewDutyLocationID, "while looking for DestinationGBLOC")
+			default:
+				return nil, apperror.NewQueryError("DestinationGBLOC", err, "")
+			}
+		}
+
 		order.NewDutyLocationID = newDutyLocation.ID
 		order.NewDutyLocation = newDutyLocation
+		order.DestinationGBLOC = &newDestinationGBLOC.GBLOC
 	}
 
 	verrs, err = appCtx.DB().ValidateAndUpdate(&order)

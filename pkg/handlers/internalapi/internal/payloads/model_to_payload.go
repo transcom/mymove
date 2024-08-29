@@ -90,10 +90,14 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
 		SecondaryPickupAddress:         Address(ppmShipment.SecondaryPickupAddress),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
+		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		DestinationAddress:             Address(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		W2Address:                      Address(ppmShipment.W2Address),
 		SitExpected:                    ppmShipment.SITExpected,
@@ -118,6 +122,55 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(storer storage.FileStorer, boatShipment *models.BoatShipment) *internalmessages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadBoatShipment := &internalmessages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           models.StringPointer(string(boatShipment.Type)),
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadBoatShipment
+}
+
+// MobileHomeShipment payload
+func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.MobileHome) *internalmessages.MobileHome {
+	if mobileHomeShipment == nil || mobileHomeShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadMobileHomeShipment := &internalmessages.MobileHome{
+		ID:             *handlers.FmtUUID(mobileHomeShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(mobileHomeShipment.ShipmentID),
+		Make:           *mobileHomeShipment.Make,
+		Model:          *mobileHomeShipment.Model,
+		Year:           *handlers.FmtIntPtrToInt64(mobileHomeShipment.Year),
+		LengthInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.LengthInInches),
+		HeightInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.HeightInInches),
+		WidthInInches:  *handlers.FmtIntPtrToInt64(mobileHomeShipment.WidthInInches),
+		CreatedAt:      strfmt.DateTime(mobileHomeShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(mobileHomeShipment.UpdatedAt),
+		ETag:           etag.GenerateEtag(mobileHomeShipment.UpdatedAt),
+	}
+
+	return payloadMobileHomeShipment
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -129,15 +182,21 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		PickupAddress:               Address(mtoShipment.PickupAddress),
 		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
+		TertiaryPickupAddress:       Address(mtoShipment.TertiaryPickupAddress),
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
 		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		TertiaryDeliveryAddress:     Address(mtoShipment.TertiaryDeliveryAddress),
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
+		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
@@ -146,6 +205,13 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil && !*mtoShipment.HasSecondaryDeliveryAddress {
 		payload.SecondaryDeliveryAddress = nil
+	}
+
+	if mtoShipment.HasTertiaryPickupAddress != nil && !*mtoShipment.HasTertiaryPickupAddress {
+		payload.TertiaryPickupAddress = nil
+	}
+	if mtoShipment.HasTertiaryDeliveryAddress != nil && !*mtoShipment.HasTertiaryDeliveryAddress {
+		payload.TertiaryDeliveryAddress = nil
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {
@@ -293,6 +359,7 @@ func PayloadForUploadModel(
 		ID:          handlers.FmtUUIDValue(upload.ID),
 		Filename:    upload.Filename,
 		ContentType: upload.ContentType,
+		UploadType:  string(upload.UploadType),
 		URL:         strfmt.URI(url),
 		Bytes:       upload.Bytes,
 		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
@@ -372,6 +439,10 @@ func MovingExpense(storer storage.FileStorer, movingExpense *models.MovingExpens
 	if movingExpense.SITLocation != nil {
 		sitLocation := internalmessages.SITLocationType(*movingExpense.SITLocation)
 		payload.SitLocation = &sitLocation
+	}
+
+	if movingExpense.SITReimburseableAmount != nil {
+		payload.SitReimburseableAmount = handlers.FmtCost(movingExpense.SITReimburseableAmount)
 	}
 
 	return payload

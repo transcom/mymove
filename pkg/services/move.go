@@ -80,6 +80,7 @@ type MoveAdditionalDocumentsUploader interface {
 		file io.ReadCloser,
 		uploadFilename string,
 		storer storage.FileStorer,
+		uploadType models.UploadType,
 	) (models.Upload, string, *validate.Errors, error)
 }
 
@@ -94,7 +95,9 @@ type SearchMovesParams struct {
 	Branch                *string
 	Locator               *string
 	DodID                 *string
+	Emplid                *string
 	CustomerName          *string
+	PaymentRequestCode    *string
 	DestinationPostalCode *string
 	OriginPostalCode      *string
 	Status                []string
@@ -105,6 +108,7 @@ type SearchMovesParams struct {
 	Order                 *string
 	PickupDate            *time.Time
 	DeliveryDate          *time.Time
+	MoveCreatedDate       *time.Time
 }
 
 type MoveCloseoutOfficeUpdater interface {

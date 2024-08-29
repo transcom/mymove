@@ -75,10 +75,11 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		CustomerRemarks: mtoShipment.CustomerRemarks,
 		ShipmentType:    models.MTOShipmentType(*mtoShipment.ShipmentType),
 	}
-
-	// A PPM type shipment begins in DRAFT because it requires a multi-page series to complete.
-	// After move submission a PPM's status will change to SUBMITTED
-	if model.ShipmentType == models.MTOShipmentTypePPM {
+	isBoatShipment := model.ShipmentType == models.MTOShipmentTypeBoatHaulAway || model.ShipmentType == models.MTOShipmentTypeBoatTowAway
+	isMobileHomeShipment := model.ShipmentType == models.MTOShipmentTypeMobileHome
+	// PPM and Boat type shipment begins in DRAFT because it requires a multi-page series to complete.
+	// After move submission a the status will change to SUBMITTED
+	if model.ShipmentType == models.MTOShipmentTypePPM || isBoatShipment || isMobileHomeShipment {
 		model.Status = models.MTOShipmentStatusDraft
 	} else {
 		model.Status = models.MTOShipmentStatusSubmitted
@@ -95,11 +96,20 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
+
 	model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 	model.HasSecondaryPickupAddress = handlers.FmtBool(mtoShipment.SecondaryPickupAddress != nil)
+
+	model.TertiaryPickupAddress = AddressModel(mtoShipment.TertiaryPickupAddress)
+	model.HasTertiaryPickupAddress = handlers.FmtBool(mtoShipment.TertiaryPickupAddress != nil)
+
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
+
 	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 	model.HasSecondaryDeliveryAddress = handlers.FmtBool(mtoShipment.SecondaryDeliveryAddress != nil)
+
+	model.TertiaryDeliveryAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
+	model.HasTertiaryDeliveryAddress = handlers.FmtBool(mtoShipment.TertiaryDeliveryAddress != nil)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
@@ -108,6 +118,12 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
 		model.PPMShipment.Shipment = *model
+	} else if mtoShipment.BoatShipment != nil {
+		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
+	} else if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome = MobileHomeShipmentModelFromCreate(mtoShipment.MobileHomeShipment)
+		model.MobileHome.Shipment = *model
 	}
 
 	return model
@@ -133,6 +149,11 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 		model.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
 	}
 
+	model.HasTertiaryPickupAddress = handlers.FmtBool(ppmShipment.TertiaryPickupAddress != nil)
+	if ppmShipment.TertiaryPickupAddress != nil {
+		model.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryPickupAddress)
+	}
+
 	if ppmShipment.DestinationAddress != nil {
 		model.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
 	}
@@ -140,6 +161,11 @@ func PPMShipmentModelFromCreate(ppmShipment *internalmessages.CreatePPMShipment)
 	model.HasSecondaryDestinationAddress = handlers.FmtBool(ppmShipment.SecondaryDestinationAddress != nil)
 	if ppmShipment.SecondaryDestinationAddress != nil {
 		model.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
+	}
+
+	model.HasTertiaryDestinationAddress = handlers.FmtBool(ppmShipment.TertiaryDestinationAddress != nil)
+	if ppmShipment.TertiaryDestinationAddress != nil {
+		model.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
 	}
 
 	return model
@@ -166,6 +192,8 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		FinalIncentive:                 handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 	}
 
 	ppmModel.W2Address = AddressModel(ppmShipment.W2Address)
@@ -181,6 +209,10 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.SecondaryPickupAddress = AddressModel(ppmShipment.SecondaryPickupAddress)
 	}
 
+	if ppmShipment.TertiaryPickupAddress != nil {
+		ppmModel.TertiaryPickupAddress = AddressModel(ppmShipment.TertiaryPickupAddress)
+	}
+
 	if ppmShipment.DestinationAddress != nil {
 		ppmModel.DestinationAddress = AddressModel(ppmShipment.DestinationAddress)
 	}
@@ -189,11 +221,183 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 		ppmModel.SecondaryDestinationAddress = AddressModel(ppmShipment.SecondaryDestinationAddress)
 	}
 
+	if ppmShipment.TertiaryDestinationAddress != nil {
+		ppmModel.TertiaryDestinationAddress = AddressModel(ppmShipment.TertiaryDestinationAddress)
+	}
+
 	if ppmShipment.FinalIncentive != nil {
 		ppmModel.FinalIncentive = handlers.FmtInt64PtrToPopPtr(ppmShipment.FinalIncentive)
 	}
 
 	return ppmModel
+}
+
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(boatShipment *internalmessages.CreateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	model := &models.BoatShipment{
+		Type:           models.BoatShipmentType(*boatShipment.Type),
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if model.HasTrailer == models.BoolPointer(false) {
+		model.IsRoadworthy = nil
+	}
+
+	return model
+}
+
+func UpdateBoatShipmentModel(boatShipment *internalmessages.UpdateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	boatModel := &models.BoatShipment{
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if boatShipment.Type != nil {
+		boatModel.Type = models.BoatShipmentType(*boatShipment.Type)
+	}
+
+	if boatShipment.HasTrailer == models.BoolPointer(false) {
+		boatModel.IsRoadworthy = nil
+	}
+
+	return boatModel
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mobileHomeShipment *internalmessages.CreateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	model := &models.MobileHome{
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return model
+}
+
+func UpdateMobileHomeShipmentModel(mobileHomeShipment *internalmessages.UpdateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	mobileHomeModel := &models.MobileHome{
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return mobileHomeModel
 }
 
 // MTOShipmentModelFromUpdate model
@@ -221,6 +425,8 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		Status:                      models.MTOShipmentStatus(mtoShipment.Status),
 		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
 		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
 		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
@@ -231,9 +437,19 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 			model.SecondaryPickupAddress = AddressModel(mtoShipment.SecondaryPickupAddress)
 		}
 	}
+	if mtoShipment.HasTertiaryPickupAddress != nil {
+		if *mtoShipment.HasTertiaryPickupAddress {
+			model.TertiaryPickupAddress = AddressModel(mtoShipment.TertiaryPickupAddress)
+		}
+	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
 		if *mtoShipment.HasSecondaryDeliveryAddress {
 			model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+		}
+	}
+	if mtoShipment.HasTertiaryDeliveryAddress != nil {
+		if *mtoShipment.HasTertiaryDeliveryAddress {
+			model.TertiaryDeliveryAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
 		}
 	}
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
@@ -244,6 +460,18 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
+
+	// making sure both shipmentType and boatShipment.Type match
+	if mtoShipment.BoatShipment != nil && mtoShipment.BoatShipment.Type != nil {
+		if *mtoShipment.BoatShipment.Type == string(models.BoatShipmentTypeHaulAway) {
+			model.ShipmentType = models.MTOShipmentTypeBoatHaulAway
+		} else {
+			model.ShipmentType = models.MTOShipmentTypeBoatTowAway
+		}
+	}
+	model.BoatShipment = UpdateBoatShipmentModel(mtoShipment.BoatShipment)
+
+	model.MobileHome = UpdateMobileHomeShipmentModel(mtoShipment.MobileHomeShipment)
 
 	return model
 }
@@ -272,6 +500,10 @@ func MovingExpenseModelFromUpdate(movingExpense *internalmessages.UpdateMovingEx
 
 	if movingExpense.SitLocation != nil {
 		model.SITLocation = (*models.SITLocationType)(handlers.FmtString(string(*movingExpense.SitLocation)))
+	}
+
+	if movingExpense.SitReimburseableAmount != nil {
+		model.SITReimburseableAmount = handlers.FmtInt64PtrToPopPtr(movingExpense.SitReimburseableAmount)
 	}
 
 	return model

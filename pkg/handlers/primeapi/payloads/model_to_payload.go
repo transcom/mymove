@@ -33,6 +33,7 @@ func MoveTaskOrder(moveTaskOrder *models.Move) *primemessages.MoveTaskOrder {
 		MoveCode:                   moveTaskOrder.Locator,
 		CreatedAt:                  strfmt.DateTime(moveTaskOrder.CreatedAt),
 		AvailableToPrimeAt:         handlers.FmtDateTimePtr(moveTaskOrder.AvailableToPrimeAt),
+		ApprovedAt:                 handlers.FmtDateTimePtr(moveTaskOrder.ApprovedAt),
 		PrimeCounselingCompletedAt: handlers.FmtDateTimePtr(moveTaskOrder.PrimeCounselingCompletedAt),
 		ExcessWeightQualifiedAt:    handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightQualifiedAt),
 		ExcessWeightAcknowledgedAt: handlers.FmtDateTimePtr(moveTaskOrder.ExcessWeightAcknowledgedAt),
@@ -72,6 +73,7 @@ func ListMove(move *models.Move, moveOrderAmendmentsCount *services.MoveOrderAme
 		MoveCode:           move.Locator,
 		CreatedAt:          strfmt.DateTime(move.CreatedAt),
 		AvailableToPrimeAt: handlers.FmtDateTimePtr(move.AvailableToPrimeAt),
+		ApprovedAt:         handlers.FmtDateTimePtr(move.ApprovedAt),
 		OrderID:            strfmt.UUID(move.OrdersID.String()),
 		ReferenceID:        *move.ReferenceID,
 		UpdatedAt:          strfmt.DateTime(move.UpdatedAt),
@@ -124,6 +126,7 @@ func Customer(customer *models.ServiceMember) *primemessages.Customer {
 		FirstName:      swag.StringValue(customer.FirstName),
 		LastName:       swag.StringValue(customer.LastName),
 		DodID:          swag.StringValue(customer.Edipi),
+		Emplid:         swag.StringValue(customer.Emplid),
 		ID:             strfmt.UUID(customer.ID.String()),
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		CurrentAddress: Address(customer.ResidentialAddress),
@@ -158,23 +161,25 @@ func Order(order *models.Order) *primemessages.Order {
 	}
 
 	payload := primemessages.Order{
-		CustomerID:              strfmt.UUID(order.ServiceMemberID.String()),
-		Customer:                Customer(&order.ServiceMember),
-		DestinationDutyLocation: destinationDutyLocation,
-		Entitlement:             Entitlement(order.Entitlement),
-		ID:                      strfmt.UUID(order.ID.String()),
-		OriginDutyLocation:      originDutyLocation,
-		OriginDutyLocationGBLOC: swag.StringValue(order.OriginDutyLocationGBLOC),
-		OrderNumber:             order.OrdersNumber,
-		LinesOfAccounting:       order.TAC,
-		Rank:                    &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
-		ETag:                    etag.GenerateEtag(order.UpdatedAt),
-		ReportByDate:            strfmt.Date(order.ReportByDate),
-		OrdersType:              primemessages.OrdersType(order.OrdersType),
+		CustomerID:                   strfmt.UUID(order.ServiceMemberID.String()),
+		Customer:                     Customer(&order.ServiceMember),
+		DestinationDutyLocation:      destinationDutyLocation,
+		DestinationDutyLocationGBLOC: swag.StringValue(order.DestinationGBLOC),
+		Entitlement:                  Entitlement(order.Entitlement),
+		ID:                           strfmt.UUID(order.ID.String()),
+		OriginDutyLocation:           originDutyLocation,
+		OriginDutyLocationGBLOC:      swag.StringValue(order.OriginDutyLocationGBLOC),
+		OrderNumber:                  order.OrdersNumber,
+		LinesOfAccounting:            order.TAC,
+		Rank:                         &grade, // Convert prime API "Rank" into our internal tracking of "Grade"
+		ETag:                         etag.GenerateEtag(order.UpdatedAt),
+		ReportByDate:                 strfmt.Date(order.ReportByDate),
+		OrdersType:                   primemessages.OrdersType(order.OrdersType),
 	}
 
 	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
+		payload.DestinationDutyLocationGBLOC = "USMC"
 	}
 
 	return &payload
@@ -652,7 +657,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
-			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
@@ -845,40 +849,6 @@ func SITDurationUpdate(sitDurationUpdate *models.SITDurationUpdate) *primemessag
 		ContractorRemarks: handlers.FmtStringPtr(sitDurationUpdate.ContractorRemarks),
 		DecisionDate:      handlers.FmtDateTimePtr(sitDurationUpdate.DecisionDate),
 		OfficeRemarks:     handlers.FmtStringPtr(sitDurationUpdate.OfficeRemarks),
-	}
-
-	return payload
-}
-
-// SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) primemessages.SitAddressUpdates {
-	payload := make(primemessages.SitAddressUpdates, len(u))
-	for i, item := range u {
-		copyOfItem := item
-		payload[i] = SITAddressUpdate(&copyOfItem)
-	}
-	return payload
-}
-
-// SITAddressUpdate payload
-func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primemessages.SitAddressUpdate {
-	if sitAddressUpdate == nil {
-		return nil
-	}
-
-	payload := &primemessages.SitAddressUpdate{
-		ID:                strfmt.UUID(sitAddressUpdate.ID.String()),
-		ETag:              etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
-		MtoServiceItemID:  strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
-		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
-		NewAddress:        Address(&sitAddressUpdate.NewAddress),
-		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
-		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
-		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
-		OldAddress:        Address(&sitAddressUpdate.OldAddress),
-		Status:            primemessages.SitAddressUpdateStatus(sitAddressUpdate.Status),
-		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
 	}
 
 	return payload

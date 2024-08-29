@@ -130,7 +130,8 @@ func (suite *HandlerSuite) TestCreateMovingExpenseHandler() {
 
 func (suite *HandlerSuite) TestUpdateMovingExpenseHandler() {
 	// Create Reusable objects
-	movingExpenseUpdater := movingexpenseservice.NewCustomerMovingExpenseUpdater()
+	ppmEstimator := mocks.PPMEstimator{}
+	movingExpenseUpdater := movingexpenseservice.NewCustomerMovingExpenseUpdater(&ppmEstimator)
 
 	type movingExpenseUpdateSubtestData struct {
 		ppmShipment   models.PPMShipment

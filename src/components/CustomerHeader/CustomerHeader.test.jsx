@@ -5,9 +5,9 @@ import { mount } from 'enzyme';
 import CustomerHeader from './index';
 
 const props = {
-  customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999' },
+  customer: { last_name: 'Kerry', first_name: 'Smith', dodID: '999999999', emplid: '7777777', agency: 'COAST_GUARD' },
   order: {
-    agency: 'NAVY',
+    agency: 'COAST_GUARD',
     grade: 'E_6',
     originDutyLocation: {
       name: 'JBSA Lackland',
@@ -76,8 +76,9 @@ describe('CustomerHeader component', () => {
   it('renders expected values', () => {
     expect(wrapper.find('[data-testid="nameBlock"]').text()).toContain('Kerry, Smith');
     expect(wrapper.find('[data-testid="nameBlock"]').text()).toContain('FKLCTR');
-    expect(wrapper.find('[data-testid="deptPayGrade"]').text()).toContain('Navy E-6');
+    expect(wrapper.find('[data-testid="deptPayGrade"]').text()).toContain('Coast Guard E-6');
     expect(wrapper.find('[data-testid="dodId"]').text()).toContain('DoD ID 999999999');
+    expect(wrapper.find('[data-testid="emplid"]').text()).toContain('EMPLID 7777777');
     expect(wrapper.find('[data-testid="infoBlock"]').text()).toContain('JBSA Lackland');
     expect(wrapper.find('[data-testid="infoBlock"]').text()).toContain('JB Lewis-McChord');
     expect(wrapper.find('[data-testid="infoBlock"]').text()).toContain('01 Aug 2018');

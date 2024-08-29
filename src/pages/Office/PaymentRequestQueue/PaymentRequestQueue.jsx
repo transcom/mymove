@@ -7,6 +7,7 @@ import styles from './PaymentRequestQueue.module.scss';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { usePaymentRequestQueueQueries, useUserQueries, useMoveSearchQueries } from 'hooks/queries';
+import { getPaymentRequestsQueue } from 'services/ghcApi';
 import { createHeader } from 'components/Table/utils';
 import {
   formatDateFromIso,
@@ -29,20 +30,26 @@ import NotFound from 'components/NotFound/NotFound';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { PAYMENT_REQUEST_STATUS } from 'shared/constants';
 
-const columns = (moveLockFlag, showBranchFilter = true) => [
-  createHeader(' ', (row) => {
-    const now = new Date();
-    // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-    if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-      return (
-        <div data-testid="lock-icon">
-          <FontAwesomeIcon icon="lock" />
-        </div>
-      );
-    }
-    return null;
-  }),
-  createHeader('ID', 'id'),
+export const columns = (moveLockFlag, showBranchFilter = true) => [
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
+        return (
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
+          </div>
+        );
+      }
+      return null;
+    },
+    {
+      id: 'lock',
+    },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
   createHeader(
     'Customer name',
     (row) => {
@@ -58,10 +65,20 @@ const columns = (moveLockFlag, showBranchFilter = true) => [
     {
       id: 'lastName',
       isFilterable: true,
+      exportValue: (row) => {
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
+      },
     },
   ),
   createHeader('DoD ID', 'customer.dodID', {
     id: 'dodID',
+    isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
     isFilterable: true,
   }),
   createHeader(
@@ -112,22 +129,19 @@ const columns = (moveLockFlag, showBranchFilter = true) => [
     },
   ),
   createHeader('Origin GBLOC', 'originGBLOC', { disableSortBy: true }),
-  createHeader(
-    'Origin Duty Location',
-    (row) => {
-      return row.originDutyLocation.name;
+  createHeader('Origin Duty Location', 'originDutyLocation.name', {
+    id: 'originDutyLocation',
+    isFilterable: true,
+    exportValue: (row) => {
+      return row.originDutyLocation?.name;
     },
-    {
-      id: 'originDutyLocation',
-      isFilterable: true,
-    },
-  ),
+  }),
 ];
 
 const PaymentRequestQueue = () => {
   const { queueType } = useParams();
   const navigate = useNavigate();
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
 
@@ -151,6 +165,7 @@ const PaymentRequestQueue = () => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -159,6 +174,8 @@ const PaymentRequestQueue = () => {
         payload.dodID = values.searchText;
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText;
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
     setSearch(payload);
@@ -223,6 +240,7 @@ const PaymentRequestQueue = () => {
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
+            paymentRequestCode={search.paymentRequestCode}
             customerName={search.customerName}
             roleType={roleTypes.TIO}
           />
@@ -246,6 +264,12 @@ const PaymentRequestQueue = () => {
           title="Payment requests"
           handleClick={handleClick}
           useQueries={usePaymentRequestQueueQueries}
+          showCSVExport
+          csvExportFileNamePrefix="Payment-Request-Queue"
+          csvExportQueueFetcher={getPaymentRequestsQueue}
+          csvExportQueueFetcherKey="queuePaymentRequests"
+          sessionStorageKey={queueType}
+          key={queueType}
         />
       </div>
     );

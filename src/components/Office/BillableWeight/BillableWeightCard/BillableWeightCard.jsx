@@ -6,28 +6,32 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import styles from './BillableWeightCard.module.scss';
 
+import ShipmentModificationTag from 'components/ShipmentModificationTag/ShipmentModificationTag';
 import ExternalVendorWeightSummary from 'components/Office/ExternalVendorWeightSummary/ExternalVendorWeightSummary';
 import ShipmentList from 'components/ShipmentList/ShipmentList';
 import { formatWeight } from 'utils/formatters';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { shipmentModificationTypes } from 'constants/shipments';
 
 export default function BillableWeightCard({
   maxBillableWeight,
   weightRequested,
   weightAllowance,
-  totalBillableWeight,
+  actualBillableWeight,
   shipments,
   onReviewWeights,
   secondaryReviewWeightsBtn,
   isMoveLocked,
 }) {
+  const includesDivertedShipment = shipments.filter((s) => s.diversion).length > 0;
+
   return (
     <div className={classnames(styles.cardContainer, 'container')}>
       <div className={styles.cardHeader}>
-        <div>
+        <div className={styles.cardTitleContainer}>
           <h2>Billable weights</h2>
-          {totalBillableWeight > maxBillableWeight && (
+          {actualBillableWeight > maxBillableWeight && (
             <div>
               <FontAwesomeIcon icon="exclamation-circle" className={styles.errorFlag} />
               <span
@@ -37,6 +41,9 @@ export default function BillableWeightCard({
                 Move exceeds max billable weight
               </span>
             </div>
+          )}
+          {includesDivertedShipment && (
+            <ShipmentModificationTag shipmentModificationType={shipmentModificationTypes.DIVERSION} />
           )}
         </div>
         <Restricted to={permissionTypes.updateMaxBillableWeight}>
@@ -55,7 +62,7 @@ export default function BillableWeightCard({
           <h5>Maximum billable weight</h5>
           <h4>{formatWeight(maxBillableWeight)}</h4>
           <h6>
-            Weight requested<strong>{formatWeight(weightRequested)}</strong>
+            Actual weight<strong>{formatWeight(weightRequested)}</strong>
           </h6>
           <h6>
             Weight allowance<strong>{formatWeight(weightAllowance)}</strong>
@@ -65,8 +72,8 @@ export default function BillableWeightCard({
           )}
         </div>
         <div className={styles.shipmentSection}>
-          <h5>Total billable weight</h5>
-          <h4>{formatWeight(totalBillableWeight)}</h4>
+          <h5>Actual billable weight</h5>
+          <h4>{formatWeight(actualBillableWeight)}</h4>
           <div className={styles.shipmentList}>
             <ShipmentList shipments={shipments} showShipmentWeight moveSubmitted />
           </div>
@@ -80,7 +87,7 @@ BillableWeightCard.propTypes = {
   maxBillableWeight: number.isRequired,
   weightRequested: number,
   weightAllowance: number.isRequired,
-  totalBillableWeight: number,
+  actualBillableWeight: number,
   onReviewWeights: func.isRequired,
   secondaryReviewWeightsBtn: bool.isRequired,
   shipments: arrayOf(
@@ -90,9 +97,11 @@ BillableWeightCard.propTypes = {
       reweigh: shape({ id: string.isRequired, weight: number }),
     }),
   ).isRequired,
+  isMoveLocked: bool,
 };
 
 BillableWeightCard.defaultProps = {
   weightRequested: null,
-  totalBillableWeight: null,
+  actualBillableWeight: null,
+  isMoveLocked: false,
 };

@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/services"
 	uploaderpkg "github.com/transcom/mymove/pkg/uploader"
 )
 
@@ -64,6 +65,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
 				uploaderpkg.AllowedTypesServiceMember,
 				docID,
+				models.UploadTypeOFFICE,
 			)
 
 			if verrs.HasAny() || createErr != nil {
@@ -82,5 +84,43 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 			uploadPayload := payloads.PayloadForUploadModel(h.FileStorer(), newUserUpload.Upload, url)
 			return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload), nil
+		})
+}
+
+// DeleteUploadHandler deletes an upload
+type DeleteUploadHandler struct {
+	handlers.HandlerConfig
+	services.UploadInformationFetcher
+}
+
+// Handle deletes an upload
+func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			if !appCtx.Session().IsOfficeUser() || !appCtx.Session().IsOfficeApp() {
+				forbiddenError := apperror.NewForbiddenError("User is not an Office User.")
+				appCtx.Logger().Error(forbiddenError.Error())
+				return uploadop.NewDeleteUploadForbidden(), forbiddenError
+			}
+
+			uploadID, _ := uuid.FromString(params.UploadID.String())
+			userUpload, err := models.FetchUserUploadFromUploadID(appCtx.DB(), appCtx.Session(), uploadID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			userUploader, err := uploaderpkg.NewUserUploader(
+				h.FileStorer(),
+				uploaderpkg.MaxCustomerUserUploadFileSizeLimit,
+			)
+			if err != nil {
+				appCtx.Logger().Fatal("could not instantiate uploader", zap.Error(err))
+			}
+			if err = userUploader.DeleteUserUpload(appCtx, &userUpload); err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+
+			return uploadop.NewDeleteUploadNoContent(), nil
+
 		})
 }

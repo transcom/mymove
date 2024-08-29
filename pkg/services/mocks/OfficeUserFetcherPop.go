@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	roles "github.com/transcom/mymove/pkg/models/roles"
+
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -33,6 +35,32 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext
 
 	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r1 = rf(appCtx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FetchOfficeUsersByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID
+func (_m *OfficeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+	ret := _m.Called(appCtx, role, officeID)
+
+	var r0 []models.OfficeUser
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) ([]models.OfficeUser, error)); ok {
+		return rf(appCtx, role, officeID)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) []models.OfficeUser); ok {
+		r0 = rf(appCtx, role, officeID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.OfficeUser)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) error); ok {
+		r1 = rf(appCtx, role, officeID)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -77,7 +77,7 @@ describe('WeightSummary', () => {
     render(<WeightSummary {...defaultProps} />);
     // labels
     expect(screen.getByText('Max billable weight')).toBeInTheDocument();
-    expect(screen.getByText('Weight requested')).toBeInTheDocument();
+    expect(screen.getByText('Actual weight')).toBeInTheDocument();
     expect(screen.getByText('Weight allowance')).toBeInTheDocument();
     expect(screen.getByText('Actual billable weight')).toBeInTheDocument();
 

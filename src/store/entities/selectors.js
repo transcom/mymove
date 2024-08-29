@@ -21,6 +21,12 @@ export const selectOktaUser = (state) => {
   return null;
 };
 
+/** Logged in Admin User */
+export const selectAdminUser = (state) => {
+  if (state.entities.adminUser) return state.entities.adminUser;
+  return null;
+};
+
 /** Service Member */
 export const selectServiceMemberFromLoggedInUser = (state) => {
   const user = selectLoggedInUser(state);
@@ -178,7 +184,34 @@ export const selectMTOShipmentsForCurrentMove = (state) => {
 };
 
 export function selectMTOShipmentById(state, id) {
-  return state.entities?.mtoShipments?.[`${id}`] || null;
+  // Attempt to get the shipment using the existing method
+  const mtoShipment = state.entities?.mtoShipments?.[`${id}`] || null;
+  if (mtoShipment) {
+    return mtoShipment;
+  }
+
+  // now we will check both current and previous moves for the shipment
+  const moves = state.entities.serviceMemberMoves;
+
+  const currentMove = moves.currentMove?.[0]?.mtoShipments || [];
+  const foundInCurrentMove = currentMove.find((shipment) => shipment.id === id);
+  if (foundInCurrentMove) {
+    return foundInCurrentMove;
+  }
+
+  const previousMoves = moves.previousMoves || [];
+  const foundInPreviousMoves = previousMoves.reduce((found, move) => {
+    if (found) return found;
+    const shipments = move.mtoShipments || [];
+    return shipments.find((shipment) => shipment.id === id) || null;
+  }, null);
+
+  if (foundInPreviousMoves) {
+    return foundInPreviousMoves;
+  }
+
+  // If still not found, return null
+  return null;
 }
 
 /** PPMs */

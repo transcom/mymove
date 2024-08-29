@@ -21,6 +21,12 @@ const (
 	PrivilegeTypeSafety     PrivilegeType = "safety"
 )
 
+const (
+	// PrivilegeTypeSupervisor is the Task Ordering Officer Role
+	PrivilegeSearchTypeSupervisor PrivilegeType = "SUPERVISOR"
+	PrivilegeSearchTypeSafety     PrivilegeType = "SAFETY"
+)
+
 // Privilege represents a Privilege for users
 type Privilege struct {
 	ID            uuid.UUID     `json:"id" db:"id"`

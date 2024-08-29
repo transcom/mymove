@@ -298,6 +298,22 @@ func (suite *PPMShipmentSuite) TestPPMShipmentFetcher() {
 			})
 		}
 
+		suite.Run("Return a shipment that has secondary and tertiary addresses", func() {
+			ppmShipment := factory.BuildFullAddressPPMShipment(suite.DB(), nil, nil)
+
+			ppmShipmentReturned, err := fetcher.GetPPMShipment(
+				suite.AppContextForTest(),
+				ppmShipment.ID,
+				nil,
+				nil,
+			)
+
+			if suite.NoError(err) && suite.NotNil(ppmShipmentReturned) {
+				suite.NotNil(ppmShipmentReturned.TertiaryPickupAddressID)
+				suite.NotNil(ppmShipmentReturned.TertiaryDestinationAddressID)
+			}
+		})
+
 		suite.Run("Returns a not found error if the PPM Shipment does not exist", func() {
 			nonexistentID := uuid.Must(uuid.NewV4())
 

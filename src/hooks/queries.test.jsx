@@ -875,6 +875,7 @@ describe('useOrdersDocumentQueries', () => {
           uploads: ['30'],
         },
       },
+      amendedOrderDocumentId: '3',
       amendedUpload: {
         id: '30',
       },

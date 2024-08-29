@@ -36,6 +36,8 @@ func (f moveTaskOrderFetcher) ListAllMoveTaskOrders(appCtx appcontext.AppContext
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
+		"MTOShipments.TertiaryDeliveryAddress",
+		"MTOShipments.TertiaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"Orders.ServiceMember",
 		"Orders.Entitlement",
@@ -105,7 +107,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -123,6 +124,7 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.ResidentialAddress",
 		"Orders.Entitlement",
+		"Orders.DestinationGBLOC",
 		"Orders.NewDutyLocation.Address",
 		"Orders.OriginDutyLocation.Address", // this line breaks Eager, but works with EagerPreload
 		"ShipmentGBLOC",
@@ -191,7 +193,15 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		mto.MTOShipments[i].Reweigh = reweigh
 
 		if mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypePPM {
-			loadErr := appCtx.DB().Load(&mto.MTOShipments[i], "PPMShipment", "PPMShipment.PickupAddress", "PPMShipment.DestinationAddress", "PPMShipment.SecondaryPickupAddress", "PPMShipment.SecondaryDestinationAddress")
+			loadErr := appCtx.DB().Load(&mto.MTOShipments[i],
+				"PPMShipment",
+				"PPMShipment.PickupAddress",
+				"PPMShipment.DestinationAddress",
+				"PPMShipment.SecondaryPickupAddress",
+				"PPMShipment.SecondaryDestinationAddress",
+				"PPMShipment.TertiaryPickupAddress",
+				"PPMShipment.TertiaryDestinationAddress",
+			)
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("PPMShipment", loadErr, "")
 			}
@@ -205,11 +215,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	// this is due to a difference between what Pop expects the column names to
 	// be when creating the rows on the Many-to-Many table and with what it
 	// expects when fetching with EagerPreload
-	//
-	// Also due to how EagerPreload works, SITAddressUpdates.NewAddress &
-	// SITAddressUpdates.OldAddress appear to be duplicated because there are
-	// multiple relationships on the same table for SITAddressUpdates. We fix
-	// that by fetching the NewAddress and OldAddress data separately.
 	var loadedServiceItems models.MTOServiceItems
 	if mto.MTOServiceItems != nil {
 		loadedServiceItems = models.MTOServiceItems{}
@@ -219,15 +224,25 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
-			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
 			if loadErr != nil {
-				return &models.Move{}, apperror.NewQueryError("CustomerContacts or SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress", loadErr, "")
+				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
 			}
 		}
 
 		loadedServiceItems = append(loadedServiceItems, mto.MTOServiceItems[i])
 	}
 	mto.MTOServiceItems = loadedServiceItems
+
+	if mto.Orders.DestinationGBLOC == nil {
+		newDutyLocationGBLOC, err := models.FetchGBLOCForPostalCode(appCtx.DB(), mto.Orders.NewDutyLocation.Address.PostalCode)
+		if err != nil {
+			err = apperror.NewBadDataError("New duty location GBLOC cannot be verified")
+			appCtx.Logger().Error(err.Error())
+			return &models.Move{}, apperror.NewQueryError("DestinationGBLOC", err, "")
+		}
+		mto.Orders.DestinationGBLOC = &newDutyLocationGBLOC.GBLOC
+	}
 
 	return mto, nil
 }
@@ -372,10 +387,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	if searchParams.ID != nil {
 		query.Where("moves.id = ?", *searchParams.ID)
 	}
-	// if there is an error returned we will just return no moves
-	if err != nil {
-		return []models.Move{}, 0, err
-	}
 	// adding pagination and all moves returned with built query
 	// if there are no moves then it will return.. no moves
 	err = query.EagerPreload("Orders.OrdersType").Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
@@ -383,15 +394,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 		return []models.Move{}, 0, err
 	}
 	count = query.Paginator.TotalEntriesSize
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
-
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
 
 	return moveTaskOrders, count, nil
 }

@@ -53,6 +53,10 @@ type GetMovesQueueParams struct {
 	/*
 	  In: query
 	*/
+	Emplid *string
+	/*
+	  In: query
+	*/
 	LastName *string
 	/*
 	  In: query
@@ -67,9 +71,11 @@ type GetMovesQueueParams struct {
 	*/
 	OrderType *string
 	/*
+	  Unique: true
 	  In: query
+	  Collection Format: multi
 	*/
-	OriginDutyLocation *string
+	OriginDutyLocation []string
 	/*requested page of results
 	  In: query
 	*/
@@ -91,6 +97,11 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	Status []string
+	/*Used to return a queue for a GBLOC other than the default of the current user. Requires the HQ role. The parameter is ignored if the requesting user does not have the necessary role.
+
+	  In: query
+	*/
+	ViewAsGBLOC *string
 }
 
 // BindRequest both binds and validates a request, it assumes that complex things implement a Validatable(strfmt.Registry) error interface
@@ -121,6 +132,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qDodID, qhkDodID, _ := qs.GetOK("dodID")
 	if err := o.bindDodID(qDodID, qhkDodID, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qEmplid, qhkEmplid, _ := qs.GetOK("emplid")
+	if err := o.bindEmplid(qEmplid, qhkEmplid, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -171,6 +187,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qStatus, qhkStatus, _ := qs.GetOK("status")
 	if err := o.bindStatus(qStatus, qhkStatus, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qViewAsGBLOC, qhkViewAsGBLOC, _ := qs.GetOK("viewAsGBLOC")
+	if err := o.bindViewAsGBLOC(qViewAsGBLOC, qhkViewAsGBLOC, route.Formats); err != nil {
 		res = append(res, err)
 	}
 	if len(res) > 0 {
@@ -270,6 +291,24 @@ func (o *GetMovesQueueParams) bindDodID(rawData []string, hasKey bool, formats s
 	return nil
 }
 
+// bindEmplid binds and validates parameter Emplid from query.
+func (o *GetMovesQueueParams) bindEmplid(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.Emplid = &raw
+
+	return nil
+}
+
 // bindLastName binds and validates parameter LastName from query.
 func (o *GetMovesQueueParams) bindLastName(rawData []string, hasKey bool, formats strfmt.Registry) error {
 	var raw string
@@ -356,21 +395,38 @@ func (o *GetMovesQueueParams) bindOrderType(rawData []string, hasKey bool, forma
 	return nil
 }
 
-// bindOriginDutyLocation binds and validates parameter OriginDutyLocation from query.
+// bindOriginDutyLocation binds and validates array parameter OriginDutyLocation from query.
+//
+// Arrays are parsed according to CollectionFormat: "multi" (defaults to "csv" when empty).
 func (o *GetMovesQueueParams) bindOriginDutyLocation(rawData []string, hasKey bool, formats strfmt.Registry) error {
-	var raw string
-	if len(rawData) > 0 {
-		raw = rawData[len(rawData)-1]
-	}
-
-	// Required: false
-	// AllowEmptyValue: false
-
-	if raw == "" { // empty values pass all other validations
+	// CollectionFormat: multi
+	originDutyLocationIC := rawData
+	if len(originDutyLocationIC) == 0 {
 		return nil
 	}
-	o.OriginDutyLocation = &raw
 
+	var originDutyLocationIR []string
+	for _, originDutyLocationIV := range originDutyLocationIC {
+		originDutyLocationI := originDutyLocationIV
+
+		originDutyLocationIR = append(originDutyLocationIR, originDutyLocationI)
+	}
+
+	o.OriginDutyLocation = originDutyLocationIR
+	if err := o.validateOriginDutyLocation(formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// validateOriginDutyLocation carries on validations for parameter OriginDutyLocation
+func (o *GetMovesQueueParams) validateOriginDutyLocation(formats strfmt.Registry) error {
+
+	// uniqueItems: true
+	if err := validate.UniqueItems("originDutyLocation", "query", o.OriginDutyLocation); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -463,7 +519,7 @@ func (o *GetMovesQueueParams) bindSort(rawData []string, hasKey bool, formats st
 // validateSort carries on validations for parameter Sort
 func (o *GetMovesQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "originDutyLocation", "destinationDutyLocation", "requestedMoveDate", "appearedInTooAt"}, true); err != nil {
 		return err
 	}
 
@@ -511,5 +567,23 @@ func (o *GetMovesQueueParams) validateStatus(formats strfmt.Registry) error {
 	if err := validate.UniqueItems("status", "query", o.Status); err != nil {
 		return err
 	}
+	return nil
+}
+
+// bindViewAsGBLOC binds and validates parameter ViewAsGBLOC from query.
+func (o *GetMovesQueueParams) bindViewAsGBLOC(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.ViewAsGBLOC = &raw
+
 	return nil
 }

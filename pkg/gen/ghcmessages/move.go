@@ -19,9 +19,16 @@ import (
 // swagger:model Move
 type Move struct {
 
+	// additional documents
+	AdditionalDocuments *Document `json:"additionalDocuments,omitempty"`
+
 	// The time at which a move is sent back to the TOO becuase the prime added a new service item for approval
 	// Format: date-time
 	ApprovalsRequestedAt *strfmt.DateTime `json:"approvalsRequestedAt,omitempty"`
+
+	// approved at
+	// Format: date-time
+	ApprovedAt *strfmt.DateTime `json:"approvedAt,omitempty"`
 
 	// available to prime at
 	// Format: date-time
@@ -129,7 +136,15 @@ type Move struct {
 func (m *Move) Validate(formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.validateAdditionalDocuments(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateApprovalsRequestedAt(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateApprovedAt(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -219,12 +234,43 @@ func (m *Move) Validate(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *Move) validateAdditionalDocuments(formats strfmt.Registry) error {
+	if swag.IsZero(m.AdditionalDocuments) { // not required
+		return nil
+	}
+
+	if m.AdditionalDocuments != nil {
+		if err := m.AdditionalDocuments.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("additionalDocuments")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("additionalDocuments")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *Move) validateApprovalsRequestedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.ApprovalsRequestedAt) { // not required
 		return nil
 	}
 
 	if err := validate.FormatOf("approvalsRequestedAt", "body", "date-time", m.ApprovalsRequestedAt.String(), formats); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (m *Move) validateApprovedAt(formats strfmt.Registry) error {
+	if swag.IsZero(m.ApprovedAt) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("approvedAt", "body", "date-time", m.ApprovedAt.String(), formats); err != nil {
 		return err
 	}
 
@@ -513,6 +559,10 @@ func (m *Move) validateUpdatedAt(formats strfmt.Registry) error {
 func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
 
+	if err := m.contextValidateAdditionalDocuments(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCloseoutOffice(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -548,6 +598,27 @@ func (m *Move) ContextValidate(ctx context.Context, formats strfmt.Registry) err
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+func (m *Move) contextValidateAdditionalDocuments(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.AdditionalDocuments != nil {
+
+		if swag.IsZero(m.AdditionalDocuments) { // not required
+			return nil
+		}
+
+		if err := m.AdditionalDocuments.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("additionalDocuments")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("additionalDocuments")
+			}
+			return err
+		}
+	}
+
 	return nil
 }
 

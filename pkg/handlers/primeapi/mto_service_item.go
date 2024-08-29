@@ -96,6 +96,12 @@ func (h CreateMTOServiceItemHandler) Handle(params mtoserviceitemops.CreateMTOSe
 					return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payloads.ValidationError(e.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), e.ValidationErrors)), err
 				case apperror.ConflictError:
 					return mtoserviceitemops.NewCreateMTOServiceItemConflict().WithPayload(payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))), err
+				case apperror.UnprocessableEntityError:
+					payload := payloads.ValidationError(
+						err.Error(),
+						h.GetTraceIDFromRequest(params.HTTPRequest),
+						validate.NewErrors())
+					return mtoserviceitemops.NewCreateMTOServiceItemUnprocessableEntity().WithPayload(payload), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging
@@ -135,6 +141,8 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 				"DestinationAddress",
 				"SecondaryPickupAddress",
 				"SecondaryDeliveryAddress",
+				"TertiaryPickupAddress",
+				"TertiaryDeliveryAddress",
 				"MTOServiceItems.ReService",
 				"StorageFacility.Address",
 				"PPMShipment"}

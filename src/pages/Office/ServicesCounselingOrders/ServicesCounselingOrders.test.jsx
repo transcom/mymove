@@ -6,6 +6,7 @@ import userEvent from '@testing-library/user-event';
 import ServicesCounselingOrders from 'pages/Office/ServicesCounselingOrders/ServicesCounselingOrders';
 import { MockProviders } from 'testUtils';
 import { useOrdersDocumentQueries } from 'hooks/queries';
+import { MOVE_DOCUMENT_TYPE } from 'shared/constants';
 
 const mockOriginDutyLocation = {
   address: {
@@ -93,8 +94,7 @@ jest.mock('services/ghcApi', () => ({
     }
     if (tacCode === '3333') {
       // 200 OK, but the LOA found is invalid
-      const invalidLoa = mockLoa;
-      invalidLoa.validHhgProgramCodeForLoa = false;
+      const invalidLoa = { ...mockLoa, validHhgProgramCodeForLoa: false };
       return Promise.resolve(invalidLoa);
     }
     // Default to no LOA
@@ -141,6 +141,13 @@ const useOrdersDocumentQueriesReturnValue = {
   },
 };
 
+const ordersMockProps = {
+  files: {
+    [MOVE_DOCUMENT_TYPE.ORDERS]: [{ id: 'file-1', name: 'Order File 1' }],
+    [MOVE_DOCUMENT_TYPE.AMENDMENTS]: [{ id: 'file-2', name: 'Amended File 1' }],
+  },
+};
+
 const loadingReturnValue = {
   ...useOrdersDocumentQueriesReturnValue,
   isLoading: true,
@@ -162,7 +169,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -175,7 +182,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -190,7 +197,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -202,7 +209,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -213,7 +220,7 @@ describe('Orders page', () => {
     it('renders each option for orders type dropdown', async () => {
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -238,7 +245,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -253,14 +260,15 @@ describe('Orders page', () => {
     });
   });
 
-  it('renders an upload orders button when no orders are present', async () => {
+  it('renders an upload orders button', async () => {
     render(
       <MockProviders>
-        <ServicesCounselingOrders />
+        <ServicesCounselingOrders {...ordersMockProps} />
       </MockProviders>,
     );
 
-    expect(await screen.findByText('Add Orders')).toBeInTheDocument();
+    expect(await screen.findByText('Manage Orders')).toBeInTheDocument();
+    expect(await screen.findByText('Manage Amended Orders')).toBeInTheDocument();
   });
 
   describe('TAC validation', () => {
@@ -269,7 +277,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -281,7 +289,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -308,7 +316,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
     });
@@ -321,23 +329,7 @@ describe('Orders page', () => {
     });
 
     describe('validates on user input', () => {
-      it('validates with a valid TAC and valid loa', async () => {
-        const hhgTacInput = screen.getByTestId('hhgTacInput');
-        await userEvent.clear(hhgTacInput);
-        await userEvent.type(hhgTacInput, '1111');
-
-        // TAC is found and valid
-        // LOA is found and valid
-        await waitFor(() => {
-          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
-          expect(screen.queryByText(/Unable to find a LOA based on the provided details/)).not.toBeInTheDocument();
-          expect(
-            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
-          ).not.toBeInTheDocument();
-        });
-      });
-
-      it('validates with a valid TAC and no LOA', async () => {
+      it('validates HHG with a valid TAC and no LOA', async () => {
         const hhgTacInput = screen.getByTestId('hhgTacInput');
         await userEvent.clear(hhgTacInput);
         await userEvent.type(hhgTacInput, '2222');
@@ -352,8 +344,38 @@ describe('Orders page', () => {
           ).not.toBeInTheDocument();
         });
       });
+      it('validates NTS with a valid TAC and no LOA', async () => {
+        // Empty HHG from having a good useEffect TAC
+        const hhgTacInput = screen.getByTestId('hhgTacInput');
+        await userEvent.clear(hhgTacInput);
+        const ntsTacInput = screen.getByTestId('ntsTacInput');
+        await userEvent.clear(ntsTacInput);
+        await userEvent.type(ntsTacInput, '2222');
 
-      it('validates with a valid TAC and invalid LOA', async () => {
+        // TAC is found and valid
+        // LOA is NOT found
+        await waitFor(() => {
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
+          expect(loaMissingWarnings.length).toBe(2); // Both HHG and NTS LOAs are missing now
+          expect(
+            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).not.toBeInTheDocument();
+        });
+
+        // Make HHG good and re-verify that the NTS errors remained
+        await userEvent.type(hhgTacInput, '1111');
+        await waitFor(() => {
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument(); // TAC should be good
+          expect(loaMissingWarnings.length).toBe(1); // Only NTS is missing
+          expect(
+            screen.queryByText(/The LOA identified based on the provided details appears to be invalid/),
+          ).not.toBeInTheDocument();
+        });
+      });
+
+      it('validates an invalid HHG LOA', async () => {
         const hhgTacInput = screen.getByTestId('hhgTacInput');
         await userEvent.clear(hhgTacInput);
         await userEvent.type(hhgTacInput, '3333');
@@ -361,11 +383,28 @@ describe('Orders page', () => {
         // TAC is found and valid
         // LOA is found and NOT valid
         await waitFor(() => {
-          expect(screen.queryByText(/This TAC does not appear in TGET/)).not.toBeInTheDocument();
-          expect(
-            screen.getByText(/The LOA identified based on the provided details appears to be invalid/),
-          ).toBeInTheDocument();
-          expect(screen.queryByText(/Unable to find a LOA based on the provided details/)).not.toBeInTheDocument();
+          const loaInvalidWarnings = screen.queryAllByText(
+            /The LOA identified based on the provided details appears to be invalid/,
+          );
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(loaInvalidWarnings.length).toBe(1); // HHG is invalid
+          expect(loaMissingWarnings.length).toBe(0); // NTS is valid based on useEffect hook and default passed in TAC
+        });
+      });
+      it('validates an invalid NTS LOA', async () => {
+        const ntsTacInput = screen.getByTestId('ntsTacInput');
+        await userEvent.clear(ntsTacInput);
+        await userEvent.type(ntsTacInput, '3333');
+
+        // TAC is found and valid
+        // LOA is found and NOT valid
+        await waitFor(() => {
+          const loaInvalidWarnings = screen.queryAllByText(
+            /The LOA identified based on the provided details appears to be invalid/,
+          );
+          const loaMissingWarnings = screen.queryAllByText(/Unable to find a LOA based on the provided details/);
+          expect(loaInvalidWarnings.length).toBe(1); // NTS is invalid
+          expect(loaMissingWarnings.length).toBe(1); // HHG is valid based on useEffect hook and default passed in TAC
         });
       });
     });
@@ -376,7 +415,7 @@ describe('Orders page', () => {
 
       render(
         <MockProviders>
-          <ServicesCounselingOrders />
+          <ServicesCounselingOrders {...ordersMockProps} />
         </MockProviders>,
       );
 
@@ -389,6 +428,22 @@ describe('Orders page', () => {
 
       const loaTextField = screen.getByTestId('hhgLoaTextField');
       expect(loaTextField).toHaveValue(expectedLongLineOfAccounting);
+    });
+  });
+  describe('LOA concatenation with regex removes extra spaces', () => {
+    it('concatenates the LOA string correctly and without extra spaces', async () => {
+      let extraSpacesLongLineOfAccounting =
+        '1  **20062016*1234 *0000**1A *123A**00000000**  **** ***22NL** *000000*SEE PCS ORDERS* *12345**B1*';
+      const expectedLongLineOfAccounting =
+        '1**20062016*1234*0000**1A*123A**00000000*********22NL***000000*SEE PCS ORDERS**12345**B1*';
+
+      // preserves spaces in column values such as 'SEE PCS ORDERS'
+      // remove any number of spaces following an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/\* +/g, '*');
+      // remove any number of spaces preceding an asterisk in a LOA string
+      extraSpacesLongLineOfAccounting = extraSpacesLongLineOfAccounting.replace(/ +\*/g, '*');
+
+      expect(extraSpacesLongLineOfAccounting).toEqual(expectedLongLineOfAccounting);
     });
   });
 });

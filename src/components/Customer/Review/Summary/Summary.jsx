@@ -7,7 +7,7 @@ import { Button, Grid } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { isBooleanFlagEnabled } from '../../../../utils/featureFlags';
-import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS } from '../../../../shared/constants';
+import { FEATURE_FLAG_KEYS, MOVE_STATUSES, SHIPMENT_OPTIONS, SHIPMENT_TYPES } from '../../../../shared/constants';
 
 import styles from './Summary.module.scss';
 
@@ -20,6 +20,7 @@ import HHGShipmentCard from 'components/Customer/Review/ShipmentCard/HHGShipment
 import NTSRShipmentCard from 'components/Customer/Review/ShipmentCard/NTSRShipmentCard/NTSRShipmentCard';
 import NTSShipmentCard from 'components/Customer/Review/ShipmentCard/NTSShipmentCard/NTSShipmentCard';
 import PPMShipmentCard from 'components/Customer/Review/ShipmentCard/PPMShipmentCard/PPMShipmentCard';
+import BoatShipmentCard from 'components/Customer/Review/ShipmentCard/BoatShipmentCard/BoatShipmentCard';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ORDERS_BRANCH_OPTIONS, ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { customerRoutes } from 'constants/routes';
@@ -54,6 +55,7 @@ export class Summary extends Component {
       enablePPM: true,
       enableNTS: true,
       enableNTSR: true,
+      enableBoat: true,
     };
   }
 
@@ -81,6 +83,11 @@ export class Summary extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.NTSR).then((enabled) => {
       this.setState({
         enableNTSR: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then((enabled) => {
+      this.setState({
+        enableBoat: enabled,
       });
     });
   }
@@ -156,6 +163,7 @@ export class Summary extends Component {
     const showEditAndDeleteBtn = currentMove.status === MOVE_STATUSES.DRAFT;
     let hhgShipmentNumber = 0;
     let ppmShipmentNumber = 0;
+    let boatShipmentNumber = 0;
     return sortedShipments.map((shipment) => {
       let receivingAgent;
       let releasingAgent;
@@ -190,6 +198,7 @@ export class Summary extends Component {
             onDeleteClick={this.handleDeleteClick}
             pickupLocation={shipment.pickupAddress}
             secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
             releasingAgent={releasingAgent}
             remarks={shipment.customerRemarks}
             requestedPickupDate={shipment.requestedPickupDate}
@@ -197,6 +206,7 @@ export class Summary extends Component {
             shipmentType={shipment.shipmentType}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            shipmentLocator={shipment.shipmentLocator}
           />
         );
       }
@@ -207,6 +217,7 @@ export class Summary extends Component {
             destinationLocation={shipment?.destinationAddress}
             destinationZIP={currentOrders.new_duty_location.address.postalCode}
             secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
             showEditAndDeleteBtn={showEditAndDeleteBtn}
             moveId={moveId}
             onEditClick={this.handleEditClick}
@@ -218,6 +229,39 @@ export class Summary extends Component {
             shipmentType={shipment.shipmentType}
             status={shipment.status}
             onIncompleteClick={this.toggleIncompleteShipmentModal}
+            shipmentLocator={shipment.shipmentLocator}
+          />
+        );
+      }
+      if (
+        shipment.shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY ||
+        shipment.shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY
+      ) {
+        boatShipmentNumber += 1;
+        return (
+          <BoatShipmentCard
+            key={shipment.id}
+            shipment={shipment}
+            destinationZIP={currentOrders.new_duty_location.address.postalCode}
+            secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+            tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
+            secondaryPickupAddress={shipment?.secondaryPickupAddress}
+            tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
+            destinationLocation={shipment?.destinationAddress}
+            moveId={moveId}
+            onEditClick={this.handleEditClick}
+            onDeleteClick={this.handleDeleteClick}
+            pickupLocation={shipment.pickupAddress}
+            receivingAgent={receivingAgent}
+            releasingAgent={releasingAgent}
+            remarks={shipment.customerRemarks}
+            requestedDeliveryDate={shipment.requestedDeliveryDate}
+            requestedPickupDate={shipment.requestedPickupDate}
+            shipmentId={shipment.id}
+            shipmentNumber={boatShipmentNumber}
+            showEditAndDeleteBtn={showEditAndDeleteBtn}
+            status={shipment.status}
+            onIncompleteClick={this.toggleIncompleteShipmentModal}
           />
         );
       }
@@ -227,7 +271,9 @@ export class Summary extends Component {
           key={shipment.id}
           destinationZIP={currentOrders.new_duty_location.address.postalCode}
           secondaryDeliveryAddress={shipment?.secondaryDeliveryAddress}
+          tertiaryDeliveryAddress={shipment?.tertiaryDeliveryAddress}
           secondaryPickupAddress={shipment?.secondaryPickupAddress}
+          tertiaryPickupAddress={shipment?.tertiaryPickupAddress}
           destinationLocation={shipment?.destinationAddress}
           moveId={moveId}
           onEditClick={this.handleEditClick}
@@ -278,6 +324,7 @@ export class Summary extends Component {
       enablePPM,
       enableNTS,
       enableNTSR,
+      enableBoat,
     } = this.state;
 
     const { pathname } = router.location;
@@ -401,18 +448,20 @@ export class Summary extends Component {
         ) : (
           <p>Talk with your movers directly if you want to add or change shipments.</p>
         )}
-        {moveIsApproved && (
-          <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office at {currentDutyLocation.name}{' '}
+        {moveIsApproved && currentDutyLocation && (
+          <p>
+            *To change these fields, contact your local PPPO office at {currentDutyLocation?.name}
             {officePhone ? ` at ${officePhone}` : ''}.
-          </div>
+          </p>
         )}
+        {moveIsApproved && !currentDutyLocation && <p>*To change these fields, contact your local PPPO office.</p>}
         <ConnectedAddShipmentModal
           isOpen={showModal}
           closeModal={this.toggleModal}
           enablePPM={enablePPM}
           enableNTS={enableNTS}
           enableNTSR={enableNTSR}
+          enableBoat={enableBoat}
         />
       </>
     );

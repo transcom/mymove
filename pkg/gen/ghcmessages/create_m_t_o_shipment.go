@@ -22,6 +22,9 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// boat shipment
+	BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
@@ -49,6 +52,21 @@ type CreateMTOShipment struct {
 
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
+
+	// has secondary delivery address
+	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
+
+	// has secondary pickup address
+	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
+
+	// has tertiary delivery address
+	HasTertiaryDeliveryAddress *bool `json:"hasTertiaryDeliveryAddress"`
+
+	// has tertiary pickup address
+	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
+	// mobile home
+	MobileHome *MobileHome `json:"mobileHome,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -84,6 +102,16 @@ type CreateMTOShipment struct {
 	// sac type
 	SacType *LOAType `json:"sacType,omitempty"`
 
+	// Where the movers should deliver this shipment.
+	SecondaryDeliveryAddress struct {
+		Address
+	} `json:"secondaryDeliveryAddress,omitempty"`
+
+	// The address where the movers should pick up this shipment.
+	SecondaryPickupAddress struct {
+		Address
+	} `json:"secondaryPickupAddress,omitempty"`
+
 	// service order number
 	ServiceOrderNumber *string `json:"serviceOrderNumber,omitempty"`
 
@@ -96,6 +124,16 @@ type CreateMTOShipment struct {
 
 	// tac type
 	TacType *LOAType `json:"tacType,omitempty"`
+
+	// Where the movers should deliver this shipment.
+	TertiaryDeliveryAddress struct {
+		Address
+	} `json:"tertiaryDeliveryAddress,omitempty"`
+
+	// The address where the movers should pick up this shipment.
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
 
 	// uses external vendor
 	// Example: false
@@ -110,11 +148,19 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBoatShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateDestinationType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMobileHome(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -146,6 +192,14 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateShipmentType(formats); err != nil {
 		res = append(res, err)
 	}
@@ -155,6 +209,14 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateTacType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -181,6 +243,25 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreateMTOShipment) validateBoatShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.BoatShipment) { // not required
+		return nil
+	}
+
+	if m.BoatShipment != nil {
+		if err := m.BoatShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
@@ -200,6 +281,25 @@ func (m *CreateMTOShipment) validateDestinationType(formats strfmt.Registry) err
 				return ve.ValidateName("destinationType")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateMobileHome(formats strfmt.Registry) error {
+	if swag.IsZero(m.MobileHome) { // not required
+		return nil
+	}
+
+	if m.MobileHome != nil {
+		if err := m.MobileHome.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHome")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHome")
 			}
 			return err
 		}
@@ -308,6 +408,22 @@ func (m *CreateMTOShipment) validateSacType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreateMTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error {
 
 	if err := validate.Required("shipmentType", "body", m.ShipmentType); err != nil {
@@ -370,6 +486,22 @@ func (m *CreateMTOShipment) validateTacType(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreateMTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 // ContextValidate validate this create m t o shipment based on the context it is used
 func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -378,11 +510,19 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateBoatShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.contextValidateDestinationType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMobileHome(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -402,6 +542,14 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -411,6 +559,14 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateTacType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -434,6 +590,27 @@ func (m *CreateMTOShipment) contextValidateAgents(ctx context.Context, formats s
 	return nil
 }
 
+func (m *CreateMTOShipment) contextValidateBoatShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BoatShipment != nil {
+
+		if swag.IsZero(m.BoatShipment) { // not required
+			return nil
+		}
+
+		if err := m.BoatShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
@@ -452,6 +629,27 @@ func (m *CreateMTOShipment) contextValidateDestinationType(ctx context.Context, 
 				return ve.ValidateName("destinationType")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateMobileHome(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MobileHome != nil {
+
+		if swag.IsZero(m.MobileHome) { // not required
+			return nil
+		}
+
+		if err := m.MobileHome.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHome")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHome")
 			}
 			return err
 		}
@@ -521,6 +719,16 @@ func (m *CreateMTOShipment) contextValidateSacType(ctx context.Context, formats 
 	return nil
 }
 
+func (m *CreateMTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
 func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ShipmentType != nil {
@@ -576,6 +784,16 @@ func (m *CreateMTOShipment) contextValidateTacType(ctx context.Context, formats 
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

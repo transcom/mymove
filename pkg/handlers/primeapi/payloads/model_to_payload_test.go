@@ -35,6 +35,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		Locator:                    "TESTTEST",
 		CreatedAt:                  time.Now(),
 		AvailableToPrimeAt:         &primeTime,
+		ApprovedAt:                 &primeTime,
 		OrdersID:                   ordersID,
 		Orders:                     models.Order{OrdersType: internalmessages.OrdersType(ordersType), OriginDutyLocationGBLOC: &originDutyGBLOC},
 		ReferenceID:                &referenceID,
@@ -61,6 +62,7 @@ func (suite *PayloadsSuite) TestMoveTaskOrder() {
 		suite.Equal(basicMove.Locator, returnedModel.MoveCode)
 		suite.Equal(strfmt.DateTime(basicMove.CreatedAt), returnedModel.CreatedAt)
 		suite.Equal(handlers.FmtDateTimePtr(basicMove.AvailableToPrimeAt), returnedModel.AvailableToPrimeAt)
+		suite.Equal(handlers.FmtDateTimePtr(basicMove.ApprovedAt), returnedModel.ApprovedAt)
 		suite.Equal(strfmt.UUID(basicMove.OrdersID.String()), returnedModel.OrderID)
 		suite.Equal(ordersType, returnedModel.Order.OrdersType)
 		suite.Equal(shipmentGBLOC, returnedModel.Order.OriginDutyLocationGBLOC)
@@ -263,44 +265,6 @@ func (suite *PayloadsSuite) TestSitExtension() {
 		suite.Equal((*strfmt.DateTime)(sitDurationUpdate.DecisionDate), returnedPayload.DecisionDate)
 		suite.NotNil(returnedPayload.ETag)
 
-	})
-}
-
-func (suite *PayloadsSuite) TestSITAddressUpdate() {
-	newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-	contractorRemark := "I must update the final address please"
-	officeRemark := ""
-
-	suite.Run("Success - Returns a SITAddressUpdate payload as expected", func() {
-		sitAddressUpdate := models.SITAddressUpdate{
-			ID:                uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:  uuid.Must(uuid.NewV4()),
-			NewAddressID:      newAddress.ID,
-			NewAddress:        newAddress,
-			ContractorRemarks: &contractorRemark,
-			OfficeRemarks:     &officeRemark,
-			Status:            models.SITAddressUpdateStatusRequested,
-			UpdatedAt:         time.Now(),
-			CreatedAt:         time.Now(),
-		}
-
-		payload := SITAddressUpdate(&sitAddressUpdate)
-
-		suite.Equal(payload.ID.String(), sitAddressUpdate.ID.String())
-		suite.Equal(payload.MtoServiceItemID.String(), sitAddressUpdate.MTOServiceItemID.String())
-		suite.Equal(payload.NewAddressID.String(), sitAddressUpdate.NewAddressID.String())
-		suite.Equal(payload.NewAddress.ID.String(), sitAddressUpdate.NewAddress.ID.String())
-		suite.Equal(*payload.NewAddress.City, sitAddressUpdate.NewAddress.City)
-		suite.Equal(*payload.NewAddress.State, sitAddressUpdate.NewAddress.State)
-		suite.Equal(*payload.NewAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
-		suite.Equal(*payload.NewAddress.Country, *sitAddressUpdate.NewAddress.Country)
-		suite.Equal(*payload.NewAddress.County, sitAddressUpdate.NewAddress.County)
-		suite.Equal(*payload.NewAddress.StreetAddress1, sitAddressUpdate.NewAddress.StreetAddress1)
-		suite.Equal(payload.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
-		suite.Equal(payload.OfficeRemarks, sitAddressUpdate.OfficeRemarks)
-		suite.Equal(payload.Status, sitAddressUpdate.Status)
-		suite.Equal(strfmt.DateTime(payload.UpdatedAt).String(), strfmt.DateTime(sitAddressUpdate.UpdatedAt).String())
-		suite.Equal(strfmt.DateTime(payload.CreatedAt).String(), strfmt.DateTime(sitAddressUpdate.CreatedAt).String())
 	})
 }
 
@@ -620,17 +584,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(shipmentAddressUpdate.ID.String()), result.ID)
-}
-
-func (suite *PayloadsSuite) TestSITAddressUpdates() {
-	sitAddressUpdates := models.SITAddressUpdates{
-		models.SITAddressUpdate{ID: uuid.Must(uuid.NewV4())},
-	}
-
-	result := SITAddressUpdates(sitAddressUpdates)
-
-	suite.NotNil(result)
-	suite.Equal(len(sitAddressUpdates), len(result))
 }
 
 func (suite *PayloadsSuite) TestMTOServiceItemDCRT() {

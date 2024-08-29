@@ -94,6 +94,25 @@ func (suite *OfficeUserServiceSuite) TestFetchOfficeUserPop() {
 		suite.Equal(officeUser.ID, fetchedUser.ID)
 	})
 
+	suite.Run("returns a set of office users when given a and role", func() {
+		// build 1 TOO
+		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTOO})
+		// build 2 SCs and 3 TIOs
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeServicesCounselor})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+		factory.BuildOfficeUserWithRoles(suite.DB(), factory.GetTraitActiveOfficeUser(), []roles.RoleType{roles.RoleTypeTIO})
+		fetcher := NewOfficeUserFetcherPop()
+
+		fetchedUsers, err := fetcher.FetchOfficeUsersByRoleAndOffice(suite.AppContextForTest(), roles.RoleTypeTOO, officeUser.TransportationOfficeID)
+
+		// ensure length of returned set is 1, corresponding to the TOO role passed to FetchOfficeUsersByRoleAndOffice
+		// and not 2 (SC) or 3 (TIO)
+		suite.NoError(err)
+		suite.Len(fetchedUsers, 1)
+	})
+
 	suite.Run("returns zero value office user on error", func() {
 		fetcher := NewOfficeUserFetcherPop()
 		officeUser, err := fetcher.FetchOfficeUserByID(suite.AppContextForTest(), uuid.Nil)

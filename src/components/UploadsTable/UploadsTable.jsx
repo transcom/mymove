@@ -11,7 +11,7 @@ import styles from './UploadsTable.module.scss';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { ExistingUploadsShape } from 'types/uploads';
 
-const UploadsTable = ({ className, uploads, onDelete, showDeleteButton }) => {
+const UploadsTable = ({ className, uploads, onDelete, showDeleteButton, showDownloadLink = false }) => {
   const getIcon = (fileType) => {
     switch (fileType) {
       case 'application/pdf':
@@ -29,7 +29,7 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton }) => {
 
   return (
     uploads?.length > 0 && (
-      <SectionWrapper className={classnames(styles.uploadsTableContainer, className)}>
+      <SectionWrapper className={classnames(styles.uploadsTableContainer, className)} data-testid="uploads-table">
         <h6>{uploads.length} Files Uploaded</h6>
         <ul>
           {uploads.map((upload) => (
@@ -37,7 +37,15 @@ const UploadsTable = ({ className, uploads, onDelete, showDeleteButton }) => {
               <div className={styles.fileInfoContainer}>
                 <FontAwesomeIcon size="lg" icon={getIcon(upload.contentType)} className={styles.faIcon} />
                 <div className={styles.fileInfo}>
-                  <p>{upload.filename}</p>
+                  <p>
+                    {showDownloadLink ? (
+                      <a href={upload.url} download={upload.filename}>
+                        {upload.filename}
+                      </a>
+                    ) : (
+                      upload.filename
+                    )}
+                  </p>
                   <p className={styles.fileSizeAndTime}>
                     <span className={styles.uploadFileSize}>{bytes(upload.bytes)}</span>
                     <span>Uploaded {moment(upload.createdAt).format('DD MMM YYYY h:mm A')}</span>

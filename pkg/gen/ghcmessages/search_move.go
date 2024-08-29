@@ -34,6 +34,9 @@ type SearchMove struct {
 	// Example: 1234567890
 	DodID *string `json:"dodID,omitempty"`
 
+	// emplid
+	Emplid *string `json:"emplid,omitempty"`
+
 	// first name
 	// Example: John
 	FirstName *string `json:"firstName,omitempty"`
@@ -67,6 +70,10 @@ type SearchMove struct {
 
 	// origin g b l o c
 	OriginGBLOC GBLOC `json:"originGBLOC,omitempty"`
+
+	// payment request code
+	// Example: 9551-6199-2
+	PaymentRequestCode *string `json:"paymentRequestCode,omitempty"`
 
 	// requested delivery date
 	// Format: date

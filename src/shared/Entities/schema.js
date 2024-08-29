@@ -87,7 +87,10 @@ export const serviceMember = new schema.Entity('serviceMembers', {
 // Okta Profile
 export const oktaUser = new schema.Entity('oktaUser');
 
-// Loggedin User
+// Admin User
+export const adminUser = new schema.Entity('adminUser');
+
+// Logged in User
 export const loggedInUser = new schema.Entity('user', {
   service_member: serviceMember,
 });

@@ -13,6 +13,15 @@ import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
 mockPage('pages/Office/MoveDetails/MoveDetails');
 mockPage('pages/Office/MoveDocumentWrapper/MoveDocumentWrapper');
 mockPage('pages/Office/MoveTaskOrder/MoveTaskOrder');
@@ -24,6 +33,7 @@ mockPage('pages/Office/EvaluationReport/EvaluationReport');
 mockPage('pages/Office/EvaluationViolations/EvaluationViolations');
 mockPage('pages/Office/MoveHistory/MoveHistory');
 mockPage('pages/Office/MovePaymentRequests/MovePaymentRequests');
+mockPage('pages/Office/SupportingDocuments/SupportingDocuments');
 mockPage('pages/Office/CustomerInfo/CustomerInfo');
 mockPage('pages/Office/Forbidden/Forbidden');
 
@@ -57,7 +67,7 @@ jest.mock('hooks/queries', () => ({
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
-  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const basicUseTXOMoveInfoQueriesValue = {
@@ -270,6 +280,40 @@ describe('TXO Move Info Container', () => {
 
       // Assert that the mock component is rendered
       await expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
+    });
+
+    it('should render the Supporting Documents component if the feature flag is enabled', async () => {
+      const componentName = 'Supporting Documents';
+      const nestedPath = 'supporting-documents';
+
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+      renderTXOMoveInfo(nestedPath);
+
+      // Wait for loading to finish
+      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+      // Assert that the mock component is rendered
+      await waitFor(() => {
+        expect(screen.getByText(`Mock ${componentName} Component`)).toBeInTheDocument();
+      });
+    });
+
+    it('should not render the Supporting Documents component if the feature flag is turned off', async () => {
+      const componentName = 'Supporting Documents';
+      const nestedPath = 'supporting-documents';
+
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(false));
+
+      renderTXOMoveInfo(nestedPath);
+
+      // Wait for loading to finish
+      await waitFor(() => expect(screen.queryByText('Loading, please wait...')).not.toBeInTheDocument());
+
+      // Assert that the mock component has not been rendered
+      await waitFor(() => {
+        expect(screen.queryByText(`Mock ${componentName} Component`)).not.toBeInTheDocument();
+      });
     });
   });
 });

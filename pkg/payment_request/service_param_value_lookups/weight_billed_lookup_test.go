@@ -40,7 +40,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 
 		valueStr, err := paramLookup.ServiceParamValue(suite.AppContextForTest(), key)
 		suite.FatalNoError(err)
-		suite.Equal("1481", valueStr)
+		suite.Equal("1357", valueStr)
 	})
 
 	suite.Run("has only original weight", func() {
@@ -137,12 +137,12 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookup() {
 		shipmentType    models.MTOShipmentType
 	}{
 		// PPM Service items
-		{models.ReServiceCodeDLH, unit.Pound(450), "450", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDOP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDDP, unit.Pound(450), "450", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeDUPK, unit.Pound(450), "450", models.MTOShipmentTypePPM},
-		{models.ReServiceCodeFSC, unit.Pound(450), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDLH, unit.Pound(440), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDOP, unit.Pound(440), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDDP, unit.Pound(440), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDPK, unit.Pound(440), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeDUPK, unit.Pound(440), "440", models.MTOShipmentTypePPM},
+		{models.ReServiceCodeFSC, unit.Pound(440), "440", models.MTOShipmentTypePPM},
 	}
 
 	for _, data := range serviceCodesForPPM {
@@ -313,7 +313,7 @@ func (suite *ServiceParamValueLookupsSuite) TestWeightBilledLookupDivertedShipme
 
 		// After looking up the child shipment billable weight we should get the parent's weight because it's lower and in the diversion chain
 		suite.FatalNoError(err)
-		suite.Equal("1200", valueStr)
+		suite.Equal("880", valueStr)
 	})
 
 	suite.Run("multiple diverted shipments with different weights with a prime with lowest", func() {

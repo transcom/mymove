@@ -11,7 +11,7 @@ import { permissionTypes } from 'constants/permissions';
 describe('BillableWeightCard', () => {
   const defaultProps = {
     maxBillableWeight: 13750,
-    totalBillableWeight: 12460,
+    totalBillableWeight: 12260,
     weightRequested: 12260,
     weightAllowance: 8000,
     onReviewWeights: jest.fn(),
@@ -26,7 +26,7 @@ describe('BillableWeightCard', () => {
     );
   };
 
-  it('renders maximum billable weight, total billable weight, weight requested and weight allowance', () => {
+  it('renders maximum billable weight, actual billable weight, actual weight and weight allowance', () => {
     const shipments = [
       {
         id: '0001',
@@ -58,9 +58,9 @@ describe('BillableWeightCard', () => {
 
     // labels
     expect(screen.getByText('Maximum billable weight')).toBeInTheDocument();
-    expect(screen.getByText('Weight requested')).toBeInTheDocument();
+    expect(screen.getByText('Actual weight')).toBeInTheDocument();
     expect(screen.getByText('Weight allowance')).toBeInTheDocument();
-    expect(screen.getByText('Total billable weight')).toBeInTheDocument();
+    expect(screen.getByText('Actual billable weight')).toBeInTheDocument();
 
     // weights
     expect(screen.getByText(formatWeight(defaultProps.maxBillableWeight))).toBeInTheDocument();
@@ -301,5 +301,58 @@ describe('BillableWeightCard', () => {
 
     const reviewWeights = screen.queryByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toBeInTheDocument();
+  });
+
+  it('shows diversion tag when a diverted shipment exists', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+        diversion: true,
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const diversionTag = screen.queryByTestId('tag', { name: 'DIVERSION' });
+    expect(diversionTag).toBeInTheDocument();
+  });
+
+  it('does not show diversion tag when no diverted shipment exists', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+        diversion: false,
+        status: 'DIVERSION_REQUESTED',
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const diversionTag = screen.queryByTestId('tag', { name: 'DIVERSION' });
+    expect(diversionTag).not.toBeInTheDocument();
   });
 });

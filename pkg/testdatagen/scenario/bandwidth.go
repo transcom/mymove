@@ -281,13 +281,13 @@ func createOfficeUser(appCtx appcontext.AppContext) {
 	tooRole := roles.Role{}
 	err := appCtx.DB().Where("role_type = $1", roles.RoleTypeTOO).First(&tooRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTOO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTOO in the DB: %w", err))
 	}
 
 	tioRole := roles.Role{}
 	err = appCtx.DB().Where("role_type = $1", roles.RoleTypeTIO).First(&tioRole)
 	if err != nil {
-		log.Panic(fmt.Errorf("Failed to find RoleTypeTIO in the DB: %w", err))
+		log.Panic(fmt.Errorf("failed to find RoleTypeTIO in the DB: %w", err))
 	}
 
 	tooTioUUID := uuid.Must(uuid.FromString("9bda91d2-7a0c-4de1-ae02-b8cf8b4b858b"))

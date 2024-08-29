@@ -67,12 +67,72 @@ type ServiceMember struct {
 	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
 }
 
+// This model should be used whenever the customer name search is used. Had to create new struct so that Pop is aware of the "total_sim" field used in search queries.
+// Since this isn't an actual column, but one created by a subquery, couldn't add it to original ServiceMember struct without errors.
+type ServiceMemberSearchResult struct {
+	ID                     uuid.UUID                 `json:"id" db:"id"`
+	CreatedAt              time.Time                 `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time                 `json:"updated_at" db:"updated_at"`
+	UserID                 uuid.UUID                 `json:"user_id" db:"user_id"`
+	User                   User                      `belongs_to:"user" fk_id:"user_id"`
+	Edipi                  *string                   `json:"edipi" db:"edipi"`
+	Emplid                 *string                   `json:"emplid" db:"emplid"`
+	Affiliation            *ServiceMemberAffiliation `json:"affiliation" db:"affiliation"`
+	FirstName              *string                   `json:"first_name" db:"first_name"`
+	MiddleName             *string                   `json:"middle_name" db:"middle_name"`
+	LastName               *string                   `json:"last_name" db:"last_name"`
+	Suffix                 *string                   `json:"suffix" db:"suffix"`
+	Telephone              *string                   `json:"telephone" db:"telephone"`
+	SecondaryTelephone     *string                   `json:"secondary_telephone" db:"secondary_telephone"`
+	PersonalEmail          *string                   `json:"personal_email" db:"personal_email"`
+	PhoneIsPreferred       *bool                     `json:"phone_is_preferred" db:"phone_is_preferred"`
+	EmailIsPreferred       *bool                     `json:"email_is_preferred" db:"email_is_preferred"`
+	ResidentialAddressID   *uuid.UUID                `json:"residential_address_id" db:"residential_address_id"`
+	ResidentialAddress     *Address                  `belongs_to:"address" fk_id:"residential_address_id"`
+	BackupMailingAddressID *uuid.UUID                `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
+	BackupMailingAddress   *Address                  `belongs_to:"address" fk_id:"backup_mailing_address_id"`
+	Orders                 Orders                    `has_many:"orders" fk_id:"service_member_id" order_by:"created_at desc" `
+	BackupContacts         BackupContacts            `has_many:"backup_contacts" fk_id:"service_member_id"`
+	CacValidated           bool                      `json:"cac_validated" db:"cac_validated"`
+	TotalSim               *float32                  `db:"total_sim"`
+}
+
 // TableName overrides the table name used by Pop.
 func (s ServiceMember) TableName() string {
 	return "service_members"
 }
 
+// Convenience function to convert to search result type, used in go tests
+func (s ServiceMember) ToSearchResult() ServiceMemberSearchResult {
+	return ServiceMemberSearchResult{
+		ID:                     s.ID,
+		CreatedAt:              s.CreatedAt,
+		UpdatedAt:              s.UpdatedAt,
+		UserID:                 s.UserID,
+		User:                   s.User,
+		Edipi:                  s.Edipi,
+		Emplid:                 s.Emplid,
+		Affiliation:            s.Affiliation,
+		FirstName:              s.FirstName,
+		LastName:               s.LastName,
+		Suffix:                 s.Suffix,
+		Telephone:              s.Telephone,
+		SecondaryTelephone:     s.SecondaryTelephone,
+		PersonalEmail:          s.PersonalEmail,
+		EmailIsPreferred:       s.EmailIsPreferred,
+		ResidentialAddressID:   s.ResidentialAddressID,
+		ResidentialAddress:     s.ResidentialAddress,
+		BackupMailingAddressID: s.BackupMailingAddressID,
+		BackupMailingAddress:   s.BackupMailingAddress,
+		Orders:                 s.Orders,
+		BackupContacts:         s.BackupContacts,
+		CacValidated:           s.CacValidated,
+		TotalSim:               nil,
+	}
+}
+
 type ServiceMembers []ServiceMember
+type ServiceMemberSearchResults []ServiceMemberSearchResult
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *ServiceMember) Validate(_ *pop.Connection) (*validate.Errors, error) {
@@ -227,7 +287,8 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 	grade *internalmessages.OrderPayGrade,
 	entitlement *Entitlement,
 	originDutyLocationGBLOC *string,
-	packingAndShippingInstructions string) (Order, *validate.Errors, error) {
+	packingAndShippingInstructions string,
+	newDutyLocationGBLOC *string) (Order, *validate.Errors, error) {
 
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
@@ -256,6 +317,7 @@ func (s ServiceMember) CreateOrder(appCtx appcontext.AppContext,
 			SpouseHasProGear:               spouseHasProGear,
 			NewDutyLocationID:              newDutyLocation.ID,
 			NewDutyLocation:                newDutyLocation,
+			DestinationGBLOC:               newDutyLocationGBLOC,
 			UploadedOrders:                 uploadedOrders,
 			UploadedOrdersID:               uploadedOrders.ID,
 			Status:                         OrderStatusDRAFT,
@@ -299,7 +361,23 @@ func UpdateServiceMemberDoDID(db *pop.Connection, serviceMember *ServiceMember, 
 	if verrs.HasAny() {
 		return verrs
 	} else if err != nil {
-		err = errors.Wrap(err, "Unable to update service member")
+		err = errors.Wrap(err, "Unable to update service member edipi")
+		return err
+	}
+
+	return nil
+}
+
+// UpdateServiceMemberEMPLID is called if Safety Move order is created to clear out the EMPLID
+func UpdateServiceMemberEMPLID(db *pop.Connection, serviceMember *ServiceMember, emplid *string) error {
+
+	serviceMember.Emplid = emplid
+
+	verrs, err := db.ValidateAndUpdate(serviceMember)
+	if verrs.HasAny() {
+		return verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to update service member emplid")
 		return err
 	}
 
@@ -406,7 +484,19 @@ func (s *ServiceMember) ReverseNameLineFormat() string {
 		names = append(names, *s.FirstName)
 	}
 	if s.MiddleName != nil && len(*s.MiddleName) > 0 {
-		names = append(names, *s.MiddleName)
+		middleInitialLength := 1
+		truncatedMiddleNameToMiddleInitial := truncateStr(*s.MiddleName, middleInitialLength)
+		names = append(names, truncatedMiddleNameToMiddleInitial)
 	}
 	return strings.Join(names, ", ")
+}
+
+func truncateStr(str string, cutoff int) string {
+	if len(str) >= cutoff {
+		if cutoff-3 > 0 {
+			return str[:cutoff-3] + "..."
+		}
+		return str[:cutoff]
+	}
+	return str
 }

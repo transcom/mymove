@@ -67,6 +67,7 @@ func Customer(customer *models.ServiceMember) *primev3messages.Customer {
 		FirstName:      swag.StringValue(customer.FirstName),
 		LastName:       swag.StringValue(customer.LastName),
 		DodID:          swag.StringValue(customer.Edipi),
+		Emplid:         swag.StringValue(customer.Emplid),
 		ID:             strfmt.UUID(customer.ID.String()),
 		UserID:         strfmt.UUID(customer.UserID.String()),
 		CurrentAddress: Address(customer.ResidentialAddress),
@@ -104,6 +105,7 @@ func Order(order *models.Order) *primev3messages.Order {
 		CustomerID:                     strfmt.UUID(order.ServiceMemberID.String()),
 		Customer:                       Customer(&order.ServiceMember),
 		DestinationDutyLocation:        destinationDutyLocation,
+		DestinationDutyLocationGBLOC:   swag.StringValue(order.DestinationGBLOC),
 		Entitlement:                    Entitlement(order.Entitlement),
 		ID:                             strfmt.UUID(order.ID.String()),
 		OriginDutyLocation:             originDutyLocation,
@@ -122,6 +124,7 @@ func Order(order *models.Order) *primev3messages.Order {
 
 	if strings.ToLower(payload.Customer.Branch) == "marines" {
 		payload.OriginDutyLocationGBLOC = "USMC"
+		payload.DestinationDutyLocationGBLOC = "USMC"
 	}
 
 	return &payload
@@ -475,6 +478,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		ShipmentType:                     primev3messages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		ActualProGearWeight:              handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
 		DiversionReason:                  mtoShipment.DiversionReason,
@@ -611,7 +616,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
-			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
@@ -812,40 +816,6 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
 		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
 		Status:            primev3messages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
-	}
-
-	return payload
-}
-
-// SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) primev3messages.SitAddressUpdates {
-	payload := make(primev3messages.SitAddressUpdates, len(u))
-	for i, item := range u {
-		copyOfItem := item
-		payload[i] = SITAddressUpdate(&copyOfItem)
-	}
-	return payload
-}
-
-// SITAddressUpdate payload
-func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primev3messages.SitAddressUpdate {
-	if sitAddressUpdate == nil {
-		return nil
-	}
-
-	payload := &primev3messages.SitAddressUpdate{
-		ID:                strfmt.UUID(sitAddressUpdate.ID.String()),
-		ETag:              etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
-		MtoServiceItemID:  strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
-		NewAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
-		NewAddress:        Address(&sitAddressUpdate.NewAddress),
-		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
-		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
-		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
-		OldAddress:        Address(&sitAddressUpdate.OldAddress),
-		Status:            primev3messages.SitAddressUpdateStatus(sitAddressUpdate.Status),
-		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
 	}
 
 	return payload

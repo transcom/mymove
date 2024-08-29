@@ -41,6 +41,8 @@ const LogoutOnInactivity = ({ idleTimeout, warningTime }) => {
 
   const onIdle = () => {
     if (isLoggedIn) {
+      // explicit clear session storage
+      window.sessionStorage.clear();
       LogoutUser().then((r) => {
         const redirectURL = r.body;
         // checking to see if "Local Sign In" button was used to sign in
