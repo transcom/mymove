@@ -211,14 +211,14 @@ const initialValues = {
 describe('EditOrdersForm component', () => {
   describe('renders each input and checks if the field is required', () => {
     it.each([
-      ['Orders type', true, HTMLSelectElement],
-      ['Orders date', true, HTMLInputElement],
-      ['Report by date', true, HTMLInputElement],
+      [/Orders type/, true, HTMLSelectElement],
+      [/Orders date/, true, HTMLInputElement],
+      [/Report by date/, true, HTMLInputElement],
       ['Yes', false, HTMLInputElement],
       ['No', false, HTMLInputElement],
-      ['New duty location', false, HTMLInputElement],
-      ['Pay grade', true, HTMLSelectElement],
-      ['Current duty location', false, HTMLInputElement],
+      [/New duty location/, false, HTMLInputElement],
+      [/Pay grade/, true, HTMLSelectElement],
+      [/Current duty location/, false, HTMLInputElement],
     ])('rendering %s and is required is %s', async (formInput, required, inputType) => {
       render(<EditOrdersForm {...testProps} />);
 
@@ -244,7 +244,7 @@ describe('EditOrdersForm component', () => {
     ])('rendering the %s option', async (selectionOption, expectedValue) => {
       render(<EditOrdersForm {...testProps} />);
 
-      const ordersTypeDropdown = await screen.findByLabelText('Orders type');
+      const ordersTypeDropdown = await screen.findByLabelText(/Orders type/);
       expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
       await userEvent.selectOptions(ordersTypeDropdown, selectionOption);
@@ -280,19 +280,19 @@ describe('EditOrdersForm component', () => {
       expect(submitButton).not.toBeDisabled();
     });
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 
@@ -314,7 +314,7 @@ describe('EditOrdersForm component', () => {
       expect(submitButton).toBeEnabled();
     });
 
-    const ordersTypeDropdown = screen.getByLabelText('Orders type');
+    const ordersTypeDropdown = screen.getByLabelText(/Orders type/);
     await userEvent.selectOptions(ordersTypeDropdown, '');
     await userEvent.tab();
 
@@ -322,7 +322,7 @@ describe('EditOrdersForm component', () => {
       expect(submitButton).toBeDisabled();
     });
 
-    const required = screen.getByText('Required');
+    const required = screen.getByTestId('errorMessage');
     expect(required).toBeInTheDocument();
   });
 
@@ -346,19 +346,19 @@ describe('EditOrdersForm component', () => {
       />,
     );
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 
@@ -474,13 +474,13 @@ describe('EditOrdersForm component', () => {
         origin_duty_location: 'Altus AFB',
       });
 
-      expect(screen.getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
-      expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-      expect(screen.getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
+      expect(screen.getByLabelText(/Orders type/)).toHaveValue(testInitialValues.orders_type);
+      expect(screen.getByLabelText(/Orders date/)).toHaveValue('08 Nov 2020');
+      expect(screen.getByLabelText(/Report by date/)).toHaveValue('26 Nov 2020');
       expect(screen.getByLabelText('Yes')).not.toBeChecked();
       expect(screen.getByLabelText('No')).toBeChecked();
       expect(screen.getByText('Yuma AFB')).toBeInTheDocument();
-      expect(screen.getByLabelText('Pay grade')).toHaveValue(testInitialValues.grade);
+      expect(screen.getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
       expect(screen.getByText('Altus AFB')).toBeInTheDocument();
     });
 
@@ -496,11 +496,11 @@ describe('EditOrdersForm component', () => {
   describe('disables the save button', () => {
     it.each([
       ['Orders Type', 'orders_type', ''],
-      ['Orders Date', 'issue_date', ''],
-      ['Report By Date', 'report_by_date', ''],
+      [/Orders date/, 'issue_date', ''],
+      [/Report by date/, 'report_by_date', ''],
       ['Duty Location', 'new_duty_location', null],
       ['Uploaded Orders', 'uploaded_orders', []],
-      ['Pay grade', 'grade', ''],
+      [/Pay grade/, 'grade', ''],
     ])('when there is no %s', async (attributeNamePrettyPrint, attributeName, valueToReplaceIt) => {
       const modifiedProps = {
         onSubmit: jest.fn().mockImplementation(() => Promise.resolve()),

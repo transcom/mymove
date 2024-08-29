@@ -390,7 +390,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);
@@ -756,7 +756,7 @@ describe('ShipmentForm component', () => {
 
       expect(screen.getByText('Pickup location')).toBeInstanceOf(HTMLLegendElement);
       expect(screen.getByLabelText('Use current address')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('State')).toBeInstanceOf(HTMLSelectElement);

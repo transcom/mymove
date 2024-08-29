@@ -152,24 +152,24 @@ describe('OrdersInfoForm component', () => {
     const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Orders type')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Orders type')).toBeRequired();
-      expect(getByLabelText('Orders date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Orders date')).toBeRequired();
-      expect(getByLabelText('Report by date')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Report by date')).toBeRequired();
+      expect(getByLabelText(/Orders type/)).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText(/Orders type/)).toBeRequired();
+      expect(getByLabelText(/Orders date/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Orders date/)).toBeRequired();
+      expect(getByLabelText(/Report by date/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Report by date/)).toBeRequired();
       expect(getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('New duty location')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Pay grade')).toBeInstanceOf(HTMLSelectElement);
-      expect(getByLabelText('Current duty location')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/New duty location/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Pay grade/)).toBeInstanceOf(HTMLSelectElement);
+      expect(getByLabelText(/Current duty location/)).toBeInstanceOf(HTMLInputElement);
     });
   });
 
   it('renders each option for orders type', async () => {
     const { getByLabelText } = render(<OrdersInfoForm {...testProps} />);
 
-    const ordersTypeDropdown = getByLabelText('Orders type');
+    const ordersTypeDropdown = getByLabelText(/Orders type/);
     expect(ordersTypeDropdown).toBeInstanceOf(HTMLSelectElement);
 
     await userEvent.selectOptions(ordersTypeDropdown, 'PERMANENT_CHANGE_OF_STATION');
@@ -188,19 +188,19 @@ describe('OrdersInfoForm component', () => {
   it('allows new and current duty location to be the same', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 
@@ -215,19 +215,19 @@ describe('OrdersInfoForm component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, getAllByText } = render(<OrdersInfoForm {...testProps} />);
+    const { getByRole, getAllByTestId } = render(<OrdersInfoForm {...testProps} />);
 
     // Touch required fields to show validation errors
-    await userEvent.click(screen.getByLabelText('Orders type'));
-    await userEvent.click(screen.getByLabelText('Orders date'));
-    await userEvent.click(screen.getByLabelText('Report by date'));
-    await userEvent.click(screen.getByLabelText('Pay grade'));
+    await userEvent.click(screen.getByLabelText(/Orders type/));
+    await userEvent.click(screen.getByLabelText(/Orders date/));
+    await userEvent.click(screen.getByLabelText(/Report by date/));
+    await userEvent.click(screen.getByLabelText(/Pay grade/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(5);
+      expect(getAllByTestId('errorMessage').length).toBe(4);
     });
     expect(testProps.onSubmit).not.toHaveBeenCalled();
   });
@@ -235,19 +235,19 @@ describe('OrdersInfoForm component', () => {
   it('submits the form when its valid', async () => {
     render(<OrdersInfoForm {...testProps} />);
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 
@@ -370,13 +370,13 @@ describe('OrdersInfoForm component', () => {
           origin_duty_location: 'Altus AFB',
         });
 
-        expect(getByLabelText('Orders type')).toHaveValue(testInitialValues.orders_type);
-        expect(getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-        expect(getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
+        expect(getByLabelText(/Orders type/)).toHaveValue(testInitialValues.orders_type);
+        expect(getByLabelText(/Orders date/)).toHaveValue('08 Nov 2020');
+        expect(getByLabelText(/Report by date/)).toHaveValue('26 Nov 2020');
         expect(getByLabelText('Yes')).not.toBeChecked();
         expect(getByLabelText('No')).toBeChecked();
         expect(queryByText('Yuma AFB')).toBeInTheDocument();
-        expect(getByLabelText('Pay grade')).toHaveValue(testInitialValues.grade);
+        expect(getByLabelText(/Pay grade/)).toHaveValue(testInitialValues.grade);
         expect(queryByText('Altus AFB')).toBeInTheDocument();
       });
     });
