@@ -243,14 +243,13 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
-	formattedSIT := FormatAllSITS(data.PPMShipments)
+
+	formattedSIT := WorkSheetSIT{}
 	formattedShipment := FormatCurrentShipment(data.PPMShipment)
-	page1.SITDaysInStorage = formattedSIT.DaysInStorage
-	page1.SITEntryDates = formattedSIT.EntryDates
-	page1.SITEndDates = formattedSIT.EndDates
-	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
 	// Shipment weights for Payment Packet are actual, for AOA Packet are estimated.
 	if isPaymentPacket {
+		formattedSIT = FormatAllSITSForPaymentPacket(data.MovingExpenses)
+
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
 		page1.ShipmentWeights = finalPPMWeight
 		page1.ActualObligationGCC100 = finalPPMWeight + "; " + formattedShipment.FinalIncentive
@@ -259,11 +258,19 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 			return page1, err
 		}
 	} else {
+		formattedSIT = FormatAllSITSForAOAPacket(data.PPMShipment)
+
 		page1.ShipmentWeights = formattedShipments.ShipmentWeights
 		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " - Estimated lbs; " + formattedShipment.FinalIncentive
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.EstimatedIncentive
+
+	page1.SITDaysInStorage = formattedSIT.DaysInStorage
+	page1.SITEntryDates = formattedSIT.EntryDates
+	page1.SITEndDates = formattedSIT.EndDates
+	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
+
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
@@ -543,28 +550,27 @@ func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
 	return formattedShipments
 }
 
-// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
-func FormatAllSITS(ppms models.PPMShipments) WorkSheetSIT {
-	totalSITS := len(ppms)
+func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
-	formattedSITNumberAndTypes := make([]string, totalSITS)
-	formattedSITEntryDates := make([]string, totalSITS)
-	formattedSITEndDates := make([]string, totalSITS)
-	formattedSITDaysInStorage := make([]string, totalSITS)
-	var sitNumber int
 
-	for _, ppm := range ppms {
-		// formattedSITNumberAndTypes[sitNumber] = FormatPPMNumberAndType(sitNumber)
-		formattedSITEntryDates[sitNumber] = FormatSITEntryDate(ppm)
-		formattedSITEndDates[sitNumber] = FormatSITEndDate(ppm)
-		formattedSITDaysInStorage[sitNumber] = FormatSITDaysInStorage(ppm)
-
-		sitNumber++
+	for _, expense := range expenseDocuments {
+		formattedSIT.EntryDates = FormatSITDate(expense.SITStartDate)
+		formattedSIT.EndDates = FormatSITDate(expense.SubmittedSITEndDate)
+		formattedSIT.DaysInStorage = FormatSITDaysInStorage(expense.SITStartDate, expense.SubmittedSITEndDate)
 	}
-	formattedSIT.NumberAndTypes = strings.Join(formattedSITNumberAndTypes, newline)
-	formattedSIT.EntryDates = strings.Join(formattedSITEntryDates, newline)
-	formattedSIT.EndDates = strings.Join(formattedSITEndDates, newline)
-	formattedSIT.DaysInStorage = strings.Join(formattedSITDaysInStorage, newline)
+
+	return formattedSIT
+}
+
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
+func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
+	formattedSIT := WorkSheetSIT{}
+
+	if ppm.SITEstimatedEntryDate != nil && ppm.SITEstimatedDepartureDate != nil {
+		formattedSIT.EntryDates = FormatSITDate(ppm.SITEstimatedEntryDate)
+		formattedSIT.EndDates = FormatSITDate(ppm.SITEstimatedDepartureDate)
+		formattedSIT.DaysInStorage = FormatSITDaysInStorage(ppm.SITEstimatedEntryDate, ppm.SITEstimatedDepartureDate)
+	}
 
 	return formattedSIT
 }
@@ -584,6 +590,10 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		if expense.MovingExpenseType == nil || expense.Amount == nil {
 			continue
 		} // Added quick nil check to ensure SSW returns while moving expenses are being added still
+		var nilPPMDocumentStatus *models.PPMDocumentStatus
+		if expense.Status != nilPPMDocumentStatus && (*expense.Status == models.PPMDocumentStatusRejected || *expense.Status == models.PPMDocumentStatusExcluded) {
+			continue
+		}
 		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 
@@ -658,29 +668,21 @@ func FormatPPMPickupDate(ppm models.PPMShipment) string {
 	return FormatDate(*ppm.ActualMoveDate)
 }
 
-// FormatSITEntryDate formats a SIT EstimatedEntryDate for the Shipment Summary Worksheet
-func FormatSITEntryDate(ppm models.PPMShipment) string {
-	if ppm.SITEstimatedEntryDate == nil {
-		return "No Entry Data" // Return string if no SIT attached
+// FormatSITEntryDate formats a SIT Date for the Shipment Summary Worksheet
+func FormatSITDate(sitDate *time.Time) string {
+	if sitDate == nil {
+		return "No SIT date" // Return string if no date found
 	}
-	return FormatDate(*ppm.SITEstimatedEntryDate)
-}
-
-// FormatSITEndDate formats a SIT EstimatedPickupDate for the Shipment Summary Worksheet
-func FormatSITEndDate(ppm models.PPMShipment) string {
-	if ppm.SITEstimatedDepartureDate == nil {
-		return "No Departure Data" // Return string if no SIT attached
-	}
-	return FormatDate(*ppm.SITEstimatedDepartureDate)
+	return FormatDate(*sitDate)
 }
 
 // FormatSITDaysInStorage formats a SIT DaysInStorage for the Shipment Summary Worksheet
-func FormatSITDaysInStorage(ppm models.PPMShipment) string {
-	if ppm.SITEstimatedEntryDate == nil || ppm.SITEstimatedDepartureDate == nil {
+func FormatSITDaysInStorage(entryDate *time.Time, departureDate *time.Time) string {
+	if entryDate == nil || departureDate == nil {
 		return "No Entry/Departure Data" // Return string if no SIT attached
 	}
-	firstDate := ppm.SITEstimatedDepartureDate
-	secondDate := *ppm.SITEstimatedEntryDate
+	firstDate := *departureDate
+	secondDate := *entryDate
 	difference := firstDate.Sub(secondDate)
 	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24)+1)
 	return formattedDifference

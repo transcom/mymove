@@ -186,6 +186,13 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				return orderop.NewCreateOrderUnprocessableEntity(), err
 			}
 
+			officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), appCtx.Session().OfficeUserID)
+			if err != nil {
+				err = apperror.NewBadDataError("Unable to fetch office user.")
+				appCtx.Logger().Error(err.Error())
+				return orderop.NewCreateOrderUnprocessableEntity(), err
+			}
+
 			if payload.Sac != nil && len(*payload.Sac) > SAC_LIMIT {
 				err = apperror.NewBadDataError("SAC cannot be more than 80 characters.")
 				appCtx.Logger().Error(err.Error())
@@ -310,8 +317,9 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			moveOptions := models.MoveOptions{
-				Show:   models.BoolPointer(true),
-				Status: &status,
+				Show:               models.BoolPointer(true),
+				Status:             &status,
+				CounselingOfficeID: &officeUser.TransportationOfficeID,
 			}
 			if !appCtx.Session().OfficeUserID.IsNil() {
 				officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), appCtx.Session().OfficeUserID)
