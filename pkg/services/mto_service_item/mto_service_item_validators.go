@@ -126,7 +126,6 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Checks that the SITDepartureDate
 	// - is not later than the authorized end date
-	// - is not before the current entry date
 	err = serviceItemData.checkSITDepartureDate(appCtx)
 	if err != nil {
 		return err
