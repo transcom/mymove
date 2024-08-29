@@ -75,10 +75,11 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 		CustomerRemarks: mtoShipment.CustomerRemarks,
 		ShipmentType:    models.MTOShipmentType(*mtoShipment.ShipmentType),
 	}
-
-	// A PPM type shipment begins in DRAFT because it requires a multi-page series to complete.
-	// After move submission a PPM's status will change to SUBMITTED
-	if model.ShipmentType == models.MTOShipmentTypePPM {
+	isBoatShipment := model.ShipmentType == models.MTOShipmentTypeBoatHaulAway || model.ShipmentType == models.MTOShipmentTypeBoatTowAway
+	isMobileHomeShipment := model.ShipmentType == models.MTOShipmentTypeMobileHome
+	// PPM and Boat type shipment begins in DRAFT because it requires a multi-page series to complete.
+	// After move submission a the status will change to SUBMITTED
+	if model.ShipmentType == models.MTOShipmentTypePPM || isBoatShipment || isMobileHomeShipment {
 		model.Status = models.MTOShipmentStatusDraft
 	} else {
 		model.Status = models.MTOShipmentStatusSubmitted
@@ -117,6 +118,12 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
 		model.PPMShipment.Shipment = *model
+	} else if mtoShipment.BoatShipment != nil {
+		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
+	} else if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome = MobileHomeShipmentModelFromCreate(mtoShipment.MobileHomeShipment)
+		model.MobileHome.Shipment = *model
 	}
 
 	return model
@@ -225,6 +232,174 @@ func UpdatePPMShipmentModel(ppmShipment *internalmessages.UpdatePPMShipment) *mo
 	return ppmModel
 }
 
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(boatShipment *internalmessages.CreateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	model := &models.BoatShipment{
+		Type:           models.BoatShipmentType(*boatShipment.Type),
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if model.HasTrailer == models.BoolPointer(false) {
+		model.IsRoadworthy = nil
+	}
+
+	return model
+}
+
+func UpdateBoatShipmentModel(boatShipment *internalmessages.UpdateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	boatModel := &models.BoatShipment{
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if boatShipment.Type != nil {
+		boatModel.Type = models.BoatShipmentType(*boatShipment.Type)
+	}
+
+	if boatShipment.HasTrailer == models.BoolPointer(false) {
+		boatModel.IsRoadworthy = nil
+	}
+
+	return boatModel
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mobileHomeShipment *internalmessages.CreateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	model := &models.MobileHome{
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return model
+}
+
+func UpdateMobileHomeShipmentModel(mobileHomeShipment *internalmessages.UpdateMobileHomeShipment) *models.MobileHome {
+	if mobileHomeShipment == nil {
+		return nil
+	}
+	var year *int
+	if mobileHomeShipment.Year != nil {
+		val := int(*mobileHomeShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if mobileHomeShipment.LengthInInches != nil {
+		val := int(*mobileHomeShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var heightInInches *int
+	if mobileHomeShipment.HeightInInches != nil {
+		val := int(*mobileHomeShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	var widthInInches *int
+	if mobileHomeShipment.WidthInInches != nil {
+		val := int(*mobileHomeShipment.WidthInInches)
+		widthInInches = &val
+	}
+
+	mobileHomeModel := &models.MobileHome{
+		Make:           mobileHomeShipment.Make,
+		Model:          mobileHomeShipment.Model,
+		Year:           year,
+		LengthInInches: lengthInInches,
+		HeightInInches: heightInInches,
+		WidthInInches:  widthInInches,
+	}
+
+	return mobileHomeModel
+}
+
 // MTOShipmentModelFromUpdate model
 func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -285,6 +460,18 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model.PPMShipment = UpdatePPMShipmentModel(mtoShipment.PpmShipment)
+
+	// making sure both shipmentType and boatShipment.Type match
+	if mtoShipment.BoatShipment != nil && mtoShipment.BoatShipment.Type != nil {
+		if *mtoShipment.BoatShipment.Type == string(models.BoatShipmentTypeHaulAway) {
+			model.ShipmentType = models.MTOShipmentTypeBoatHaulAway
+		} else {
+			model.ShipmentType = models.MTOShipmentTypeBoatTowAway
+		}
+	}
+	model.BoatShipment = UpdateBoatShipmentModel(mtoShipment.BoatShipment)
+
+	model.MobileHome = UpdateMobileHomeShipmentModel(mtoShipment.MobileHomeShipment)
 
 	return model
 }

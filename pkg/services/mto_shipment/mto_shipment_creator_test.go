@@ -98,8 +98,8 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{&time.Time{}, models.MTOShipmentTypeHHG, true},
 			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHG, false},
 			{nil, models.MTOShipmentTypeHHGOutOfNTSDom, false},
-			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, true},
-			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, true},
+			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, false},
+			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, false},
 			{nil, models.MTOShipmentTypePPM, false},
 			{models.TimePointer(time.Now()), models.MTOShipmentTypePPM, false},
 		}
@@ -658,7 +658,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
-			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
@@ -701,7 +701,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
-			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
@@ -763,7 +763,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
-			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
@@ -845,7 +845,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
-			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
@@ -888,7 +888,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
-			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
@@ -931,7 +931,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
-			{"MOTORHOME", models.MTOShipmentTypeMotorhome},
+			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
@@ -966,6 +966,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
+					ApprovedAt:         &currentTime,
 				},
 			},
 			{
@@ -1004,6 +1005,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &currentTime,
+					ApprovedAt:         &currentTime,
 				},
 			},
 			{

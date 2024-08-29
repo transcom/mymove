@@ -107,7 +107,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		"PaymentRequests.ProofOfServiceDocs.PrimeUploads.Upload",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
-		"MTOServiceItems.SITAddressUpdates",
 		"MTOServiceItems.SITDestinationFinalAddress",
 		"MTOServiceItems.SITOriginHHGOriginalAddress",
 		"MTOServiceItems.SITOriginHHGActualAddress",
@@ -216,11 +215,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 	// this is due to a difference between what Pop expects the column names to
 	// be when creating the rows on the Many-to-Many table and with what it
 	// expects when fetching with EagerPreload
-	//
-	// Also due to how EagerPreload works, SITAddressUpdates.NewAddress &
-	// SITAddressUpdates.OldAddress appear to be duplicated because there are
-	// multiple relationships on the same table for SITAddressUpdates. We fix
-	// that by fetching the NewAddress and OldAddress data separately.
 	var loadedServiceItems models.MTOServiceItems
 	if mto.MTOServiceItems != nil {
 		loadedServiceItems = models.MTOServiceItems{}
@@ -230,9 +224,9 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			serviceItem.ReService.Code == models.ReServiceCodeDDDSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDFSIT ||
 			serviceItem.ReService.Code == models.ReServiceCodeDDSFSC {
-			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts", "SITAddressUpdates.NewAddress", "SITAddressUpdates.OldAddress")
+			loadErr := appCtx.DB().Load(&mto.MTOServiceItems[i], "CustomerContacts")
 			if loadErr != nil {
-				return &models.Move{}, apperror.NewQueryError("CustomerContacts or SITAddressUpdates.NewAddress or SITAddressUpdates.OldAddress", loadErr, "")
+				return &models.Move{}, apperror.NewQueryError("CustomerContacts", loadErr, "")
 			}
 		}
 
@@ -393,10 +387,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 	if searchParams.ID != nil {
 		query.Where("moves.id = ?", *searchParams.ID)
 	}
-	// if there is an error returned we will just return no moves
-	if err != nil {
-		return []models.Move{}, 0, err
-	}
 	// adding pagination and all moves returned with built query
 	// if there are no moves then it will return.. no moves
 	err = query.EagerPreload("Orders.OrdersType").Paginate(int(*searchParams.Page), int(*searchParams.PerPage)).All(&moveTaskOrders)
@@ -404,15 +394,6 @@ func (f moveTaskOrderFetcher) ListNewPrimeMoveTaskOrders(appCtx appcontext.AppCo
 		return []models.Move{}, 0, err
 	}
 	count = query.Paginator.TotalEntriesSize
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
-
-	// catch all error here
-	if err != nil {
-		return models.Moves{}, 0, apperror.NewQueryError("MoveTaskOrder", err, "Unexpected error while querying db.")
-	}
 
 	return moveTaskOrders, count, nil
 }

@@ -14,7 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/primeclient/mto_service_item"
 	"github.com/transcom/mymove/pkg/gen/primeclient/mto_shipment"
 	"github.com/transcom/mymove/pkg/gen/primeclient/payment_request"
-	"github.com/transcom/mymove/pkg/gen/primeclient/sit_address_update"
 )
 
 // Default mymove HTTP client.
@@ -63,7 +62,6 @@ func New(transport runtime.ClientTransport, formats strfmt.Registry) *Mymove {
 	cli.MtoServiceItem = mto_service_item.New(transport, formats)
 	cli.MtoShipment = mto_shipment.New(transport, formats)
 	cli.PaymentRequest = payment_request.New(transport, formats)
-	cli.SitAddressUpdate = sit_address_update.New(transport, formats)
 	return cli
 }
 
@@ -116,8 +114,6 @@ type Mymove struct {
 
 	PaymentRequest payment_request.ClientService
 
-	SitAddressUpdate sit_address_update.ClientService
-
 	Transport runtime.ClientTransport
 }
 
@@ -128,5 +124,4 @@ func (c *Mymove) SetTransport(transport runtime.ClientTransport) {
 	c.MtoServiceItem.SetTransport(transport)
 	c.MtoShipment.SetTransport(transport)
 	c.PaymentRequest.SetTransport(transport)
-	c.SitAddressUpdate.SetTransport(transport)
 }

@@ -28,6 +28,7 @@ html {
     &--hhg,
     &--ppm,
     &--ub,
+    &--boat,
     &--nts,
     &--ntsr {
       @include u-radius(0);
@@ -51,6 +52,9 @@ html {
     }
     &--ntsr {
       @include cont-border-top($accent-ntsr);
+    }
+    &--boat {
+      @include cont-border-top($accent-boat);
     }
   }
 }

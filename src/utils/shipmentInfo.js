@@ -15,6 +15,7 @@ const determineShipmentInfo = (move, mtoShipments) => {
     isNTSSelectable: isMoveDraft,
     isNTSRSelectable: isMoveDraft,
     isPPMSelectable: ppmCount === 0,
+    isBoatSelectable: isMoveDraft,
     shipmentNumber: existingShipmentCount + 1,
   };
 };

@@ -302,4 +302,57 @@ describe('BillableWeightCard', () => {
     const reviewWeights = screen.queryByRole('button', { name: 'Review weights' });
     expect(reviewWeights).not.toBeInTheDocument();
   });
+
+  it('shows diversion tag when a diverted shipment exists', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+        diversion: true,
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const diversionTag = screen.queryByTestId('tag', { name: 'DIVERSION' });
+    expect(diversionTag).toBeInTheDocument();
+  });
+
+  it('does not show diversion tag when no diverted shipment exists', () => {
+    const shipments = [
+      {
+        id: '0001',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 6161,
+        estimatedWeight: 5600,
+        primeEstimatedWeight: 100,
+        reweigh: { id: '1234', weight: 40 },
+      },
+      {
+        id: '0002',
+        shipmentType: 'HHG',
+        calculatedBillableWeight: 3400,
+        estimatedWeight: 5000,
+        primeEstimatedWeight: 200,
+        reweigh: { id: '1234', weight: 500 },
+        diversion: false,
+        status: 'DIVERSION_REQUESTED',
+      },
+    ];
+    render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
+
+    const diversionTag = screen.queryByTestId('tag', { name: 'DIVERSION' });
+    expect(diversionTag).not.toBeInTheDocument();
+  });
 });

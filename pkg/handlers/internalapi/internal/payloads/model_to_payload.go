@@ -122,6 +122,55 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(storer storage.FileStorer, boatShipment *models.BoatShipment) *internalmessages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadBoatShipment := &internalmessages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           models.StringPointer(string(boatShipment.Type)),
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadBoatShipment
+}
+
+// MobileHomeShipment payload
+func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.MobileHome) *internalmessages.MobileHome {
+	if mobileHomeShipment == nil || mobileHomeShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadMobileHomeShipment := &internalmessages.MobileHome{
+		ID:             *handlers.FmtUUID(mobileHomeShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(mobileHomeShipment.ShipmentID),
+		Make:           *mobileHomeShipment.Make,
+		Model:          *mobileHomeShipment.Model,
+		Year:           *handlers.FmtIntPtrToInt64(mobileHomeShipment.Year),
+		LengthInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.LengthInInches),
+		HeightInInches: *handlers.FmtIntPtrToInt64(mobileHomeShipment.HeightInInches),
+		WidthInInches:  *handlers.FmtIntPtrToInt64(mobileHomeShipment.WidthInInches),
+		CreatedAt:      strfmt.DateTime(mobileHomeShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(mobileHomeShipment.UpdatedAt),
+		ETag:           etag.GenerateEtag(mobileHomeShipment.UpdatedAt),
+	}
+
+	return payloadMobileHomeShipment
+}
+
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
@@ -146,6 +195,8 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
 		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
+		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
