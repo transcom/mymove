@@ -79,23 +79,17 @@ type textField struct {
 	Locked    bool   `json:"locked"`
 }
 
-var newline = "\n\n"
-
-// WorkSheetShipments is an object representing shipment line items on Shipment Summary Worksheet
-type WorkSheetShipments struct {
+// WorkSheetShipment is an object representing specific shipment items on Shipment Summary Worksheet
+type WorkSheetShipment struct {
+	EstimatedIncentive          string
+	MaxAdvance                  string
+	FinalIncentive              string
+	AdvanceAmountReceived       string
 	ShipmentNumberAndTypes      string
 	PickUpDates                 string
 	ShipmentWeights             string
 	ShipmentWeightForObligation string
 	CurrentShipmentStatuses     string
-}
-
-// WorkSheetShipment is an object representing specific shipment items on Shipment Summary Worksheet
-type WorkSheetShipment struct {
-	EstimatedIncentive    string
-	MaxAdvance            string
-	FinalIncentive        string
-	AdvanceAmountReceived string
 }
 
 // WorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
@@ -239,13 +233,12 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipments := FormatAllShipments(data.PPMShipments)
-	page1.ShipmentNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
-	page1.ShipmentPickUpDates = formattedShipments.PickUpDates
-	page1.ShipmentCurrentShipmentStatuses = formattedShipments.CurrentShipmentStatuses
+	formattedShipment := FormatShipment(data.PPMShipment, isPaymentPacket)
+	page1.ShipmentNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
+	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
+	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
 
 	formattedSIT := WorkSheetSIT{}
-	formattedShipment := FormatCurrentShipment(data.PPMShipment)
 	// Shipment weights for Payment Packet are actual, for AOA Packet are estimated.
 	if isPaymentPacket {
 		formattedSIT = FormatAllSITSForPaymentPacket(data.MovingExpenses)
@@ -258,17 +251,15 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 			return page1, err
 		}
 	} else {
-		formattedSIT = FormatAllSITSForAOAPacket(data.PPMShipment)
-
-		page1.ShipmentWeights = formattedShipments.ShipmentWeights
-		page1.ActualObligationGCC100 = formattedShipments.ShipmentWeightForObligation + " - Estimated lbs; " + formattedShipment.FinalIncentive
+		page1.ShipmentWeights = formattedShipment.ShipmentWeights
+		page1.ActualObligationGCC100 = formattedShipment.ShipmentWeightForObligation + " - Estimated lbs; " + formattedShipment.FinalIncentive
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
 
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
-	page1.SITNumberAndTypes = formattedShipments.ShipmentNumberAndTypes
+	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 
 	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
@@ -285,7 +276,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	var err error
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
 	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID)
-	formattedShipments := FormatAllShipments(data.PPMShipments)
+	formattedShipments := FormatShipment(data.PPMShipment, isPaymentPacket)
 
 	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
@@ -496,7 +487,7 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 	return strings.TrimSpace(fmt.Sprintf("%s, %s %s", lastName, firstName, middleName))
 }
 
-func FormatCurrentShipment(ppm models.PPMShipment) WorkSheetShipment {
+func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipment {
 	formattedShipment := WorkSheetShipment{}
 
 	if ppm.FinalIncentive != nil {
@@ -516,38 +507,33 @@ func FormatCurrentShipment(ppm models.PPMShipment) WorkSheetShipment {
 	} else {
 		formattedShipment.AdvanceAmountReceived = "No advance received."
 	}
-
-	return formattedShipment
-}
-
-// FormatAllShipments formats Shipment line items for the Shipment Summary Worksheet
-func FormatAllShipments(ppms models.PPMShipments) WorkSheetShipments {
-	totalShipments := len(ppms)
-	formattedShipments := WorkSheetShipments{}
-	formattedNumberAndTypes := make([]string, totalShipments)
-	formattedPickUpDates := make([]string, totalShipments)
-	formattedShipmentWeights := make([]string, totalShipments)
-	formattedShipmentStatuses := make([]string, totalShipments)
 	formattedShipmentTotalWeights := unit.Pound(0)
-	var shipmentNumber int
-
-	for _, ppm := range ppms {
-		formattedNumberAndTypes[shipmentNumber] = FormatPPMNumberAndType(shipmentNumber)
-		formattedPickUpDates[shipmentNumber] = FormatPPMPickupDate(ppm)
-		formattedShipmentWeights[shipmentNumber] = FormatPPMWeightEstimated(ppm)
-		formattedShipmentStatuses[shipmentNumber] = FormatCurrentPPMStatus(ppm)
-		if ppm.EstimatedWeight != nil {
-			formattedShipmentTotalWeights += *ppm.EstimatedWeight
-		}
-		shipmentNumber++
+	formattedNumberAndTypes := ppm.Shipment.ShipmentLocator
+	formattedShipmentWeights := FormatPPMWeightEstimated(ppm)
+	formattedShipmentStatuses := FormatCurrentPPMStatus(ppm)
+	if ppm.EstimatedWeight != nil {
+		formattedShipmentTotalWeights += *ppm.EstimatedWeight
 	}
 
-	formattedShipments.ShipmentNumberAndTypes = strings.Join(formattedNumberAndTypes, newline)
-	formattedShipments.PickUpDates = strings.Join(formattedPickUpDates, newline)
-	formattedShipments.ShipmentWeights = strings.Join(formattedShipmentWeights, newline)
-	formattedShipments.ShipmentWeightForObligation = FormatWeights(formattedShipmentTotalWeights)
-	formattedShipments.CurrentShipmentStatuses = strings.Join(formattedShipmentStatuses, newline)
-	return formattedShipments
+	formattedPickUpDates := FormatDate(ppm.ExpectedDepartureDate)
+	if isPaymentPacket {
+		formattedPickUpDates = "N/A"
+		if ppm.ActualMoveDate != nil {
+			formattedPickUpDates = FormatDate(*ppm.ActualMoveDate)
+		}
+	}
+	// Last resort in case any dates are stored incorrectly
+	if formattedPickUpDates == "01-Jan-0001" {
+		formattedPickUpDates = "N/A"
+	}
+
+	formattedShipment.ShipmentNumberAndTypes = *formattedNumberAndTypes
+	formattedShipment.PickUpDates = formattedPickUpDates
+	formattedShipment.ShipmentWeights = formattedShipmentWeights
+	formattedShipment.ShipmentWeightForObligation = FormatWeights(formattedShipmentTotalWeights)
+	formattedShipment.CurrentShipmentStatuses = formattedShipmentStatuses
+
+	return formattedShipment
 }
 
 func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkSheetSIT {
@@ -634,11 +620,6 @@ func FormatCurrentPPMStatus(ppm models.PPMShipment) string {
 	return FormatEnum(string(ppm.Status), " ")
 }
 
-// FormatPPMNumberAndType formats FormatShipmentNumberAndType for the Shipment Summary Worksheet
-func FormatPPMNumberAndType(i int) string {
-	return fmt.Sprintf("%02d - PPM", i+1)
-}
-
 // FormatSITNumberAndType formats FormatSITNumberAndType for the Shipment Summary Worksheet
 func FormatSITNumberAndType(i int) string {
 	return fmt.Sprintf("%02d - SIT", i+1)
@@ -657,15 +638,6 @@ func FormatPPMWeightEstimated(ppm models.PPMShipment) string {
 func FormatPPMWeightFinal(weight unit.Pound) string {
 	wtg := FormatWeights(unit.Pound(weight))
 	return fmt.Sprintf("%s lbs - Actual", wtg)
-}
-
-// FormatPPMPickupDate formats a shipments ActualPickupDate for the Shipment Summary Worksheet
-func FormatPPMPickupDate(ppm models.PPMShipment) string {
-	// nil check just incase of bad ppm state. if so return not available.
-	if ppm.ActualMoveDate == nil {
-		return "N/A"
-	}
-	return FormatDate(*ppm.ActualMoveDate)
 }
 
 // FormatSITEntryDate formats a SIT Date for the Shipment Summary Worksheet
@@ -914,7 +886,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	var sswHeader = header{
 		Source:   "SSWPDFTemplate.pdf",
 		Version:  "pdfcpu v0.8.0 dev",
-		Creation: "2024-08-21 19:31:01 UTC",
+		Creation: "2024-08-27 16:39:37 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
