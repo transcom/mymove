@@ -339,14 +339,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 			}
 		}
 
-		// If the service item was updated, then it will exist and be passed to this function
-		// We want to chick if the DepartureDate exists, and if it does and it is before
-		// the authorized end date, we need to update the shipment authorized end date
-		// to be equal to the departure date
-		err = setShipmentAuthorizedEndDateToDepartureDate(appCtx, *updatedServiceItem, shipment)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	if checkMoveStatus {
@@ -370,6 +362,17 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 			if err != nil {
 				return nil, err
 			}
+		}
+	}
+
+	if updatedServiceItem != nil {
+		// If the service item was updated, then it will exist and be passed to this function
+		// We want to chick if the DepartureDate exists, and if it does and it is before
+		// the authorized end date, we need to update the shipment authorized end date
+		// to be equal to the departure date
+		err = setShipmentAuthorizedEndDateToDepartureDate(appCtx, *updatedServiceItem, shipment)
+		if err != nil {
+			return nil, err
 		}
 	}
 
