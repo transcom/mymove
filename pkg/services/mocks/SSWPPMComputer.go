@@ -14,8 +14,6 @@ import (
 
 	services "github.com/transcom/mymove/pkg/services"
 
-	unit "github.com/transcom/mymove/pkg/unit"
-
 	uuid "github.com/gofrs/uuid"
 )
 
@@ -165,20 +163,6 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mod
 	}
 
 	return r0, r1
-}
-
-// calculateShipmentTotalWeight provides a mock function with given fields: ppmShipment, weightAllotment
-func (_m *SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement) unit.Pound {
-	ret := _m.Called(ppmShipment, weightAllotment)
-
-	var r0 unit.Pound
-	if rf, ok := ret.Get(0).(func(models.PPMShipment, models.SSWMaxWeightEntitlement) unit.Pound); ok {
-		r0 = rf(ppmShipment, weightAllotment)
-	} else {
-		r0 = ret.Get(0).(unit.Pound)
-	}
-
-	return r0
 }
 
 // NewSSWPPMComputer creates a new instance of SSWPPMComputer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
