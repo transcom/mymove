@@ -89,6 +89,34 @@ func (h ListMTOShipmentsHandler) Handle(params mtoshipmentops.ListMTOShipmentsPa
 			}
 			/** End of Feature Flag **/
 
+			/** Feature Flag - Mobile Home Shipment **/
+			featureFlagNameMH := "mobile_home"
+			isMobileHomeFeatureOn := false
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
+				isMobileHomeFeatureOn = false
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+
+			// Remove Mobile Home shipments if Mobile Home FF is off
+			if !isMobileHomeFeatureOn {
+				var filteredShipments models.MTOShipments
+				if shipments != nil {
+					filteredShipments = models.MTOShipments{}
+				}
+				for i, shipment := range shipments {
+					if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+						continue
+					}
+
+					filteredShipments = append(filteredShipments, shipments[i])
+				}
+				shipments = filteredShipments
+			}
+			/** End of Feature Flag **/
+
 			sitStatusPayload := payloads.SITStatuses(shipmentSITStatuses, h.FileStorer())
 			payload := payloads.MTOShipments(h.FileStorer(), (*models.MTOShipments)(&shipments), sitStatusPayload)
 			return mtoshipmentops.NewListMTOShipmentsOK().WithPayload(*payload), nil
@@ -128,6 +156,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment",
+				"BoatShipment",
 				"Distance"}
 
 			shipmentID := uuid.FromStringOrNil(params.ShipmentID.String())
@@ -290,7 +319,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 
 			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
 			mtoShipment.ID = shipmentID
-			mtoShipment.ShipmentType = oldShipment.ShipmentType
+			isBoatShipment := mtoShipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || mtoShipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
+			if !isBoatShipment {
+				mtoShipment.ShipmentType = oldShipment.ShipmentType
+			}
 
 			//MTOShipmentModelFromUpdate defaults UsesExternalVendor to false if it's nil in the payload
 			if payload.UsesExternalVendor == nil {
