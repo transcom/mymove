@@ -75,9 +75,7 @@ export const EditContactInfo = ({
       backup_mailing_address: values[backupAddressName.toString()],
     };
 
-    if (values?.secondary_telephone) {
-      serviceMemberPayload.secondary_telephone = values?.secondary_telephone;
-    }
+    serviceMemberPayload.secondary_telephone = values?.secondary_telephone;
 
     const backupContactPayload = {
       id: currentBackupContacts[0].id,
