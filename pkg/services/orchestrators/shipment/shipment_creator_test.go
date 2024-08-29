@@ -24,11 +24,13 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 	updatePPMTypeMethodName := "UpdatePPMType"
 
 	type subtestDataObjects struct {
-		mockMTOShipmentCreator      *mocks.MTOShipmentCreator
-		mockPPMShipmentCreator      *mocks.PPMShipmentCreator
-		mockMoveTaskOrderUpdater    *mocks.MoveTaskOrderUpdater
-		shipmentCreatorOrchestrator services.ShipmentCreator
-		fakeError                   error
+		mockMTOShipmentCreator        *mocks.MTOShipmentCreator
+		mockPPMShipmentCreator        *mocks.PPMShipmentCreator
+		mockBoatShipmentCreator       *mocks.BoatShipmentCreator
+		mockMobileHomeShipmentCreator *mocks.MobileHomeShipmentCreator
+		mockMoveTaskOrderUpdater      *mocks.MoveTaskOrderUpdater
+		shipmentCreatorOrchestrator   services.ShipmentCreator
+		fakeError                     error
 	}
 
 	makeSubtestData := func(returnErrorForMTOShipment bool, returnErrorForPPMShipment bool) (subtestData subtestDataObjects) {
@@ -38,10 +40,16 @@ func (suite *ShipmentSuite) TestCreateShipment() {
 		mockPPMShipmentCreator := mocks.PPMShipmentCreator{}
 		subtestData.mockPPMShipmentCreator = &mockPPMShipmentCreator
 
+		mockBoatShipmentCreator := mocks.BoatShipmentCreator{}
+		subtestData.mockBoatShipmentCreator = &mockBoatShipmentCreator
+
+		mockMobileHomeShipmentCreator := mocks.MobileHomeShipmentCreator{}
+		subtestData.mockMobileHomeShipmentCreator = &mockMobileHomeShipmentCreator
+
 		mockMoveTaskOrderUpdater := mocks.MoveTaskOrderUpdater{}
 		subtestData.mockMoveTaskOrderUpdater = &mockMoveTaskOrderUpdater
 
-		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater)
+		subtestData.shipmentCreatorOrchestrator = NewShipmentCreator(subtestData.mockMTOShipmentCreator, subtestData.mockPPMShipmentCreator, subtestData.mockBoatShipmentCreator, subtestData.mockMobileHomeShipmentCreator, mtoshipment.NewShipmentRouter(), subtestData.mockMoveTaskOrderUpdater)
 
 		if returnErrorForMTOShipment {
 			subtestData.fakeError = apperror.NewInvalidInputError(uuid.Nil, nil, nil, "Pickup date missing")

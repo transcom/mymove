@@ -12,6 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/query"
 )
 
 // UpdateMTOServiceItemBasicValidator is the key for generic validation on the MTO Service Item
@@ -32,6 +33,24 @@ var (
 	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
 	ReServiceCodesAllowedForSITDepartureDateUpdate            = append(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, OriginReServiceCodesAllowedForSITDepartureDateUpdate...)
 )
+
+var allSITServiceItemsToCheck = []models.ReServiceCode{
+	models.ReServiceCodeDDDSIT,
+	models.ReServiceCodeDDASIT,
+	models.ReServiceCodeDDFSIT,
+	models.ReServiceCodeDDSFSC,
+	models.ReServiceCodeDOPSIT,
+	models.ReServiceCodeDOFSIT,
+	models.ReServiceCodeDOASIT,
+	models.ReServiceCodeDOSFSC,
+}
+
+var destSITServiceItems = []models.ReServiceCode{
+	models.ReServiceCodeDDDSIT,
+	models.ReServiceCodeDDASIT,
+	models.ReServiceCodeDDFSIT,
+	models.ReServiceCodeDDSFSC,
+}
 
 type updateMTOServiceItemValidator interface {
 	validate(appCtx appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error
@@ -113,6 +132,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that only SIT Entry Date occurs AFTER the FADD
+	err = serviceItemData.checkSITEntryDateAndFADD(appCtx)
+	if err != nil {
+		return err
+	}
+
 	// Checks that SITDestinationOriginalAddress isn't added/or updated using the updater
 	// Should only be set when approving a service item
 	err = serviceItemData.checkSITDestinationOriginalAddress(appCtx)
@@ -126,12 +151,6 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
-	// Gets any validation errors from the above checks
-	err = serviceItemData.getVerrs()
-	if err != nil {
-		return err
-	}
-
 	// Checks that the Old MTO SIT Service Item has a REJECTED status. If not the update req is rejected
 	err = serviceItemData.checkOldServiceItemStatus(appCtx, serviceItemData)
 	if err != nil {
@@ -140,6 +159,18 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Check to see if the updated service item is different than the old one
 	err = serviceItemData.checkForSITItemChanges(serviceItemData)
+	if err != nil {
+		return err
+	}
+
+	// Check to see if the updated service item is different than the old one
+	err = serviceItemData.checkReasonWasUpdatedOnRejectedSIT(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Gets any validation errors from the above checks
+	err = serviceItemData.getVerrs()
 	if err != nil {
 		return err
 	}
@@ -161,13 +192,8 @@ func (v *updateMTOServiceItemData) checkForSITItemChanges(serviceItemData *updat
 
 	oldServiceItem := serviceItemData.oldServiceItem
 
-	// This check is for the service items in this list
-	serviceItemsToCheck := []models.ReServiceCode{
-		models.ReServiceCodeDOFSIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOASIT,
-	}
-
 	// Check will only be executed for serviceItems with reservice codes in the serviceItemsToCheck array
-	if slices.Contains(serviceItemsToCheck, oldServiceItem.ReService.Code) {
+	if slices.Contains(allSITServiceItemsToCheck, oldServiceItem.ReService.Code) {
 
 		updatedServiceItem := serviceItemData.updatedServiceItem
 
@@ -245,10 +271,7 @@ func (v *updateMTOServiceItemData) checkLinkedIDs() error {
 // checkOldServiceItemStatus checks that the old service item has a REJECTED status
 func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppContext, serviceItemData *updateMTOServiceItemData) error {
 
-	// Only apply this check to the service items in this list
-	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
-
-	if slices.Contains(reServiceCodesAllowed, serviceItemData.oldServiceItem.ReService.Code) {
+	if slices.Contains(allSITServiceItemsToCheck, serviceItemData.oldServiceItem.ReService.Code) {
 		if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusRejected {
 			return nil
 		} else if serviceItemData.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
@@ -308,6 +331,33 @@ func (v *updateMTOServiceItemData) checkOldServiceItemStatus(_ appcontext.AppCon
 	return nil
 }
 
+// checkReasonWasUpdatedOnRejectedSIT checks that the reason provided is different from the previously rejected SIT service item
+func (v *updateMTOServiceItemData) checkReasonWasUpdatedOnRejectedSIT(_ appcontext.AppContext) error {
+
+	if slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code) {
+		// if the SI is approved then we don't need to check this
+		if v.oldServiceItem.Status == models.MTOServiceItemStatusApproved {
+			return nil
+		}
+		if v.oldServiceItem.Status == models.MTOServiceItemStatusRejected && v.updatedServiceItem.Status == models.MTOServiceItemStatusSubmitted {
+			if v.updatedServiceItem.Reason == nil {
+				return apperror.NewConflictError(v.oldServiceItem.ID,
+					"- you must provide a new reason when resubmitting a previously rejected SIT service item")
+			}
+			if *v.updatedServiceItem.Reason == "" {
+				return apperror.NewConflictError(v.oldServiceItem.ID,
+					"- reason cannot be empty when resubmitting a previously rejected SIT service item")
+			}
+			if v.updatedServiceItem.Reason != nil && *v.updatedServiceItem.Reason == *v.oldServiceItem.Reason {
+				return apperror.NewConflictError(v.oldServiceItem.ID,
+					"- please provide a new reason when resubmitting a previously rejected SIT service item")
+			}
+		}
+	}
+
+	return nil
+}
+
 // checkPrimeAvailability checks that the service item is connected to a Prime-available move
 func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppContext) error {
 	isAvailable, err := v.availabilityChecker.MTOAvailableToPrime(appCtx, v.oldServiceItem.MoveTaskOrderID)
@@ -322,9 +372,7 @@ func (v *updateMTOServiceItemData) checkPrimeAvailability(appCtx appcontext.AppC
 // checkNonPrimeFields checks that no fields were modified that are not allowed to be updated by the Prime
 func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) error {
 
-	reServiceCodesAllowed := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
-
-	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(reServiceCodesAllowed, v.oldServiceItem.ReService.Code)) {
+	if v.updatedServiceItem.Status != "" && v.updatedServiceItem.Status != v.oldServiceItem.Status && (!slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code)) {
 		v.verrs.Add("status", "cannot be updated")
 	}
 
@@ -350,12 +398,39 @@ func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) er
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
 
-	if slices.Contains(ReServiceCodesAllowedForSITDepartureDateUpdate, v.oldServiceItem.ReService.Code) {
+	if slices.Contains(allSITServiceItemsToCheck, v.oldServiceItem.ReService.Code) {
 		return nil // the service item is a SIT departure service or SIT Domestic origin 1st day SIT , so we're fine
 	}
 
 	return apperror.NewConflictError(v.updatedServiceItem.ID,
-		fmt.Sprintf("- SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s", models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT))
+		fmt.Sprintf("- SIT Departure Date may only be manually updated for the following service items: %s, %s, %s, %s, %s, %s, %s, %s",
+			models.ReServiceCodeDDFSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDDSIT, models.ReServiceCodeDOPSIT,
+			models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT, models.ReServiceCodeDDSFSC, models.ReServiceCodeDOSFSC))
+}
+
+// checkSITEntryDateAndFADD checks that the SIT entry date occurs after the FADD for destination SIT
+func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppContext) error {
+	if slices.Contains(destSITServiceItems, v.oldServiceItem.ReService.Code) {
+		// if they are attempting to update the SIT entry date
+		if v.updatedServiceItem.SITEntryDate != nil {
+			var contacts models.MTOServiceItemCustomerContacts
+			if v.updatedServiceItem.CustomerContacts != nil {
+				contacts = v.updatedServiceItem.CustomerContacts
+			} else if v.oldServiceItem.CustomerContacts != nil {
+				contacts = v.oldServiceItem.CustomerContacts
+			}
+
+			for _, contact := range contacts {
+				if !contact.FirstAvailableDeliveryDate.IsZero() &&
+					v.updatedServiceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
+					return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+						v.updatedServiceItem.SITEntryDate.Format("2006-01-02"), contact.FirstAvailableDeliveryDate.Format("2006-01-02")))
+				}
+			}
+		}
+		return nil
+	}
+	return nil
 }
 
 // checkSITDepartureDate checks that the SITDepartureDate:
@@ -396,13 +471,16 @@ func (v *updateMTOServiceItemData) checkSITDestinationOriginalAddress(_ appconte
 
 	if v.oldServiceItem.SITDestinationOriginalAddressID == nil {
 		v.verrs.Add("SITDestinationOriginalAddress", "cannot be manually set")
-		return nil // returning here to avoid nil pointer dereference error
+		return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
+			"SITDestinationOriginalAddress cannot be manually set")
 	}
 
 	if *v.oldServiceItem.SITDestinationOriginalAddressID != uuid.Nil &&
 		v.updatedServiceItem.SITDestinationOriginalAddress != nil &&
 		v.updatedServiceItem.SITDestinationOriginalAddress.ID != *v.oldServiceItem.SITDestinationOriginalAddressID {
 		v.verrs.Add("SITDestinationOriginalAddress", "cannot be updated")
+		return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
+			"SITDestinationOriginalAddress cannot be updated")
 	}
 
 	return nil
@@ -421,13 +499,16 @@ func (v *updateMTOServiceItemData) checkSITDestinationFinalAddress(_ appcontext.
 	reServiceCodesDestination := []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT, models.ReServiceCodeDDFSIT, models.ReServiceCodeDDSFSC}
 	if slices.Contains(reServiceCodesDestination, v.oldServiceItem.ReService.Code) {
 		v.verrs.Add("SITDestinationFinalAddress", "Update the shipment destination address to update the service item's SIT final destination address.")
-		return nil
+		return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
+			"Update the shipment destination address to update the service item's SIT final destination address.")
 	}
 
 	if *v.oldServiceItem.SITDestinationFinalAddressID != uuid.Nil &&
 		v.updatedServiceItem.SITDestinationFinalAddress != nil &&
 		v.updatedServiceItem.SITDestinationFinalAddress.ID != *v.oldServiceItem.SITDestinationFinalAddressID {
 		v.verrs.Add("SITDestinationFinalAddress", "Update the shipment destination address to update the service item's SIT final destination address.")
+		return apperror.NewInvalidInputError(v.updatedServiceItem.ID, nil, v.verrs,
+			"Update the shipment destination address to update the service item's SIT final destination address.")
 	}
 
 	return nil
@@ -618,4 +699,45 @@ func paymentRequestCheckAllowableFieldCheck(serviceItemData *updateMTOServiceIte
 	}
 
 	return false
+}
+
+// checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one requested
+func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) error {
+	var duplicateServiceItem models.MTOServiceItem
+
+	queryFilters := []services.QueryFilter{
+		query.NewQueryFilter("move_id", "=", serviceItem.MoveTaskOrderID),
+		query.NewQueryFilter("re_service_id", "=", serviceItem.ReServiceID),
+	}
+	if serviceItem.MTOShipmentID != nil {
+		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipment_id", "=", serviceItem.MTOShipmentID))
+	}
+
+	// We DON'T want to find this service item:
+	err := o.builder.FetchOne(appCtx, &duplicateServiceItem, queryFilters)
+	if err == nil && duplicateServiceItem.ID != uuid.Nil {
+		return apperror.NewConflictError(duplicateServiceItem.ID,
+			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
+	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
+		return err
+	}
+
+	return nil
+}
+
+// checkSITEntryDateAndFADD checks that the SIT entry date is not before the First Available Delivery Date
+func (o *mtoServiceItemCreator) checkSITEntryDateAndFADD(serviceItem *models.MTOServiceItem) error {
+	if serviceItem.SITEntryDate == nil {
+		return nil
+	}
+
+	for _, contact := range serviceItem.CustomerContacts {
+		if !contact.FirstAvailableDeliveryDate.IsZero() &&
+			serviceItem.SITEntryDate.Before(contact.FirstAvailableDeliveryDate) {
+			return apperror.NewUnprocessableEntityError(fmt.Sprintf("the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+				serviceItem.SITEntryDate.Format("2006-01-02"), contact.FirstAvailableDeliveryDate.Format("2006-01-02")))
+		}
+	}
+
+	return nil
 }

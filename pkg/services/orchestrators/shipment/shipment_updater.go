@@ -8,17 +8,21 @@ import (
 
 // shipmentUpdater is the concrete struct implementing the services.ShipmentUpdater interface
 type shipmentUpdater struct {
-	checks             []shipmentValidator
-	mtoShipmentUpdater services.MTOShipmentUpdater
-	ppmShipmentUpdater services.PPMShipmentUpdater
+	checks                    []shipmentValidator
+	mtoShipmentUpdater        services.MTOShipmentUpdater
+	ppmShipmentUpdater        services.PPMShipmentUpdater
+	boatShipmentUpdater       services.BoatShipmentUpdater
+	mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater
 }
 
 // NewShipmentUpdater creates a new shipmentUpdater struct with the basic checks and service dependencies.
-func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater) services.ShipmentUpdater {
+func NewShipmentUpdater(mtoShipmentUpdater services.MTOShipmentUpdater, ppmShipmentUpdater services.PPMShipmentUpdater, boatShipmentUpdater services.BoatShipmentUpdater, mobileHomeShipmentUpdater services.MobileHomeShipmentUpdater) services.ShipmentUpdater {
 	return &shipmentUpdater{
-		checks:             basicShipmentChecks(),
-		mtoShipmentUpdater: mtoShipmentUpdater,
-		ppmShipmentUpdater: ppmShipmentUpdater,
+		checks:                    basicShipmentChecks(),
+		mtoShipmentUpdater:        mtoShipmentUpdater,
+		ppmShipmentUpdater:        ppmShipmentUpdater,
+		boatShipmentUpdater:       boatShipmentUpdater,
+		mobileHomeShipmentUpdater: mobileHomeShipmentUpdater,
 	}
 }
 
@@ -37,24 +41,64 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 			return err
 		}
 
-		if shipment.ShipmentType != models.MTOShipmentTypePPM {
+		isBoatShipment := shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
+
+		if shipment.ShipmentType == models.MTOShipmentTypePPM {
+			shipment.PPMShipment.ShipmentID = mtoShipment.ID
+			shipment.PPMShipment.Shipment = *mtoShipment
+
+			ppmShipment, err := s.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, shipment.PPMShipment, mtoShipment.ID)
+
+			if err != nil {
+				return err
+			}
+
+			// Update variables with latest versions
+			mtoShipment = &ppmShipment.Shipment
+			mtoShipment.PPMShipment = ppmShipment
+
+			return nil
+		} else if isBoatShipment && shipment.BoatShipment != nil {
+			shipment.BoatShipment.ShipmentID = mtoShipment.ID
+			shipment.BoatShipment.Shipment = *mtoShipment
+
+			// Match boatShipment.Type with shipmentType incase they are different
+			if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway && shipment.BoatShipment.Type != models.BoatShipmentTypeHaulAway {
+				shipment.BoatShipment.Type = models.BoatShipmentTypeHaulAway
+			} else if shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway && shipment.BoatShipment.Type != models.BoatShipmentTypeTowAway {
+				shipment.BoatShipment.Type = models.BoatShipmentTypeTowAway
+			}
+
+			boatShipment, err := s.boatShipmentUpdater.UpdateBoatShipmentWithDefaultCheck(txnAppCtx, shipment.BoatShipment, mtoShipment.ID)
+
+			if err != nil {
+				return err
+			}
+
+			// Update variables with latest versions
+			mtoShipment = &boatShipment.Shipment
+			mtoShipment.BoatShipment = boatShipment
+
+			return nil
+		} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+			shipment.MobileHome.ShipmentID = mtoShipment.ID
+			shipment.MobileHome.Shipment = *mtoShipment
+
+			mobileHomeShipment, err := s.mobileHomeShipmentUpdater.UpdateMobileHomeShipmentWithDefaultCheck(txnAppCtx, shipment.MobileHome, mtoShipment.ID)
+
+			if err != nil {
+				return err
+			}
+
+			// Update variables with latest versions
+			mtoShipment = &mobileHomeShipment.Shipment
+			mtoShipment.MobileHome = mobileHomeShipment
+
 			return nil
 		}
 
-		shipment.PPMShipment.ShipmentID = mtoShipment.ID
-		shipment.PPMShipment.Shipment = *mtoShipment
-
-		ppmShipment, err := s.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(txnAppCtx, shipment.PPMShipment, mtoShipment.ID)
-
-		if err != nil {
-			return err
-		}
-
-		// Update variables with latest versions
-		mtoShipment = &ppmShipment.Shipment
-		mtoShipment.PPMShipment = ppmShipment
-
 		return nil
+
 	})
 
 	if txErr != nil {

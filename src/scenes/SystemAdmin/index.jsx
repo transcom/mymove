@@ -9,6 +9,15 @@ import { milmoveLogger } from 'utils/milmoveLog';
 import { retryPageLoading } from 'utils/retryPageLoading';
 import { OktaLoggedOutBanner, OktaNeedsLoggedOutBanner } from 'components/OktaLogoutBanner';
 import CUIHeader from 'components/CUIHeader/CUIHeader';
+import './index.scss';
+import { withContext } from 'shared/AppContext';
+import { connect } from 'react-redux';
+import { loadUser as loadUserAction } from 'store/auth/actions';
+import {
+  loadInternalSchema as loadInternalSchemaAction,
+  loadPublicSchema as loadPublicSchemaAction,
+} from 'shared/Swagger/ducks';
+import withRouter from 'utils/routing';
 
 // Lazy load these dependencies (they correspond to unique routes & only need to be loaded when that URL is accessed)
 const SignIn = lazy(() => import('pages/SignIn/SignIn'));
@@ -25,6 +34,11 @@ class AdminWrapper extends Component {
   }
 
   componentDidMount() {
+    const { loadUser, loadInternalSchema, loadPublicSchema } = this.props;
+    loadInternalSchema();
+    loadPublicSchema();
+    loadUser();
+
     GetLoggedInUser()
       .then(() => this.setState({ isLoggedIn: true }))
       .catch(() => this.setState({ isLoggedIn: false }));
@@ -64,7 +78,7 @@ class AdminWrapper extends Component {
     return (
       <>
         <div id="app-root">
-          <CUIHeader />
+          <CUIHeader className="adminCUIHeader" />
           {oktaLoggedOut && <OktaLoggedOutBanner />}
           {oktaNeedsLoggedOut && <OktaNeedsLoggedOutBanner />}
           <Routes>
@@ -82,4 +96,14 @@ class AdminWrapper extends Component {
   }
 }
 
-export default AdminWrapper;
+const mapStateToProps = () => {
+  return {};
+};
+
+const mapDispatchToProps = {
+  loadInternalSchema: loadInternalSchemaAction,
+  loadPublicSchema: loadPublicSchemaAction,
+  loadUser: loadUserAction,
+};
+
+export default withContext(withRouter(connect(mapStateToProps, mapDispatchToProps)(AdminWrapper)));

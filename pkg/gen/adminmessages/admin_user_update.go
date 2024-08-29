@@ -25,6 +25,9 @@ type AdminUserUpdate struct {
 
 	// Last Name
 	LastName *string `json:"lastName,omitempty"`
+
+	// super
+	Super *bool `json:"super,omitempty"`
 }
 
 // Validate validates this admin user update

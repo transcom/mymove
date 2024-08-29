@@ -1,7 +1,14 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 
 import NTSShipmentInfoList from './NTSShipmentInfoList';
+
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 const shipment = {
   storageFacility: {
@@ -29,6 +36,12 @@ const shipment = {
     city: 'San Antonio',
     state: 'TX',
     postalCode: '78234',
+  },
+  tertiaryPickupAddress: {
+    streetAddress1: '123 Happy St',
+    city: 'San Antonio',
+    state: 'TX',
+    postalCode: '78211',
   },
   mtoAgents: [
     {
@@ -59,15 +72,19 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
       ['pickupAddress', shipment.pickupAddress.streetAddress1],
       ['secondaryPickupAddress', shipment.secondaryPickupAddress.streetAddress1],
+      ['tertiaryPickupAddress', shipment.tertiaryPickupAddress.streetAddress1],
       ['releasingAgent', shipment.mtoAgents[0].email, { exact: false }],
       ['counselorRemarks', shipment.counselorRemarks],
       ['customerRemarks', shipment.customerRemarks],
       ['tacType', '1234 (HHG)'],
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      await waitFor(() => {
+        const shipmentFieldElement = screen.getByTestId(shipmentField);
+        expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      });
     });
   });
 
@@ -80,15 +97,19 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['storageFacilityAddress', shipment.storageFacility.address.streetAddress1],
       ['pickupAddress', shipment.pickupAddress.streetAddress1],
       ['secondaryPickupAddress', shipment.secondaryPickupAddress.streetAddress1],
+      ['tertiaryPickupAddress', shipment.tertiaryPickupAddress.streetAddress1],
       ['releasingAgent', shipment.mtoAgents[0].email, { exact: false }],
       ['counselorRemarks', shipment.counselorRemarks],
       ['customerRemarks', shipment.customerRemarks],
       ['tacType', '1234 (HHG)'],
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       render(<NTSShipmentInfoList isExpanded shipment={shipment} />);
-      const shipmentFieldElement = screen.getByTestId(shipmentField);
-      expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      await waitFor(() => {
+        const shipmentFieldElement = screen.getByTestId(shipmentField);
+        expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
+      });
     });
   });
 });

@@ -3786,6 +3786,10 @@ paths:
                 type: string
                 minLength: 1
                 x-nullable: true
+              paymentRequestCode:
+                type: string
+                example: 9551-6199-2
+                x-nullable: true
               status:
                 type: array
                 description: Filtering for the status.
@@ -3880,9 +3884,18 @@ paths:
   /lines-of-accounting:
     post:
       summary: Fetch line of accounting
-      description: >-
+      description: >
         Fetches a line of accounting based on provided service member
-        affiliation, order issue date, and Transportation Accounting Code (TAC).
+        affiliation, effective date, and Transportation Accounting Code (TAC).
+        It uses these parameters to filter the correct Line of Accounting for
+        the provided TAC. It does this by filtering through both TAC and LOAs
+        based on the provided code and effective date. The 'Effective Date' is
+        the date that can be either the orders issued date (For HHG shipments),
+        MTO approval date (For NTS shipments), or even the current date for NTS
+        shipments with no approval yet (Just providing a preview to the office
+        users per customer request). Effective date is used to find "Active"
+        TGET data by searching for the TACs and LOAs with begin and end dates
+        containing this date.
       operationId: requestLineOfAccounting
       tags:
         - linesOfAccounting
@@ -3893,7 +3906,7 @@ paths:
       parameters:
         - in: body
           name: body
-          description: Service member affiliation, order issue date, and TAC code.
+          description: Service member affiliation, effective date, and TAC code.
           required: true
           schema:
             $ref: '#/definitions/FetchLineOfAccountingPayload'
@@ -4105,6 +4118,45 @@ paths:
           description: request requires user authentication
         '500':
           description: server error
+  /calendar/{countryCode}/is-weekend-holiday/{date}:
+    get:
+      summary: Validate  move date selection
+      description: |
+        Utility API to determine if input date falls on weekend and/or holiday.
+      produces:
+        - application/json
+      operationId: isDateWeekendHoliday
+      tags:
+        - calendar
+      parameters:
+        - description: country code for context of date
+          in: path
+          name: countryCode
+          required: true
+          type: string
+          enum:
+            - US
+        - description: input date to determine if weekend/holiday for given country.
+          in: path
+          name: date
+          required: true
+          type: string
+          format: date
+      responses:
+        '200':
+          description: >-
+            Successfully determine if given date is weekend and/or holiday for
+            given country.
+          schema:
+            $ref: '#/definitions/IsDateWeekendHolidayInfo'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   ApplicationParameters:
     type: object
@@ -4599,7 +4651,17 @@ definitions:
     properties:
       serviceMemberAffiliation:
         $ref: '#/definitions/Affiliation'
-      ordersIssueDate:
+      effectiveDate:
+        description: >
+          The effective date for the Line Of Accounting (LOA) being fetched. Eg,
+          the orders issue date or the Non-Temporary Storage (NTS) Move Task
+          Order (MTO) approval date. Effective date is used to find "Active"
+          TGET data by searching for the TACs and LOAs with begin and end dates
+          containing this date. The 'Effective Date' is the date that can be
+          either the orders issued date (For HHG shipments), MTO approval date
+          (For NTS shipments), or even the current date for NTS shipments with
+          no approval yet (Just providing a preview to the office users per
+          customer request).
         type: string
         format: date
         example: '2023-01-01'
@@ -4793,6 +4855,10 @@ definitions:
         type: string
         x-nullable: true
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -5604,6 +5670,10 @@ definitions:
         format: date-time
         type: string
         x-nullable: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
       updatedAt:
         format: date-time
         type: string
@@ -5686,6 +5756,20 @@ definitions:
         x-nullable: true
       receivedByGexAt:
         format: date-time
+        type: string
+        x-nullable: true
+      ediErrorType:
+        description: >-
+          Type of EDI reporting or causing the issue. Can be EDI 997, 824, and
+          858.
+        type: string
+        x-nullable: true
+      ediErrorCode:
+        description: Reported code from syncada for the EDI error encountered
+        type: string
+        x-nullable: true
+      ediErrorDescription:
+        description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
     type: object
@@ -5966,6 +6050,20 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
+      tertiaryPickupAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
       w2Address:
         x-nullable: true
         $ref: '#/definitions/Address'
@@ -6202,6 +6300,38 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      hasSecondaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasSecondaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      secondaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryPickupAddress:
+        description: The address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-nullable: true
+        x-omitempty: false
+      tertiaryDeliveryAddress:
+        description: Where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationType:
         $ref: '#/definitions/DestinationType'
       shipmentType:
@@ -6233,11 +6363,16 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
+      mobileHome:
+        $ref: '#/definitions/MobileHome'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
     required:
       - moveTaskOrderID
       - shipmentType
+  CreateMobileHome:
+    description: A mobile home shipment that the prime moves for a service member.
+    $ref: '#/definitions/MobileHome'
   CreatePPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -6476,7 +6611,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      fullName:
+      lastName:
+        type: string
+      firstName:
         type: string
       hasSafetyPrivilege:
         type: boolean
@@ -6588,6 +6725,11 @@ definitions:
         example: 1001-3456
         type: string
       availableToPrimeAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
+      approvedAt:
         format: date-time
         type: string
         x-nullable: true
@@ -6708,6 +6850,10 @@ definitions:
       dodID:
         type: string
         example: 1234567890
+        x-nullable: true
+      paymentRequestCode:
+        type: string
+        example: 9551-6199-2
         x-nullable: true
       status:
         $ref: '#/definitions/MoveStatus'
@@ -7121,6 +7267,29 @@ definitions:
       - created_at
       - updated_at
       - eTag
+  IsDateWeekendHolidayInfo:
+    type: object
+    properties:
+      country_code:
+        type: string
+      country_name:
+        type: string
+      date:
+        type: string
+        format: date
+        example: '2018-09-25'
+      is_weekend:
+        type: boolean
+      is_holiday:
+        type: boolean
+      details:
+        type: string
+    required:
+      - country_code
+      - country_name
+      - date
+      - is_weekend
+      - is_holiday
   Affiliation:
     type: string
     x-nullable: true
@@ -7541,58 +7710,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MTOServiceItemDimension'
-  SITAddressUpdate:
-    type: object
-    description: An update to a SIT service item address.
-    properties:
-      id:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      mtoServiceItemID:
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-      distance:
-        description: The distance between the old address and the new address in miles.
-        example: 54
-        minimum: 0
-        type: integer
-      contractorRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      officeRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      status:
-        enum:
-          - REQUESTED
-          - APPROVED
-          - REJECTED
-      oldAddress:
-        $ref: '#/definitions/Address'
-      newAddress:
-        $ref: '#/definitions/Address'
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        type: string
-        readOnly: true
-  SITAddressUpdates:
-    description: A list of updates to a SIT service item address.
-    type: array
-    items:
-      $ref: '#/definitions/SITAddressUpdate'
   MTOServiceItemStatus:
     description: Describes all statuses for a MTOServiceItem
     type: string
@@ -7698,8 +7815,6 @@ definitions:
         $ref: '#/definitions/Address'
       sitDestinationFinalAddress:
         $ref: '#/definitions/Address'
-      sitAddressUpdates:
-        $ref: '#/definitions/SITAddressUpdates'
       sitDeliveryMiles:
         type: integer
         x-nullable: true
@@ -7830,6 +7945,7 @@ definitions:
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
+      - MOBILE_HOME
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
@@ -7839,6 +7955,7 @@ definitions:
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
+      MOBILE_HOME: Mobile Home
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -7872,6 +7989,55 @@ definitions:
         pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
         x-nullable: true
       eTag:
+        type: string
+        readOnly: true
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
         type: string
         readOnly: true
   SITLocationType:
@@ -8943,6 +9109,80 @@ definitions:
       - expectedDepartureDate
       - sitExpected
       - eTag
+  BoatShipment:
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Boat shipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when the Boat Shipment was initially created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
+    required:
+      - id
+      - shipmentId
+      - createdAt
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
+      - eTag
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -9124,6 +9364,20 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        x-nullable: true
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      hasTertiaryDeliveryAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualProGearWeight:
         type: integer
         x-nullable: true
@@ -9204,6 +9458,10 @@ definitions:
         $ref: '#/definitions/StorageFacility'
       ppmShipment:
         $ref: '#/definitions/PPMShipment'
+      boatShipment:
+        $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       shipmentLocator:
@@ -9439,10 +9697,75 @@ definitions:
       sitCost:
         example: 2000
         type: integer
-        x-nullable: true
-        x-omitempty: false
+      priceFirstDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of the first day in SIT
+      priceAdditionalDaySIT:
+        example: 2000
+        type: integer
+        format: cents
+        title: Price of an additional day in SIT
+      paramsFirstDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '20.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+      paramsAdditionalDaySIT:
+        type: object
+        properties:
+          contractYearName:
+            type: string
+            example: Award Term 1
+          priceRateOrFactor:
+            type: string
+            example: '0.53'
+          isPeak:
+            type: string
+            example: 'true'
+          escalationCompounded:
+            type: string
+            example: '1.01'
+          serviceAreaOrigin:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          serviceAreaDestination:
+            type: string
+            example: '252'
+            x-nullable: true
+            x-omitempty: true
+          numberDaysSIT:
+            type: string
+            example: '30'
+            x-nullable: true
+            x-omitempty: true
     required:
       - sitCost
+      - priceFirstDaySIT
+      - priceAdditionalDaySIT
   MTOServiceItemSingle:
     type: object
     properties:

@@ -414,8 +414,6 @@ definitions:
               The reason item has been placed in SIT.
             x-nullable: true
             x-omitempty: false
-          sitAddressUpdates:
-            $ref: '#/definitions/SitAddressUpdates'
           sitRequestedDelivery:
             format: date
             type: string
@@ -1247,25 +1245,6 @@ definitions:
       - requestReason
       - contractorRemarks
       - requestedDays
-  CreateSITAddressUpdateRequest:
-    description: >-
-      CreateSITAddressUpdateRequest contains the fields required for the prime
-      to create a SIT address update request.
-    type: object
-    properties:
-      newAddress:
-        $ref: '#/definitions/Address'
-      contractorRemarks:
-        type: string
-        example: >-
-          Customer reached out to me this week & let me know they want to move
-          closer to family.
-      mtoServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-    required:
-      - contractorRemarks
   Address:
     description: A postal address
     type: object
@@ -2199,6 +2178,7 @@ definitions:
         * `PPM` = Personally Procured Move also known as Do It Yourself (DITY)
         * `BOAT_HAUL_AWAY` = Boat shipment that requires additional equipment to haul it to it's destination
         * `BOAT_TOW_AWAY` = Boat shipment that has a road-worthy trailer
+        * `MOBILE_HOME` = Mobile Home shipment that a customer may move.
     type: string
     example: HHG
     enum:
@@ -2209,7 +2189,7 @@ definitions:
       - HHG_OUTOF_NTS_DOMESTIC
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
-      - MOTORHOME
+      - MOBILE_HOME
       - PPM
     x-display-value:
       HHG: Household goods move (HHG)
@@ -2698,6 +2678,18 @@ definitions:
         example: handle with care
         x-nullable: true
         readOnly: true
+      actualProGearWeight:
+        description: |
+          The actual weight of any pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
+      actualSpouseProGearWeight:
+        description: |
+          The actual weight of any spouse pro gear being shipped.
+        type: integer
+        x-nullable: true
+        x-omitempty: false
       agents:
         $ref: '#/definitions/MTOAgents'
       sitExtensions:
@@ -2843,6 +2835,11 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        readOnly: true
       updatedAt:
         format: date-time
         type: string
@@ -2979,78 +2976,6 @@ definitions:
       - MS
       - NSTH
       - NSTUB
-  SitAddressUpdateStatus:
-    description: >-
-      The status of a SIT address update, indicating where it is in the TOO's
-      approval process.
-    enum:
-      - REQUESTED
-      - APPROVED
-      - REJECTED
-  SitAddressUpdate:
-    properties:
-      id:
-        example: ddd7bb48-4730-47c4-9781-6500384f4941
-        format: uuid
-        readOnly: true
-        type: string
-      mtoServiceItemId:
-        example: 12d9e103-5a56-4636-906d-6e993b97ef51
-        format: uuid
-        readOnly: true
-        type: string
-      newAddressId:
-        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
-        format: uuid
-        readOnly: true
-        type: string
-      newAddress:
-        $ref: '#/definitions/Address'
-      oldAddressId:
-        example: 31a2ad3c-1682-4d5b-8423-ff40053a056b
-        format: uuid
-        readOnly: true
-        type: string
-      oldAddress:
-        $ref: '#/definitions/Address'
-      status:
-        $ref: '#/definitions/SitAddressUpdateStatus'
-      distance:
-        example: 25
-        type: integer
-        readOnly: true
-        maximum: 50
-      contractorRemarks:
-        type: string
-        example: >-
-          Customer reached out to me this week & let me know they want to move
-          closer to family.
-        x-nullable: true
-        x-omitempty: false
-      officeRemarks:
-        example: The customer has found a new house closer to base.
-        type: string
-        x-nullable: true
-        x-omitempty: false
-      createdAt:
-        format: date-time
-        type: string
-        readOnly: true
-      updatedAt:
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        description: >-
-          A hash unique to this shipment that should be used as the "If-Match"
-          header for any updates.
-        type: string
-        readOnly: true
-  SitAddressUpdates:
-    description: A list of updates to a SIT service item address.
-    type: array
-    items:
-      $ref: '#/definitions/SitAddressUpdate'
   MTOServiceItemDimension:
     description: >-
       The dimensions for either the item or the crate associated with a crating

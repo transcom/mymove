@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/gobuffalo/validate/v3"
@@ -375,7 +374,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 		serviceItem.Status = models.MTOServiceItemStatusSubmitted
 	}
 
-	// TODO: Once customer onboarding is built, we can revisit to figure out which service items goes under each type of shipment
 	// check if shipment exists linked by MoveTaskOrderID
 	var mtoShipment models.MTOShipment
 	mtoShipmentID := *serviceItem.MTOShipmentID
@@ -531,7 +529,8 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	// if estimated weight for shipment provided by the prime, calculate the estimated prices for
 	// DLH, DPK, DOP, DDP, DUPK
 
-	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil {
+	// NTS-release requested pickup dates are for handle out, their pricing is handled differently as their locations are based on storage facilities, not pickup locations
+	if mtoShipment.PrimeEstimatedWeight != nil && mtoShipment.RequestedPickupDate != nil && mtoShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 		serviceItemEstimatedPrice, err := o.findEstimatedPrice(appCtx, serviceItem, mtoShipment)
 		if serviceItemEstimatedPrice != 0 && err == nil {
 			serviceItem.PricingEstimate = &serviceItemEstimatedPrice
@@ -643,31 +642,6 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 	}
 
 	return &createdServiceItems, nil, nil
-}
-
-// checkDuplicateServiceCodes checks if the move or shipment has a duplicate service item with the same code as the one
-// requested.
-func (o *mtoServiceItemCreator) checkDuplicateServiceCodes(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem) error {
-	var duplicateServiceItem models.MTOServiceItem
-
-	queryFilters := []services.QueryFilter{
-		query.NewQueryFilter("move_id", "=", serviceItem.MoveTaskOrderID),
-		query.NewQueryFilter("re_service_id", "=", serviceItem.ReServiceID),
-	}
-	if serviceItem.MTOShipmentID != nil {
-		queryFilters = append(queryFilters, query.NewQueryFilter("mto_shipment_id", "=", serviceItem.MTOShipmentID))
-	}
-
-	// We DON'T want to find this service item:
-	err := o.builder.FetchOne(appCtx, &duplicateServiceItem, queryFilters)
-	if err == nil && duplicateServiceItem.ID != uuid.Nil {
-		return apperror.NewConflictError(duplicateServiceItem.ID,
-			fmt.Sprintf("for creating a service item. A service item with reServiceCode %s already exists for this move and/or shipment.", serviceItem.ReService.Code))
-	} else if err != nil && !strings.Contains(err.Error(), "sql: no rows in result set") {
-		return err
-	}
-
-	return nil
 }
 
 // makeExtraSITServiceItem sets up extra SIT service items if a first-day SIT service item is being created.
@@ -829,6 +803,12 @@ func (o *mtoServiceItemCreator) validateFirstDaySITServiceItem(appCtx appcontext
 
 	// check if there's another First Day SIT item for this shipment
 	err := o.checkDuplicateServiceCodes(appCtx, serviceItem)
+	if err != nil {
+		return nil, err
+	}
+
+	// check that the SIT entry date is ON or AFTER the First Available Delivery Date
+	err = o.checkSITEntryDateAndFADD(serviceItem)
 	if err != nil {
 		return nil, err
 	}

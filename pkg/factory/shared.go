@@ -44,6 +44,7 @@ var AdditionalDocuments CustomType = "AdditionalDocuments"
 var AdminUser CustomType = "AdminUser"
 var AuditHistory CustomType = "AuditHistory"
 var BackupContact CustomType = "BackupContact"
+var BoatShipment CustomType = "BoatShipment"
 var ClientCert CustomType = "ClientCert"
 var Contractor CustomType = "Contractor"
 var CustomerSupportRemark CustomType = "CustomerSupportRemark"
@@ -52,6 +53,7 @@ var DutyLocation CustomType = "DutyLocation"
 var Entitlement CustomType = "Entitlement"
 var EvaluationReport CustomType = "EvaluationReport"
 var LineOfAccounting CustomType = "LineOfAccounting"
+var MobileHome CustomType = "MobileHome"
 var Move CustomType = "Move"
 var MovingExpense CustomType = "MovingExpense"
 var MTOAgent CustomType = "MTOAgent"
@@ -81,7 +83,6 @@ var ServiceRequestDocument CustomType = "ServiceRequestDocument"
 var ServiceRequestDocumentUpload CustomType = "ServiceRequestDocumentUpload"
 var ShipmentAddressUpdate CustomType = "ShipmentAddressUpdate"
 var SignedCertification CustomType = "SignedCertification"
-var SITAddressUpdate CustomType = "SITAddressUpdate"
 var SITDurationUpdate CustomType = "SITDurationUpdate"
 var StorageFacility CustomType = "StorageFacility"
 var TransportationAccountingCode CustomType = "TransportationAccountingCode"
@@ -102,6 +103,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.AdminUser":                                AdminUser,
 	"factory.TestDataAuditHistory":                    AuditHistory,
 	"models.BackupContact":                            BackupContact,
+	"models.BoatShipment":                             BoatShipment,
 	"models.ClientCert":                               ClientCert,
 	"models.Contractor":                               Contractor,
 	"models.CustomerSupportRemark":                    CustomerSupportRemark,
@@ -110,6 +112,7 @@ var defaultTypesMap = map[string]CustomType{
 	"models.Entitlement":                              Entitlement,
 	"models.EvaluationReport":                         EvaluationReport,
 	"models.LineOfAccounting":                         LineOfAccounting,
+	"models.MobileHome":                               MobileHome,
 	"models.Move":                                     Move,
 	"models.MovingExpense":                            MovingExpense,
 	"models.MTOAgent":                                 MTOAgent,
@@ -138,7 +141,6 @@ var defaultTypesMap = map[string]CustomType{
 	"models.ServiceParam":                             ServiceParam,
 	"models.SignedCertification":                      SignedCertification,
 	"models.ShipmentAddressUpdate":                    ShipmentAddressUpdate,
-	"models.SITAddressUpdate":                         SITAddressUpdate,
 	"models.SITDurationUpdate":                        SITDurationUpdate,
 	"models.StorageFacility":                          StorageFacility,
 	"models.TransportationAccountingCode":             TransportationAccountingCode,
@@ -170,8 +172,6 @@ type addressGroup struct {
 	BackupMailingAddress          CustomType
 	DutyLocationAddress           CustomType
 	DutyLocationTOAddress         CustomType
-	SITAddressUpdateNewAddress    CustomType
-	SITAddressUpdateOldAddress    CustomType
 	SITOriginHHGOriginalAddress   CustomType
 	SITOriginHHGActualAddress     CustomType
 	SITDestinationFinalAddress    CustomType
@@ -193,8 +193,6 @@ var Addresses = addressGroup{
 	BackupMailingAddress:          "BackupMailingAddress",
 	DutyLocationAddress:           "DutyLocationAddress",
 	DutyLocationTOAddress:         "DutyLocationTOAddress",
-	SITAddressUpdateNewAddress:    "SITAddressUpdateNewAddress",
-	SITAddressUpdateOldAddress:    "SITAddressUpdateOldAddress",
 	SITOriginHHGOriginalAddress:   "SITOriginHHGOriginalAddress",
 	SITOriginHHGActualAddress:     "SITOriginHHGActualAddress",
 	SITDestinationFinalAddress:    "SITDestinationFinalAddress",

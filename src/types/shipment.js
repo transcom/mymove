@@ -1,8 +1,13 @@
 /* eslint-disable import/prefer-default-export */
 import { arrayOf, bool, oneOf, number, shape, string } from 'prop-types';
 
-import { ppmShipmentStatuses, shipmentDestinationTypes, shipmentStatuses } from 'constants/shipments';
-import { LOA_TYPE, SHIPMENT_OPTIONS } from 'shared/constants';
+import {
+  ppmShipmentStatuses,
+  shipmentDestinationTypes,
+  shipmentStatuses,
+  boatShipmentTypes,
+} from 'constants/shipments';
+import { LOA_TYPE, SHIPMENT_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 import { AddressShape, ResidentialAddressShape } from 'types/address';
 import { AgentShape } from 'types/agent';
 import { LOCATION_TYPES_ONE_OF, SitStatusShape } from 'types/sitStatusShape';
@@ -12,9 +17,13 @@ import { expenseTypesArr } from 'constants/ppmExpenseTypes';
 
 export const ShipmentOptionsOneOf = oneOf(Object.values(SHIPMENT_OPTIONS));
 
+export const ShipmentTypesOneOf = oneOf(Object.values(SHIPMENT_TYPES));
+
 export const ShipmentStatusesOneOf = oneOf(Object.values(shipmentStatuses));
 
 export const PPMShipmentStatusOneOf = oneOf(Object.values(ppmShipmentStatuses));
+
+export const BoatShipmentTypeOneOf = oneOf(Object.values(boatShipmentTypes));
 
 export const GCCFactorsShape = shape({
   baseLinehaul: number,
@@ -74,6 +83,23 @@ export const PPMShipmentShape = shape({
   incentives: incentivesShape,
   gcc: GCCFactorsShape,
   miles: number,
+});
+
+export const BoatShipmentShape = shape({
+  id: string,
+  shipmentId: string,
+  shipmentLocator: string,
+  createdAt: string,
+  type: BoatShipmentTypeOneOf,
+  year: number,
+  make: string,
+  model: string,
+  lengthInInches: number,
+  widthInInches: number,
+  heightInInches: number,
+  hasTrailer: bool,
+  isRoadworthy: bool,
+  eTag: string,
 });
 
 export const PPMCloseoutShape = shape({
@@ -143,7 +169,7 @@ export const ShipmentShape = shape({
   tertiaryDeliveryAddress: AddressShape,
   customerRemarks: string,
   counselorRemarks: string,
-  shipmentType: ShipmentOptionsOneOf,
+  shipmentType: ShipmentTypesOneOf,
   status: ShipmentStatusesOneOf,
   rejectionReason: string,
   reweigh: shape({
@@ -170,6 +196,7 @@ export const ShipmentShape = shape({
     email: string,
   }),
   ppmShipment: PPMShipmentShape,
+  boatShipment: BoatShipmentShape,
   deliveryAddressUpdate: ShipmentAddressUpdateShape,
   actual_pro_gear_weight: number,
   actual_spouse_pro_gear_weight: number,
