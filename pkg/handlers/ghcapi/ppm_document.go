@@ -222,7 +222,7 @@ func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacket
 			}
 
 			payload := io.NopCloser(pdf)
-			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+			filename := fmt.Sprintf("inline; filename=\"ppm_payment_bulk_download_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return ppmdocumentops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})

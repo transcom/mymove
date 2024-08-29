@@ -665,5 +665,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewOrderUpdater(moveRouter),
 	}
 
+	paymentRequestPacketCreator := paymentrequest.NewPaymentRequestBulkDownloadCreator(pdfGenerator)
+	ghcAPI.PaymentRequestsBulkDownloadHandler = PaymentRequestBulkDownloadHandler{
+		handlerConfig,
+		paymentRequestPacketCreator,
+	}
+
 	return ghcAPI
 }

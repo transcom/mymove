@@ -842,3 +842,7 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
     },
   );
 }
+
+export async function bulkDownloadPaymentRequest(paymentRequestID) {
+  return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
+}
