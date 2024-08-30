@@ -1,7 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { Formik } from 'formik';
-import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
+import { render, screen, waitFor, within, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
@@ -14,7 +13,6 @@ import { tooRoutes } from 'constants/routes';
 import { MockProviders } from 'testUtils';
 import { validatePostalCode } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-import { dateSelectionIsWeekendHoliday } from 'services/ghcApi';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -33,11 +31,6 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-jest.mock('services/ghcApi', () => ({
-  ...jest.requireActual('services/ghcApi'),
-  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
-}));
-
 const mockMtoShipment = {
   id: 'shipment123',
   moveTaskOrderId: 'mock move id',
@@ -45,8 +38,6 @@ const mockMtoShipment = {
   counselorRemarks: 'mock counselor remarks',
   requestedPickupDate: '2020-03-01',
   requestedDeliveryDate: '2020-03-30',
-  // requestedPickupDate: '2021-06-07',
-  // requestedDeliveryDate: '2021-06-14',
   hasSecondaryDeliveryAddress: false,
   hasSecondaryPickupAddress: false,
   pickupAddress: {
@@ -176,7 +167,6 @@ const mockMtoShipment = {
 const defaultProps = {
   isCreatePage: true,
   submitHandler: jest.fn(),
-  dateSelectionIsWeekendHoliday: jest.fn().mockImplementation(() => Promise.resolve()),
   newDutyLocationAddress: {
     city: 'Fort Benning',
     state: 'GA',
@@ -196,6 +186,7 @@ const defaultProps = {
     postalCode: '31905',
     streetAddress1: '123 Main',
     streetAddress2: '',
+    county: 'MUSCOGEE',
   },
   serviceMember: {
     weightAllotment: {
@@ -447,35 +438,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByLabelText('Counselor remarks')).toBeInstanceOf(HTMLTextAreaElement);
     });
 
-    it('Service Counselor - renders date alert warnings for pickup/delivery on date picker selection', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: true,
-        is_holiday: false,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
-      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-
-      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2024');
-      await userEvent.type(screen.getByLabelText('Requested delivery date'), '30 Mar 2024');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 26 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-        expect(
-          screen.getByText(
-            /Requested delivery date 30 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
     it('uses the current residence address for pickup address when checked', async () => {
       const user = userEvent.setup();
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} />);
@@ -484,14 +446,14 @@ describe('ShipmentForm component', () => {
         await user.click(screen.getByLabelText('Use current address'));
       });
 
-      expect(await screen.getByTestId('pickup.address.streetAddress1')).toHaveValue(
+      expect((await screen.findAllByLabelText('Address 1'))[0]).toHaveValue(
         defaultProps.currentResidence.streetAddress1,
       );
 
-      expect(screen.getByTestId('pickup.address.streetAddress2')).toHaveValue('');
-      expect(screen.getByTestId('pickup.address.city')).toHaveValue(defaultProps.currentResidence.city);
-      expect(screen.getByTestId('pickup.address.state')).toHaveValue(defaultProps.currentResidence.state);
-      expect(screen.getByTestId('pickup.address.postalCode')).toHaveValue(defaultProps.currentResidence.postalCode);
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue(defaultProps.currentResidence.city);
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue(defaultProps.currentResidence.state);
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(defaultProps.currentResidence.postalCode);
     });
 
     it('renders a second address fieldset when the user has a delivery address', async () => {
@@ -570,17 +532,6 @@ describe('ShipmentForm component', () => {
 
   describe('editing an already existing HHG shipment', () => {
     it('renders the HHG shipment form with pre-filled values', async () => {
-      // For some reason need this mock here.
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: false,
-        is_holiday: false,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-
       renderWithRouter(
         <ShipmentForm
           {...defaultProps}
@@ -592,11 +543,11 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
       expect(screen.getByLabelText('Use current address')).not.toBeChecked();
-      expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
-      expect(screen.getByTestId('pickup.address.streetAddress2')).toHaveValue('');
-      expect(screen.getByTestId('pickup.address.city')).toHaveValue('San Antonio');
-      expect(screen.getByTestId('pickup.address.state')).toHaveValue('TX');
-      expect(screen.getByTestId('pickup.address.postalCode')).toHaveValue('78234');
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
       expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
@@ -640,11 +591,11 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
       expect(screen.getByLabelText('Use current address')).not.toBeChecked();
-      expect(screen.getByTestId('pickup.address.streetAddress1')).toHaveValue('812 S 129th St');
-      expect(screen.getByTestId('pickup.address.streetAddress2')).toHaveValue('');
-      expect(screen.getByTestId('pickup.address.city')).toHaveValue('San Antonio');
-      expect(screen.getByTestId('pickup.address.state')).toHaveValue('TX');
-      expect(screen.getByTestId('pickup.address.postalCode')).toHaveValue('78234');
+      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
+      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
       expect(screen.getAllByLabelText('First name')[0]).toHaveValue('Jason');
       expect(screen.getAllByLabelText('Last name')[0]).toHaveValue('Ash');
       expect(screen.getAllByLabelText('Phone')[0]).toHaveValue('999-999-9999');
@@ -1005,138 +956,6 @@ describe('ShipmentForm component', () => {
   });
 
   describe('as a TOO', () => {
-    it('create new - HHG: displays date alerts for pickup/delivery for weekends', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: true,
-        is_holiday: false,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(
-        <ShipmentForm {...defaultProps} isCreatePage shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />,
-      );
-      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2024');
-      await userEvent.type(screen.getByLabelText('Requested delivery date'), '30 Mar 2024');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 26 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-        expect(
-          screen.getByText(
-            /Requested delivery date 30 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
-    it('edit-HHG: pageload displays date alerts for pickup/delivery for weekends', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: true,
-        is_holiday: false,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.HHG}
-          userRole={roleTypes.TOO}
-        />,
-      );
-      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      expect(screen.queryByRole('heading', { level: 2, name: 'Vendor' })).not.toBeInTheDocument();
-      expect(await screen.findByLabelText('Requested pickup date')).toHaveValue('01 Mar 2020');
-      expect(await screen.findByLabelText('Requested delivery date')).toHaveValue('30 Mar 2020');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 01 Mar 2020 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-        expect(
-          screen.getByText(
-            /Requested delivery date 30 Mar 2020 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
-    it('edit-HHG: pageload displays date alerts for pickup/delivery for holiday', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: false,
-        is_holiday: true,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.HHG}
-          userRole={roleTypes.TOO}
-        />,
-      );
-      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 01 Mar 2020 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-        expect(
-          screen.getByText(
-            /Requested delivery date 30 Mar 2020 is on a holiday in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
-    it('edit-HHG: pageload displays date alerts for pickup/delivery for weekend and holiday', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: true,
-        is_holiday: true,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.HHG}
-          userRole={roleTypes.TOO}
-        />,
-      );
-      expect(await screen.findByText('HHG')).toHaveClass('usa-tag');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-        expect(
-          screen.getByText(
-            /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
     it('renders the HHG shipment form', async () => {
       renderWithRouter(<ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.HHG} userRole={roleTypes.TOO} />);
 
@@ -1161,63 +980,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Storage facility address' })).toBeInTheDocument();
     });
 
-    it('create new - NTS: displays date alerts for pickup/delivery for weekends', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: true,
-        is_holiday: false,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(
-        <ShipmentForm {...defaultProps} isCreatePage shipmentType={SHIPMENT_OPTIONS.NTS} userRole={roleTypes.TOO} />,
-      );
-      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
-      await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2024');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 26 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
-    it('edit-NTS: pageload displays date alerts for pickup/delivery for weekend and holiday', async () => {
-      const expectedDateSelectionIsWeekendHolidayResponse = {
-        country_code: 'US',
-        country_name: 'United States',
-        is_weekend: true,
-        is_holiday: true,
-      };
-      dateSelectionIsWeekendHoliday.mockImplementation(() =>
-        Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-      );
-      renderWithRouter(
-        <ShipmentForm
-          {...defaultProps}
-          isCreatePage={false}
-          shipmentType={SHIPMENT_OPTIONS.NTS}
-          userRole={roleTypes.TOO}
-        />,
-      );
-      expect(await screen.findByText('NTS')).toHaveClass('usa-tag');
-      await waitFor(() => {
-        expect(
-          screen.getByText(
-            /Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-        expect(
-          screen.getByText(
-            /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-          ),
-        ).toHaveClass('usa-alert__text');
-      });
-    });
-
     it('renders the NTS release shipment form', async () => {
       renderWithRouter(
         <ShipmentForm {...defaultProps} shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
@@ -1228,61 +990,6 @@ describe('ShipmentForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Vendor' })).toBeInTheDocument();
       expect(screen.getByLabelText('Requested pickup date')).toBeInTheDocument();
       expect(screen.getByLabelText('Requested delivery date')).toBeInTheDocument();
-    });
-  });
-
-  it('edit-NTSR: pageload displays date alerts for pickup/delivery for weekend and holiday', async () => {
-    const expectedDateSelectionIsWeekendHolidayResponse = {
-      country_code: 'US',
-      country_name: 'United States',
-      is_weekend: true,
-      is_holiday: true,
-    };
-    dateSelectionIsWeekendHoliday.mockImplementation(() =>
-      Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-    );
-    renderWithRouter(
-      <ShipmentForm
-        {...defaultProps}
-        isCreatePage={false}
-        shipmentType={SHIPMENT_OPTIONS.NTSR}
-        userRole={roleTypes.TOO}
-      />,
-    );
-    expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
-    expect(
-      screen.getByText(
-        'Requested pickup date 01 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date.',
-      ),
-    ).toHaveClass('usa-alert__text');
-    expect(
-      screen.getByText(
-        /Requested delivery date 30 Mar 2020 is on a holiday and weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-      ),
-    ).toHaveClass('usa-alert__text');
-  });
-
-  it('create new - NTSR: displays date alerts for pickup/delivery for weekends', async () => {
-    const expectedDateSelectionIsWeekendHolidayResponse = {
-      country_code: 'US',
-      country_name: 'United States',
-      is_weekend: true,
-      is_holiday: false,
-    };
-    dateSelectionIsWeekendHoliday.mockImplementation(() =>
-      Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
-    );
-    renderWithRouter(
-      <ShipmentForm {...defaultProps} isCreatePage shipmentType={SHIPMENT_OPTIONS.NTSR} userRole={roleTypes.TOO} />,
-    );
-    expect(await screen.findByText('NTS-release')).toHaveClass('usa-tag');
-    await userEvent.type(screen.getByLabelText('Requested delivery date'), '01 Mar 2024');
-    await waitFor(() => {
-      expect(
-        screen.getByText(
-          /Requested delivery date 01 Mar 2024 is on a weekend in the United States. This date may not be accepted. A government representative may not be available to provide assistance on this date./,
-        ),
-      ).toHaveClass('usa-alert__text');
     });
   });
 
@@ -1361,47 +1068,35 @@ describe('ShipmentForm component', () => {
       validatePostalCode.mockImplementation(() => Promise.resolve(false));
 
       renderWithRouter(
-        <Formik>
-          <ShipmentForm
-            {...defaultProps}
-            shipmentType={SHIPMENT_OPTIONS.PPM}
-            mtoShipment={mockPPMShipment}
-            submitHandler={mockSubmitHandler}
-            isCreatePage
-          />
-        </Formik>,
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          mtoShipment={mockPPMShipment}
+          submitHandler={mockSubmitHandler}
+          isCreatePage
+        />,
       );
 
       await act(async () => {
-        await fireEvent.change(screen.getByLabelText('Planned Departure Date'), { target: { value: '26 Mar 2022' } });
+        await userEvent.type(screen.getByLabelText('Planned Departure Date'), '26 Mar 2022');
 
-        await fireEvent.change(screen.getByTestId('pickup.address.streetAddress1'), {
-          target: { value: 'Test Street 1' },
-        });
-        await fireEvent.change(screen.getByTestId('pickup.address.city'), { target: { value: 'TestOne City' } });
-        const pickupStateInput = screen.getByTestId('pickup.address.state');
+        await userEvent.type(screen.getAllByLabelText('Address 1')[0], 'Test Street 1');
+        await userEvent.type(screen.getAllByLabelText('City')[0], 'TestOne City');
+        const pickupStateInput = screen.getAllByLabelText('State')[0];
         await userEvent.selectOptions(pickupStateInput, 'CA');
-        await fireEvent.change(screen.getByTestId('pickup.address.postalCode'), { target: { value: '90210' } });
-        await fireEvent.change(screen.getByTestId('pickup.address.county'), { target: { value: 'LOS ANGELES' } });
+        await userEvent.type(screen.getAllByLabelText('ZIP')[0], '90210');
 
-        await fireEvent.change(screen.getByTestId('destination.address.streetAddress1'), {
-          target: { value: 'Test Street 3' },
-        });
-        await fireEvent.change(screen.getByTestId('destination.address.city'), { target: { value: 'TestTwo City' } });
-        const destinationStateInput = screen.getByTestId('destination.address.state');
+        await userEvent.type(screen.getAllByLabelText('Address 1')[1], 'Test Street 3');
+        await userEvent.type(screen.getAllByLabelText('City')[1], 'TestTwo City');
+        const destinationStateInput = screen.getAllByLabelText('State')[1];
         await userEvent.selectOptions(destinationStateInput, 'CA');
-        await fireEvent.change(screen.getByTestId('destination.address.postalCode'), { target: { value: '90210' } });
-        await fireEvent.change(screen.getByTestId('destination.address.county'), { target: { value: 'LOS ANGELES' } });
+        await userEvent.type(screen.getAllByLabelText('ZIP')[1], '90210');
 
-        await fireEvent.change(screen.getByTestId('estimatedWeight'), { target: { value: '1000' } });
-        await fireEvent.blur(screen.getByTestId('destination.address.county'));
+        await userEvent.type(screen.getByLabelText('Estimated PPM weight'), '1000');
+
         const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
-
-        await waitFor(() => {
-          expect(saveButton).not.toBeDisabled();
-        });
-
-        await fireEvent.click(saveButton);
+        expect(saveButton).not.toBeDisabled();
+        await userEvent.click(saveButton);
       });
 
       await waitFor(() => {
@@ -1414,91 +1109,91 @@ describe('ShipmentForm component', () => {
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
-    // it('saves the update to the counselor remarks when the save button is clicked', async () => {
-    //   const newCounselorRemarks = 'Counselor remarks';
+    it('saves the update to the counselor remarks when the save button is clicked', async () => {
+      const newCounselorRemarks = 'Counselor remarks';
 
-    //   const expectedPayload = {
-    //     body: {
-    //       customerRemarks: 'mock customer remarks',
-    //       counselorRemarks: newCounselorRemarks,
-    //       hasSecondaryDeliveryAddress: false,
-    //       hasSecondaryPickupAddress: false,
-    //       hasTertiaryDeliveryAddress: false,
-    //       hasTertiaryPickupAddress: false,
-    //       destinationAddress: {
-    //         streetAddress1: '441 SW Rio de la Plata Drive',
-    //         city: 'Tacoma',
-    //         state: 'WA',
-    //         postalCode: '98421',
-    //         streetAddress2: '',
-    //         county: 'PIERCE',
-    //       },
-    //       pickupAddress: {
-    //         streetAddress1: '812 S 129th St',
-    //         city: 'San Antonio',
-    //         state: 'TX',
-    //         postalCode: '78234',
-    //         streetAddress2: '',
-    //         county: 'BEXAR',
-    //       },
-    //       agents: [
-    //         {
-    //           agentType: 'RELEASING_AGENT',
-    //           email: 'jasn@email.com',
-    //           firstName: 'Jason',
-    //           lastName: 'Ash',
-    //           phone: '999-999-9999',
-    //         },
-    //         {
-    //           agentType: 'RECEIVING_AGENT',
-    //           email: 'rbaker@email.com',
-    //           firstName: 'Riley',
-    //           lastName: 'Baker',
-    //           phone: '863-555-9664',
-    //         },
-    //       ],
-    //       requestedDeliveryDate: '2020-03-30',
-    //       requestedPickupDate: '2020-03-01',
-    //       shipmentType: SHIPMENT_OPTIONS.HHG,
-    //     },
-    //     shipmentID: 'shipment123',
-    //     moveTaskOrderID: 'mock move id',
-    //     normalize: false,
-    //   };
+      const expectedPayload = {
+        body: {
+          customerRemarks: 'mock customer remarks',
+          counselorRemarks: newCounselorRemarks,
+          hasSecondaryDeliveryAddress: false,
+          hasSecondaryPickupAddress: false,
+          hasTertiaryDeliveryAddress: false,
+          hasTertiaryPickupAddress: false,
+          destinationAddress: {
+            streetAddress1: '441 SW Rio de la Plata Drive',
+            city: 'Tacoma',
+            state: 'WA',
+            postalCode: '98421',
+            streetAddress2: '',
+            county: 'PIERCE',
+          },
+          pickupAddress: {
+            streetAddress1: '812 S 129th St',
+            city: 'San Antonio',
+            state: 'TX',
+            postalCode: '78234',
+            streetAddress2: '',
+            county: 'BEXAR',
+          },
+          agents: [
+            {
+              agentType: 'RELEASING_AGENT',
+              email: 'jasn@email.com',
+              firstName: 'Jason',
+              lastName: 'Ash',
+              phone: '999-999-9999',
+            },
+            {
+              agentType: 'RECEIVING_AGENT',
+              email: 'rbaker@email.com',
+              firstName: 'Riley',
+              lastName: 'Baker',
+              phone: '863-555-9664',
+            },
+          ],
+          requestedDeliveryDate: '2020-03-30',
+          requestedPickupDate: '2020-03-01',
+          shipmentType: SHIPMENT_OPTIONS.HHG,
+        },
+        shipmentID: 'shipment123',
+        moveTaskOrderID: 'mock move id',
+        normalize: false,
+      };
 
-    //   const patchResponse = {
-    //     ...expectedPayload,
-    //     created_at: '2021-02-08T16:48:04.117Z',
-    //     updated_at: '2021-02-11T16:48:04.117Z',
-    //   };
+      const patchResponse = {
+        ...expectedPayload,
+        created_at: '2021-02-08T16:48:04.117Z',
+        updated_at: '2021-02-11T16:48:04.117Z',
+      };
 
-    //   const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
+      const mockSubmitHandler = jest.fn(() => Promise.resolve(patchResponse));
 
-    //   renderWithRouter(
-    //     <ShipmentForm
-    //       {...defaultProps}
-    //       shipmentType={SHIPMENT_OPTIONS.HHG}
-    //       submitHandler={mockSubmitHandler}
-    //       isCreatePage={false}
-    //     />,
-    //   );
-    //   const counselorRemarks = await screen.findByLabelText('Counselor remarks');
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.HHG}
+          submitHandler={mockSubmitHandler}
+          isCreatePage={false}
+        />,
+      );
+      const counselorRemarks = await screen.findByLabelText('Counselor remarks');
 
-    //   await act(async () => {
-    //     await userEvent.clear(counselorRemarks);
-    //     await userEvent.type(counselorRemarks, newCounselorRemarks);
-    //     const saveButton = screen.getByRole('button', { name: 'Save' });
-    //     expect(saveButton).not.toBeDisabled();
-    //     await userEvent.click(saveButton);
-    //   });
+      await act(async () => {
+        await userEvent.clear(counselorRemarks);
+        await userEvent.type(counselorRemarks, newCounselorRemarks);
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        expect(saveButton).not.toBeDisabled();
+        await userEvent.click(saveButton);
+      });
 
-    //   await waitFor(() => {
-    //     expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload, {
-    //       onSuccess: expect.any(Function),
-    //       onError: expect.any(Function),
-    //     });
-    //   });
-    // });
+      await waitFor(() => {
+        expect(mockSubmitHandler).toHaveBeenCalledWith(expectedPayload, {
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        });
+      });
+    });
   });
 
   describe('external vendor shipment', () => {
@@ -1571,67 +1266,63 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-      expect(await screen.getByTestId('pickup.address.streetAddress1')).toHaveValue(
+      expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
       );
-      expect(await screen.getByTestId('pickup.address.streetAddress2')).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
       );
-      expect(await screen.getByTestId('pickup.address.city')).toHaveValue(
-        mockPPMShipment.ppmShipment.pickupAddress.city,
-      );
-      expect(await screen.getByTestId('pickup.address.state')).toHaveValue(
-        mockPPMShipment.ppmShipment.pickupAddress.state,
-      );
-      expect(await screen.getByTestId('pickup.address.postalCode')).toHaveValue(
+      expect(await screen.getAllByLabelText('City')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.city);
+      expect(await screen.getAllByLabelText('State')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.state);
+      expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(
         mockPPMShipment.ppmShipment.pickupAddress.postalCode,
       );
 
-      expect(await screen.getByTestId('secondaryPickup.address.streetAddress1')).toHaveValue(
+      expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
       );
-      expect(await screen.getByTestId('secondaryPickup.address.streetAddress2')).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
       );
-      expect(await screen.getByTestId('secondaryPickup.address.city')).toHaveValue(
+      expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.city,
       );
-      expect(await screen.getByTestId('secondaryPickup.address.state')).toHaveValue(
+      expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.state,
       );
-      expect(await screen.getByTestId('secondaryPickup.address.postalCode')).toHaveValue(
+      expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getByTestId('destination.address.streetAddress1')).toHaveValue(
+      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
       );
-      expect(await screen.getByTestId('destination.address.streetAddress2')).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress2,
       );
-      expect(await screen.getByTestId('destination.address.city')).toHaveValue(
+      expect(await screen.getAllByLabelText('City')[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.city,
       );
-      expect(await screen.getByTestId('destination.address.state')).toHaveValue(
+      expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.state,
       );
-      expect(await screen.getByTestId('destination.address.postalCode')).toHaveValue(
+      expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getByTestId('secondaryDestination.address.streetAddress1')).toHaveValue(
+      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
-      expect(await screen.getByTestId('secondaryDestination.address.streetAddress2')).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
       );
-      expect(await screen.getByTestId('secondaryDestination.address.city')).toHaveValue(
+      expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
       );
-      expect(await screen.getByTestId('secondaryDestination.address.state')).toHaveValue(
+      expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
       );
-      expect(await screen.getByTestId('secondaryDestination.address.postalCode')).toHaveValue(
+      expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
       );
 
@@ -1698,67 +1389,63 @@ describe('ShipmentForm component', () => {
 
         expect(await screen.getByLabelText('Planned Departure Date')).toHaveValue('01 Apr 2022');
 
-        expect(await screen.getByTestId('pickup.address.streetAddress1')).toHaveValue(
+        expect(await screen.getAllByLabelText('Address 1')[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress1,
         );
-        expect(await screen.getByTestId('pickup.address.streetAddress2')).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 2/)[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.streetAddress2,
         );
-        expect(await screen.getByTestId('pickup.address.city')).toHaveValue(
-          mockPPMShipment.ppmShipment.pickupAddress.city,
-        );
-        expect(await screen.getByTestId('pickup.address.state')).toHaveValue(
-          mockPPMShipment.ppmShipment.pickupAddress.state,
-        );
-        expect(await screen.getByTestId('pickup.address.postalCode')).toHaveValue(
+        expect(await screen.getAllByLabelText('City')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.city);
+        expect(await screen.getAllByLabelText('State')[0]).toHaveValue(mockPPMShipment.ppmShipment.pickupAddress.state);
+        expect(await screen.getAllByLabelText('ZIP')[0]).toHaveValue(
           mockPPMShipment.ppmShipment.pickupAddress.postalCode,
         );
 
-        expect(await screen.getByTestId('secondaryPickup.address.streetAddress1')).toHaveValue(
+        expect(await screen.getAllByLabelText('Address 1')[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress1,
         );
-        expect(await screen.getByTestId('secondaryPickup.address.streetAddress2')).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 2/)[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.streetAddress2,
         );
-        expect(await screen.getByTestId('secondaryPickup.address.city')).toHaveValue(
+        expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.city,
         );
-        expect(await screen.getByTestId('secondaryPickup.address.state')).toHaveValue(
+        expect(await screen.getAllByLabelText('State')[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.state,
         );
-        expect(await screen.getByTestId('secondaryPickup.address.postalCode')).toHaveValue(
+        expect(await screen.getAllByLabelText('ZIP')[1]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
         );
 
-        expect(await screen.getByTestId('destination.address.streetAddress1')).toHaveValue(
+        expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
         );
-        expect(await screen.getByTestId('destination.address.streetAddress2')).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress2,
         );
-        expect(await screen.getByTestId('destination.address.city')).toHaveValue(
+        expect(await screen.getAllByLabelText('City')[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.city,
         );
-        expect(screen.getByTestId('destination.address.state')).toHaveValue(
+        expect(await screen.getAllByLabelText('State')[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.state,
         );
-        expect(await screen.getByTestId('destination.address.postalCode')).toHaveValue(
+        expect(await screen.getAllByLabelText('ZIP')[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.postalCode,
         );
 
-        expect(await screen.getByTestId('secondaryDestination.address.streetAddress1')).toHaveValue(
+        expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
         );
-        expect(await screen.getByTestId('secondaryDestination.address.streetAddress2')).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress2,
         );
-        expect(await screen.getByTestId('secondaryDestination.address.city')).toHaveValue(
+        expect(await screen.getAllByLabelText('City')[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.city,
         );
-        expect(await screen.getByTestId('secondaryDestination.address.state')).toHaveValue(
+        expect(await screen.getAllByLabelText('State')[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.state,
         );
-        expect(await screen.getByTestId('secondaryDestination.address.postalCode')).toHaveValue(
+        expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.postalCode,
         );
 
