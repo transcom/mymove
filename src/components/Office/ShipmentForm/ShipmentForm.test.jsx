@@ -733,7 +733,8 @@ describe('ShipmentForm component', () => {
         const officeRemarksAnswer = 'Here are my remarks from the office';
         await act(async () => {
           await user.click(approvalYes);
-          await user.type(officeRemarks, officeRemarksAnswer);
+          officeRemarks.focus();
+          await user.paste(officeRemarksAnswer);
           await user.click(save);
         });
 
@@ -892,7 +893,8 @@ describe('ShipmentForm component', () => {
       );
 
       await act(async () => {
-        await userEvent.type(screen.getByLabelText('Requested pickup date'), '26 Mar 2022');
+        screen.getByLabelText('Requested pickup date').focus();
+        await userEvent.paste('26 Mar 2022');
         await userEvent.click(screen.getByTestId('useCurrentResidence'));
       });
 
@@ -1078,21 +1080,29 @@ describe('ShipmentForm component', () => {
       );
 
       await act(async () => {
-        await userEvent.type(screen.getByLabelText('Planned Departure Date'), '26 Mar 2022');
+        screen.getByLabelText('Planned Departure Date').focus();
+        await userEvent.paste('26 Mar 2022');
 
-        await userEvent.type(screen.getAllByLabelText('Address 1')[0], 'Test Street 1');
-        await userEvent.type(screen.getAllByLabelText('City')[0], 'TestOne City');
+        screen.getAllByLabelText('Address 1')[0].focus();
+        await userEvent.paste('Test Street 1');
+        screen.getAllByLabelText('City')[0].focus();
+        await userEvent.paste('TestOne City');
         const pickupStateInput = screen.getAllByLabelText('State')[0];
         await userEvent.selectOptions(pickupStateInput, 'CA');
-        await userEvent.type(screen.getAllByLabelText('ZIP')[0], '90210');
+        screen.getAllByLabelText('ZIP')[0].focus();
+        await userEvent.paste('90210');
 
-        await userEvent.type(screen.getAllByLabelText('Address 1')[1], 'Test Street 3');
-        await userEvent.type(screen.getAllByLabelText('City')[1], 'TestTwo City');
+        screen.getAllByLabelText('Address 1')[1].focus();
+        await userEvent.paste('Test Street 3');
+        screen.getAllByLabelText('City')[1].focus();
+        await userEvent.paste('TestTwo City');
         const destinationStateInput = screen.getAllByLabelText('State')[1];
         await userEvent.selectOptions(destinationStateInput, 'CA');
-        await userEvent.type(screen.getAllByLabelText('ZIP')[1], '90210');
+        screen.getAllByLabelText('ZIP')[1].focus();
+        await userEvent.paste('90210');
 
-        await userEvent.type(screen.getByLabelText('Estimated PPM weight'), '1000');
+        screen.getByLabelText('Estimated PPM weight').focus();
+        await userEvent.paste('1000');
 
         const saveButton = screen.getByRole('button', { name: 'Save and Continue' });
         expect(saveButton).not.toBeDisabled();
@@ -1181,7 +1191,8 @@ describe('ShipmentForm component', () => {
 
       await act(async () => {
         await userEvent.clear(counselorRemarks);
-        await userEvent.type(counselorRemarks, newCounselorRemarks);
+        counselorRemarks.focus();
+        await userEvent.paste(newCounselorRemarks);
         const saveButton = screen.getByRole('button', { name: 'Save' });
         expect(saveButton).not.toBeDisabled();
         await userEvent.click(saveButton);
@@ -1532,7 +1543,8 @@ describe('ShipmentForm component', () => {
       expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
 
       await act(async () => {
-        await userEvent.type(screen.getByLabelText('Counselor remarks'), 'retirees are not given advances');
+        screen.getByLabelText('Counselor remarks').focus();
+        await userEvent.paste('retirees are not given advances');
         await userEvent.tab();
       });
 
@@ -1582,7 +1594,8 @@ describe('ShipmentForm component', () => {
       // Edit a requested advance amount
       await act(async () => {
         await userEvent.clear(advanceAmountInput);
-        await userEvent.type(advanceAmountInput, '2,000');
+        advanceAmountInput.focus();
+        await userEvent.paste('2,000');
         advanceAmountInput.blur();
       });
       await waitFor(() => {
@@ -1605,7 +1618,8 @@ describe('ShipmentForm component', () => {
       });
       const advanceAmountRequested = screen.getByLabelText('Amount requested');
       await act(async () => {
-        await userEvent.type(advanceAmountRequested, '0');
+        advanceAmountRequested.focus();
+        await userEvent.paste('0');
       });
       expect(advanceAmountRequested).toHaveValue('0');
 
@@ -1661,10 +1675,8 @@ describe('ShipmentForm component', () => {
       expect(requiredAlert[0]).toHaveTextContent('Required');
 
       await act(async () => {
-        await userEvent.type(
-          screen.getByLabelText('Counselor remarks'),
-          'I, a service counselor, have rejected your advance request',
-        );
+        screen.getByLabelText('Counselor remarks').focus();
+        await userEvent.paste('I, a service counselor, have rejected your advance request');
         await userEvent.tab();
       });
 
