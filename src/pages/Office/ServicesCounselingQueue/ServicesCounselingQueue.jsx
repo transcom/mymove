@@ -190,8 +190,10 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor) 
     (row) => {
       const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
       return (
-        <div data-label="assignedSelect">
-          <Dropdown defaultValue={assignedToUser?.value}>{formattedAvailableOfficeUsers}</Dropdown>
+        <div data-label="assignedSelect" className={styles.assignedToCol}>
+          <Dropdown defaultValue={assignedToUser?.value} title="Assigned dropdown">
+            {formattedAvailableOfficeUsers}
+          </Dropdown>
         </div>
       );
     },
