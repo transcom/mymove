@@ -165,7 +165,6 @@ const MobileHomeShipmentCreate = ({
               onSubmit={handleSubmit}
               onBack={handleBack}
               postalCodeValidator={validatePostalCode}
-              isSubmitting={false}
               isEditPage={isEditPage}
             />
           </Grid>
