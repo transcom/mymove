@@ -384,6 +384,15 @@ func CalculateTotalPastDaysInSIT(shipmentSITs SortedShipmentSITs, today time.Tim
 
 func CalculateSITAuthorizedEndDate(totalSITAllowance int, currentDaysInSIT int, sitEntryDate time.Time, totalDaysInSITSoFar int, sitDepartureDate *time.Time) time.Time {
 	sitAuthorizedEndDate := sitEntryDate.AddDate(0, 0, (totalSITAllowance - (totalDaysInSITSoFar - currentDaysInSIT)))
+	// Subtract the last day to be inclusive of counting it
+	// Eg, this func successfully counts totalSITAllowance days from SITEntryDate, but per customer requirements, they will
+	// then count that last day too. So if given 90 days of allowance, we'd get Aug 20 2024 thru Nov 18 2024. 90 days as expected
+	// but then if you count the last day, it gets 91. Thus making the calculation incorrect. This is why we subtract a day, to be inclusive of it
+	sitAuthorizedEndDate = sitAuthorizedEndDate.AddDate(0, 0, -1)
+	// Ensure that the authorized end date does not go before the entry date
+	if sitAuthorizedEndDate.Before(sitEntryDate) {
+		sitAuthorizedEndDate = sitEntryDate
+	}
 	// If the SIT departure date is set and it is before the currently authorized end date
 	// then the original SIT authorized end date should be updated to the departure date
 	if sitDepartureDate != nil && (sitDepartureDate.Before(sitAuthorizedEndDate) && sitDepartureDate.After(sitEntryDate)) {
