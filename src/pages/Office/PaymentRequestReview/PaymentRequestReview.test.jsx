@@ -483,9 +483,9 @@ describe('PaymentRequestReview', () => {
         expect(terms[1]).toHaveTextContent('Accepted');
         expect(terms[2]).toHaveTextContent('Rejected');
         const definitions = screen.getAllByRole('definition');
-        expect(definitions[0]).toHaveTextContent('$1,703.10');
-        expect(definitions[1]).toHaveTextContent('$1,579.98');
-        expect(definitions[2]).toHaveTextContent('$123.12');
+        expect(definitions[1]).toHaveTextContent('$1,703.10');
+        expect(definitions[2]).toHaveTextContent('$1,579.98');
+        expect(definitions[3]).toHaveTextContent('$123.12');
       });
       it('navigates back, and shows the correct icons for approved and rejected cards', async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Back' }));
@@ -496,6 +496,10 @@ describe('PaymentRequestReview', () => {
         expect(screen.getByTestId('statusHeading')).toHaveTextContent('Rejected');
         await userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
         expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
+      });
+      it('shows the Download All Files (PDF) button and downloads the pdf', async () => {
+        expect(screen.getByText('Download All Files (PDF)')).toBeInTheDocument();
+        await userEvent.click(screen.getByText('Download All Files (PDF)'));
       });
     });
   });

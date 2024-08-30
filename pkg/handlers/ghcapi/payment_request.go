@@ -265,7 +265,7 @@ func (h ShipmentsSITBalanceHandler) Handle(
 
 type PaymentRequestBulkDownloadHandler struct {
 	handlers.HandlerConfig
-	services.PaymentRequestPacketCreator
+	services.PaymentRequestBulkDownloadCreator
 }
 
 func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDownloadParams) middleware.Responder {
@@ -283,7 +283,7 @@ func (h PaymentRequestBulkDownloadHandler) Handle(params paymentrequestop.BulkDo
 				return paymentrequestop.NewBulkDownloadBadRequest().WithPayload(errPayload), err
 			}
 
-			paymentRequestPacket, err := h.PaymentRequestPacketCreator.CreatePaymentRequestPacket(appCtx, paymentRequestID)
+			paymentRequestPacket, err := h.PaymentRequestBulkDownloadCreator.CreatePaymentRequestBulkDownload(appCtx, paymentRequestID)
 			if err != nil {
 				logger.Error("Error creating Payment Request Downloads Packet", zap.Error(err))
 				errInstance := fmt.Sprintf("Instance: %s", h.GetTraceIDFromRequest(params.HTTPRequest))

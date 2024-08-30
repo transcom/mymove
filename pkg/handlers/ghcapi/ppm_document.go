@@ -193,14 +193,14 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 		})
 }
 
-// ShowPaymentPacketHandler returns a PPM Payment Packet PDF
-type ShowPaymentPacketHandler struct {
+// ShowPaymentRequestBulkDownloadHandler returns a PPM Payment Packet PDF
+type ShowPaymentRequestBulkDownloadHandler struct {
 	handlers.HandlerConfig
 	services.PaymentPacketCreator
 }
 
 // Handle returns a generated PDF
-func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacketParams) middleware.Responder {
+func (h ShowPaymentRequestBulkDownloadHandler) Handle(params ppmdocumentops.ShowPaymentPacketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())

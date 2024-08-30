@@ -117,6 +117,6 @@ type ShipmentsPaymentSITBalance interface {
 	ListShipmentPaymentSITBalance(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) ([]ShipmentPaymentSITBalance, error)
 }
 
-type PaymentRequestPacketCreator interface {
-	CreatePaymentRequestPacket(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error)
+type PaymentRequestBulkDownloadCreator interface {
+	CreatePaymentRequestBulkDownload(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error)
 }

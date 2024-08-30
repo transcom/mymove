@@ -16,13 +16,13 @@ type paymentRequestBulkDownloadCreator struct {
 	pdfGenerator *paperwork.Generator
 }
 
-func NewPaymentRequestBulkDownloadCreator(pdfGenerator *paperwork.Generator) services.PaymentRequestPacketCreator {
+func NewPaymentRequestBulkDownloadCreator(pdfGenerator *paperwork.Generator) services.PaymentRequestBulkDownloadCreator {
 	return &paymentRequestBulkDownloadCreator{
 		pdfGenerator,
 	}
 }
 
-func (p *paymentRequestBulkDownloadCreator) CreatePaymentRequestPacket(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error) {
+func (p *paymentRequestBulkDownloadCreator) CreatePaymentRequestBulkDownload(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error) {
 	errMsgPrefix := "error creating Payment Request packet"
 
 	paymentRequest := models.PaymentRequest{}
@@ -43,7 +43,7 @@ func (p *paymentRequestBulkDownloadCreator) CreatePaymentRequestPacket(appCtx ap
 		}
 	}
 
-	pdfs, err := p.pdfGenerator.ConvertUploadsToPDF(appCtx, primeUploads)
+	pdfs, err := p.pdfGenerator.ConvertUploadsToPDF(appCtx, primeUploads, false)
 	if err != nil {
 		return nil, fmt.Errorf("%s error generating pdf", err)
 	}

@@ -175,7 +175,7 @@ export const PaymentRequestReview = ({ order }) => {
 
   const paymentPacketDownload = (
     <div>
-      <dd data-testid="aoaPacketDownload">
+      <dd data-testid="bulkPacketDownload">
         <p className={styles.downloadLink}>
           <AsyncPacketDownloadLink
             id={paymentRequestId}

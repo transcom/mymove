@@ -637,7 +637,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
-	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
+	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentRequestBulkDownloadHandler{handlerConfig, paymentPacketCreator}
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsDeleteUploadHandler = DeleteUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
@@ -665,10 +665,10 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewOrderUpdater(moveRouter),
 	}
 
-	paymentRequestPacketCreator := paymentrequest.NewPaymentRequestBulkDownloadCreator(pdfGenerator)
+	paymentRequestBulkDownloadCreator := paymentrequest.NewPaymentRequestBulkDownloadCreator(pdfGenerator)
 	ghcAPI.PaymentRequestsBulkDownloadHandler = PaymentRequestBulkDownloadHandler{
 		handlerConfig,
-		paymentRequestPacketCreator,
+		paymentRequestBulkDownloadCreator,
 	}
 
 	return ghcAPI
