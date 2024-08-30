@@ -20,6 +20,7 @@ import (
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
@@ -232,6 +233,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		UploadsGetUploadHandler: uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
+    }),
+		CalendarIsDateWeekendHolidayHandler: calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
+			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
 		}),
 		MtoServiceItemListMTOServiceItemsHandler: mto_service_item.ListMTOServiceItemsHandlerFunc(func(params mto_service_item.ListMTOServiceItemsParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_service_item.ListMTOServiceItems has not yet been implemented")
@@ -512,6 +516,8 @@ type MymoveAPI struct {
 	TransportationOfficeGetTransportationOfficesOpenHandler transportation_office.GetTransportationOfficesOpenHandler
 	// UploadsGetUploadHandler sets the operation handler for the get upload operation
 	UploadsGetUploadHandler uploads.GetUploadHandler
+	// CalendarIsDateWeekendHolidayHandler sets the operation handler for the is date weekend holiday operation
+	CalendarIsDateWeekendHolidayHandler calendar.IsDateWeekendHolidayHandler
 	// MtoServiceItemListMTOServiceItemsHandler sets the operation handler for the list m t o service items operation
 	MtoServiceItemListMTOServiceItemsHandler mto_service_item.ListMTOServiceItemsHandler
 	// MtoShipmentListMTOShipmentsHandler sets the operation handler for the list m t o shipments operation
@@ -841,6 +847,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.UploadsGetUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.GetUploadHandler")
+  }
+	if o.CalendarIsDateWeekendHolidayHandler == nil {
+		unregistered = append(unregistered, "calendar.IsDateWeekendHolidayHandler")
 	}
 	if o.MtoServiceItemListMTOServiceItemsHandler == nil {
 		unregistered = append(unregistered, "mto_service_item.ListMTOServiceItemsHandler")
@@ -1277,6 +1286,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/uploads/get"] = uploads.NewGetUpload(o.context, o.UploadsGetUploadHandler)
+  	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/calendar/{countryCode}/is-weekend-holiday/{date}"] = calendar.NewIsDateWeekendHoliday(o.context, o.CalendarIsDateWeekendHolidayHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}

@@ -920,6 +920,32 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(storer storage.FileStorer, boatShipment *models.BoatShipment) *ghcmessages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadBoatShipment := &ghcmessages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           models.StringPointer(string(boatShipment.Type)),
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadBoatShipment
+}
+
 // ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
 func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*ghcmessages.ProGearWeightTicket {
 	payload := make([]*ghcmessages.ProGearWeightTicket, len(proGearWeightTickets))
@@ -1341,6 +1367,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
@@ -1694,6 +1721,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
 
@@ -1893,7 +1921,8 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
 
 		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
-			FullName:           officeUser.LastName + ", " + officeUser.FirstName,
+			LastName:           officeUser.LastName,
+			FirstName:          officeUser.FirstName,
 			OfficeUserID:       *handlers.FmtUUID(officeUser.ID),
 			HasSafetyPrivilege: swag.BoolValue(&hasSafety),
 		}

@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/application_parameters"
+	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/calendar"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/customer_support_remarks"
 	"github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/evaluation_reports"
@@ -342,6 +343,11 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.UploadsGetUploadHandler == nil {
 		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
+    })
+	}
+	if api.CalendarIsDateWeekendHolidayHandler == nil {
+		api.CalendarIsDateWeekendHolidayHandler = calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
+			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
 		})
 	}
 	if api.MtoServiceItemListMTOServiceItemsHandler == nil {

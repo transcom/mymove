@@ -138,3 +138,7 @@ properties:
     type: integer
     format: cents
     x-nullable: true
+  lockedPriceCents:
+    type: integer
+    format: cents
+    x-nullable: true
