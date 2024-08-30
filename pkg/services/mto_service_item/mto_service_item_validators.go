@@ -27,6 +27,13 @@ var UpdateMTOServiceItemValidators = map[string]updateMTOServiceItemValidator{
 	UpdateMTOServiceItemPrimeValidator: new(primeUpdateMTOServiceItemValidator),
 }
 
+// Manual updates to SIT Departure dates are allowed for these service items
+var (
+	OriginReServiceCodesAllowedForSITDepartureDateUpdate      = []models.ReServiceCode{models.ReServiceCodeDOPSIT, models.ReServiceCodeDOFSIT, models.ReServiceCodeDOASIT}
+	DestinationReServiceCodesAllowedForSITDepartureDateUpdate = []models.ReServiceCode{models.ReServiceCodeDDDSIT, models.ReServiceCodeDDASIT}
+	ReServiceCodesAllowedForSITDepartureDateUpdate            = append(DestinationReServiceCodesAllowedForSITDepartureDateUpdate, OriginReServiceCodesAllowedForSITDepartureDateUpdate...)
+)
+
 var allSITServiceItemsToCheck = []models.ReServiceCode{
 	models.ReServiceCodeDDDSIT,
 	models.ReServiceCodeDDASIT,
@@ -113,6 +120,13 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 
 	// Checks that only SITDepartureDate is only updated for DDDSIT and DOPSIT objects
 	err = serviceItemData.checkSITDeparture(appCtx)
+	if err != nil {
+		return err
+	}
+
+	// Checks that the SITDepartureDate
+	// - is not later than the authorized end date
+	err = serviceItemData.checkSITDepartureDate(appCtx)
 	if err != nil {
 		return err
 	}
@@ -379,7 +393,6 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
 func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
-
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}
@@ -415,6 +428,35 @@ func (v *updateMTOServiceItemData) checkSITEntryDateAndFADD(_ appcontext.AppCont
 			}
 		}
 		return nil
+	}
+	return nil
+}
+
+// checkSITDepartureDate checks that the SITDepartureDate:
+// - is not later than the authorized end date
+func (v *updateMTOServiceItemData) checkSITDepartureDate(_ appcontext.AppContext) error {
+	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
+		return nil // the SITDepartureDate isn't being updated, so we're fine here
+	}
+
+	if v.updatedServiceItem.SITDepartureDate != nil {
+		if v.oldServiceItem.MTOShipmentID == nil || *v.oldServiceItem.MTOShipmentID == uuid.Nil {
+			// If we are updating the SIT departure date, there must be an attached MTO shipment to this service item
+			// Otherwise, authorized end dates cannot be calculated or validated properly
+			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have an attached MTO Shipment, preventing proper lookup of the authorized end date. This occurs on the server not preloading necessary data.", v.updatedServiceItem.ID))
+		}
+		// Set the SIT entry date we are going to use for comparison
+		if v.updatedServiceItem.SITEntryDate == nil && v.oldServiceItem.SITEntryDate == nil {
+			return apperror.NewInternalServerError(fmt.Sprintf("The requested service item updates for ID %s did not have a SIT entry date attached.", v.updatedServiceItem.ID))
+		}
+		SITEntryDate := v.oldServiceItem.SITEntryDate
+		if v.updatedServiceItem.SITEntryDate != nil {
+			SITEntryDate = v.updatedServiceItem.SITEntryDate
+		}
+		// Check that departure date is not before the current entry date
+		if v.updatedServiceItem.SITDepartureDate.Before(*SITEntryDate) {
+			v.verrs.Add("SITDepartureDate", "SIT departure date cannot be set before the SIT entry date.")
+		}
 	}
 	return nil
 }
