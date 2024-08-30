@@ -409,6 +409,10 @@ func initializeRouteOptions(v *viper.Viper, routingConfig *routing.Config) {
 	if routingConfig.ServeGHC {
 		routingConfig.GHCSwaggerPath = v.GetString(cli.GHCSwaggerFlag)
 	}
+	routingConfig.ServePPTAS = v.GetBool(cli.ServePPTASFlag)
+	if routingConfig.ServePPTAS {
+		routingConfig.PPTASSwaggerPath = v.GetString(cli.PPTASSwaggerFlag)
+	}
 	routingConfig.ServeDevlocalAuth = v.GetBool(cli.DevlocalAuthFlag)
 
 	routingConfig.GitBranch = gitBranch
@@ -433,6 +437,7 @@ func buildRoutingConfig(appCtx appcontext.AppContext, v *viper.Viper, redisPool 
 		AdminServername:  v.GetString(cli.HTTPAdminServerNameFlag),
 		OrdersServername: v.GetString(cli.HTTPOrdersServerNameFlag),
 		PrimeServername:  v.GetString(cli.HTTPPrimeServerNameFlag),
+		PPTASServerName:  v.GetString(cli.HTTPPPTASServerNameFlag),
 	}
 
 	clientAuthSecretKey := v.GetString(cli.ClientAuthSecretKeyFlag)

@@ -37,15 +37,3 @@ AmendedOrdersDocument.args = {
   documentType: MOVE_DOCUMENT_TYPE.AMENDMENTS,
   updateAmendedDocument: () => {},
 };
-
-export const SupportingDocuments = Template.bind({});
-SupportingDocuments.args = {
-  move: { id: 'move-id', locator: 'move-locator' },
-  orderId: 'order-id',
-  documentId: 'document-id',
-  files: [
-    { id: 'file-3', name: 'File 3', filename: 'file3.jpg', bytes: 512, createdAt: '2024-07-26T18:38:00Z' },
-    { id: 'file-4', name: 'File 4', filename: 'file4.png', bytes: 1024, createdAt: '2024-07-26T18:38:00Z' },
-  ],
-  documentType: MOVE_DOCUMENT_TYPE.SUPPORTING,
-};

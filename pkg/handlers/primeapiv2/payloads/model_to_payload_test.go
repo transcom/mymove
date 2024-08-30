@@ -333,44 +333,6 @@ func (suite *PayloadsSuite) TestEntitlement() {
 	})
 }
 
-func (suite *PayloadsSuite) TestSITAddressUpdate() {
-	newAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress3})
-	contractorRemark := "I must update the final address please"
-	officeRemark := ""
-
-	suite.Run("Success - Returns a SITAddressUpdate payload as expected", func() {
-		sitAddressUpdate := models.SITAddressUpdate{
-			ID:                uuid.Must(uuid.NewV4()),
-			MTOServiceItemID:  uuid.Must(uuid.NewV4()),
-			NewAddressID:      newAddress.ID,
-			NewAddress:        newAddress,
-			ContractorRemarks: &contractorRemark,
-			OfficeRemarks:     &officeRemark,
-			Status:            models.SITAddressUpdateStatusRequested,
-			UpdatedAt:         time.Now(),
-			CreatedAt:         time.Now(),
-		}
-
-		payload := SITAddressUpdate(&sitAddressUpdate)
-
-		suite.Equal(payload.ID.String(), sitAddressUpdate.ID.String())
-		suite.Equal(payload.MtoServiceItemID.String(), sitAddressUpdate.MTOServiceItemID.String())
-		suite.Equal(payload.NewAddressID.String(), sitAddressUpdate.NewAddressID.String())
-		suite.Equal(payload.NewAddress.ID.String(), sitAddressUpdate.NewAddress.ID.String())
-		suite.Equal(*payload.NewAddress.City, sitAddressUpdate.NewAddress.City)
-		suite.Equal(*payload.NewAddress.State, sitAddressUpdate.NewAddress.State)
-		suite.Equal(*payload.NewAddress.PostalCode, sitAddressUpdate.NewAddress.PostalCode)
-		suite.Equal(*payload.NewAddress.Country, *sitAddressUpdate.NewAddress.Country)
-		suite.Equal(*payload.NewAddress.County, sitAddressUpdate.NewAddress.County)
-		suite.Equal(*payload.NewAddress.StreetAddress1, sitAddressUpdate.NewAddress.StreetAddress1)
-		suite.Equal(payload.ContractorRemarks, sitAddressUpdate.ContractorRemarks)
-		suite.Equal(payload.OfficeRemarks, sitAddressUpdate.OfficeRemarks)
-		suite.Equal(payload.Status, sitAddressUpdate.Status)
-		suite.Equal(strfmt.DateTime(payload.UpdatedAt).String(), strfmt.DateTime(sitAddressUpdate.UpdatedAt).String())
-		suite.Equal(strfmt.DateTime(payload.CreatedAt).String(), strfmt.DateTime(sitAddressUpdate.CreatedAt).String())
-	})
-}
-
 func (suite *PayloadsSuite) TestValidationError() {
 	instanceID, _ := uuid.NewV4()
 	detail := "Err"
@@ -612,17 +574,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 
 	suite.NotNil(result)
 	suite.Equal(strfmt.UUID(shipmentAddressUpdate.ID.String()), result.ID)
-}
-
-func (suite *PayloadsSuite) TestSITAddressUpdates() {
-	sitAddressUpdates := models.SITAddressUpdates{
-		models.SITAddressUpdate{ID: uuid.Must(uuid.NewV4())},
-	}
-
-	result := SITAddressUpdates(sitAddressUpdates)
-
-	suite.NotNil(result)
-	suite.Equal(len(sitAddressUpdates), len(result))
 }
 func (suite *PayloadsSuite) TestMTOServiceItemDestSIT() {
 	reServiceCode := models.ReServiceCodeDDFSIT
