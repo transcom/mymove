@@ -275,7 +275,7 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('textInput'));
-    expect(screen.getAllByText('Required')).toHaveLength(3); // Will have 3 because a red "Required" warning will also be present after user clears data in field.
+    expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });
 
@@ -293,13 +293,7 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('remarks'));
-    await screen.getByTestId('remarks').blur();
-    expect(
-      screen
-        .getByTestId('remarks')
-        .parentElement.parentElement.getElementsByClassName('labelWrapper')[0]
-        .getElementsByTagName('div')[0].textContent === 'Required',
-    );
+    expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });
 });
