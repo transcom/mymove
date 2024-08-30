@@ -343,7 +343,7 @@ func configureAPI(api *ghcoperations.MymoveAPI) http.Handler {
 	if api.UploadsGetUploadHandler == nil {
 		api.UploadsGetUploadHandler = uploads.GetUploadHandlerFunc(func(params uploads.GetUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.GetUpload has not yet been implemented")
-    })
+		})
 	}
 	if api.CalendarIsDateWeekendHolidayHandler == nil {
 		api.CalendarIsDateWeekendHolidayHandler = calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
