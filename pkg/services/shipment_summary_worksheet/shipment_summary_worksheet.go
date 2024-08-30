@@ -415,8 +415,8 @@ func formatSignedCertifications(signedCertifications []*models.SignedCertificati
 	certifications.DateField = "AOA: " + aoaDate
 
 	if isPaymentPacket {
-		certifications.OfficeField = "AOA: " + aoaSignature + "\nSSW: " + sswSignature
-		certifications.DateField = "AOA: " + aoaDate + "\nSSW: " + sswDate
+		certifications.OfficeField += "\nSSW: " + sswSignature
+		certifications.DateField += "\nSSW: " + sswDate
 	}
 
 	return certifications
