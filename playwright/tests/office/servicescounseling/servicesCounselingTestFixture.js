@@ -159,7 +159,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Storage facility address
     const storageAddress = await this.page.getByRole('heading', { name: 'Storage facility address' }).locator('..');
-    await storageAddress.getByLabel(/Address 1/).fill('148 S East St');
+    await storageAddress.getByLabel('Address 1').fill('148 S East St');
     await storageAddress.getByLabel('Address 2').fill('Suite 7A');
     await storageAddress.getByLabel('City').fill('Sample City');
     await storageAddress.getByLabel('State').selectOption({ label: 'GA' });
@@ -172,7 +172,7 @@ export class ServiceCounselorPage extends OfficePage {
 
     // Delivery location
     const deliveryLocation = await this.page.getByRole('group', { name: 'Delivery location' });
-    await deliveryLocation.getByLabel(/Address 1/).fill('448 Washington Blvd NE');
+    await deliveryLocation.getByLabel('Address 1').fill('448 Washington Blvd NE');
     await deliveryLocation.getByLabel('Address 2').fill('Apt D3');
     await deliveryLocation.getByLabel('City').fill('Another City');
     await deliveryLocation.getByLabel('State').selectOption({ label: 'AL' });
