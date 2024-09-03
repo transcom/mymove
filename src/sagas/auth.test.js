@@ -3,8 +3,23 @@ import { takeLatest, put, call } from 'redux-saga/effects';
 import watchFetchUser, { fetchUser } from './auth';
 
 import { setFlashMessage } from 'store/flash/actions';
-import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser } from 'utils/api';
+import { GetIsLoggedIn, GetLoggedInUser, GetOktaUser, GetAdminUser } from 'utils/api';
 import { LOAD_USER, getLoggedInUserStart, getLoggedInUserFailure } from 'store/auth/actions';
+import { setAdminUser } from 'shared/Entities/actions';
+import { serviceName } from 'shared/constants';
+
+jest.mock('shared/constants', () => ({
+  ...jest.requireActual('shared/constants'),
+  serviceName: jest.fn(),
+}));
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
+
+beforeEach(() => {
+  jest.clearAllMocks();
+});
 
 describe('watchFetchUser saga', () => {
   const generator = watchFetchUser();
@@ -110,72 +125,35 @@ describe('fetchUser saga', () => {
   });
 
   describe('if the user is logged in', () => {
-    // const testUser = {
-    //   id: 'testUserId',
-    //   email: 'test@example.com',
-    //   first_name: 'Tester',
-    //   roles: [{ id: 'testRole', roleType: 'customer' }],
-    //   service_member: {
-    //     id: 'testServiceMemberId',
-    //     orders: [{ id: 'testorder1' }, { id: 'testorder2' }],
-    //   },
-    // };
+    let generator;
+    beforeEach(() => {
+      serviceName.mockResolvedValue('my');
+      generator = fetchUser();
+    });
 
-    const generator = fetchUser();
-
-    it('dispatches the GET_LOGGED_IN_USER_START action', () => {
+    it('gets logged in user and okta data and sets to state', () => {
       expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
-    });
-
-    it('makes the GetIsLoggedIn API call', () => {
       expect(generator.next().value).toEqual(call(GetIsLoggedIn));
-    });
-
-    it('makes the GetLoggedInUser API call', () => {
       expect(generator.next({ isLoggedIn: true }).value).toEqual(call(GetLoggedInUser));
-    });
-
-    it('makes the GetOktaUser API call', () => {
       expect(generator.next().value).toEqual(call(GetOktaUser));
-      generator.next();
-      generator.next();
+    });
+  });
+
+  describe('if the user is logged in and isAdminSite is true', () => {
+    let generator;
+    beforeEach(() => {
+      serviceName.mockReturnValue('admin');
+      generator = fetchUser();
     });
 
-    // I am commenting these out for now - could not figure out how to get them passing with the added
-    // okta code. Feel free to adjust and get them to pass.
-
-    // it('stores the user data in the entities reducer', () => {
-    //   const normalizedUser = {
-    //     orders: {
-    //       testorder1: { id: 'testorder1' },
-    //       testorder2: { id: 'testorder2' },
-    //     },
-    //     serviceMembers: {
-    //       testServiceMemberId: {
-    //         id: 'testServiceMemberId',
-    //         orders: ['testorder1', 'testorder2'],
-    //       },
-    //     },
-    //     user: {
-    //       testUserId: {
-    //         id: 'testUserId',
-    //         email: 'test@example.com',
-    //         first_name: 'Tester',
-    //         roles: [{ id: 'testRole', roleType: 'customer' }],
-    //         service_member: 'testServiceMemberId',
-    //       },
-    //     },
-    //   };
-
-    //   expect(generator.next(testUser).value).toEqual(put(addEntities(normalizedUser)));
-    // });
-
-    // it('stores the user auth data in the auth reducer', () => {
-    //   expect(generator.next().value).toEqual(put(getLoggedInUserSuccess(testUser)));
-    // });
-
-    it('is done', () => {
-      expect(generator.next().done).toEqual(true);
+    it('gets logged in user, okta, and admin user data and sets to state', () => {
+      expect(generator.next().value).toEqual(put(getLoggedInUserStart()));
+      expect(generator.next().value).toEqual(call(GetIsLoggedIn));
+      expect(generator.next({ isLoggedIn: true }).value).toEqual(call(GetLoggedInUser));
+      expect(generator.next().value).toEqual(call(GetOktaUser));
+      expect(generator.next().value).toEqual(call(GetAdminUser));
+      const adminUser = { id: 1, name: 'Admin' };
+      expect(generator.next(adminUser).value).toEqual(put(setAdminUser(adminUser)));
     });
   });
 });

@@ -48,6 +48,7 @@ type AdminUser struct {
 	OrganizationID *uuid.UUID   `json:"organization_id" db:"organization_id"`
 	Organization   Organization `belongs_to:"organization" fk_id:"organization_id"`
 	Active         bool         `json:"active" db:"active"`
+	Super          bool         `json:"super" db:"super"`
 }
 
 // TableName overrides the table name used by Pop.
