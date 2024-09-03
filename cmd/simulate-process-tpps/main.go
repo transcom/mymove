@@ -17,6 +17,10 @@ import (
 )
 
 // Call this from command line with go run ./cmd/simulate-process-tpps/
+// This binary will be explicitly for simulation and testing purposes for the scenario of
+// payment request numbers 1077-4079-3, 1208-5962-1, 8801-2773-2, 8801-2773-3
+// Those payment request numbers must exist in the payment_requests table in order for
+// this binary to be used properly
 
 func checkConfig(v *viper.Viper, logger *zap.Logger) error {
 
