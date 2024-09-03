@@ -66,7 +66,7 @@ type ShipmentSummaryFormData struct {
 	PreparationDate          time.Time
 	Obligations              Obligations
 	MovingExpenses           MovingExpenses
-	PPMRemainingEntitlement  unit.Pound
+	PPMRemainingEntitlement  float64
 	SignedCertifications     []*SignedCertification
 	MaxSITStorageEntitlement int
 }
