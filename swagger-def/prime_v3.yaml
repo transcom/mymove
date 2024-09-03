@@ -877,21 +877,6 @@ definitions:
       - requestReason
       - contractorRemarks
       - requestedDays
-  CreateSITAddressUpdateRequest:
-    description: CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.
-    type: object
-    properties:
-      newAddress:
-        $ref: 'definitions/Address.yaml'
-      contractorRemarks:
-        type: string
-        example: Customer reached out to me this week & let me know they want to move closer to family.
-      mtoServiceItemID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-    required:
-      - contractorRemarks
 responses:
   ServerError:
     description: A server error occurred.

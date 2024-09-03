@@ -79,7 +79,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandler() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -208,7 +207,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerMoveInfo() {
 			&orderFetcher,
 			mockUnlocker,
 			officeusercreator.NewOfficeUserFetcherPop(),
-			officeusercreator.NewOfficeUserGblocFetcher(),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -283,7 +281,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesBranchFilter() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -372,7 +369,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerStatuses() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -522,7 +518,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerFilters() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	suite.Run("loads results with all STATUSes selected", func() {
@@ -780,7 +775,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	suite.Run("returns unfiltered results", func() {
@@ -927,7 +921,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedRole() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -959,7 +952,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerUnauthorizedUser() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1012,7 +1004,6 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerEmptyResults() {
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1063,7 +1054,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandler() {
 		paymentrequest.NewPaymentRequestListFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1142,7 +1132,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueSubmittedAtFilter() {
 		paymentrequest.NewPaymentRequestListFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 	suite.Run("returns unfiltered results", func() {
 		params := queues.GetPaymentRequestsQueueParams{
@@ -1223,7 +1212,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerUnauthorizedRole() 
 		paymentrequest.NewPaymentRequestListFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1260,7 +1248,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerServerError() {
 		&paymentRequestListFetcher,
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1298,7 +1285,6 @@ func (suite *HandlerSuite) TestGetPaymentRequestsQueueHandlerEmptyResults() {
 		&paymentRequestListFetcher,
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	// Validate incoming payload: no body to validate
@@ -1505,7 +1491,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 		order.NewOrderFetcher(),
 		mockUnlocker,
 		officeusercreator.NewOfficeUserFetcherPop(),
-		officeusercreator.NewOfficeUserGblocFetcher(),
 	}
 
 	return subtestData
