@@ -61,7 +61,7 @@ require (
 	github.com/pdfcpu/pdfcpu v0.6.0
 	github.com/pkg/errors v0.9.1
 	github.com/pkg/sftp v1.13.6
-	github.com/pterm/pterm v0.12.66
+	github.com/pterm/pterm v0.12.79
 	github.com/rickar/cal/v2 v2.1.13
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.0
