@@ -2,35 +2,42 @@ package paymentrequest
 
 import (
 	"github.com/transcom/mymove/pkg/factory"
-	"github.com/transcom/mymove/pkg/models"
 	paperworkgenerator "github.com/transcom/mymove/pkg/paperwork"
-	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func (suite *PaymentRequestServiceSuite) TestCreatePaymentRequestBulkDownload() {
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	userUploader, uploaderErr := uploader.NewUserUploader(fakeS3, 25*uploader.MB)
-	suite.FatalNoError(uploaderErr)
+	primeUploader, err := uploader.NewPrimeUploader(suite.storer, 25*uploader.MB)
+	suite.NoError(err)
 
-	generator, err := paperworkgenerator.NewGenerator(userUploader.Uploader())
+	generator, err := paperworkgenerator.NewGenerator(primeUploader.Uploader())
 	suite.FatalNil(err)
 
-	primeUpload := factory.BuildPrimeUpload(suite.DB(), nil, nil)
-	suite.FatalNil(err)
-	if generator != nil {
-		suite.FatalNil(err)
-	}
-
-	paymentRequest := factory.BuildPaymentRequest(suite.DB(), []factory.Customization{
+	paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
+	primeUpload := factory.BuildPrimeUpload(suite.DB(), []factory.Customization{
 		{
-			Model: models.PaymentRequest{
-				ProofOfServiceDocs: models.ProofOfServiceDocs{
-					primeUpload.ProofOfServiceDoc,
-				},
-			},
+			Model:    paymentRequest,
+			LinkOnly: true,
+		},
+	}, nil)
+	posd := factory.BuildProofOfServiceDoc(suite.DB(), []factory.Customization{
+		{
+			Model:    primeUpload,
+			LinkOnly: true,
+		},
+		{
+			Model:    paymentRequest,
+			LinkOnly: true,
 		},
 	}, nil)
 
-	suite.NotNil(paymentRequest)
+	paymentRequest.ProofOfServiceDocs = append(paymentRequest.ProofOfServiceDocs, posd)
+
+	creator := &paymentRequestBulkDownloadCreator{
+		pdfGenerator: generator,
+	}
+
+	bulkDownload, err := creator.CreatePaymentRequestBulkDownload(suite.AppContextForTest(), paymentRequest.ID)
+	suite.NoError(err)
+	suite.NotNil(bulkDownload)
 }
