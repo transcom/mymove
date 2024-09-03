@@ -995,3 +995,5 @@
 20240819164156_update_pws_violations_pt3.up.sql
 20240820125856_allow_pptas_migration.up.sql
 20240820151043_add_gsr_role.up.sql
+20240821180447_populating_locked_price_cents_for_ms_and_cs.up.sql
+20240822180409_adding_locked_price_cents_service_param.up.sql
