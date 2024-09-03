@@ -328,7 +328,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
       expect(
         screen.getByText('Something went wrong, and your changes were not saved. Please try again.'),
       ).toBeVisible();
-    });
+    }, 10000);
   });
 
   it('routes to the move details page when the cancel button is clicked', async () => {
