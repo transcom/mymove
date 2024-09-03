@@ -1014,18 +1014,15 @@ describe('ShipmentForm component', () => {
       const saveButton = screen.getByRole('button', { name: 'Save' });
 
       expect(saveButton).not.toBeDisabled();
-
-      await act(async () => {
-        await userEvent.click(saveButton);
-      });
+      await userEvent.click(saveButton);
 
       await waitFor(() => {
         expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
-      expect(
-        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('errorMessage')).toBeVisible();
+      });
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
@@ -1056,9 +1053,9 @@ describe('ShipmentForm component', () => {
         expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
-      expect(
-        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('errorMessage')).toBeVisible();
+      });
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
@@ -1091,6 +1088,8 @@ describe('ShipmentForm component', () => {
         await userEvent.selectOptions(pickupStateInput, 'CA');
         screen.getAllByLabelText('ZIP')[0].focus();
         await userEvent.paste('90210');
+        screen.getAllByLabelText('County')[0].focus();
+        await userEvent.paste('LOS ANGELES');
 
         screen.getAllByLabelText('Address 1')[1].focus();
         await userEvent.paste('Test Street 3');
@@ -1100,6 +1099,8 @@ describe('ShipmentForm component', () => {
         await userEvent.selectOptions(destinationStateInput, 'CA');
         screen.getAllByLabelText('ZIP')[1].focus();
         await userEvent.paste('90210');
+        screen.getAllByLabelText('County')[1].focus();
+        await userEvent.paste('LOS ANGELES');
 
         screen.getByLabelText('Estimated PPM weight').focus();
         await userEvent.paste('1000');
@@ -1113,9 +1114,9 @@ describe('ShipmentForm component', () => {
         expect(mockSubmitHandler).toHaveBeenCalled();
       });
 
-      expect(
-        await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
-      ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(screen.getByTestId('errorMessage')).toBeVisible();
+      });
       expect(mockNavigate).not.toHaveBeenCalled();
     });
 
