@@ -327,7 +327,6 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 
 					err = apperror.NewBadDataError("Unable to fetch office user.")
 					appCtx.Logger().Error(err.Error())
-					// return orderop.NewCreateOrderUnprocessableEntity(), err
 				} else {
 					moveOptions.CounselingOfficeID = &officeUser.TransportationOfficeID
 				}

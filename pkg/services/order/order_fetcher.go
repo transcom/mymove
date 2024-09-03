@@ -232,6 +232,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		groupByColumms = append(groupByColumms, "ppm_shipments.id")
 	}
 
+	if params.Sort != nil && *params.Sort == "counselingOffice" {
+		groupByColumms = append(groupByColumms, "transportation_offices.id")
+	}
+
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
 		return []models.Move{}, 0, err
@@ -547,7 +551,7 @@ func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption 
 func counselingOfficeFilter(office *string) QueryOption {
 	return func(query *pop.Query) {
 		if office != nil {
-			query.Where("transportation_offices.name = ?", *office)
+			query.Where("transportation_offices.name ILIKE ?", "%"+*office+"%")
 		}
 	}
 }
@@ -697,6 +701,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
+		"counselingOffice":        "transportation_offices.name",
 	}
 
 	return func(query *pop.Query) {
