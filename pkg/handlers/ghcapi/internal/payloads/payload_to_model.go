@@ -259,6 +259,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	if mtoShipment.PpmShipment != nil {
 		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
 		model.PPMShipment.Shipment = *model
+	} else if mtoShipment.BoatShipment != nil {
+		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
 	}
 
 	return model
@@ -340,6 +343,51 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	if model.HasProGear != nil && *model.HasProGear {
 		model.ProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight)
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
+	}
+
+	return model
+}
+
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(boatShipment *ghcmessages.CreateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	model := &models.BoatShipment{
+		Type:           models.BoatShipmentType(*boatShipment.Type),
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if model.HasTrailer == models.BoolPointer(false) {
+		model.IsRoadworthy = nil
 	}
 
 	return model
@@ -465,6 +513,17 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		model.PPMShipment.Shipment = *model
 	}
 
+	// making sure both shipmentType and boatShipment.Type match
+	if mtoShipment.BoatShipment != nil && mtoShipment.BoatShipment.Type != nil {
+		if *mtoShipment.BoatShipment.Type == string(models.BoatShipmentTypeHaulAway) {
+			model.ShipmentType = models.MTOShipmentTypeBoatHaulAway
+		} else {
+			model.ShipmentType = models.MTOShipmentTypeBoatTowAway
+		}
+		model.BoatShipment = BoatShipmentModelFromUpdate(mtoShipment.BoatShipment)
+		model.BoatShipment.Shipment = *model
+	}
+
 	return model
 }
 
@@ -565,6 +624,54 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 	}
 
 	return model
+}
+
+// BoatShipmentModelFromUpdate model
+func BoatShipmentModelFromUpdate(boatShipment *ghcmessages.UpdateBoatShipment) *models.BoatShipment {
+	if boatShipment == nil {
+		return nil
+	}
+	var year *int
+	if boatShipment.Year != nil {
+		val := int(*boatShipment.Year)
+		year = &val
+	}
+	var lengthInInches *int
+	if boatShipment.LengthInInches != nil {
+		val := int(*boatShipment.LengthInInches)
+		lengthInInches = &val
+	}
+	var widthInInches *int
+	if boatShipment.WidthInInches != nil {
+		val := int(*boatShipment.WidthInInches)
+		widthInInches = &val
+	}
+	var heightInInches *int
+	if boatShipment.HeightInInches != nil {
+		val := int(*boatShipment.HeightInInches)
+		heightInInches = &val
+	}
+
+	boatModel := &models.BoatShipment{
+		Year:           year,
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: lengthInInches,
+		WidthInInches:  widthInInches,
+		HeightInInches: heightInInches,
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+	}
+
+	if boatShipment.Type != nil {
+		boatModel.Type = models.BoatShipmentType(*boatShipment.Type)
+	}
+
+	if boatShipment.HasTrailer == models.BoolPointer(false) {
+		boatModel.IsRoadworthy = nil
+	}
+
+	return boatModel
 }
 
 // ProgearWeightTicketModelFromUpdate model

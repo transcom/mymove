@@ -6433,6 +6433,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -6557,6 +6612,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -8344,6 +8402,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -12501,6 +12564,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -13011,6 +13127,9 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "more weight than expected"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
         },
         "counselorRemarks": {
           "type": "string",
@@ -21595,6 +21714,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -21719,6 +21893,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -23506,6 +23683,11 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -27793,6 +27975,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -28304,6 +28539,9 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "more weight than expected"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
         },
         "counselorRemarks": {
           "type": "string",

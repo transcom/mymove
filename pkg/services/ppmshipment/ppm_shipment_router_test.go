@@ -389,7 +389,7 @@ func (suite *PPMShipmentSuite) TestSubmitCloseOutDocumentation() {
 func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 	mtoShipmentRouterMethodToMock := ""
 
-	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected weight tickets", func() {
+	suite.Run("Update PPMShipment Status to CLOSEOUT_COMPLETE when there are rejected weight tickets", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 		rejected := models.PPMDocumentStatusRejected
 		weightTicket := factory.BuildWeightTicket(suite.DB(), []factory.Customization{
@@ -410,11 +410,11 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
 		}
 	})
 
-	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  progear weight tickets", func() {
+	suite.Run("Update PPMShipment Status to CLOSEOUT_COMPLETE when there are rejected  progear weight tickets", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		rejected := models.PPMDocumentStatusRejected
@@ -435,11 +435,11 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
 		}
 	})
 
-	suite.Run("Update PPMShipment Status to WAITING_ON_CUSTOMER when there are rejected  moving expenses", func() {
+	suite.Run("Update PPMShipment Status to CLOSEOUT_COMPLETE when there are rejected  moving expenses", func() {
 		ppmShipment := factory.BuildPPMShipmentReadyForFinalCustomerCloseOut(nil, nil, nil)
 		ppmShipment.Status = models.PPMShipmentStatusNeedsCloseout
 		rejected := models.PPMDocumentStatusRejected
@@ -460,7 +460,7 @@ func (suite *PPMShipmentSuite) TestSubmitReviewPPMDocuments() {
 		err := ppmShipmentRouter.SubmitReviewedDocuments(suite.AppContextForTest(), &ppmShipment)
 
 		if suite.NoError(err) {
-			suite.Equal(models.PPMShipmentStatusWaitingOnCustomer, ppmShipment.Status)
+			suite.Equal(models.PPMShipmentStatusCloseoutComplete, ppmShipment.Status)
 		}
 	})
 
