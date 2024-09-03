@@ -285,40 +285,6 @@ func (suite *PayloadsSuite) TestSITExtensionModel() {
 
 }
 
-func (suite *PayloadsSuite) TestSITAddressUpdateModel() {
-	contractorRemark := "I must update the final address please"
-	city := "Beverly Hills"
-	state := "CA"
-	postalCode := "90210"
-	county := "LOS ANGELES"
-	street := "123 Rodeo Dr."
-	newAddress := primemessages.Address{
-		City:           &city,
-		State:          &state,
-		PostalCode:     &postalCode,
-		StreetAddress1: &street,
-		County:         &county,
-	}
-
-	suite.Run("Success - Returns a SITAddressUpdate model as expected", func() {
-		sitAddressUpdate := primemessages.CreateSITAddressUpdateRequest{
-			MtoServiceItemID:  strfmt.UUID(uuid.Must(uuid.NewV4()).String()),
-			NewAddress:        &newAddress,
-			ContractorRemarks: &contractorRemark,
-		}
-
-		model := SITAddressUpdateModel(&sitAddressUpdate)
-
-		suite.Equal(model.MTOServiceItemID.String(), sitAddressUpdate.MtoServiceItemID.String())
-		suite.NotNil(model.NewAddressID.String())
-		suite.Equal(model.NewAddress.City, *sitAddressUpdate.NewAddress.City)
-		suite.Equal(model.NewAddress.State, *sitAddressUpdate.NewAddress.State)
-		suite.Equal(model.NewAddress.PostalCode, *sitAddressUpdate.NewAddress.PostalCode)
-		suite.Equal(model.NewAddress.StreetAddress1, *sitAddressUpdate.NewAddress.StreetAddress1)
-		suite.Equal(*model.ContractorRemarks, *sitAddressUpdate.ContractorRemarks)
-	})
-}
-
 func (suite *PayloadsSuite) TestMTOAgentModel() {
 	suite.Run("success", func() {
 		mtoAgentMsg := &primemessages.MTOAgent{

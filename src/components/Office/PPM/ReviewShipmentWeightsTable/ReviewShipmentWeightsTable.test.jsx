@@ -71,7 +71,7 @@ describe('ReviewShipmentWeight component', () => {
       expect(screen.getByText('500 lbs')).toBeInTheDocument();
       expect(screen.getByText('Net weight')).toBeInTheDocument();
       expect(screen.getByText('5,001 lbs')).toBeInTheDocument();
-      expect(screen.getByText('Departure date')).toBeInTheDocument();
+      expect(screen.getByText('Actual Departure date')).toBeInTheDocument();
       expect(screen.getByText('Apr 01 2023')).toBeInTheDocument();
     });
   });

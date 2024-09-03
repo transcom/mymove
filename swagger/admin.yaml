@@ -57,7 +57,7 @@ tags:
     description: Information about uploads
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
-  - name: Requested Office Users
+  - name: Requested office users
     description: Information about requested office users
     externalDocs:
       url: https://transcom.github.io/mymove-docs/docs/api
@@ -258,6 +258,8 @@ definitions:
         format: uuid
       active:
         type: boolean
+      super:
+        type: boolean
       createdAt:
         type: string
         format: date-time
@@ -274,6 +276,7 @@ definitions:
       - userId
       - organizationId
       - active
+      - super
       - createdAt
       - updatedAt
   AdminUserCreate:
@@ -293,6 +296,8 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      super:
+        type: boolean
   AdminUserUpdate:
     type: object
     properties:
@@ -305,6 +310,9 @@ definitions:
         title: Last Name
         x-nullable: true
       active:
+        type: boolean
+        x-nullable: true
+      super:
         type: boolean
         x-nullable: true
   AdminUsers:
@@ -1229,6 +1237,26 @@ definitions:
       FAILING: Failing
       DISABLED: Disabled
 paths:
+  /user:
+    get:
+      summary: Gets the data about the currently signed in admin user
+      description: Returns the admin user info for the currently logged in user
+      operationId: getLoggedInAdminUser
+      tags:
+        - User
+      responses:
+        '200':
+          description: success
+          schema:
+            $ref: '#/definitions/AdminUser'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Admin User not found
+        '500':
+          description: server error
   /requested-office-users:
     get:
       produces:

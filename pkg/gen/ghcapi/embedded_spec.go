@@ -73,6 +73,59 @@ func init() {
         }
       }
     },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -6006,11 +6059,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -6339,6 +6395,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -6463,6 +6574,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -7591,6 +7705,38 @@ func init() {
         }
       }
     },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
+        }
+      }
+    },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
@@ -8219,6 +8365,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -8266,9 +8417,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -11497,73 +11645,6 @@ func init() {
         }
       }
     },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
-      }
-    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -12445,6 +12526,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -12955,6 +13089,9 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "more weight than expected"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
         },
         "counselorRemarks": {
           "type": "string",
@@ -13597,6 +13734,71 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -20953,11 +21155,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -21290,6 +21495,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -21414,6 +21674,9 @@ func init() {
       "properties": {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
         },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
@@ -22542,6 +22805,38 @@ func init() {
         }
       }
     },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
+        }
+      }
+    },
     "LOAType": {
       "description": "The Line of accounting (TAC/SAC) type that will be used for the shipment",
       "type": "string",
@@ -23170,6 +23465,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -23217,9 +23517,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -26523,74 +26820,6 @@ func init() {
         }
       }
     },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "minimum": 0,
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
-      }
-    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -27527,6 +27756,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -28038,6 +28320,9 @@ func init() {
           "type": "string",
           "x-nullable": true,
           "example": "more weight than expected"
+        },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
         },
         "counselorRemarks": {
           "type": "string",
