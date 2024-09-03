@@ -393,7 +393,6 @@ func (v *updateMTOServiceItemData) checkNonPrimeFields(_ appcontext.AppContext) 
 // checkSITDeparture checks that the service item is a DDDSIT or DOPSIT if the user is trying to update the
 // SITDepartureDate
 func (v *updateMTOServiceItemData) checkSITDeparture(_ appcontext.AppContext) error {
-
 	if v.updatedServiceItem.SITDepartureDate == nil || v.updatedServiceItem.SITDepartureDate == v.oldServiceItem.SITDepartureDate {
 		return nil // the SITDepartureDate isn't being updated, so we're fine here
 	}

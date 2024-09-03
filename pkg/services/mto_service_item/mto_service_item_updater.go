@@ -365,7 +365,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 				return nil, err
 			}
 		}
-
 	}
 
 	if updatedServiceItem != nil {
