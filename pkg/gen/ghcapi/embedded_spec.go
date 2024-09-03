@@ -2286,6 +2286,55 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -2456,6 +2505,56 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -6043,6 +6142,38 @@ func init() {
         }
       }
     },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -9056,6 +9187,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -11311,6 +11451,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "closeoutInitiated": {
           "type": "string",
@@ -16548,6 +16692,61 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -16763,6 +16962,59 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -21139,6 +21391,38 @@ func init() {
         }
       }
     },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -24156,6 +24440,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -26486,6 +26779,10 @@ func init() {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "closeoutInitiated": {
           "type": "string",
