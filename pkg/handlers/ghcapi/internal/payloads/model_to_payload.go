@@ -2013,6 +2013,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
+			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 		}
 	}
 	return &queueMoves
