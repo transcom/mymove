@@ -21,6 +21,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 )
@@ -82,6 +83,11 @@ func configureAPI(api *adminoperations.MymoveAPI) http.Handler {
 	if api.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
 		api.ElectronicOrdersGetElectronicOrdersTotalsHandler = electronic_orders.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_orders.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_orders.GetElectronicOrdersTotals has not yet been implemented")
+		})
+	}
+	if api.UserGetLoggedInAdminUserHandler == nil {
+		api.UserGetLoggedInAdminUserHandler = user.GetLoggedInAdminUserHandlerFunc(func(params user.GetLoggedInAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation user.GetLoggedInAdminUser has not yet been implemented")
 		})
 	}
 	if api.MovesGetMoveHandler == nil {
