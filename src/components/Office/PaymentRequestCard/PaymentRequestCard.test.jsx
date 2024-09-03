@@ -697,7 +697,7 @@ describe('PaymentRequestCard', () => {
             createdAt: '2020-12-01T00:00:00.000Z',
             mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
             priceCents: 2000001,
-            status: 'DENIED',
+            status: 'APPROVED',
           },
           {
             id: '39474c6a-69b6-4501-8e08-670a12512a5f',
@@ -708,6 +708,8 @@ describe('PaymentRequestCard', () => {
             rejectionReason: 'duplicate charge',
           },
         ],
+        tppsInvoiceAmountPaidTotalMillicents: 115155000,
+        tppsInvoiceSellerPaidDate: '2024-07-30T00:00:00.000Z',
       };
       const paid = mount(
         <MockProviders path={tioRoutes.BASE_PAYMENT_REQUESTS_PATH} params={{ moveCode }}>
@@ -718,7 +720,13 @@ describe('PaymentRequestCard', () => {
           />
         </MockProviders>,
       );
-      expect(paid.find({ 'data-testid': 'tag' }).contains('Paid')).toBe(true);
+      expect(paid.find({ 'data-testid': 'tag' }).contains('TPPS Paid')).toBe(true);
+      expect(paid.find({ 'data-testid': 'tppsPaidDetails' }).exists()).toBe(true);
+      expect(paid.find({ 'data-testid': 'tppsPaidDetailsDollarAmountTotal' }).exists()).toBe(true);
+      // displays the tpps paid sum, milmove accepted amount, and milmove rejected amount
+      expect(paid.find({ 'data-testid': 'tppsPaidDetailsDollarAmountTotal' }).contains('$1,151.55')).toBe(true);
+      expect(paid.find({ 'data-testid': 'milMoveAcceptedDetailsDollarAmountTotal' }).contains('$20,000.01')).toBe(true);
+      expect(paid.find({ 'data-testid': 'milMoveRejectedDetailsDollarAmountTotal' }).contains('$40,000.01')).toBe(true);
     });
   });
 

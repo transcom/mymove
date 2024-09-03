@@ -9,7 +9,7 @@ import { PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { allowedServiceItemCalculations } from 'constants/serviceItems';
 import { PaymentServiceItemShape } from 'types';
 import { MTOServiceItemShape } from 'types/order';
-import { toDollarString, formatCents } from 'utils/formatters';
+import { toDollarString, formatCents, formatDollarFromMillicents } from 'utils/formatters';
 import ServiceItemCalculations from 'components/Office/ServiceItemCalculations/ServiceItemCalculations';
 
 const ExpandableServiceItemRow = ({
@@ -18,6 +18,7 @@ const ExpandableServiceItemRow = ({
   index,
   paymentIsDeprecated,
   serviceItem,
+  tppsDataExists,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const canClickToExpandContent = (canShowExpandableContent, item) => {
@@ -59,6 +60,12 @@ const ExpandableServiceItemRow = ({
           {additionalServiceItemData.standaloneCrate && ' - Standalone'}
         </td>
         <td data-testid="serviceItemAmount">{toDollarString(formatCents(serviceItem.priceCents))}</td>
+        {tppsDataExists && (
+          <td data-testid="serviceItemTPPSPaidAmount">
+            {serviceItem.tppsInvoiceAmountPaidPerServiceItemMillicents > 0 &&
+              toDollarString(formatDollarFromMillicents(serviceItem.tppsInvoiceAmountPaidPerServiceItemMillicents))}
+          </td>
+        )}
         <td data-testid="serviceItemStatus">
           {paymentIsDeprecated && (
             <div>
