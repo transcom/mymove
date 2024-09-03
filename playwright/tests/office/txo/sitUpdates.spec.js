@@ -36,7 +36,8 @@ test.describe('TOO user', () => {
       const timeDiff = oneMonthAgo.getTime() - twoMonthsAgo.getTime();
       // get the days, converting milliseconds to days
       const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-      const totalDaysBetweenOneMonthInclusive = daysDiff;
+      // be inclusive of the last day
+      const totalDaysBetweenOneMonthInclusive = daysDiff + 1;
       // get sums
       const totalDaysUsed = totalDaysBetweenOneMonthInclusive * 2; // Origin and Dest sit each used 1 month
       const remainingDays = 90 - totalDaysUsed;
@@ -60,7 +61,7 @@ test.describe('TOO user', () => {
 
       // get authorized end date as 90 days from the origin start date (two months ago)
       const ninetyDaysFromStartDateInclusive = new Date(twoMonthsAgo);
-      ninetyDaysFromStartDateInclusive.setDate(ninetyDaysFromStartDateInclusive.getDate() + 90);
+      ninetyDaysFromStartDateInclusive.setDate(ninetyDaysFromStartDateInclusive.getDate() + 89); // Use 89 because the last day is counted as a whole day
       // format
       const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(ninetyDaysFromStartDateInclusive);
       const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(ninetyDaysFromStartDateInclusive);
@@ -109,8 +110,8 @@ test.describe('TOO user', () => {
       const destinationDaysDiff = destinationTimeDiff / (1000 * 60 * 60 * 24);
       const originDaysDiff = originTimeDiff / (1000 * 60 * 60 * 24);
       // be inclusive of the last day
-      const totalDaysBetweenDestinationInclusive = destinationDaysDiff;
-      const totalDaysBetweenOriginInclusive = originDaysDiff;
+      const totalDaysBetweenDestinationInclusive = destinationDaysDiff + 1;
+      const totalDaysBetweenOriginInclusive = originDaysDiff + 1;
       // get sums
       const totalDaysUsed = totalDaysBetweenDestinationInclusive + totalDaysBetweenOriginInclusive;
       const remainingDays = 90 - totalDaysUsed;
