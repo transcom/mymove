@@ -176,7 +176,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Length in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -192,7 +191,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Length in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -216,7 +214,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Width in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -232,7 +229,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Width in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -256,7 +252,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Height in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -272,7 +267,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Height in inches"
-                          optional
                         />
                       </div>
                     </div>
