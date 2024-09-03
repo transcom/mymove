@@ -137,6 +137,12 @@ func (v *primeUpdateMTOServiceItemValidator) validate(appCtx appcontext.AppConte
 		return err
 	}
 
+	// Checks that only SIT Entry Date occurs AFTER the FADD
+	err = serviceItemData.checkSITEntryDateAndFADD(appCtx)
+	if err != nil {
+		return err
+	}
+
 	// Checks that SITDestinationOriginalAddress isn't added/or updated using the updater
 	// Should only be set when approving a service item
 	err = serviceItemData.checkSITDestinationOriginalAddress(appCtx)
