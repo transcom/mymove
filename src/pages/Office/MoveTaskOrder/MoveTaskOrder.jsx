@@ -175,6 +175,7 @@ export const MoveTaskOrder = (props) => {
         status: item.status,
         estimatedPrice: item.estimatedPrice,
         standaloneCrate: item.standaloneCrate,
+        lockedPricedCents: item.lockedPriceCents,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
@@ -905,12 +906,6 @@ export const MoveTaskOrder = (props) => {
   const moveWeightTotal = calculateWeightRequested(nonPPMShipments);
   const ppmWeightTotal = calculateWeightRequested(onlyPPMShipments);
   const maxBillableWeight = displayMaxBillableWeight(nonPPMShipments) ? order?.entitlement?.authorizedWeight : '-';
-
-  /**
-   * @function getSitAddressInitialValues
-   * @todo ETag and Id need to be removed from response from backend or address fields needs to be in their own object
-   * @returns {AddressShape}
-   */
 
   /*
   *

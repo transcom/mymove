@@ -46,21 +46,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       setFlashMessage(`MSG_CANCELATION_SUCCESS${shipmentId}`, 'success', `Successfully canceled shipment`, '', true);
       handleClose();
     },
-    // TODO: This method is duplicated for now. Refactor if neccessary.
     onError: (error) => {
       const { response: { body } = {} } = error;
 
       if (body) {
-        /*
-        {
-          "detail": "Invalid data found in input",
-          "instance":"00000000-0000-0000-0000-000000000000",
-          "title":"Validation Error",
-          "invalidFields": {
-            "primeEstimatedWeight":["the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight","Invalid Input."]
-          }
-        }
-         */
         let invalidFieldsStr = '';
         if (body.invalidFields) {
           Object.keys(body.invalidFields).forEach((key) => {
@@ -92,16 +81,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     onError: (error) => {
       const { response: { body } = {} } = error;
       if (body) {
-        /*
-        {
-          "detail": "Invalid data found in input",
-          "instance":"00000000-0000-0000-0000-000000000000",
-          "title":"Validation Error",
-          "invalidFields": {
-            "primeEstimatedWeight":["the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight","Invalid Input."]
-          }
-        }
-         */
         let invalidFieldsStr = '';
         if (body.invalidFields) {
           Object.keys(body.invalidFields).forEach((key) => {
@@ -145,7 +124,8 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   let reformatPrimeApiTertiaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
 
   const editableFormFields = {
-    editableWeightEstimateField: !isValidWeight(shipment.primeEstimatedWeight),
+    editableWeightEstimateField:
+      !isValidWeight(shipment.primeEstimatedWeight) && shipment.shipmentType !== SHIPMENT_OPTIONS.NTSR,
     editableWeightActualField: true,
     editableProGearWeightActualField: true,
     editableSpouseProGearWeightActualField: true,

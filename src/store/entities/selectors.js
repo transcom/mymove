@@ -21,6 +21,12 @@ export const selectOktaUser = (state) => {
   return null;
 };
 
+/** Logged in Admin User */
+export const selectAdminUser = (state) => {
+  if (state.entities.adminUser) return state.entities.adminUser;
+  return null;
+};
+
 /** Service Member */
 export const selectServiceMemberFromLoggedInUser = (state) => {
   const user = selectLoggedInUser(state);

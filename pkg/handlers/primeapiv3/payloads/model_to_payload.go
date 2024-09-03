@@ -417,8 +417,6 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		HasSecondaryPickupAddress:      ppmShipment.HasSecondaryPickupAddress,
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
-		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
-		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
@@ -480,6 +478,8 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		ShipmentType:                     primev3messages.MTOShipmentType(mtoShipment.ShipmentType),
 		CustomerRemarks:                  mtoShipment.CustomerRemarks,
 		CounselorRemarks:                 mtoShipment.CounselorRemarks,
+		ActualProGearWeight:              handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:        handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		Status:                           string(mtoShipment.Status),
 		Diversion:                        bool(mtoShipment.Diversion),
 		DiversionReason:                  mtoShipment.DiversionReason,
@@ -496,18 +496,6 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 	if mtoShipment.PickupAddress != nil {
 		payload.PickupAddress.Address = *Address(mtoShipment.PickupAddress)
 	}
-	if mtoShipment.SecondaryPickupAddress != nil {
-		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
-	}
-	if mtoShipment.HasSecondaryPickupAddress != nil {
-		payload.HasSecondaryPickupAddress = mtoShipment.HasSecondaryPickupAddress
-	}
-	if mtoShipment.TertiaryPickupAddress != nil {
-		payload.TertiaryPickupAddress.Address = *Address(mtoShipment.TertiaryPickupAddress)
-	}
-	if mtoShipment.HasTertiaryPickupAddress != nil {
-		payload.HasTertiaryPickupAddress = mtoShipment.HasTertiaryPickupAddress
-	}
 	if mtoShipment.DestinationAddress != nil {
 		payload.DestinationAddress.Address = *Address(mtoShipment.DestinationAddress)
 	}
@@ -515,17 +503,11 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		destinationType := primev3messages.DestinationType(*mtoShipment.DestinationType)
 		payload.DestinationType = &destinationType
 	}
+	if mtoShipment.SecondaryPickupAddress != nil {
+		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
+	}
 	if mtoShipment.SecondaryDeliveryAddress != nil {
 		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
-	}
-	if mtoShipment.HasSecondaryDeliveryAddress != nil {
-		payload.HasSecondaryDeliveryAddress = mtoShipment.HasSecondaryDeliveryAddress
-	}
-	if mtoShipment.TertiaryDeliveryAddress != nil {
-		payload.TertiaryDeliveryAddress.Address = *Address(mtoShipment.TertiaryDeliveryAddress)
-	}
-	if mtoShipment.HasTertiaryDeliveryAddress != nil {
-		payload.HasTertiaryDeliveryAddress = mtoShipment.HasTertiaryDeliveryAddress
 	}
 
 	if mtoShipment.StorageFacility != nil {
@@ -634,7 +616,6 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			SitDepartureDate:            handlers.FmtDate(sitDepartureDate),
 			SitEntryDate:                handlers.FmtDatePtr(mtoServiceItem.SITEntryDate),
 			SitDestinationFinalAddress:  Address(mtoServiceItem.SITDestinationFinalAddress),
-			SitAddressUpdates:           SITAddressUpdates(mtoServiceItem.SITAddressUpdates),
 			SitCustomerContacted:        handlers.FmtDatePtr(mtoServiceItem.SITCustomerContacted),
 			SitRequestedDelivery:        handlers.FmtDatePtr(mtoServiceItem.SITRequestedDelivery),
 		}
@@ -828,55 +809,13 @@ func ShipmentAddressUpdate(shipmentAddressUpdate *models.ShipmentAddressUpdate) 
 	}
 
 	payload := &primev3messages.ShipmentAddressUpdate{
-		ID:                       strfmt.UUID(shipmentAddressUpdate.ID.String()),
-		ShipmentID:               strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
-		NewAddress:               Address(&shipmentAddressUpdate.NewAddress),
-		NewSecondaryAddress:      Address(&shipmentAddressUpdate.NewSecondaryAddress),
-		NewTertiaryAddress:       Address(&shipmentAddressUpdate.NewTertiaryAddress),
-		OriginalAddress:          Address(&shipmentAddressUpdate.OriginalAddress),
-		OriginalSecondaryAddress: Address(&shipmentAddressUpdate.OriginalSecondaryAddress),
-		OriginalTertiaryAddress:  Address(&shipmentAddressUpdate.OriginalTertiaryAddress),
-		ContractorRemarks:        shipmentAddressUpdate.ContractorRemarks,
-		OfficeRemarks:            shipmentAddressUpdate.OfficeRemarks,
-		Status:                   primev3messages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
-	}
-
-	return payload
-}
-
-// SITAddressUpdates payload
-func SITAddressUpdates(u models.SITAddressUpdates) primev3messages.SitAddressUpdates {
-	payload := make(primev3messages.SitAddressUpdates, len(u))
-	for i, item := range u {
-		copyOfItem := item
-		payload[i] = SITAddressUpdate(&copyOfItem)
-	}
-	return payload
-}
-
-// SITAddressUpdate payload
-func SITAddressUpdate(sitAddressUpdate *models.SITAddressUpdate) *primev3messages.SitAddressUpdate {
-	if sitAddressUpdate == nil {
-		return nil
-	}
-
-	payload := &primev3messages.SitAddressUpdate{
-		ID:               strfmt.UUID(sitAddressUpdate.ID.String()),
-		ETag:             etag.GenerateEtag(sitAddressUpdate.UpdatedAt),
-		MtoServiceItemID: strfmt.UUID(sitAddressUpdate.MTOServiceItemID.String()),
-		NewAddressID:     strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
-		NewAddress:       Address(&sitAddressUpdate.NewAddress),
-		//NewSecondaryAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
-		//NewSecondaryAddress:        Address(&sitAddressUpdate.NewAddress),
-		//NewTertiaryAddressID:      strfmt.UUID(sitAddressUpdate.NewAddressID.String()),
-		//NewTertiaryAddress:        Address(&sitAddressUpdate.NewTertiaryAddress),
-		ContractorRemarks: handlers.FmtStringPtr(sitAddressUpdate.ContractorRemarks),
-		OfficeRemarks:     handlers.FmtStringPtr(sitAddressUpdate.OfficeRemarks),
-		OldAddressID:      strfmt.UUID(sitAddressUpdate.OldAddressID.String()),
-		OldAddress:        Address(&sitAddressUpdate.OldAddress),
-		Status:            primev3messages.SitAddressUpdateStatus(sitAddressUpdate.Status),
-		CreatedAt:         strfmt.DateTime(sitAddressUpdate.CreatedAt),
-		UpdatedAt:         strfmt.DateTime(sitAddressUpdate.UpdatedAt),
+		ID:                strfmt.UUID(shipmentAddressUpdate.ID.String()),
+		ShipmentID:        strfmt.UUID(shipmentAddressUpdate.ShipmentID.String()),
+		NewAddress:        Address(&shipmentAddressUpdate.NewAddress),
+		OriginalAddress:   Address(&shipmentAddressUpdate.OriginalAddress),
+		ContractorRemarks: shipmentAddressUpdate.ContractorRemarks,
+		OfficeRemarks:     shipmentAddressUpdate.OfficeRemarks,
+		Status:            primev3messages.ShipmentAddressUpdateStatus(shipmentAddressUpdate.Status),
 	}
 
 	return payload

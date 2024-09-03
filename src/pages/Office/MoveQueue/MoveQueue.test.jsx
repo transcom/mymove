@@ -96,7 +96,7 @@ const GetMountedComponent = (queueTypeToMount) => {
   );
   return wrapper;
 };
-const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name'];
+const SEARCH_OPTIONS = ['Move Code', 'DoD ID', 'Customer Name', 'Payment Request Number'];
 describe('MoveQueue', () => {
   afterEach(() => {
     jest.restoreAllMocks();

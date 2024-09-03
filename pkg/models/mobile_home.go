@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/gobuffalo/pop/v6"
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
@@ -12,12 +14,15 @@ type MobileHome struct {
 	ID             uuid.UUID   `json:"id" db:"id"`
 	ShipmentID     uuid.UUID   `json:"shipment_id" db:"shipment_id"`
 	Shipment       MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
-	Make           string      `json:"make" db:"make"`
-	Model          string      `json:"model" db:"model"`
-	Year           int         `json:"year" db:"year"`
-	LengthInInches int         `json:"length_in_inches" db:"length_in_inches"`
-	HeightInInches int         `json:"height_in_inches" db:"height_in_inches"`
-	WidthInInches  int         `json:"width_in_inches" db:"width_in_inches"`
+	Make           *string     `json:"make" db:"make"`
+	Model          *string     `json:"model" db:"model"`
+	Year           *int        `json:"year" db:"year"`
+	LengthInInches *int        `json:"length_in_inches" db:"length_in_inches"`
+	HeightInInches *int        `json:"height_in_inches" db:"height_in_inches"`
+	WidthInInches  *int        `json:"width_in_inches" db:"width_in_inches"`
+	CreatedAt      time.Time   `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time   `json:"updated_at" db:"updated_at"`
+	DeletedAt      *time.Time  `json:"deleted_at" db:"deleted_at"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -34,12 +39,13 @@ type MobileHomes []MobileHome
 func (mh MobileHome) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Name: "ShipmentID", Field: mh.ShipmentID},
-		&validators.StringIsPresent{Name: "Make", Field: mh.Make},
-		&validators.StringIsPresent{Name: "Model", Field: mh.Model},
-		&validators.IntIsGreaterThan{Name: "Year", Field: mh.Year, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: mh.LengthInInches, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: mh.HeightInInches, Compared: 0},
-		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: mh.WidthInInches, Compared: 0},
+		&validators.StringIsPresent{Name: "Make", Field: *mh.Make},
+		&validators.StringIsPresent{Name: "Model", Field: *mh.Model},
+		&validators.IntIsGreaterThan{Name: "Year", Field: *mh.Year, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "LengthInInches", Field: *mh.LengthInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "HeightInInches", Field: *mh.HeightInInches, Compared: 0},
+		&validators.IntIsGreaterThan{Name: "WidthInInches", Field: *mh.WidthInInches, Compared: 0},
+		&OptionalTimeIsPresent{Name: "DeletedAt", Field: mh.DeletedAt},
 	), nil
 }
 

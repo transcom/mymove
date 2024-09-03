@@ -176,5 +176,5 @@ func (a Address) IsAddressEmpty() bool {
 		IsNullEmptyOrWhitespace(a.PostalCode)
 }
 func IsNullEmptyOrWhitespace(s string) bool {
-    return len(strings.TrimSpace(s)) == 0
+	return len(strings.TrimSpace(s)) == 0
 }

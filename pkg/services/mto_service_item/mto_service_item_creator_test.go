@@ -27,6 +27,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -423,8 +424,28 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		// Expected outcome:
 		//             Success, CS and MS can be created on moves without shipments.
 
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		reServiceCS := factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceCS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
-		reServiceCS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
 		serviceItemCS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -438,7 +459,14 @@ func (suite *MTOServiceItemServiceSuite) TestCreateMTOServiceItem() {
 		createdServiceItemCSList := *createdServiceItemsCS
 		suite.Equal(createdServiceItemCSList[0].Status, models.MTOServiceItemStatus("APPROVED"))
 
-		reServiceMS := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
+		reServiceMS := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      reServiceMS.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
 		serviceItemMS := models.MTOServiceItem{
 			MoveTaskOrderID: move.ID,
 			MoveTaskOrder:   move,
@@ -1149,7 +1177,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		return contacts
 	}
 
-	sitEntryDate := time.Now()
+	sitEntryDate := time.Now().AddDate(0, 0, 1)
 	sitDepartureDate := sitEntryDate.AddDate(0, 0, 7)
 	attemptedContact := time.Now()
 
@@ -1307,6 +1335,36 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 		suite.Contains(err.Error(), fmt.Sprintf("A service item with reServiceCode %s already exists for this move and/or shipment.", models.ReServiceCodeDDFSIT))
 	})
 
+	suite.Run("Failure - SIT entry date is before FADD for DDFSIT creation", func() {
+		shipment, creator, reServiceDDFSIT := setupTestData()
+		setupAdditionalSIT()
+
+		sitEntryDateBeforeToday := time.Now().AddDate(0, 0, -1)
+
+		serviceItemDDFSIT := models.MTOServiceItem{
+			MoveTaskOrderID:  shipment.MoveTaskOrderID,
+			MoveTaskOrder:    shipment.MoveTaskOrder,
+			MTOShipmentID:    &shipment.ID,
+			MTOShipment:      shipment,
+			ReService:        reServiceDDFSIT,
+			SITEntryDate:     &sitEntryDateBeforeToday,
+			CustomerContacts: getCustomerContacts(),
+			Status:           models.MTOServiceItemStatusSubmitted,
+		}
+
+		// Make a second attempt to add a DDFSIT
+		serviceItem, _, err := creator.CreateMTOServiceItem(suite.AppContextForTest(), &serviceItemDDFSIT)
+		suite.Nil(serviceItem)
+		suite.Error(err)
+		suite.IsType(apperror.UnprocessableEntityError{}, err)
+		expectedError := fmt.Sprintf(
+			"the SIT Entry Date (%s) cannot be before the First Available Delivery Date (%s)",
+			serviceItemDDFSIT.SITEntryDate.Format("2006-01-02"),
+			serviceItemDDFSIT.CustomerContacts[0].FirstAvailableDeliveryDate.Format("2006-01-02"),
+		)
+		suite.Contains(err.Error(), expectedError)
+	})
+
 	// Successful creation of DDASIT service item
 	suite.Run("Success - DDASIT creation approved", func() {
 		shipment, creator, reServiceDDFSIT := setupTestData()
@@ -1364,6 +1422,7 @@ func (suite *MTOServiceItemServiceSuite) TestCreateDestSITServiceItem() {
 			{
 				Model: models.Move{
 					AvailableToPrimeAt: &now,
+					ApprovedAt:         &now,
 					Status:             models.MoveStatusAPPROVED,
 				},
 			},

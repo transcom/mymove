@@ -193,7 +193,6 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 		EstimatedWeight:                 originalServiceItem.EstimatedWeight,
 		ActualWeight:                    originalServiceItem.ActualWeight,
 		Dimensions:                      originalServiceItem.Dimensions,
-		SITAddressUpdates:               originalServiceItem.SITAddressUpdates,
 		ServiceRequestDocuments:         originalServiceItem.ServiceRequestDocuments,
 		CreatedAt:                       originalServiceItem.CreatedAt,
 		ApprovedAt:                      &now,
@@ -234,7 +233,7 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, NewAddress models.ShipmentAddressUpdate, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "StorageFacility.Address","SecondaryPickupAddress","TertiaryPickupAddress", "MTOServiceItems.ReService", "DestinationAddress","SecondaryDeliveryAddress","TertiaryDeliveryAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "StorageFacility.Address", "SecondaryPickupAddress", "TertiaryPickupAddress", "MTOServiceItems.ReService", "DestinationAddress", "SecondaryDeliveryAddress", "TertiaryDeliveryAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
@@ -253,7 +252,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
 
-	err = appCtx.DB().EagerPreload("OriginalAddress","OriginalSecondaryAddress","OriginalTertiaryAddress", "NewAddress","NewSecondaryAddress","NewTertiaryAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err = appCtx.DB().EagerPreload("OriginalAddress", "OriginalSecondaryAddress", "OriginalTertiaryAddress", "NewAddress", "NewSecondaryAddress", "NewTertiaryAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If we didn't find an existing update, we'll need to make a new one
@@ -292,26 +291,22 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 	addressUpdate.NewAddress = *address
 
 	if !NewAddress.NewSecondaryAddress.IsAddressEmpty() {
-	 secondaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewSecondaryAddress)
-	if err != nil {
-		return nil, err
+		secondaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewSecondaryAddress)
+		if err != nil {
+			return nil, err
+		}
+		addressUpdate.NewSecondaryAddressID = secondaryAddress.ID
+		addressUpdate.NewSecondaryAddress = *secondaryAddress
 	}
-	addressUpdate.NewSecondaryAddressID = secondaryAddress.ID
-	addressUpdate.NewSecondaryAddress = *secondaryAddress
-}
 
 	if !NewAddress.NewTertiaryAddress.IsAddressEmpty() {
 		tertiaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewTertiaryAddress)
-	if err != nil {
-		return nil, err
+		if err != nil {
+			return nil, err
+		}
+		addressUpdate.NewTertiaryAddressID = tertiaryAddress.ID
+		addressUpdate.NewTertiaryAddress = *tertiaryAddress
 	}
-	addressUpdate.NewTertiaryAddressID = tertiaryAddress.ID
-	addressUpdate.NewTertiaryAddress = *tertiaryAddress
-	}
-
-
-
-
 
 	// if the shipment contains destination SIT service items, we need to update the addressUpdate data
 	// with the SIT original address and calculate the distances between the old & new shipment addresses
@@ -632,4 +627,3 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 
 	return &addressUpdate, nil
 }
-

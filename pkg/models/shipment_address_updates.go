@@ -77,4 +77,3 @@ func (s ShipmentAddressUpdate) TableName() string {
 
 // ShipmentAddressUpdates is a slice containing of ShipmentAddressUpdates
 type ShipmentAddressUpdates []ShipmentAddressUpdate
-

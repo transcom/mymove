@@ -836,33 +836,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newSecondaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newTertiaryAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreateSITExtension": {
       "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
       "type": "object",
@@ -1167,6 +1140,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -1273,9 +1251,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitAddressUpdates": {
-              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -1609,6 +1584,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -1889,6 +1876,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -2943,127 +2936,6 @@ func init() {
         "REQUESTED": "REQUESTED"
       },
       "readOnly": true
-    },
-    "SitAddressUpdate": {
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "type": "integer",
-          "maximum": 50,
-          "readOnly": true,
-          "example": 25
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
-        },
-        "mtoServiceItemId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "newSecondaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newSecondaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "newTertiaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newTertiaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "oldSecondaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldSecondaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "oldTertiaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldTertiaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "status": {
-          "$ref": "#/definitions/SitAddressUpdateStatus"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitAddressUpdateStatus": {
-      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "REJECTED"
-      ]
-    },
-    "SitAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitAddressUpdate"
-      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
@@ -4654,33 +4526,6 @@ func init() {
         }
       }
     },
-    "CreateSITAddressUpdateRequest": {
-      "description": "CreateSITAddressUpdateRequest contains the fields required for the prime to create a SIT address update request.",
-      "type": "object",
-      "required": [
-        "contractorRemarks"
-      ],
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newSecondaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newTertiaryAddress": {
-          "$ref": "#/definitions/Address"
-        }
-      }
-    },
     "CreateSITExtension": {
       "description": "CreateSITExtension contains the fields required for the prime to create a SIT Extension request.",
       "type": "object",
@@ -4985,6 +4830,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -5091,9 +4941,6 @@ func init() {
               "type": "string",
               "x-nullable": true,
               "x-omitempty": false
-            },
-            "sitAddressUpdates": {
-              "$ref": "#/definitions/SitAddressUpdates"
             },
             "sitCustomerContacted": {
               "description": "Date when the customer contacted the prime for a delivery out of SIT.",
@@ -5427,6 +5274,18 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "actualProGearWeight": {
+          "description": "The actual weight of any pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "actualSpouseProGearWeight": {
+          "description": "The actual weight of any spouse pro gear being shipped.\n",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
@@ -5707,6 +5566,12 @@ func init() {
         "paymentRequests"
       ],
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -6763,127 +6628,6 @@ func init() {
         "REQUESTED": "REQUESTED"
       },
       "readOnly": true
-    },
-    "SitAddressUpdate": {
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "Customer reached out to me this week \u0026 let me know they want to move closer to family."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "type": "integer",
-          "maximum": 50,
-          "readOnly": true,
-          "example": 25
-        },
-        "eTag": {
-          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "ddd7bb48-4730-47c4-9781-6500384f4941"
-        },
-        "mtoServiceItemId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "12d9e103-5a56-4636-906d-6e993b97ef51"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "newSecondaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newSecondaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "newTertiaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "newTertiaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "oldSecondaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldSecondaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "oldTertiaryAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "oldTertiaryAddressId": {
-          "type": "string",
-          "format": "uuid",
-          "readOnly": true,
-          "example": "31a2ad3c-1682-4d5b-8423-ff40053a056b"
-        },
-        "status": {
-          "$ref": "#/definitions/SitAddressUpdateStatus"
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SitAddressUpdateStatus": {
-      "description": "The status of a SIT address update, indicating where it is in the TOO's approval process.",
-      "enum": [
-        "REQUESTED",
-        "APPROVED",
-        "REJECTED"
-      ]
-    },
-    "SitAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SitAddressUpdate"
-      }
     },
     "StorageFacility": {
       "description": "The Storage Facility information for the shipment",
