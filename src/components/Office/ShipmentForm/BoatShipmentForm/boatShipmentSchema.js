@@ -71,7 +71,7 @@ const boatShipmentSchema = () => {
       counselorRemarks: Yup.string(),
       customerRemarks: Yup.string(),
     })
-    .test('dimension-check', 'Dimensions requirements.', function (values) {
+    .test('dimension-check', 'Dimensions requirements.', function dimensionTest(values) {
       const { lengthFeet, lengthInches, widthFeet, widthInches, heightFeet, heightInches } = values;
       const hasLength = lengthFeet !== undefined || lengthInches !== undefined;
       const hasWidth = widthFeet !== undefined || widthInches !== undefined;

@@ -603,7 +603,7 @@ const ShipmentForm = (props) => {
       initialValues={initialValues}
       validateOnMount
       validateOnBlur
-      validateOnChange={!isBoat} // for boat dimensions validation
+      validateOnChange
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >

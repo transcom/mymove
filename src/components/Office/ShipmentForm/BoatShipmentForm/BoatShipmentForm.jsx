@@ -1,5 +1,5 @@
 import React from 'react';
-import { Fieldset, FormGroup, Radio, Grid, Label } from '@trussworks/react-uswds';
+import { Fieldset, Radio } from '@trussworks/react-uswds';
 import { Field } from 'formik';
 import { func } from 'prop-types';
 import classnames from 'classnames';
@@ -88,6 +88,8 @@ const BoatShipmentForm = ({
                   errorClassName={styles.hide}
                   title="Length in feet"
                   onChange={() => {
+                    setFieldError('heightFeet', null);
+                    setFieldError('widthFeet', null);
                     setFieldError('lengthFeet', null);
                   }}
                 />
@@ -128,7 +130,9 @@ const BoatShipmentForm = ({
                   errorClassName={styles.hide}
                   title="Width in feet"
                   onChange={() => {
+                    setFieldError('heightFeet', null);
                     setFieldError('widthFeet', null);
+                    setFieldError('lengthFeet', null);
                   }}
                 />
               </div>
@@ -169,6 +173,8 @@ const BoatShipmentForm = ({
                   title="Height in feet"
                   onChange={() => {
                     setFieldError('heightFeet', null);
+                    setFieldError('widthFeet', null);
+                    setFieldError('lengthFeet', null);
                   }}
                 />
               </div>
