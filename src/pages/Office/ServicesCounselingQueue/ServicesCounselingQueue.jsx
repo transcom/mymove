@@ -48,7 +48,7 @@ import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
-import { formatAvailableOfficeUsersForRow } from 'utils/queues';
+import { formatAvailableOfficeUsersForRow, handleQueueAssignment } from 'utils/queues';
 
 export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
   const cols = [
@@ -195,7 +195,11 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
           const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
           return (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
-              <Dropdown defaultValue={assignedToUser?.value} title="Assigned dropdown">
+              <Dropdown
+                defaultValue={assignedToUser?.value}
+                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+                title="Assigned dropdown"
+              >
                 {formattedAvailableOfficeUsers}
               </Dropdown>
             </div>
