@@ -239,10 +239,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
 	formattedSIT := FormatAllSITS(data.PPMShipments)
-	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
+	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	// Shipment weights for Payment Packet are actual, for AOA Packet are estimated.
 	if isPaymentPacket {
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
