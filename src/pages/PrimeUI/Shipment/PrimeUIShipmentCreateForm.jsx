@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
@@ -55,9 +55,12 @@ const PrimeUIShipmentCreateForm = () => {
     return undefined;
   };
 
-  isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT).then(() => {
-    setEnableBoat(true);
-  });
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+    };
+    fetchData();
+  }, []);
 
   let shipmentTypeOptions = Object.values(SHIPMENT_TYPES).map((value) => ({ key: value, value }));
   if (!enableBoat) {
