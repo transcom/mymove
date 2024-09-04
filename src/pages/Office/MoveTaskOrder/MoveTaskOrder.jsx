@@ -175,6 +175,7 @@ export const MoveTaskOrder = (props) => {
         status: item.status,
         estimatedPrice: item.estimatedPrice,
         standaloneCrate: item.standaloneCrate,
+        lockedPricedCents: item.lockedPriceCents,
       };
 
       if (serviceItemsForShipment[`${newItem.mtoShipmentID}`]) {
