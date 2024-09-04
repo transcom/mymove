@@ -1,4 +1,4 @@
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -7,19 +7,10 @@ import './DropdownInput.module.scss';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyLocationInput = (props) => {
-  const {
-    label,
-    name,
-    displayAddress,
-    hint,
-    placeholder,
-    isDisabled,
-    searchLocations,
-    metaOverride,
-    touched,
-    required,
-  } = props;
+  const { label, name, displayAddress, hint, placeholder, isDisabled, searchLocations, metaOverride } = props;
   const [field, meta, helpers] = useField(props);
+
+  const { touched } = useFormikContext();
 
   let errorString = '';
   if (metaOverride && metaOverride !== '') {
@@ -50,7 +41,6 @@ export const DutyLocationInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={searchLocations}
-      required={required}
     />
   );
 };
