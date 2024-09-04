@@ -51,7 +51,7 @@ describe('BackupAddressForm component', () => {
     const { getByLabelText } = render(<BackupAddressForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
@@ -59,13 +59,13 @@ describe('BackupAddressForm component', () => {
 
       expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
     });
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, findAllByRole, getByLabelText } = render(<BackupAddressForm {...testProps} />);
-    await userEvent.click(getByLabelText('Address 1'));
+    await userEvent.click(getByLabelText(/Address 1/));
     await userEvent.click(getByLabelText(/Address 2/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
@@ -85,7 +85,7 @@ describe('BackupAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<BackupAddressForm {...dataProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     await userEvent.tab();
 

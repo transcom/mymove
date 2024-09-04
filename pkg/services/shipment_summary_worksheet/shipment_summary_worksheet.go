@@ -538,9 +538,12 @@ func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkS
 	formattedSIT := WorkSheetSIT{}
 
 	for _, expense := range expenseDocuments {
-		formattedSIT.EntryDates = FormatSITDate(expense.SITStartDate)
-		formattedSIT.EndDates = FormatSITDate(expense.SubmittedSITEndDate)
-		formattedSIT.DaysInStorage = FormatSITDaysInStorage(expense.SITStartDate, expense.SubmittedSITEndDate)
+		if *expense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
+			formattedSIT.EntryDates = FormatSITDate(expense.SITStartDate)
+			formattedSIT.EndDates = FormatSITDate(expense.SubmittedSITEndDate)
+			formattedSIT.DaysInStorage = FormatSITDaysInStorage(expense.SITStartDate, expense.SubmittedSITEndDate)
+			return formattedSIT
+		}
 	}
 
 	return formattedSIT

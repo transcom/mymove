@@ -41,7 +41,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupContactName = 'backup_contact';
 
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
-  const [secondaryTelephoneNum, setSecondaryTelephoneNum] = useState('');
 
   useEffect(() => {
     isBooleanFlagEnabled('safety_move')?.then((enabled) => {
@@ -190,16 +189,6 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
             {({ isValid, handleSubmit, setValues, values, handleChange }) => {
-              const handleSubmitNext = () => {
-                setValues({
-                  ...values,
-                  secondary_telephone: secondaryTelephoneNum,
-                });
-                handleSubmit();
-              };
-              const handlePhoneNumChange = (value) => {
-                setSecondaryTelephoneNum(value);
-              };
               const handleIsSafetyMove = (e) => {
                 const { value } = e.target;
                 if (value === 'true') {
@@ -273,7 +262,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       label="DoD ID number"
                       name="edipi"
                       id="edipi"
-                      optional
+                      labelHint="Optional"
                       maxLength="10"
                       isDisabled={isSafetyMove}
                     />
@@ -283,7 +272,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         name="emplid"
                         id="emplid"
                         maxLength="7"
-                        optional
+                        labelHint="Optional"
                         inputMode="numeric"
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}
@@ -293,9 +282,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Name</h3>
                     <TextField label="First name" name="first_name" id="firstName" required />
-                    <TextField label="Middle name" name="middle_name" id="middleName" optional />
+                    <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
                     <TextField label="Last name" name="last_name" id="lastName" required />
-                    <TextField label="Suffix" name="suffix" id="suffix" optional />
+                    <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Contact Info</h3>
@@ -310,13 +299,12 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <MaskedTextField
                       label="Alt. phone"
-                      optional
+                      labelHint="Optional"
                       id="altTelephone"
                       name="secondary_telephone"
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
-                      onChange={handlePhoneNumChange}
                     />
                     <TextField label="Personal email" id="personalEmail" name="personal_email" required />
                     <Label>Preferred contact method (optional)</Label>
@@ -335,14 +323,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <TextField
                       label="Address 2"
-                      optional
+                      labelHint="Optional"
                       id="mailingAddress2"
                       name="residential_address.streetAddress2"
                       data-testid="res-add-street2"
                     />
                     <TextField
                       label="Address 3"
-                      optional
+                      labelHint="Optional"
                       id="mailingAddress3"
                       name="residential_address.streetAddress3"
                       data-testid="res-add-street3"
@@ -380,14 +368,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <TextField
                       label="Address 2"
-                      optional
+                      labelHint="Optional"
                       id="backupMailingAddress2"
                       name="backup_mailing_address.streetAddress2"
                       data-testid="backup-add-street2"
                     />
                     <TextField
                       label="Address 3"
-                      optional
+                      labelHint="Optional"
                       id="backupMailingAddress3"
                       name="backup_mailing_address.streetAddress3"
                       data-testid="backup-add-street3"
@@ -491,7 +479,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       editMode
                       onCancelClick={handleBack}
                       disableNext={!isValid}
-                      onNextClick={handleSubmitNext}
+                      onNextClick={handleSubmit}
                     />
                   </div>
                 </Form>
