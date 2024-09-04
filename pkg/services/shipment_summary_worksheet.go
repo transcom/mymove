@@ -90,12 +90,12 @@ type Page2Values struct {
 	Disbursement                string
 	ShipmentPickupDates         string
 	TrustedAgentName            string
+	ServiceMemberSignature      string
+	PPPOPPSORepresentative      string
+	SignatureDate               string
+	PPMRemainingEntitlement     string
 	FormattedMovingExpenses
-	ServiceMemberSignature string
-	PPPOPPSORepresentative string
-	SignatureDate          string
 	FormattedOtherExpenses
-	PPMRemainingEntitlement string
 }
 
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
