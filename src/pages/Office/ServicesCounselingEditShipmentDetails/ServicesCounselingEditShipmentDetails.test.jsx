@@ -324,9 +324,11 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
 
     await userEvent.click(saveButton);
 
-    expect(
-      await screen.findByText('Something went wrong, and your changes were not saved. Please try again.'),
-    ).toBeVisible();
+    await waitFor(() => {
+      expect(
+        screen.getByText('Something went wrong, and your changes were not saved. Please try again.'),
+      ).toBeVisible();
+    });
   });
 
   it('routes to the move details page when the cancel button is clicked', async () => {
