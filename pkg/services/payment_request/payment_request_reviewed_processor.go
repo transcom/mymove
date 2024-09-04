@@ -3,9 +3,13 @@ package paymentrequest
 import (
 	"database/sql"
 	"fmt"
+	"path"
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/spf13/viper"
@@ -145,7 +149,12 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
 		}
-
+		if v.GetString(cli.EnvironmentFlag) == "prd" || v.GetString(cli.EnvironmentFlag) == "stg" {
+			err = setupAWS(v, lockedPR, edi858cString)
+			if err != nil {
+				return fmt.Errorf("failure storing 858 to s3%w", err)
+			}
+		}
 		return nil
 	})
 	if transactionError != nil {
@@ -248,4 +257,33 @@ func (p *paymentRequestReviewedProcessor) ProcessReviewedPaymentRequest(appCtx a
 			numProcessed++
 		}
 	}
+}
+
+func setupAWS(v *viper.Viper, pr models.PaymentRequest, edi858cString string) error {
+	// Upload to S3
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(cli.AWSRegionFlag),
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create AWS session: %w", err)
+	}
+	fileName := fmt.Sprintf("edi858c_%s_%s.txt", pr.ID, time.Now().Format("20060102150405"))
+	bucketName := v.GetString(cli.AWSS3BucketNameFlag)
+	ediFilePath := "/app/payment-request-" + pr.ID.String() + "/mto-" + pr.MoveTaskOrderID.String() + "/"
+
+	err = uploadToS3(sess, bucketName, fileName, edi858cString, ediFilePath)
+	if err != nil {
+		return fmt.Errorf("failed to upload EDI to S3: %w", err)
+	}
+	return nil
+}
+
+func uploadToS3(sess *session.Session, bucketName, fileName string, content string, ediFilePath string) error {
+	svc := s3.New(sess)
+	_, err := svc.PutObject(&s3.PutObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    aws.String(path.Join(ediFilePath, fileName)),
+		Body:   strings.NewReader(content),
+	})
+	return err
 }
