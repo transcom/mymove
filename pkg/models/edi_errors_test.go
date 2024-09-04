@@ -29,7 +29,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 				"description":        {"Both Description and Code cannot be nil, one must be valid"},
 				"code":               {"Both Code and Description cannot be nil, one must be valid"},
 				"payment_request_id": {"PaymentRequestID can not be blank."},
-				"editype":            {"EDIType is not in the list [810, 824, 858, 997]."},
+				"editype":            {"EDIType is not in the list [810, 824, 858, 997, TPPSPaidInvoiceReport]."},
 			},
 		},
 		"Message Type Invalid": {
@@ -42,7 +42,7 @@ func (suite *ModelSuite) TestEdiErrors() {
 				Description:                models.StringPointer("EDI Error happened to field 123"),
 			},
 			expectedErrs: map[string][]string{
-				"editype": {"EDIType is not in the list [810, 824, 858, 997]."},
+				"editype": {"EDIType is not in the list [810, 824, 858, 997, TPPSPaidInvoiceReport]."},
 			},
 		},
 		"At least one valid Code or Description": {
