@@ -18,6 +18,8 @@ properties:
     example: application/pdf
   bytes:
     type: integer
+  rotation:
+    type: integer
   status:
     type: string
     enum:
