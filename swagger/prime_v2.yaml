@@ -1711,6 +1711,7 @@ definitions:
       - StandaloneCrate
       - StandaloneCrateCap
       - UncappedRequestTotal
+      - LockedPriceCents
   ServiceItemParamType:
     type: string
     enum:

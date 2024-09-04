@@ -8,6 +8,8 @@ import (
 
 	mock "github.com/stretchr/testify/mock"
 
+	models "github.com/transcom/mymove/pkg/models"
+
 	route "github.com/transcom/mymove/pkg/route"
 
 	services "github.com/transcom/mymove/pkg/services"
@@ -21,21 +23,21 @@ type SSWPPMComputer struct {
 }
 
 // ComputeObligations provides a mock function with given fields: _a0, _a1, _a2
-func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 services.ShipmentSummaryFormData, _a2 route.Planner) (services.Obligations, error) {
+func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 models.ShipmentSummaryFormData, _a2 route.Planner) (models.Obligations, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
-	var r0 services.Obligations
+	var r0 models.Obligations
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.ShipmentSummaryFormData, route.Planner) (services.Obligations, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.ShipmentSummaryFormData, route.Planner) (models.Obligations, error)); ok {
 		return rf(_a0, _a1, _a2)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.ShipmentSummaryFormData, route.Planner) services.Obligations); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.ShipmentSummaryFormData, route.Planner) models.Obligations); ok {
 		r0 = rf(_a0, _a1, _a2)
 	} else {
-		r0 = ret.Get(0).(services.Obligations)
+		r0 = ret.Get(0).(models.Obligations)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, services.ShipmentSummaryFormData, route.Planner) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.ShipmentSummaryFormData, route.Planner) error); ok {
 		r1 = rf(_a0, _a1, _a2)
 	} else {
 		r1 = ret.Error(1)
@@ -45,19 +47,19 @@ func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 serv
 }
 
 // FetchDataShipmentSummaryWorksheetFormData provides a mock function with given fields: appCtx, _a1, ppmShipmentID
-func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
+func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error) {
 	ret := _m.Called(appCtx, _a1, ppmShipmentID)
 
-	var r0 *services.ShipmentSummaryFormData
+	var r0 *models.ShipmentSummaryFormData
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) (*services.ShipmentSummaryFormData, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) (*models.ShipmentSummaryFormData, error)); ok {
 		return rf(appCtx, _a1, ppmShipmentID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) *services.ShipmentSummaryFormData); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *auth.Session, uuid.UUID) *models.ShipmentSummaryFormData); ok {
 		r0 = rf(appCtx, _a1, ppmShipmentID)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*services.ShipmentSummaryFormData)
+			r0 = ret.Get(0).(*models.ShipmentSummaryFormData)
 		}
 	}
 
@@ -70,35 +72,97 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 	return r0, r1
 }
 
+// FormatShipment provides a mock function with given fields: ppm, weightAllotment, isPaymentPacket
+func (_m *SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement, isPaymentPacket bool) models.WorkSheetShipment {
+	ret := _m.Called(ppm, weightAllotment, isPaymentPacket)
+
+	var r0 models.WorkSheetShipment
+	if rf, ok := ret.Get(0).(func(models.PPMShipment, models.SSWMaxWeightEntitlement, bool) models.WorkSheetShipment); ok {
+		r0 = rf(ppm, weightAllotment, isPaymentPacket)
+	} else {
+		r0 = ret.Get(0).(models.WorkSheetShipment)
+	}
+
+	return r0
+}
+
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData, isPaymentPacket
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
 	ret := _m.Called(shipmentSummaryFormData, isPaymentPacket)
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
 	var r2 error
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values, error)); ok {
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values, error)); ok {
 		return rf(shipmentSummaryFormData, isPaymentPacket)
 	}
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) services.Page1Values); ok {
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page1Values); ok {
 		r0 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
 		r0 = ret.Get(0).(services.Page1Values)
 	}
 
-	if rf, ok := ret.Get(1).(func(services.ShipmentSummaryFormData, bool) services.Page2Values); ok {
+	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) services.Page2Values); ok {
 		r1 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
 		r1 = ret.Get(1).(services.Page2Values)
 	}
 
-	if rf, ok := ret.Get(2).(func(services.ShipmentSummaryFormData, bool) error); ok {
+	if rf, ok := ret.Get(2).(func(models.ShipmentSummaryFormData, bool) error); ok {
 		r2 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
 		r2 = ret.Error(2)
 	}
 
 	return r0, r1, r2
+}
+
+// FormatValuesShipmentSummaryWorksheetFormPage1 provides a mock function with given fields: data, isPaymentPacket
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
+	ret := _m.Called(data, isPaymentPacket)
+
+	var r0 services.Page1Values
+	var r1 error
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page1Values, error)); ok {
+		return rf(data, isPaymentPacket)
+	}
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page1Values); ok {
+		r0 = rf(data, isPaymentPacket)
+	} else {
+		r0 = ret.Get(0).(services.Page1Values)
+	}
+
+	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) error); ok {
+		r1 = rf(data, isPaymentPacket)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FormatValuesShipmentSummaryWorksheetFormPage2 provides a mock function with given fields: data, isPaymentPacket
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
+	ret := _m.Called(data, isPaymentPacket)
+
+	var r0 services.Page2Values
+	var r1 error
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page2Values, error)); ok {
+		return rf(data, isPaymentPacket)
+	}
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page2Values); ok {
+		r0 = rf(data, isPaymentPacket)
+	} else {
+		r0 = ret.Get(0).(services.Page2Values)
+	}
+
+	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) error); ok {
+		r1 = rf(data, isPaymentPacket)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // NewSSWPPMComputer creates a new instance of SSWPPMComputer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
