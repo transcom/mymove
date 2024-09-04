@@ -338,9 +338,7 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 				return updatedServiceItem, err
 			}
 		}
-		if err != nil {
-			return nil, err
-		}
+
 	}
 
 	if checkMoveStatus {
@@ -365,7 +363,6 @@ func (p *mtoServiceItemUpdater) UpdateMTOServiceItemPrime(
 				return nil, err
 			}
 		}
-
 	}
 
 	if updatedServiceItem != nil {
