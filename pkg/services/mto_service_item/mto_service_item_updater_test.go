@@ -40,9 +40,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	planner := &mocks.Planner{}
 	sitStatusService := sitstatus.NewShipmentSITStatus()
 
+	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,

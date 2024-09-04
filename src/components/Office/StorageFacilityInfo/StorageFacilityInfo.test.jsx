@@ -15,7 +15,7 @@ describe('components/Office/StorageFacilityInfo', () => {
     );
 
     expect(screen.getByRole('heading', { name: 'Storage facility info' })).toBeInTheDocument();
-    expect(screen.getAllByText(/Required/)).toHaveLength(1);
+    expect(screen.getAllByText(/Optional/)).toHaveLength(3);
   });
 
   it('populates Formik initialValues', async () => {
@@ -42,6 +42,6 @@ describe('components/Office/StorageFacilityInfo', () => {
       </Formik>,
     );
 
-    expect(screen.getAllByText(/Required/)).toHaveLength(2);
+    expect(screen.getAllByText(/Optional/)).toHaveLength(2);
   });
 });

@@ -101,6 +101,7 @@ const AdvanceForm = ({ mtoShipment, onSubmit, onBack }) => {
                       defaultValue="0"
                       name="advanceAmountRequested"
                       label="Amount requested"
+                      labelHint="Required"
                       id="advanceAmountRequested"
                       mask={Number}
                       scale={0} // digits after point, 0 for integers
