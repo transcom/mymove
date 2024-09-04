@@ -326,7 +326,7 @@ const PaymentRequestCard = ({
           {paymentRequest.receivedByGexAt && (
             <div className={styles.amountAccepted}>
               <FontAwesomeIcon icon="check" />
-              <div>
+              <div data-testid="tppsReceivedDetailsDollarAmountTotal">
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
                 <span>TPPS Received</span>
                 <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
@@ -344,7 +344,7 @@ const PaymentRequestCard = ({
       return (
         <div className={styles.amountAccepted} data-testid="sentToGexDetails">
           <FontAwesomeIcon icon="check" />
-          <div>
+          <div data-testid="sentToGexDetailsDollarAmountTotal">
             <h2>{toDollarString(formatCents(approvedAmount))}</h2>
             <span>Sent to GEX </span>
             <span data-testid="sentToGexDate">
