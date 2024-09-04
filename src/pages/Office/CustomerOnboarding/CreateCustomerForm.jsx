@@ -27,11 +27,14 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
+import { generateUniqueDodid, generateUniqueEmplid } from 'utils/customer';
+import Hint from 'components/Hint';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
   const [isSafetyMove, setIsSafetyMove] = useState(false);
+  const [showSafetyMoveHint, setShowSafetyMoveHint] = useState(false);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -41,6 +44,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupContactName = 'backup_contact';
 
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+
+  const uniqueDodid = generateUniqueDodid();
+  const uniqueEmplid = generateUniqueEmplid();
 
   useEffect(() => {
     isBooleanFlagEnabled('safety_move')?.then((enabled) => {
@@ -55,6 +61,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const initialValues = {
     affiliation: '',
     edipi: '',
+    emplid: '',
     first_name: '',
     middle_name: '',
     last_name: '',
@@ -193,11 +200,10 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                 const { value } = e.target;
                 if (value === 'true') {
                   setIsSafetyMove(true);
+                  setShowSafetyMoveHint(true);
                   // clear out DoDID, emplid, and OKTA fields
                   setValues({
                     ...values,
-                    edipi: '',
-                    emplid: '',
                     create_okta_account: '',
                     cac_user: 'true',
                     is_safety_move: 'true',
@@ -211,10 +217,23 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                 }
               };
               const handleBranchChange = (e) => {
+                setShowSafetyMoveHint(false);
                 if (e.target.value === departmentIndicators.COAST_GUARD) {
                   setShowEmplid(true);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: '',
+                    emplid: uniqueEmplid,
+                  });
                 } else {
                   setShowEmplid(false);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: uniqueDodid,
+                    emplid: '',
+                  });
                 }
               };
               return (
@@ -266,6 +285,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       maxLength="10"
                       isDisabled={isSafetyMove}
                     />
+                    {isSafetyMove && showSafetyMoveHint && (
+                      <Hint>Once a branch is selected, this will generate a random safety move identifier</Hint>
+                    )}
                     {showEmplid && (
                       <TextField
                         label="EMPLID"
