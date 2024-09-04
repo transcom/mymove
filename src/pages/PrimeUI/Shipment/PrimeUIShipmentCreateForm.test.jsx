@@ -49,6 +49,21 @@ const initialValues = {
     hasSecondaryDestinationAddress: 'false',
   },
 
+  // Boat Shipment
+  boatShipment: {
+    make: 'make',
+    model: 'model',
+    year: 1999,
+    hasTrailer: true,
+    isRoadworthy: true,
+    lengthInFeet: 16,
+    lengthInInches: 5,
+    widthInFeet: 8,
+    widthInInches: 2,
+    heightInFeet: 4,
+    heightInInches: 5,
+  },
+
   // Other shipment types
   requestedPickupDate: '',
   estimatedWeight: '',
