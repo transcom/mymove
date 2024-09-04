@@ -28,7 +28,15 @@ properties:
     readOnly: true
   originalAddress:
     $ref: 'Address.yaml'
+  originalSecondaryAddress:
+    $ref: 'Address.yaml'
+  originalTertiaryAddress:
+    $ref: 'Address.yaml'
   newAddress:
+    $ref: 'Address.yaml'
+  newSecondaryAddress:
+    $ref: 'Address.yaml'
+  newTertiaryAddress:
     $ref: 'Address.yaml'
   sitOriginalAddress:
     $ref: 'Address.yaml'

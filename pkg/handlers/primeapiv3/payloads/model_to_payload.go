@@ -510,6 +510,12 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 	if mtoShipment.SecondaryDeliveryAddress != nil {
 		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
+	if mtoShipment.TertiaryPickupAddress != nil {
+		payload.TertiaryPickupAddress.Address = *Address(mtoShipment.TertiaryPickupAddress)
+	}
+	if mtoShipment.TertiaryDeliveryAddress != nil {
+		payload.TertiaryDeliveryAddress.Address = *Address(mtoShipment.TertiaryDeliveryAddress)
+	}
 
 	if mtoShipment.StorageFacility != nil {
 		payload.StorageFacility = StorageFacility(mtoShipment.StorageFacility)

@@ -4,6 +4,8 @@ import { useNavigate, useParams, generatePath } from 'react-router-dom';
 import { FormGroup } from '@material-ui/core';
 import classnames from 'classnames';
 
+import { fromPrimeAPIAddressFormat } from 'utils/formatters';
+import { isEmpty } from 'shared/utils';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { primeSimulatorRoutes } from 'constants/routes';
@@ -16,7 +18,7 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
   initialValues,
   onSubmit,
   updateDestinationAddressSchema,
-  name,
+  shipment,
 }) => {
   const { moveCodeOrID } = useParams();
   const navigate = useNavigate();
@@ -25,12 +27,41 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
   };
 
+  const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
+  const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
+
+  const reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDeliveryAddress);
+  const editableSecondaryDestinationAddress = !isEmpty(reformatPrimeApiSecondaryDestinationAddress);
+
+  const reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
+  const editableTertiaryDestinationAddress = !isEmpty(reformatPrimeApiTertiaryDestinationAddress);
+
+  const initialValuesDestinationAddress = {
+    mtoShipmentID: shipment.id,
+    contractorRemarks: '',
+    newAddress: {
+      address: reformatPrimeApiDestinationAddress,
+    },
+    newSecondaryAddress: {
+      address: reformatPrimeApiSecondaryDestinationAddress,
+    },
+    newTertiaryAddress: {
+      address: reformatPrimeApiTertiaryDestinationAddress,
+    },
+    eTag: shipment.eTag,
+  };
+
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={updateDestinationAddressSchema}>
-      {({ isValid, isSubmitting, handleSubmit, errors }) => {
-        return (
-          <Form className={classnames(formStyles.form)}>
-            <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
+    <Formik
+      initialValues={initialValuesDestinationAddress}
+      onSubmit={onSubmit}
+      validationSchema={updateDestinationAddressSchema}
+    >
+      {({ isValid, isSubmitting, handleSubmit, errors }) => (
+        <Form className={classnames(formStyles.form)}>
+          <FormGroup error={errors != null && Object.keys(errors).length > 0 ? 1 : 0}>
+            <SectionWrapper className={formStyles.formSection}>
+              <h2>Update Shipment Destination Address</h2>
               <SectionWrapper className={formStyles.formSection}>
                 <h2>Update Shipment Destination Address</h2>
                 <SectionWrapper className={formStyles.formSection}>
@@ -57,24 +88,70 @@ const PrimeUIShipmentUpdateDestinationAddressForm = ({
                     If any of those change, the address change will require TOO approval.
                   </div>
                 </SectionWrapper>
-                <AddressFields name={name} />
-                <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
+                {/* <AddressFields name={name} />
+                <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" /> */}
               </SectionWrapper>
-              <WizardNavigation
-                editMode
-                className={formStyles.formActions}
-                aria-label="Update Shipment Destination Address"
-                type="submit"
-                disableNext={isSubmitting || !isValid}
-                onCancelClick={handleClose}
-                onNextClick={handleSubmit}
-              />
-            </FormGroup>
-          </Form>
-        );
-      }}
+              <SectionWrapper>
+                {editableDestinationAddress && (
+                  <div>
+                    <h4>Primary Address</h4>
+                    <AddressFields name="newAddress.address" />
+                  </div>
+                )}
+              </SectionWrapper>
+              <SectionWrapper>
+                {editableSecondaryDestinationAddress && (
+                  <div>
+                    <h4>Secondary Address</h4>
+                    <AddressFields name="newSecondaryAddress.address" />
+                  </div>
+                )}
+              </SectionWrapper>
+              <SectionWrapper>
+                {editableTertiaryDestinationAddress && (
+                  <div>
+                    <h4>Tertiary Address</h4>
+                    <AddressFields name="newTertiaryAddress.address" />
+                  </div>
+                )}
+              </SectionWrapper>
+              <SectionWrapper>
+                <div>
+                  <TextField label="Contractor Remarks" id="contractorRemarks" name="contractorRemarks" />
+                </div>
+              </SectionWrapper>
+            </SectionWrapper>
+            <WizardNavigation
+              editMode
+              className={formStyles.formActions}
+              aria-label="Update Shipment Destination Address"
+              type="submit"
+              disableNext={isSubmitting || !isValid}
+              onCancelClick={handleClose}
+              onNextClick={handleSubmit}
+            />
+          </FormGroup>
+        </Form>
+      )}
     </Formik>
   );
 };
 
 export default PrimeUIShipmentUpdateDestinationAddressForm;
+
+/* {editableSecondaryDestinationAddress && (
+  <PrimeUIShipmentUpdateDestinationAddressForm
+    initialValues={initialValuesDestinationAddress}
+    onSubmit={onSubmit}
+    updateDestinationAddressSchema={updateDestinationAddressSchema}
+    name="newSecondaryAddress.address"
+  />
+)}
+{editableTertiaryDestinationAddress && (
+  <PrimeUIShipmentUpdateDestinationAddressForm
+    initialValues={initialValuesDestinationAddress}
+    onSubmit={onSubmit}
+    updateDestinationAddressSchema={updateDestinationAddressSchema}
+    name="newTertiaryAddress.address"
+  />
+)} */

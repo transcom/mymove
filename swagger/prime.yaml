@@ -3876,7 +3876,15 @@ definitions:
         readOnly: true
       originalAddress:
         $ref: '#/definitions/Address'
+      originalSecondaryAddress:
+        $ref: '#/definitions/Address'
+      originalTertiaryAddress:
+        $ref: '#/definitions/Address'
       newAddress:
+        $ref: '#/definitions/Address'
+      newSecondaryAddress:
+        $ref: '#/definitions/Address'
+      newTertiaryAddress:
         $ref: '#/definitions/Address'
       sitOriginalAddress:
         $ref: '#/definitions/Address'

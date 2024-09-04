@@ -38,10 +38,16 @@ type ShipmentAddressUpdate struct {
 	// Required: true
 	NewAddress *Address `json:"newAddress"`
 
+	// new secondary address
+	NewSecondaryAddress *Address `json:"newSecondaryAddress,omitempty"`
+
 	// The distance between the original SIT address and requested new destination address of shipment
 	// Example: 88
 	// Minimum: 0
 	NewSitDistanceBetween *int64 `json:"newSitDistanceBetween,omitempty"`
+
+	// new tertiary address
+	NewTertiaryAddress *Address `json:"newTertiaryAddress,omitempty"`
 
 	// Office Remarks
 	//
@@ -57,6 +63,12 @@ type ShipmentAddressUpdate struct {
 	// original address
 	// Required: true
 	OriginalAddress *Address `json:"originalAddress"`
+
+	// original secondary address
+	OriginalSecondaryAddress *Address `json:"originalSecondaryAddress,omitempty"`
+
+	// original tertiary address
+	OriginalTertiaryAddress *Address `json:"originalTertiaryAddress,omitempty"`
 
 	// shipment ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -89,7 +101,15 @@ func (m *ShipmentAddressUpdate) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateNewSecondaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateNewSitDistanceBetween(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateNewTertiaryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -98,6 +118,14 @@ func (m *ShipmentAddressUpdate) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateOriginalAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginalSecondaryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateOriginalTertiaryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -161,6 +189,25 @@ func (m *ShipmentAddressUpdate) validateNewAddress(formats strfmt.Registry) erro
 	return nil
 }
 
+func (m *ShipmentAddressUpdate) validateNewSecondaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewSecondaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewSecondaryAddress != nil {
+		if err := m.NewSecondaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *ShipmentAddressUpdate) validateNewSitDistanceBetween(formats strfmt.Registry) error {
 	if swag.IsZero(m.NewSitDistanceBetween) { // not required
 		return nil
@@ -168,6 +215,25 @@ func (m *ShipmentAddressUpdate) validateNewSitDistanceBetween(formats strfmt.Reg
 
 	if err := validate.MinimumInt("newSitDistanceBetween", "body", *m.NewSitDistanceBetween, 0, false); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) validateNewTertiaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.NewTertiaryAddress) { // not required
+		return nil
+	}
+
+	if m.NewTertiaryAddress != nil {
+		if err := m.NewTertiaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -197,6 +263,44 @@ func (m *ShipmentAddressUpdate) validateOriginalAddress(formats strfmt.Registry)
 				return ve.ValidateName("originalAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("originalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) validateOriginalSecondaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginalSecondaryAddress) { // not required
+		return nil
+	}
+
+	if m.OriginalSecondaryAddress != nil {
+		if err := m.OriginalSecondaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originalSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originalSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) validateOriginalTertiaryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.OriginalTertiaryAddress) { // not required
+		return nil
+	}
+
+	if m.OriginalTertiaryAddress != nil {
+		if err := m.OriginalTertiaryAddress.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originalTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originalTertiaryAddress")
 			}
 			return err
 		}
@@ -271,7 +375,23 @@ func (m *ShipmentAddressUpdate) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateNewSecondaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateNewTertiaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateOriginalAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginalSecondaryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateOriginalTertiaryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -328,6 +448,48 @@ func (m *ShipmentAddressUpdate) contextValidateNewAddress(ctx context.Context, f
 	return nil
 }
 
+func (m *ShipmentAddressUpdate) contextValidateNewSecondaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewSecondaryAddress != nil {
+
+		if swag.IsZero(m.NewSecondaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewSecondaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateNewTertiaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.NewTertiaryAddress != nil {
+
+		if swag.IsZero(m.NewTertiaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.NewTertiaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("newTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("newTertiaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *ShipmentAddressUpdate) contextValidateOriginalAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.OriginalAddress != nil {
@@ -337,6 +499,48 @@ func (m *ShipmentAddressUpdate) contextValidateOriginalAddress(ctx context.Conte
 				return ve.ValidateName("originalAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("originalAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateOriginalSecondaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginalSecondaryAddress != nil {
+
+		if swag.IsZero(m.OriginalSecondaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.OriginalSecondaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originalSecondaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originalSecondaryAddress")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *ShipmentAddressUpdate) contextValidateOriginalTertiaryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.OriginalTertiaryAddress != nil {
+
+		if swag.IsZero(m.OriginalTertiaryAddress) { // not required
+			return nil
+		}
+
+		if err := m.OriginalTertiaryAddress.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("originalTertiaryAddress")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("originalTertiaryAddress")
 			}
 			return err
 		}

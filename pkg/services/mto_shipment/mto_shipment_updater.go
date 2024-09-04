@@ -177,7 +177,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.SecondaryPickupAddress = nil
 		dbShipment.SecondaryPickupAddressID = nil
 		requestedUpdatedShipment.HasTertiaryPickupAddress = models.BoolPointer(false)
-	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil {
+	} else if requestedUpdatedShipment.SecondaryPickupAddress != nil && !requestedUpdatedShipment.SecondaryPickupAddress.IsAddressEmpty() {
 		dbShipment.SecondaryPickupAddress = requestedUpdatedShipment.SecondaryPickupAddress
 		dbShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
@@ -189,7 +189,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.SecondaryDeliveryAddress = nil
 		dbShipment.SecondaryDeliveryAddressID = nil
 		requestedUpdatedShipment.HasTertiaryDeliveryAddress = models.BoolPointer(false)
-	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil {
+	} else if requestedUpdatedShipment.SecondaryDeliveryAddress != nil && !requestedUpdatedShipment.SecondaryDeliveryAddress.IsAddressEmpty() {
 		dbShipment.SecondaryDeliveryAddress = requestedUpdatedShipment.SecondaryDeliveryAddress
 		dbShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
 	}
@@ -200,7 +200,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.HasTertiaryPickupAddress = requestedUpdatedShipment.HasTertiaryPickupAddress
 		dbShipment.TertiaryPickupAddress = nil
 		dbShipment.TertiaryPickupAddressID = nil
-	} else if requestedUpdatedShipment.TertiaryPickupAddress != nil {
+	} else if requestedUpdatedShipment.TertiaryPickupAddress != nil && !requestedUpdatedShipment.TertiaryPickupAddress.IsAddressEmpty() {
 		dbShipment.TertiaryPickupAddress = requestedUpdatedShipment.TertiaryPickupAddress
 		dbShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
 	}
@@ -211,7 +211,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.HasTertiaryDeliveryAddress = requestedUpdatedShipment.HasTertiaryDeliveryAddress
 		dbShipment.TertiaryDeliveryAddress = nil
 		dbShipment.TertiaryDeliveryAddressID = nil
-	} else if requestedUpdatedShipment.TertiaryDeliveryAddress != nil {
+	} else if requestedUpdatedShipment.TertiaryDeliveryAddress != nil && !requestedUpdatedShipment.TertiaryDeliveryAddress.IsAddressEmpty() {
 		dbShipment.TertiaryDeliveryAddress = requestedUpdatedShipment.TertiaryDeliveryAddress
 		dbShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
 	}
