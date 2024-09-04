@@ -16,6 +16,7 @@ import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
+  console.log('shipment = ', shipment);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const editShipmentAddressUrl = moveId

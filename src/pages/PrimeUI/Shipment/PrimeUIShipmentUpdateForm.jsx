@@ -23,6 +23,7 @@ const emptyAddressShape = {
 const shipmentDestinationTypeOptions = dropdownInputOptions(shipmentDestinationTypes);
 
 const PrimeUIShipmentUpdateForm = ({ editableFormFields, shipment }) => {
+  console.log(shipment);
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Dates</h2>
@@ -54,7 +55,7 @@ const PrimeUIShipmentUpdateForm = ({ editableFormFields, shipment }) => {
           <dt>
             <h5 className={styles.sectionHeader}>Estimated Weight</h5>
           </dt>
-          <dd data-testid="authorizedWeight">{formatWeight(shipment.estimatedWeight)}</dd>
+          <dd data-testid="authorizedWeight">{formatWeight(shipment.primeEstimatedWeight)}</dd>
         </>
       )}
       {editableFormFields.editableWeightActualField && (
