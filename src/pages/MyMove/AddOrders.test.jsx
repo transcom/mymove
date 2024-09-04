@@ -184,13 +184,13 @@ describe('Add Orders page', () => {
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
-    expect(screen.getByLabelText('Report by date')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
     expect(screen.getByText('Are dependents included in your orders?')).toBeInTheDocument();
-    expect(screen.getByLabelText('Current duty location')).toBeInTheDocument();
-    expect(screen.getByLabelText('New duty location')).toBeInTheDocument();
-    expect(screen.getByLabelText('Pay grade')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
 
     const backBtn = await screen.findByRole('button', { name: 'Back' });
     expect(backBtn).toBeInTheDocument();
@@ -239,19 +239,19 @@ describe('Add Orders page', () => {
     const nextBtn = await screen.findByRole('button', { name: 'Next' });
     expect(nextBtn).toBeInTheDocument();
 
-    await userEvent.selectOptions(screen.getByLabelText('Orders type'), 'PERMANENT_CHANGE_OF_STATION');
-    await userEvent.type(screen.getByLabelText('Orders date'), '08 Nov 2020');
-    await userEvent.type(screen.getByLabelText('Report by date'), '26 Nov 2020');
+    await userEvent.selectOptions(screen.getByLabelText(/Orders type/), 'PERMANENT_CHANGE_OF_STATION');
+    await userEvent.type(screen.getByLabelText(/Orders date/), '08 Nov 2020');
+    await userEvent.type(screen.getByLabelText(/Report by date/), '26 Nov 2020');
     await userEvent.click(screen.getByLabelText('No'));
-    await userEvent.selectOptions(screen.getByLabelText('Pay grade'), ['E_5']);
+    await userEvent.selectOptions(screen.getByLabelText(/Pay grade/), ['E_5']);
 
     // Test Current Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('Current duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/Current duty location/), 'AFB', { delay: 100 });
     const selectedOptionCurrent = await screen.findByText(/Altus/);
     await userEvent.click(selectedOptionCurrent);
 
     // Test New Duty Location Search Box interaction
-    await userEvent.type(screen.getByLabelText('New duty location'), 'AFB', { delay: 100 });
+    await userEvent.type(screen.getByLabelText(/New duty location/), 'AFB', { delay: 100 });
     const selectedOptionNew = await screen.findByText(/Luke/);
     await userEvent.click(selectedOptionNew);
 

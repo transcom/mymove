@@ -11,7 +11,12 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import { Form } from 'components/form/Form';
 import formStyles from 'styles/form.module.scss';
-import { backupContactInfoSchema, contactInfoSchema, requiredAddressSchema } from 'utils/validation';
+import {
+  backupContactInfoSchema,
+  contactInfoSchema,
+  requiredAddressSchema,
+  preferredContactMethodValidation,
+} from 'utils/validation';
 import { ResidentialAddressShape } from 'types/address';
 import { CustomerContactInfoFields } from 'components/form/CustomerContactInfoFields';
 import { BackupContactInfoFields } from 'components/form/BackupContactInfoFields';
@@ -22,19 +27,27 @@ export const backupAddressName = 'backup_mailing_address';
 export const backupContactName = 'backup_contact';
 
 const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
-  const validationSchema = Yup.object().shape({
-    ...contactInfoSchema.fields,
-    [residentialAddressName]: requiredAddressSchema.required(),
-    [backupAddressName]: requiredAddressSchema.required(),
-    [backupContactName]: backupContactInfoSchema.required(),
-  });
+  const validationSchema = Yup.object()
+    .shape({
+      ...contactInfoSchema.fields,
+      [residentialAddressName]: requiredAddressSchema.required(),
+      [backupAddressName]: requiredAddressSchema.required(),
+      [backupContactName]: backupContactInfoSchema.required(),
+    })
+    .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
   const sectionStyles = classnames(formStyles.formSection, editContactInfoFormStyle.formSection);
   const [isCurrentLookupErrorVisible, setIsCurrentLookupErrorVisible] = useState(false);
   const [isBackupLookupErrorVisible, setIsBackupLookupErrorVisible] = useState(false);
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validateOnMount validationSchema={validationSchema}>
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validateOnMount
+      validationSchema={validationSchema}
+      initialTouched={{ telephone: true }}
+    >
       {({ isValid, isSubmitting, handleSubmit, values, setValues }) => {
         const handleCurrentZipCityChange = (value) => {
           setValues(
@@ -85,7 +98,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
             <SectionWrapper className={sectionStyles}>
               <h2>Your contact info</h2>
 
-              <CustomerContactInfoFields />
+              <CustomerContactInfoFields labelHint="Required" />
             </SectionWrapper>
 
             <SectionWrapper className={sectionStyles}>
@@ -96,6 +109,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 zipCityEnabled
                 zipCityError={isCurrentLookupErrorVisible}
                 handleZipCityChange={handleCurrentZipCityChange}
+                labelHint="Required"
               />
             </SectionWrapper>
 
@@ -111,6 +125,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 zipCityEnabled
                 zipCityError={isBackupLookupErrorVisible}
                 handleZipCityChange={handleBackupZipCityChange}
+                labelHint="Required"
               />
             </SectionWrapper>
 
@@ -121,7 +136,7 @@ const EditContactInfoForm = ({ initialValues, onSubmit, onCancel }) => {
                 years of age or older.
               </p>
 
-              <BackupContactInfoFields name={backupContactName} />
+              <BackupContactInfoFields name={backupContactName} labelHint="Required" />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>

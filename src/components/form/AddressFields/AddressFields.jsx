@@ -35,6 +35,7 @@ export const AddressFields = ({
   zipCityError,
   handleZipCityChange,
   formikFunctionsToValidatePostalCodeOnChange,
+  labelHint: labelHintProp,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
   const infoStr = 'If you encounter any inaccurate lookup information please contact the ';
@@ -96,18 +97,19 @@ export const AddressFields = ({
             label="Address 1"
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
+            labelHint={labelHintProp}
             validate={validators?.streetAddress1}
           />
           <TextField
             label="Address 2"
-            optional
+            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress2_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress2`}
             validate={validators?.streetAddress2}
           />
           <TextField
             label="Address 3"
-            optional
+            labelHint={labelHintProp ? null : 'Optional'}
             id={`mailingAddress3_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress3`}
             validate={validators?.streetAddress3}
