@@ -142,16 +142,16 @@ describe('Pickup info page', () => {
 
       renderMobileHomeShipmentLocationInfo();
 
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
       expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
       expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
       expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
       expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
@@ -217,7 +217,7 @@ describe('Pickup info page', () => {
 
     renderMobileHomeShipmentLocationInfo({ isCreatePage: false, mtoShipment: mockMTOShipment });
 
-    const pickupAddress1Input = screen.getAllByLabelText('Address 1')[0];
+    const pickupAddress1Input = screen.getAllByLabelText(/Address 1/)[0];
     await userEvent.clear(pickupAddress1Input);
     await userEvent.type(pickupAddress1Input, shipmentInfo.pickupAddress.streetAddress1);
 

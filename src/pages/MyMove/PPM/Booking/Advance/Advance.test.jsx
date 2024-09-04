@@ -116,7 +116,7 @@ describe('Advance page', () => {
     expect(requestAdvanceNoInput).toBeInstanceOf(HTMLInputElement);
     expect(requestAdvanceNoInput.checked).toBe(true);
 
-    expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Amount requested/)).not.toBeInTheDocument();
 
     const backButton = screen.getByRole('button', { name: /back/i });
     expect(backButton).toBeInTheDocument();
@@ -154,12 +154,12 @@ describe('Advance page', () => {
         expect(hasRequestedAdvanceYesInput.checked).toBe(true);
         expect(hasRequestedAdvanceNoInput.checked).toBe(false);
         await waitFor(() => {
-          expect(screen.getByLabelText('Amount requested').value).toBe('400');
+          expect(screen.getByLabelText(/Amount requested/).value).toBe('400');
         });
       } else {
         expect(hasRequestedAdvanceYesInput.checked).toBe(false);
         expect(hasRequestedAdvanceNoInput.checked).toBe(true);
-        expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText(/Amount requested/)).not.toBeInTheDocument();
       }
     },
   );
@@ -188,14 +188,14 @@ describe('Advance page', () => {
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(hasRequestedAdvanceYesInput);
 
-    const advanceInput = await screen.findByLabelText('Amount requested');
+    const advanceInput = await screen.findByLabelText(/Amount requested/);
     expect(advanceInput).toBeInstanceOf(HTMLInputElement);
 
     const hasRequestedAdvanceNoInput = screen.getByRole('radio', { name: /no/i });
     await userEvent.click(hasRequestedAdvanceNoInput);
 
     await waitFor(() => {
-      expect(screen.queryByLabelText('Amount requested')).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/Amount requested/)).not.toBeInTheDocument();
     });
   });
 
@@ -222,7 +222,7 @@ describe('Advance page', () => {
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(hasRequestedAdvanceYesInput);
 
-    const advanceInput = screen.getByLabelText('Amount requested');
+    const advanceInput = screen.getByLabelText(/Amount requested/);
     await userEvent.type(advanceInput, String(advance));
 
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
@@ -290,7 +290,7 @@ describe('Advance page', () => {
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
     await userEvent.click(agreeToTerms);
 
-    const advanceInput = screen.getByLabelText('Amount requested');
+    const advanceInput = screen.getByLabelText(/Amount requested/);
     await userEvent.type(advanceInput, String(advance));
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
@@ -313,7 +313,7 @@ describe('Advance page', () => {
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
     await userEvent.click(agreeToTerms);
 
-    const advanceInput = screen.getByLabelText('Amount requested');
+    const advanceInput = screen.getByLabelText(/Amount requested/);
     await userEvent.type(advanceInput, '4000');
 
     const saveButton = screen.getByRole('button', { name: /save & continue/i });
@@ -340,7 +340,7 @@ describe('Advance page', () => {
     const hasRequestedAdvanceYesInput = screen.getByRole('radio', { name: /yes/i });
     await userEvent.click(hasRequestedAdvanceYesInput);
 
-    const advanceInput = screen.getByLabelText('Amount requested');
+    const advanceInput = screen.getByLabelText(/Amount requested/);
     await userEvent.type(advanceInput, '4000');
     const agreeToTerms = screen.getByLabelText(/I acknowledge/i);
     await userEvent.click(agreeToTerms);

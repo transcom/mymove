@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import { useField } from 'formik';
 import { FormGroup, Label, TextInput, Textarea, ErrorMessage } from '@trussworks/react-uswds';
 
-import { RequiredTag } from 'components/form/RequiredTag';
+import { OptionalTag } from 'components/form/OptionalTag';
 import Hint from 'components/Hint';
 
 /**
@@ -50,7 +50,7 @@ const TextField = ({
         <Label className={labelClassName} hint={labelHint} error={showError} htmlFor={id || name}>
           {label}
         </Label>
-        {optional || <RequiredTag />}
+        {optional && <OptionalTag />}
       </div>
 
       {showError && (
