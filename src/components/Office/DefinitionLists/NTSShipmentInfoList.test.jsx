@@ -4,6 +4,8 @@ import { render, screen, waitFor } from '@testing-library/react';
 import NTSShipmentInfoList from './NTSShipmentInfoList';
 
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { MockProviders } from 'testUtils';
+import { permissionTypes } from 'constants/permissions';
 
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
@@ -25,6 +27,7 @@ const shipment = {
   },
   serviceOrderNumber: '12341234',
   requestedPickupDate: '26 Mar 2020',
+  requestedDeliveryDate: '28 Mar 2020',
   pickupAddress: {
     streetAddress1: '441 SW Rio de la Plata Drive',
     city: 'Tacoma',
@@ -73,6 +76,7 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['pickupAddress', shipment.pickupAddress.streetAddress1],
       ['secondaryPickupAddress', shipment.secondaryPickupAddress.streetAddress1],
       ['tertiaryPickupAddress', shipment.tertiaryPickupAddress.streetAddress1],
+      ['requestedDeliveryDate', shipment.requestedDeliveryDate],
       ['releasingAgent', shipment.mtoAgents[0].email, { exact: false }],
       ['counselorRemarks', shipment.counselorRemarks],
       ['customerRemarks', shipment.customerRemarks],
@@ -80,7 +84,11 @@ describe('NTS Shipment Info List renders all fields when provided and expanded',
       ['sacType', '1234123412 (NTS)'],
     ])('Verify Shipment field %s with value %s is present', async (shipmentField, shipmentFieldValue) => {
       isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
-      render(<NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />);
+      render(
+        <MockProviders permissions={[permissionTypes.updateShipment]}>
+          <NTSShipmentInfoList isExpanded shipment={{ ...shipment, usesExternalVendor: true }} />
+        </MockProviders>,
+      );
       await waitFor(() => {
         const shipmentFieldElement = screen.getByTestId(shipmentField);
         expect(shipmentFieldElement).toHaveTextContent(shipmentFieldValue);
