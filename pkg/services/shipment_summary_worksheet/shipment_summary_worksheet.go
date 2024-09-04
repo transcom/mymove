@@ -540,6 +540,7 @@ func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipm
 	return formattedShipment
 }
 
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet Payment Packet
 func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
 
@@ -555,7 +556,7 @@ func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkS
 	return formattedSIT
 }
 
-// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet AOA Packet
 func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
 
