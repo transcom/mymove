@@ -228,8 +228,8 @@ const ExpenseForm = ({
                 {values.expenseType === 'STORAGE' && (
                   <FormGroup>
                     <h3>Dates</h3>
-                    <DatePickerInput name="sitStartDate" label="Start date" required />
-                    <DatePickerInput name="sitEndDate" label="End date" required />
+                    <DatePickerInput name="sitStartDate" label="Start date" />
+                    <DatePickerInput name="sitEndDate" label="End date" />
                     <h3 className={styles.storageTotal}>
                       Days in storage:{' '}
                       {values.sitStartDate && values.sitEndDate && !errors.sitStartDate && !errors.sitEndDate

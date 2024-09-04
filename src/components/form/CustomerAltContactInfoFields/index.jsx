@@ -1,10 +1,9 @@
 import React, { useRef } from 'react';
 import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Label, Fieldset } from '@trussworks/react-uswds';
+import { Label, Fieldset, ErrorMessage } from '@trussworks/react-uswds';
+import { useFormikContext } from 'formik';
 import classnames from 'classnames';
-
-import RequiredTag from '../RequiredTag';
 
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
@@ -13,6 +12,7 @@ import { CheckboxField } from 'components/form/fields';
 
 export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
   const CustomerAltContactInfoFieldsUUID = useRef(uuidv4());
+  const { errors } = useFormikContext();
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -23,13 +23,13 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
               <TextField label="First name" name="firstName" id="firstName" required />
             </div>
             <div className="grid-col-6">
-              <TextField label="Middle name" name="middleName" id="middleName" optional />
+              <TextField label="Middle name" name="middleName" id="middleName" labelHint="Optional" />
             </div>
             <div className="grid-col-6">
               <TextField label="Last name" name="lastName" id="lastName" required />
             </div>
             <div className="grid-col-6">
-              <TextField label="Suffix" name="suffix" id="suffix" optional />
+              <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
             </div>
           </div>
           <div className="grid-row grid-gap">
@@ -52,7 +52,7 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
-                optional
+                labelHint="Optional"
               />
             </div>
           </div>
@@ -68,7 +68,7 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
             </div>
             <div className="grid-row grid-gap">
               <Label>Preferred contact method</Label>
-              <RequiredTag />
+              {errors.preferredContactMethod ? <ErrorMessage>{errors.preferredContactMethod}</ErrorMessage> : null}
               <div className={classnames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
                 <CheckboxField
                   id={`phoneIsPreferred_${CustomerAltContactInfoFieldsUUID.current}`}

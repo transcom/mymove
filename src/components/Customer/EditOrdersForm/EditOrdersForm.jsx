@@ -13,7 +13,6 @@ import UploadsTable from 'components/UploadsTable/UploadsTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import { documentSizeLimitMsg } from 'shared/constants';
 import profileImage from 'scenes/Review/images/profile.png';
-import Hint from 'components/Hint/index';
 import { DropdownArrayOf } from 'types';
 import { ExistingUploadsShape } from 'types/uploads';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
@@ -70,8 +69,14 @@ const EditOrdersForm = ({
   let newDutyMeta = '';
 
   return (
-    <Formik initialValues={initialValues} onSubmit={onSubmit} validationSchema={validationSchema} validateOnMount>
-      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
+    <Formik
+      initialValues={initialValues}
+      onSubmit={onSubmit}
+      validationSchema={validationSchema}
+      validateOnMount
+      initialTouched={{ orders_type: true, issue_date: true, report_by_date: true, has_dependents: true, grade: true }}
+    >
+      {({ isValid, isSubmitting, handleSubmit, values }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
 
         if (!values.origin_duty_location) originMeta = 'Required';
@@ -95,23 +100,22 @@ const EditOrdersForm = ({
             </h1>
             <SectionWrapper className={formStyles.formSection}>
               <h2>Edit Orders:</h2>
-              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
-              <DatePickerInput
-                name="issue_date"
-                label="Orders date"
+              <DropdownInput
+                label="Orders type"
+                name="orders_type"
+                options={ordersTypeOptions}
                 required
-                renderInput={(input) => (
-                  <>
-                    {input}
-                    <Hint>
-                      <p>Date your orders were issued.</p>
-                    </Hint>
-                  </>
-                )}
+                hint="Required"
               />
-              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
+              <DatePickerInput name="issue_date" label="Orders date" hint="Required" required />
+              <DatePickerInput
+                name="report_by_date"
+                label={formatLabelReportByDate(values.orders_type)}
+                required
+                hint="Required"
+              />
               <FormGroup>
-                <Label>Are dependents included in your orders?</Label>
+                <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -138,9 +142,9 @@ const EditOrdersForm = ({
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                hint="Required"
                 required
                 metaOverride={originMeta}
-                touched={touched}
               />
 
               {isRetirementOrSeparation ? (
@@ -173,8 +177,6 @@ const EditOrdersForm = ({
                     hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
                     placeholder="Enter a city or ZIP"
                     metaOverride={newDutyMeta}
-                    touched={touched}
-                    required
                   />
                 </>
               ) : (
@@ -183,11 +185,16 @@ const EditOrdersForm = ({
                   label="New duty location"
                   displayAddress={false}
                   metaOverride={newDutyMeta}
-                  touched={touched}
-                  required
                 />
               )}
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+                hint="Required"
+              />
 
               <p>Uploads:</p>
               <UploadsTable
