@@ -4118,6 +4118,45 @@ paths:
           description: request requires user authentication
         '500':
           description: server error
+  /calendar/{countryCode}/is-weekend-holiday/{date}:
+    get:
+      summary: Validate  move date selection
+      description: |
+        Utility API to determine if input date falls on weekend and/or holiday.
+      produces:
+        - application/json
+      operationId: isDateWeekendHoliday
+      tags:
+        - calendar
+      parameters:
+        - description: country code for context of date
+          in: path
+          name: countryCode
+          required: true
+          type: string
+          enum:
+            - US
+        - description: input date to determine if weekend/holiday for given country.
+          in: path
+          name: date
+          required: true
+          type: string
+          format: date
+      responses:
+        '200':
+          description: >-
+            Successfully determine if given date is weekend and/or holiday for
+            given country.
+          schema:
+            $ref: '#/definitions/IsDateWeekendHolidayInfo'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
 definitions:
   ApplicationParameters:
     type: object
@@ -5733,6 +5772,18 @@ definitions:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
+      tppsInvoiceAmountPaidTotalMillicents:
+        type: integer
+        format: millients
+        title: >-
+          Total amount that TPPS paid for all service items on the payment
+          request in millicents
+        x-nullable: true
+      tppsInvoiceSellerPaidDate:
+        type: string
+        format: date-time
+        title: Date that TPPS paid HS for the payment request
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5792,6 +5843,11 @@ definitions:
         $ref: '#/definitions/PaymentServiceItemParams'
       eTag:
         type: string
+      tppsInvoiceAmountPaidPerServiceItemMillicents:
+        type: integer
+        format: millicents
+        title: Amount that TPPS paid for the individual service item in millicents
+        x-nullable: true
     type: object
   PaymentRequestStatus:
     type: string
@@ -5958,6 +6014,8 @@ definitions:
         $ref: '#/definitions/StorageFacility'
       ppmShipment:
         $ref: '#/definitions/UpdatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/UpdateBoatShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -6086,6 +6144,47 @@ definitions:
         x-nullable: true
       advanceStatus:
         $ref: '#/definitions/PPMAdvanceStatus'
+        x-nullable: true
+  UpdateBoatShipment:
+    type: object
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+        x-nullable: true
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+        x-nullable: true
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+        x-nullable: true
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6328,6 +6427,8 @@ definitions:
         $ref: '#/definitions/MobileHome'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
+      boatShipment:
+        $ref: '#/definitions/CreateBoatShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -6416,6 +6517,48 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: Boat shipment information for the move.
+    properties:
+      type:
+        type: string
+        enum:
+          - HAUL_AWAY
+          - TOW_AWAY
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - type
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
   RejectShipment:
     properties:
       rejectionReason:
@@ -6572,7 +6715,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      fullName:
+      lastName:
+        type: string
+      firstName:
         type: string
       hasSafetyPrivilege:
         type: boolean
@@ -7226,6 +7371,29 @@ definitions:
       - created_at
       - updated_at
       - eTag
+  IsDateWeekendHolidayInfo:
+    type: object
+    properties:
+      country_code:
+        type: string
+      country_name:
+        type: string
+      date:
+        type: string
+        format: date
+        example: '2018-09-25'
+      is_weekend:
+        type: boolean
+      is_holiday:
+        type: boolean
+      details:
+        type: string
+    required:
+      - country_code
+      - country_name
+      - date
+      - is_weekend
+      - is_holiday
   Affiliation:
     type: string
     x-nullable: true
@@ -7806,6 +7974,10 @@ definitions:
       serviceRequestDocuments:
         $ref: '#/definitions/ServiceRequestDocuments'
       estimatedPrice:
+        type: integer
+        format: cents
+        x-nullable: true
+      lockedPriceCents:
         type: integer
         format: cents
         x-nullable: true

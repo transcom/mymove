@@ -8,13 +8,14 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 import logger from './reduxLogger';
 
 import { isAdminSite, isDevelopment, isMilmoveSite } from 'shared/constants';
-import { appReducer } from 'appReducer';
+import { adminAppReducer, appReducer } from 'appReducer';
 import * as schema from 'shared/Entities/schema';
 import rootSaga, { rootCustomerSaga } from 'sagas/index';
 import { interceptorInjectionMiddleware } from 'store/interceptor/injectionMiddleware';
 
 function appSelector() {
   if (!isAdminSite) return appReducer();
+  if (isAdminSite) return adminAppReducer();
   return () => {};
 }
 
