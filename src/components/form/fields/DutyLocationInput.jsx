@@ -16,7 +16,8 @@ export const DutyLocationInput = (props) => {
   } else {
     errorString = meta.value?.name ? meta.error?.name || meta.error : '';
   }
-
+  // console.log('jonathan');
+  // console.log(field.value);
   return (
     <LocationSearchBox
       title={label}
@@ -32,6 +33,7 @@ export const DutyLocationInput = (props) => {
       placeholder={placeholder}
       isDisabled={isDisabled}
       searchLocations={searchLocations}
+      // setAddress={setAddressId}
     />
   );
 };

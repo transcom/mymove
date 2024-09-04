@@ -181,6 +181,7 @@ export const LocationSearchBoxComponent = ({
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
+
   return (
     <FormGroup>
       <div className="labelWrapper">
@@ -211,7 +212,7 @@ export const LocationSearchBoxComponent = ({
       </div>
       {displayAddress && hasLocation && (
         <p className={locationClasses}>
-          {value.address.city}, {value.address.state} {value.address.postalCode}
+          {value.address.city}, {value.address.state} {value.address.postalCode} {value.address_id}
         </p>
       )}
       {errorMsg && <span className="usa-error-message">{errorMsg}</span>}
@@ -221,6 +222,7 @@ export const LocationSearchBoxComponent = ({
 
 export const LocationSearchBoxContainer = (props) => {
   const { searchLocations } = props;
+
   return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
 };
 

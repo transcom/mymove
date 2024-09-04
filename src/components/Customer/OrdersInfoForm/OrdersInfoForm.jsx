@@ -20,7 +20,6 @@ import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters'
 
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -41,7 +40,6 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
-
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
@@ -91,6 +89,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 name="origin_duty_location"
                 id="origin_duty_location"
                 required
+              />
+              <DropdownInput
+                label="Counseling Office"
+                name="counseling Office"
+                id="counseling Office"
+                required
+                // addressId={setAddressId}
+                options={payGradeOptions} // change this to be the list of offices for selected location
               />
 
               {isRetirementOrSeparation ? (
