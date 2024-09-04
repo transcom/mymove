@@ -88,6 +88,7 @@ type Page2Values struct {
 	TotalMemberPaidSIT          string
 	TotalGTCCPaidSIT            string
 	TotalPaidSIT                string
+	Disbursement                string
 	ShipmentPickupDates         string
 	TrustedAgentName            string
 	FormattedMovingExpenses
