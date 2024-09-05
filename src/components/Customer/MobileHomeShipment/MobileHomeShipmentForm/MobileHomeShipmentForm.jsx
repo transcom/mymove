@@ -163,7 +163,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Length in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -179,7 +178,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Length in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -203,7 +201,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Width in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -219,7 +216,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Width in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -243,7 +239,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Height in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -259,7 +254,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Height in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -267,13 +261,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </div>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset
-                  legend={
-                    <div className={formStyles.legendContent}>
-                      Remarks <span className={formStyles.optional}>Optional</span>
-                    </div>
-                  }
-                >
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                   <Label htmlFor="customerRemarks">
                     Are there things about this mobile home shipment that your counselor or movers should know or
                     discuss with you?

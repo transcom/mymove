@@ -51,15 +51,15 @@ describe('ResidentialAddressForm component', () => {
     const { getByLabelText, getByText } = render(<ResidentialAddressForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Address 1')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Address 1/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText(/Address 2/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByLabelText('City')).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('State')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/State/)).toBeInstanceOf(HTMLInputElement);
 
-      expect(getByLabelText('ZIP')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/ZIP/)).toBeInstanceOf(HTMLInputElement);
 
       expect(getByText('Must be a physical address.')).toBeInTheDocument();
     });
@@ -67,8 +67,11 @@ describe('ResidentialAddressForm component', () => {
 
   it('shows an error message if trying to submit an invalid form', async () => {
     const { getByRole, findAllByRole, getByLabelText } = render(<ResidentialAddressForm {...testProps} />);
-    await userEvent.click(getByLabelText('Address 1'));
+    await userEvent.click(getByLabelText(/Address 1/));
     await userEvent.click(getByLabelText(/Address 2/));
+    await userEvent.click(getByLabelText('City'));
+    await userEvent.click(getByLabelText(/State/));
+    await userEvent.click(getByLabelText(/ZIP/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
@@ -88,7 +91,7 @@ describe('ResidentialAddressForm component', () => {
     const { getByRole, getByLabelText } = render(<ResidentialAddressForm {...dataProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     await userEvent.tab();
 

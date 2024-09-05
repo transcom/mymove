@@ -6,7 +6,6 @@ import { Radio, FormGroup, Label, Link as USWDSLink } from '@trussworks/react-us
 
 import styles from './OrdersInfoForm.module.scss';
 
-import { RequiredTag } from 'components/form/RequiredTag';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { DropdownInput, DatePickerInput, DutyLocationInput } from 'components/form/fields';
 import Hint from 'components/Hint/index';
@@ -56,11 +55,18 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
-              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
+              <DropdownInput
+                label="Orders type"
+                name="orders_type"
+                options={ordersTypeOptions}
+                required
+                hint="Required"
+              />
               <DatePickerInput
                 name="issue_date"
                 label="Orders date"
                 required
+                hint="Required"
                 renderInput={(input) => (
                   <>
                     {input}
@@ -70,10 +76,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
+              <DatePickerInput
+                hint="Required"
+                name="report_by_date"
+                label={formatLabelReportByDate(values.orders_type)}
+                required
+              />
               <FormGroup>
-                <Label>Are dependents included in your orders?</Label>
-                <RequiredTag />
+                <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -98,11 +108,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
               <DutyLocationInput
                 label="Current duty location"
+                hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 required
                 metaOverride={originMeta}
-                touched={touched}
               />
 
               {isRetirementOrSeparation ? (
@@ -132,11 +142,9 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
                     metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
-                    touched={touched}
-                    required
                   />
                 </>
               ) : (
@@ -144,13 +152,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   name="new_duty_location"
                   label="New duty location"
                   displayAddress={false}
-                  touched={touched}
+                  hint="Required"
                   metaOverride={newDutyMeta}
-                  required
                 />
               )}
 
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                hint="Required"
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
