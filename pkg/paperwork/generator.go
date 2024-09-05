@@ -291,9 +291,19 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 
 	// Merge all remaining images in urls into a new PDF
 	if len(images) > 0 {
-		pdf, err := g.PDFFromImages(appCtx, images)
-		if err != nil {
-			return nil, errors.Wrap(err, "Converting remaining images to pdf")
+		var pdf string
+		var err error
+
+		if doRotation {
+			pdf, err = g.PDFFromImages(appCtx, images)
+			if err != nil {
+				return nil, errors.Wrap(err, "Converting remaining images to pdf")
+			}
+		} else {
+			pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+			if err != nil {
+				return nil, errors.Wrap(err, "Converting remaining images to pdf")
+			}
 		}
 		pdfs = append(pdfs, pdf)
 	}

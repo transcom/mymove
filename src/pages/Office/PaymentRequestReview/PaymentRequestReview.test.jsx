@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 
 import { PaymentRequestReview } from './PaymentRequestReview';
 
-import { patchPaymentServiceItemStatus } from 'services/ghcApi';
+import { patchPaymentServiceItemStatus, bulkDownloadPaymentRequest } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS, PAYMENT_REQUEST_STATUS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { ReactQueryWrapper } from 'testUtils';
@@ -57,6 +57,7 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchPaymentServiceItemStatus: jest.fn(),
+  bulkDownloadPaymentRequest: jest.fn(),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -351,6 +352,34 @@ describe('PaymentRequestReview', () => {
         },
       ];
       expect(reviewServiceItems.prop('serviceItemCards')).toEqual(expectedServiceItemCards);
+    });
+  });
+  describe('when clicking download Download All Files button', () => {
+    it('downloads a bulk packet', async () => {
+      usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnValuePendingFinalReview);
+
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+
+      render(
+        <ReactQueryWrapper>
+          <PaymentRequestReview {...requiredProps} />
+        </ReactQueryWrapper>,
+      );
+
+      bulkDownloadPaymentRequest.mockImplementation(() => Promise.resolve(mockResponse));
+
+      const downloadButton = screen.getByText('Download All Files (PDF)', { exact: false });
+      await userEvent.click(downloadButton);
+      await waitFor(() => {
+        expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
+      });
     });
   });
   describe('clicking the next button', () => {

@@ -32,7 +32,7 @@ func (p *paymentRequestBulkDownloadCreator) CreatePaymentRequestBulkDownload(app
 		"ProofOfServiceDocs.PrimeUploads",
 		"ProofOfServiceDocs.PrimeUploads.Upload",
 	).Find(&paymentRequest, paymentRequestID)
-	if err != nil {
+	if err != nil || len(paymentRequest.ProofOfServiceDocs) < 1 {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
 
