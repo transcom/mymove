@@ -1,6 +1,7 @@
 package officeuser
 
 import (
+	"database/sql"
 	"fmt"
 	"strings"
 
@@ -32,6 +33,17 @@ func (o *officeUserCreator) CreateOfficeUser(
 
 	if fetchErr != nil {
 		return nil, nil, fetchErr
+	}
+
+	// Check and update rejected office user if necessary
+	existingOfficeUser, rejectedUserVerrs, rejectedUserErr := o.checkAndUpdateRejectedOfficeUser(appCtx, officeUser, transportationOffice)
+	if rejectedUserVerrs != nil || rejectedUserErr != nil {
+		return nil, rejectedUserVerrs, rejectedUserErr
+	}
+
+	// If an existing rejected user was updated, return the updated user
+	if existingOfficeUser != nil {
+		return existingOfficeUser, nil, nil
 	}
 
 	// A user may already exist with that email from a previous user (admin, service member, ...)
@@ -149,4 +161,62 @@ func GenerateFakeOktaID() string {
 // NewOfficeUserCreator returns a new office user creator
 func NewOfficeUserCreator(builder officeUserQueryBuilder, sender notifications.NotificationSender) services.OfficeUserCreator {
 	return &officeUserCreator{builder, sender}
+}
+
+func (o *officeUserCreator) checkAndUpdateRejectedOfficeUser(
+	appCtx appcontext.AppContext,
+	officeUser *models.OfficeUser,
+	transportationOffice models.TransportationOffice,
+) (*models.OfficeUser, *validate.Errors, error) {
+
+	// checking if the office user currently exists and has a previous status of rejected
+	var requestedOfficeUser models.OfficeUser
+	previouslyRejectedCheck := query.NewQueryFilter("email", "=", officeUser.Email)
+	fetchErr := o.builder.FetchOne(appCtx, &requestedOfficeUser, []services.QueryFilter{previouslyRejectedCheck})
+	if fetchErr != nil && fetchErr != sql.ErrNoRows {
+		return nil, nil, fetchErr // Return the actual error if it's not a "no rows" error
+	} else if fetchErr == sql.ErrNoRows {
+		// If no rows were found, then we can skip this check
+		return nil, nil, nil
+	}
+
+	// If the office user exists and was previously rejected, update the status to REQUESTED as well as any new info
+	if requestedOfficeUser.ID != uuid.Nil && *requestedOfficeUser.Status == models.OfficeUserStatusREJECTED {
+		if requestedOfficeUser.FirstName != officeUser.FirstName {
+			requestedOfficeUser.FirstName = officeUser.FirstName
+		}
+		if requestedOfficeUser.MiddleInitials != officeUser.MiddleInitials {
+			requestedOfficeUser.MiddleInitials = officeUser.MiddleInitials
+		}
+		if requestedOfficeUser.LastName != officeUser.LastName {
+			requestedOfficeUser.LastName = officeUser.LastName
+		}
+		if requestedOfficeUser.Telephone != officeUser.Telephone {
+			requestedOfficeUser.Telephone = officeUser.Telephone
+		}
+		if requestedOfficeUser.EDIPI != officeUser.EDIPI {
+			requestedOfficeUser.EDIPI = officeUser.EDIPI
+		}
+		if requestedOfficeUser.OtherUniqueID != officeUser.OtherUniqueID {
+			requestedOfficeUser.OtherUniqueID = officeUser.OtherUniqueID
+		}
+		if requestedOfficeUser.RejectionReason != nil { // reset rejection reason
+			requestedOfficeUser.RejectionReason = nil
+		}
+		if requestedOfficeUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+			requestedOfficeUser.TransportationOfficeID = transportationOffice.ID
+		}
+
+		requestedStatus := models.OfficeUserStatusREQUESTED
+		requestedOfficeUser.Status = &requestedStatus
+
+		verrs, err := o.builder.UpdateOne(appCtx, &requestedOfficeUser, nil)
+		if verrs != nil || err != nil {
+			return nil, verrs, err
+		}
+
+		return &requestedOfficeUser, nil, nil
+	}
+
+	return nil, nil, nil
 }
