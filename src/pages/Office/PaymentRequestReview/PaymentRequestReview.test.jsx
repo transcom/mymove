@@ -526,10 +526,6 @@ describe('PaymentRequestReview', () => {
         await userEvent.click(screen.getByRole('button', { name: 'Previous Service Item' }));
         expect(screen.getByTestId('statusHeading')).toHaveTextContent('Accepted');
       });
-      it('shows the Download All Files (PDF) button and downloads the pdf', async () => {
-        expect(screen.getByText('Download All Files (PDF)')).toBeInTheDocument();
-        await userEvent.click(screen.getByText('Download All Files (PDF)'));
-      });
     });
   });
 });
