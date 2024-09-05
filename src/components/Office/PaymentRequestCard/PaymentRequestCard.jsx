@@ -292,7 +292,7 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    return <div />;
+    return null;
   };
 
   const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
@@ -366,7 +366,7 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    return <div />;
+    return null;
   };
 
   return (
