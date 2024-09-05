@@ -186,7 +186,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
             return row.originDutyLocation?.name;
           },
         }),
-    createHeader('Counseling Office', 'counselingOffice', {
+    createHeader('Counseling office', 'counselingOffice', {
       id: 'counselingOffice',
       isFilterable: true,
     }),
