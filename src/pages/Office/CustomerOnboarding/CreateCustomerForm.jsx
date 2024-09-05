@@ -94,7 +94,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     },
     create_okta_account: '',
     cac_user: '',
-    is_safety_move: false,
+    is_safety_move: 'false',
   };
 
   const handleBack = () => {
@@ -151,10 +151,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
-    emplid: Yup.string()
-      .notRequired()
-      .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number'),
+    edipi: Yup.string().matches(/^(SM[0-9]{8}|[0-9]{10})$/, 'Enter a 10-digit DOD ID number'),
+    emplid: Yup.string().matches(/^(SM[0-9]{5}|[0-9]{7})$/, 'Enter a 7-digit EMPLID number'),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
@@ -201,9 +199,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                 if (value === 'true') {
                   setIsSafetyMove(true);
                   setShowSafetyMoveHint(true);
-                  // clear out DoDID, emplid, and OKTA fields
                   setValues({
                     ...values,
+                    affiliation: '',
                     create_okta_account: '',
                     cac_user: 'true',
                     is_safety_move: 'true',
@@ -212,26 +210,45 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                   setIsSafetyMove(false);
                   setValues({
                     ...values,
+                    affiliation: '',
+                    edipi: '',
+                    emplid: '',
                     is_safety_move: 'false',
                   });
                 }
               };
               const handleBranchChange = (e) => {
                 setShowSafetyMoveHint(false);
-                if (e.target.value === departmentIndicators.COAST_GUARD) {
+                if (e.target.value === departmentIndicators.COAST_GUARD && isSafetyMove) {
+                  setShowEmplid(true);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: uniqueDodid,
+                    emplid: uniqueEmplid,
+                  });
+                } else if (e.target.value === departmentIndicators.COAST_GUARD && !isSafetyMove) {
                   setShowEmplid(true);
                   setValues({
                     ...values,
                     affiliation: e.target.value,
                     edipi: '',
-                    emplid: uniqueEmplid,
+                    emplid: '',
+                  });
+                } else if (e.target.value !== departmentIndicators.COAST_GUARD && isSafetyMove) {
+                  setShowEmplid(false);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: uniqueDodid,
+                    emplid: '',
                   });
                 } else {
                   setShowEmplid(false);
                   setValues({
                     ...values,
                     affiliation: e.target.value,
-                    edipi: uniqueDodid,
+                    edipi: '',
                     emplid: '',
                   });
                 }
@@ -253,6 +270,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             value="true"
                             data-testid="is-safety-move-yes"
                             onChange={handleIsSafetyMove}
+                            checked={values.is_safety_move === 'true'}
                           />
                           <Field
                             as={Radio}
@@ -262,6 +280,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             value="false"
                             data-testid="is-safety-move-no"
                             onChange={handleIsSafetyMove}
+                            checked={values.is_safety_move === 'false'}
                           />
                         </div>
                       </Fieldset>
@@ -281,24 +300,26 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       label="DoD ID number"
                       name="edipi"
                       id="edipi"
-                      labelHint="Optional"
                       maxLength="10"
                       isDisabled={isSafetyMove}
+                      data-testid="edipiInput"
                     />
-                    {isSafetyMove && showSafetyMoveHint && (
-                      <Hint>Once a branch is selected, this will generate a random safety move identifier</Hint>
-                    )}
                     {showEmplid && (
                       <TextField
                         label="EMPLID"
                         name="emplid"
                         id="emplid"
                         maxLength="7"
-                        labelHint="Optional"
                         inputMode="numeric"
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}
+                        data-testid="emplidInput"
                       />
+                    )}
+                    {isSafetyMove && showSafetyMoveHint && (
+                      <Hint data-testid="safetyMoveHint">
+                        Once a branch is selected, this will generate a random safety move identifier
+                      </Hint>
                     )}
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>

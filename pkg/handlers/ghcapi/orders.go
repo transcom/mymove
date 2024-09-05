@@ -323,22 +323,10 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 			}
 
 			if newOrder.OrdersType == "SAFETY" {
-				// if creating a Safety move, clear out the DoDID and OktaID for the customer
+				// if creating a Safety move, clear out the OktaID for the customer since they won't log into MilMove
 				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
 				if err != nil {
 					appCtx.Logger().Error("Authorization error updating user", zap.Error(err))
-					return orderop.NewUpdateOrderInternalServerError(), err
-				}
-
-				err = models.UpdateServiceMemberDoDID(appCtx.DB(), &newOrder.ServiceMember, nil)
-				if err != nil {
-					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
-					return orderop.NewUpdateOrderInternalServerError(), err
-				}
-
-				err = models.UpdateServiceMemberEMPLID(appCtx.DB(), &newOrder.ServiceMember, nil)
-				if err != nil {
-					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
 					return orderop.NewUpdateOrderInternalServerError(), err
 				}
 			}
