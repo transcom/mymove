@@ -144,11 +144,15 @@ export const RequestAccount = ({ setFlashMessage }) => {
 
       {serverError && (
         <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert data-testid="alert2" type="error" headingLevel="h4" heading="An error occurred">
-              {serverError}
-            </Alert>
-          </Grid>
+          <Alert
+            data-testid="alert2"
+            type="error"
+            headingLevel="h4"
+            heading="An error occurred"
+            className={styles.error}
+          >
+            {serverError}
+          </Alert>
         </Grid>
       )}
 
