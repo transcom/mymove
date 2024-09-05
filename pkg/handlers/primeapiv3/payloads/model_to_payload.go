@@ -510,6 +510,13 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
 
+	if mtoShipment.TertiaryPickupAddress != nil {
+		payload.TertiaryPickupAddress.Address = *Address(mtoShipment.TertiaryPickupAddress)
+	}
+	if mtoShipment.TertiaryDeliveryAddress != nil {
+		payload.TertiaryDeliveryAddress.Address = *Address(mtoShipment.TertiaryDeliveryAddress)
+	}
+
 	if mtoShipment.StorageFacility != nil {
 		payload.StorageFacility = StorageFacility(mtoShipment.StorageFacility)
 	}
@@ -533,14 +540,19 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		if mtoShipment.PPMShipment.SecondaryPickupAddress != nil {
 			payload.PpmShipment.SecondaryPickupAddress = Address(mtoShipment.PPMShipment.SecondaryPickupAddress)
 		}
+		if mtoShipment.PPMShipment.SecondaryPickupAddress != nil {
+			payload.PpmShipment.TertiaryPickupAddress = Address(mtoShipment.PPMShipment.TertiaryPickupAddress)
+		}
 		if mtoShipment.PPMShipment.DestinationAddress != nil {
 			payload.PpmShipment.DestinationAddress = Address(mtoShipment.PPMShipment.DestinationAddress)
 		}
 		if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
-			payload.PpmShipment.SecondaryDestinationAddress = Address(mtoShipment.PPMShipment.SecondaryDestinationAddress)
+			payload.PpmShipment.TertiaryDestinationAddress = Address(mtoShipment.PPMShipment.TertiaryDestinationAddress)
 		}
 		payload.PpmShipment.HasSecondaryPickupAddress = mtoShipment.PPMShipment.HasSecondaryPickupAddress
 		payload.PpmShipment.HasSecondaryDestinationAddress = mtoShipment.PPMShipment.HasSecondaryDestinationAddress
+		payload.PpmShipment.HasTertiaryPickupAddress = mtoShipment.PPMShipment.HasTertiaryPickupAddress
+		payload.PpmShipment.HasTertiaryDestinationAddress = mtoShipment.PPMShipment.HasTertiaryDestinationAddress
 	}
 
 	return payload

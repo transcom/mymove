@@ -1697,6 +1697,22 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -2044,6 +2060,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -2140,6 +2166,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
@@ -5127,6 +5159,22 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time",
@@ -5474,6 +5522,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -5570,6 +5628,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",

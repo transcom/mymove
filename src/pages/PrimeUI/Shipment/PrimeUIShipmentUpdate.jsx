@@ -122,7 +122,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
   const editableProGearWeightActualField = true;
   const editableSpouseProGearWeightActualField = true;
   const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
+  const reformatPrimeApiSecondaryPickupAddress = fromPrimeAPIAddressFormat(shipment.secondaryPickupAddress);
+  const reformatPrimeApiTertiaryPickupAddress = fromPrimeAPIAddressFormat(shipment.tertiaryPickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
+  const reformatPrimeApiSecondaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.secondaryDeliveryAddress);
+  const reformatPrimeApiTertiaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
   const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
@@ -309,7 +313,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       scheduledDeliveryDate: shipment.scheduledDeliveryDate,
       actualDeliveryDate: shipment.actualDeliveryDate,
       pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
+      secondaryPickupAddress: reformatPrimeApiSecondaryPickupAddress,
+      tertiaryPickupAddress: reformatPrimeApiTertiaryPickupAddress,
       destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
+      secondaryDeliveryAddress: reformatPrimeApiSecondaryDeliveryAddress,
+      tertiaryDeliveryAddress: reformatPrimeApiTertiaryDeliveryAddress,
       destinationType: shipment.destinationType,
       diversion: shipment.diversion,
     };
@@ -364,7 +372,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                           actualSpouseProGearWeight={initialValues.actualSpouseProGearWeight}
                           requestedPickupDate={initialValues.requestedPickupDate}
                           pickupAddress={initialValues.pickupAddress}
+                          secondaryPickupAddress={initialValues.secondaryPickupAddress}
+                          tertiaryPickupAddress={initialValues.tertiaryPickupAddress}
                           destinationAddress={initialValues.destinationAddress}
+                          secondaryDeliveryAddress={initialValues.secondaryDeliveryAddress}
+                          tertiaryDeliveryAddress={initialValues.tertiaryDeliveryAddress}
                           diversion={initialValues.diversion}
                         />
                       )}

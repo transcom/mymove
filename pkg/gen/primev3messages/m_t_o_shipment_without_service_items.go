@@ -213,6 +213,16 @@ type MTOShipmentWithoutServiceItems struct {
 	// storage facility
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 
+	// A third delivery address for this shipment, if the customer entered one. An optional field.
+	TertiaryDeliveryAddress struct {
+		Address
+	} `json:"tertiaryDeliveryAddress,omitempty"`
+
+	// A third pickup address for this shipment, if the customer entered one. An optional field.
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
+
 	// updated at
 	// Read Only: true
 	// Format: date-time
@@ -340,6 +350,14 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 	}
 
 	if err := m.validateStorageFacility(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -789,6 +807,22 @@ func (m *MTOShipmentWithoutServiceItems) validateStorageFacility(formats strfmt.
 	return nil
 }
 
+func (m *MTOShipmentWithoutServiceItems) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 func (m *MTOShipmentWithoutServiceItems) validateUpdatedAt(formats strfmt.Registry) error {
 	if swag.IsZero(m.UpdatedAt) { // not required
 		return nil
@@ -902,6 +936,14 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 	}
 
 	if err := m.contextValidateStorageFacility(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1199,6 +1241,16 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateStorageFacility(ctx cont
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
