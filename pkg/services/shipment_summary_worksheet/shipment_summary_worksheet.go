@@ -224,6 +224,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
 	formattedShipment := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
+
 	page1.ShipmentNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
@@ -242,8 +243,10 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 		}
 	} else {
 		formattedSIT = FormatAllSITSForAOAPacket(data.PPMShipment)
+
 		page1.ShipmentWeights = formattedShipment.ShipmentWeights
 		page1.ActualObligationGCC100 = formattedShipment.ShipmentWeightForObligation + " - Actual lbs; "
+
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
 
@@ -534,6 +537,7 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 	return formattedShipment
 }
 
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet Payment Packet
 func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
 
@@ -578,7 +582,7 @@ func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipm
 	}
 }
 
-// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet AOA Packet
 func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
 
@@ -670,7 +674,7 @@ func FormatPPMWeightFinal(weight unit.Pound) string {
 	return fmt.Sprintf("%s lbs - Actual", wtg)
 }
 
-// FormatSITEntryDate formats a SIT Date for the Shipment Summary Worksheet
+// FormatSITDate formats a SIT Date for the Shipment Summary Worksheet
 func FormatSITDate(sitDate *time.Time) string {
 	if sitDate == nil {
 		return "No SIT date" // Return string if no date found
