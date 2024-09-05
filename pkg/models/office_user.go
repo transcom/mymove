@@ -16,7 +16,7 @@ type OfficeUserStatus string
 const (
 	// OfficeUserStatusAPPROVED captures enum value "APPROVED"
 	OfficeUserStatusAPPROVED OfficeUserStatus = "APPROVED"
-	// OfficeUserStatusSUBMITTED captures enum value "REJECTED"
+	// OfficeUserStatusREJECTED captures enum value "REJECTED"
 	OfficeUserStatusREJECTED OfficeUserStatus = "REJECTED"
 	// OfficeUserStatusREQUESTED captures enum value "REQUESTED"
 	OfficeUserStatusREQUESTED OfficeUserStatus = "REQUESTED"
