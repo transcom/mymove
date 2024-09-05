@@ -7,6 +7,7 @@ import classnames from 'classnames';
 
 import styles from './BoatShipmentForm.module.scss';
 
+import RequiredTag from 'components/form/RequiredTag';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
@@ -17,7 +18,6 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
-import RequiredTag from 'components/form/RequiredTag';
 
 const currentYear = new Date().getFullYear();
 const maxYear = currentYear + 2;
@@ -126,6 +126,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                       name="year"
                       label="Year"
                       id="year"
+                      labelHint="Required"
                       maxLength={4}
                       mask={Number}
                       scale={0}
@@ -144,8 +145,8 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   </div>
                 </div>
                 <div className={classnames(styles.formFieldContainer, 'mobile-lg:grid-col-7')}>
-                  <TextField data-testid="make" name="make" label="Make" id="make" required />
-                  <TextField data-testid="model" name="model" label="Model" id="model" required />
+                  <TextField data-testid="make" name="make" label="Make" id="make" required labelHint="Required" />
+                  <TextField data-testid="model" name="model" label="Model" id="model" required labelHint="Required" />
                 </div>
               </SectionWrapper>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
@@ -175,7 +176,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Length in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -191,7 +191,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Length in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -215,7 +214,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Width in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -231,7 +229,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Width in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -255,7 +252,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Height in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -271,7 +267,6 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Height in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -282,6 +277,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <h2>Trailer Status</h2>
                 <Fieldset>
                   <legend className="usa-label">Does the boat have a trailer?</legend>
+                  <RequiredTag />
                   <Field
                     as={Radio}
                     id="hasTrailerYes"
@@ -303,6 +299,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   {values.hasTrailer === 'true' && (
                     <Fieldset className={styles.formFieldContainer}>
                       <legend className="usa-label">Is the trailer roadworthy?</legend>
+                      <RequiredTag />
                       <Field
                         as={Radio}
                         id="isRoadworthyYes"

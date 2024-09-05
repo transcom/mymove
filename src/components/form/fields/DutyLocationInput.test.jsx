@@ -1,4 +1,5 @@
 import React from 'react';
+import * as Formik from 'formik';
 import { mount, shallow } from 'enzyme';
 import { act } from 'react-dom/test-utils';
 import AsyncSelect from 'react-select/async';
@@ -9,6 +10,19 @@ import { DutyLocationInput } from './DutyLocationInput';
 import { LocationSearchBoxComponent, LocationSearchBoxContainer } from 'components/LocationSearchBox/LocationSearchBox';
 
 const mockSetValue = jest.fn();
+
+const useFormikContextMock = jest.spyOn(Formik, 'useFormikContext');
+
+// Helper method
+
+const getFieldMetaMock = () => {
+  return {
+    value: 'testValue',
+    initialTouched: true,
+    touched: false,
+  };
+};
+
 // mock out formik hook as we are not testing formik
 // needs to be before first describe
 const metaMock = {
@@ -56,6 +70,9 @@ jest.mock('formik', () => ({
       },
     ];
   }),
+  useFormikContext: jest.fn(() => {
+    return { touched: {} };
+  }),
 }));
 
 jest.mock('components/LocationSearchBox/api', () => {
@@ -71,11 +88,16 @@ jest.mock('components/LocationSearchBox/api', () => {
   };
 });
 
+const mockProps = { ...fieldMock, ...metaMock, ...helperMock };
+
 beforeEach(() => {
+  useFormikContextMock.mockReturnValue({
+    getFieldMeta: getFieldMetaMock,
+    touched: {},
+  });
+
   useField.mockReturnValue([fieldMock, metaMock, helperMock]);
 });
-
-const mockProps = { ...fieldMock, ...metaMock, ...helperMock };
 
 describe('DutyLocationInput', () => {
   describe('with all required props', () => {

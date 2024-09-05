@@ -8,10 +8,10 @@ import { FormGroup, Label } from '@trussworks/react-uswds';
 
 import styles from './MaskedTextField.module.scss';
 
+import { OptionalTag } from 'components/form/OptionalTag';
 import { ErrorMessage } from 'components/form/index';
 import Hint from 'components/Hint';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
-import RequiredTag from 'components/form/RequiredTag';
 
 const MaskedTextField = ({
   containerClassName,
@@ -68,7 +68,7 @@ const MaskedTextField = ({
             {description}
           </div>
         )}
-        {optional || <RequiredTag />}
+        {optional && <OptionalTag />}
       </div>
       {showError && (
         <ErrorMessage display={showError} className={errorClassName}>
