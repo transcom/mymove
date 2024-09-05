@@ -144,10 +144,26 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
-    emplid: Yup.string()
-      .notRequired()
-      .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number'),
+    // All branches require an EDIPI unless it is a safety move
+    // where a fake DoD ID may be used
+    edipi:
+      !isSafetyMove &&
+      Yup.string()
+        .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+        .required('Required'),
+    // Only the coast guard requires both EDIPI and EMPLID
+    // unless it is a safety move
+    emplid:
+      !isSafetyMove &&
+      showEmplid &&
+      Yup.string().when('affiliation', {
+        is: (affiliationValue) => affiliationValue === departmentIndicators.COAST_GUARD,
+        then: () =>
+          Yup.string()
+            .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
+            .required(`EMPLID is required for ${departmentIndicators.COAST_GUARD}`),
+        otherwise: Yup.string().notRequired(),
+      }),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
@@ -262,8 +278,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       label="DoD ID number"
                       name="edipi"
                       id="edipi"
-                      labelHint="Optional"
                       maxLength="10"
+                      data-testid="edipi"
                       isDisabled={isSafetyMove}
                     />
                     {showEmplid && (
@@ -271,8 +287,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         label="EMPLID"
                         name="emplid"
                         id="emplid"
+                        data-testid="emplid"
                         maxLength="7"
-                        labelHint="Optional"
                         inputMode="numeric"
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}
