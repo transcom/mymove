@@ -193,14 +193,14 @@ func (h showAOAPacketHandler) Handle(params ppmdocumentops.ShowAOAPacketParams) 
 		})
 }
 
-// ShowPaymentRequestBulkDownloadHandler returns a PPM Payment Packet PDF
-type ShowPaymentRequestBulkDownloadHandler struct {
+// ShowPaymentPacketHandler returns a PPM Payment Packet PDF
+type ShowPaymentPacketHandler struct {
 	handlers.HandlerConfig
 	services.PaymentPacketCreator
 }
 
 // Handle returns a generated PDF
-func (h ShowPaymentRequestBulkDownloadHandler) Handle(params ppmdocumentops.ShowPaymentPacketParams) middleware.Responder {
+func (h ShowPaymentPacketHandler) Handle(params ppmdocumentops.ShowPaymentPacketParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
 			ppmShipmentID, err := uuid.FromString(params.PpmShipmentID.String())
@@ -222,7 +222,7 @@ func (h ShowPaymentRequestBulkDownloadHandler) Handle(params ppmdocumentops.Show
 			}
 
 			payload := io.NopCloser(pdf)
-			filename := fmt.Sprintf("inline; filename=\"ppm_payment_bulk_download_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
+			filename := fmt.Sprintf("inline; filename=\"ppm_payment_packet-%s.pdf\"", time.Now().UTC().Format("2006-01-02T15:04:05.000Z"))
 
 			return ppmdocumentops.NewShowPaymentPacketOK().WithContentDisposition(filename).WithPayload(payload), nil
 		})
