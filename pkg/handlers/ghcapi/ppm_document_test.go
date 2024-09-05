@@ -702,7 +702,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 	suite.Run("Successful ShowAOAPacketHandler - 200", func() {
 
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
-		handler := ShowPaymentPacketHandler{
+		handler := ShowPaymentRequestBulkDownloadHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
 			PaymentPacketCreator: &mockPaymentPacketCreator,
 		}
@@ -728,7 +728,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 	suite.Run("Unsuccessful ShowPaymentPacketHandler - InternalServerError", func() {
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
-		handler := ShowPaymentPacketHandler{
+		handler := ShowPaymentRequestBulkDownloadHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
 			PaymentPacketCreator: &mockPaymentPacketCreator,
 		}
@@ -754,7 +754,7 @@ func (suite *HandlerSuite) TestShowPaymentPacketHandler() {
 
 	suite.Run("Unsuccessful ShowPaymentPacketHandler - NotFoundError", func() {
 		mockPaymentPacketCreator := mocks.PaymentPacketCreator{}
-		handler := ShowPaymentPacketHandler{
+		handler := ShowPaymentRequestBulkDownloadHandler{
 			HandlerConfig:        suite.createS3HandlerConfig(),
 			PaymentPacketCreator: &mockPaymentPacketCreator,
 		}

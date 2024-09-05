@@ -11,10 +11,11 @@ import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DocumentViewer from 'components/DocumentViewer/DocumentViewer';
 import ReviewServiceItems from 'components/Office/ReviewServiceItems/ReviewServiceItems';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
-import { patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
+import { bulkDownloadPaymentRequest, patchPaymentRequest, patchPaymentServiceItemStatus } from 'services/ghcApi';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { PAYMENT_REQUESTS } from 'constants/queryKeys';
 import { OrderShape } from 'types';
+import AsyncPacketDownloadLink from 'shared/AsyncPacketDownloadLink/AsyncPacketDownloadLink';
 
 export const PaymentRequestReview = ({ order }) => {
   const navigate = useNavigate();
@@ -172,10 +173,31 @@ export const PaymentRequestReview = ({ order }) => {
     navigate(`/moves/${moveCode}/payment-requests`);
   };
 
+  const paymentPacketDownload = (
+    <div>
+      <dd data-testid="bulkPacketDownload">
+        <p className={styles.downloadLink}>
+          <AsyncPacketDownloadLink
+            id={paymentRequestId}
+            label="Download All Files (PDF)"
+            asyncRetrieval={bulkDownloadPaymentRequest}
+          />
+        </p>
+      </dd>
+    </div>
+  );
+
   return (
     <div data-testid="PaymentRequestReview" className={styles.PaymentRequestReview}>
       <div className={styles.embed}>
-        {uploads.length > 0 ? <DocumentViewer files={uploads} /> : <h2>No documents provided</h2>}
+        {uploads.length > 0 ? (
+          <>
+            {paymentPacketDownload}
+            <DocumentViewer files={uploads} />
+          </>
+        ) : (
+          <h2>No documents provided</h2>
+        )}
       </div>
       <div className={styles.sidebar}>
         <ReviewServiceItems

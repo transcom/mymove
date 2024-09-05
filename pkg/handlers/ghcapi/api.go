@@ -638,7 +638,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	}
 	ppmShipmentFetcher := ppmshipment.NewPPMShipmentFetcher()
 	paymentPacketCreator := ppmshipment.NewPaymentPacketCreator(ppmShipmentFetcher, pdfGenerator, AOAPacketCreator)
-	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentPacketHandler{handlerConfig, paymentPacketCreator}
+	ghcAPI.PpmShowPaymentPacketHandler = ShowPaymentRequestBulkDownloadHandler{handlerConfig, paymentPacketCreator}
 
 	ghcAPI.UploadsCreateUploadHandler = CreateUploadHandler{handlerConfig}
 	ghcAPI.UploadsUpdateUploadHandler = UpdateUploadHandler{handlerConfig, upload.NewUploadInformationFetcher()}
@@ -670,6 +670,12 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.MoveMoveCancelerHandler = MoveCancelerHandler{
 		handlerConfig,
 		move.NewMoveCanceler(),
+	}
+
+	paymentRequestBulkDownloadCreator := paymentrequest.NewPaymentRequestBulkDownloadCreator(pdfGenerator)
+	ghcAPI.PaymentRequestsBulkDownloadHandler = PaymentRequestBulkDownloadHandler{
+		handlerConfig,
+		paymentRequestBulkDownloadCreator,
 	}
 
 	dateSelectionChecker := dateservice.NewDateSelectionChecker()
