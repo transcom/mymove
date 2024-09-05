@@ -17,7 +17,7 @@ func (suite *FactorySuite) TestBuildDutyLocation() {
 	})
 	suite.Run("test fetch stubbed current duty location", func() {
 		dutyLocation := FetchOrBuildCurrentDutyLocation(nil)
-		suite.Equal("Yuma AFB", dutyLocation.Name)
+		suite.Equal("Yuma AFB, IA 50309", dutyLocation.Name)
 	})
 	suite.Run("test fetch stubbed orders duty location", func() {
 		dutyLocation := FetchOrBuildOrdersDutyLocation(nil)
