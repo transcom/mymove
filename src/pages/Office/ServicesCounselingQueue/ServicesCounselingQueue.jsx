@@ -185,12 +185,12 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
           exportValue: (row) => {
             return row.originDutyLocation?.name;
           },
-      }),
-  createHeader('Counseling Office', 'counselingOffice', {
-    id: 'counselingOffice',
-    isFilterable: true,
-  }),
-];
+        }),
+    createHeader('Counseling Office', 'counselingOffice', {
+      id: 'counselingOffice',
+      isFilterable: true,
+    }),
+  ];
   if (isQueueManagementEnabled)
     cols.push(
       createHeader(
