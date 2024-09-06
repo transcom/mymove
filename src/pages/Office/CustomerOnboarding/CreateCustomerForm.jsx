@@ -161,7 +161,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
         then: () =>
           Yup.string()
             .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number')
-            .required(`EMPLID is required for ${departmentIndicators.COAST_GUARD}`),
+            .required(`EMPLID is required for the Coast Guard`),
         otherwise: Yup.string().notRequired(),
       }),
     first_name: Yup.string().required('Required'),
