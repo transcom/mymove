@@ -182,9 +182,6 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
       : createHeader('Origin duty location', 'originDutyLocation.name', {
           id: 'originDutyLocation',
           isFilterable: true,
-          exportValue: (row) => {
-            return row.originDutyLocation?.name;
-          },
         }),
   ];
   if (isQueueManagementEnabled)
@@ -207,6 +204,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         },
         {
           id: 'assignedTo',
+          isFilterable: true,
         },
       ),
     );

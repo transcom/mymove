@@ -116,9 +116,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	closeoutLocationQuery := closeoutLocationFilter(params.CloseoutLocation, ppmCloseoutGblocs)
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
+	SCAssignedUserQuery := SCAssignedUserFilter(params.SCAssignedUser)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [17]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
+	options := [18]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, SCAssignedUserQuery}
 
 	var query *pop.Query
 	if ppmCloseoutGblocs {
@@ -174,7 +175,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
 			query.Where("orders.orders_type != (?)", "SAFETY")
 		}
-
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -604,6 +604,22 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 	return func(query *pop.Query) {
 		if ppmStatus != nil {
 			query.Where("ppm_shipments.status = ?", *ppmStatus)
+		}
+	}
+}
+func SCAssignedUserFilter(scAssigned *string) QueryOption {
+	return func(query *pop.Query) {
+		if scAssigned != nil {
+			var lastName string
+			if(strings.Contains(*scAssigned, ",")) {
+				lastName = strings.Split(*scAssigned,",")[0]
+				lastName = strings.TrimSpace(lastName)
+
+			} else {
+				lastName = *scAssigned
+			}
+
+			query.Where("office_users.last_name ILIKE ?",lastName)
 		}
 	}
 }

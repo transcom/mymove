@@ -34,6 +34,11 @@ type GetServicesCounselingQueueParams struct {
 	// HTTP Request Object
 	HTTPRequest *http.Request `json:"-"`
 
+	/*Used to illustrate which user is assigned to this payment request.
+
+	  In: query
+	*/
+	AssignedTo *string
 	/*filters by the branch of the move's service member
 	  In: query
 	*/
@@ -138,6 +143,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 	o.HTTPRequest = r
 
 	qs := runtime.Values(r.URL.Query())
+
+	qAssignedTo, qhkAssignedTo, _ := qs.GetOK("assignedTo")
+	if err := o.bindAssignedTo(qAssignedTo, qhkAssignedTo, route.Formats); err != nil {
+		res = append(res, err)
+	}
 
 	qBranch, qhkBranch, _ := qs.GetOK("branch")
 	if err := o.bindBranch(qBranch, qhkBranch, route.Formats); err != nil {
@@ -251,6 +261,24 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 	if len(res) > 0 {
 		return errors.CompositeValidationError(res...)
 	}
+	return nil
+}
+
+// bindAssignedTo binds and validates parameter AssignedTo from query.
+func (o *GetServicesCounselingQueueParams) bindAssignedTo(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.AssignedTo = &raw
+
 	return nil
 }
 
