@@ -2872,29 +2872,13 @@ definitions:
       destinationType:
         $ref: '#/definitions/DestinationType'
       secondaryPickupAddress:
-        description: >-
-          A second pickup address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        description: >-
-          A second delivery address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       tertiaryPickupAddress:
-        description: >-
-          A third pickup address for this shipment, if the customer entered one.
-          An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       tertiaryDeliveryAddress:
-        description: >-
-          A third delivery address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       storageFacility:
         allOf:
           - x-nullable: true

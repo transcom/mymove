@@ -1818,20 +1818,10 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -1863,20 +1853,10 @@ func init() {
           ]
         },
         "tertiaryDeliveryAddress": {
-          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
-          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -5447,20 +5427,10 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -5492,20 +5462,10 @@ func init() {
           ]
         },
         "tertiaryDeliveryAddress": {
-          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
-          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
