@@ -478,6 +478,61 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("SAC", sswPage2.SAC)
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	wtgEntitlements := services.SSWMaxWeightEntitlement{}
+	serviceMember := models.ServiceMember{}
+	order := models.Order{}
+	expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
+	netWeight := unit.Pound(4000)
+	cents := unit.Cents(1000)
+	locator := "ABCDEF-01"
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	PPMShipment := models.PPMShipment{
+		ID:                     move.MTOShipments[0].PPMShipment.ID,
+		ExpectedDepartureDate:  expectedPickupDate,
+		ActualMoveDate:         &actualPickupDate,
+		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+		EstimatedWeight:        &netWeight,
+		AdvanceAmountRequested: &cents,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+	ssd := services.ShipmentSummaryFormData{
+		AllShipments:            move.MTOShipments,
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyLocation:     yuma,
+		NewDutyLocation:         fortGordon,
+		PPMRemainingEntitlement: 3000,
+		WeightAllotment:         wtgEntitlements,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipment:             PPMShipment,
+	}
+	sswPage3, err := FormatValuesShipmentSummaryWorksheetFormPage3(ssd, false)
+	suite.NoError(err)
+	suite.Equal(FormatDate(time.Now()), sswPage3.PreparationDate3)
+	suite.Equal(make(map[string]string), sswPage3.AddShipments)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
+	page3Map := make(map[string]string)
+	i := 0
+	hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	locator := "ABCDEF"
+	hhg.ShipmentLocator = &locator
+
+	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
+	suite.NoError(err)
+	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
+	suite.Equal("16-Mar-2020 Actual", page3Map["AddShipmentPickUpDates1"])
+	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
+	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
@@ -844,9 +899,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 		Field1 string
 		Field2 int
 		Field3 bool
+		Field4 map[string]string
 	}
 
-	testData := TestData{"Value1", 42, true}
+	field4 := make(map[string]string)
+	field4["Field4"] = "Value 4"
+	testData := TestData{"Value1", 42, true, field4}
 	pages := []int{1, 2}
 
 	result := createTextFields(testData, pages...)
@@ -855,6 +913,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: true, Locked: false},
 		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: true, Locked: false},
 		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: true, Locked: false},
+		{Pages: pages, ID: "4", Name: "Field4", Value: "Value 4", Multiline: true, Locked: false},
 	}
 
 	suite.Equal(result, expectedResult)
