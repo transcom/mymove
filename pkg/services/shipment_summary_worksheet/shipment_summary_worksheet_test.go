@@ -363,7 +363,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
-	suite.Equal(locator, sswPage1.ShipmentNumberAndTypes)
+	suite.Equal(locator+" PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
@@ -600,7 +600,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndTy
 	singlePPMFormatted := FormatShipment(singlePPM, false)
 
 	// testing single shipment moves
-	suite.Equal("ABCDEF-01", singlePPMFormatted.ShipmentNumberAndTypes)
+	suite.Equal("ABCDEF-01 PPM", singlePPMFormatted.ShipmentNumberAndTypes)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatWeights() {
@@ -922,7 +922,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
-	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
+	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {
@@ -1006,6 +1006,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 		suite.Equal(tt.expectedResult.MaxAdvance, result.MaxAdvance)
 		suite.Equal(tt.expectedResult.EstimatedIncentive, result.EstimatedIncentive)
 		suite.Equal(tt.expectedResult.AdvanceAmountReceived, result.AdvanceAmountReceived)
-		suite.Equal(tt.expectedResult.ShipmentNumberAndTypes, result.ShipmentNumberAndTypes)
+		suite.Equal(tt.expectedResult.ShipmentNumberAndTypes+" PPM", result.ShipmentNumberAndTypes)
 	}
 }
