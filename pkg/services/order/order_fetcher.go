@@ -618,8 +618,8 @@ func SCAssignedUserFilter(scAssigned *string) QueryOption {
 			} else {
 				lastName = *scAssigned
 			}
-
-			query.Where("office_users.last_name ILIKE ?", lastName)
+			nameSearch := fmt.Sprintf("%s%%", lastName)
+			query.Where("office_users.last_name ILIKE ?", nameSearch)
 		}
 	}
 }
