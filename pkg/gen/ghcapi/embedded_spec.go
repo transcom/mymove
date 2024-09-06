@@ -6763,8 +6763,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -7364,10 +7365,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -22368,8 +22369,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -22969,10 +22971,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
