@@ -65,6 +65,7 @@ export const NTSBasic = () => (
       counselorRemarks: info.counselorRemarks,
       requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
+      requestedDeliveryDate: info.requestedDeliveryDate,
       pickupAddress: info.pickupAddress,
       tacType: info.tacType,
       sacType: info.sacType,
@@ -79,6 +80,7 @@ export const NTSBasicEvaluationReport = () => (
       counselorRemarks: info.counselorRemarks,
       requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
+      requestedDeliveryDate: info.requestedDeliveryDate,
       pickupAddress: info.pickupAddress,
       tacType: info.tacType,
       sacType: info.sacType,
@@ -118,6 +120,7 @@ export const NTSWithAllInfo = () => (
     shipment={{
       requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
+      requestedDeliveryDate: info.requestedDeliveryDate,
       tacType: info.tacType,
       sacType: info.sacType,
       tac: info.tac,

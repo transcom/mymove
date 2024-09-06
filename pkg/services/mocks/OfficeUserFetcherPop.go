@@ -42,25 +42,25 @@ func (_m *OfficeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext
 	return r0, r1
 }
 
-// FetchOfficeUserByRoleAndGbloc provides a mock function with given fields: appCtx, role, gbloc
-func (_m *OfficeUserFetcherPop) FetchOfficeUserByRoleAndGbloc(appCtx appcontext.AppContext, role roles.RoleType, gbloc string) ([]models.OfficeUser, error) {
-	ret := _m.Called(appCtx, role, gbloc)
+// FetchOfficeUsersByRoleAndOffice provides a mock function with given fields: appCtx, role, officeID
+func (_m *OfficeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
+	ret := _m.Called(appCtx, role, officeID)
 
 	var r0 []models.OfficeUser
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, string) ([]models.OfficeUser, error)); ok {
-		return rf(appCtx, role, gbloc)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) ([]models.OfficeUser, error)); ok {
+		return rf(appCtx, role, officeID)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, string) []models.OfficeUser); ok {
-		r0 = rf(appCtx, role, gbloc)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) []models.OfficeUser); ok {
+		r0 = rf(appCtx, role, officeID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.OfficeUser)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, roles.RoleType, string) error); ok {
-		r1 = rf(appCtx, role, gbloc)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, roles.RoleType, uuid.UUID) error); ok {
+		r1 = rf(appCtx, role, officeID)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -248,7 +248,7 @@ describe('Shipment details component fields and values are present for NTSR', ()
 
     const field = screen.getByText('Estimated Weight:');
     expect(field).toBeInTheDocument();
-    expect(field.nextElementSibling.textContent).toBe(shipmentNTSR.ntsRecordedWeight.toString());
+    expect(field.nextElementSibling.textContent).toBe(shipmentNTSR.primeEstimatedWeight.toString());
   });
 });
 

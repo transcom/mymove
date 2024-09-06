@@ -27,6 +27,7 @@ func payloadForAdminUserModel(o models.AdminUser) *adminmessages.AdminUser {
 		UserID:         handlers.FmtUUIDPtr(o.UserID),
 		OrganizationID: handlers.FmtUUIDPtr(o.OrganizationID),
 		Active:         handlers.FmtBool(o.Active),
+		Super:          handlers.FmtBool(o.Super),
 	}
 }
 

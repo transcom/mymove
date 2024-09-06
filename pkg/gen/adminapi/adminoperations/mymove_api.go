@@ -29,6 +29,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/user"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/webhook_subscriptions"
 )
@@ -75,6 +76,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		ElectronicOrdersGetElectronicOrdersTotalsHandler: electronic_orders.GetElectronicOrdersTotalsHandlerFunc(func(params electronic_orders.GetElectronicOrdersTotalsParams) middleware.Responder {
 			return middleware.NotImplemented("operation electronic_orders.GetElectronicOrdersTotals has not yet been implemented")
+		}),
+		UserGetLoggedInAdminUserHandler: user.GetLoggedInAdminUserHandlerFunc(func(params user.GetLoggedInAdminUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation user.GetLoggedInAdminUser has not yet been implemented")
 		}),
 		MovesGetMoveHandler: moves.GetMoveHandlerFunc(func(params moves.GetMoveParams) middleware.Responder {
 			return middleware.NotImplemented("operation moves.GetMove has not yet been implemented")
@@ -205,6 +209,8 @@ type MymoveAPI struct {
 	ClientCertificatesGetClientCertificateHandler client_certificates.GetClientCertificateHandler
 	// ElectronicOrdersGetElectronicOrdersTotalsHandler sets the operation handler for the get electronic orders totals operation
 	ElectronicOrdersGetElectronicOrdersTotalsHandler electronic_orders.GetElectronicOrdersTotalsHandler
+	// UserGetLoggedInAdminUserHandler sets the operation handler for the get logged in admin user operation
+	UserGetLoggedInAdminUserHandler user.GetLoggedInAdminUserHandler
 	// MovesGetMoveHandler sets the operation handler for the get move operation
 	MovesGetMoveHandler moves.GetMoveHandler
 	// OfficeUsersGetOfficeUserHandler sets the operation handler for the get office user operation
@@ -352,6 +358,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ElectronicOrdersGetElectronicOrdersTotalsHandler == nil {
 		unregistered = append(unregistered, "electronic_orders.GetElectronicOrdersTotalsHandler")
+	}
+	if o.UserGetLoggedInAdminUserHandler == nil {
+		unregistered = append(unregistered, "user.GetLoggedInAdminUserHandler")
 	}
 	if o.MovesGetMoveHandler == nil {
 		unregistered = append(unregistered, "moves.GetMoveHandler")
@@ -544,6 +553,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/electronic-orders/totals"] = electronic_orders.NewGetElectronicOrdersTotals(o.context, o.ElectronicOrdersGetElectronicOrdersTotalsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/user"] = user.NewGetLoggedInAdminUser(o.context, o.UserGetLoggedInAdminUserHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
