@@ -611,15 +611,15 @@ func SCAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
 			var lastName string
-			if(strings.Contains(*scAssigned, ",")) {
-				lastName = strings.Split(*scAssigned,",")[0]
+			if strings.Contains(*scAssigned, ",") {
+				lastName = strings.Split(*scAssigned, ",")[0]
 				lastName = strings.TrimSpace(lastName)
 
 			} else {
 				lastName = *scAssigned
 			}
 
-			query.Where("office_users.last_name ILIKE ?",lastName)
+			query.Where("office_users.last_name ILIKE ?", lastName)
 		}
 	}
 }
