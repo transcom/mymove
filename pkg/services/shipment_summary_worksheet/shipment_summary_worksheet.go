@@ -326,10 +326,6 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummary
 	var err error
 	var page3 services.Page3Values
 
-	if err != nil {
-		return page3, err
-	}
-
 	if isPaymentPacket {
 		page3.PreparationDate3, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
@@ -339,7 +335,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummary
 		page3.PreparationDate3 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
 
-	page3Map, err := formatAdditionalShipments(data, isPaymentPacket)
+	page3Map, err := formatAdditionalShipments(data)
 	if err != nil {
 		return page3, err
 	}
@@ -347,7 +343,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummary
 	return page3, nil
 }
 
-func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData, isPaymentPacket bool) (map[string]string, error) {
+func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData) (map[string]string, error) {
 	page3Map := make(map[string]string)
 	hasCurrentPPM := false
 	for i, shipment := range ssfd.AllShipments {
