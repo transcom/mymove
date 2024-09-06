@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -22,6 +24,8 @@ const PrimeUIShipmentCreateForm = () => {
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
@@ -50,15 +54,30 @@ const PrimeUIShipmentCreateForm = () => {
     return undefined;
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+    };
+    fetchData();
+  }, []);
+
+  let shipmentTypeOptions = Object.values(SHIPMENT_TYPES).map((value) => ({ key: value, value }));
+  if (!enableBoat) {
+    // Disallow the Prime from choosing Boat shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter(
+      (e) => e.key !== SHIPMENT_TYPES.BOAT_HAUL_AWAY && e.key !== SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    );
+  }
+  if (!enableMobileHome) {
+    // Disallow the Prime from choosing Mobile Home shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter((e) => e.key !== SHIPMENT_TYPES.MOBILE_HOME);
+  }
+
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Type</h2>
-      <DropdownInput
-        label="Shipment type"
-        name="shipmentType"
-        options={Object.values(SHIPMENT_OPTIONS).map((value) => ({ key: value, value }))}
-        id="shipmentType"
-      />
+      <DropdownInput label="Shipment type" name="shipmentType" options={shipmentTypeOptions} id="shipmentType" />
 
       {isPPM ? (
         <>
