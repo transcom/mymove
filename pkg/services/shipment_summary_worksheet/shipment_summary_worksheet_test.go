@@ -368,7 +368,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
 	suite.Equal("17,500", sswPage1.TotalWeightAllotment)
 
-	suite.Equal(locator, sswPage1.ShipmentNumberAndTypes)
+	suite.Equal(locator+" PPM", sswPage1.ShipmentNumberAndTypes)
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
@@ -492,7 +492,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 			ShipmentLocator: &locator,
 		},
 	}
-
 	order := models.Order{
 		IssueDate:         orderIssueDate,
 		OrdersType:        internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
@@ -758,6 +757,64 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
 	suite.Equal("$105.00", sswPage2.PPMRemainingEntitlement)
 }
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	wtgEntitlements := models.SSWMaxWeightEntitlement{}
+	serviceMember := models.ServiceMember{}
+	order := models.Order{}
+	expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
+	netWeight := unit.Pound(4000)
+	cents := unit.Cents(1000)
+	locator := "ABCDEF-01"
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	PPMShipment := models.PPMShipment{
+		ID:                     move.MTOShipments[0].PPMShipment.ID,
+		ExpectedDepartureDate:  expectedPickupDate,
+		ActualMoveDate:         &actualPickupDate,
+		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+		EstimatedWeight:        &netWeight,
+		AdvanceAmountRequested: &cents,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		AllShipments:            move.MTOShipments,
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyLocation:     yuma,
+		NewDutyLocation:         fortGordon,
+		PPMRemainingEntitlement: 3000,
+		WeightAllotment:         wtgEntitlements,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipment:             PPMShipment,
+	}
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	sswPage3, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage3(ssd, false)
+	suite.NoError(err)
+	suite.Equal(FormatDate(time.Now()), sswPage3.PreparationDate3)
+	suite.Equal(make(map[string]string), sswPage3.AddShipments)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
+	page3Map := make(map[string]string)
+	i := 0
+	hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	locator := "ABCDEF"
+	hhg.ShipmentLocator = &locator
+
+	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
+	suite.NoError(err)
+	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
+	suite.Equal("16-Mar-2020 Actual", page3Map["AddShipmentPickUpDates1"])
+	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
+	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
@@ -889,7 +946,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipmentNumberAndTy
 	singlePPMFormatted := sswPPMComputer.FormatShipment(singlePPM, wtgEntitlements, false)
 
 	// testing single shipment moves
-	suite.Equal("ABCDEF-01", singlePPMFormatted.ShipmentNumberAndTypes)
+	suite.Equal("ABCDEF-01 PPM", singlePPMFormatted.ShipmentNumberAndTypes)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatWeights() {
@@ -1102,19 +1159,26 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
 		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
 	}
 
-	mergedResult := mergeTextFields(fields1, fields2)
+	fields3 := []textField{
+		{Pages: []int{9, 10}, ID: "5", Name: "Field5", Value: "Value5", Multiline: true, Locked: false},
+		{Pages: []int{11, 12}, ID: "6", Name: "Field6", Value: "Value6", Multiline: false, Locked: true},
+	}
+
+	mergedResult := mergeTextFields(fields1, fields2, fields3)
 
 	expectedMergedResult := []textField{
 		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
 		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
 		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
 		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+		{Pages: []int{9, 10}, ID: "5", Name: "Field5", Value: "Value5", Multiline: true, Locked: false},
+		{Pages: []int{11, 12}, ID: "6", Name: "Field6", Value: "Value6", Multiline: false, Locked: true},
 	}
 
 	suite.Equal(mergedResult, expectedMergedResult)
 
 	// Test case 2: Empty input slices
-	emptyResult := mergeTextFields([]textField{}, []textField{})
+	emptyResult := mergeTextFields([]textField{}, []textField{}, []textField{})
 	expectedEmptyResult := []textField{}
 
 	suite.Equal(emptyResult, expectedEmptyResult)
@@ -1126,9 +1190,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 		Field1 string
 		Field2 int
 		Field3 bool
+		Field4 map[string]string
 	}
 
-	testData := TestData{"Value1", 42, true}
+	field4 := make(map[string]string)
+	field4["Field4"] = "Value 4"
+	testData := TestData{"Value1", 42, true, field4}
 	pages := []int{1, 2}
 
 	result := createTextFields(testData, pages...)
@@ -1137,6 +1204,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestCreateTextFields() {
 		{Pages: pages, ID: "1", Name: "Field1", Value: "Value1", Multiline: true, Locked: false},
 		{Pages: pages, ID: "2", Name: "Field2", Value: "42", Multiline: true, Locked: false},
 		{Pages: pages, ID: "3", Name: "Field3", Value: "true", Multiline: true, Locked: false},
+		{Pages: pages, ID: "4", Name: "Field4", Value: "Value 4", Multiline: true, Locked: false},
 	}
 
 	suite.Equal(result, expectedResult)
@@ -1210,12 +1278,12 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 	ssd, err := sswPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
-	page1Data, page2Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
+	page1Data, page2Data, Page3Data, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
 	suite.NoError(err)
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
-	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
+	suite.Equal(info.PageCount, 3) // ensures PDF is not corrupted
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatMaxAdvance() {
@@ -1313,7 +1381,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 		suite.Equal(tt.expectedResult.MaxAdvance, result.MaxAdvance)
 		suite.Equal(tt.expectedResult.EstimatedIncentive, result.EstimatedIncentive)
 		suite.Equal(tt.expectedResult.AdvanceAmountReceived, result.AdvanceAmountReceived)
-		suite.Equal(tt.expectedResult.ShipmentNumberAndTypes, result.ShipmentNumberAndTypes)
+		suite.Equal(tt.expectedResult.ShipmentNumberAndTypes+" PPM", result.ShipmentNumberAndTypes)
 	}
 }
 
