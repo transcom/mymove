@@ -69,7 +69,7 @@ const fakePayload = {
   },
   create_okta_account: 'true',
   cac_user: 'false',
-  is_safety_move: 'false',
+  is_safety_move: false,
 };
 
 const fakeResponse = {
@@ -236,7 +236,7 @@ describe('CreateCustomerForm', () => {
 
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
-    await userEvent.type(getByTestId('edipi'), fakePayload.edipi);
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
     await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
@@ -309,7 +309,7 @@ describe('CreateCustomerForm', () => {
 
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
-    await userEvent.type(getByTestId('edipi'), fakePayload.edipi);
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
     await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
@@ -369,7 +369,7 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
 
-    await userEvent.type(getByTestId('edipi'), fakePayload.edipi);
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
     await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
@@ -392,7 +392,7 @@ describe('CreateCustomerForm', () => {
     await waitFor(() => {
       expect(saveBtn).toBeDisabled(); // EMPLID not set yet
     });
-    await userEvent.type(getByTestId('emplid'), '1234567');
+    await userEvent.type(getByTestId('emplidInput'), '1234567');
     await waitFor(() => {
       expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
     });
@@ -451,6 +451,71 @@ describe('CreateCustomerForm', () => {
     });
   }, 10000);
 
+  it('disables and populates DODID and EMPLID inputs when safety move is selected', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+
+    const { getByLabelText, getByTestId, getByRole } = render(
+      <MockProviders>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    const user = userEvent.setup();
+
+    const safetyMove = await screen.findByTestId('is-safety-move-no');
+    expect(safetyMove).toBeChecked();
+
+    // check the safety move box
+    await userEvent.type(getByTestId('is-safety-move-yes'), safetyPayload.is_safety_move);
+
+    expect(await screen.findByTestId('safetyMoveHint')).toBeInTheDocument();
+
+    await user.selectOptions(getByLabelText('Branch of service'), ['COAST_GUARD']);
+
+    // the input boxes should now be disabled
+    expect(await screen.findByTestId('edipiInput')).toBeDisabled();
+    expect(await screen.findByTestId('emplidInput')).toBeDisabled();
+
+    // should be able to submit the form
+    await user.type(getByLabelText('First name'), safetyPayload.first_name);
+    await user.type(getByLabelText('Last name'), safetyPayload.last_name);
+
+    await user.type(getByLabelText('Best contact phone'), safetyPayload.telephone);
+    await user.type(getByLabelText('Personal email'), safetyPayload.personal_email);
+
+    await userEvent.type(getByTestId('res-add-street1'), safetyPayload.residential_address.streetAddress1);
+    await userEvent.type(getByTestId('res-add-city'), safetyPayload.residential_address.city);
+    await userEvent.selectOptions(getByTestId('res-add-state'), [safetyPayload.residential_address.state]);
+    await userEvent.type(getByTestId('res-add-zip'), safetyPayload.residential_address.postalCode);
+
+    await userEvent.type(getByTestId('backup-add-street1'), safetyPayload.backup_mailing_address.streetAddress1);
+    await userEvent.type(getByTestId('backup-add-city'), safetyPayload.backup_mailing_address.city);
+    await userEvent.selectOptions(getByTestId('backup-add-state'), [safetyPayload.backup_mailing_address.state]);
+    await userEvent.type(getByTestId('backup-add-zip'), safetyPayload.backup_mailing_address.postalCode);
+
+    await userEvent.type(getByLabelText('Name'), safetyPayload.backup_contact.name);
+    await userEvent.type(getByRole('textbox', { name: 'Email' }), safetyPayload.backup_contact.email);
+    await userEvent.type(getByRole('textbox', { name: 'Phone' }), safetyPayload.backup_contact.telephone);
+
+    const saveBtn = await screen.findByRole('button', { name: 'Save' });
+    expect(saveBtn).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(saveBtn).toBeEnabled();
+    });
+    await userEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: true,
+        },
+      });
+    });
+  }, 10000);
+
   it('submits the form and tests for unsupported state validation', async () => {
     createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
 
@@ -466,7 +531,7 @@ describe('CreateCustomerForm', () => {
     expect(saveBtn).toBeInTheDocument();
 
     await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
-    await userEvent.type(getByTestId('edipi'), fakePayload.edipi);
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await user.type(getByLabelText('First name'), fakePayload.first_name);
     await user.type(getByLabelText('Last name'), fakePayload.last_name);
