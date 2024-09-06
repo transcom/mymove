@@ -920,6 +920,32 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(storer storage.FileStorer, boatShipment *models.BoatShipment) *ghcmessages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	payloadBoatShipment := &ghcmessages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           models.StringPointer(string(boatShipment.Type)),
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadBoatShipment
+}
+
 // ProGearWeightTickets sets up a ProGearWeightTicket slice for the api using model data.
 func ProGearWeightTickets(storer storage.FileStorer, proGearWeightTickets models.ProgearWeightTickets) []*ghcmessages.ProGearWeightTicket {
 	payload := make([]*ghcmessages.ProGearWeightTicket, len(proGearWeightTickets))
@@ -1341,6 +1367,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
 		StorageFacility:             StorageFacility(mtoShipment.StorageFacility),
 		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
+		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
@@ -1515,25 +1542,40 @@ func PaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest, sto
 		}
 	}
 
+	var totalTPPSPaidInvoicePriceMillicents *int64
+	var tppsPaidInvoiceSellerPaidDate *time.Time
+	var TPPSPaidInvoiceReportsForPR models.TPPSPaidInvoiceReportEntrys
+	if pr.TPPSPaidInvoiceReports != nil {
+		TPPSPaidInvoiceReportsForPR = pr.TPPSPaidInvoiceReports
+		if len(TPPSPaidInvoiceReportsForPR) > 0 {
+			if TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents >= 0 {
+				totalTPPSPaidInvoicePriceMillicents = models.Int64Pointer(int64(TPPSPaidInvoiceReportsForPR[0].InvoiceTotalChargesInMillicents))
+				tppsPaidInvoiceSellerPaidDate = &TPPSPaidInvoiceReportsForPR[0].SellerPaidDate
+			}
+		}
+	}
+
 	return &ghcmessages.PaymentRequest{
-		ID:                              *handlers.FmtUUID(pr.ID),
-		IsFinal:                         &pr.IsFinal,
-		MoveTaskOrderID:                 *handlers.FmtUUID(pr.MoveTaskOrderID),
-		MoveTaskOrder:                   move,
-		PaymentRequestNumber:            pr.PaymentRequestNumber,
-		RecalculationOfPaymentRequestID: handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
-		RejectionReason:                 pr.RejectionReason,
-		Status:                          ghcmessages.PaymentRequestStatus(pr.Status),
-		ETag:                            etag.GenerateEtag(pr.UpdatedAt),
-		ServiceItems:                    *PaymentServiceItems(&pr.PaymentServiceItems),
-		ReviewedAt:                      handlers.FmtDateTimePtr(pr.ReviewedAt),
-		ProofOfServiceDocs:              serviceDocs,
-		CreatedAt:                       strfmt.DateTime(pr.CreatedAt),
-		SentToGexAt:                     (*strfmt.DateTime)(pr.SentToGexAt),
-		ReceivedByGexAt:                 (*strfmt.DateTime)(pr.ReceivedByGexAt),
-		EdiErrorType:                    &ediErrorInfoEDIType,
-		EdiErrorCode:                    &ediErrorInfoEDICode,
-		EdiErrorDescription:             &ediErrorInfoEDIDescription,
+		ID:                                   *handlers.FmtUUID(pr.ID),
+		IsFinal:                              &pr.IsFinal,
+		MoveTaskOrderID:                      *handlers.FmtUUID(pr.MoveTaskOrderID),
+		MoveTaskOrder:                        move,
+		PaymentRequestNumber:                 pr.PaymentRequestNumber,
+		RecalculationOfPaymentRequestID:      handlers.FmtUUIDPtr(pr.RecalculationOfPaymentRequestID),
+		RejectionReason:                      pr.RejectionReason,
+		Status:                               ghcmessages.PaymentRequestStatus(pr.Status),
+		ETag:                                 etag.GenerateEtag(pr.UpdatedAt),
+		ServiceItems:                         *PaymentServiceItems(&pr.PaymentServiceItems, &TPPSPaidInvoiceReportsForPR),
+		ReviewedAt:                           handlers.FmtDateTimePtr(pr.ReviewedAt),
+		ProofOfServiceDocs:                   serviceDocs,
+		CreatedAt:                            strfmt.DateTime(pr.CreatedAt),
+		SentToGexAt:                          (*strfmt.DateTime)(pr.SentToGexAt),
+		ReceivedByGexAt:                      (*strfmt.DateTime)(pr.ReceivedByGexAt),
+		EdiErrorType:                         &ediErrorInfoEDIType,
+		EdiErrorCode:                         &ediErrorInfoEDICode,
+		EdiErrorDescription:                  &ediErrorInfoEDIDescription,
+		TppsInvoiceAmountPaidTotalMillicents: totalTPPSPaidInvoicePriceMillicents,
+		TppsInvoiceSellerPaidDate:            (*strfmt.DateTime)(tppsPaidInvoiceSellerPaidDate),
 	}, nil
 }
 
@@ -1562,11 +1604,22 @@ func PaymentServiceItem(ps *models.PaymentServiceItem) *ghcmessages.PaymentServi
 }
 
 // PaymentServiceItems payload
-func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems) *ghcmessages.PaymentServiceItems {
+func PaymentServiceItems(paymentServiceItems *models.PaymentServiceItems, tppsPaidReportData *models.TPPSPaidInvoiceReportEntrys) *ghcmessages.PaymentServiceItems {
 	payload := make(ghcmessages.PaymentServiceItems, len(*paymentServiceItems))
 	for i, m := range *paymentServiceItems {
 		copyOfPaymentServiceItem := m // Make copy to avoid implicit memory aliasing of items from a range statement.
 		payload[i] = PaymentServiceItem(&copyOfPaymentServiceItem)
+
+		// We process TPPS Paid Invoice Reports to get payment information for each payment service item
+		// This report tells us how much TPPS paid HS for each item, then we store and display it
+		if *tppsPaidReportData != nil {
+			tppsDataForPaymentRequest := *tppsPaidReportData
+			for tppsDataRowIndex := range tppsDataForPaymentRequest {
+				if tppsDataForPaymentRequest[tppsDataRowIndex].ProductDescription == payload[i].MtoServiceItemCode {
+					payload[i].TppsInvoiceAmountPaidPerServiceItemMillicents = handlers.FmtMilliCentsPtr(&tppsDataForPaymentRequest[tppsDataRowIndex].LineNetCharge)
+				}
+			}
+		}
 	}
 	return &payload
 }
@@ -1694,6 +1747,7 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		SitDeliveryMiles:              handlers.FmtIntPtrToInt64(s.SITDeliveryMiles),
 		EstimatedPrice:                handlers.FmtCost(s.PricingEstimate),
 		StandaloneCrate:               s.StandaloneCrate,
+		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
 }
 
@@ -1762,6 +1816,11 @@ func Upload(storer storage.FileStorer, upload models.Upload, url string) *ghcmes
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
@@ -1835,6 +1894,11 @@ func PayloadForUploadModel(
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 		DeletedAt:   (*strfmt.DateTime)(upload.DeletedAt),
 	}
+
+	if upload.Rotation != nil {
+		uploadPayload.Rotation = *upload.Rotation
+	}
+
 	tags, err := storer.Tags(upload.StorageKey)
 	if err != nil || len(tags) == 0 {
 		uploadPayload.Status = "PROCESSING"
@@ -1883,7 +1947,8 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 		hasSafety := officeUser.User.Privileges.HasPrivilege(models.PrivilegeTypeSafety)
 
 		availableOfficeUsers[i] = &ghcmessages.AvailableOfficeUser{
-			FullName:           officeUser.LastName + ", " + officeUser.FirstName,
+			LastName:           officeUser.LastName,
+			FirstName:          officeUser.FirstName,
 			OfficeUserID:       *handlers.FmtUUID(officeUser.ID),
 			HasSafetyPrivilege: swag.BoolValue(&hasSafety),
 		}

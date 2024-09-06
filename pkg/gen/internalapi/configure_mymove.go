@@ -220,6 +220,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 			return middleware.NotImplemented("operation certification.IndexSignedCertification has not yet been implemented")
 		})
 	}
+	if api.CalendarIsDateWeekendHolidayHandler == nil {
+		api.CalendarIsDateWeekendHolidayHandler = calendar.IsDateWeekendHolidayHandlerFunc(func(params calendar.IsDateWeekendHolidayParams) middleware.Responder {
+			return middleware.NotImplemented("operation calendar.IsDateWeekendHoliday has not yet been implemented")
+		})
+	}
 	if api.UsersIsLoggedInUserHandler == nil {
 		api.UsersIsLoggedInUserHandler = users.IsLoggedInUserHandlerFunc(func(params users.IsLoggedInUserParams) middleware.Responder {
 			return middleware.NotImplemented("operation users.IsLoggedInUser has not yet been implemented")
@@ -263,6 +268,11 @@ func configureAPI(api *internaloperations.MymoveAPI) http.Handler {
 	if api.CalendarShowAvailableMoveDatesHandler == nil {
 		api.CalendarShowAvailableMoveDatesHandler = calendar.ShowAvailableMoveDatesHandlerFunc(func(params calendar.ShowAvailableMoveDatesParams) middleware.Responder {
 			return middleware.NotImplemented("operation calendar.ShowAvailableMoveDates has not yet been implemented")
+		})
+	}
+	if api.TransportationOfficesShowCounselingOfficesHandler == nil {
+		api.TransportationOfficesShowCounselingOfficesHandler = transportation_offices.ShowCounselingOfficesHandlerFunc(func(params transportation_offices.ShowCounselingOfficesParams) middleware.Responder {
+			return middleware.NotImplemented("operation transportation_offices.ShowCounselingOffices has not yet been implemented")
 		})
 	}
 	if api.DocumentsShowDocumentHandler == nil {

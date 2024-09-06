@@ -57,7 +57,7 @@ func (o *officeUserFetcherPop) FetchOfficeUserByID(appCtx appcontext.AppContext,
 }
 
 // Fetch office users of the same role within a gbloc, for assignment purposes
-func (o *officeUserFetcherPop) FetchOfficeUserByRoleAndGbloc(appCtx appcontext.AppContext, role roles.RoleType, gbloc string) ([]models.OfficeUser, error) {
+func (o *officeUserFetcherPop) FetchOfficeUsersByRoleAndOffice(appCtx appcontext.AppContext, role roles.RoleType, officeID uuid.UUID) ([]models.OfficeUser, error) {
 	var officeUsers []models.OfficeUser
 
 	err := appCtx.DB().EagerPreload(
@@ -70,9 +70,9 @@ func (o *officeUserFetcherPop) FetchOfficeUserByRoleAndGbloc(appCtx appcontext.A
 		Join("users", "users.id = office_users.user_id").
 		Join("users_roles", "users.id = users_roles.user_id").
 		Join("roles", "users_roles.role_id = roles.id").
-		Join("transportation_offices", "office_users.transportation_office_id = transportation_offices.id").
-		Where("gbloc = ?", gbloc).
+		Where("transportation_office_id = ?", officeID).
 		Where("role_type = ?", role).
+		Where("users_roles.deleted_at IS NULL").
 		Where("office_users.active = TRUE").
 		Order("last_name asc").
 		All(&officeUsers)
