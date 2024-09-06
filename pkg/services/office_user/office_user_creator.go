@@ -3,6 +3,7 @@ package officeuser
 import (
 	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
@@ -36,7 +37,7 @@ func (o *officeUserCreator) CreateOfficeUser(
 	}
 
 	// Check and update rejected office user if necessary
-	existingOfficeUser, rejectedUserVerrs, rejectedUserErr := o.checkAndUpdateRejectedOfficeUser(appCtx, officeUser, transportationOffice)
+	existingOfficeUser, rejectedUserVerrs, rejectedUserErr := o.checkAndUpdateRejectedOfficeUser(appCtx, officeUser)
 	if rejectedUserVerrs != nil || rejectedUserErr != nil {
 		return nil, rejectedUserVerrs, rejectedUserErr
 	}
@@ -166,7 +167,6 @@ func NewOfficeUserCreator(builder officeUserQueryBuilder, sender notifications.N
 func (o *officeUserCreator) checkAndUpdateRejectedOfficeUser(
 	appCtx appcontext.AppContext,
 	officeUser *models.OfficeUser,
-	transportationOffice models.TransportationOffice,
 ) (*models.OfficeUser, *validate.Errors, error) {
 
 	// checking if the office user currently exists and has a previous status of rejected
@@ -182,39 +182,43 @@ func (o *officeUserCreator) checkAndUpdateRejectedOfficeUser(
 
 	// If the office user exists and was previously rejected, update the status to REQUESTED as well as any new info
 	if requestedOfficeUser.ID != uuid.Nil && *requestedOfficeUser.Status == models.OfficeUserStatusREJECTED {
-		if requestedOfficeUser.FirstName != officeUser.FirstName {
-			requestedOfficeUser.FirstName = officeUser.FirstName
+		// Except do not reflect rejection reason or status, we want to manage those via this service func
+		reflectedRequestedOfficeUser := reflect.ValueOf(&requestedOfficeUser).Elem()
+		reflectedCurrentOfficeUser := reflect.ValueOf(officeUser).Elem()
+		requestedOfficeUserType := reflectedRequestedOfficeUser.Type() // Retrieve type from reflect val
+		// Iterate over struct fields
+		for i := 0; i < reflectedRequestedOfficeUser.NumField(); i++ {
+			fieldName := requestedOfficeUserType.Field(i).Name
+			// Retrieve the fields
+			requestedField := reflectedRequestedOfficeUser.Field(i)
+			if !requestedField.CanSet() {
+				continue
+			}
+			currentField := reflectedCurrentOfficeUser.Field(i)
+			// Fields we don't want to change
+			if fieldName == "ID" || fieldName == "UserID" || fieldName == "User" || fieldName == "TransportationOffice" || fieldName == "CreatedAt" || fieldName == "UpdatedAt" {
+				continue
+			}
+			// Set custom vals for status and rejection reason
+			if fieldName == "Status" {
+				requestedStatus := models.OfficeUserStatusREQUESTED
+				requestedField.Set(reflect.ValueOf(&requestedStatus))
+				continue
+			}
+			if fieldName == "RejectionReason" {
+				// Reset the rejection reason
+				requestedField.Set(reflect.Zero(requestedField.Type()))
+				continue
+			}
+			if !reflect.DeepEqual(requestedField.Interface(), currentField.Interface()) {
+				// A mismatched field has been found, set it to the original office user field
+				requestedField.Set(currentField)
+			}
 		}
-		if requestedOfficeUser.MiddleInitials != officeUser.MiddleInitials {
-			requestedOfficeUser.MiddleInitials = officeUser.MiddleInitials
-		}
-		if requestedOfficeUser.LastName != officeUser.LastName {
-			requestedOfficeUser.LastName = officeUser.LastName
-		}
-		if requestedOfficeUser.Telephone != officeUser.Telephone {
-			requestedOfficeUser.Telephone = officeUser.Telephone
-		}
-		if requestedOfficeUser.EDIPI != officeUser.EDIPI {
-			requestedOfficeUser.EDIPI = officeUser.EDIPI
-		}
-		if requestedOfficeUser.OtherUniqueID != officeUser.OtherUniqueID {
-			requestedOfficeUser.OtherUniqueID = officeUser.OtherUniqueID
-		}
-		if requestedOfficeUser.RejectionReason != nil { // reset rejection reason
-			requestedOfficeUser.RejectionReason = nil
-		}
-		if requestedOfficeUser.TransportationOfficeID != officeUser.TransportationOfficeID {
-			requestedOfficeUser.TransportationOfficeID = transportationOffice.ID
-		}
-
-		requestedStatus := models.OfficeUserStatusREQUESTED
-		requestedOfficeUser.Status = &requestedStatus
-
 		verrs, err := o.builder.UpdateOne(appCtx, &requestedOfficeUser, nil)
 		if verrs != nil || err != nil {
 			return nil, verrs, err
 		}
-
 		return &requestedOfficeUser, nil, nil
 	}
 
