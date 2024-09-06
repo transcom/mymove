@@ -213,6 +213,8 @@ properties:
       - DIVERSION_REQUESTED
   ppmShipment:
     $ref: 'PPMShipment.yaml'
+  boatShipment:
+    $ref: '../../BoatShipment.yaml'
   deliveryAddressUpdate:
     $ref: '../../ShipmentAddressUpdate.yaml'
   eTag:
