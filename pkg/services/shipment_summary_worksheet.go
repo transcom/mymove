@@ -100,6 +100,13 @@ type Page2Values struct {
 	FormattedOtherExpenses
 }
 
+// Page2Values is an object representing a Shipment Summary Worksheet
+type Page3Values struct {
+	CUIBanner        string
+	PreparationDate3 string
+	AddShipments     map[string]string
+}
+
 // FormattedOtherExpenses is an object representing the other moving expenses formatted for the SSW
 type FormattedOtherExpenses struct {
 	Descriptions string
@@ -136,6 +143,7 @@ type FormattedMovingExpenses struct {
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
+	AllShipments             []models.MTOShipment
 	ServiceMember            models.ServiceMember
 	Order                    models.Order
 	Move                     models.Move
@@ -181,10 +189,10 @@ type SSWMaxWeightEntitlement struct {
 type SSWPPMComputer interface {
 	FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _ *auth.Session, ppmShipmentID uuid.UUID) (*ShipmentSummaryFormData, error)
 	ComputeObligations(_ appcontext.AppContext, _ ShipmentSummaryFormData, _ route.Planner) (Obligations, error)
-	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, error)
+	FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData ShipmentSummaryFormData, isPaymentPacket bool) (Page1Values, Page2Values, Page3Values, error)
 }
 
 //go:generate mockery --name SSWPPMGenerator
 type SSWPPMGenerator interface {
-	FillSSWPDFForm(Page1Values, Page2Values) (afero.File, *pdfcpu.PDFInfo, error)
+	FillSSWPDFForm(Page1Values, Page2Values, Page3Values) (afero.File, *pdfcpu.PDFInfo, error)
 }

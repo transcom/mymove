@@ -71,13 +71,14 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 }
 
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData, isPaymentPacket
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
 	ret := _m.Called(shipmentSummaryFormData, isPaymentPacket)
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
-	var r2 error
-	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values, error)); ok {
+	var r2 services.Page3Values
+	var r3 error
+	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values, services.Page3Values, error)); ok {
 		return rf(shipmentSummaryFormData, isPaymentPacket)
 	}
 	if rf, ok := ret.Get(0).(func(services.ShipmentSummaryFormData, bool) services.Page1Values); ok {
@@ -92,13 +93,19 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFo
 		r1 = ret.Get(1).(services.Page2Values)
 	}
 
-	if rf, ok := ret.Get(2).(func(services.ShipmentSummaryFormData, bool) error); ok {
+	if rf, ok := ret.Get(2).(func(services.ShipmentSummaryFormData, bool) services.Page3Values); ok {
 		r2 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
-		r2 = ret.Error(2)
+		r2 = ret.Get(2).(services.Page3Values)
 	}
 
-	return r0, r1, r2
+	if rf, ok := ret.Get(3).(func(services.ShipmentSummaryFormData, bool) error); ok {
+		r3 = rf(shipmentSummaryFormData, isPaymentPacket)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // NewSSWPPMComputer creates a new instance of SSWPPMComputer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.

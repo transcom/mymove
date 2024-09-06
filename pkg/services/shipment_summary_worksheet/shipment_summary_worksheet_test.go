@@ -821,19 +821,26 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMergeTextFields() {
 		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
 	}
 
-	mergedResult := mergeTextFields(fields1, fields2)
+	fields3 := []textField{
+		{Pages: []int{9, 10}, ID: "5", Name: "Field5", Value: "Value5", Multiline: true, Locked: false},
+		{Pages: []int{11, 12}, ID: "6", Name: "Field6", Value: "Value6", Multiline: false, Locked: true},
+	}
+
+	mergedResult := mergeTextFields(fields1, fields2, fields3)
 
 	expectedMergedResult := []textField{
 		{Pages: []int{1, 2}, ID: "1", Name: "Field1", Value: "Value1", Multiline: false, Locked: true},
 		{Pages: []int{3, 4}, ID: "2", Name: "Field2", Value: "Value2", Multiline: true, Locked: false},
 		{Pages: []int{5, 6}, ID: "3", Name: "Field3", Value: "Value3", Multiline: true, Locked: false},
 		{Pages: []int{7, 8}, ID: "4", Name: "Field4", Value: "Value4", Multiline: false, Locked: true},
+		{Pages: []int{9, 10}, ID: "5", Name: "Field5", Value: "Value5", Multiline: true, Locked: false},
+		{Pages: []int{11, 12}, ID: "6", Name: "Field6", Value: "Value6", Multiline: false, Locked: true},
 	}
 
 	suite.Equal(mergedResult, expectedMergedResult)
 
 	// Test case 2: Empty input slices
-	emptyResult := mergeTextFields([]textField{}, []textField{})
+	emptyResult := mergeTextFields([]textField{}, []textField{}, []textField{})
 	expectedEmptyResult := []textField{}
 
 	suite.Equal(emptyResult, expectedEmptyResult)
@@ -918,9 +925,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFillSSWPDFForm() {
 
 	ssd, err := SSWPPMComputer.FetchDataShipmentSummaryWorksheetFormData(suite.AppContextForTest(), &session, ppmShipmentID)
 	suite.NoError(err)
-	page1Data, page2Data, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
+	page1Data, page2Data, Page3Data, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheet(*ssd, false)
 	suite.NoError(err)
-	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	test, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, Page3Data)
 	suite.NoError(err)
 	println(test.Name())           // ensures was generated with temp filesystem
 	suite.Equal(info.PageCount, 2) // ensures PDF is not corrupted
