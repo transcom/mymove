@@ -65,8 +65,8 @@ type CreateMTOShipment struct {
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
 
-	// mobile home
-	MobileHome *MobileHome `json:"mobileHome,omitempty"`
+	// mobile home shipment
+	MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -160,7 +160,7 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateMobileHome(formats); err != nil {
+	if err := m.validateMobileHomeShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -289,17 +289,17 @@ func (m *CreateMTOShipment) validateDestinationType(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *CreateMTOShipment) validateMobileHome(formats strfmt.Registry) error {
-	if swag.IsZero(m.MobileHome) { // not required
+func (m *CreateMTOShipment) validateMobileHomeShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.MobileHomeShipment) { // not required
 		return nil
 	}
 
-	if m.MobileHome != nil {
-		if err := m.MobileHome.Validate(formats); err != nil {
+	if m.MobileHomeShipment != nil {
+		if err := m.MobileHomeShipment.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("mobileHome")
+				return ve.ValidateName("mobileHomeShipment")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("mobileHome")
+				return ce.ValidateName("mobileHomeShipment")
 			}
 			return err
 		}
@@ -522,7 +522,7 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateMobileHome(ctx, formats); err != nil {
+	if err := m.contextValidateMobileHomeShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -637,19 +637,19 @@ func (m *CreateMTOShipment) contextValidateDestinationType(ctx context.Context, 
 	return nil
 }
 
-func (m *CreateMTOShipment) contextValidateMobileHome(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateMTOShipment) contextValidateMobileHomeShipment(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.MobileHome != nil {
+	if m.MobileHomeShipment != nil {
 
-		if swag.IsZero(m.MobileHome) { // not required
+		if swag.IsZero(m.MobileHomeShipment) { // not required
 			return nil
 		}
 
-		if err := m.MobileHome.ContextValidate(ctx, formats); err != nil {
+		if err := m.MobileHomeShipment.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("mobileHome")
+				return ve.ValidateName("mobileHomeShipment")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("mobileHome")
+				return ce.ValidateName("mobileHomeShipment")
 			}
 			return err
 		}
