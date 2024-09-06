@@ -26,6 +26,7 @@ const PrimeUIShipmentCreateForm = () => {
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
@@ -58,6 +59,7 @@ const PrimeUIShipmentCreateForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
     };
     fetchData();
   }, []);
@@ -68,6 +70,10 @@ const PrimeUIShipmentCreateForm = () => {
     shipmentTypeOptions = shipmentTypeOptions.filter(
       (e) => e.key !== SHIPMENT_TYPES.BOAT_HAUL_AWAY && e.key !== SHIPMENT_TYPES.BOAT_TOW_AWAY,
     );
+  }
+  if (!enableMobileHome) {
+    // Disallow the Prime from choosing Mobile Home shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter((e) => e.key !== SHIPMENT_TYPES.MOBILE_HOME);
   }
 
   return (
