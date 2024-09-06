@@ -301,8 +301,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		destinationType := models.DestinationTypeHomeOfRecord
 		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		// tertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		// tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		now := time.Now()
 		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
 		yesterDate := nowDate.AddDate(0, 0, -1)
@@ -333,16 +331,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				Type:     &factory.Addresses.SecondaryPickupAddress,
 				LinkOnly: true,
 			},
-			// {
-			// 	Model:    tertiaryDeliveryAddress,
-			// 	Type:     &factory.Addresses.TertiaryDeliveryAddress,
-			// 	LinkOnly: true,
-			// },
-			// {
-			// 	Model:    tertiaryPickupAddress,
-			// 	Type:     &factory.Addresses.TertiaryPickupAddress,
-			// 	LinkOnly: true,
-			// },
 			{
 				Model:    successMove,
 				LinkOnly: true,
@@ -404,8 +392,6 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		verifyAddressFields(successShipment.SecondaryDeliveryAddress, &shipment.SecondaryDeliveryAddress.Address)
 		verifyAddressFields(successShipment.SecondaryPickupAddress, &shipment.SecondaryPickupAddress.Address)
-		// verifyAddressFields(successShipment.TertiaryDeliveryAddress, &shipment.TertiaryDeliveryAddress.Address)
-		// verifyAddressFields(successShipment.TertiaryPickupAddress, &shipment.TertiaryPickupAddress.Address)
 
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))
 		suite.Equal(string(successShipment.Status), shipment.Status)
