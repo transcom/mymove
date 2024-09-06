@@ -361,6 +361,11 @@ export async function counselingCreateOrder({ body }) {
   return makeGHCRequest(operationPath, { createOrders: body }, { normalize: true });
 }
 
+export async function updateUpload({ uploadID, body }) {
+  const operationPath = 'uploads.updateUpload';
+  return makeGHCRequest(operationPath, { uploadID, body });
+}
+
 export async function updateAllowance({ orderID, ifMatchETag, body }) {
   const operationPath = 'order.updateAllowance';
   return makeGHCRequest(operationPath, { orderID, 'If-Match': ifMatchETag, body });

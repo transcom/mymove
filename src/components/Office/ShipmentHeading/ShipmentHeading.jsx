@@ -11,15 +11,6 @@ import { shipmentStatuses } from 'constants/shipments';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
 
-function formatDestinationAddress(address) {
-  if (address.city) {
-    // eslint-disable-next-line camelcase
-    return `${address.city}, ${address.state} ${address.postalCode}`;
-  }
-  // eslint-disable-next-line camelcase
-  return `${address.postalCode}`;
-}
-
 function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLocked }) {
   const { shipmentStatus } = shipmentInfo;
   // cancelation modal is visible if shipment is not already canceled, AND if shipment cancellation hasn't already been requested
@@ -41,10 +32,6 @@ function ShipmentHeading({ shipmentInfo, handleShowCancellationModal, isMoveLock
         <h4>#{shipmentInfo.shipmentLocator}</h4>
       </div>
       <div className={styles.row}>
-        <small>
-          {`${shipmentInfo.originCity}, ${shipmentInfo.originState} ${shipmentInfo.originPostalCode} to
-        ${formatDestinationAddress(shipmentInfo.destinationAddress)} on ${shipmentInfo.scheduledPickupDate}`}
-        </small>
         {showRequestCancellation && (
           <Restricted to={permissionTypes.createShipmentCancellation}>
             <Restricted to={permissionTypes.updateMTOPage}>

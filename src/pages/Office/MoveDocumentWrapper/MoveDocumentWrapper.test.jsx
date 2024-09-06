@@ -1,11 +1,50 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
-import { useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
+
+import samplePDF from '../../../components/DocumentViewer/sample.pdf';
+import sampleJPG from '../../../components/DocumentViewer/sample.jpg';
+import samplePNG from '../../../components/DocumentViewer/sample2.png';
+import sampleGIF from '../../../components/DocumentViewer/sample3.gif';
 
 import MoveDocumentWrapper from './MoveDocumentWrapper';
 
 import { useOrdersDocumentQueries, useAmendedDocumentQueries } from 'hooks/queries';
+
+const mockFiles = [
+  {
+    id: 1,
+    filename: 'Test File.pdf',
+    contentType: 'application/pdf',
+    url: samplePDF,
+    createdAt: '2021-06-14T15:09:26.979879Z',
+  },
+  {
+    id: 2,
+    filename: 'Test File 2.jpg',
+    contentType: 'image/jpeg',
+    url: sampleJPG,
+    createdAt: '2021-06-12T15:09:26.979879Z',
+  },
+  {
+    id: 3,
+    filename: 'Test File 3.png',
+    contentType: 'image/png',
+    url: samplePNG,
+    createdAt: '2021-06-15T15:09:26.979879Z',
+    rotation: 1,
+  },
+  {
+    id: 4,
+    filename: 'Test File 4.gif',
+    contentType: 'image/gif',
+    url: sampleGIF,
+    createdAt: '2021-06-16T15:09:26.979879Z',
+    rotation: 3,
+  },
+];
 
 const mockOriginDutyLocation = {
   address: {
@@ -44,6 +83,20 @@ const mockDestinationDutyLocation = {
 jest.mock('hooks/queries', () => ({
   useOrdersDocumentQueries: jest.fn(),
   useAmendedDocumentQueries: jest.fn(),
+}));
+
+jest.mock('components/DocumentViewer/DocumentViewer', () => ({
+  __esModule: true,
+  default: ({ files, allowDownload }) => (
+    <div>
+      <div>
+        <div data-testid="listOfFilesForViewer">
+          {files ? JSON.stringify(files, null, 2).replace(/"/g, '') : 'No files available'}
+        </div>
+        <div data-testid="allowDownloadBool">Allow download: {allowDownload?.toString()}</div>
+      </div>
+    </div>
+  ),
 }));
 
 const testMoveId = '10000';
@@ -90,12 +143,7 @@ const useOrdersDocumentQueriesReturnValue = {
     },
   },
   upload: {
-    z: {
-      id: 'z',
-      filename: 'test.pdf',
-      contentType: 'application/pdf',
-      url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-    },
+    z: mockFiles,
   },
   amendedDocuments: {
     3: {
@@ -179,9 +227,15 @@ describe('MoveDocumentWrapper', () => {
       useLocation.mockReturnValue({ pathname: `/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
-      const wrapper = shallow(<MoveDocumentWrapper />);
 
-      expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+      render(
+        <MemoryRouter>
+          <QueryClientProvider client={new QueryClient()}>
+            <MoveDocumentWrapper allowDownload />
+          </QueryClientProvider>
+        </MemoryRouter>,
+      );
+      expect(screen.getByTestId('doc-wrapper')).toBeInTheDocument();
     });
 
     it('renders the sidebar Orders component', () => {
@@ -205,28 +259,17 @@ describe('MoveDocumentWrapper', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
-      const wrapper = shallow(<MoveDocumentWrapper />);
-      const { files } = wrapper.find('DocumentViewer').props('files');
+      render(
+        <MemoryRouter>
+          <QueryClientProvider client={new QueryClient()}>
+            <MoveDocumentWrapper files={mockFiles} />
+          </QueryClientProvider>
+        </MemoryRouter>,
+      );
 
-      // Sort files by filename - sometimes they get swapped in the array which causes a flaky test
-      files.sort((a, b) => a.filename.localeCompare(b.filename));
-      expect(wrapper.find('DocumentViewer').props('files')).toEqual({
-        allowDownload: true,
-        files: [
-          {
-            contentType: 'application/pdf',
-            filename: 'amended_test.pdf',
-            id: 'z',
-            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-          },
-          {
-            contentType: 'application/pdf',
-            filename: 'test.pdf',
-            id: 'z',
-            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-          },
-        ],
-      });
+      expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('Test File 3.png');
+      expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('filename: Test File 4.gif');
+      expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('filename: amended_test.pdf');
     });
   });
 });

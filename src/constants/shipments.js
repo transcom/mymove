@@ -9,6 +9,7 @@ export const shipmentTypes = {
   [SHIPMENT_OPTIONS.BOAT]: 'Boat',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
+  [SHIPMENT_TYPES.MOBILE_HOME]: 'MOBILE_HOME',
 };
 
 export const shipmentModificationTypes = {

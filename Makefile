@@ -312,6 +312,9 @@ bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC) .check_
 bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
+bin/simulate-process-tpps: $(shell find cmd/simulate-process-tpps -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/simulate-process-tpps ./cmd/simulate-process-tpps
+
 #
 # ----- END BIN TARGETS -----
 #
@@ -404,6 +407,7 @@ build_tools: bin/gin \
 	bin/webhook-client \
 	bin/read-alb-logs \
 	bin/send-to-gex \
+	bin/simulate-process-tpps \
 	bin/tls-checker ## Build all tools
 
 .PHONY: build

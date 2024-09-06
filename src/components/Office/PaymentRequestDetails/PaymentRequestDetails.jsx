@@ -93,7 +93,15 @@ PaymentRequestAccountingCodes.defaultProps = {
   onEditClick: () => {},
 };
 
-const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, tacs, sacs, onEditClick }) => {
+const PaymentRequestDetails = ({
+  serviceItems,
+  shipment,
+  paymentRequestStatus,
+  tacs,
+  sacs,
+  onEditClick,
+  tppsDataExists,
+}) => {
   const mtoShipmentType = serviceItems?.[0]?.mtoShipmentType;
   const [headingType, shipmentStyle] = shipmentHeadingAndStyle(mtoShipmentType);
   const { modificationType, departureDate, address, mtoServiceItems } = shipment;
@@ -138,34 +146,69 @@ const PaymentRequestDetails = ({ serviceItems, shipment, paymentRequestStatus, t
             </p>
           </div>
         </div>
-        <table className="table--stacked">
-          <colgroup>
-            <col style={{ width: '50%' }} />
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-          </colgroup>
-          <thead>
-            <tr>
-              <th>Service item</th>
-              <th className="align-right">Amount</th>
-              <th className="align-right">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {serviceItems.map((item, index) => {
-              return (
-                <ExpandableServiceItemRow
-                  serviceItem={item}
-                  additionalServiceItemData={findAdditionalServiceItemData(item.mtoServiceItemCode)}
-                  key={item.id}
-                  index={index}
-                  disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
-                  paymentIsDeprecated={paymentRequestStatus === PAYMENT_REQUEST_STATUS.DEPRECATED}
-                />
-              );
-            })}
-          </tbody>
-        </table>
+        {tppsDataExists === true ? (
+          <table className="table--stacked">
+            <colgroup>
+              <col style={{ width: '40%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '20%' }} />
+              <col style={{ width: '20%' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Service item</th>
+                <th className="align-right">Amount</th>
+                <th className="align-right">TPPS Paid</th>
+                <th className="align-right">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {serviceItems.map((item, index) => {
+                return (
+                  <ExpandableServiceItemRow
+                    serviceItem={item}
+                    additionalServiceItemData={findAdditionalServiceItemData(item.mtoServiceItemCode)}
+                    key={item.id}
+                    index={index}
+                    disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
+                    paymentIsDeprecated={paymentRequestStatus === PAYMENT_REQUEST_STATUS.DEPRECATED}
+                    tppsDataExists={tppsDataExists}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <table className="table--stacked">
+            <colgroup>
+              <col style={{ width: '50%' }} />
+              <col style={{ width: '25%' }} />
+              <col style={{ width: '25%' }} />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>Service item</th>
+                <th className="align-right">Amount</th>
+                <th className="align-right">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {serviceItems.map((item, index) => {
+                return (
+                  <ExpandableServiceItemRow
+                    serviceItem={item}
+                    additionalServiceItemData={findAdditionalServiceItemData(item.mtoServiceItemCode)}
+                    key={item.id}
+                    index={index}
+                    disableExpansion={paymentRequestStatus === PAYMENT_REQUEST_STATUSES.PENDING}
+                    paymentIsDeprecated={paymentRequestStatus === PAYMENT_REQUEST_STATUS.DEPRECATED}
+                    tppsDataExists={tppsDataExists}
+                  />
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     )
   );

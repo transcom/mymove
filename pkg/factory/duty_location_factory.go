@@ -1,6 +1,8 @@
 package factory
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop/v6"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -53,7 +55,8 @@ func buildDutyLocationWithBuildType(db *pop.Connection, customs []Customization,
 	affiliation := internalmessages.AffiliationAIRFORCE
 
 	location := models.DutyLocation{
-		Name:        MakeRandomString(10),
+		// Make test duty location name consistent with how TRDM duty location is formatted
+		Name:        fmt.Sprintf("%s, %s %s", MakeRandomString(10), dlAddress.State, dlAddress.PostalCode),
 		Affiliation: &affiliation,
 		AddressID:   dlAddress.ID,
 		Address:     dlAddress,
@@ -128,18 +131,18 @@ func FetchOrBuildCurrentDutyLocation(db *pop.Connection) models.DutyLocation {
 		return BuildDutyLocation(nil, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Yuma AFB",
+					Name: "Yuma AFB, IA 50309",
 				},
 			},
 		}, nil)
 	}
 	// Check if Yuma Duty Location exists, if not, create it.
-	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB")
+	defaultLocation, err := models.FetchDutyLocationByName(db, "Yuma AFB, IA 50309")
 	if err != nil {
 		return BuildDutyLocation(db, []Customization{
 			{
 				Model: models.DutyLocation{
-					Name: "Yuma AFB",
+					Name: "Yuma AFB, IA 50309",
 				},
 			},
 		}, nil)

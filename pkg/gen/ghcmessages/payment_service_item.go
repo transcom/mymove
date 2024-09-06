@@ -75,6 +75,9 @@ type PaymentServiceItem struct {
 
 	// status
 	Status PaymentServiceItemStatus `json:"status,omitempty"`
+
+	// Amount that TPPS paid for the individual service item in millicents
+	TppsInvoiceAmountPaidPerServiceItemMillicents *int64 `json:"tppsInvoiceAmountPaidPerServiceItemMillicents,omitempty"`
 }
 
 // Validate validates this payment service item

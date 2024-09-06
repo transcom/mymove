@@ -80,7 +80,7 @@ func (s *shipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment 
 			mtoShipment.BoatShipment = boatShipment
 
 			return nil
-		} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+		} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome && shipment.MobileHome != nil {
 			shipment.MobileHome.ShipmentID = mtoShipment.ID
 			shipment.MobileHome.Shipment = *mtoShipment
 

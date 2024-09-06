@@ -60,7 +60,7 @@ const MoveDocumentWrapper = () => {
   };
 
   return (
-    <div className={styles.DocumentWrapper}>
+    <div data-testid="doc-wrapper" className={styles.DocumentWrapper}>
       {documentsForViewer && (
         <div className={styles.embed}>
           <DocumentViewer files={documentsForViewer} allowDownload />

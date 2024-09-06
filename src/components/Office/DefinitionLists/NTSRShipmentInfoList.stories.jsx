@@ -62,6 +62,7 @@ export const NTSRBasic = () => (
   <NTSRShipmentInfoList
     shipment={{
       counselorRemarks: info.counselorRemarks,
+      requestedPickupDate: info.requestedPickupDate,
       requestedDeliveryDate: info.requestedDeliveryDate,
       storageFacility: info.storageFacility,
       destinationAddress: info.destinationAddress,
@@ -77,6 +78,7 @@ export const NTSRMissingInfo = () => (
   <NTSRShipmentInfoList
     isExpanded
     shipment={{
+      requestedPickupDate: info.requestedPickupDate,
       requestedDeliveryDate: info.requestedDeliveryDate,
       destinationAddress: info.destinationAddress,
       tacType: info.tacType,
@@ -92,6 +94,7 @@ export const NTSRWithAllInfo = () => (
   <NTSRShipmentInfoList
     isExpanded
     shipment={{
+      requestedPickupDate: info.requestedPickupDate,
       requestedDeliveryDate: info.requestedDeliveryDate,
       storageFacility: info.storageFacility,
       tacType: info.tacType,

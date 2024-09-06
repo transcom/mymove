@@ -45,3 +45,10 @@ type UploadInformationFetcher interface {
 type UploadCreator interface {
 	CreateUpload(appCtx appcontext.AppContext, file io.ReadCloser, uploadFilename string, uploadType models.UploadType) (*models.Upload, error)
 }
+
+// UploadUpdater is the service object interface for UpdateUpload
+//
+//go:generate mockery --name UploadUpdater
+type UploadUpdater interface {
+	UpdateUpload(appCtx appcontext.AppContext, file io.ReadCloser, uploadFilename string, uploadType models.UploadType) (*models.Upload, error)
+}

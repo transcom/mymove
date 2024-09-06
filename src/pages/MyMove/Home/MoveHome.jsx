@@ -274,7 +274,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     if (
       shipmentType === shipmentTypes.HHG ||
       shipmentType === shipmentTypes.PPM ||
-      shipmentType === shipmentTypes.BOAT
+      shipmentType === shipmentTypes.BOAT ||
+      shipmentType === shipmentTypes.MOBILE_HOME
     ) {
       destLink = `${generatePath(customerRoutes.SHIPMENT_EDIT_PATH, {
         moveId: move.id,

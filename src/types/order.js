@@ -124,6 +124,7 @@ export const PaymentServiceItemShape = PropTypes.shape({
   status: PropTypes.string,
   rejectionReason: PropTypes.string,
   paymentServiceItemParams: PropTypes.arrayOf(PaymentServiceItemParam),
+  tppsInvoiceAmountPaidPerServiceItemMillicents: PropTypes.number,
 });
 
 export const PaymentRequestShape = PropTypes.shape({
@@ -139,6 +140,8 @@ export const PaymentRequestShape = PropTypes.shape({
   ediErrorType: PropTypes.string,
   ediErrorCode: PropTypes.string,
   ediErrorDescription: PropTypes.string,
+  tppsInvoiceAmountPaidTotalMillicents: PropTypes.number,
+  tppsInvoiceSellerPaidDate: PropTypes.string,
 });
 
 export const OrdersLOAShape = PropTypes.shape({

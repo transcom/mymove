@@ -196,7 +196,18 @@ func (f *paymentRequestListFetcher) FetchPaymentRequestListByMove(appCtx appcont
 		if errFetchingEdiError != nil {
 			return nil, errFetchingEdiError
 		}
+
+		// We process TPPS Paid Invoice Reports to get payment information for each payment service item
+		// As well as the total amount paid for the overall payment request, and the date it was paid
+		// This report tells us how much TPPS paid HS, then we store and display it
+		tppsReportEntryList, errFetchingTPPSInformation := fetchTPPSPaidInvoiceReportDataPaymentRequest(appCtx, &paymentRequests[i])
+		if errFetchingTPPSInformation != nil {
+			return nil, errFetchingTPPSInformation
+		}
+
 		paymentRequests[i].EdiErrors = append(paymentRequests[i].EdiErrors, mostRecentEdiErrorForPaymentRequest)
+		paymentRequests[i].TPPSPaidInvoiceReports = tppsReportEntryList
+
 	}
 
 	return &paymentRequests, nil
@@ -227,6 +238,30 @@ func fetchEDIErrorsForPaymentRequest(appCtx appcontext.AppContext, pr *models.Pa
 	}
 
 	return ediErrorInfo, nil
+}
+
+// fetchTPPSPaidInvoiceReportDataPaymentRequest returns entries in the tpps_paid_invoice_reports
+// for a payment request by matching the payment request number to the TPPS invoice number
+func fetchTPPSPaidInvoiceReportDataPaymentRequest(appCtx appcontext.AppContext, pr *models.PaymentRequest) (models.TPPSPaidInvoiceReportEntrys, error) {
+
+	var tppsPaidInvoiceReport []models.TPPSPaidInvoiceReportEntry
+	tppsPaidInformation := models.TPPSPaidInvoiceReportEntrys{}
+
+	err := appCtx.DB().Q().
+		Where("tpps_paid_invoice_reports.invoice_number = $1", pr.PaymentRequestNumber).
+		All(&tppsPaidInvoiceReport)
+
+	if err != nil {
+		return tppsPaidInformation, err
+	} else if len(tppsPaidInvoiceReport) == 0 {
+		return tppsPaidInformation, nil
+	}
+	if len(tppsPaidInvoiceReport) > 0 {
+		tppsPaidInformation = tppsPaidInvoiceReport
+		return tppsPaidInformation, nil
+	}
+
+	return tppsPaidInformation, nil
 }
 
 func orderName(query *pop.Query, order *string) *pop.Query {

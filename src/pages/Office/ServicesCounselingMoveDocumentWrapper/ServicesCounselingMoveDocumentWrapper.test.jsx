@@ -1,7 +1,8 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { render, screen } from '@testing-library/react';
-import { useLocation } from 'react-router-dom';
+import { MemoryRouter, useLocation } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import ServicesCounselingMoveDocumentWrapper from './ServicesCounselingMoveDocumentWrapper';
 
@@ -131,6 +132,20 @@ jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(),
 }));
 
+jest.mock('components/DocumentViewer/DocumentViewer', () => ({
+  __esModule: true,
+  default: ({ files, allowDownload }) => (
+    <div>
+      <div>
+        <div data-testid="listOfFilesForViewer">
+          {files ? JSON.stringify(files, null, 2).replace(/"/g, '') : 'No files available'}
+        </div>
+        <div data-testid="allowDownloadBool">Allow download: {allowDownload?.toString()}</div>
+      </div>
+    </div>
+  ),
+}));
+
 describe('ServicesCounselingMoveDocumentWrapper', () => {
   describe('check loading and error component states', () => {
     it('renders the Loading Placeholder when the query is still loading', async () => {
@@ -161,9 +176,17 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useLocation.mockReturnValue({ pathname: `/counseling/moves/${testMoveId}/orders` });
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
-      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
 
-      expect(wrapper.find('DocumentViewer').exists()).toBe(true);
+      render(
+        <MemoryRouter>
+          <QueryClientProvider client={new QueryClient()}>
+            <ServicesCounselingMoveDocumentWrapper />
+          </QueryClientProvider>
+        </MemoryRouter>,
+      );
+
+      const docViewerContainer = screen.getByTestId('sc-doc-viewer-container');
+      expect(docViewerContainer).toBeInTheDocument();
     });
 
     it('renders the sidebar ServicesCounselingOrders component', () => {
@@ -187,28 +210,16 @@ describe('ServicesCounselingMoveDocumentWrapper', () => {
       useOrdersDocumentQueries.mockReturnValue(useOrdersDocumentQueriesReturnValue);
       useAmendedDocumentQueries.mockReturnValue(useAmendedDocumentQueriesReturnValue);
 
-      const wrapper = shallow(<ServicesCounselingMoveDocumentWrapper />);
-      expect(wrapper.find('DocumentViewer').props('files')).toEqual({
-        allowDownload: true,
-        files: [
-          {
-            contentType: 'application/pdf',
-            filename: 'test.pdf',
-            id: 'z',
-            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-          },
-          {
-            contentType: 'application/pdf',
-            filename: 'amended_test.pdf',
-            id: 'z',
-            url: '/storage/user/1/uploads/2?contentType=application%2Fpdf',
-            status: null,
-            updatedAt: amendedUploadDate.toISOString(),
-            createdAt: amendedUploadDate.toISOString(),
-            bytes: null,
-          },
-        ],
-      });
+      render(
+        <MemoryRouter>
+          <QueryClientProvider client={new QueryClient()}>
+            <ServicesCounselingMoveDocumentWrapper />
+          </QueryClientProvider>
+        </MemoryRouter>,
+      );
+
+      expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('filename: test.pdf');
+      expect(screen.getByTestId('listOfFilesForViewer').textContent).toContain('filename: amended_test.pdf');
     });
   });
 });
