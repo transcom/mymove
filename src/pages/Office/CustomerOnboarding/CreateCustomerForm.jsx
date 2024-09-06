@@ -149,7 +149,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     edipi:
       !isSafetyMove &&
       Yup.string()
-        .matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number')
+        .matches(/[0-9]{10}/, 'Enter a 10-digit DoD ID number')
         .required('Required'),
     // Only the coast guard requires both EDIPI and EMPLID
     // unless it is a safety move
