@@ -50,6 +50,11 @@ const initialState = {
   oktaUser: {},
 };
 
+const adminInitialState = {
+  adminUser: {},
+  oktaUser: {},
+};
+
 // Actions of either of these types will be merged into the store:
 //   @@swagger/tag.operationId/SUCCESS
 //   ADD_ENTITIES
@@ -79,5 +84,21 @@ export function entitiesReducer(state = initialState, action) {
     };
   }
 
+  return state;
+}
+
+export function adminEntitiesReducer(state = adminInitialState, action) {
+  if (action.type === 'SET_OKTA_USER') {
+    return {
+      ...state,
+      oktaUser: action.oktaUser || {},
+    };
+  }
+  if (action.type === 'SET_ADMIN_USER') {
+    return {
+      ...state,
+      adminUser: action.adminUser || {},
+    };
+  }
   return state;
 }
