@@ -23,6 +23,8 @@ const PrimeUIShipmentCreateForm = () => {
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
 
+  const { hasSecondPickupAddress, hasSecondDeliveryAddress, hasThirdPickupAddress, hasThirdDeliveryAddress } = values;
+
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
 
@@ -264,9 +266,168 @@ const PrimeUIShipmentCreateForm = () => {
 
             <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
             <h5 className={styles.sectionHeader}>Pickup Address</h5>
-            <AddressFields name="pickupAddress" />
-            <h5 className={styles.sectionHeader}>Destination Address</h5>
-            <AddressFields name="destinationAddress" />
+            <AddressFields
+              name="pickupAddress"
+              render={(fields) => (
+                <>
+                  {fields}
+                  <h4>Second pickup location</h4>
+                  <FormGroup>
+                    <p>
+                      Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                      Subject to approval.)
+                    </p>
+                    <div className={formStyles.radioGroup}>
+                      <Field
+                        as={Radio}
+                        id="has-secondary-pickup"
+                        data-testid="has-secondary-pickup"
+                        label="Yes"
+                        name="hasSecondPickupAddress"
+                        value="true"
+                        title="Yes, there is a second pickup location"
+                        checked={hasSecondPickupAddress === 'true'}
+                      />
+                      <Field
+                        as={Radio}
+                        id="no-secondary-pickup"
+                        data-testid="no-secondary-pickup"
+                        label="No"
+                        name="hasSecondPickupAddress"
+                        value="false"
+                        title="No, there is not a second pickup location"
+                        checked={hasSecondPickupAddress !== 'true'}
+                      />
+                    </div>
+                  </FormGroup>
+                  {hasSecondPickupAddress === 'true' && (
+                    <>
+                      <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
+                      <AddressFields name="secondPickupAddress" />
+
+                      <h4>Third pickup location</h4>
+                      <FormGroup>
+                        <p>
+                          Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                          Subject to approval.)
+                        </p>
+                        <div className={formStyles.radioGroup}>
+                          <Field
+                            as={Radio}
+                            id="has-third-pickup"
+                            data-testid="has-third-pickup"
+                            label="Yes"
+                            name="hasThirdPickupAddress"
+                            value="true"
+                            title="Yes, there is a third pickup location"
+                            checked={hasThirdPickupAddress === 'true'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="no-third-pickup"
+                            data-testid="no-third-pickup"
+                            label="No"
+                            name="hasThirdPickupAddress"
+                            value="false"
+                            title="No, there is not a third pickup location"
+                            checked={hasThirdPickupAddress !== 'true'}
+                          />
+                        </div>
+                      </FormGroup>
+                    </>
+                  )}
+                  {hasThirdPickupAddress === 'true' && (
+                    <>
+                      <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
+                      <AddressFields name="thirdPickupAddress" />
+                    </>
+                  )}
+                </>
+              )}
+            />
+
+            <h3 className={styles.sectionHeader}>Destination Address</h3>
+            <AddressFields
+              name="destinationAddress"
+              legend="Destination Address"
+              render={(fields) => (
+                <>
+                  {fields}
+
+                  <h4>Second delivery location</h4>
+                  <FormGroup>
+                    <p>
+                      Will the movers pick up any belongings from a second address? (Must be near the pickup address.
+                      Subject to approval.)
+                    </p>
+                    <div className={formStyles.radioGroup}>
+                      <Field
+                        as={Radio}
+                        id="has-secondary-delivery"
+                        data-testid="has-secondary-delivery"
+                        label="Yes"
+                        name="hasSecondDeliveryAddress"
+                        value="true"
+                        title="Yes, there is a second delivery location"
+                        checked={hasSecondDeliveryAddress === 'true'}
+                      />
+                      <Field
+                        as={Radio}
+                        id="no-secondary-delivery"
+                        data-testid="no-secondary-delivery"
+                        label="No"
+                        name="hasSecondDeliveryAddress"
+                        value="false"
+                        title="No, there is not a second delivery location"
+                        checked={hasSecondDeliveryAddress !== 'true'}
+                      />
+                    </div>
+                  </FormGroup>
+                  {hasSecondDeliveryAddress === 'true' && (
+                    <>
+                      <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                      <AddressFields name="secondDestinationAddress" />
+
+                      <h4>Third delivery location</h4>
+                      <FormGroup>
+                        <p>
+                          Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                          Subject to approval.)
+                        </p>
+                        <div className={formStyles.radioGroup}>
+                          <Field
+                            as={Radio}
+                            id="has-third-delivery"
+                            data-testid="has-third-delivery"
+                            label="Yes"
+                            name="hasThirdDeliveryAddress"
+                            value="true"
+                            title="Yes, there is a third delivery location"
+                            checked={hasThirdDeliveryAddress === 'true'}
+                          />
+                          <Field
+                            as={Radio}
+                            id="no-third-delivery"
+                            data-testid="no-third-delivery"
+                            label="No"
+                            name="hasThirdDeliveryAddress"
+                            value="false"
+                            title="No, there is not a third delivery location"
+                            checked={hasThirdDeliveryAddress !== 'true'}
+                          />
+                        </div>
+                      </FormGroup>
+                    </>
+                  )}
+                  {hasThirdDeliveryAddress === 'true' && (
+                    <>
+                      <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                      <AddressFields name="thirdDestinationAddress" />
+                    </>
+                  )}
+                </>
+              )}
+            />
           </>
         )
       )}

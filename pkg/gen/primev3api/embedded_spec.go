@@ -608,8 +608,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "The second address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The second address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "thirdDestinationAddress": {
+          "description": "The third address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "thirdPickupAddress": {
+          "description": "The third address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4038,8 +4070,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "The second address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The second address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "thirdDestinationAddress": {
+          "description": "The third address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "thirdPickupAddress": {
+          "description": "The third address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },

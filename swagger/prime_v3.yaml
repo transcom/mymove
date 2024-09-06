@@ -627,6 +627,22 @@ definitions:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
+      secondaryPickupAddress:
+        description: The second address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      thirdPickupAddress:
+        description: The third address where the movers should pick up this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      secondaryDestinationAddress:
+        description: The second address where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
+      thirdDestinationAddress:
+        description: The third address where the movers should deliver this shipment.
+        allOf:
+          - $ref: '#/definitions/Address'
       shipmentType:
         $ref: '#/definitions/MTOShipmentType'
       diversion:

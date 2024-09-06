@@ -134,6 +134,14 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress,
         diversion,
         divertedFromShipmentId,
+        hasSecondPickupAddress,
+        hasSecondDeliveryAddress,
+        hasThirdPickupAddress,
+        hasThirdDeliveryAddress,
+        secondPickupAddress,
+        thirdPickupAddress,
+        secondDeliveryAddress,
+        thirdDeliveryAddress,
       } = values;
 
       body = {
@@ -145,6 +153,18 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
         divertedFromShipmentId: divertedFromShipmentId || null,
+        secondaryPickupAddress: isEmpty(secondPickupAddress) ? null : formatAddressForPrimeAPI(secondPickupAddress),
+        secondaryDestinationAddress: isEmpty(secondDeliveryAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondDeliveryAddress),
+        tertiaryPickupAddress: isEmpty(thirdPickupAddress) ? null : formatAddressForPrimeAPI(thirdPickupAddress),
+        tertiaryDestinationAddress: isEmpty(thirdDeliveryAddress)
+          ? null
+          : formatAddressForPrimeAPI(thirdDeliveryAddress),
+        hasSecondaryPickupAddress: hasSecondPickupAddress === 'true',
+        hasSecondaryDestinationAddress: hasThirdPickupAddress === 'true',
+        hasTertiaryPickupAddress: hasSecondDeliveryAddress === 'true',
+        hasTertiaryDestinationAddress: hasThirdDeliveryAddress === 'true',
       };
     }
 

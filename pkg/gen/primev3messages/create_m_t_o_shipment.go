@@ -88,9 +88,29 @@ type CreateMTOShipment struct {
 	// Format: date
 	RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+	// The second address where the movers should deliver this shipment.
+	SecondaryDestinationAddress struct {
+		Address
+	} `json:"secondaryDestinationAddress,omitempty"`
+
+	// The second address where the movers should pick up this shipment.
+	SecondaryPickupAddress struct {
+		Address
+	} `json:"secondaryPickupAddress,omitempty"`
+
 	// shipment type
 	// Required: true
 	ShipmentType *MTOShipmentType `json:"shipmentType"`
+
+	// The third address where the movers should deliver this shipment.
+	ThirdDestinationAddress struct {
+		Address
+	} `json:"thirdDestinationAddress,omitempty"`
+
+	// The third address where the movers should pick up this shipment.
+	ThirdPickupAddress struct {
+		Address
+	} `json:"thirdPickupAddress,omitempty"`
 }
 
 // MtoServiceItems gets the mto service items of this base type
@@ -136,7 +156,23 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+		SecondaryDestinationAddress struct {
+			Address
+		} `json:"secondaryDestinationAddress,omitempty"`
+
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
+
 		ShipmentType *MTOShipmentType `json:"shipmentType"`
+
+		ThirdDestinationAddress struct {
+			Address
+		} `json:"thirdDestinationAddress,omitempty"`
+
+		ThirdPickupAddress struct {
+			Address
+		} `json:"thirdPickupAddress,omitempty"`
 	}
 	buf := bytes.NewBuffer(raw)
 	dec := json.NewDecoder(buf)
@@ -196,8 +232,20 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// requestedPickupDate
 	result.RequestedPickupDate = data.RequestedPickupDate
 
+	// secondaryDestinationAddress
+	result.SecondaryDestinationAddress = data.SecondaryDestinationAddress
+
+	// secondaryPickupAddress
+	result.SecondaryPickupAddress = data.SecondaryPickupAddress
+
 	// shipmentType
 	result.ShipmentType = data.ShipmentType
+
+	// thirdDestinationAddress
+	result.ThirdDestinationAddress = data.ThirdDestinationAddress
+
+	// thirdPickupAddress
+	result.ThirdPickupAddress = data.ThirdPickupAddress
 
 	*m = result
 
@@ -237,7 +285,23 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		RequestedPickupDate *strfmt.Date `json:"requestedPickupDate,omitempty"`
 
+		SecondaryDestinationAddress struct {
+			Address
+		} `json:"secondaryDestinationAddress,omitempty"`
+
+		SecondaryPickupAddress struct {
+			Address
+		} `json:"secondaryPickupAddress,omitempty"`
+
 		ShipmentType *MTOShipmentType `json:"shipmentType"`
+
+		ThirdDestinationAddress struct {
+			Address
+		} `json:"thirdDestinationAddress,omitempty"`
+
+		ThirdPickupAddress struct {
+			Address
+		} `json:"thirdPickupAddress,omitempty"`
 	}{
 
 		Agents: m.Agents,
@@ -264,7 +328,15 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		RequestedPickupDate: m.RequestedPickupDate,
 
+		SecondaryDestinationAddress: m.SecondaryDestinationAddress,
+
+		SecondaryPickupAddress: m.SecondaryPickupAddress,
+
 		ShipmentType: m.ShipmentType,
+
+		ThirdDestinationAddress: m.ThirdDestinationAddress,
+
+		ThirdPickupAddress: m.ThirdPickupAddress,
 	})
 	if err != nil {
 		return nil, err
@@ -322,7 +394,23 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateSecondaryPickupAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateShipmentType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateThirdDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateThirdPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -454,6 +542,22 @@ func (m *CreateMTOShipment) validateRequestedPickupDate(formats strfmt.Registry)
 	return nil
 }
 
+func (m *CreateMTOShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateSecondaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error {
 
 	if err := validate.Required("shipmentType", "body", m.ShipmentType); err != nil {
@@ -473,6 +577,22 @@ func (m *CreateMTOShipment) validateShipmentType(formats strfmt.Registry) error 
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateThirdDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.ThirdDestinationAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateThirdPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.ThirdPickupAddress) { // not required
+		return nil
 	}
 
 	return nil
@@ -502,7 +622,23 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateSecondaryPickupAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateShipmentType(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateThirdDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateThirdPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -579,6 +715,16 @@ func (m *CreateMTOShipment) contextValidatePpmShipment(ctx context.Context, form
 	return nil
 }
 
+func (m *CreateMTOShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateSecondaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
 func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, formats strfmt.Registry) error {
 
 	if m.ShipmentType != nil {
@@ -592,6 +738,16 @@ func (m *CreateMTOShipment) contextValidateShipmentType(ctx context.Context, for
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateThirdDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateThirdPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
