@@ -2039,6 +2039,10 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
+		var transportationOffice string
+		if move.CounselingOffice != nil {
+			transportationOffice = move.CounselingOffice.Name
+		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
@@ -2110,6 +2114,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
+			CounselingOffice:        &transportationOffice,
 			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 		}
 	}
