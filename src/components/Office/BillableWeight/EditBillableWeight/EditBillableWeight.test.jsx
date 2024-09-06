@@ -275,7 +275,6 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('textInput'));
-    expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });
 
@@ -293,8 +292,6 @@ describe('EditBillableWeight', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.queryByText('Edit')).toBeNull();
     await userEvent.clear(screen.getByTestId('remarks'));
-    screen.getByTestId('remarks').blur();
-    expect(screen.getByText('Required')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeDisabled();
   });
 });

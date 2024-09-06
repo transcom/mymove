@@ -3126,6 +3126,7 @@ definitions:
       - StandaloneCrate
       - StandaloneCrateCap
       - UncappedRequestTotal
+      - LockedPriceCents
   ServiceItemParamType:
     type: string
     enum:
@@ -3615,6 +3616,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   SITLocationType:
     description: The list of SIT location types.
     type: string

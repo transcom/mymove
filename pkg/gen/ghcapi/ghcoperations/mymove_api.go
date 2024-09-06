@@ -117,6 +117,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		UploadsCreateUploadHandler: uploads.CreateUploadHandlerFunc(func(params uploads.CreateUploadParams) middleware.Responder {
 			return middleware.NotImplemented("operation uploads.CreateUpload has not yet been implemented")
 		}),
+		MoveDeleteAssignedOfficeUserHandler: move.DeleteAssignedOfficeUserHandlerFunc(func(params move.DeleteAssignedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.DeleteAssignedOfficeUser has not yet been implemented")
+		}),
 		CustomerSupportRemarksDeleteCustomerSupportRemarkHandler: customer_support_remarks.DeleteCustomerSupportRemarkHandlerFunc(func(params customer_support_remarks.DeleteCustomerSupportRemarkParams) middleware.Responder {
 			return middleware.NotImplemented("operation customer_support_remarks.DeleteCustomerSupportRemark has not yet been implemented")
 		}),
@@ -246,6 +249,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		QueuesListPrimeMovesHandler: queues.ListPrimeMovesHandlerFunc(func(params queues.ListPrimeMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ListPrimeMoves has not yet been implemented")
 		}),
+		MoveMoveCancelerHandler: move.MoveCancelerHandlerFunc(func(params move.MoveCancelerParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.MoveCanceler has not yet been implemented")
+		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
 		}),
@@ -290,6 +296,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		OrderUpdateAllowanceHandler: order.UpdateAllowanceHandlerFunc(func(params order.UpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateAllowance has not yet been implemented")
+		}),
+		MoveUpdateAssignedOfficeUserHandler: move.UpdateAssignedOfficeUserHandlerFunc(func(params move.UpdateAssignedOfficeUserParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.UpdateAssignedOfficeUser has not yet been implemented")
 		}),
 		OrderUpdateBillableWeightHandler: order.UpdateBillableWeightHandlerFunc(func(params order.UpdateBillableWeightParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.UpdateBillableWeight has not yet been implemented")
@@ -438,6 +447,8 @@ type MymoveAPI struct {
 	OfficeUsersCreateRequestedOfficeUserHandler office_users.CreateRequestedOfficeUserHandler
 	// UploadsCreateUploadHandler sets the operation handler for the create upload operation
 	UploadsCreateUploadHandler uploads.CreateUploadHandler
+	// MoveDeleteAssignedOfficeUserHandler sets the operation handler for the delete assigned office user operation
+	MoveDeleteAssignedOfficeUserHandler move.DeleteAssignedOfficeUserHandler
 	// CustomerSupportRemarksDeleteCustomerSupportRemarkHandler sets the operation handler for the delete customer support remark operation
 	CustomerSupportRemarksDeleteCustomerSupportRemarkHandler customer_support_remarks.DeleteCustomerSupportRemarkHandler
 	// EvaluationReportsDeleteEvaluationReportHandler sets the operation handler for the delete evaluation report operation
@@ -524,6 +535,8 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// QueuesListPrimeMovesHandler sets the operation handler for the list prime moves operation
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
+	// MoveMoveCancelerHandler sets the operation handler for the move canceler operation
+	MoveMoveCancelerHandler move.MoveCancelerHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
 	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
@@ -554,6 +567,8 @@ type MymoveAPI struct {
 	TacTacValidationHandler tac.TacValidationHandler
 	// OrderUpdateAllowanceHandler sets the operation handler for the update allowance operation
 	OrderUpdateAllowanceHandler order.UpdateAllowanceHandler
+	// MoveUpdateAssignedOfficeUserHandler sets the operation handler for the update assigned office user operation
+	MoveUpdateAssignedOfficeUserHandler move.UpdateAssignedOfficeUserHandler
 	// OrderUpdateBillableWeightHandler sets the operation handler for the update billable weight operation
 	OrderUpdateBillableWeightHandler order.UpdateBillableWeightHandler
 	// MoveUpdateCloseoutOfficeHandler sets the operation handler for the update closeout office operation
@@ -731,6 +746,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.UploadsCreateUploadHandler == nil {
 		unregistered = append(unregistered, "uploads.CreateUploadHandler")
 	}
+	if o.MoveDeleteAssignedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "move.DeleteAssignedOfficeUserHandler")
+	}
 	if o.CustomerSupportRemarksDeleteCustomerSupportRemarkHandler == nil {
 		unregistered = append(unregistered, "customer_support_remarks.DeleteCustomerSupportRemarkHandler")
 	}
@@ -860,6 +878,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.QueuesListPrimeMovesHandler == nil {
 		unregistered = append(unregistered, "queues.ListPrimeMovesHandler")
 	}
+	if o.MoveMoveCancelerHandler == nil {
+		unregistered = append(unregistered, "move.MoveCancelerHandler")
+	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
 	}
@@ -904,6 +925,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.OrderUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.UpdateAllowanceHandler")
+	}
+	if o.MoveUpdateAssignedOfficeUserHandler == nil {
+		unregistered = append(unregistered, "move.UpdateAssignedOfficeUserHandler")
 	}
 	if o.OrderUpdateBillableWeightHandler == nil {
 		unregistered = append(unregistered, "order.UpdateBillableWeightHandler")
@@ -1130,6 +1154,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/uploads"] = uploads.NewCreateUpload(o.context, o.UploadsCreateUploadHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{moveID}/unassignOfficeUser"] = move.NewDeleteAssignedOfficeUser(o.context, o.MoveDeleteAssignedOfficeUserHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
@@ -1305,6 +1333,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
+	o.handlers["POST"]["/moves/{moveID}/cancel"] = move.NewMoveCanceler(o.context, o.MoveMoveCancelerHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
 	o.handlers["POST"]["/shipments/{shipmentID}/reject"] = shipment.NewRejectShipment(o.context, o.ShipmentRejectShipmentHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
@@ -1362,6 +1394,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/orders/{orderID}/allowances"] = order.NewUpdateAllowance(o.context, o.OrderUpdateAllowanceHandler)
+	if o.handlers["PATCH"] == nil {
+		o.handlers["PATCH"] = make(map[string]http.Handler)
+	}
+	o.handlers["PATCH"]["/moves/{moveID}/assignOfficeUser"] = move.NewUpdateAssignedOfficeUser(o.context, o.MoveUpdateAssignedOfficeUserHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}

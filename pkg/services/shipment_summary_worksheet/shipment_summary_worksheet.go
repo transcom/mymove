@@ -29,11 +29,14 @@ import (
 
 // SSWPPMComputer is the concrete struct implementing the services.shipmentsummaryworksheet interface
 type SSWPPMComputer struct {
+	services.PPMCloseoutFetcher
 }
 
 // NewSSWPPMComputer creates a SSWPPMComputer
-func NewSSWPPMComputer() services.SSWPPMComputer {
-	return &SSWPPMComputer{}
+func NewSSWPPMComputer(ppmCloseoutFetcher services.PPMCloseoutFetcher) services.SSWPPMComputer {
+	return &SSWPPMComputer{
+		ppmCloseoutFetcher,
+	}
 }
 
 // SSWPPMGenerator is the concrete struct implementing the services.shipmentsummaryworksheet interface
@@ -56,12 +59,12 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
-	page1, err := FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
+	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, services.Page2Values{}, errors.WithStack(err)
 	}
-	page2, err := FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
+	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, page2, errors.WithStack(err)
 	}
@@ -77,21 +80,6 @@ type textField struct {
 	Value     string `json:"value"`
 	Multiline bool   `json:"multiline"`
 	Locked    bool   `json:"locked"`
-}
-
-var newline = "\n\n"
-
-// WorkSheetShipment is an object representing specific shipment items on Shipment Summary Worksheet
-type WorkSheetShipment struct {
-	EstimatedIncentive          string
-	MaxAdvance                  string
-	FinalIncentive              string
-	AdvanceAmountReceived       string
-	ShipmentNumberAndTypes      string
-	PickUpDates                 string
-	ShipmentWeights             string
-	ShipmentWeightForObligation string
-	CurrentShipmentStatuses     string
 }
 
 // WorkSheetSIT is an object representing SIT on the Shipment Summary Worksheet
@@ -164,35 +152,36 @@ func (wa *SSWMaxWeightEntitlement) addLineItem(field string, value int) {
 
 // SSWGetEntitlement calculates the entitlement for the shipment summary worksheet based on the parameters of
 // a move (hasDependents, spouseHasProGear)
-func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) services.SSWMaxWeightEntitlement {
+func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool, spouseHasProGear bool) models.SSWMaxWeightEntitlement {
 	sswEntitlements := SSWMaxWeightEntitlement{}
 	entitlements := models.GetWeightAllotment(grade)
 	sswEntitlements.addLineItem("ProGear", entitlements.ProGearWeight)
 	sswEntitlements.addLineItem("SpouseProGear", entitlements.ProGearWeightSpouse)
 	if !hasDependents {
 		sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelf)
-		return services.SSWMaxWeightEntitlement(sswEntitlements)
+		return models.SSWMaxWeightEntitlement(sswEntitlements)
 	}
 	sswEntitlements.addLineItem("Entitlement", entitlements.TotalWeightSelfPlusDependents)
-	return services.SSWMaxWeightEntitlement(sswEntitlements)
+	return models.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
-// CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
-// a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
-
-	var hhgActualWeight unit.Pound
-
-	ppmActualWeight := models.GetTotalNetWeightForMove(move)
-
-	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
-	case ppmActualWeight < ppmRemainingEntitlement:
-		return ppmActualWeight, nil
-	case ppmRemainingEntitlement < 0:
-		return 0, nil
-	default:
-		return ppmRemainingEntitlement, nil
+// Calculates cost for the Remaining PPM Incentive (pre-tax) field on page 2 of SSW form.
+func CalculateRemainingPPMEntitlement(finalIncentive *unit.Cents, sitMemberPaid float64, sitGTCCPaid float64, aoa *unit.Cents) float64 {
+	// FinalIncentive
+	var finalIncentiveFloat float64 = 0
+	if finalIncentive != nil {
+		finalIncentiveFloat = float64(*finalIncentive) / 100.0
 	}
+
+	var aoaFloat float64 = 0
+	if aoa != nil {
+		aoaFloat = float64(*aoa) / 100.0
+	}
+
+	// This costing is computed by taking the Actual Obligations 100% GCC plus the
+	// SIT cost calculated (if SIT was approved and accepted) minus any Advance
+	// Operating Allowance (AOA) the customer identified as receiving in the Document upload process
+	return (finalIncentiveFloat + sitMemberPaid + sitGTCCPaid) - aoaFloat
 }
 
 const (
@@ -204,7 +193,7 @@ const (
 )
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 formats the data for page 1 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
+func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, error) {
 	var err error
 	page1 := services.Page1Values{}
 	page1.CUIBanner = controlledUnclassifiedInformationText
@@ -235,17 +224,17 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipment := FormatShipment(data.PPMShipment, isPaymentPacket)
+	formattedShipment := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
+
 	page1.ShipmentNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
-	formattedSIT := FormatAllSITS(data.PPMShipments)
-	page1.SITDaysInStorage = formattedSIT.DaysInStorage
-	page1.SITEntryDates = formattedSIT.EntryDates
-	page1.SITEndDates = formattedSIT.EndDates
-	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
+
+	formattedSIT := WorkSheetSIT{}
 	// Shipment weights for Payment Packet are actual, for AOA Packet are estimated.
 	if isPaymentPacket {
+		formattedSIT = FormatAllSITSForPaymentPacket(data.MovingExpenses)
+
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
 		page1.ShipmentWeights = finalPPMWeight
 		page1.ActualObligationGCC100 = finalPPMWeight + "; " + formattedShipment.FinalIncentive
@@ -254,38 +243,51 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 			return page1, err
 		}
 	} else {
+		formattedSIT = FormatAllSITSForAOAPacket(data.PPMShipment)
+
 		page1.ShipmentWeights = formattedShipment.ShipmentWeights
-		page1.ActualObligationGCC100 = formattedShipment.ShipmentWeightForObligation + " - Estimated lbs; " + formattedShipment.FinalIncentive
+		page1.ActualObligationGCC100 = formattedShipment.ShipmentWeightForObligation + " - Actual lbs; "
+
 		page1.PreparationDate1 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 	}
-	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.TotalWeight) + " lbs; " + formattedShipment.EstimatedIncentive
+
+	page1.SITDaysInStorage = formattedSIT.DaysInStorage
+	page1.SITEntryDates = formattedSIT.EntryDates
+	page1.SITEndDates = formattedSIT.EndDates
+	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
+
+	page1.MaxObligationGCC100 = FormatWeights(data.WeightAllotment.Entitlement) + " lbs; " + formattedShipment.EstimatedIncentive
 	page1.MaxObligationGCCMaxAdvance = formattedShipment.MaxAdvance
 	page1.ActualObligationAdvance = formattedShipment.AdvanceAmountReceived
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	page1.PPMRemainingEntitlement = FormatWeights(data.PPMRemainingEntitlement)
 	return page1, nil
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage2 formats the data for page 2 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
+func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page2Values, error) {
 	var err error
 	expensesMap := SubTotalExpenses(data.MovingExpenses)
-	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID)
-	formattedShipments := FormatShipment(data.PPMShipment, isPaymentPacket)
+	certificationInfo := formatSignedCertifications(data.SignedCertifications, data.PPMShipment.ID, isPaymentPacket)
+	formattedShipments := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
 
 	page2 := services.Page2Values{}
 	page2.CUIBanner = controlledUnclassifiedInformationText
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	if isPaymentPacket {
+		data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		page2.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 		page2.PreparationDate2, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
 			return page2, err
 		}
+		page2.Disbursement = formatDisbursement(expensesMap, data.PPMRemainingEntitlement)
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
+		page2.Disbursement = "N/A"
+		page2.PPMRemainingEntitlement = "N/A"
 	}
 	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
 	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
@@ -314,6 +316,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage2(data services.ShipmentSummary
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
+
 	return page2, nil
 }
 
@@ -378,7 +381,7 @@ func formatMaxAdvance(estimatedIncentive *unit.Cents) string {
 
 }
 
-func formatSignedCertifications(signedCertifications []*models.SignedCertification, ppmid uuid.UUID) Certifications {
+func formatSignedCertifications(signedCertifications []*models.SignedCertification, ppmid uuid.UUID, isPaymentPacket bool) Certifications {
 	certifications := Certifications{}
 	// Strings used to build return values
 	var customerSignature string
@@ -404,10 +407,15 @@ func formatSignedCertifications(signedCertifications []*models.SignedCertificati
 			}
 		}
 	}
-
 	certifications.CustomerField = customerSignature
-	certifications.OfficeField = "AOA: " + aoaSignature + "\nSSW: " + sswSignature
-	certifications.DateField = "AOA: " + aoaDate + "\nSSW: " + sswDate
+	certifications.OfficeField = "AOA: " + aoaSignature
+	certifications.DateField = "AOA: " + aoaDate
+
+	if isPaymentPacket {
+		certifications.OfficeField += "\nSSW: " + sswSignature
+		certifications.DateField += "\nSSW: " + sswDate
+	}
+
 	return certifications
 }
 
@@ -484,8 +492,8 @@ func FormatServiceMemberFullName(serviceMember models.ServiceMember) string {
 	return strings.TrimSpace(fmt.Sprintf("%s, %s %s", lastName, firstName, middleName))
 }
 
-func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipment {
-	formattedShipment := WorkSheetShipment{}
+func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement, isPaymentPacket bool) models.WorkSheetShipment {
+	formattedShipment := models.WorkSheetShipment{}
 
 	if ppm.FinalIncentive != nil {
 		formattedShipment.FinalIncentive = FormatDollarFromCents(*ppm.FinalIncentive)
@@ -509,7 +517,7 @@ func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipm
 	formattedShipmentWeights := FormatPPMWeightEstimated(ppm)
 	formattedShipmentStatuses := FormatCurrentPPMStatus(ppm)
 	if ppm.EstimatedWeight != nil {
-		formattedShipmentTotalWeights += *ppm.EstimatedWeight
+		formattedShipmentTotalWeights += s.calculateShipmentTotalWeight(ppm, weightAllotment)
 	}
 
 	formattedPickUpDates := FormatDate(ppm.ExpectedDepartureDate)
@@ -533,28 +541,60 @@ func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipm
 	return formattedShipment
 }
 
-// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet
-func FormatAllSITS(ppms models.PPMShipments) WorkSheetSIT {
-	totalSITS := len(ppms)
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet Payment Packet
+func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkSheetSIT {
 	formattedSIT := WorkSheetSIT{}
-	formattedSITNumberAndTypes := make([]string, totalSITS)
-	formattedSITEntryDates := make([]string, totalSITS)
-	formattedSITEndDates := make([]string, totalSITS)
-	formattedSITDaysInStorage := make([]string, totalSITS)
-	var sitNumber int
 
-	for _, ppm := range ppms {
-		// formattedSITNumberAndTypes[sitNumber] = FormatPPMNumberAndType(sitNumber)
-		formattedSITEntryDates[sitNumber] = FormatSITEntryDate(ppm)
-		formattedSITEndDates[sitNumber] = FormatSITEndDate(ppm)
-		formattedSITDaysInStorage[sitNumber] = FormatSITDaysInStorage(ppm)
-
-		sitNumber++
+	for _, expense := range expenseDocuments {
+		if *expense.MovingExpenseType == models.MovingExpenseReceiptTypeStorage {
+			formattedSIT.EntryDates = FormatSITDate(expense.SITStartDate)
+			formattedSIT.EndDates = FormatSITDate(expense.SubmittedSITEndDate)
+			formattedSIT.DaysInStorage = FormatSITDaysInStorage(expense.SITStartDate, expense.SubmittedSITEndDate)
+			return formattedSIT
+		}
 	}
-	formattedSIT.NumberAndTypes = strings.Join(formattedSITNumberAndTypes, newline)
-	formattedSIT.EntryDates = strings.Join(formattedSITEntryDates, newline)
-	formattedSIT.EndDates = strings.Join(formattedSITEndDates, newline)
-	formattedSIT.DaysInStorage = strings.Join(formattedSITDaysInStorage, newline)
+
+	return formattedSIT
+}
+
+func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement) unit.Pound {
+
+	var err error
+	var ppmActualWeight unit.Pound
+	var maxLimit unit.Pound
+
+	// Set maxLimit equal to the maximum weight entitlement or the allowable weight, whichever is lower
+	if weightAllotment.TotalWeight < weightAllotment.Entitlement {
+		maxLimit = weightAllotment.TotalWeight
+	} else {
+		maxLimit = weightAllotment.Entitlement
+	}
+
+	// Get the actual weight of the ppmShipment
+	if len(ppmShipment.WeightTickets) > 0 {
+		ppmActualWeight, err = s.PPMCloseoutFetcher.GetActualWeight(&ppmShipment)
+		if err != nil {
+			return 0
+		}
+	}
+
+	// If actual weight is less than the lessor of maximum weight entitlement or the allowable weight, then use ppmActualWeight
+	if ppmActualWeight < maxLimit {
+		return ppmActualWeight
+	} else {
+		return maxLimit
+	}
+}
+
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet AOA Packet
+func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
+	formattedSIT := WorkSheetSIT{}
+
+	if ppm.SITEstimatedEntryDate != nil && ppm.SITEstimatedDepartureDate != nil {
+		formattedSIT.EntryDates = FormatSITDate(ppm.SITEstimatedEntryDate)
+		formattedSIT.EndDates = FormatSITDate(ppm.SITEstimatedDepartureDate)
+		formattedSIT.DaysInStorage = FormatSITDaysInStorage(ppm.SITEstimatedEntryDate, ppm.SITEstimatedDepartureDate)
+	}
 
 	return formattedSIT
 }
@@ -574,6 +614,10 @@ func SubTotalExpenses(expenseDocuments models.MovingExpenses) map[string]float64
 		if expense.MovingExpenseType == nil || expense.Amount == nil {
 			continue
 		} // Added quick nil check to ensure SSW returns while moving expenses are being added still
+		var nilPPMDocumentStatus *models.PPMDocumentStatus
+		if expense.Status != nilPPMDocumentStatus && (*expense.Status == models.PPMDocumentStatusRejected || *expense.Status == models.PPMDocumentStatusExcluded) {
+			continue
+		}
 		expenseType, addToTotal := getExpenseType(expense)
 		expenseDollarAmt := expense.Amount.ToDollarFloatNoRound()
 
@@ -634,39 +678,48 @@ func FormatPPMWeightFinal(weight unit.Pound) string {
 	return fmt.Sprintf("%s lbs - Actual", wtg)
 }
 
-// FormatSITEntryDate formats a SIT EstimatedEntryDate for the Shipment Summary Worksheet
-func FormatSITEntryDate(ppm models.PPMShipment) string {
-	if ppm.SITEstimatedEntryDate == nil {
-		return "No Entry Data" // Return string if no SIT attached
+// FormatSITDate formats a SIT Date for the Shipment Summary Worksheet
+func FormatSITDate(sitDate *time.Time) string {
+	if sitDate == nil {
+		return "No SIT date" // Return string if no date found
 	}
-	return FormatDate(*ppm.SITEstimatedEntryDate)
-}
-
-// FormatSITEndDate formats a SIT EstimatedPickupDate for the Shipment Summary Worksheet
-func FormatSITEndDate(ppm models.PPMShipment) string {
-	if ppm.SITEstimatedDepartureDate == nil {
-		return "No Departure Data" // Return string if no SIT attached
-	}
-	return FormatDate(*ppm.SITEstimatedDepartureDate)
+	return FormatDate(*sitDate)
 }
 
 // FormatSITDaysInStorage formats a SIT DaysInStorage for the Shipment Summary Worksheet
-func FormatSITDaysInStorage(ppm models.PPMShipment) string {
-	if ppm.SITEstimatedEntryDate == nil || ppm.SITEstimatedDepartureDate == nil {
+func FormatSITDaysInStorage(entryDate *time.Time, departureDate *time.Time) string {
+	if entryDate == nil || departureDate == nil {
 		return "No Entry/Departure Data" // Return string if no SIT attached
 	}
-	firstDate := ppm.SITEstimatedDepartureDate
-	secondDate := *ppm.SITEstimatedEntryDate
+	firstDate := *departureDate
+	secondDate := *entryDate
 	difference := firstDate.Sub(secondDate)
 	formattedDifference := fmt.Sprintf("Days: %d\n", int64(difference.Hours()/24)+1)
 	return formattedDifference
 }
 
+func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement float64) string {
+	disbursementGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
+	disbursementGTCCB := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"]
+	// Disbursement GTCC is the lowest value of the above 2 calculations
+	if disbursementGTCCB < disbursementGTCC {
+		disbursementGTCC = disbursementGTCCB
+	}
+	// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
+	disbursementMember := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
+	if disbursementMember < 0 {
+		disbursementMember = 0
+	}
+	// Return formatted values in string
+	disbursementString := "GTCC: " + FormatDollars(disbursementGTCC) + "\nMember: " + FormatDollars(disbursementMember)
+	return disbursementString
+}
+
 // FormatOrdersTypeAndOrdersNumber formats OrdersTypeAndOrdersNumber for Shipment Summary Worksheet
 func FormatOrdersTypeAndOrdersNumber(order models.Order) string {
-	issuingBranch := FormatOrdersType(order)
+	orderType := FormatOrdersType(order)
 	ordersNumber := derefStringTypes(order.OrdersNumber)
-	return fmt.Sprintf("%s/%s", issuingBranch, ordersNumber)
+	return fmt.Sprintf("%s/%s", orderType, ordersNumber)
 }
 
 // FormatServiceMemberAffiliation formats ServiceMemberAffiliation in human friendly format
@@ -736,19 +789,19 @@ type ObligationType int
 
 // ComputeObligations is helper function for computing the obligations section of the shipment summary worksheet
 // Obligations must remain as static test data until new computer system is finished
-func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext, _ services.ShipmentSummaryFormData, _ route.Planner) (obligation services.Obligations, err error) {
+func (SSWPPMComputer *SSWPPMComputer) ComputeObligations(_ appcontext.AppContext, _ models.ShipmentSummaryFormData, _ route.Planner) (obligation models.Obligations, err error) {
 	// Obligations must remain test data until new computer system is finished
-	obligations := services.Obligations{
-		ActualObligation:           services.Obligation{Gcc: 123, SIT: 123, Miles: unit.Miles(123456)},
-		MaxObligation:              services.Obligation{Gcc: 456, SIT: 456, Miles: unit.Miles(123456)},
-		NonWinningActualObligation: services.Obligation{Gcc: 789, SIT: 789, Miles: unit.Miles(12345)},
-		NonWinningMaxObligation:    services.Obligation{Gcc: 1000, SIT: 1000, Miles: unit.Miles(12345)},
+	obligations := models.Obligations{
+		ActualObligation:           models.Obligation{Gcc: 123, SIT: 123, Miles: unit.Miles(123456)},
+		MaxObligation:              models.Obligation{Gcc: 456, SIT: 456, Miles: unit.Miles(123456)},
+		NonWinningActualObligation: models.Obligation{Gcc: 789, SIT: 789, Miles: unit.Miles(12345)},
+		NonWinningMaxObligation:    models.Obligation{Gcc: 1000, SIT: 1000, Miles: unit.Miles(12345)},
 	}
 	return obligations, nil
 }
 
 // FetchDataShipmentSummaryWorksheetFormData fetches the pages for the Shipment Summary Worksheet for a given Move ID
-func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
+func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, session *auth.Session, ppmShipmentID uuid.UUID) (*models.ShipmentSummaryFormData, error) {
 
 	ppmShipment := models.PPMShipment{}
 	dbQErr := appCtx.DB().Q().Eager(
@@ -777,23 +830,18 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
-	ppmRemainingEntitlement, err := CalculateRemainingPPMEntitlement(ppmShipment.Shipment.MoveTaskOrder, weightAllotment.TotalWeight)
-	if err != nil {
-		return nil, err
-	}
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
 	if err != nil {
 		return nil, err
 	}
 
-	serviceMember.Edipi, err = formatEmplid(serviceMember)
+	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
+	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return nil, err
 	}
-
-	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
-	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	serviceMember.Edipi, err = formatEmplid(serviceMember)
 	if err != nil {
 		return nil, err
 	}
@@ -804,7 +852,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	if ppmShipment.Shipment.MoveTaskOrder.Orders.OriginDutyLocation == nil {
 		return nil, errors.New("order for PPM shipment does not have a origin duty location attached")
 	}
-	ssd := services.ShipmentSummaryFormData{
+	ssd := models.ShipmentSummaryFormData{
 		ServiceMember:            serviceMember,
 		Order:                    ppmShipment.Shipment.MoveTaskOrder.Orders,
 		Move:                     ppmShipment.Shipment.MoveTaskOrder,
@@ -817,7 +865,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		W2Address:                ppmShipment.W2Address,
 		MovingExpenses:           ppmShipment.MovingExpenses,
 		SignedCertifications:     signedCertifications,
-		PPMRemainingEntitlement:  ppmRemainingEntitlement,
 		MaxSITStorageEntitlement: maxSit,
 	}
 	return &ssd, nil

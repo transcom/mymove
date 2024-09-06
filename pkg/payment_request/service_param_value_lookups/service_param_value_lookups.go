@@ -84,6 +84,7 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameDimensionWidth,
 	models.ServiceItemParamNameStandaloneCrate,
 	models.ServiceItemParamNameStandaloneCrateCap,
+	models.ServiceItemParamNameLockedPriceCents,
 }
 
 // ServiceParamLookupInitialize initializes service parameter lookup
@@ -133,7 +134,7 @@ func ServiceParamLookupInitialize(
 	var serviceItemDimensions models.MTOServiceItemDimensions
 
 	switch mtoServiceItem.ReService.Code {
-	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT, models.ReServiceCodeDCRTSA:
+	case models.ReServiceCodeDCRT, models.ReServiceCodeDUCRT:
 		err := appCtx.DB().Load(&mtoServiceItem, "Dimensions")
 		if err != nil {
 			return nil, err
@@ -193,7 +194,7 @@ func ServiceParamLookupInitialize(
 
 		pickupAddress, err = getPickupAddressForService(mtoServiceItem.ReService.Code, mtoShipment)
 		if err != nil {
-			return nil, fmt.Errorf("not found looking for pickup address")
+			return nil, fmt.Errorf("Not found looking for pickup address")
 		}
 
 		destinationAddress, err = getDestinationAddressForService(appCtx, mtoServiceItem.ReService.Code, mtoShipment)
@@ -422,6 +423,10 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	}
 
 	lookups[models.ServiceItemParamNameStandaloneCrateCap] = StandaloneCrateCapLookup{
+		ServiceItem: serviceItem,
+	}
+
+	lookups[models.ServiceItemParamNameLockedPriceCents] = LockedPriceCentsLookup{
 		ServiceItem: serviceItem,
 	}
 

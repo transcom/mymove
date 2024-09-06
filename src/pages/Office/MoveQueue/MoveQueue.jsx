@@ -10,13 +10,12 @@ import { getMovesQueue } from 'services/ghcApi';
 import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
 import SelectFilter from 'components/Table/Filters/SelectFilter';
-import { BRANCH_OPTIONS, MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS } from 'constants/queues';
+import { MOVE_STATUS_OPTIONS, GBLOC, MOVE_STATUS_LABELS, BRANCH_OPTIONS } from 'constants/queues';
 import TableQueue from 'components/Table/TableQueue';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
 import { DATE_FORMAT_STRING } from 'shared/constants';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
 import { roleTypes } from 'constants/userRoles';
 import SearchResultsTable from 'components/Table/SearchResultsTable';
@@ -24,6 +23,7 @@ import TabNav from 'components/TabNav';
 import { generalRoutes, tooRoutes } from 'constants/routes';
 import { isNullUndefinedOrWhitespace } from 'shared/utils';
 import NotFound from 'components/NotFound/NotFound';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 export const columns = (moveLockFlag, showBranchFilter = true) => [

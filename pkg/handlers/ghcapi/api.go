@@ -81,7 +81,9 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		moveRouter, signedCertificationCreator, signedCertificationUpdater,
 	)
 
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
@@ -101,6 +103,7 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 
 	transportationOfficeFetcher := transportationoffice.NewTransportationOfficesFetcher()
 	closeoutOfficeUpdater := move.NewCloseoutOfficeUpdater(move.NewMoveFetcher(), transportationOfficeFetcher)
+	assignedOfficeUserUpdater := move.NewAssignedOfficeUserUpdater(move.NewMoveFetcher())
 
 	shipmentSITStatus := sitstatus.NewShipmentSITStatus()
 
@@ -198,7 +201,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	)
 	paymentRequestShipmentRecalculator := paymentrequest.NewPaymentRequestShipmentRecalculator(paymentRequestRecalculator)
 	addressUpdater := address.NewAddressUpdater()
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
 	mobileHomeShipmentUpdater := mobileHomeShipment.NewMobileHomeShipmentUpdater()
@@ -569,8 +571,6 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		ppmDocumentsFetcher,
 	}
 
-	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
-
 	ghcAPI.PpmGetPPMCloseoutHandler = GetPPMCloseoutHandler{
 		handlerConfig,
 		ppmCloseoutFetcher,
@@ -667,8 +667,23 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewOrderUpdater(moveRouter),
 	}
 
+	ghcAPI.MoveMoveCancelerHandler = MoveCancelerHandler{
+		handlerConfig,
+		move.NewMoveCanceler(),
+	}
+
 	dateSelectionChecker := dateservice.NewDateSelectionChecker()
 	ghcAPI.CalendarIsDateWeekendHolidayHandler = IsDateWeekendHolidayHandler{handlerConfig, dateSelectionChecker}
+
+	ghcAPI.MoveUpdateAssignedOfficeUserHandler = UpdateAssignedOfficeUserHandler{
+		handlerConfig,
+		assignedOfficeUserUpdater,
+		officeusercreator.NewOfficeUserFetcherPop(),
+	}
+	ghcAPI.MoveDeleteAssignedOfficeUserHandler = DeleteAssignedOfficeUserHandler{
+		handlerConfig,
+		assignedOfficeUserUpdater,
+	}
 
 	return ghcAPI
 }

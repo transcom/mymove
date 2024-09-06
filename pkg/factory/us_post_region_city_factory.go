@@ -25,6 +25,7 @@ func BuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits [
 		UsprcPrfdLstLineCtystNm: "MacDill",
 		UsprcCountyNm:           "Hillsborough",
 		CtryGencDgphCd:          "US",
+		State:                   "FL",
 	}
 
 	testdatagen.MergeModels(&usPostRegionCity, cUsPostRegionCity)

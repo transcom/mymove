@@ -477,12 +477,11 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		var postUpdatedServiceItemShipment models.MTOShipment
 		suite.DB().Q().Find(&postUpdatedServiceItemShipment, shipment.ID)
 		suite.NotNil(postUpdatedServiceItemShipment)
-		// Verify the departure date is before the original shipment authorized end date
-		suite.True(updatedServiceItem.SITDepartureDate.Before(*shipmentWithCalculatedStatus.DestinationSITAuthEndDate))
+		// Verify the departure date is equal to the shipment SIT status departure date (Previously shipment SIT status would have an improper end date due to calc issues. This was fixed in B-20967)
+		suite.True(updatedServiceItem.SITDepartureDate.Equal(*shipmentWithCalculatedStatus.DestinationSITAuthEndDate))
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
-
 	})
 
 	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments
@@ -605,8 +604,8 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		var postUpdatedServiceItemShipment models.MTOShipment
 		suite.DB().Q().Find(&postUpdatedServiceItemShipment, shipment.ID)
 		suite.NotNil(postUpdatedServiceItemShipment)
-		// Verify the departure date is before the original shipment authorized end date
-		suite.True(updatedServiceItem.SITDepartureDate.Before(*shipmentWithCalculatedStatus.OriginSITAuthEndDate))
+		// Verify the departure date is equal to the shipment SIT status departure date (Previously shipment SIT status would have an improper end date due to calc issues. This was fixed in B-20967)
+		suite.True(updatedServiceItem.SITDepartureDate.Equal(*shipmentWithCalculatedStatus.OriginSITAuthEndDate))
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.OriginSITAuthEndDate.Truncate(24 * time.Hour)))
@@ -1239,6 +1238,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		newServiceItemPrime := oldServiceItemPrime
 		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
+
 		// Set shipment SIT status
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDOFSITServiceItemPrime)
 		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
@@ -1357,6 +1357,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NotNil(sitStatus)
 
 		// Update MTO service item
+		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
 
 		_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
@@ -2330,7 +2331,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	})
 
 	suite.Run("Returns a not found error if the updater can't find the MTO Shipment in the DB.", func() {
-		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
+		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		_, err := updater.ConvertItemToCustomerExpense(
 			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)

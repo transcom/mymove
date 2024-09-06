@@ -39,22 +39,13 @@ export const PAYMENT_REQUEST_STATUS_OPTIONS = [{ value: 'PENDING', label: 'Payme
 
 export const ROLE_TYPE_OPTIONS = {
   [roleTypes.SERVICES_COUNSELOR]: SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
-  [roleTypes.QAE]: MOVE_STATUS_OPTIONS,
   [roleTypes.CUSTOMER_SERVICE_REPRESENTATIVE]: MOVE_STATUS_OPTIONS,
+  [roleTypes.QAE]: MOVE_STATUS_OPTIONS,
   [roleTypes.TOO]: MOVE_STATUS_OPTIONS,
   [roleTypes.TIO]: PAYMENT_REQUEST_STATUS_OPTIONS,
 };
 
 export const BRANCH_OPTIONS = [
-  { value: '', label: 'All' },
-  { value: 'ARMY', label: 'Army' },
-  { value: 'NAVY', label: 'Navy' },
-  { value: 'AIR_FORCE', label: 'Air Force' },
-  { value: 'COAST_GUARD', label: 'Coast Guard' },
-  { value: 'SPACE_FORCE', label: 'Space Force' },
-];
-
-export const BRANCH_OPTIONS_WITH_MARINE_CORPS = [
   { value: '', label: 'All' },
   { value: 'ARMY', label: 'Army' },
   { value: 'NAVY', label: 'Navy' },

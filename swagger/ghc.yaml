@@ -41,6 +41,44 @@ tags:
   - name: uploads
   - name: paymentRequests
 paths:
+  /open/requested-office-users:
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      summary: Create an Office User
+      description: >
+        This endpoint is publicly accessible as it is utilized for individuals
+        who do not have an office account to request the creation of an office
+        account.
+
+        Request the creation of an office user. An administrator will need to
+        approve them after creation. Note on requirements: An identification
+        method must be present. The following 2 fields have an "OR" requirement.
+        - edipi - other_unique_id One of these two fields MUST be present to
+        serve as identification for the office user being created. This logic is
+        handled at the application level.
+      operationId: createRequestedOfficeUser
+      tags:
+        - officeUsers
+      parameters:
+        - in: body
+          name: officeUser
+          description: Office User information
+          schema:
+            $ref: '#/definitions/OfficeUserCreate'
+      responses:
+        '201':
+          description: successfully requested the creation of provided office user
+          schema:
+            $ref: '#/definitions/OfficeUser'
+        '422':
+          description: validation error
+          schema:
+            $ref: '#/definitions/ValidationError'
+        '500':
+          description: internal server error
   /customer:
     post:
       summary: Creates a customer with Okta option
@@ -82,44 +120,6 @@ paths:
           $ref: '#/responses/UnprocessableEntity'
         '500':
           $ref: '#/responses/ServerError'
-  /open/requested-office-users:
-    post:
-      consumes:
-        - application/json
-      produces:
-        - application/json
-      summary: Create an Office User
-      description: >
-        This endpoint is publicly accessible as it is utilized for individuals
-        who do not have an office account to request the creation of an office
-        account.
-
-        Request the creation of an office user. An administrator will need to
-        approve them after creation. Note on requirements: An identification
-        method must be present. The following 2 fields have an "OR" requirement.
-        - edipi - other_unique_id One of these two fields MUST be present to
-        serve as identification for the office user being created. This logic is
-        handled at the application level.
-      operationId: createRequestedOfficeUser
-      tags:
-        - officeUsers
-      parameters:
-        - in: body
-          name: officeUser
-          description: Office User information
-          schema:
-            $ref: '#/definitions/OfficeUserCreate'
-      responses:
-        '201':
-          description: successfully requested the creation of provided office user
-          schema:
-            $ref: '#/definitions/OfficeUser'
-        '422':
-          description: validation error
-          schema:
-            $ref: '#/definitions/ValidationError'
-        '500':
-          description: internal server error
   /customer/{customerID}:
     parameters:
       - description: ID of customer to use
@@ -406,6 +406,42 @@ paths:
         Returns counseling evaluation reports for the specified move that are
         visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  /moves/{moveID}/cancel:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -3321,6 +3357,7 @@ paths:
             - closeoutInitiated
             - closeoutLocation
             - ppmStatus
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3341,6 +3378,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -4229,6 +4270,74 @@ paths:
           $ref: '#/responses/NotFound'
         '500':
           $ref: '#/responses/ServerError'
+  /moves/{moveID}/assignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AssignOfficeUserBody'
+      responses:
+        '200':
+          description: Successfully assigned office user to the move
+          schema:
+            $ref: '#/definitions/Move'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        assigns either a services counselor, task ordering officer, or task
+        invoicing officer to the move
+      operationId: updateAssignedOfficeUser
+  /moves/{moveID}/unassignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+      - in: body
+        name: body
+        schema:
+          properties:
+            roleType:
+              type: string
+          required:
+            - roleType
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unassigned office user from the move
+          schema:
+            $ref: '#/definitions/Move'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: >-
+        unassigns either a services counselor, task ordering officer, or task
+        invoicing officer from the move
+      operationId: deleteAssignedOfficeUser
 definitions:
   ApplicationParameters:
     type: object
@@ -4773,6 +4882,7 @@ definitions:
         x-nullable: true
       dodID:
         type: string
+        example: 1234567890
         x-nullable: true
       emplid:
         type: string
@@ -5033,6 +5143,12 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: '#/definitions/Document'
+      SCAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TIOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
       id:
@@ -6088,6 +6204,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -6257,6 +6375,33 @@ definitions:
       isRoadworthy:
         type: boolean
         description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6495,8 +6640,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
-      mobileHome:
-        $ref: '#/definitions/MobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
@@ -6504,9 +6649,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: '#/definitions/MobileHome'
   CreatePPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -6631,6 +6773,34 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
@@ -6861,6 +7031,12 @@ definitions:
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
         x-nullable: true
+      counselingOffice:
+        type: string
+        x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -7051,12 +7227,12 @@ definitions:
         title: ZIP
         example: '90210'
         pattern: ^(\d{5})$
+      orderType:
+        type: string
       requestedPickupDate:
         type: string
         format: date
         x-nullable: true
-      orderType:
-        type: string
       requestedDeliveryDate:
         type: string
         format: date
@@ -7466,29 +7642,28 @@ definitions:
       - date
       - is_weekend
       - is_holiday
-  Affiliation:
-    type: string
-    x-nullable: true
-    title: Branch of service
-    description: Military branch of service
-    enum:
-      - ARMY
-      - NAVY
-      - MARINES
-      - AIR_FORCE
-      - COAST_GUARD
-      - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
-      - OTHER
-    x-display-value:
-      ARMY: Army
-      NAVY: Navy
-      MARINES: Marine Corps
-      AIR_FORCE: Air Force
-      COAST_GUARD: Coast Guard
-      SPACE_FORCE: Space Force
-      OTHER: OTHER
+  AssignOfficeUserBody:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+      roleType:
+        type: string
+    required:
+      - officeUserId
+      - roleType
+  AssignedOfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      firstName:
+        type: string
+      lastName:
+        type: string
   Address:
     description: A postal address
     type: object
@@ -7690,6 +7865,29 @@ definitions:
       - address
       - created_at
       - updated_at
+  Affiliation:
+    type: string
+    x-nullable: true
+    title: Branch of service
+    description: Military branch of service
+    enum:
+      - ARMY
+      - NAVY
+      - MARINES
+      - AIR_FORCE
+      - COAST_GUARD
+      - SPACE_FORCE
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OTHER
+    x-display-value:
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marine Corps
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
+      SPACE_FORCE: Space Force
+      OTHER: OTHER
   DutyLocation:
     type: object
     properties:
@@ -8175,55 +8373,6 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  MobileHome:
-    description: >-
-      A mobile home is a type of shipment that a service member moves a mobile
-      home.
-    x-nullable: true
-    properties:
-      id:
-        description: Primary auto-generated unique identifier of the Mobile Home object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      shipmentId:
-        description: The id of the parent MTOShipment object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      make:
-        description: The make of the mobile home
-        type: string
-      model:
-        description: The model of the mobile home.
-        type: string
-      year:
-        description: The year the mobile home was made.
-        type: integer
-      lengthInInches:
-        type: integer
-      widthInInches:
-        type: integer
-      heightInInches:
-        type: integer
-      updatedAt:
-        description: Timestamp of when a property of this object was last updated (UTC)
-        format: date-time
-        type: string
-        readOnly: true
-      createdAt:
-        description: Timestamp of when a property of this object was created (UTC)
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        description: >-
-          A hash unique to this shipment that should be used as the "If-Match"
-          header for any updates.
-        type: string
-        readOnly: true
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -8351,6 +8500,64 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/SITExtension'
+  SITSummary:
+    properties:
+      firstDaySITServiceItemID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        enum:
+          - ORIGIN
+          - DESTINATION
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitAuthorizedEndDate:
+        type: string
+        format: date-time
+      sitCustomerContacted:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date-time
+        x-nullable: true
+  SITServiceItemGrouping:
+    properties:
+      summary:
+        $ref: '#/definitions/SITSummary'
+        description: >
+          Holds the top level summary of a Service Item Grouping, detailing the
+          ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT),
+          the location (ORIGIN/DESTINATION), how many days the provided instance
+          of SIT has been in storage, SIT entry date, departure date, authorized
+          end date, customer contacted date, requested delivery date.
+
+          This is provided at a top level because due to our service item
+          architecture, SIT information is sometimes split across multiple
+          service items, and this summary is a compilation of said information.
+          This prevents the need to loop over many service items.
+      serviceItems:
+        $ref: '#/definitions/MTOServiceItems'
+  SITServiceItemGroupings:
+    description: >
+      Holds groupings of SIT service items and their summaries, detailing the
+      summary ServiceItemID of the first day SIT service item (Eg, DOFSIT,
+      DOASIT), the location (ORIGIN/DESTINATION), how many days the provided
+      instance of SIT has been in storage, SIT entry date, departure date,
+      authorized end date, customer contacted date, requested delivery date.
+    type: array
+    items:
+      $ref: '#/definitions/SITServiceItemGrouping'
   SITStatus:
     properties:
       totalSITDaysUsed:
@@ -8396,8 +8603,13 @@ definitions:
             type: string
             format: date
             x-nullable: true
-      pastSITServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
+      pastSITServiceItemGroupings:
+        $ref: '#/definitions/SITServiceItemGroupings'
+        description: >
+          A list of past SIT service item groupings. These will contain the
+          given SIT service items for an instance of SIT (Either Origin or
+          Destination), grouped by the date they went into SIT and service items
+          limited explicitly to SIT related Re Service Codes.
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -8416,6 +8628,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
@@ -9367,6 +9580,55 @@ definitions:
       - heightInInches
       - hasTrailer
       - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -10122,6 +10384,7 @@ definitions:
       - StandaloneCrate
       - StandaloneCrateCap
       - UncappedRequestTotal
+      - LockedPriceCents
   ServiceItemParamType:
     type: string
     enum:

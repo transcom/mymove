@@ -72,8 +72,8 @@ type PPMSITEstimatedCostInfo struct {
 type PPMShipmentStatus string
 
 const (
-	// PPMShipmentStatusCancelled captures enum value "DRAFT"
-	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELLED"
+	// PPMShipmentStatusCanceled captures enum value "CANCELED"
+	PPMShipmentStatusCanceled PPMShipmentStatus = "CANCELED"
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
@@ -93,7 +93,7 @@ const (
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
 // validation.
 var AllowedPPMShipmentStatuses = []string{
-	string(PPMShipmentStatusCancelled),
+	string(PPMShipmentStatusCanceled),
 	string(PPMShipmentStatusDraft),
 	string(PPMShipmentStatusSubmitted),
 	string(PPMShipmentStatusWaitingOnCustomer),
@@ -244,7 +244,7 @@ func (p PPMShipment) TableName() string {
 
 // Cancel marks the PPM as Canceled
 func (p *PPMShipment) CancelShipment() error {
-	p.Status = PPMShipmentStatusCancelled
+	p.Status = PPMShipmentStatusCanceled
 	return nil
 }
 
@@ -289,17 +289,6 @@ func (p PPMShipment) Validate(_ *pop.Connection) (*validate.Errors, error) {
 	), nil
 
 }
-func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
-	totalNetWeight := unit.Pound(0)
-	for _, weightTicket := range ppm.WeightTickets {
-		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
-			totalNetWeight += *weightTicket.AdjustedNetWeight
-		} else {
-			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
-		}
-	}
-	return totalNetWeight
-}
 
 // FetchPPMShipmentByPPMShipmentID returns a PPM Shipment for a given id
 func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID) (*PPMShipment, error) {
@@ -313,4 +302,15 @@ func FetchPPMShipmentByPPMShipmentID(db *pop.Connection, ppmShipmentID uuid.UUID
 		return nil, err
 	}
 	return &ppmShipment, nil
+}
+func GetPPMNetWeight(ppm PPMShipment) unit.Pound {
+	totalNetWeight := unit.Pound(0)
+	for _, weightTicket := range ppm.WeightTickets {
+		if weightTicket.AdjustedNetWeight != nil && *weightTicket.AdjustedNetWeight > 0 {
+			totalNetWeight += *weightTicket.AdjustedNetWeight
+		} else {
+			totalNetWeight += GetWeightTicketNetWeight(weightTicket)
+		}
+	}
+	return totalNetWeight
 }

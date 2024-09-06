@@ -13,7 +13,6 @@ import styles from './ShipmentSITDisplay.module.scss';
 import { sitExtensionReasons, SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { formatDateFromIso, formatDate } from 'utils/formatters';
 import { formatDateForDatePicker, swaggerDateFormat } from 'shared/dates';
-import { SERVICE_ITEM_CODES } from 'constants/serviceItems';
 import { ShipmentShape } from 'types/shipment';
 import { SitStatusShape, LOCATION_TYPES } from 'types/sitStatusShape';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
@@ -72,11 +71,25 @@ const SitHistoryList = ({ sitHistory, dayAllowance }) => {
 
 const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, openConvertModalButton }) => {
   const [isConvertedToCustomerExpense, setIsConvertedToCustomerExpense] = useState(false);
+  // Descending sort of past SIT service item groups by SIT Departure Date
+  const sortedPastSITGroups = sitStatus.pastSITServiceItemGroupings?.sort(
+    (a, b) => new Date(b.summary.sitDepartureDate) - new Date(a.summary.sitDepartureDate),
+  );
+
+  // Get the most recent past SIT group if Current SIT doesn't exist
+  // This allows the support of the following PO requirement:
+  // - "If a new SIT hasn't replaced the old one, then the old SIT's departure date, requested delivery date, and contact date should still show on the dashboard"
+  // TODO: Eventually refactor this out when we receive the feature request to list multiple SITs at the same time
+  const mostRecentPastSITGroup = sortedPastSITGroups?.[0];
 
   const pendingSITExtension = sitExtensions.find((se) => se.status === SIT_EXTENSION_STATUS.PENDING);
   const currentDaysInSIT = sitStatus.currentSIT?.daysInSIT || 0;
-  const sitDepartureDate =
-    formatDate(sitStatus.currentSIT?.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+
+  const sitDepartureDate = sitStatus.currentSIT
+    ? formatDate(sitStatus.currentSIT.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE
+    : formatDate(mostRecentPastSITGroup?.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY') ||
+      DEFAULT_EMPTY_VALUE;
+
   const currentDaysInSITElement = <p>{currentDaysInSIT}</p>;
   let sitEntryDate = sitStatus.currentSIT?.sitEntryDate;
   if (!sitEntryDate) {
@@ -92,20 +105,21 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
   sitEntryDate = moment(sitEntryDate, swaggerDateFormat);
   const sitStartDateElement = <p>{formatDate(sitEntryDate, swaggerDateFormat, 'DD MMM YYYY')}</p>;
   const sitEndDate =
-    formatDateForDatePicker(
-      moment(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat).subtract(1, 'days'),
-    ) || '\u2014';
+    formatDateForDatePicker(moment(sitStatus.currentSIT?.sitAuthorizedEndDate, swaggerDateFormat)) || '\u2014';
 
   // Previous SIT calculations and date ranges
-  const previousDaysUsed = sitStatus.pastSITServiceItems?.map((pastSITItem) => {
-    const sitDaysUsed = moment(pastSITItem.sitDepartureDate).diff(pastSITItem.sitEntryDate, 'days');
-    const location = pastSITItem.reServiceCode === SERVICE_ITEM_CODES.DOFSIT ? 'origin' : 'destination';
+  const previousDaysUsed = sitStatus.pastSITServiceItemGroupings?.map((sitGroup) => {
+    // Build the past SIT text based off the past sit group summary rather than individual service items
+    // The server provides sitDaysUsed
+    const sitDaysUsed = sitGroup.summary.daysInSIT || DEFAULT_EMPTY_VALUE;
+    const location = sitGroup.summary.location === LOCATION_TYPES.ORIGIN ? 'origin' : 'destination';
 
-    const start = formatDate(pastSITItem.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
-    const end = formatDate(pastSITItem.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
+    // Display the dates the server used to calculate sitDaysUsed
+    const start = formatDate(sitGroup.summary.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
+    const end = formatDate(sitGroup.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
     const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
 
-    return <p key={pastSITItem.id}>{text}</p>;
+    return <p key={sitGroup.summary.firstDaySITServiceItemID}>{text}</p>;
   });
 
   // Currently active SIT
@@ -122,11 +136,15 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
 
   const showConvertToCustomerExpense = daysRemaining <= 30;
 
-  // Customer delivery request
-  const customerContactDate =
-    formatDate(sitStatus?.currentSIT?.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
-  const sitRequestedDelivery =
-    formatDate(sitStatus?.currentSIT?.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE;
+  const customerContactDate = sitStatus.currentSIT
+    ? formatDate(sitStatus.currentSIT.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE
+    : formatDate(mostRecentPastSITGroup?.summary.sitCustomerContacted, swaggerDateFormat, 'DD MMM YYYY') ||
+      DEFAULT_EMPTY_VALUE;
+
+  const sitRequestedDelivery = sitStatus.currentSIT
+    ? formatDate(sitStatus.currentSIT.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') || DEFAULT_EMPTY_VALUE
+    : formatDate(mostRecentPastSITGroup?.summary.sitRequestedDelivery, swaggerDateFormat, 'DD MMM YYYY') ||
+      DEFAULT_EMPTY_VALUE;
 
   useEffect(() => {
     if (shipment.mtoServiceItems) {
@@ -161,30 +179,46 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
       {sitStatus.currentSIT && (
         <>
           <div className={styles.tableContainer} data-testid="sitStartAndEndTable">
-            {/* Sit Start and End table */}
+            {/* Sit Start and End table with total days at current location */}
             {currentDaysInSIT > 0 && <p className={styles.sitHeader}>Current location: {currentLocation}</p>}
             <DataTable
-              columnHeaders={[`SIT start date`, 'SIT authorized end date', 'Calculated total SIT days']}
-              dataRow={[sitStartDateElement, sitEndDate, sitStatus.calculatedTotalDaysInSIT]}
+              columnHeaders={[`SIT start date`, 'SIT authorized end date', `Total days in ${currentLocation}`]}
+              dataRow={[sitStartDateElement, sitEndDate, currentDaysInSITElement]}
               custClass={styles.currentLocation}
             />
           </div>
-          <div className={styles.tableContainer} data-testid="sitDaysAtCurrentLocation">
-            {/* Total days at current location */}
+          <div className={styles.tableContainer} data-testid="currentSitDepartureDate">
+            {/* Current SIT departure date */}
             <DataTable
-              testID="currentSITDateData"
-              columnHeaders={[`Total days in ${currentLocation}`, `SIT departure date`]}
-              dataRow={[currentDaysInSITElement, sitDepartureDate]}
+              testID="currentSITDepartureDate"
+              columnHeaders={[`SIT departure date`]}
+              dataRow={[sitDepartureDate]}
             />
           </div>
         </>
       )}
 
-      {/* Service Items */}
-      {sitStatus.pastSITServiceItems && (
-        <div className={styles.tableContainer}>
-          <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
-        </div>
+      {/* Past SIT Service Items Info Section */}
+      {sitStatus.pastSITServiceItemGroupings && (
+        <>
+          <div className={styles.tableContainer} data-testid="previouslyUsedSitTable">
+            <DataTable columnHeaders={['Previously used SIT']} dataRow={[previousDaysUsed]} />
+          </div>
+          {!sitStatus.currentSIT && (
+            <div className={styles.tableContainer} data-testid="pastSitDepartureDateTable">
+              {/*
+              SIT departure date row for if there is no current SIT.
+              The customer wants the most recent SIT departure date to show as an independent entry
+              similar to how Current SIT works.
+              */}
+              <DataTable
+                testID="currentSITDateData"
+                columnHeaders={[`SIT departure date`]}
+                dataRow={[sitDepartureDate]}
+              />
+            </div>
+          )}
+        </>
       )}
       <div className={styles.tableContainer}>
         <p className={styles.sitHeader}>Customer delivery request</p>

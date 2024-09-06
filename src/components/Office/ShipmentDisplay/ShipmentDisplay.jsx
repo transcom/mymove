@@ -112,7 +112,6 @@ const ShipmentDisplay = ({
               <h5>#{displayInfo.shipmentLocator}</h5>
             </div>
           </div>
-
           <FontAwesomeIcon className={styles.icon} icon={expandableIconClasses} onClick={handleExpandClick} />
         </div>
         <ShipmentInfoListSelector

@@ -89,6 +89,32 @@ func (_m *ShipmentSITStatus) CalculateShipmentsSITStatuses(appCtx appcontext.App
 	return r0
 }
 
+// RetrieveShipmentSIT provides a mock function with given fields: appCtx, shipment
+func (_m *ShipmentSITStatus) RetrieveShipmentSIT(appCtx appcontext.AppContext, shipment models.MTOShipment) (models.SITServiceItemGroupings, error) {
+	ret := _m.Called(appCtx, shipment)
+
+	var r0 models.SITServiceItemGroupings
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) (models.SITServiceItemGroupings, error)); ok {
+		return rf(appCtx, shipment)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOShipment) models.SITServiceItemGroupings); ok {
+		r0 = rf(appCtx, shipment)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.SITServiceItemGroupings)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, models.MTOShipment) error); ok {
+		r1 = rf(appCtx, shipment)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewShipmentSITStatus creates a new instance of ShipmentSITStatus. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewShipmentSITStatus(t interface {

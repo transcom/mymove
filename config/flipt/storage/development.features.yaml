@@ -9,6 +9,14 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: gsr_role
+  name: Government Surveillance Representative Role feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: false
+  rollouts:
+  - segment:
+      key: mil-app
+      value: false
 - key: safety_move
   name: Safety Move feature flag
   type: BOOLEAN_FLAG_TYPE
@@ -43,6 +51,22 @@ flags:
       value: false
 - key: cac_validated_login
   name: CAC validated feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: move_lock
+  name: Move lock feature flag
   type: BOOLEAN_FLAG_TYPE
   enabled: true
   rollouts:

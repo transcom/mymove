@@ -156,6 +156,7 @@ func Entitlement(entitlement *models.Entitlement) *primev3messages.Entitlements 
 		ID:                             strfmt.UUID(entitlement.ID.String()),
 		AuthorizedWeight:               authorizedWeight,
 		DependentsAuthorized:           entitlement.DependentsAuthorized,
+		GunSafe:                        entitlement.GunSafe,
 		NonTemporaryStorage:            entitlement.NonTemporaryStorage,
 		PrivatelyOwnedVehicle:          entitlement.PrivatelyOwnedVehicle,
 		ProGearWeight:                  int64(entitlement.ProGearWeight),
@@ -199,6 +200,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		County:         &address.County,
 	}
 }
 
