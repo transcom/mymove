@@ -229,8 +229,9 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.OrdersIssueDate = FormatDate(data.Order.IssueDate)
 	page1.OrdersTypeAndOrdersNumber = FormatOrdersTypeAndOrdersNumber(data.Order)
 
-	page1.AuthorizedOrigin = FormatLocation(data.CurrentDutyLocation)
+	page1.AuthorizedOrigin = data.CurrentDutyLocation.Name
 	page1.AuthorizedDestination = data.NewDutyLocation.Name
+
 	page1.NewDutyAssignment = data.NewDutyLocation.Name
 
 	page1.WeightAllotment = FormatWeights(data.WeightAllotment.Entitlement)
@@ -243,10 +244,10 @@ func FormatValuesShipmentSummaryWorksheetFormPage1(data services.ShipmentSummary
 	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
 	formattedSIT := FormatAllSITS(data.PPMShipments)
-	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	page1.SITDaysInStorage = formattedSIT.DaysInStorage
 	page1.SITEntryDates = formattedSIT.EntryDates
 	page1.SITEndDates = formattedSIT.EndDates
+	page1.SITNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	// Shipment weights for Payment Packet are actual, for AOA Packet are estimated.
 	if isPaymentPacket {
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
@@ -578,11 +579,6 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 		}
 	}
 	return "", errors.New("Payment Packet is not certified")
-}
-
-// FormatLocation formats AuthorizedOrigin and AuthorizedDestination for Shipment Summary Worksheet
-func FormatLocation(dutyLocation models.DutyLocation) string {
-	return fmt.Sprintf("%s, %s %s", dutyLocation.Name, dutyLocation.Address.State, dutyLocation.Address.PostalCode)
 }
 
 // FormatAddress retrieves a PPMShipment W2Address and formats it for the SSW Document
