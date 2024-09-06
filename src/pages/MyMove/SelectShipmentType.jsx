@@ -8,10 +8,9 @@ import { generatePath } from 'react-router-dom';
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
 
+import ConnectedBoatAndMobileInfoModal from 'components/Customer/modals/BoatAndMobileInfoModal/BoatAndMobileInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
-import ConnectedBoatInfoModal from 'components/Customer/modals/BoatInfoModal/BoatInfoModal';
-import ConnectedMobileHomeInfoModal from 'components/Customer/modals/MobileHomeInfoModal/MobileHomeInfoModal';
 import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -34,7 +33,7 @@ export class SelectShipmentType extends Component {
     this.state = {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
-      showBoatInfoModal: false,
+      showBoatAndMobileInfoModal: false,
       showMobileHomeInfoModal: false,
       errorMessage: null,
       enablePPM: false,
@@ -91,9 +90,9 @@ export class SelectShipmentType extends Component {
     }));
   };
 
-  toggleBoatInfoModal = () => {
+  toggleBoatAndMobileInfoModal = () => {
     this.setState((state) => ({
-      showBoatInfoModal: !state.showBoatInfoModal,
+      showBoatAndMobileInfoModal: !state.showBoatAndMobileInfoModal,
     }));
   };
 
@@ -124,8 +123,7 @@ export class SelectShipmentType extends Component {
       shipmentType,
       showStorageInfoModal,
       showMoveInfoModal,
-      showBoatInfoModal,
-      showMobileHomeInfoModal,
+      showBoatAndMobileInfoModal,
       enablePPM,
       enableNTS,
       enableNTSR,
@@ -280,7 +278,7 @@ export class SelectShipmentType extends Component {
                     cardText={boatCardText}
                     checked={shipmentType === SHIPMENT_OPTIONS.BOAT && shipmentInfo.isBoatSelectable}
                     disabled={!shipmentInfo.isBoatSelectable}
-                    onHelpClick={this.toggleBoatInfoModal}
+                    onHelpClick={this.toggleBoatAndMobileInfoModal}
                   />
                 </>
               )}
@@ -327,15 +325,10 @@ export class SelectShipmentType extends Component {
           enableNTSR={enableNTSR}
           closeModal={this.toggleStorageModal}
         />
-        <ConnectedBoatInfoModal
-          isOpen={showBoatInfoModal}
+        <ConnectedBoatAndMobileInfoModal
+          isOpen={showBoatAndMobileInfoModal}
           enablePPM={enableBoat}
-          closeModal={this.toggleBoatInfoModal}
-        />
-        <ConnectedMobileHomeInfoModal
-          isOpen={showMobileHomeInfoModal}
-          enableMobileHome={enableMobileHome}
-          closeModal={this.toggleMobileHomeInfoModal}
+          closeModal={this.toggleBoatAndMobileInfoModal}
         />
       </>
     );
