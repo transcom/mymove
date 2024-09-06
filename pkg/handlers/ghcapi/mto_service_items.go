@@ -392,9 +392,9 @@ func (h ListMTOServiceItemsHandler) Handle(params mtoserviceitemop.ListMTOServic
 					var displayParams services.PricingDisplayParams
 					var err error
 					if serviceItems[index].ReService.Code == "CS" {
-						price, displayParams, err = h.counselingPricer.Price(appCtx, *serviceItems[index].LockedPriceCents)
+						price, displayParams, err = h.counselingPricer.Price(appCtx, serviceItems[index].LockedPriceCents)
 					} else if serviceItems[index].ReService.Code == "MS" {
-						price, displayParams, err = h.moveManagementPricer.Price(appCtx, *serviceItems[index].LockedPriceCents)
+						price, displayParams, err = h.moveManagementPricer.Price(appCtx, serviceItems[index].LockedPriceCents)
 					}
 
 					for _, param := range displayParams {

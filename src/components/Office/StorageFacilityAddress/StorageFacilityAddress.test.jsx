@@ -34,7 +34,7 @@ describe('components/Office/StorageFacilityAddress', () => {
       </Formik>,
     );
 
-    expect(screen.getByLabelText('Address 1')).toHaveValue('3373 NW Martin Luther King Blvd');
+    expect(screen.getByLabelText(/Address 1/)).toHaveValue('3373 NW Martin Luther King Blvd');
     expect(screen.getByLabelText('State')).toHaveValue('TX');
     expect(screen.getByLabelText(/Lot number/)).toHaveValue('42');
   });

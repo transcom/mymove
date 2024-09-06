@@ -27,11 +27,14 @@ import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import { elevatedPrivilegeTypes } from 'constants/userPrivileges';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
+import { generateUniqueDodid, generateUniqueEmplid } from 'utils/customer';
+import Hint from 'components/Hint';
 
 export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const [serverError, setServerError] = useState(null);
   const [showEmplid, setShowEmplid] = useState(false);
   const [isSafetyMove, setIsSafetyMove] = useState(false);
+  const [showSafetyMoveHint, setShowSafetyMoveHint] = useState(false);
   const navigate = useNavigate();
 
   const branchOptions = dropdownInputOptions(SERVICE_MEMBER_AGENCY_LABELS);
@@ -41,7 +44,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupContactName = 'backup_contact';
 
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
-  const [secondaryTelephoneNum, setSecondaryTelephoneNum] = useState('');
+
+  const uniqueDodid = generateUniqueDodid();
+  const uniqueEmplid = generateUniqueEmplid();
 
   useEffect(() => {
     isBooleanFlagEnabled('safety_move')?.then((enabled) => {
@@ -56,6 +61,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const initialValues = {
     affiliation: '',
     edipi: '',
+    emplid: '',
     first_name: '',
     middle_name: '',
     last_name: '',
@@ -88,7 +94,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
     },
     create_okta_account: '',
     cac_user: '',
-    is_safety_move: false,
+    is_safety_move: 'false',
   };
 
   const handleBack = () => {
@@ -145,10 +151,8 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string().matches(/[0-9]{10}/, 'Enter a 10-digit DOD ID number'),
-    emplid: Yup.string()
-      .notRequired()
-      .matches(/[0-9]{7}/, 'Enter a 7-digit EMPLID number'),
+    edipi: Yup.string().matches(/^(SM[0-9]{8}|[0-9]{10})$/, 'Enter a 10-digit DOD ID number'),
+    emplid: Yup.string().matches(/^(SM[0-9]{5}|[0-9]{7})$/, 'Enter a 7-digit EMPLID number'),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
@@ -190,25 +194,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
             {({ isValid, handleSubmit, setValues, values, handleChange }) => {
-              const handleSubmitNext = () => {
-                setValues({
-                  ...values,
-                  secondary_telephone: secondaryTelephoneNum,
-                });
-                handleSubmit();
-              };
-              const handlePhoneNumChange = (value) => {
-                setSecondaryTelephoneNum(value);
-              };
               const handleIsSafetyMove = (e) => {
                 const { value } = e.target;
                 if (value === 'true') {
                   setIsSafetyMove(true);
-                  // clear out DoDID, emplid, and OKTA fields
+                  setShowSafetyMoveHint(true);
                   setValues({
                     ...values,
-                    edipi: '',
-                    emplid: '',
+                    affiliation: '',
                     create_okta_account: '',
                     cac_user: 'true',
                     is_safety_move: 'true',
@@ -217,15 +210,47 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                   setIsSafetyMove(false);
                   setValues({
                     ...values,
+                    affiliation: '',
+                    edipi: '',
+                    emplid: '',
                     is_safety_move: 'false',
                   });
                 }
               };
               const handleBranchChange = (e) => {
-                if (e.target.value === departmentIndicators.COAST_GUARD) {
+                setShowSafetyMoveHint(false);
+                if (e.target.value === departmentIndicators.COAST_GUARD && isSafetyMove) {
                   setShowEmplid(true);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: uniqueDodid,
+                    emplid: uniqueEmplid,
+                  });
+                } else if (e.target.value === departmentIndicators.COAST_GUARD && !isSafetyMove) {
+                  setShowEmplid(true);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: '',
+                    emplid: '',
+                  });
+                } else if (e.target.value !== departmentIndicators.COAST_GUARD && isSafetyMove) {
+                  setShowEmplid(false);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: uniqueDodid,
+                    emplid: '',
+                  });
                 } else {
                   setShowEmplid(false);
+                  setValues({
+                    ...values,
+                    affiliation: e.target.value,
+                    edipi: '',
+                    emplid: '',
+                  });
                 }
               };
               return (
@@ -245,6 +270,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             value="true"
                             data-testid="is-safety-move-yes"
                             onChange={handleIsSafetyMove}
+                            checked={values.is_safety_move === 'true'}
                           />
                           <Field
                             as={Radio}
@@ -254,6 +280,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                             value="false"
                             data-testid="is-safety-move-no"
                             onChange={handleIsSafetyMove}
+                            checked={values.is_safety_move === 'false'}
                           />
                         </div>
                       </Fieldset>
@@ -273,9 +300,9 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       label="DoD ID number"
                       name="edipi"
                       id="edipi"
-                      optional
                       maxLength="10"
                       isDisabled={isSafetyMove}
+                      data-testid="edipiInput"
                     />
                     {showEmplid && (
                       <TextField
@@ -283,19 +310,24 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                         name="emplid"
                         id="emplid"
                         maxLength="7"
-                        optional
                         inputMode="numeric"
                         pattern="[0-9]{7}"
                         isDisabled={isSafetyMove}
+                        data-testid="emplidInput"
                       />
+                    )}
+                    {isSafetyMove && showSafetyMoveHint && (
+                      <Hint data-testid="safetyMoveHint">
+                        Once a branch is selected, this will generate a random safety move identifier
+                      </Hint>
                     )}
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Customer Name</h3>
                     <TextField label="First name" name="first_name" id="firstName" required />
-                    <TextField label="Middle name" name="middle_name" id="middleName" optional />
+                    <TextField label="Middle name" name="middle_name" id="middleName" labelHint="Optional" />
                     <TextField label="Last name" name="last_name" id="lastName" required />
-                    <TextField label="Suffix" name="suffix" id="suffix" optional />
+                    <TextField label="Suffix" name="suffix" id="suffix" labelHint="Optional" />
                   </SectionWrapper>
                   <SectionWrapper className={formStyles.formSection}>
                     <h3>Contact Info</h3>
@@ -310,13 +342,12 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <MaskedTextField
                       label="Alt. phone"
-                      optional
+                      labelHint="Optional"
                       id="altTelephone"
                       name="secondary_telephone"
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
-                      onChange={handlePhoneNumChange}
                     />
                     <TextField label="Personal email" id="personalEmail" name="personal_email" required />
                     <Label>Preferred contact method (optional)</Label>
@@ -335,14 +366,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <TextField
                       label="Address 2"
-                      optional
+                      labelHint="Optional"
                       id="mailingAddress2"
                       name="residential_address.streetAddress2"
                       data-testid="res-add-street2"
                     />
                     <TextField
                       label="Address 3"
-                      optional
+                      labelHint="Optional"
                       id="mailingAddress3"
                       name="residential_address.streetAddress3"
                       data-testid="res-add-street3"
@@ -380,14 +411,14 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                     />
                     <TextField
                       label="Address 2"
-                      optional
+                      labelHint="Optional"
                       id="backupMailingAddress2"
                       name="backup_mailing_address.streetAddress2"
                       data-testid="backup-add-street2"
                     />
                     <TextField
                       label="Address 3"
-                      optional
+                      labelHint="Optional"
                       id="backupMailingAddress3"
                       name="backup_mailing_address.streetAddress3"
                       data-testid="backup-add-street3"
@@ -491,7 +522,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       editMode
                       onCancelClick={handleBack}
                       disableNext={!isValid}
-                      onNextClick={handleSubmitNext}
+                      onNextClick={handleSubmit}
                     />
                   </div>
                 </Form>

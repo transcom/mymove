@@ -19,6 +19,7 @@ type GetServicesCounselingQueueURL struct {
 	Branch                  *string
 	CloseoutInitiated       *strfmt.DateTime
 	CloseoutLocation        *string
+	CounselingOffice        *string
 	DestinationDutyLocation *string
 	DodID                   *string
 	Emplid                  *string
@@ -95,6 +96,14 @@ func (o *GetServicesCounselingQueueURL) Build() (*url.URL, error) {
 	}
 	if closeoutLocationQ != "" {
 		qs.Set("closeoutLocation", closeoutLocationQ)
+	}
+
+	var counselingOfficeQ string
+	if o.CounselingOffice != nil {
+		counselingOfficeQ = *o.CounselingOffice
+	}
+	if counselingOfficeQ != "" {
+		qs.Set("counselingOffice", counselingOfficeQ)
 	}
 
 	var destinationDutyLocationQ string
