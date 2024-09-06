@@ -1,6 +1,8 @@
 package ghcrateengine
 
 import (
+	"fmt"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -16,16 +18,20 @@ func NewCounselingServicesPricer() services.CounselingServicesPricer {
 }
 
 // Price determines the price for a counseling service
-func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+func (p counselingServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+
+	if lockedPriceCents == nil {
+		return 0, nil, fmt.Errorf("invalid value for locked_price_cents")
+	}
 
 	params := services.PricingDisplayParams{
 		{
 			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(lockedPriceCents),
+			Value: FormatCents(*lockedPriceCents),
 		},
 	}
 
-	return lockedPriceCents, params, nil
+	return *lockedPriceCents, params, nil
 }
 
 // PriceUsingParams determines the price for a counseling service given PaymentServiceItemParams
@@ -36,5 +42,6 @@ func (p counselingServicesPricer) PriceUsingParams(appCtx appcontext.AppContext,
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, unit.Cents(lockedPriceCents))
+	lockedPrice := unit.Cents(lockedPriceCents)
+	return p.Price(appCtx, &lockedPrice)
 }
