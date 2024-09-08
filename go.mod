@@ -94,7 +94,7 @@ require (
 	golang.org/x/crypto v0.26.0
 	golang.org/x/net v0.28.0
 	golang.org/x/oauth2 v0.22.0
-	golang.org/x/text v0.17.0
+	golang.org/x/text v0.18.0
 	golang.org/x/tools v0.24.0
 	google.golang.org/grpc v1.65.0
 	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
