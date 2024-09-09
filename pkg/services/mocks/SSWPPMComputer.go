@@ -87,13 +87,14 @@ func (_m *SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment
 }
 
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData, isPaymentPacket
-func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
 	ret := _m.Called(shipmentSummaryFormData, isPaymentPacket)
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values
-	var r2 error
-	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values, error)); ok {
+	var r2 services.Page3Values
+	var r3 error
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page1Values, services.Page2Values, services.Page3Values, error)); ok {
 		return rf(shipmentSummaryFormData, isPaymentPacket)
 	}
 	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page1Values); ok {
@@ -108,13 +109,19 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFo
 		r1 = ret.Get(1).(services.Page2Values)
 	}
 
-	if rf, ok := ret.Get(2).(func(models.ShipmentSummaryFormData, bool) error); ok {
+	if rf, ok := ret.Get(2).(func(models.ShipmentSummaryFormData, bool) services.Page3Values); ok {
 		r2 = rf(shipmentSummaryFormData, isPaymentPacket)
 	} else {
-		r2 = ret.Error(2)
+		r2 = ret.Get(2).(services.Page3Values)
 	}
 
-	return r0, r1, r2
+	if rf, ok := ret.Get(3).(func(models.ShipmentSummaryFormData, bool) error); ok {
+		r3 = rf(shipmentSummaryFormData, isPaymentPacket)
+	} else {
+		r3 = ret.Error(3)
+	}
+
+	return r0, r1, r2, r3
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage1 provides a mock function with given fields: data, isPaymentPacket
@@ -154,6 +161,30 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mod
 		r0 = rf(data, isPaymentPacket)
 	} else {
 		r0 = ret.Get(0).(services.Page2Values)
+	}
+
+	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) error); ok {
+		r1 = rf(data, isPaymentPacket)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FormatValuesShipmentSummaryWorksheetFormPage3 provides a mock function with given fields: data, isPaymentPacket
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page3Values, error) {
+	ret := _m.Called(data, isPaymentPacket)
+
+	var r0 services.Page3Values
+	var r1 error
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page3Values, error)); ok {
+		return rf(data, isPaymentPacket)
+	}
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page3Values); ok {
+		r0 = rf(data, isPaymentPacket)
+	} else {
+		r0 = ret.Get(0).(services.Page3Values)
 	}
 
 	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) error); ok {
