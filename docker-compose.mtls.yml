@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   database:
-    image: postgres:12.7
+    image: postgres:16.4
     restart: always
     environment:
       - POSTGRES_USER=postgres
@@ -70,6 +70,7 @@ services:
       - PGPASSWORD=mysecretpassword
       - REDIS_ENABLED=false
       - SERVE_API_PRIME=true
+      - SERVE_API_PPTAS=true
       - SERVE_API_SUPPORT=true
       - STORAGE_BACKEND=local
       - TZ=UTC

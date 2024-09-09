@@ -24,6 +24,8 @@ type MTOServiceItemDestSIT struct {
 
 	idField strfmt.UUID
 
+	lockedPriceCentsField *int64
+
 	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
@@ -61,9 +63,6 @@ type MTOServiceItemDestSIT struct {
 	//
 	// Required: true
 	Reason *string `json:"reason"`
-
-	// sit address updates
-	SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
 
 	// Date when the customer contacted the prime for a delivery out of SIT.
 	// Format: date
@@ -114,6 +113,16 @@ func (m *MTOServiceItemDestSIT) ID() strfmt.UUID {
 // SetID sets the id of this subtype
 func (m *MTOServiceItemDestSIT) SetID(val strfmt.UUID) {
 	m.idField = val
+}
+
+// LockedPriceCents gets the locked price cents of this subtype
+func (m *MTOServiceItemDestSIT) LockedPriceCents() *int64 {
+	return m.lockedPriceCentsField
+}
+
+// SetLockedPriceCents sets the locked price cents of this subtype
+func (m *MTOServiceItemDestSIT) SetLockedPriceCents(val *int64) {
+	m.lockedPriceCentsField = val
 }
 
 // ModelType gets the model type of this subtype
@@ -215,9 +224,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 		// Required: true
 		Reason *string `json:"reason"`
 
-		// sit address updates
-		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
-
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
 		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -263,6 +269,8 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
+		LockedPriceCents *int64 `json:"lockedPriceCents,omitempty"`
+
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
@@ -291,6 +299,8 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 
 	result.idField = base.ID
 
+	result.lockedPriceCentsField = base.LockedPriceCents
+
 	if base.ModelType != result.ModelType() {
 		/* Not the type we're looking for. */
 		return errors.New(422, "invalid modelType value: %q", base.ModelType)
@@ -313,7 +323,6 @@ func (m *MTOServiceItemDestSIT) UnmarshalJSON(raw []byte) error {
 	result.FirstAvailableDeliveryDate2 = data.FirstAvailableDeliveryDate2
 	result.ReServiceCode = data.ReServiceCode
 	result.Reason = data.Reason
-	result.SitAddressUpdates = data.SitAddressUpdates
 	result.SitCustomerContacted = data.SitCustomerContacted
 	result.SitDepartureDate = data.SitDepartureDate
 	result.SitDestinationFinalAddress = data.SitDestinationFinalAddress
@@ -359,9 +368,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		// Required: true
 		Reason *string `json:"reason"`
 
-		// sit address updates
-		SitAddressUpdates SitAddressUpdates `json:"sitAddressUpdates,omitempty"`
-
 		// Date when the customer contacted the prime for a delivery out of SIT.
 		// Format: date
 		SitCustomerContacted *strfmt.Date `json:"sitCustomerContacted,omitempty"`
@@ -405,8 +411,6 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		Reason: m.Reason,
 
-		SitAddressUpdates: m.SitAddressUpdates,
-
 		SitCustomerContacted: m.SitCustomerContacted,
 
 		SitDepartureDate: m.SitDepartureDate,
@@ -429,6 +433,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
+		LockedPriceCents *int64 `json:"lockedPriceCents,omitempty"`
+
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
@@ -447,6 +453,8 @@ func (m MTOServiceItemDestSIT) MarshalJSON() ([]byte, error) {
 		ETag: m.ETag(),
 
 		ID: m.ID(),
+
+		LockedPriceCents: m.LockedPriceCents(),
 
 		ModelType: m.ModelType(),
 
@@ -514,10 +522,6 @@ func (m *MTOServiceItemDestSIT) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateReason(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateSitAddressUpdates(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -725,24 +729,6 @@ func (m *MTOServiceItemDestSIT) validateReason(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOServiceItemDestSIT) validateSitAddressUpdates(formats strfmt.Registry) error {
-
-	if swag.IsZero(m.SitAddressUpdates) { // not required
-		return nil
-	}
-
-	if err := m.SitAddressUpdates.Validate(formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sitAddressUpdates")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sitAddressUpdates")
-		}
-		return err
-	}
-
-	return nil
-}
-
 func (m *MTOServiceItemDestSIT) validateSitCustomerContacted(formats strfmt.Registry) error {
 
 	if swag.IsZero(m.SitCustomerContacted) { // not required
@@ -869,10 +855,6 @@ func (m *MTOServiceItemDestSIT) ContextValidate(ctx context.Context, formats str
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSitAddressUpdates(ctx, formats); err != nil {
-		res = append(res, err)
-	}
-
 	if err := m.contextValidateSitDestinationFinalAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -958,20 +940,6 @@ func (m *MTOServiceItemDestSIT) contextValidateStatus(ctx context.Context, forma
 			return ve.ValidateName("status")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
 			return ce.ValidateName("status")
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (m *MTOServiceItemDestSIT) contextValidateSitAddressUpdates(ctx context.Context, formats strfmt.Registry) error {
-
-	if err := m.SitAddressUpdates.ContextValidate(ctx, formats); err != nil {
-		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("sitAddressUpdates")
-		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("sitAddressUpdates")
 		}
 		return err
 	}
