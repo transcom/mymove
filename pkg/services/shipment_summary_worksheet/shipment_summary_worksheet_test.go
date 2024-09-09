@@ -1162,4 +1162,15 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
 	expensesMap["StorageMemberPaid"] = 200.00
 	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
 	suite.Equal(result, expectedResult)
+
+	// Test case 3: GTCC calculation is less than 0
+	expectedResult = "GTCC: " + FormatDollars(0) + "\nMember: " + FormatDollars(-250.00)
+	expensesMap = make(map[string]float64)
+	expensesMap["TotalGTCCPaid"] = 0
+	expensesMap["StorageGTCCPaid"] = 0
+	ppmRemainingEntitlement = -300.00
+	expensesMap["StorageMemberPaid"] = 50.00
+	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
 }
