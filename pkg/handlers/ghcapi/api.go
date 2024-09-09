@@ -676,6 +676,5 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	dateSelectionChecker := dateservice.NewDateSelectionChecker()
 	ghcAPI.CalendarIsDateWeekendHolidayHandler = IsDateWeekendHolidayHandler{handlerConfig, dateSelectionChecker}
 
-
 	return ghcAPI
 }
