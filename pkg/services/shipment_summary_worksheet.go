@@ -98,7 +98,7 @@ type Page2Values struct {
 	FormattedOtherExpenses
 }
 
-// Page2Values is an object representing a Shipment Summary Worksheet
+// Page3Values is an object representing a Shipment Summary Worksheet
 type Page3Values struct {
 	CUIBanner        string
 	PreparationDate3 string
