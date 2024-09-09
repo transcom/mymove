@@ -150,6 +150,7 @@ export function updatePrimeMTOShipmentV3({
   schemaKey = 'mtoShipment',
   body,
 }) {
+  debugger;
   const operationPath = 'mtoShipment.updateMTOShipment';
   return makePrimeSimulatorRequestV3(
     operationPath,
@@ -183,6 +184,25 @@ export function updateShipmentDestinationAddress({
 }) {
   const operationPath = 'mtoShipment.updateShipmentDestinationAddress';
   return makePrimeSimulatorRequest(
+    operationPath,
+    {
+      mtoShipmentID,
+      'If-Match': ifMatchETag,
+      body,
+    },
+    { schemaKey, normalize },
+  );
+}
+
+export function updateShipmentDestinationAddressV3({
+  mtoShipmentID,
+  ifMatchETag,
+  body,
+  schemaKey = 'mtoShipment',
+  normalize = true,
+}) {
+  const operationPath = 'mtoShipment.updateShipmentDestinationAddress';
+  return makePrimeSimulatorRequestV3(
     operationPath,
     {
       mtoShipmentID,

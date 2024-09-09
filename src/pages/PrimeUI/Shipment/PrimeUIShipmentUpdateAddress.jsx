@@ -26,8 +26,38 @@ const updatePickupAddressSchema = Yup.object().shape({
   }),
   eTag: Yup.string(),
 });
+const updateSecondaryPickupAddressSchema = Yup.object().shape({
+  addressID: Yup.string(),
+  pickupAddress: Yup.object().shape({
+    address: addressSchema,
+  }),
+  eTag: Yup.string(),
+});
+const updateTertiaryPickupAddressSchema = Yup.object().shape({
+  addressID: Yup.string(),
+  pickupAddress: Yup.object().shape({
+    address: addressSchema,
+  }),
+  eTag: Yup.string(),
+});
 
 const updateDestinationAddressSchema = Yup.object().shape({
+  addressID: Yup.string(),
+  destinationAddress: Yup.object().shape({
+    address: addressSchema,
+  }),
+  eTag: Yup.string(),
+});
+
+const updateSecondaryDestinationAddressSchema = Yup.object().shape({
+  addressID: Yup.string(),
+  destinationAddress: Yup.object().shape({
+    address: addressSchema,
+  }),
+  eTag: Yup.string(),
+});
+
+const updateTertiaryDestinationAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
   destinationAddress: Yup.object().shape({
     address: addressSchema,
@@ -122,9 +152,17 @@ const PrimeUIShipmentUpdateAddress = () => {
   };
 
   const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
+  const reformatSecondaryPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.secondaryPickupAddress);
+  const reformatTertiaryPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.tertiaryPickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
+  const reformatPrimeApiSecondaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.secondaryDestinationAddress);
+  const reformatPrimeApiTertiaryDestinationAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDestinationAddress);
   const editablePickupAddress = !isEmpty(reformatPrimeApiPickupAddress);
+  const editableSecondaryPickupAddress = !isEmpty(reformatSecondaryPrimeApiPickupAddress);
+  const editableTertiaryPickupAddress = !isEmpty(reformatTertiaryPrimeApiPickupAddress);
   const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
+  const editableSecondaryDestinationAddress = !isEmpty(reformatPrimeApiSecondaryDestinationAddress);
+  const editableTertiaryDestinationAddress = !isEmpty(reformatPrimeApiTertiaryDestinationAddress);
 
   const initialValuesPickupAddress = {
     addressID: shipment.pickupAddress?.id,
@@ -133,12 +171,40 @@ const PrimeUIShipmentUpdateAddress = () => {
     },
     eTag: shipment.pickupAddress?.eTag,
   };
+  const initialValuesSecondaryPickupAddress = {
+    addressID: shipment.secondaryPickupAddress?.id,
+    pickupAddress: {
+      address: reformatSecondaryPrimeApiPickupAddress,
+    },
+    eTag: shipment.secondaryPickupAddress?.eTag,
+  };
+  const initialValuesTertiaryPickupAddress = {
+    addressID: shipment.tertiaryDestinationAddress?.id,
+    pickupAddress: {
+      address: reformatTertiaryPrimeApiPickupAddress,
+    },
+    eTag: shipment.tertiaryDestinationAddress?.eTag,
+  };
   const initialValuesDestinationAddress = {
     addressID: shipment.destinationAddress?.id,
     destinationAddress: {
       address: reformatPrimeApiDestinationAddress,
     },
     eTag: shipment.destinationAddress?.eTag,
+  };
+  const initialValuesSecondaryDestinationAddress = {
+    addressID: shipment.secondaryDestinationAddress?.id,
+    destinationAddress: {
+      address: reformatPrimeApiSecondaryDestinationAddress,
+    },
+    eTag: shipment.secondaryDestinationAddress?.eTag,
+  };
+  const initialValuesTertiaryDestinationAddress = {
+    addressID: shipment.tertiaryDestinationAddress?.id,
+    destinationAddress: {
+      address: reformatPrimeApiTertiaryDestinationAddress,
+    },
+    eTag: shipment.tertiaryDestinationAddress?.eTag,
   };
 
   return (
@@ -165,13 +231,49 @@ const PrimeUIShipmentUpdateAddress = () => {
                   name="pickupAddress.address"
                 />
               )}
+              {editableSecondaryPickupAddress && (
+                <PrimeUIShipmentUpdateAddressForm
+                  initialValues={initialValuesSecondaryPickupAddress}
+                  onSubmit={onSubmit}
+                  updateShipmentAddressSchema={updateSecondaryPickupAddressSchema}
+                  addressLocation="Secondary Pickup address"
+                  name="secondaryPickupAddress.address"
+                />
+              )}
+              {editableTertiaryPickupAddress && (
+                <PrimeUIShipmentUpdateAddressForm
+                  initialValues={initialValuesTertiaryPickupAddress}
+                  onSubmit={onSubmit}
+                  updateShipmentAddressSchema={updateTertiaryPickupAddressSchema}
+                  addressLocation="Tertiary Pickup address"
+                  name="tertiaryPickupAddress.address"
+                />
+              )}
               {editableDestinationAddress && (
                 <PrimeUIShipmentUpdateAddressForm
                   initialValues={initialValuesDestinationAddress}
                   onSubmit={onSubmit}
                   updateShipmentAddressSchema={updateDestinationAddressSchema}
-                  addressLocation="Destination address"
-                  name="destinationAddress.address"
+                  addressLocation="Primary Destination address"
+                  name="tertiaryDestinationAddress.address"
+                />
+              )}
+              {editableSecondaryDestinationAddress && (
+                <PrimeUIShipmentUpdateAddressForm
+                  initialValues={initialValuesSecondaryDestinationAddress}
+                  onSubmit={onSubmit}
+                  updateShipmentAddressSchema={updateSecondaryDestinationAddressSchema}
+                  addressLocation="Secondary Destination address"
+                  name="secondaryDestinationAddress.address"
+                />
+              )}
+              {editableTertiaryDestinationAddress && (
+                <PrimeUIShipmentUpdateAddressForm
+                  initialValues={initialValuesTertiaryDestinationAddress}
+                  onSubmit={onSubmit}
+                  updateShipmentAddressSchema={updateTertiaryDestinationAddressSchema}
+                  addressLocation="Tertiary Destination address"
+                  name="tertiaryDestinationAddress.address"
                 />
               )}
             </Grid>

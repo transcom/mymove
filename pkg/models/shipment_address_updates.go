@@ -36,16 +36,24 @@ type ShipmentAddressUpdate struct {
 	UpdatedAt         time.Time                   `db:"updated_at"`
 
 	// Associations
-	Shipment              MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
-	ShipmentID            uuid.UUID   `db:"shipment_id"`
-	OriginalAddress       Address     `belongs_to:"addresses" fk_id:"original_address_id"`
-	OriginalAddressID     uuid.UUID   `db:"original_address_id"`
-	NewAddress            Address     `belongs_to:"addresses" fk_id:"new_address_id"`
-	NewAddressID          uuid.UUID   `db:"new_address_id"`
-	SitOriginalAddressID  *uuid.UUID  `db:"sit_original_address_id"`
-	SitOriginalAddress    *Address    `belongs_to:"addresses" fk_id:"sit_original_address_id"`
-	OldSitDistanceBetween *int        `db:"old_sit_distance_between"`
-	NewSitDistanceBetween *int        `db:"new_sit_distance_between"`
+	Shipment                   MTOShipment `belongs_to:"mto_shipments" fk_id:"shipment_id"`
+	ShipmentID                 uuid.UUID   `db:"shipment_id"`
+	OriginalAddress            Address     `belongs_to:"addresses" fk_id:"original_address_id"`
+	OriginalAddressID          uuid.UUID   `db:"original_address_id"`
+	OriginalSecondaryAddress   Address     `belongs_to:"addresses" fk_id:"original_secondary_shipment_address_id"`
+	OriginalSecondaryAddressID uuid.UUID   `db:"original_secondary_shipment_address_id"`
+	OriginalTertiaryAddress    Address     `belongs_to:"addresses" fk_id:"original_tertiary_shipment_address_id"`
+	OriginalTertiaryAddressID  uuid.UUID   `db:"original_tertiary_shipment_address_id"`
+	NewAddress                 Address     `belongs_to:"addresses" fk_id:"new_address_id"`
+	NewAddressID               uuid.UUID   `db:"new_address_id"`
+	NewSecondaryAddress        Address     `belongs_to:"addresses" fk_id:"new_secondary_shipment_address_id"`
+	NewSecondaryAddressID      uuid.UUID   `db:"new_secondary_shipment_address_id"`
+	NewTertiaryAddress         Address     `belongs_to:"addresses" fk_id:"new_tertiary_shipment_address_id"`
+	NewTertiaryAddressID       uuid.UUID   `db:"new_tertiary_shipment_address_id"`
+	SitOriginalAddressID       *uuid.UUID  `db:"sit_original_address_id"`
+	SitOriginalAddress         *Address    `belongs_to:"addresses" fk_id:"sit_original_address_id"`
+	OldSitDistanceBetween      *int        `db:"old_sit_distance_between"`
+	NewSitDistanceBetween      *int        `db:"new_sit_distance_between"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate,

@@ -54,6 +54,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		MtoShipmentUpdateMTOShipmentHandler: mto_shipment.UpdateMTOShipmentHandlerFunc(func(params mto_shipment.UpdateMTOShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation mto_shipment.UpdateMTOShipment has not yet been implemented")
 		}),
+		MtoShipmentUpdateShipmentDestinationAddressHandler: mto_shipment.UpdateShipmentDestinationAddressHandlerFunc(func(params mto_shipment.UpdateShipmentDestinationAddressParams) middleware.Responder {
+			return middleware.NotImplemented("operation mto_shipment.UpdateShipmentDestinationAddress has not yet been implemented")
+		}),
 	}
 }
 
@@ -102,6 +105,8 @@ type MymoveAPI struct {
 	MoveTaskOrderGetMoveTaskOrderHandler move_task_order.GetMoveTaskOrderHandler
 	// MtoShipmentUpdateMTOShipmentHandler sets the operation handler for the update m t o shipment operation
 	MtoShipmentUpdateMTOShipmentHandler mto_shipment.UpdateMTOShipmentHandler
+	// MtoShipmentUpdateShipmentDestinationAddressHandler sets the operation handler for the update shipment destination address operation
+	MtoShipmentUpdateShipmentDestinationAddressHandler mto_shipment.UpdateShipmentDestinationAddressHandler
 
 	// ServeError is called when an error is received, there is a default handler
 	// but you can set your own with this
@@ -187,6 +192,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.MtoShipmentUpdateMTOShipmentHandler == nil {
 		unregistered = append(unregistered, "mto_shipment.UpdateMTOShipmentHandler")
+	}
+	if o.MtoShipmentUpdateShipmentDestinationAddressHandler == nil {
+		unregistered = append(unregistered, "mto_shipment.UpdateShipmentDestinationAddressHandler")
 	}
 
 	if len(unregistered) > 0 {
@@ -288,6 +296,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
 	o.handlers["PATCH"]["/mto-shipments/{mtoShipmentID}"] = mto_shipment.NewUpdateMTOShipment(o.context, o.MtoShipmentUpdateMTOShipmentHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/mto-shipments/{mtoShipmentID}/shipment-address-updates"] = mto_shipment.NewUpdateShipmentDestinationAddress(o.context, o.MtoShipmentUpdateShipmentDestinationAddressHandler)
 }
 
 // Serve creates a http handler to serve the API over HTTP

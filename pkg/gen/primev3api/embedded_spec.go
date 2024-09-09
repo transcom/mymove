@@ -353,6 +353,79 @@ func init() {
           }
         }
       }
+    },
+    "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the address",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the address update request.",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -770,8 +843,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -874,6 +979,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional secondary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -1712,6 +1833,26 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The ID of the shipment.",
           "type": "string",
@@ -1818,7 +1959,7 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "description": "A second destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -1859,6 +2000,22 @@ func init() {
             },
             {
               "$ref": "#/definitions/StorageFacility"
+            }
+          ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A third destination address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
             }
           ]
         },
@@ -2209,6 +2366,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -2305,6 +2472,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
@@ -2870,10 +3043,16 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -2888,6 +3067,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -3255,6 +3440,22 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -3305,6 +3506,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -3375,6 +3586,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional secondary address near the destination where goods will be dropped off.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -3414,6 +3641,12 @@ func init() {
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
         "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddress": {
           "$ref": "#/definitions/Address"
         }
       }
@@ -3508,6 +3741,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {
@@ -3950,6 +4189,103 @@ func init() {
           }
         }
       }
+    },
+    "/mto-shipments/{mtoShipmentID}/shipment-address-updates": {
+      "post": {
+        "description": "### Functionality\nThis endpoint is used so the Prime can request an **update** for the destination address on an MTO Shipment,\nafter the destination address has already been approved.\nIf automatically approved or TOO approves, this will update the final destination address values for destination SIT service items to be the same as the changed destination address that was approved.\nAddress updates will be automatically approved unless they change:\n  - The service area\n  - Mileage bracket for direct delivery\n  - the address and the distance between the old and new address is \u003e 50\n  - Domestic Short Haul to Domestic Line Haul or vice versa\n      - Shipments that start and end in one ZIP3 use Short Haul pricing\n      - Shipments that start and end in different ZIP3s use Line Haul pricing\n\nFor those, changes will require TOO approval.\n",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "mtoShipment"
+        ],
+        "summary": "updateShipmentDestinationAddress",
+        "operationId": "updateShipmentDestinationAddress",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the shipment associated with the address",
+            "name": "mtoShipmentID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateShipmentDestinationAddress"
+            }
+          },
+          {
+            "type": "string",
+            "description": "Needs to be the eTag of the mtoShipment. Optimistic locking is implemented via the ` + "`" + `If-Match` + "`" + ` header. If the ETag header does not match the value of the resource on the server, the server rejects the change with a ` + "`" + `412 Precondition Failed` + "`" + ` error.\n",
+            "name": "If-Match",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Successfully created the address update request.",
+            "schema": {
+              "$ref": "#/definitions/ShipmentAddressUpdate"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "401": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "403": {
+            "description": "The request was denied.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "409": {
+            "description": "The request could not be processed because of conflict in the current state of the resource.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "412": {
+            "description": "Precondition failed, likely due to a stale eTag (If-Match). Fetch the request again to get the updated eTag value.",
+            "schema": {
+              "$ref": "#/definitions/ClientError"
+            }
+          },
+          "422": {
+            "description": "The request was unprocessable, likely due to bad input from the requester.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred.",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
@@ -4367,8 +4703,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4471,6 +4839,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional secondary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional secondary pickup location address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -5309,6 +5693,26 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The ID of the shipment.",
           "type": "string",
@@ -5415,7 +5819,7 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "description": "A second destination address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -5456,6 +5860,22 @@ func init() {
             },
             {
               "$ref": "#/definitions/StorageFacility"
+            }
+          ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A third destination address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
             }
           ]
         },
@@ -5806,6 +6226,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -5902,6 +6332,12 @@ func init() {
           "format": "date-time",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
@@ -6467,11 +6903,17 @@ func init() {
         "newAddress": {
           "$ref": "#/definitions/Address"
         },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "newSitDistanceBetween": {
           "description": "The distance between the original SIT address and requested new destination address of shipment",
           "type": "integer",
           "minimum": 0,
           "example": 88
+        },
+        "newTertiaryAddress": {
+          "$ref": "#/definitions/Address"
         },
         "officeRemarks": {
           "description": "The TOO comment on approval or rejection.",
@@ -6487,6 +6929,12 @@ func init() {
           "example": 50
         },
         "originalAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "originalTertiaryAddress": {
           "$ref": "#/definitions/Address"
         },
         "shipmentID": {
@@ -6854,6 +7302,22 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -6904,6 +7368,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -6974,6 +7448,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional secondary address near the destination where goods will be dropped off.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional secondary pickup location near the origin where additional goods exist.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -7013,6 +7503,12 @@ func init() {
           "example": "Customer reached out to me this week and let me know they want to move somewhere else."
         },
         "newAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newSecondaryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "newTertiaryAddress": {
           "$ref": "#/definitions/Address"
         }
       }
@@ -7107,6 +7603,12 @@ func init() {
     }
   },
   "responses": {
+    "Conflict": {
+      "description": "The request could not be processed because of conflict in the current state of the resource.",
+      "schema": {
+        "$ref": "#/definitions/ClientError"
+      }
+    },
     "InvalidRequest": {
       "description": "The request payload is invalid.",
       "schema": {

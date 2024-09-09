@@ -17,15 +17,15 @@ type ShipmentAddressUpdateRequester struct {
 }
 
 // RequestShipmentDeliveryAddressUpdate provides a mock function with given fields: appCtx, shipmentID, newAddress, contractorRemarks, eTag
-func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
+func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.ShipmentAddressUpdate, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	ret := _m.Called(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 
 	var r0 *models.ShipmentAddressUpdate
 	var r1 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) (*models.ShipmentAddressUpdate, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdate, string, string) (*models.ShipmentAddressUpdate, error)); ok {
 		return rf(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) *models.ShipmentAddressUpdate); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdate, string, string) *models.ShipmentAddressUpdate); ok {
 		r0 = rf(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 	} else {
 		if ret.Get(0) != nil {
@@ -33,7 +33,7 @@ func (_m *ShipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(a
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.Address, string, string) error); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, models.ShipmentAddressUpdate, string, string) error); ok {
 		r1 = rf(appCtx, shipmentID, newAddress, contractorRemarks, eTag)
 	} else {
 		r1 = ret.Error(1)

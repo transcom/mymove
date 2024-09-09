@@ -16,6 +16,7 @@ import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
+  console.log('shipment = ', shipment);
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
 
   const editShipmentAddressUrl = moveId
@@ -191,9 +192,29 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.pickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
+        <dt>Secondary Pickup Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryPickupAddress)}</dd>
+        <dd>{shipment.secondaryPickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Tertiary Pickup Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryPickupAddress)}</dd>
+        <dd>{shipment.tertiaryPickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
         <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Secondary Destination Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryDeliveryAddress)}</dd>
+        <dd>{shipment.secondaryDeliveryAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Tertiary Destination Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryDeliveryAddress)}</dd>
+        <dd>{shipment.tertiaryDeliveryAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination type:</dt>
@@ -275,12 +296,20 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryPickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
+            <dt>Tertiary Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryPickupAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
             <dt>Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Secondary Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Tertiary Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Expected:</dt>

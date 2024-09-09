@@ -168,3 +168,13 @@ func (a *Address) Copy() *Address {
 	}
 	return nil
 }
+
+func (a Address) IsAddressEmpty() bool {
+	return IsNullEmptyOrWhitespace(a.StreetAddress1) &&
+		IsNullEmptyOrWhitespace(a.City) &&
+		IsNullEmptyOrWhitespace(a.State) &&
+		IsNullEmptyOrWhitespace(a.PostalCode)
+}
+func IsNullEmptyOrWhitespace(s string) bool {
+	return len(strings.TrimSpace(s)) == 0
+}

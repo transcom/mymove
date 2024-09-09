@@ -1,0 +1,4 @@
+alter table shipment_address_updates add new_secondary_shipment_address_id uuid;
+alter table shipment_address_updates add new_tertiary_shipment_address_id uuid;
+alter table shipment_address_updates add original_secondary_shipment_address_id uuid;
+alter table shipment_address_updates add original_tertiary_shipment_address_id uuid;

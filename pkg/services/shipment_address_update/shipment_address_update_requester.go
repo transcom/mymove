@@ -230,17 +230,16 @@ func checkForApprovedPaymentRequestOnServiceItem(appCtx appcontext.AppContext, m
 }
 
 // RequestShipmentDeliveryAddressUpdate is used to update the destination address of an HHG shipment after it has been approved by the TOO. If this update could result in excess cost for the customer, this service requires the change to go through TOO approval.
-func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, newAddress models.Address, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
+func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(appCtx appcontext.AppContext, shipmentID uuid.UUID, NewAddress models.ShipmentAddressUpdate, contractorRemarks string, eTag string) (*models.ShipmentAddressUpdate, error) {
 	var addressUpdate models.ShipmentAddressUpdate
 	var shipment models.MTOShipment
-	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "StorageFacility.Address", "MTOServiceItems.ReService", "DestinationAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
+	err := appCtx.DB().EagerPreload("MoveTaskOrder", "PickupAddress", "StorageFacility.Address", "SecondaryPickupAddress", "TertiaryPickupAddress", "MTOServiceItems.ReService", "DestinationAddress", "SecondaryDeliveryAddress", "TertiaryDeliveryAddress", "MTOServiceItems.SITDestinationOriginalAddress").Find(&shipment, shipmentID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, apperror.NewNotFoundError(shipmentID, "looking for shipment")
 		}
 		return nil, apperror.NewQueryError("MTOShipment", err, "")
 	}
-
 	if shipment.MoveTaskOrder.AvailableToPrimeAt == nil {
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
@@ -253,7 +252,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	shipmentHasApprovedDestSIT := f.doesShipmentContainApprovedDestinationSIT(shipment)
 
-	err = appCtx.DB().EagerPreload("OriginalAddress", "NewAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
+	err = appCtx.DB().EagerPreload("OriginalAddress", "OriginalSecondaryAddress", "OriginalTertiaryAddress", "NewAddress", "NewSecondaryAddress", "NewTertiaryAddress").Where("shipment_id = ?", shipmentID).First(&addressUpdate)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			// If we didn't find an existing update, we'll need to make a new one
@@ -269,14 +268,45 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		addressUpdate.OriginalAddress = *shipment.DestinationAddress
 	}
 
+	if shipment.SecondaryDeliveryAddress != nil {
+		addressUpdate.OriginalSecondaryAddress = *shipment.SecondaryDeliveryAddress
+		addressUpdate.OriginalSecondaryAddressID = *shipment.SecondaryDeliveryAddressID
+	}
+
+	if shipment.TertiaryDeliveryAddress != nil {
+		addressUpdate.OriginalTertiaryAddress = *shipment.TertiaryDeliveryAddress
+		addressUpdate.OriginalTertiaryAddressID = *shipment.TertiaryDeliveryAddressID
+	}
+
 	addressUpdate.Status = models.ShipmentAddressUpdateStatusApproved
 	addressUpdate.ContractorRemarks = contractorRemarks
-	address, err := f.addressCreator.CreateAddress(appCtx, &newAddress)
+
+	//addressUpdate.createShipmentAddresses(appCtx, shipment)
+
+	address, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewAddress)
 	if err != nil {
 		return nil, err
 	}
 	addressUpdate.NewAddressID = address.ID
 	addressUpdate.NewAddress = *address
+
+	if !NewAddress.NewSecondaryAddress.IsAddressEmpty() {
+		secondaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewSecondaryAddress)
+		if err != nil {
+			return nil, err
+		}
+		addressUpdate.NewSecondaryAddressID = secondaryAddress.ID
+		addressUpdate.NewSecondaryAddress = *secondaryAddress
+	}
+
+	if !NewAddress.NewTertiaryAddress.IsAddressEmpty() {
+		tertiaryAddress, err := f.addressCreator.CreateAddress(appCtx, &NewAddress.NewTertiaryAddress)
+		if err != nil {
+			return nil, err
+		}
+		addressUpdate.NewTertiaryAddressID = tertiaryAddress.ID
+		addressUpdate.NewTertiaryAddress = *tertiaryAddress
+	}
 
 	// if the shipment contains destination SIT service items, we need to update the addressUpdate data
 	// with the SIT original address and calculate the distances between the old & new shipment addresses
@@ -332,19 +362,19 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, err
 	}
 
-	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, newAddress)
+	updateNeedsTOOReview, err := f.doesDeliveryAddressUpdateChangeServiceArea(appCtx, contract.ID, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 	if err != nil {
 		return nil, err
 	}
 
 	if !updateNeedsTOOReview {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(*shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeShipmentPricingType(shipment.StorageFacility.Address, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
@@ -355,12 +385,12 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 
 	if !updateNeedsTOOReview {
 		if shipment.ShipmentType == models.MTOShipmentTypeHHG {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, *shipment.PickupAddress, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
 		} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
-			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, newAddress)
+			updateNeedsTOOReview, err = f.doesDeliveryAddressUpdateChangeMileageBracket(appCtx, shipment.StorageFacility.Address, addressUpdate.OriginalAddress, addressUpdate.NewAddress)
 			if err != nil {
 				return nil, err
 			}
