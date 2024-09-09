@@ -166,9 +166,33 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.PickupAddress = addressModel
 	}
 
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.Agents != nil {

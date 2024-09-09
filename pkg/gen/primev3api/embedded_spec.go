@@ -627,7 +627,7 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
-        "thirdDestinationAddress": {
+        "tertiaryDestinationAddress": {
           "description": "The third address where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -635,7 +635,7 @@ func init() {
             }
           ]
         },
-        "thirdPickupAddress": {
+        "tertiaryPickupAddress": {
           "description": "The third address where the movers should pick up this shipment.",
           "allOf": [
             {
@@ -4089,7 +4089,7 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
-        "thirdDestinationAddress": {
+        "tertiaryDestinationAddress": {
           "description": "The third address where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -4097,7 +4097,7 @@ func init() {
             }
           ]
         },
-        "thirdPickupAddress": {
+        "tertiaryPickupAddress": {
           "description": "The third address where the movers should pick up this shipment.",
           "allOf": [
             {

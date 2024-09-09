@@ -359,7 +359,7 @@ definitions:
         description: The second address where the movers should pick up this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      thirdPickupAddress:
+      tertiaryPickupAddress:
         description: The third address where the movers should pick up this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
@@ -367,7 +367,7 @@ definitions:
         description: The second address where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      thirdDestinationAddress:
+      tertiaryDestinationAddress:
         description: The third address where the movers should deliver this shipment.
         allOf:
           - $ref: 'definitions/Address.yaml'

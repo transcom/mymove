@@ -138,10 +138,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         hasSecondDeliveryAddress,
         hasThirdPickupAddress,
         hasThirdDeliveryAddress,
-        secondPickupAddress,
-        thirdPickupAddress,
-        secondDeliveryAddress,
-        thirdDeliveryAddress,
+        secondaryPickupAddress,
+        tertiaryPickupAddress,
+        secondaryDestinationAddress,
+        tertiaryDestinationAddress,
       } = values;
 
       body = {
@@ -153,14 +153,16 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
         divertedFromShipmentId: divertedFromShipmentId || null,
-        secondaryPickupAddress: isEmpty(secondPickupAddress) ? null : formatAddressForPrimeAPI(secondPickupAddress),
-        secondaryDestinationAddress: isEmpty(secondDeliveryAddress)
+        secondaryPickupAddress: isEmpty(secondaryPickupAddress)
           ? null
-          : formatAddressForPrimeAPI(secondDeliveryAddress),
-        tertiaryPickupAddress: isEmpty(thirdPickupAddress) ? null : formatAddressForPrimeAPI(thirdPickupAddress),
-        tertiaryDestinationAddress: isEmpty(thirdDeliveryAddress)
+          : formatAddressForPrimeAPI(secondaryPickupAddress),
+        secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
           ? null
-          : formatAddressForPrimeAPI(thirdDeliveryAddress),
+          : formatAddressForPrimeAPI(secondaryDestinationAddress),
+        tertiaryPickupAddress: isEmpty(tertiaryPickupAddress) ? null : formatAddressForPrimeAPI(tertiaryPickupAddress),
+        tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(tertiaryDestinationAddress),
         hasSecondaryPickupAddress: hasSecondPickupAddress === 'true',
         hasSecondaryDestinationAddress: hasThirdPickupAddress === 'true',
         hasTertiaryPickupAddress: hasSecondDeliveryAddress === 'true',
@@ -228,6 +230,38 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     destinationAddress: {},
     diversion: '',
     divertedFromShipmentId: '',
+    secondaryPickupAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    tertiaryPickupAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    tertiaryDestinationAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    hasSecondaryPickupAddress: 'false',
+    hasSecondaryDestinationAddress: 'false',
+    hasTertiaryPickupAddress: 'false',
+    hasTertiaryDestinationAddress: 'false',
   };
 
   const validationSchema = Yup.object().shape({
@@ -289,7 +323,23 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
       is: (shipmentType) => shipmentType !== 'PPM',
       then: () => OptionalAddressSchema,
     }),
+    secondaryPickupAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
+    tertiaryPickupAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
     destinationAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
+    secondaryDestinationAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
+    tertiaryDestinationAddress: Yup.object().when('shipmentType', {
       is: (shipmentType) => shipmentType !== 'PPM',
       then: () => OptionalAddressSchema,
     }),
