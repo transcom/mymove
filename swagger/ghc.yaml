@@ -4636,7 +4636,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -4775,8 +4775,9 @@ definitions:
         $ref: '#/definitions/Affiliation'
       edipi:
         type: string
-        example: John
-        x-nullable: true
+        example: '1234567890'
+        maxLength: 10
+        x-nullable: false
       emplid:
         type: string
         example: '9485155'
