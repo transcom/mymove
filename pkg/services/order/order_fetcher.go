@@ -117,9 +117,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	ppmTypeQuery := ppmTypeFilter(params.PPMType)
 	ppmStatusQuery := ppmStatusFilter(params.PPMStatus)
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
+	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [17]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery}
-
+	options := [18]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, counselingQuery}
 	var query *pop.Query
 	if ppmCloseoutGblocs {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -157,6 +157,8 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
 			"LockedByOfficeUser",
+			"CounselingOffice",
+			"SCAssignedUser",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
 			InnerJoin("mto_shipments", "moves.id = mto_shipments.move_id").
@@ -168,6 +170,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
+			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
@@ -228,6 +231,10 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 
 	if params.Sort != nil && *params.Sort == "ppmStatus" {
 		groupByColumms = append(groupByColumms, "ppm_shipments.id")
+	}
+
+	if params.Sort != nil && *params.Sort == "counselingOffice" {
+		groupByColumms = append(groupByColumms, "transportation_offices.id")
 	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
@@ -542,6 +549,14 @@ func destinationDutyLocationFilter(destinationDutyLocation *string) QueryOption 
 	}
 }
 
+func counselingOfficeFilter(office *string) QueryOption {
+	return func(query *pop.Query) {
+		if office != nil {
+			query.Where("transportation_offices.name ILIKE ?", "%"+*office+"%")
+		}
+	}
+}
+
 func moveStatusFilter(statuses []string) QueryOption {
 	return func(query *pop.Query) {
 		// If we have statuses let's use them
@@ -687,6 +702,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
+		"counselingOffice":        "transportation_offices.name",
 	}
 
 	return func(query *pop.Query) {

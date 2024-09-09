@@ -34,6 +34,9 @@ type QueueMove struct {
 	// closeout location
 	CloseoutLocation *string `json:"closeoutLocation,omitempty"`
 
+	// counseling office
+	CounselingOffice *string `json:"counselingOffice,omitempty"`
+
 	// customer
 	Customer *Customer `json:"customer,omitempty"`
 

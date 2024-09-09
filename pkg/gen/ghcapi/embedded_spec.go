@@ -4101,7 +4101,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -4134,6 +4135,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -6756,8 +6763,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -7357,10 +7365,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -11665,6 +11673,10 @@ func init() {
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -19309,7 +19321,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -19342,6 +19355,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -22350,8 +22369,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -22951,10 +22971,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -27334,6 +27354,10 @@ func init() {
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },

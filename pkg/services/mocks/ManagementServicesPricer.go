@@ -19,22 +19,22 @@ type ManagementServicesPricer struct {
 }
 
 // Price provides a mock function with given fields: appCtx, lockedPriceCents
-func (_m *ManagementServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
+func (_m *ManagementServicesPricer) Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, lockedPriceCents)
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, unit.Cents) (unit.Cents, services.PricingDisplayParams, error)); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *unit.Cents) (unit.Cents, services.PricingDisplayParams, error)); ok {
 		return rf(appCtx, lockedPriceCents)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, unit.Cents) unit.Cents); ok {
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *unit.Cents) unit.Cents); ok {
 		r0 = rf(appCtx, lockedPriceCents)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, unit.Cents) services.PricingDisplayParams); ok {
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *unit.Cents) services.PricingDisplayParams); ok {
 		r1 = rf(appCtx, lockedPriceCents)
 	} else {
 		if ret.Get(1) != nil {
@@ -42,7 +42,7 @@ func (_m *ManagementServicesPricer) Price(appCtx appcontext.AppContext, lockedPr
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, unit.Cents) error); ok {
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, *unit.Cents) error); ok {
 		r2 = rf(appCtx, lockedPriceCents)
 	} else {
 		r2 = ret.Error(2)
