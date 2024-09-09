@@ -145,9 +145,9 @@ export class Home extends Component {
     return !!finishedCloseout.length;
   }
 
-  get hasIncompleteShipment() {
+  get hasCompletedAllShipment() {
     const { mtoShipments } = this.props;
-    if (!mtoShipments) return false;
+    if (!mtoShipments || !mtoShipments?.length) return false;
     const shipmentValidators = {
       [SHIPMENT_TYPES.PPM]: isPPMShipmentComplete,
       [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: isBoatShipmentComplete,
@@ -157,7 +157,7 @@ export class Home extends Component {
 
     return mtoShipments.some((shipment) => {
       const validateShipment = shipmentValidators[shipment.shipmentType];
-      return validateShipment && !validateShipment(shipment);
+      return validateShipment && validateShipment(shipment);
     });
   }
 
@@ -551,7 +551,7 @@ export class Home extends Component {
                     actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                    complete={!this.hasIncompleteShipment}
+                    complete={this.hasCompletedAllShipment}
                     completedHeaderText="Shipments"
                     headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
@@ -582,7 +582,7 @@ export class Home extends Component {
                     )}
                   </Step>
                   <Step
-                    actionBtnDisabled={this.hasIncompleteShipment || !this.hasAnyShipments}
+                    actionBtnDisabled={!this.hasCompletedAllShipment}
                     actionBtnId="review-and-submit-btn"
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
                     complete={this.hasSubmittedMove}
