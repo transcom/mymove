@@ -191,12 +191,12 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.pickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Secondary Pickup Address:</dt>
+        <dt>Second Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryPickupAddress)}</dd>
         <dd>{shipment.secondaryPickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Tertiary Pickup Address:</dt>
+        <dt>Third Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryPickupAddress)}</dd>
         <dd>{shipment.tertiaryPickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
@@ -206,12 +206,12 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
         <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Secondary Destination Address:</dt>
+        <dt>Second Destination Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryDeliveryAddress)}</dd>
         <dd>{shipment.secondaryDeliveryAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
       <div className={descriptionListStyles.row}>
-        <dt>Tertiary Destination Address:</dt>
+        <dt>Third Destination Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryDeliveryAddress)}</dd>
         <dd>{shipment.tertiaryDeliveryAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
       </div>
