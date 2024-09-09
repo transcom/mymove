@@ -35,7 +35,11 @@ const PrimeUIShipmentUpdateForm = ({
   actualProGearWeight,
   actualSpouseProGearWeight,
   pickupAddress,
+  secondaryPickupAddress,
+  tertiaryPickupAddress,
   destinationAddress,
+  secondaryDeliveryAddress,
+  tertiaryDeliveryAddress,
 }) => {
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
@@ -142,9 +146,17 @@ const PrimeUIShipmentUpdateForm = ({
       <h5 className={styles.sectionHeader}>Pickup Address</h5>
       {editablePickupAddress && <AddressFields name="pickupAddress" />}
       {!editablePickupAddress && formatAddress(pickupAddress)}
+      <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
+      {formatAddress(secondaryPickupAddress)}
+      <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
+      {formatAddress(tertiaryPickupAddress)}
       <h5 className={styles.sectionHeader}>Destination Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
+      <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
+      {formatAddress(secondaryDeliveryAddress)}
+      <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
+      {formatAddress(tertiaryDeliveryAddress)}
       <DropdownInput
         label="Destination type"
         name="destinationType"
