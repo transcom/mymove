@@ -10,6 +10,7 @@
 package shipmentsummaryworksheet
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -1407,4 +1408,329 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
 	expensesMap["StorageMemberPaid"] = 200.00
 	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
 	suite.Equal(result, expectedResult)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments() {
+	locator := "ABCDEF-01"
+	now := time.Now()
+
+	ppm := models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	ppm2 := models.PPMShipment{
+		ID:     uuid.Must(uuid.NewV4()),
+		Status: models.PPMShipmentStatusSubmitted,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+		ActualMoveDate: &now,
+		WeightTickets: models.WeightTickets{
+			models.WeightTicket{
+				AdjustedNetWeight: models.PoundPointer(1200),
+			},
+			models.WeightTicket{
+				AdjustedNetWeight: models.PoundPointer(1200),
+			},
+			models.WeightTicket{
+				EmptyWeight: models.PoundPointer(3000),
+				FullWeight:  models.PoundPointer(4200),
+			},
+		},
+	}
+
+	ppm3 := models.PPMShipment{
+		ID:     uuid.Must(uuid.NewV4()),
+		Status: models.PPMShipmentStatusSubmitted,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+		ActualMoveDate:  &now,
+		EstimatedWeight: models.PoundPointer(25),
+	}
+
+	ppm4 := models.PPMShipment{
+		ID:     uuid.Must(uuid.NewV4()),
+		Status: models.PPMShipmentStatusSubmitted,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+		ExpectedDepartureDate: now,
+		EstimatedWeight:       models.PoundPointer(25),
+	}
+
+	primeActualWeight := unit.Pound(1234)
+	primeEstimatedWeight := unit.Pound(1234)
+
+	shipments := []models.MTOShipment{
+		{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			ShipmentLocator: &locator,
+			PPMShipment:     &ppm2,
+			Status:          models.MTOShipmentStatusSubmitted,
+		},
+		{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			ShipmentLocator: &locator,
+			PPMShipment:     &ppm3,
+			Status:          models.MTOShipmentStatusSubmitted,
+		},
+		{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			ShipmentLocator: &locator,
+			PPMShipment:     &ppm4,
+			Status:          models.MTOShipmentStatusSubmitted,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeHHGIntoNTSDom,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeHHGOutOfNTSDom,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeInternationalUB,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeMobileHome,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeBoatHaulAway,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeBoatTowAway,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeActualWeight:    &primeActualWeight,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentLocator:      &locator,
+			RequestedPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentLocator:      &locator,
+			ActualPickupDate:     &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:          &ppm2,
+			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentLocator:      &locator,
+			ScheduledPickupDate:  &now,
+			Status:               models.MTOShipmentStatusSubmitted,
+			PrimeEstimatedWeight: &primeEstimatedWeight,
+		},
+		{
+			PPMShipment:     &ppm2,
+			ShipmentType:    models.MTOShipmentTypeInternationalHHG,
+			ShipmentLocator: &locator,
+			Status:          models.MTOShipmentStatusSubmitted,
+		},
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		PPMShipment:  ppm,
+		AllShipments: shipments,
+	}
+
+	results, _ := formatAdditionalShipments(ssd)
+	suite.Equal(len(results), 56) // # of shipments multiply by 4
+
+	expectedMapKeys := [4]string{"AddShipmentNumberAndTypes", "AddShipmentPickUpDates", "AddShipmentWeights", "AddShipmentStatus"}
+
+	for indexShipment, shipment := range shipments {
+		for index, key := range expectedMapKeys {
+			value, contains := results[fmt.Sprintf("%s%d", key, indexShipment+1)]
+			suite.True(contains)
+			// verify AddShipmentNumberAndTypes
+			if index == 0 {
+				if shipment.ShipmentType == models.MTOShipmentTypePPM {
+					suite.Equal(fmt.Sprintf("%s %s", locator, string(shipment.ShipmentType)), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS Release"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "Int'l HHG"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeInternationalUB {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "Int'l UB"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "Mobile Home"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "Boat Haul"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "Boat Tow"), value)
+				} else {
+					suite.Fail(fmt.Sprintf("unaccounted type: %s", string(shipment.ShipmentType)))
+				}
+			}
+			// verify AddShipmentPickUpDates
+			if index == 1 {
+				if shipment.ShipmentType == models.MTOShipmentTypePPM {
+					if shipment.PPMShipment.ActualMoveDate != nil {
+						suite.Equal(fmt.Sprintf("%s %s", FormatDate(now), "Actual"), value)
+					} else {
+						suite.Equal(fmt.Sprintf("%s %s", FormatDate(now), "Expected"), value)
+					}
+				} else {
+					if shipment.RequestedPickupDate != nil {
+						suite.Equal(fmt.Sprintf("%s %s", FormatDate(now), "Requested"), value)
+					} else if shipment.ActualPickupDate != nil {
+						suite.Equal(fmt.Sprintf("%s %s", FormatDate(now), "Actual"), value)
+					} else if shipment.ScheduledPickupDate != nil {
+						suite.Equal(fmt.Sprintf("%s %s", FormatDate(now), "Scheduled"), value)
+					} else {
+						suite.Equal(" - ", value)
+					}
+				}
+			}
+			// verify AddShipmentWeights
+			if index == 2 {
+				if shipment.ShipmentType == models.MTOShipmentTypePPM {
+					if shipment.PPMShipment.EstimatedWeight != nil {
+						suite.Equal("25 lbs - Estimated", value)
+					} else {
+						suite.Equal("3,600 lbs - Actual", value)
+					}
+				} else {
+					if shipment.PrimeActualWeight != nil {
+						suite.Equal("1,234 Actual", value)
+					} else if shipment.PrimeEstimatedWeight != nil {
+						suite.Equal("1,234 Estimated", value)
+					} else {
+						suite.Equal(" - ", value)
+					}
+				}
+			}
+			// verify AddShipmentStatus
+			if index == 3 {
+				suite.Equal(FormatEnum(string(shipment.Status), ""), value)
+			}
+		}
+	}
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestTooManyShipmentsErrorFormatAdditionalShipments() {
+	locator := "ABCDEF-01"
+
+	ppm := models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	ppm2 := models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	var shipments []models.MTOShipment
+	i := 0
+	// build 18 shipments to exceed limit
+	for next := true; next; next = i < 18 {
+		shipments = append(shipments, models.MTOShipment{
+			ShipmentType:    models.MTOShipmentTypePPM,
+			ShipmentLocator: &locator,
+			PPMShipment:     &ppm2,
+			Status:          models.MTOShipmentStatusSubmitted,
+		})
+		i++
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		PPMShipment:  ppm,
+		AllShipments: shipments,
+	}
+
+	_, err := formatAdditionalShipments(ssd)
+	suite.NotNil(err)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestMissingShipmentLocatorErrorFormatAdditionalShipments() {
+	locator := "ABCDEF-01"
+
+	ppm := models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	ppm2 := models.PPMShipment{
+		ID: uuid.Must(uuid.NewV4()),
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+
+	shipments := []models.MTOShipment{
+		{
+			ShipmentType: models.MTOShipmentTypePPM,
+			PPMShipment:  &ppm2,
+			Status:       models.MTOShipmentStatusSubmitted,
+			//No -- ShipmentLocator: &locator,
+		},
+	}
+
+	ssd := models.ShipmentSummaryFormData{
+		PPMShipment:  ppm,
+		AllShipments: shipments,
+	}
+
+	_, err := formatAdditionalShipments(ssd)
+	suite.NotNil(err)
 }
