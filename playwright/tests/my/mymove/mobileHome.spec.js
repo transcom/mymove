@@ -31,7 +31,6 @@ test.describe('Mobile Home shipment', () => {
     await page.getByTestId('lengthFeet').fill('22');
     await page.getByTestId('widthFeet').fill('22');
     await page.getByTestId('heightFeet').fill('22');
-    await page.getByTestId('remarks').fill('remarks test');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByTestId('tag')).toContainText('Mobile Home');
@@ -78,7 +77,6 @@ test.describe('(MultiMove) Mobile Home shipment', () => {
     await page.getByTestId('lengthFeet').fill('22');
     await page.getByTestId('widthFeet').fill('22');
     await page.getByTestId('heightFeet').fill('22');
-    await page.getByTestId('remarks').fill('remarks test');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByTestId('tag')).toContainText('Mobile Home');
@@ -121,7 +119,6 @@ test.describe('(MultiMove) Mobile Home shipment', () => {
     await page.getByTestId('lengthFeet').fill('22');
     await page.getByTestId('widthFeet').fill('22');
     await page.getByTestId('heightFeet').fill('22');
-    await page.getByTestId('remarks').fill('remarks test');
     await page.getByRole('button', { name: 'Continue' }).click();
 
     await expect(page.getByTestId('tag')).toContainText('Mobile Home');
