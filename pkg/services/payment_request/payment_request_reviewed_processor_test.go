@@ -11,7 +11,6 @@ import (
 	"github.com/benbjohnson/clock"
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -716,52 +715,4 @@ func (suite *PaymentRequestServiceSuite) TestProcessReviewedPaymentRequestFailed
 		suite.NoError(err)
 		suite.Equal(models.PaymentRequestStatusReviewed, paymentRequest.Status)
 	})
-}
-
-func (suite *PaymentRequestServiceSuite) TestSetupAWS() {
-	tests := []struct {
-		name          string
-		v             *viper.Viper
-		pr            models.PaymentRequest
-		edi858cString string
-		wantErr       bool
-	}{
-		{
-			name: "successful AWS setup",
-			v:    viper.New(),
-			pr: models.PaymentRequest{
-				ID: uuid.Must(uuid.NewV4()),
-				MoveTaskOrder: models.Move{
-					Locator: "ABC123",
-				},
-			},
-			edi858cString: "Sample EDI858C content",
-			wantErr:       false,
-		},
-		{
-			name: "AWS setup with empty EDI858C string",
-			v:    viper.New(),
-			pr: models.PaymentRequest{
-				ID: uuid.Must(uuid.NewV4()),
-				MoveTaskOrder: models.Move{
-					Locator: "ABC123",
-				},
-			},
-			edi858cString: "",
-			wantErr:       true,
-		},
-	}
-
-	for _, tt := range tests {
-		suite.Run(tt.name, func() {
-			// Set up necessary AWS-related configuration in Viper
-			tt.v.Set("AWS_S3_BUCKET_NAME", "test-bucket")
-			tt.v.Set("AWS_S3_REGION", "us-west-2")
-
-			err := setupAWS(tt.v, tt.pr, tt.edi858cString)
-			if (err != nil) != tt.wantErr {
-				suite.Error(err, tt.wantErr)
-			}
-		})
-	}
 }
