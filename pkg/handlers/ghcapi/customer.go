@@ -163,7 +163,6 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 			payload := params.Body
 			var err error
 			var serviceMembers []models.ServiceMember
-			var edipi *string
 			var dodidUniqueFeatureFlag bool
 
 			// evaluating feature flag to see if we need to check if the DODID exists already
@@ -177,30 +176,31 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 			}
 
 			if dodidUniqueFeatureFlag {
-				if payload.Edipi == nil || *payload.Edipi == "" {
-					edipi = nil
-				} else {
-					query := `SELECT service_members.edipi
+				query := `SELECT service_members.edipi
 								FROM service_members
 								WHERE service_members.edipi = $1`
-					err := appCtx.DB().RawQuery(query, payload.Edipi).All(&serviceMembers)
-					if err != nil {
-						errorMsg := apperror.NewBadDataError("error when checking for existing service member")
-						payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-						return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
-					} else if len(serviceMembers) > 0 {
-						errorMsg := apperror.NewConflictError(h.GetTraceIDFromRequest(params.HTTPRequest), "Service member with this DODID already exists. Please use a different DODID number.")
-						payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
-						return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
-					}
+				err := appCtx.DB().RawQuery(query, payload.Edipi).All(&serviceMembers)
+				if err != nil {
+					errorMsg := apperror.NewBadDataError("error when checking for existing service member")
+					payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
+				} else if len(serviceMembers) > 0 {
+					errorMsg := apperror.NewConflictError(h.GetTraceIDFromRequest(params.HTTPRequest), "Service member with this DODID already exists. Please use a different DODID number.")
+					payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
 				}
+			}
 
-				if len(serviceMembers) == 0 {
-					edipi = params.Body.Edipi
+			// Endpoint specific EDIPI and EMPLID check
+			// The following validation currently is only intended for the customer creation
+			// conducted by an office user such as the Service Counselor
+			if payload.Affiliation != nil && *payload.Affiliation == ghcmessages.AffiliationCOASTGUARD {
+				// EMPLID cannot be null
+				if payload.Emplid == nil {
+					errorMsg := apperror.NewConflictError(h.GetTraceIDFromRequest(params.HTTPRequest), "Service members from the Coast Guard require an EMPLID for creation.")
+					payload := payloadForValidationError("Unable to create a customer", errorMsg.Error(), h.GetTraceIDFromRequest(params.HTTPRequest), validate.NewErrors())
+					return customercodeop.NewCreateCustomerWithOktaOptionUnprocessableEntity().WithPayload(payload), errorMsg
 				}
-			} else {
-				// If the feature flag is not enabled, we will just set the dodid and continue
-				edipi = params.Body.Edipi
 			}
 
 			var newServiceMember models.ServiceMember
@@ -249,18 +249,11 @@ func (h CreateCustomerWithOktaOptionHandler) Handle(params customercodeop.Create
 				residentialAddress := addressModelFromPayload(&payload.ResidentialAddress.Address)
 				backupMailingAddress := addressModelFromPayload(&payload.BackupMailingAddress.Address)
 
-				var emplid *string
-				if *payload.Emplid == "" {
-					emplid = nil
-				} else {
-					emplid = payload.Emplid
-				}
-
 				// Create a new serviceMember using the userID
 				newServiceMember = models.ServiceMember{
 					UserID:               userID,
-					Edipi:                edipi,
-					Emplid:               emplid,
+					Edipi:                &payload.Edipi,
+					Emplid:               payload.Emplid,
 					Affiliation:          (*models.ServiceMemberAffiliation)(payload.Affiliation),
 					FirstName:            &payload.FirstName,
 					MiddleName:           payload.MiddleName,
