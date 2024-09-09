@@ -521,7 +521,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 	page3Map := make(map[string]string)
-	i := 0
+	i := 1
 	hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
 	locator := "ABCDEF"
 	hhg.ShipmentLocator = &locator
@@ -1015,6 +1015,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 	exampleValue1 := unit.Cents(5000)
 	exampleValue2 := unit.Cents(3000)
 	exampleValue3 := unit.Cents(1000)
+	exampleValue4 := models.PPMAdvanceStatusReceived
+	exampleValue5 := true
 	locator := "ABCDEF-01"
 	tests := []struct {
 		name           string
@@ -1027,15 +1029,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 				FinalIncentive:        &exampleValue1, // Example value
 				EstimatedIncentive:    &exampleValue2, // Example value
 				AdvanceAmountReceived: &exampleValue3, // Example value
+				AdvanceStatus:         &exampleValue4,
+				HasRequestedAdvance:   &exampleValue5,
 				Shipment: models.MTOShipment{
 					ShipmentLocator: &locator,
 				},
 			},
 			expectedResult: WorkSheetShipment{
-				FinalIncentive:         "$50.00", // Example expected result
-				MaxAdvance:             "$18.00", // Assuming formatMaxAdvance correctly formats
-				EstimatedIncentive:     "$30.00", // Example expected result
-				AdvanceAmountReceived:  "$10.00", // Example expected result
+				FinalIncentive:         "$50.00",                     // Example expected result
+				MaxAdvance:             "$18.00",                     // Assuming formatMaxAdvance correctly formats
+				EstimatedIncentive:     "$30.00",                     // Example expected result
+				AdvanceAmountReceived:  "$10.00 Requested, Received", // Example expected result
 				ShipmentNumberAndTypes: locator,
 			},
 		},
@@ -1045,15 +1049,17 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 				FinalIncentive:        nil,
 				EstimatedIncentive:    &exampleValue2, // Example value
 				AdvanceAmountReceived: &exampleValue3, // Example value
+				AdvanceStatus:         &exampleValue4,
+				HasRequestedAdvance:   &exampleValue5,
 				Shipment: models.MTOShipment{
 					ShipmentLocator: &locator,
 				},
 			},
 			expectedResult: WorkSheetShipment{
 				FinalIncentive:         "No final incentive.",
-				MaxAdvance:             "$18.00", // Assuming formatMaxAdvance correctly formats
-				EstimatedIncentive:     "$30.00", // Example expected result
-				AdvanceAmountReceived:  "$10.00", // Example expected result
+				MaxAdvance:             "$18.00",                     // Assuming formatMaxAdvance correctly formats
+				EstimatedIncentive:     "$30.00",                     // Example expected result
+				AdvanceAmountReceived:  "$10.00 Requested, Received", // Example expected result
 				ShipmentNumberAndTypes: locator,
 			},
 		},

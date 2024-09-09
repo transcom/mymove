@@ -355,8 +355,8 @@ func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData) (map[strin
 		}
 
 		// This ensures that skipping the current PPM does not cause any row skips due to db fetch order
-		if hasCurrentPPM {
-			i = i - 1
+		if !hasCurrentPPM {
+			i = i + 1
 		}
 
 		// If after skipping the current PPM, i is more than the amount of rows we have, throw an error.
@@ -378,36 +378,36 @@ func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData) (map[strin
 			// Weights
 			totalWeight := models.GetPPMNetWeight(*shipment.PPMShipment)
 			if totalWeight != 0 {
-				page3Map[fmt.Sprintf("AddShipmentWeights%d", i+1)] = FormatPPMWeightFinal(totalWeight) // Comment happens in formatter
+				page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatPPMWeightFinal(totalWeight) // Comment happens in formatter
 			} else if shipment.PPMShipment.EstimatedWeight != nil {
-				page3Map[fmt.Sprintf("AddShipmentWeights%d", i+1)] = FormatPPMWeightEstimated(*shipment.PPMShipment) // Comment happens in formatter
+				page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatPPMWeightEstimated(*shipment.PPMShipment) // Comment happens in formatter
 			} else {
-				page3Map[fmt.Sprintf("AddShipmentWeights%d", i+1)] = " - "
+				page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = " - "
 			}
 			// Dates
 			if shipment.PPMShipment.ActualMoveDate != nil {
-				page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i+1)] = FormatDate(*shipment.PPMShipment.ActualMoveDate) + " Actual"
+				page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.PPMShipment.ActualMoveDate) + " Actual"
 
 			} else {
-				page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i+1)] = FormatDate(shipment.PPMShipment.ExpectedDepartureDate) + " Expected"
+				page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(shipment.PPMShipment.ExpectedDepartureDate) + " Expected"
 
 			}
 			// PPM Status instead of shipment status
-			page3Map[fmt.Sprintf("AddShipmentStatus%d", i+1)] = FormatCurrentPPMStatus(*shipment.PPMShipment)
+			page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatCurrentPPMStatus(*shipment.PPMShipment)
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " NTS Release"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " NTS"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
 		case shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " Int'l HHG"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l HHG"
 		case shipment.ShipmentType == models.MTOShipmentTypeInternationalUB:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " Int'l UB"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l UB"
 		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " Mobile Home"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " Boat Haul"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Haul"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " Boat Tow"
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Tow"
 		}
 	}
 	return page3Map, nil
@@ -416,7 +416,7 @@ func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData) (map[strin
 func formatAdditionalHHG(page3Map map[string]string, i int, shipment models.MTOShipment) (map[string]string, error) {
 	// If no shipment locator, throw error because something is wrong
 	if shipment.ShipmentLocator != nil {
-		page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i+1)] = *shipment.ShipmentLocator + " " + string(shipment.ShipmentType)
+		page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " " + string(shipment.ShipmentType)
 	} else {
 		err := errors.New("PDF is being generated for a move without a locator")
 		return nil, err
@@ -425,28 +425,28 @@ func formatAdditionalHHG(page3Map map[string]string, i int, shipment models.MTOS
 	// If we're missing pickup dates or weights, we return " - " instead of error. Also it may be a PPM
 	// For dates, we prefer actual -> scheduled -> requested -> -
 	if shipment.ActualPickupDate != nil {
-		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i+1)] = FormatDate(*shipment.ActualPickupDate) + " Actual"
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.ActualPickupDate) + " Actual"
 	} else if shipment.ScheduledPickupDate != nil {
-		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i+1)] = FormatDate(*shipment.ScheduledPickupDate) + " Scheduled"
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.ScheduledPickupDate) + " Scheduled"
 
 	} else if shipment.RequestedPickupDate != nil {
-		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i+1)] = FormatDate(*shipment.RequestedPickupDate) + " Requested"
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.RequestedPickupDate) + " Requested"
 
 	} else {
-		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i+1)] = " - "
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = " - "
 	}
 
 	// For weights, we prefer actual -> estimated -> -
 	if shipment.PrimeActualWeight != nil {
-		page3Map[fmt.Sprintf("AddShipmentWeights%d", i+1)] = FormatWeights(*shipment.PrimeActualWeight) + " Actual"
+		page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatWeights(*shipment.PrimeActualWeight) + " Actual"
 	} else if shipment.PrimeEstimatedWeight != nil {
-		page3Map[fmt.Sprintf("AddShipmentWeights%d", i+1)] = FormatWeights(*shipment.PrimeEstimatedWeight) + " Estimated"
+		page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatWeights(*shipment.PrimeEstimatedWeight) + " Estimated"
 	} else {
-		page3Map[fmt.Sprintf("AddShipmentWeights%d", i+1)] = " - "
+		page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = " - "
 	}
 
 	// Status is always available
-	page3Map[fmt.Sprintf("AddShipmentStatus%d", i+1)] = FormatEnum(string(shipment.Status), "")
+	page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatEnum(string(shipment.Status), "")
 
 	return page3Map, nil
 }
@@ -633,11 +633,6 @@ func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipm
 		formattedShipment.MaxAdvance = "Advance not available."
 		formattedShipment.EstimatedIncentive = "No estimated incentive."
 	}
-	if ppm.AdvanceAmountReceived != nil {
-		formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived)
-	} else {
-		formattedShipment.AdvanceAmountReceived = "No advance received."
-	}
 	formattedShipmentTotalWeights := unit.Pound(0)
 	formattedNumberAndTypes := *ppm.Shipment.ShipmentLocator + " PPM"
 	formattedShipmentWeights := FormatPPMWeightEstimated(ppm)
@@ -645,14 +640,50 @@ func FormatShipment(ppm models.PPMShipment, isPaymentPacket bool) WorkSheetShipm
 	if ppm.EstimatedWeight != nil {
 		formattedShipmentTotalWeights += *ppm.EstimatedWeight
 	}
-
 	formattedPickUpDates := FormatDate(ppm.ExpectedDepartureDate)
+	// If advance isn't configured or received, it's false
+	var hasRequestedAdvance bool
+	if ppm.HasRequestedAdvance == nil {
+		hasRequestedAdvance = false
+	} else {
+		hasRequestedAdvance = *ppm.HasRequestedAdvance
+	}
 	if isPaymentPacket {
 		formattedPickUpDates = "N/A"
 		if ppm.ActualMoveDate != nil {
 			formattedPickUpDates = FormatDate(*ppm.ActualMoveDate)
 		}
+		// If it's received, reflect that
+		if ppm.AdvanceAmountReceived != nil {
+			formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + "Customer received"
+		} else if hasRequestedAdvance {
+			// If it's requested, give amount and status
+			if *ppm.AdvanceStatus != models.PPMAdvanceStatusReceived {
+				formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountRequested) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+			} else {
+				// If it's received, give received amount and status
+				formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+			}
+		} else {
+			formattedShipment.AdvanceAmountReceived = "No Advance Requested."
+		}
+	} else {
+		// No customer received amount in AOA packet
+		if hasRequestedAdvance {
+			if ppm.AdvanceStatus != nil {
+				if *ppm.AdvanceStatus != models.PPMAdvanceStatusReceived {
+					formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountRequested) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+				} else {
+					// If it's received, give received amount and status
+					formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+				}
+			}
+			// If it's requested, give amount and status
+		} else {
+			formattedShipment.AdvanceAmountReceived = "No Advance Requested."
+		}
 	}
+
 	// Last resort in case any dates are stored incorrectly
 	if formattedPickUpDates == "01-Jan-0001" {
 		formattedPickUpDates = "N/A"
