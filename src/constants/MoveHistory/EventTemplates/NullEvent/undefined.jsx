@@ -22,7 +22,7 @@ export default {
         return <> Updated shipment </>;
       case t.moves:
       default:
-        return <> Updated move </>;
+        return <> Updated move **PB </>;
     }
   },
   getDetails: () => <> - </>,

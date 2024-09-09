@@ -38,6 +38,7 @@ export default {
   spouse_pro_gear_weight: 'Spouse pro-gear weight', // ppm_shipments table
   required_medical_equipment_weight: 'Required medical equipment',
   organizational_clothing_and_individual_equipment: 'OCIE',
+  gun_safe: 'Gun Safe',
   requested_pickup_date: 'Requested pickup date',
   grade: 'Pay grade',
   shipment_type: 'Shipment type',

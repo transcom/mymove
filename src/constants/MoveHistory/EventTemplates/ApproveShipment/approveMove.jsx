@@ -2,12 +2,13 @@ import React from 'react';
 
 import a from 'constants/MoveHistory/Database/Actions';
 import t from 'constants/MoveHistory/Database/Tables';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 export default {
   action: a.UPDATE,
-  eventName: '*', // Needs wild card to handle both updateAllowance and updateOrder
-  tableName: t.entitlements,
-  getEventNameDisplay: () => 'Updated allowances',
+  eventName: o.approveShipment,
+  tableName: t.moves,
+  getEventNameDisplay: () => 'Approved shipment **PB',
   getDetails: (historyRecord) => <LabeledDetails historyRecord={historyRecord} />,
 };

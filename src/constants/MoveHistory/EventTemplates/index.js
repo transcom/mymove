@@ -1,5 +1,6 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
+export { default as approveMove } from './ApproveShipment/approveMove';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
