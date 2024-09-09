@@ -109,6 +109,9 @@ const InternalUpdateServiceMemberBackupContactEndpointKey = "Internal.UpdateServ
 // InternalSearchDutyLocationsEndpointKey is the key for the searchDutyLocations endpoint in internal
 const InternalSearchDutyLocationsEndpointKey = "Internal.SearchDutyLocations"
 
+// InternalShowCounselingOfficesEndpointKey is the key for the showCounselingOffices endpoint in internal
+const InternalShowCounselingOfficesEndpointKey = "Internal.ShowCounselingOffices"
+
 // InternalShowDutyLocationsTransportationOfficeEndpointKey is the key for the showDutyLocationTransportationOffice endpoint in internal
 const InternalShowDutyLocationTransportationOfficeEndpointKey = "Internal.ShowDutyLocationTransportationOffice"
 
@@ -282,6 +285,10 @@ var internalEndpoints = EndpointMapType{
 	InternalSearchDutyLocationsEndpointKey: {
 		APIName:     InternalAPIName,
 		OperationID: "searchDutyLocations",
+	},
+	InternalShowCounselingOfficesEndpointKey: {
+		APIName:     InternalAPIName,
+		OperationID: "showCounselingOffices",
 	},
 	InternalShowDutyLocationTransportationOfficeEndpointKey: {
 		APIName:     InternalAPIName,
