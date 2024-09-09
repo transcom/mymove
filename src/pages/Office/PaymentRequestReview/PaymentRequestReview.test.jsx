@@ -6,7 +6,7 @@ import userEvent from '@testing-library/user-event';
 
 import { PaymentRequestReview } from './PaymentRequestReview';
 
-import { patchPaymentServiceItemStatus, bulkDownloadPaymentRequest } from 'services/ghcApi';
+import { patchPaymentServiceItemStatus } from 'services/ghcApi';
 import { SHIPMENT_OPTIONS, PAYMENT_REQUEST_STATUS, PAYMENT_SERVICE_ITEM_STATUS } from 'shared/constants';
 import { usePaymentRequestQueries } from 'hooks/queries';
 import { ReactQueryWrapper } from 'testUtils';
@@ -57,7 +57,6 @@ jest.mock('hooks/queries', () => ({
 jest.mock('services/ghcApi', () => ({
   ...jest.requireActual('services/ghcApi'),
   patchPaymentServiceItemStatus: jest.fn(),
-  bulkDownloadPaymentRequest: jest.fn(),
 }));
 
 // prevents react-fileviewer from throwing errors without mocking relevant DOM elements
@@ -354,34 +353,7 @@ describe('PaymentRequestReview', () => {
       expect(reviewServiceItems.prop('serviceItemCards')).toEqual(expectedServiceItemCards);
     });
   });
-  describe('when clicking download Download All Files button', () => {
-    it('downloads a bulk packet', async () => {
-      usePaymentRequestQueries.mockReturnValue(usePaymentRequestQueriesReturnValuePendingFinalReview);
 
-      const mockResponse = {
-        ok: true,
-        headers: {
-          'content-disposition': 'filename="test.pdf"',
-        },
-        status: 200,
-        data: null,
-      };
-
-      render(
-        <ReactQueryWrapper>
-          <PaymentRequestReview {...requiredProps} />
-        </ReactQueryWrapper>,
-      );
-
-      bulkDownloadPaymentRequest.mockImplementation(() => Promise.resolve(mockResponse));
-
-      const downloadButton = screen.getByText('Download All Files (PDF)', { exact: false });
-      await userEvent.click(downloadButton);
-      await waitFor(() => {
-        expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
-      });
-    });
-  });
   describe('clicking the next button', () => {
     describe('with pending requests', () => {
       beforeEach(async () => {
@@ -512,9 +484,9 @@ describe('PaymentRequestReview', () => {
         expect(terms[1]).toHaveTextContent('Accepted');
         expect(terms[2]).toHaveTextContent('Rejected');
         const definitions = screen.getAllByRole('definition');
-        expect(definitions[1]).toHaveTextContent('$1,703.10');
-        expect(definitions[2]).toHaveTextContent('$1,579.98');
-        expect(definitions[3]).toHaveTextContent('$123.12');
+        expect(definitions[0]).toHaveTextContent('$1,703.10');
+        expect(definitions[1]).toHaveTextContent('$1,579.98');
+        expect(definitions[2]).toHaveTextContent('$123.12');
       });
       it('navigates back, and shows the correct icons for approved and rejected cards', async () => {
         await userEvent.click(screen.getByRole('button', { name: 'Back' }));
