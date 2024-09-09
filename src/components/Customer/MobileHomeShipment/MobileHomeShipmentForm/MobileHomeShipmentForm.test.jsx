@@ -54,11 +54,6 @@ describe('MobileHomeShipmentForm component', () => {
       expect(screen.getByTestId('widthInches')).toHaveValue('6');
       expect(screen.getByTestId('heightFeet')).toHaveValue('7');
       expect(screen.getByTestId('heightInches')).toHaveValue('0');
-      expect(
-        screen.getByLabelText(
-          'Are there things about this mobile home shipment that your counselor or movers should know or discuss with you?',
-        ),
-      ).toBeVisible();
     });
   });
 

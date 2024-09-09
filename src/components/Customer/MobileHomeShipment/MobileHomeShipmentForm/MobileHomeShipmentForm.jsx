@@ -1,20 +1,18 @@
 import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
-import { Formik, Field } from 'formik';
-import { Button, Form, Label, Textarea } from '@trussworks/react-uswds';
+import { Formik } from 'formik';
+import { Button, Form } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import styles from './MobileHomeShipmentForm.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
-import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
-import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
 import RequiredTag from 'components/form/RequiredTag';
@@ -110,7 +108,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
           <div className={styles.formContainer}>
             <Form className={formStyles.form}>
               <SectionWrapper className={classnames(styles.sectionWrapper, formStyles.formSection, 'origin')}>
-                <h2>Mobile home Information</h2>
+                <h2>Mobile Home Information</h2>
                 <div className="grid-row grid-gap">
                   <div className="mobile-lg:grid-col-3">
                     <MaskedTextField
@@ -259,39 +257,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     </div>
                   </Fieldset>
                 </div>
-              </SectionWrapper>
-              <SectionWrapper className={formStyles.formSection}>
-                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
-                  <Label htmlFor="customerRemarks">
-                    Are there things about this mobile home shipment that your counselor or movers should know or
-                    discuss with you?
-                  </Label>
-
-                  <Callout>
-                    Examples
-                    <ul>
-                      <li>
-                        Dimensions of the mobile home on the trailer are signigicantly different than one would expect
-                        given their individual dimensions
-                      </li>
-
-                      <li>Access info for your origin or destination address/marina</li>
-                    </ul>
-                  </Callout>
-
-                  <Field
-                    as={Textarea}
-                    data-testid="remarks"
-                    name="customerRemarks"
-                    className={`${formStyles.remarks}`}
-                    placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
-                    id="customerRemarks"
-                    maxLength={250}
-                  />
-                  <Hint>
-                    <p>250 characters</p>
-                  </Hint>
-                </Fieldset>
               </SectionWrapper>
               <div className={styles.buttonContainer}>
                 <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>

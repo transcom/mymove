@@ -198,7 +198,7 @@ export class WaitForCustomerPage extends WaitForPage {
    */
   async mobileHomeShipment() {
     await this.runAccessibilityAudit();
-    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Mobile home details and measurements');
+    await base.expect(this.page.getByRole('heading', { level: 1 })).toHaveText('Mobile Home details and measurements');
     await this.runAccessibilityAudit();
   }
 

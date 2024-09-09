@@ -151,7 +151,7 @@ const MobileHomeShipmentCreate = ({
         <Grid row>
           <Grid col desktop={{ col: 8, offset: 2 }}>
             <ShipmentTag shipmentType={SHIPMENT_OPTIONS.MOBILE_HOME} shipmentNumber={shipmentNumber} />
-            <h1>Mobile home details and measurements</h1>
+            <h1>Mobile Home details and measurements</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
                 {errorMessage}
