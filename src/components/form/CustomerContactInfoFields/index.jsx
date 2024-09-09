@@ -4,14 +4,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { Label, Fieldset } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
-import RequiredTag from '../RequiredTag';
-
 import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField } from 'components/form/fields';
 
-export const CustomerContactInfoFields = ({ legend, className, render }) => {
+export const CustomerContactInfoFields = ({ legend, className, render, labelHint: labelHintProp }) => {
   const CustomerContactInfoFieldsUUID = useRef(uuidv4());
 
   return (
@@ -24,6 +22,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
                 label="Best contact phone"
                 id={`telephone_${CustomerContactInfoFieldsUUID.current}`}
                 name="telephone"
+                labelHint={labelHintProp}
                 type="tel"
                 minimum="12"
                 mask="000{-}000{-}0000"
@@ -35,7 +34,7 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
             <div className="mobile-lg:grid-col-7">
               <MaskedTextField
                 label="Alt. phone"
-                optional
+                labelHint={labelHintProp ? null : 'Optional'}
                 id={`secondaryTelephone_${CustomerContactInfoFieldsUUID.current}`}
                 name="secondary_telephone"
                 type="tel"
@@ -48,10 +47,10 @@ export const CustomerContactInfoFields = ({ legend, className, render }) => {
             label="Personal email"
             id={`personalEmail_${CustomerContactInfoFieldsUUID.current}`}
             name="personal_email"
+            labelHint={labelHintProp}
             required
           />
-          <Label>Preferred contact method</Label>
-          <RequiredTag />
+          <Label hint={labelHintProp}>Preferred contact method</Label>
           <div className={classnames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
             <CheckboxField
               id={`phoneIsPreferred_${CustomerContactInfoFieldsUUID.current}`}

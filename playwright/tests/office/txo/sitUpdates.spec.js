@@ -7,6 +7,20 @@ test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
 
+  // Helper func to calculate days between 2 given dates
+  // This is to support months of 30 and 31 dayss
+  const calculateDaysDiff = (startDate, endDate) => {
+    let days = 0;
+    const currentDate = new Date(startDate);
+
+    while (currentDate < endDate) {
+      days += 1;
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return days;
+  };
+
   test.describe('previewing shipment with current SIT with past SIT', () => {
     test.beforeEach(async ({ officePage }) => {
       // build move in SIT with 90 days authorized and without pending extension requests
@@ -32,14 +46,11 @@ test.describe('TOO user', () => {
       // get 2 months ago
       const twoMonthsAgo = new Date(today);
       twoMonthsAgo.setMonth(today.getMonth() - 2);
-      // get the time diff
-      const timeDiff = oneMonthAgo.getTime() - twoMonthsAgo.getTime();
-      // get the days, converting milliseconds to days
-      const daysDiff = timeDiff / (1000 * 60 * 60 * 24);
-      // be inclusive of the last day
-      const totalDaysBetweenOneMonthInclusive = daysDiff + 1;
+      // get days between
+      const daysBetweenTwoMonthsAgoAndOneMonthAgo = calculateDaysDiff(twoMonthsAgo, oneMonthAgo);
+      const daysBetweenOneMonthAgoAndToday = calculateDaysDiff(oneMonthAgo, today);
       // get sums
-      const totalDaysUsed = totalDaysBetweenOneMonthInclusive * 2; // Origin and Dest sit each used 1 month
+      const totalDaysUsed = daysBetweenTwoMonthsAgoAndOneMonthAgo + daysBetweenOneMonthAgoAndToday;
       const remainingDays = 90 - totalDaysUsed;
       // assert that days used is the following sum
       // - past origin SIT (entry 2 months ago, departure 1 month ago)
@@ -53,19 +64,23 @@ test.describe('TOO user', () => {
       ).toBeVisible();
       // assert that total days in destination sit is 1 month, inclusive of last day
       await expect(
-        page
-          .getByTestId('sitStartAndEndTable')
-          .getByText(`${totalDaysBetweenOneMonthInclusive}`, { exact: true })
-          .first(),
+        page.getByTestId('sitStartAndEndTable').getByText(`${daysBetweenOneMonthAgoAndToday}`, { exact: true }).first(),
       ).toBeVisible();
 
-      // get authorized end date as 90 days from the origin start date (two months ago)
-      const ninetyDaysFromStartDate = new Date(twoMonthsAgo);
-      ninetyDaysFromStartDate.setDate(ninetyDaysFromStartDate.getDate() + 90);
+      // Get the SIT start date from the UI
+      const sitStartDateText = await page.getByTestId('sitStartAndEndTable').locator('td').nth(0).innerText();
+      const sitStartDate = new Date(sitStartDateText);
+
+      // Calculate the authorized end date by adding 90 days to the start date and then subtracting total days used
+      const authorizedEndDate = new Date(sitStartDate);
+      // Use 89 because the last day is counted as a whole day
+      // Subtract by "daysBetweenTwoMonthsAgoAndOneMonthAgo" (past SIT days) instead of total days used
+      // This is because the authorized end date is based on the remaining days at the start of the current SIT
+      authorizedEndDate.setDate(authorizedEndDate.getDate() + 89 - daysBetweenTwoMonthsAgoAndOneMonthAgo);
       // format
-      const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(ninetyDaysFromStartDate);
-      const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(ninetyDaysFromStartDate);
-      const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(ninetyDaysFromStartDate);
+      const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(authorizedEndDate);
+      const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(authorizedEndDate);
+      const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(authorizedEndDate);
       const expectedAuthorizedEndDate = `${day} ${month} ${year}`;
       // assert
       await expect(
@@ -103,17 +118,11 @@ test.describe('TOO user', () => {
       originDepartureDate.setMonth(today.getMonth() - 3);
       const originEntryDate = new Date(today);
       originEntryDate.setMonth(today.getMonth() - 4);
-      // get the time diff
-      const destinationTimeDiff = destinationDepartureDate.getTime() - destinationEntryDate.getTime();
-      const originTimeDiff = originDepartureDate.getTime() - originEntryDate.getTime();
-      // get the days, converting milliseconds to days
-      const destinationDaysDiff = destinationTimeDiff / (1000 * 60 * 60 * 24);
-      const originDaysDiff = originTimeDiff / (1000 * 60 * 60 * 24);
-      // be inclusive of the last day
-      const totalDaysBetweenDestinationInclusive = destinationDaysDiff + 1;
-      const totalDaysBetweenOriginInclusive = originDaysDiff + 1;
+      // days between
+      const totalDaysBetweenDestination = calculateDaysDiff(destinationEntryDate, destinationDepartureDate);
+      const totalDaysBetweenOrigin = calculateDaysDiff(originEntryDate, originDepartureDate);
       // get sums
-      const totalDaysUsed = totalDaysBetweenDestinationInclusive + totalDaysBetweenOriginInclusive;
+      const totalDaysUsed = totalDaysBetweenDestination + totalDaysBetweenOrigin;
       const remainingDays = 90 - totalDaysUsed;
       // assert sums
       await expect(
@@ -127,13 +136,13 @@ test.describe('TOO user', () => {
       await expect(
         page
           .getByTestId('previouslyUsedSitTable')
-          .getByText(`${totalDaysBetweenDestinationInclusive} days at destination`, { exact: false })
+          .getByText(`${totalDaysBetweenDestination} days at destination`, { exact: false })
           .first(),
       ).toBeVisible();
       await expect(
         page
           .getByTestId('previouslyUsedSitTable')
-          .getByText(`${totalDaysBetweenOriginInclusive} days at origin`, { exact: false })
+          .getByText(`${totalDaysBetweenOrigin} days at origin`, { exact: false })
           .first(),
       ).toBeVisible();
     });

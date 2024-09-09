@@ -21,11 +21,24 @@ const hhgShipmentSchema = Yup.object().shape({
   counselorRemarks: Yup.string(),
 });
 
+const mobileHomeShipmentLocationSchema = Yup.object().shape({
+  pickup: RequiredPlaceSchema,
+  delivery: OptionalPlaceSchema,
+  secondaryPickup: AdditionalAddressSchema,
+  secondaryDelivery: AdditionalAddressSchema,
+  tertiaryPickup: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
+  customerRemarks: Yup.string(),
+  counselorRemarks: Yup.string(),
+});
+
 const boatShipmentLocationInfoSchema = Yup.object().shape({
   pickup: RequiredPlaceSchema,
   delivery: OptionalPlaceSchema,
   secondaryPickup: AdditionalAddressSchema,
   secondaryDelivery: AdditionalAddressSchema,
+  tertiaryPickup: AdditionalAddressSchema,
+  tertiaryDelivery: AdditionalAddressSchema,
   customerRemarks: Yup.string(),
   counselorRemarks: Yup.string(),
 });
@@ -84,6 +97,14 @@ function getShipmentOptions(shipmentType, userRole) {
         showDeliveryFields: true,
       };
 
+    case SHIPMENT_OPTIONS.MOBILE_HOME:
+      return {
+        schema: mobileHomeShipmentLocationSchema,
+        showPickupFields: true,
+        showDeliveryFields: true,
+      };
+
+    case SHIPMENT_OPTIONS.BOAT:
     case SHIPMENT_TYPES.BOAT_HAUL_AWAY:
     case SHIPMENT_TYPES.BOAT_TOW_AWAY:
       return {
