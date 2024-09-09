@@ -346,6 +346,7 @@ func FormatValuesShipmentSummaryWorksheetFormPage3(data services.ShipmentSummary
 func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData) (map[string]string, error) {
 	page3Map := make(map[string]string)
 	hasCurrentPPM := false
+	const rows = 16
 	for i, shipment := range ssfd.AllShipments {
 
 		// If this is the shipment the SSW is being generated for, skip it.
@@ -360,7 +361,7 @@ func formatAdditionalShipments(ssfd services.ShipmentSummaryFormData) (map[strin
 		}
 
 		// If after skipping the current PPM, i is more than the amount of rows we have, throw an error.
-		if i > 16 {
+		if i > rows {
 			err := errors.New("PDF is being generated for a move with more than 17 shipments, SSW cannot display them all")
 			return nil, err
 		}
@@ -1096,9 +1097,10 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return nil, nil, err
 	}
 
-	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
+	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted. Pages is expected pages
+	const pages = 3
 	pdfInfoResult, err := SSWPPMGenerator.generator.GetPdfFileInfo(SSWWorksheet.Name())
-	if err != nil || pdfInfoResult.PageCount != 3 {
+	if err != nil || pdfInfoResult.PageCount != pages {
 		return nil, nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
 	}
 	// Return PDFInfo for additional testing in other functions
