@@ -1,7 +1,9 @@
 package officeuser
 
 import (
+	"database/sql"
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/gobuffalo/validate/v3"
@@ -32,6 +34,17 @@ func (o *officeUserCreator) CreateOfficeUser(
 
 	if fetchErr != nil {
 		return nil, nil, fetchErr
+	}
+
+	// Check and update rejected office user if necessary
+	existingOfficeUser, rejectedUserVerrs, rejectedUserErr := o.checkAndUpdateRejectedOfficeUser(appCtx, officeUser)
+	if rejectedUserVerrs != nil || rejectedUserErr != nil {
+		return nil, rejectedUserVerrs, rejectedUserErr
+	}
+
+	// If an existing rejected user was updated, return the updated user
+	if existingOfficeUser != nil {
+		return existingOfficeUser, nil, nil
 	}
 
 	// A user may already exist with that email from a previous user (admin, service member, ...)
@@ -149,4 +162,65 @@ func GenerateFakeOktaID() string {
 // NewOfficeUserCreator returns a new office user creator
 func NewOfficeUserCreator(builder officeUserQueryBuilder, sender notifications.NotificationSender) services.OfficeUserCreator {
 	return &officeUserCreator{builder, sender}
+}
+
+func (o *officeUserCreator) checkAndUpdateRejectedOfficeUser(
+	appCtx appcontext.AppContext,
+	officeUser *models.OfficeUser,
+) (*models.OfficeUser, *validate.Errors, error) {
+
+	// checking if the office user currently exists and has a previous status of rejected
+	var requestedOfficeUser models.OfficeUser
+	previouslyRejectedCheck := query.NewQueryFilter("email", "=", officeUser.Email)
+	fetchErr := o.builder.FetchOne(appCtx, &requestedOfficeUser, []services.QueryFilter{previouslyRejectedCheck})
+	if fetchErr != nil && fetchErr != sql.ErrNoRows {
+		return nil, nil, fetchErr // Return the actual error if it's not a "no rows" error
+	} else if fetchErr == sql.ErrNoRows {
+		// If no rows were found, then we can skip this check
+		return nil, nil, nil
+	}
+
+	// If the office user exists and was previously rejected, update the status to REQUESTED as well as any new info
+	if requestedOfficeUser.ID != uuid.Nil && *requestedOfficeUser.Status == models.OfficeUserStatusREJECTED {
+		// Except do not reflect rejection reason or status, we want to manage those via this service func
+		reflectedRequestedOfficeUser := reflect.ValueOf(&requestedOfficeUser).Elem()
+		reflectedCurrentOfficeUser := reflect.ValueOf(officeUser).Elem()
+		requestedOfficeUserType := reflectedRequestedOfficeUser.Type() // Retrieve type from reflect val
+		// Iterate over struct fields
+		for i := 0; i < reflectedRequestedOfficeUser.NumField(); i++ {
+			fieldName := requestedOfficeUserType.Field(i).Name
+			// Retrieve the fields
+			requestedField := reflectedRequestedOfficeUser.Field(i)
+			if !requestedField.CanSet() {
+				continue
+			}
+			currentField := reflectedCurrentOfficeUser.Field(i)
+			// Fields we don't want to change
+			if fieldName == "ID" || fieldName == "UserID" || fieldName == "User" || fieldName == "TransportationOffice" || fieldName == "CreatedAt" || fieldName == "UpdatedAt" {
+				continue
+			}
+			// Set custom vals for status and rejection reason
+			if fieldName == "Status" {
+				requestedStatus := models.OfficeUserStatusREQUESTED
+				requestedField.Set(reflect.ValueOf(&requestedStatus))
+				continue
+			}
+			if fieldName == "RejectionReason" {
+				// Reset the rejection reason
+				requestedField.Set(reflect.Zero(requestedField.Type()))
+				continue
+			}
+			if !reflect.DeepEqual(requestedField.Interface(), currentField.Interface()) {
+				// A mismatched field has been found, set it to the original office user field
+				requestedField.Set(currentField)
+			}
+		}
+		verrs, err := o.builder.UpdateOne(appCtx, &requestedOfficeUser, nil)
+		if verrs != nil || err != nil {
+			return nil, verrs, err
+		}
+		return &requestedOfficeUser, nil, nil
+	}
+
+	return nil, nil, nil
 }

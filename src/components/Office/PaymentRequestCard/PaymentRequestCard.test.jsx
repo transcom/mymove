@@ -601,7 +601,7 @@ describe('PaymentRequestCard', () => {
           createdAt: '2020-12-01T00:00:00.000Z',
           mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
           priceCents: 2000001,
-          status: 'DENIED',
+          status: 'APPROVED',
         },
         {
           id: '39474c6a-69b6-4501-8e08-670a12512a5f',
@@ -626,6 +626,14 @@ describe('PaymentRequestCard', () => {
       );
       expect(sentToGex.find({ 'data-testid': 'tag' }).contains('Sent to GEX')).toBe(true);
       expect(sentToGex.find({ 'data-testid': 'sentToGexDetails' }).exists()).toBe(true);
+      // displays the sent to gex sum, milmove accepted amount, and milmove rejected amount
+      expect(sentToGex.find({ 'data-testid': 'sentToGexDetailsDollarAmountTotal' }).contains('$20,000.01')).toBe(true);
+      expect(sentToGex.find({ 'data-testid': 'milMoveAcceptedDetailsDollarAmountTotal' }).contains('$20,000.01')).toBe(
+        true,
+      );
+      expect(sentToGex.find({ 'data-testid': 'milMoveRejectedDetailsDollarAmountTotal' }).contains('$40,000.01')).toBe(
+        true,
+      );
     });
 
     it('renders - for the date it was sent to gex if sentToGexAt is null', () => {
@@ -653,13 +661,14 @@ describe('PaymentRequestCard', () => {
         paymentRequestNumber: '1843-9061-2',
         status: 'TPPS_RECEIVED',
         moveTaskOrder: move,
+        receivedByGexAt: '2020-12-01T00:00:00.000Z',
         serviceItems: [
           {
             id: '09474c6a-69b6-4501-8e08-670a12512a5f',
             createdAt: '2020-12-01T00:00:00.000Z',
             mtoServiceItemID: 'f8c2f97f-99e7-4fb1-9cc4-473debd24dbc',
             priceCents: 2000001,
-            status: 'DENIED',
+            status: 'APPROVED',
           },
           {
             id: '39474c6a-69b6-4501-8e08-670a12512a5f',
@@ -681,6 +690,16 @@ describe('PaymentRequestCard', () => {
         </MockProviders>,
       );
       expect(receivedByGex.find({ 'data-testid': 'tag' }).contains('TPPS Received')).toBe(true);
+      // displays the tpps received sum, milmove accepted amount, and milmove rejected amount
+      expect(receivedByGex.find({ 'data-testid': 'tppsReceivedDetailsDollarAmountTotal' }).contains('$20,000.01')).toBe(
+        true,
+      );
+      expect(
+        receivedByGex.find({ 'data-testid': 'milMoveAcceptedDetailsDollarAmountTotal' }).contains('$20,000.01'),
+      ).toBe(true);
+      expect(
+        receivedByGex.find({ 'data-testid': 'milMoveRejectedDetailsDollarAmountTotal' }).contains('$40,000.01'),
+      ).toBe(true);
     });
 
     it('renders the paid status tag for paid request', () => {
