@@ -12,6 +12,7 @@ const (
 )
 
 func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
+	lockedPrice := csPriceCents
 	counselingServicesPricer := NewCounselingServicesPricer()
 
 	suite.Run("success using PaymentServiceItemParams", func() {
@@ -31,7 +32,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceCounselingServices() {
 	suite.Run("success without PaymentServiceItemParams", func() {
 		suite.setupTaskOrderFeeData(models.ReServiceCodeCS, csPriceCents)
 
-		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), csPriceCents)
+		priceCents, _, err := counselingServicesPricer.Price(suite.AppContextForTest(), &lockedPrice)
 		suite.NoError(err)
 		suite.Equal(csPriceCents, priceCents)
 	})
