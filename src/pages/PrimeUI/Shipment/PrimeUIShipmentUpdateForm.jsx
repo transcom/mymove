@@ -153,9 +153,9 @@ const PrimeUIShipmentUpdateForm = ({
       <h5 className={styles.sectionHeader}>Destination Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
-      <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
+      <h5 className={styles.sectionHeader}>Second Destination Address</h5>
       {formatAddress(secondaryDeliveryAddress)}
-      <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
+      <h5 className={styles.sectionHeader}>Third Destination Address</h5>
       {formatAddress(tertiaryDeliveryAddress)}
       <DropdownInput
         label="Destination type"
