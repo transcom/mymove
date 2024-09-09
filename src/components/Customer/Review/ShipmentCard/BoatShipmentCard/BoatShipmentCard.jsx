@@ -10,7 +10,6 @@ import styles from 'components/Customer/Review/ShipmentCard/ShipmentCard.module.
 import ShipmentContainer from 'components/Office/ShipmentContainer/ShipmentContainer';
 import IncompleteShipmentToolTip from 'components/Customer/Review/IncompleteShipmentToolTip/IncompleteShipmentToolTip';
 import { customerRoutes } from 'constants/routes';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { boatShipmentAbbr, boatShipmentTypes } from 'constants/shipments';
 import { ShipmentShape } from 'types/shipment';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
