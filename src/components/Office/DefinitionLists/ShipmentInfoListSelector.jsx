@@ -61,6 +61,7 @@ const ShipmentInfoListSelector = ({
           warnIfMissing={warnIfMissing}
           errorIfMissing={errorIfMissing}
           showWhenCollapsed={showWhenCollapsed}
+          neverShow={neverShow}
           isForEvaluationReport={isForEvaluationReport}
           destinationDutyLocationPostalCode={destinationDutyLocationPostalCode}
         />
