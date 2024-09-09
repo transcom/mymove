@@ -63,7 +63,7 @@ const BoatShipmentCard = ({
 
   return (
     <div className={styles.ShipmentCard}>
-      <ShipmentContainer className={styles.container} shipmentType={SHIPMENT_OPTIONS.BOAT}>
+      <ShipmentContainer className={styles.container} shipmentType={shipmentType}>
         {shipmentIsIncomplete && (
           <IncompleteShipmentToolTip
             onClick={onIncompleteClick}
@@ -98,7 +98,7 @@ const BoatShipmentCard = ({
           <PickupDisplay
             shipmentId={shipmentId}
             shipmentType={shipmentType}
-            requestedPickupDate={requestedPickupDate}
+            requestedPickupDate={requestedPickupDate || ''}
             pickupLocation={pickupLocation}
             secondaryPickupAddress={secondaryPickupAddress}
             tertiaryPickupAddress={tertiaryPickupAddress}
@@ -107,7 +107,7 @@ const BoatShipmentCard = ({
           <DeliveryDisplay
             shipmentId={shipmentId}
             shipmentType={shipmentType}
-            requestedDeliveryDate={requestedDeliveryDate}
+            requestedDeliveryDate={requestedDeliveryDate || ''}
             destinationLocation={destinationLocation}
             secondaryDeliveryAddress={secondaryDeliveryAddress}
             tertiaryDeliveryAddress={tertiaryDeliveryAddress}

@@ -8,6 +8,7 @@ import { generatePath } from 'react-router-dom';
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
 
+import ConnectedBoatAndMobileInfoModal from 'components/Customer/modals/BoatAndMobileInfoModal/BoatAndMobileInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
 import ConnectedBoatAndMobileInfoModal from 'components/Customer/modals/BoatAndMobileInfoModal/BoatAndMobileInfoModal';
