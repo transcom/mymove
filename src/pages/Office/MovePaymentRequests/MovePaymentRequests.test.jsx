@@ -498,7 +498,7 @@ describe('MovePaymentRequests', () => {
       });
     });
 
-    it('displays the number of pending payment request on leftnav sidebar', async () => {
+    it('displays the number of pending payment requests on leftnav sidebar', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(screen.getByTestId('numOfPendingPaymentRequestsTag').textContent).toEqual('1');
@@ -525,7 +525,7 @@ describe('MovePaymentRequests', () => {
       expect(paymentRequstNavLink.text).toContain(name);
     });
 
-    it('does not display a number of pending payment requests on leftnav sidebar if no pending exist', async () => {
+    it('does not display the number of pending payment requests on leftnav sidebar if no pending exist', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
         expect(screen.queryByTestId('numOfPendingPaymentRequestsTag')).not.toBeInTheDocument();
