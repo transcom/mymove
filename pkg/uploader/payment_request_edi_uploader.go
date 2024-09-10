@@ -37,18 +37,45 @@ func NewPaymentRequestEDIUploader(storer storage.FileStorer, fileSizeLimit ByteS
 // PrepareFileForUpload called Uploader.PrepareFileForUpload
 func (u *PaymentRequestEDIUploader) PrepareFileForUpload(appCtx appcontext.AppContext, file io.ReadCloser, filename string) (afero.File, error) {
 	// Read the incoming data into a temporary afero.File for consumption
+
+	// Convert io.ReadCloser to io.ReadSeeker
+	seeker, ok := file.(io.ReadSeeker)
+	if !ok {
+		appCtx.Logger().Error("file is not seekable")
+		return nil, errors.New("file is not seekable")
+	}
+
+	fileSize, err := seeker.Seek(0, io.SeekEnd)
+	if err != nil {
+		appCtx.Logger().Error("error getting file size", zap.Error(err))
+		return nil, err
+	}
+	_, err = seeker.Seek(0, io.SeekStart)
+	if err != nil {
+		appCtx.Logger().Error("error resetting file position", zap.Error(err))
+		return nil, err
+	}
+
+	appCtx.Logger().Info("File size", zap.Int64("size", fileSize))
+
 	return u.uploader.PrepareFileForUpload(appCtx, file, filename)
 }
-
 func (u *PaymentRequestEDIUploader) createAndStore(appCtx appcontext.AppContext, file *File, allowedTypes AllowedFileTypes) (*models.PaymentRequestEdiUpload, *validate.Errors, error) {
 	// If storage key is not set assign a default
 	id := uuid.Must(uuid.NewV4())
 	if u.GetUploadStorageKey() == "" {
 		u.uploader.DefaultStorageKey = path.Join("app", id.String())
 	}
-	//aFile, err := u.PrepareFileForUpload(appCtx, file.File, file.File.Name())
+	aFile, err := u.PrepareFileForUpload(appCtx, file.File, file.File.Name())
+	if err != nil {
+		appCtx.Logger().Error("error preparing file for upload", zap.Error(err))
+		return nil, nil, err
+	}
+	preppedFile := &File{
+		File: aFile,
+	}
 
-	newUpload, verrs, err := u.uploader.CreateUpload(appCtx, *file, allowedTypes)
+	newUpload, verrs, err := u.uploader.CreateUpload(appCtx, *preppedFile, allowedTypes)
 	if verrs.HasAny() || err != nil {
 		appCtx.Logger().Error("error creating and storing new upload", zap.Error(err))
 		return nil, verrs, err
