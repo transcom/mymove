@@ -3908,6 +3908,74 @@ paths:
           description: not found
         '500':
           description: server error
+  /uploads/get/:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - uploads
+      description: Gets an upload
+      operationId: getUpload
+      summary: Gets an upload by ID
+  /uploads/{uploadID}/update:
+    patch:
+      summary: Update an existing upload. This is only needed currently for updating the image rotation.
+      description: Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.
+      operationId: updateUpload
+      tags:
+        - uploads
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be updated
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              rotation:
+                type: integer
+                description: The rotation of the image
+                minimum: 0
+                maximum: 3
+      responses:
+        '201':
+          description: updated upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
+        '500':
+          description: server error
   /application_parameters/{parameterName}:
     get:
       summary: Searches for an application parameter by name, returns nil if not found
@@ -5777,6 +5845,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -5944,6 +6014,33 @@ definitions:
       isRoadworthy:
         type: boolean
         description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6160,8 +6257,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
-      mobileHome:
-        $ref: '#/definitions/CreateMobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
@@ -6169,9 +6266,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: 'definitions/MobileHome.yaml'
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -6294,6 +6388,34 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
