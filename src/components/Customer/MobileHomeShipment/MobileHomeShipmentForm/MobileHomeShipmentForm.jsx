@@ -1,18 +1,20 @@
 import React from 'react';
 import { func } from 'prop-types';
 import * as Yup from 'yup';
-import { Formik } from 'formik';
-import { Button, Form } from '@trussworks/react-uswds';
+import { Formik, Field } from 'formik';
+import { Button, Form, Label, Textarea } from '@trussworks/react-uswds';
 import classnames from 'classnames';
 
 import styles from './MobileHomeShipmentForm.module.scss';
 
 import SectionWrapper from 'components/Customer/SectionWrapper';
+import Hint from 'components/Hint';
 import Fieldset from 'shared/Fieldset';
 import formStyles from 'styles/form.module.scss';
 import { ShipmentShape } from 'types/shipment';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
+import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
 import RequiredTag from 'components/form/RequiredTag';
@@ -257,6 +259,39 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     </div>
                   </Fieldset>
                 </div>
+              </SectionWrapper>
+              <SectionWrapper className={formStyles.formSection}>
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
+                  <Label htmlFor="customerRemarks">
+                    Are there things about this mobile home shipment that your counselor or movers should know or
+                    discuss with you?
+                  </Label>
+
+                  <Callout>
+                    Example
+                    <ul>
+                      <li>
+                        Is there additional information you feel is pertinent to the processing of your mobile home
+                        shipment?(e.g., &lsquo;wrecker service requested&rsquo; and &lsquo;crane service needed&rsquo;).
+                      </li>
+                    </ul>
+                  </Callout>
+
+                  <Field
+                    as={Textarea}
+                    data-testid="remarks"
+                    name="customerRemarks"
+                    className={`${formStyles.remarks}`}
+                    placeholder="I am not sure what unachoring/anchoring means, however, the trailer does not have any
+                    permanent attachement to structures. It can be easily disconnected from city, water, power, grit
+                    and sewer. The trailer has 4 permanet jacks and 4 idraulic jacks."
+                    id="customerRemarks"
+                    maxLength={250}
+                  />
+                  <Hint>
+                    <p>250 characters</p>
+                  </Hint>
+                </Fieldset>
               </SectionWrapper>
               <div className={styles.buttonContainer}>
                 <Button className={styles.backButton} type="button" onClick={onBack} secondary outline>
