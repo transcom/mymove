@@ -229,14 +229,14 @@ func buildWaterMarks(bookMarks []pdfcpu.Bookmark, pdfGenerator paperwork.Generat
 		cnt := bm.PageThru - bm.PageFrom
 		for j := 0; j <= cnt; j++ {
 			// do not add watermark on SSW pages
-			if currentPage < 3 {
+			if currentPage < 4 {
 				currentPage++
 				continue
 			}
 			wmText := bm.Title
 			// we really can't use the bookmark title for the SSW+Orders.
 			// we will just label it as only Orders
-			if currentPage > 2 && bookMarkIndex == 0 {
+			if currentPage > 3 && bookMarkIndex == 0 {
 				wmText = "Orders"
 			}
 			wms := make([]*model.Watermark, 0)

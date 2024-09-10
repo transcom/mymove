@@ -176,11 +176,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	page1Data, page2Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, false)
+	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, false)
 	noErr(err)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)
-	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data)
 	noErr(err)
 	fmt.Println(ssw.Name())     // Should always return
 	fmt.Println(info.PageCount) // Page count should always be 2
