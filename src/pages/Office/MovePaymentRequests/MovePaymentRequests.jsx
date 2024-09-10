@@ -224,7 +224,7 @@ const MovePaymentRequests = ({
           <LeftNavTag
             associatedSectionName="payment-requests"
             showTag={paymentRequests.pendingCount > 0}
-            testID="numOfPaymentRequestsTag"
+            testID="numOfPendingPaymentRequestsTag"
           >
             {paymentRequests.pendingCount}
           </LeftNavTag>
