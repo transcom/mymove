@@ -867,15 +867,21 @@ func FormatSITDaysInStorage(entryDate *time.Time, departureDate *time.Time) stri
 func formatDisbursement(expensesMap map[string]float64, ppmRemainingEntitlement float64) string {
 	disbursementGTCC := expensesMap["TotalGTCCPaid"] + expensesMap["StorageGTCCPaid"]
 	disbursementGTCCB := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"]
+	var disbursementMember float64
 	// Disbursement GTCC is the lowest value of the above 2 calculations
 	if disbursementGTCCB < disbursementGTCC {
 		disbursementGTCC = disbursementGTCCB
 	}
-	// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
-	disbursementMember := ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
-	if disbursementMember < 0 {
-		disbursementMember = 0
+	if disbursementGTCC < 0 {
+		// The only way this can happen is if the member overdrafted on their advance, resulting in negative GTCCB. In this case, the
+		// disbursement member value will be liable for the negative difference, meaning they owe this money to the govt.
+		disbursementMember = disbursementGTCC
+		disbursementGTCC = 0
+	} else {
+		// Disbursement Member is remaining entitlement plus member SIT minus GTCC Disbursement, not less than 0.
+		disbursementMember = ppmRemainingEntitlement + expensesMap["StorageMemberPaid"] - disbursementGTCC
 	}
+
 	// Return formatted values in string
 	disbursementString := "GTCC: " + FormatDollars(disbursementGTCC) + "\nMember: " + FormatDollars(disbursementMember)
 	return disbursementString
