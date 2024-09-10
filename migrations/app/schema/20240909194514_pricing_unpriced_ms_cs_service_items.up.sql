@@ -1,3 +1,9 @@
+-- Filling in pricing_estimates for unprices services code MS and CS service items. Service items should not be able to reach this state
+-- but some older data exists where unpriced MS and CS items exist
+SET statement_timeout = 300000;
+SET lock_timeout = 300000;
+SET idle_in_transaction_session_timeout = 300000;
+
 UPDATE mto_service_items AS ms
 SET locked_price_cents =
         CASE
