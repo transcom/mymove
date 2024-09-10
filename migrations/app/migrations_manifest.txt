@@ -993,3 +993,5 @@
 20240819164156_update_pws_violations_pt3.up.sql
 20240820125856_allow_pptas_migration.up.sql
 20240820151043_add_gsr_role.up.sql
+20240820204924_add_upload_type_application.up.sql
+20240820210949_add_payment_request_edi_uploads_table.up.sql
