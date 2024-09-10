@@ -127,7 +127,7 @@ test.describe('Services counselor user', () => {
     await page.getByRole('button', { name: 'Delete shipment' }).click();
 
     await expect(page.getByRole('heading', { level: 3 })).toHaveText('Are you sure?');
-    await page.getByTestId('modal-delete-shipment-btn').click();
+    await page.getByTestId('modal').getByTestId('button').click();
     await scPage.waitForPage.moveDetails();
 
     await expect(page.getByTestId('ShipmentContainer')).toHaveCount(0);

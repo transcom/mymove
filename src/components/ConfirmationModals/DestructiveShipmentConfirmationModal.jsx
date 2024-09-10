@@ -20,13 +20,7 @@ export const DestructiveShipmentConfirmationModal = ({
     </ModalTitle>
     <p>{content}</p>
     <ModalActions autofocus="true">
-      <Button
-        data-testid="modal-delete-shipment-btn"
-        data-focus="true"
-        className="usa-button--destructive"
-        type="submit"
-        onClick={() => onSubmit(shipmentID)}
-      >
+      <Button data-focus="true" className="usa-button--destructive" type="submit" onClick={() => onSubmit(shipmentID)}>
         {submitText}
       </Button>
       <Button className="usa-button--secondary" type="button" onClick={() => onClose()} data-testid="modalBackButton">
