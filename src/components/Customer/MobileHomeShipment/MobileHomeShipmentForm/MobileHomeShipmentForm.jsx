@@ -282,9 +282,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                     data-testid="remarks"
                     name="customerRemarks"
                     className={`${formStyles.remarks}`}
-                    placeholder="I am not sure what unachoring/anchoring means, however, the trailer does not have any
-                    permanent attachement to structures. It can be easily disconnected from city, water, power, grit
-                    and sewer. The trailer has 4 permanet jacks and 4 idraulic jacks."
+                    placeholder="Do not itemize your personal property here. Your movers will help do that when they talk to you."
                     id="customerRemarks"
                     maxLength={250}
                   />

@@ -76,7 +76,7 @@ const MobileHomeShipmentCreate = ({
       });
     }
 
-    dispatch(updateMTOShipment(response));
+    dispatch(updateMTOShipment(data));
 
     // navigate to the next page
     navigate(
