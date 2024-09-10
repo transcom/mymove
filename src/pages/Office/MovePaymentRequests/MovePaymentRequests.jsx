@@ -137,7 +137,6 @@ const MovePaymentRequests = ({
   const pendingCount = paymentRequests?.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
   useEffect(() => {
     setPendingPaymentRequestCount(pendingCount);
-    // paymentRequests.pendingCount = pendingCount;
   }, [pendingCount, setPendingPaymentRequestCount]);
 
   const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
