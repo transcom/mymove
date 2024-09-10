@@ -137,6 +137,7 @@ const MovePaymentRequests = ({
   useEffect(() => {
     const pendingCount = paymentRequests?.filter((pr) => pr.status === paymentRequestStatus.PENDING).length;
     setPendingPaymentRequestCount(pendingCount);
+    paymentRequests.pendingCount = pendingCount;
   }, [paymentRequests, setPendingPaymentRequestCount]);
 
   const excludePPMShipments = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
@@ -222,10 +223,10 @@ const MovePaymentRequests = ({
         <LeftNav sections={sections}>
           <LeftNavTag
             associatedSectionName="payment-requests"
-            showTag={paymentRequests?.length > 0}
-            testID="numOfPaymentRequestsTag"
+            showTag={paymentRequests.pendingCount > 0}
+            testID="numOfPendingPaymentRequestsTag"
           >
-            {paymentRequests.length}
+            {paymentRequests.pendingCount}
           </LeftNavTag>
           <LeftNavTag
             className={classnames('usa-tag usa-tag--alert', styles.errorTag)}
