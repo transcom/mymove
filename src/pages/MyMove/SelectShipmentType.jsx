@@ -8,9 +8,9 @@ import { generatePath } from 'react-router-dom';
 import { isBooleanFlagEnabled } from '../../utils/featureFlags';
 import { FEATURE_FLAG_KEYS, SHIPMENT_OPTIONS } from '../../shared/constants';
 
-import ConnectedBoatAndMobileInfoModal from 'components/Customer/modals/BoatAndMobileInfoModal/BoatAndMobileInfoModal';
 import ConnectedMoveInfoModal from 'components/Customer/modals/MoveInfoModal/MoveInfoModal';
 import ConnectedStorageInfoModal from 'components/Customer/modals/StorageInfoModal/StorageInfoModal';
+import ConnectedBoatAndMobileInfoModal from 'components/Customer/modals/BoatAndMobileInfoModal/BoatAndMobileInfoModal';
 import SelectableCard from 'components/Customer/SelectableCard';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
@@ -34,7 +34,6 @@ export class SelectShipmentType extends Component {
       showStorageInfoModal: false,
       showMoveInfoModal: false,
       showBoatAndMobileInfoModal: false,
-      showMobileHomeInfoModal: false,
       errorMessage: null,
       enablePPM: false,
       enableNTS: false,
@@ -93,12 +92,6 @@ export class SelectShipmentType extends Component {
   toggleBoatAndMobileInfoModal = () => {
     this.setState((state) => ({
       showBoatAndMobileInfoModal: !state.showBoatAndMobileInfoModal,
-    }));
-  };
-
-  toggleMobileHomeInfoModal = () => {
-    this.setState((state) => ({
-      showMobileHomeInfoModal: !state.showMobileHomeInfoModal,
     }));
   };
 
@@ -289,9 +282,10 @@ export class SelectShipmentType extends Component {
                   value={SHIPMENT_OPTIONS.MOBILE_HOME}
                   id={SHIPMENT_OPTIONS.MOBILE_HOME}
                   cardText={mobileHomeCardText}
+                  name="Test"
                   checked={shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME && shipmentInfo.isMobileHomeSelectable}
                   disabled={!shipmentInfo.isMobileHomeSelectable}
-                  onHelpClick={this.toggleMobileHomeInfoModal}
+                  onHelpClick={this.toggleBoatAndMobileInfoModal}
                 />
               )}
 
@@ -327,7 +321,8 @@ export class SelectShipmentType extends Component {
         />
         <ConnectedBoatAndMobileInfoModal
           isOpen={showBoatAndMobileInfoModal}
-          enablePPM={enableBoat}
+          enableBoat={enableBoat}
+          enableMobileHome={enableMobileHome}
           closeModal={this.toggleBoatAndMobileInfoModal}
         />
       </>

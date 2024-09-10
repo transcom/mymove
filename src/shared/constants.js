@@ -120,7 +120,7 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.BOAT, label: 'Boat' },
   { key: SHIPMENT_TYPES.BOAT_HAUL_AWAY, label: 'Boat' },
   { key: SHIPMENT_TYPES.BOAT_TOW_AWAY, label: 'Boat' },
-  { key: SHIPMENT_TYPES.MOBILE_HOME, label: 'Mobile Home' },
+  { key: SHIPMENT_TYPES.MOBILE_HOME, label: 'MobileHome' },
 ];
 
 export const SERVICE_ITEM_STATUS = {

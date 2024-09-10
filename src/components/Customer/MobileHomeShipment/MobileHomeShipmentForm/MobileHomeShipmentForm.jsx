@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { Button, Form, Label, Textarea } from '@trussworks/react-uswds';
 import classnames from 'classnames';
+// import RequiredTag from 'components/form/RequiredTag';
 
 import styles from './MobileHomeShipmentForm.module.scss';
 
@@ -161,6 +162,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Length in feet"
+                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -176,6 +178,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Length in inches"
+                          optional
                         />
                       </div>
                     </div>
@@ -198,6 +201,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Width in feet"
+                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -213,6 +217,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Width in inches"
+                          optional
                         />
                       </div>
                     </div>
@@ -235,6 +240,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Height in feet"
+                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -250,6 +256,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Height in inches"
+                          optional
                         />
                       </div>
                     </div>

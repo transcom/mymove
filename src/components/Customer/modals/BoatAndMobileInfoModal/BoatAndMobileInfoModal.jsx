@@ -8,7 +8,7 @@ export const BoatAndMobileInfoModal = ({ closeModal }) => (
   <Modal>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
-      <h3>Boat & mobile homes info</h3>
+      <h3>Boat & Mobile homes info</h3>
     </ModalTitle>
     <h4>
       <strong>Boat shipment</strong>
