@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -17,6 +17,7 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
+import { showCounselingOffices } from 'services/internalApi';
 
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
@@ -35,6 +36,17 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
   });
+  const [office, setOffice] = useState('');
+  const [officeOptions, setOfficeOptions] = useState(null);
+  useEffect(() => {
+    showCounselingOffices(office.id).then((fetchedData) => {
+      const transformedItems = fetchedData.body.map((item) => ({
+        key: item.id,
+        value: item.name,
+      }));
+      setOfficeOptions(transformedItems);
+    });
+  }, [office]);
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -88,17 +100,20 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                onOfficeChange={(e) => {
+                  setOffice(e);
+                }}
                 required
               />
-              <DropdownInput
-                label="Counseling Office"
-                name="counseling Office"
-                id="counseling Office"
-                required
-                // addressId={setAddressId}
-                options={payGradeOptions} // change this to be the list of offices for selected location
-              />
-
+              {office.provides_services_counseling && (
+                <DropdownInput
+                  label="Counseling Office"
+                  name="counseling_office_id"
+                  id="counseling_office_id"
+                  required
+                  options={officeOptions}
+                />
+              )}
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>

@@ -1,31 +1,31 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useTable, useFilters, usePagination, useSortBy } from 'react-table';
-import { generatePath, useNavigate } from 'react-router';
-import PropTypes from 'prop-types';
-import { Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button } from '@trussworks/react-uswds';
+import PropTypes from 'prop-types';
+import React, { useEffect, useMemo, useState } from 'react';
+import { generatePath, useNavigate } from 'react-router';
+import { useFilters, usePagination, useSortBy, useTable } from 'react-table';
 
 import styles from './SearchResultsTable.module.scss';
 import { createHeader } from './utils';
 
-import Table from 'components/Table/Table';
 import DateSelectFilter from 'components/Table/Filters/DateSelectFilter';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import SomethingWentWrong from 'shared/SomethingWentWrong';
+import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
+import SelectFilter from 'components/Table/Filters/SelectFilter';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
+import Table from 'components/Table/Table';
+import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
 import {
   BRANCH_OPTIONS_WITH_MARINE_CORPS,
   MOVE_STATUS_LABELS,
   SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
   SortShape,
 } from 'constants/queues';
-import { DATE_FORMAT_STRING } from 'shared/constants';
-import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
-import MultiSelectCheckBoxFilter from 'components/Table/Filters/MultiSelectCheckBoxFilter';
-import SelectFilter from 'components/Table/Filters/SelectFilter';
 import { servicesCounselingRoutes } from 'constants/routes';
-import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
+import { DATE_FORMAT_STRING } from 'shared/constants';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import { formatDateFromIso, serviceMemberAgencyLabel } from 'utils/formatters';
 
 const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
   createHeader(' ', (row) => {

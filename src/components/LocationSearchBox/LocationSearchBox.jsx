@@ -88,7 +88,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
 }) => {
-  const { value, onChange, name: inputName } = input;
+  const { value, onChange, officeState, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -144,11 +144,12 @@ export const LocationSearchBoxComponent = ({
         ...selectedValue,
         address,
       };
-
+      officeState(newValue);
       onChange(newValue);
       return newValue;
     }
 
+    officeState(selectedValue);
     onChange(selectedValue);
     return selectedValue;
   };
@@ -212,7 +213,7 @@ export const LocationSearchBoxComponent = ({
       </div>
       {displayAddress && hasLocation && (
         <p className={locationClasses}>
-          {value.address.city}, {value.address.state} {value.address.postalCode} {value.address_id}
+          {value.address.city}, {value.address.state} {value.address.postalCode}
         </p>
       )}
       {errorMsg && <span className="usa-error-message">{errorMsg}</span>}
