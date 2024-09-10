@@ -84,6 +84,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ReportViolationsAssociateReportViolationsHandler: report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
 		}),
+		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
+		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
 		}),
@@ -425,6 +428,8 @@ type MymoveAPI struct {
 	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
 	// ReportViolationsAssociateReportViolationsHandler sets the operation handler for the associate report violations operation
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
+	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
+	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -712,6 +717,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.ReportViolationsAssociateReportViolationsHandler == nil {
 		unregistered = append(unregistered, "report_violations.AssociateReportViolationsHandler")
+	}
+	if o.PaymentRequestsBulkDownloadHandler == nil {
+		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
 	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
@@ -1110,6 +1118,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/report-violations/{reportID}"] = report_violations.NewAssociateReportViolations(o.context, o.ReportViolationsAssociateReportViolationsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/payment-requests/{paymentRequestID}/bulkDownload"] = payment_requests.NewBulkDownload(o.context, o.PaymentRequestsBulkDownloadHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
