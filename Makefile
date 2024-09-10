@@ -4,7 +4,7 @@ DB_NAME_TEST = test_db
 DB_DOCKER_CONTAINER_DEV = milmove-db-dev
 DB_DOCKER_CONTAINER_DEPLOYED_MIGRATIONS = milmove-db-deployed-migrations
 DB_DOCKER_CONTAINER_TEST = milmove-db-test
-DB_DOCKER_CONTAINER_IMAGE = postgres:12.11
+DB_DOCKER_CONTAINER_IMAGE = postgres:16.4
 REDIS_DOCKER_CONTAINER_IMAGE = redis:5.0.6
 REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
@@ -312,6 +312,9 @@ bin/tls-checker: $(shell find cmd/tls-checker -name '*.go') $(PKG_GOSRC) .check_
 bin/generate-payment-request-edi: $(shell find cmd/generate-payment-request-edi -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
 	go build -ldflags "$(LDFLAGS)" -o bin/generate-payment-request-edi ./cmd/generate-payment-request-edi
 
+bin/simulate-process-tpps: $(shell find cmd/simulate-process-tpps -name '*.go') $(PKG_GOSRC) .check_go_version.stamp .check_gopath.stamp
+	go build -ldflags "$(LDFLAGS)" -o bin/simulate-process-tpps ./cmd/simulate-process-tpps
+
 #
 # ----- END BIN TARGETS -----
 #
@@ -404,6 +407,7 @@ build_tools: bin/gin \
 	bin/webhook-client \
 	bin/read-alb-logs \
 	bin/send-to-gex \
+	bin/simulate-process-tpps \
 	bin/tls-checker ## Build all tools
 
 .PHONY: build

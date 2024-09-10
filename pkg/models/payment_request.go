@@ -81,11 +81,12 @@ type PaymentRequest struct {
 	RecalculationOfPaymentRequestID *uuid.UUID           `json:"recalculation_of_payment_request_id" db:"recalculation_of_payment_request_id"`
 
 	// Associations
-	MoveTaskOrder                 Move                `belongs_to:"moves" fk_id:"move_id"`
-	PaymentServiceItems           PaymentServiceItems `has_many:"payment_service_items" fk_id:"payment_request_id"`
-	ProofOfServiceDocs            ProofOfServiceDocs  `has_many:"proof_of_service_docs" fk_id:"payment_request_id"`
-	EdiErrors                     EdiErrors           `has_many:"edi_errors" fk_id:"payment_request_id"`
-	RecalculationOfPaymentRequest *PaymentRequest     `belongs_to:"payment_requests" fk_id:"recalculation_of_payment_request_id"`
+	MoveTaskOrder                 Move                        `belongs_to:"moves" fk_id:"move_id"`
+	PaymentServiceItems           PaymentServiceItems         `has_many:"payment_service_items" fk_id:"payment_request_id"`
+	ProofOfServiceDocs            ProofOfServiceDocs          `has_many:"proof_of_service_docs" fk_id:"payment_request_id"`
+	EdiErrors                     EdiErrors                   `has_many:"edi_errors" fk_id:"payment_request_id"`
+	RecalculationOfPaymentRequest *PaymentRequest             `belongs_to:"payment_requests" fk_id:"recalculation_of_payment_request_id"`
+	TPPSPaidInvoiceReports        TPPSPaidInvoiceReportEntrys `has_many:"tpps_paid_invoice_reports" fk_id:"payment_request_number"`
 }
 
 // TableName overrides the table name used by Pop.
