@@ -170,6 +170,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("move_to_gbloc", "move_to_gbloc.move_id = moves.id").
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
+			LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id").
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
@@ -610,16 +611,7 @@ func ppmStatusFilter(ppmStatus *string) QueryOption {
 func SCAssignedUserFilter(scAssigned *string) QueryOption {
 	return func(query *pop.Query) {
 		if scAssigned != nil {
-			var lastName string
-			if strings.Contains(*scAssigned, ",") {
-				lastName = strings.Split(*scAssigned, ",")[0]
-				lastName = strings.TrimSpace(lastName)
-
-			} else {
-				lastName = *scAssigned
-			}
-			nameSearch := fmt.Sprintf("%s%%", lastName)
-			query.Where("office_users.last_name ILIKE ?", nameSearch)
+			query.Where("f_unaccent(lower(?)) % searchable_full_name(assigned_user.first_name, assigned_user.last_name)", *scAssigned)
 		}
 	}
 }
