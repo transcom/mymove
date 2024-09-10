@@ -4,6 +4,8 @@ import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
+import styles from './RequestAccount.module.scss';
+
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
 import { createOfficeAccountRequest } from 'services/ghcApi';
@@ -135,11 +137,15 @@ export const RequestAccount = ({ setFlashMessage }) => {
 
       {serverError && (
         <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert data-testid="alert2" type="error" headingLevel="h4" heading="An error occurred">
-              {serverError}
-            </Alert>
-          </Grid>
+          <Alert
+            data-testid="alert2"
+            type="error"
+            headingLevel="h4"
+            heading="An error occurred"
+            className={styles.error}
+          >
+            {serverError}
+          </Alert>
         </Grid>
       )}
 
