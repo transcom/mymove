@@ -53,6 +53,7 @@ type Obligation struct {
 
 // ShipmentSummaryFormData is a container for the various objects required for the a Shipment Summary Worksheet
 type ShipmentSummaryFormData struct {
+	AllShipments             []MTOShipment
 	ServiceMember            ServiceMember
 	Order                    Order
 	Move                     Move
