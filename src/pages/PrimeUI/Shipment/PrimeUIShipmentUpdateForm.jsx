@@ -28,7 +28,11 @@ const PrimeUIShipmentUpdateForm = ({
   editableProGearWeightActualField,
   editableSpouseProGearWeightActualField,
   editablePickupAddress,
+  editableSecondaryPickupAddress,
+  editableTertiaryPickupAddress,
   editableDestinationAddress,
+  editableSecondaryDeliveryAddress,
+  editableTertiaryDeliveryAddress,
   requestedPickupDate,
   estimatedWeight,
   actualWeight,
@@ -147,16 +151,20 @@ const PrimeUIShipmentUpdateForm = ({
       {editablePickupAddress && <AddressFields name="pickupAddress" />}
       {!editablePickupAddress && formatAddress(pickupAddress)}
       <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
-      {formatAddress(secondaryPickupAddress)}
+      {editableSecondaryPickupAddress && <AddressFields name="secondaryPickupAddress" />}
+      {!editableSecondaryPickupAddress && formatAddress(secondaryPickupAddress)}
       <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
-      {formatAddress(tertiaryPickupAddress)}
+      {editableTertiaryPickupAddress && <AddressFields name="tertiaryPickupAddress" />}
+      {!editableTertiaryPickupAddress && formatAddress(tertiaryPickupAddress)}
       <h5 className={styles.sectionHeader}>Destination Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
-      <h5 className={styles.sectionHeader}>Second Destination Address</h5>
-      {formatAddress(secondaryDeliveryAddress)}
-      <h5 className={styles.sectionHeader}>Third Destination Address</h5>
-      {formatAddress(tertiaryDeliveryAddress)}
+      <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
+      {editableSecondaryDeliveryAddress && <AddressFields name="secondaryDeliveryAddress" />}
+      {!editableSecondaryDeliveryAddress && formatAddress(secondaryDeliveryAddress)}
+      <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
+      {editableTertiaryDeliveryAddress && <AddressFields name="tertiaryDeliveryAddress" />}
+      {!editableTertiaryDeliveryAddress && formatAddress(tertiaryDeliveryAddress)}
       <DropdownInput
         label="Destination type"
         name="destinationType"
