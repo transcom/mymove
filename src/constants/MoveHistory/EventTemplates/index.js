@@ -90,3 +90,6 @@ export { default as updateOrderUpdateMove } from './UpdateOrders/updateOrderUpda
 export { default as updateMTOShipmentByServiceItemStatus } from './UpdateMTOShipment/updateMTOShipmentByServiceItemStatus';
 export { default as updateServiceItemStatusUpdateMove } from './UpdateServiceItemStatus/updateServiceItemStatusUpdateMove';
 export { default as approveShipmentUpdateMove } from './ApproveShipment/approveShipmentUpdateMove';
+export { default as createSITExtension } from './CreateSITExtension/createSITExtension';
+export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
+export { default as updateAllowanceUpdateMTOShipment } from './UpdateAllowances/updateAllowanceUpdateMTOShipment';

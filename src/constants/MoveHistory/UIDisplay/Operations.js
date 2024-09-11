@@ -57,4 +57,5 @@ export default {
   submitPPMShipmentDocumentation: 'submitPPMShipmentDocumentation', // internal.yaml
   finishDocumentReview: 'finishDocumentReview', // ghc.yaml
   getMove: 'getMove', // ghc.yaml
+  createSITExtension: 'createSITExtension', // prime.yaml
 };

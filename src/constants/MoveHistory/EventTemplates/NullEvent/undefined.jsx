@@ -11,7 +11,7 @@ export default {
       case t.orders:
         return <> Updated order </>;
       case t.mto_service_items:
-        return <> Updated service item **PB </>;
+        return <> Updated service item </>;
       case t.entitlements:
         return <> Updated allowances </>;
       case t.payment_requests:
