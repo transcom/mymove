@@ -158,6 +158,19 @@ func (suite *FactorySuite) TestBuildRoleTraits() {
 		suite.Equal(roles.RoleName("Contracting Officer"), role.RoleName)
 		suite.Equal(roles.RoleTypeContractingOfficer, role.RoleType)
 	})
+
+	suite.Run("Successful creation of role with GSR trait", func() {
+		// Under test:      BuildRole
+		// Set up:          Create a Role with a trait (GetTraitGSRRole)
+		// Expected outcome:Role should be created with GSR RoleType and RoleName
+
+		role := BuildRole(suite.DB(), nil,
+			[]Trait{
+				GetTraitGSRRole,
+			})
+		suite.Equal(roles.RoleName("Government Surveillance Representative"), role.RoleName)
+		suite.Equal(roles.RoleTypeGSR, role.RoleType)
+	})
 }
 
 func (suite *FactorySuite) TestBuildRoleHelpers() {
