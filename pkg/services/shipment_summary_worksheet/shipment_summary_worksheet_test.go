@@ -102,7 +102,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
 	suite.Equal(ppmShipment.AdvanceAmountRequested, ssd.PPMShipments[0].AdvanceAmountRequested)
-	// suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryWorksheetWithErrorNoMove() {
@@ -272,7 +271,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFetchDataShipmentSummaryW
 	suite.Equal(ppmShipment.EstimatedWeight, ssd.PPMShipments[0].EstimatedWeight)
 	suite.Require().NotNil(ssd.PPMShipments[0].AdvanceAmountRequested)
 	suite.Equal(ppmShipment.AdvanceAmountRequested, ssd.PPMShipments[0].AdvanceAmountRequested)
-	// suite.Equal(signedCertification.ID, ssd.SignedCertification.ID)
 	suite.Require().Len(ssd.MovingExpenses, 0)
 }
 
@@ -318,12 +316,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	netWeight := unit.Pound(4000)
 	cents := unit.Cents(1000)
 	locator := "ABCDEF-01"
-	PPMShipment := models.PPMShipment{
+	estIncentive := unit.Cents(1000000)
+	PPMShipments := models.PPMShipment{
 		ExpectedDepartureDate:  expectedPickupDate,
 		ActualMoveDate:         &actualPickupDate,
 		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
 		EstimatedWeight:        &netWeight,
 		AdvanceAmountRequested: &cents,
+		EstimatedIncentive:     &estIncentive,
 		Shipment: models.MTOShipment{
 			ShipmentLocator: &locator,
 		},
@@ -336,7 +336,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipment:             PPMShipment,
+		PPMShipment:             PPMShipments,
 	}
 	sswPage1, err := FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 	suite.NoError(err)
@@ -351,13 +351,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("444-555-8888", sswPage1.PreferredPhoneNumber)
 	suite.Equal("michael+ppm-expansion_1@truss.works", sswPage1.PreferredEmail)
 	suite.Equal("1234567890", sswPage1.DODId)
-
 	suite.Equal("Air Force", sswPage1.IssuingBranchOrAgency)
 	suite.Equal("21-Dec-2018", sswPage1.OrdersIssueDate)
 	suite.Equal("PCS/012345", sswPage1.OrdersTypeAndOrdersNumber)
-
 	suite.Equal("Fort Eisenhower, GA 30813", sswPage1.NewDutyAssignment)
-
 	suite.Equal("15,000", sswPage1.WeightAllotment)
 	suite.Equal("2,000", sswPage1.WeightAllotmentProGear)
 	suite.Equal("500", sswPage1.WeightAllotmentProgearSpouse)
@@ -367,9 +364,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("11-Jan-2019", sswPage1.ShipmentPickUpDates)
 	suite.Equal("4,000 lbs - Estimated", sswPage1.ShipmentWeights)
 	suite.Equal("Waiting On Customer", sswPage1.ShipmentCurrentShipmentStatuses)
-
 	suite.Equal("17,500", sswPage1.TotalWeightAllotmentRepeat)
-
+	suite.Equal("15,000 lbs; $10,000.00", sswPage1.MaxObligationGCC100)
 	suite.Equal("3,000", sswPage1.PPMRemainingEntitlement)
 
 	// quick test when there is no PPM actual move date
@@ -554,14 +550,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatSSWGetEntitlementNo
 	suite.Equal(unit.Pound(allotment.TotalWeightSelf), sswEntitlement.Entitlement)
 	suite.Equal(unit.Pound(allotment.ProGearWeight), sswEntitlement.ProGear)
 	suite.Equal(unit.Pound(500), sswEntitlement.SpouseProGear)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatLocation() {
-	fortEisenhower := models.DutyLocation{Name: "Fort Eisenhower, GA 30813", Address: models.Address{State: "GA", PostalCode: "30813"}}
-	yuma := models.DutyLocation{Name: "Yuma AFB", Address: models.Address{State: "IA", PostalCode: "50309"}}
-
-	suite.Equal("Fort Eisenhower, GA 30813", fortEisenhower.Name)
-	suite.Equal("Yuma AFB, IA 50309", FormatLocation(yuma))
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatServiceMemberFullName() {

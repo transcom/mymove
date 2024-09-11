@@ -5742,6 +5742,42 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5782,6 +5818,69 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -6621,8 +6720,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -6733,9 +6832,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -11753,6 +11885,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -11802,14 +11952,56 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer"
         },
         "totalSITDaysUsed": {
           "type": "integer"
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -12701,6 +12893,41 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "properties": {
@@ -13151,6 +13378,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -13317,6 +13547,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
@@ -20856,6 +21090,57 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -20896,6 +21181,70 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3,
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -21739,8 +22088,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -21851,9 +22200,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -26946,6 +27328,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -26997,8 +27397,9 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -27051,6 +27452,48 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -27949,6 +28392,41 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "properties": {
@@ -28400,6 +28878,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -28570,6 +29051,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",

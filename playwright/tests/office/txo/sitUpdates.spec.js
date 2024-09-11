@@ -103,8 +103,8 @@ test.describe('TOO user', () => {
         .textContent();
 
       expect(daysApprovedCapture).toEqual('90');
-      expect(daysUsedCapture).toEqual('90');
-      expect(daysLeftCapture).toEqual('Expired');
+      expect(daysUsedCapture).toEqual('61'); // 30 days in past origin sit, 31 days in destination sit
+      expect(daysLeftCapture).toEqual('29'); // of the 90 authorized, 61 have been used
     });
 
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
