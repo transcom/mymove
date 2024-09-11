@@ -431,6 +431,7 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                           secondaryDeliveryAddress={initialValues.secondaryDeliveryAddress}
                           tertiaryDeliveryAddress={initialValues.tertiaryDeliveryAddress}
                           diversion={initialValues.diversion}
+                          shipmentType={shipment.shipmentType}
                         />
                       )}
                       <div className={formStyles.formActions}>
