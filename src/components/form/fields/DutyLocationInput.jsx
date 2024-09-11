@@ -54,7 +54,7 @@ DutyLocationInput.propTypes = {
   isDisabled: PropTypes.bool,
   searchLocations: PropTypes.func,
   metaOverride: PropTypes.string,
-  onOfficeChange: PropTypes.object,
+  onOfficeChange: PropTypes.func,
 };
 
 DutyLocationInput.defaultProps = {

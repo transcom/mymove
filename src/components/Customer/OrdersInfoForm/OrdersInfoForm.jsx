@@ -35,16 +35,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
+    counseling_office_id: Yup.string(),
   });
   const [office, setOffice] = useState('');
   const [officeOptions, setOfficeOptions] = useState(null);
   useEffect(() => {
     showCounselingOffices(office.id).then((fetchedData) => {
-      const transformedItems = fetchedData.body.map((item) => ({
-        key: item.id,
-        value: item.name,
-      }));
-      setOfficeOptions(transformedItems);
+      if (fetchedData.body) {
+        const transformedItems = fetchedData.body.map((item) => ({
+          key: item.id,
+          value: item.name,
+        }));
+        setOfficeOptions(transformedItems);
+      }
     });
   }, [office]);
 
