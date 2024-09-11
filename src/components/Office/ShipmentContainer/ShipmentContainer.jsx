@@ -4,7 +4,7 @@ import * as PropTypes from 'prop-types';
 
 import styles from './ShipmentContainer.module.scss';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import { ShipmentOptionsOneOf } from 'types/shipment';
 
 const ShipmentContainer = ({ id, className, children, shipmentType }) => {
@@ -20,7 +20,7 @@ const ShipmentContainer = ({ id, className, children, shipmentType }) => {
       'container--accent--ntsr': shipmentType === SHIPMENT_OPTIONS.NTSR,
       'container--accent--ppm': shipmentType === SHIPMENT_OPTIONS.PPM,
       'container--accent--boat': shipmentType === SHIPMENT_OPTIONS.BOAT,
-      'container--accent--mobilehome': shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME,
+      'container--accent--mobilehome': shipmentType === SHIPMENT_TYPES.MOBILE_HOME,
     },
     className,
   );

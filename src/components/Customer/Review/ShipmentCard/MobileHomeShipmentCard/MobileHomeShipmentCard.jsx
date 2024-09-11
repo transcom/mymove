@@ -45,7 +45,7 @@ const MobileHomeShipmentCard = ({
     mtoShipmentId: id,
   })}?shipmentNumber=${shipmentNumber}`;
 
-  const shipmentLabel = `${getShipmentTypeLabel(shipmentType)} ${shipmentNumber}`;
+  const shipmentLabel = `${SHIPMENT_TYPES.MOBILE_HOME} ${shipmentNumber}`;
   const moveCodeLabel = `${shipmentLocator}`;
   const shipmentIsIncomplete = !isMobileHomeShipmentComplete(shipment);
   const length = convertInchesToFeetAndInches(lengthInInches);
