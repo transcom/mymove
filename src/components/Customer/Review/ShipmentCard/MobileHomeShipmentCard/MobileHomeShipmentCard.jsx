@@ -13,7 +13,6 @@ import { customerRoutes } from 'constants/routes';
 import { SHIPMENT_TYPES } from 'shared/constants';
 import { ShipmentShape } from 'types/shipment';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
-import { getShipmentTypeLabel } from 'utils/shipmentDisplay';
 import { isMobileHomeShipmentComplete } from 'utils/shipments';
 
 const MobileHomeShipmentCard = ({
