@@ -803,7 +803,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
-		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID),
+		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID), // TODO: Refactor out service item ID dependence in GHC API. This should be based on SIT groupings / summaries
 		Location:             currentSIT.Location,
 		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
@@ -819,12 +819,13 @@ func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStore
 	if shipmentSITStatuses == nil {
 		return nil
 	}
+
 	payload := &ghcmessages.SITStatus{
-		PastSITServiceItems:      MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
-		TotalSITDaysUsed:         handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
-		TotalDaysRemaining:       handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
-		CalculatedTotalDaysInSIT: handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CalculatedTotalDaysInSIT),
-		CurrentSIT:               currentSIT(shipmentSITStatuses.CurrentSIT),
+		PastSITServiceItemGroupings: SITServiceItemGroupings(shipmentSITStatuses.PastSITs, storer),
+		TotalSITDaysUsed:            handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+		TotalDaysRemaining:          handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		CalculatedTotalDaysInSIT:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CalculatedTotalDaysInSIT),
+		CurrentSIT:                  currentSIT(shipmentSITStatuses.CurrentSIT),
 	}
 
 	return payload
@@ -1773,6 +1774,42 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 		StandaloneCrate:               s.StandaloneCrate,
 		LockedPriceCents:              handlers.FmtCost(s.LockedPriceCents),
 	}
+}
+
+// SITServiceItemGrouping payload
+func SITServiceItemGrouping(s models.SITServiceItemGrouping, storer storage.FileStorer) *ghcmessages.SITServiceItemGrouping {
+	if len(s.ServiceItems) == 0 {
+		return nil
+	}
+
+	summary := ghcmessages.SITSummary{
+		FirstDaySITServiceItemID: strfmt.UUID(s.Summary.FirstDaySITServiceItemID.String()),
+		Location:                 s.Summary.Location,
+		DaysInSIT:                handlers.FmtIntPtrToInt64(&s.Summary.DaysInSIT),
+		SitEntryDate:             *handlers.FmtDateTime(s.Summary.SITEntryDate),
+		SitDepartureDate:         handlers.FmtDateTimePtr(s.Summary.SITDepartureDate),
+		SitAuthorizedEndDate:     *handlers.FmtDateTime(s.Summary.SITAuthorizedEndDate),
+		SitCustomerContacted:     handlers.FmtDateTimePtr(s.Summary.SITCustomerContacted),
+		SitRequestedDelivery:     handlers.FmtDateTimePtr(s.Summary.SITRequestedDelivery),
+	}
+
+	serviceItems := MTOServiceItemModels(s.ServiceItems, storer)
+
+	return &ghcmessages.SITServiceItemGrouping{
+		Summary:      &summary,
+		ServiceItems: serviceItems,
+	}
+}
+
+// SITServiceItemGroupings payload
+func SITServiceItemGroupings(s models.SITServiceItemGroupings, storer storage.FileStorer) ghcmessages.SITServiceItemGroupings {
+	sitGroupings := ghcmessages.SITServiceItemGroupings{}
+	for _, sitGroup := range s {
+		if sitPayload := SITServiceItemGrouping(sitGroup, storer); sitPayload != nil {
+			sitGroupings = append(sitGroupings, sitPayload)
+		}
+	}
+	return sitGroupings
 }
 
 // MTOServiceItemModels payload
