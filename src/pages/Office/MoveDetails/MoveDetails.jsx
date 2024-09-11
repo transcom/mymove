@@ -53,9 +53,9 @@ const errorIfMissing = {
   PPM: [
     {
       fieldName: 'advanceStatus',
-      condition: (shipment) =>
-        shipment?.ppmShipment?.hasRequestedAdvance === true &&
-        shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED,
+      condition: (mtoShipment) =>
+        mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+        mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
     },
   ],
 };
