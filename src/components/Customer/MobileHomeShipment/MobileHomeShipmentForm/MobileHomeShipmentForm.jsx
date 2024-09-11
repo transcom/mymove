@@ -4,7 +4,6 @@ import * as Yup from 'yup';
 import { Formik, Field } from 'formik';
 import { Button, Form, Label, Textarea } from '@trussworks/react-uswds';
 import classnames from 'classnames';
-// import RequiredTag from 'components/form/RequiredTag';
 
 import styles from './MobileHomeShipmentForm.module.scss';
 
