@@ -60,13 +60,43 @@ const approvedMoveTaskOrder = {
         requiredDeliveryDate: null,
         scheduledPickupDate: '2020-03-16',
         secondaryDeliveryAddress: {
-          city: null,
-          postalCode: null,
-          state: null,
-          streetAddress1: null,
+          city: 'Fairfield',
+          id: 'bfe61147-5fd7-426e-b473-54ccf77bde35',
+          postalCode: '94535',
+          state: 'CA',
+          streetAddress1: '986 Any Avenue',
+          streetAddress2: 'P.O. Box 9876',
+          streetAddress3: 'c/o Some Person',
+        },
+        secondaryPickupAddress: {
+          city: 'Beverly Hills',
+          id: 'cf159eca-162c-4131-84a0-795e684416a6',
+          postalCode: '90210',
+          state: 'CA',
+          streetAddress1: '124 Any Street',
+          streetAddress2: 'P.O. Box 12345',
+          streetAddress3: 'c/o Some Person',
         },
         shipmentType: 'HHG',
         status: 'APPROVED',
+        tertiaryDeliveryAddress: {
+          city: 'Fairfield',
+          id: 'bfe61147-5fd7-426e-b473-54ccf77bde35',
+          postalCode: '94535',
+          state: 'CA',
+          streetAddress1: '985 Any Avenue',
+          streetAddress2: 'P.O. Box 9876',
+          streetAddress3: 'c/o Some Person',
+        },
+        tertiaryPickupAddress: {
+          city: 'Beverly Hills',
+          id: 'cf159eca-162c-4131-84a0-795e684416a6',
+          postalCode: '90210',
+          state: 'CA',
+          streetAddress1: '125 Any Street',
+          streetAddress2: 'P.O. Box 12345',
+          streetAddress3: 'c/o Some Person',
+        },
         updatedAt: '2021-10-22',
         mtoServiceItems: null,
         reweigh: {
@@ -100,7 +130,7 @@ describe('Shipment details component', () => {
     expect(addServiceItemLink).toBeInTheDocument();
     expect(addServiceItemLink.getAttribute('href')).toBe(`/shipments/${shipmentId}/service-items/new`);
 
-    expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(3);
+    expect(screen.queryAllByRole('link', { name: 'Edit' })).toHaveLength(7);
   });
 
   it('renders the shipment address values', async () => {
@@ -108,7 +138,11 @@ describe('Shipment details component', () => {
     const shipment = approvedMoveTaskOrder.moveTaskOrder.mtoShipments[0];
 
     expect(screen.getByText(formatPrimeAPIFullAddress(shipment.pickupAddress))).toBeInTheDocument();
+    expect(screen.getByText(formatPrimeAPIFullAddress(shipment.secondaryPickupAddress))).toBeInTheDocument();
+    expect(screen.getByText(formatPrimeAPIFullAddress(shipment.tertiaryPickupAddress))).toBeInTheDocument();
     expect(screen.getByText(formatPrimeAPIFullAddress(shipment.destinationAddress))).toBeInTheDocument();
+    expect(screen.getByText(formatPrimeAPIFullAddress(shipment.secondaryDeliveryAddress))).toBeInTheDocument();
+    expect(screen.getByText(formatPrimeAPIFullAddress(shipment.tertiaryDeliveryAddress))).toBeInTheDocument();
   });
 
   it('renders the shipment info', () => {
