@@ -1,6 +1,5 @@
 export { default as acknowledgeExcessWeightRisk } from './AcknowledgeExcessWeightRisk/acknowledgeExcessWeightRisk';
 export { default as approveShipment } from './ApproveShipment/approveShipment';
-export { default as approveMove } from './ApproveShipment/approveMove';
 export { default as approveShipmentDiversion } from './ApproveShipmentDiversion/approveShipmentDiversion';
 export { default as createBasicServiceItem } from './UpdateMoveTaskOrderStatus/createBasicServiceItem';
 export { default as createMTOServiceItem } from './CreateMTOServiceItem/createMTOServiceItem';
@@ -85,3 +84,9 @@ export { default as submitMoveForApprovalMTOShipments } from './SubmitMoveForApp
 export { default as submitMoveForApprovalPPMShipments } from './SubmitMoveForApproval/SubmitMoveForApprovalPPMShipments';
 export { default as submitPPMShipmentDocumentation } from './SubmitPPMShipmentDocumentation/SubmitPPMShipmentDocumentation';
 export { default as finishDocumentReview } from './FinishDocumentReview/finishDocumentReview';
+export { default as approveShipmentApproveMove } from './ApproveShipment/approveShipmentApproveMove';
+export { default as createPaymentRequestUpdateShipment } from './CreatePaymentRequest/createPaymentRequestUpdateShipment';
+export { default as updateOrderUpdateMove } from './UpdateOrders/updateOrderUpdateMove';
+export { default as updateMTOShipmentByServiceItemStatus } from './UpdateMTOShipment/updateMTOShipmentByServiceItemStatus';
+export { default as updateServiceItemStatusUpdateMove } from './UpdateServiceItemStatus/updateServiceItemStatusUpdateMove';
+export { default as approveShipmentUpdateMove } from './ApproveShipment/approveShipmentUpdateMove';

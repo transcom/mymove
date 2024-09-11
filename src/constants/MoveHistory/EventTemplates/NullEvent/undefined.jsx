@@ -11,7 +11,7 @@ export default {
       case t.orders:
         return <> Updated order </>;
       case t.mto_service_items:
-        return <> Updated service item </>;
+        return <> Updated service item **PB </>;
       case t.entitlements:
         return <> Updated allowances </>;
       case t.payment_requests:
@@ -22,7 +22,7 @@ export default {
         return <> Updated shipment </>;
       case t.moves:
       default:
-        return <> Updated move **PB </>;
+        return <> Updated move </>;
     }
   },
   getDetails: () => <> - </>,

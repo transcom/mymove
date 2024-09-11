@@ -137,4 +137,6 @@ export default {
   vehicle_description: 'Vehicle description',
   ppm_status: 'PPM status', // custom front end status, not database value
   moving_expense_type: 'Expense type',
+  dest_sit_auth_end_date: 'Destination SIT authorized date',
+  approvals_requested_at: 'Approvals requested at',
 };
