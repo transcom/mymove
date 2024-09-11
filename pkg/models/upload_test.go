@@ -29,7 +29,7 @@ func (suite *ModelSuite) Test_UploadValidationErrors() {
 		"bytes":        {"Bytes can not be blank."},
 		"filename":     {"Filename can not be blank."},
 		"content_type": {"ContentType can not be blank."},
-		"upload_type":  {"UploadType is not in the list [USER, PRIME, OFFICE]."},
+		"upload_type":  {"UploadType is not in the list [USER, PRIME, OFFICE, APP]."},
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)
