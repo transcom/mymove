@@ -35,9 +35,6 @@ const ServicesCounselingTabNav = ({
   if (shipmentErrorConcernCount > 0) {
     moveDetailsTagCount += shipmentErrorConcernCount;
   }
-  if (unapprovedShipmentCount > 0) {
-    moveDetailsTagCount += unapprovedShipmentCount;
-  }
   if (missingOrdersInfoCount > 0) {
     moveDetailsTagCount += missingOrdersInfoCount;
   }
