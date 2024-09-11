@@ -36,6 +36,7 @@ import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -49,6 +50,14 @@ const errorIfMissing = {
     { fieldName: 'serviceOrderNumber' },
     { fieldName: 'tacType' },
   ],
+  PPM: [
+    {
+      fieldName: 'advanceStatus',
+      condition: (shipment) =>
+        shipment?.ppmShipment?.hasRequestedAdvance === true &&
+        shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED,
+    },
+  ],
 };
 
 const MoveDetails = ({
@@ -56,12 +65,13 @@ const MoveDetails = ({
   setUnapprovedServiceItemCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentErrorConcernCount,
+  shipmentErrorConcernCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
   isMoveLocked,
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
 
@@ -222,21 +232,21 @@ const MoveDetails = ({
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
-    let shipmentIsMissingInformation = false;
+    let numberOfErrorIfMissingForAllShipments = 0;
 
     mtoShipments?.forEach((mtoShipment) => {
-      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
-        objectIsMissingFieldWithCondition(mtoShipment, field),
-      );
+      const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
-      // If there were no fields to check, then nothing was required.
-      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
-        shipmentIsMissingInformation = true;
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (objectIsMissingFieldWithCondition(mtoShipment, fieldToCheck)) {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
       }
     });
-    setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
-  }, [mtoShipments]);
+    setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
+  }, [mtoShipments, setShipmentErrorConcernCount]);
 
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
@@ -327,18 +337,18 @@ const MoveDetails = ({
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="requested-shipments"
-            showTag={!shipmentMissingRequiredInformation}
+            showTag={submittedShipments?.length > 0}
             testID="requestedShipmentsTag"
           >
             {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#d63E04"
             associatedSectionName="requested-shipments"
-            showTag={shipmentMissingRequiredInformation}
-            testID="shipment-missing-info-alert"
+            showTag={shipmentErrorConcernCount !== 0}
+            testID="advanceTag"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {shipmentErrorConcernCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="approved-shipments"
