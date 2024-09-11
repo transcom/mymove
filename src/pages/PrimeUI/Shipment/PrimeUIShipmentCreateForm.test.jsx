@@ -250,19 +250,23 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.findByText('Pickup Address')).toBeInTheDocument();
     expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('');
 
-    await userEvent.click(screen.findByTestId('has-secondary-pickup').);
+    const hasSecondaryPickup = await screen.findByTestId('has-secondary-pickup');
+    await userEvent.click(hasSecondaryPickup);
     expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('');
 
-    await userEvent.click(screen.findByTestId('has-third-pickup'));
+    const hasTertiaryPickup = await screen.findByTestId('has-tertiary-pickup');
+    await userEvent.click(hasTertiaryPickup);
     expect(screen.getAllByLabelText('Address 1')[2]).toHaveValue('');
 
     expect(await screen.findByText('Destination Address')).toBeInTheDocument();
     expect(screen.getAllByLabelText('Address 1')[3]).toHaveValue('');
 
-    await userEvent.click(screen.findByTestId('has-secondary-delivery'));
+    const hasSecondaryDestination = await screen.findByTestId('has-secondary-destination');
+    await userEvent.click(hasSecondaryDestination);
     expect(screen.getAllByLabelText('Address 1')[4]).toHaveValue('');
 
-    await userEvent.click(screen.findByTestId('has-third-delivery'));
+    const hasTertiaryDestination = await screen.findByTestId('has-tertiary-destination');
+    await userEvent.click(hasTertiaryDestination);
     expect(screen.getAllByLabelText('Address 1')[5]).toHaveValue('');
   });
 

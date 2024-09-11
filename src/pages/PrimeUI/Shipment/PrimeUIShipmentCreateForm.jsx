@@ -73,8 +73,6 @@ const PrimeUIShipmentCreateForm = () => {
     return undefined;
   };
 
-  console.log(values);
-
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Type</h2>
@@ -225,8 +223,8 @@ const PrimeUIShipmentCreateForm = () => {
                       <div className={formStyles.radioGroup}>
                         <Field
                           as={Radio}
-                          id="has-third-delivery"
-                          data-testid="has-third-delivery"
+                          id="has-tertiary-destination"
+                          data-testid="has-tertiary-destination"
                           label="Yes"
                           name="ppmShipment.hasTertiaryDestinationAddress"
                           value="true"
@@ -235,8 +233,8 @@ const PrimeUIShipmentCreateForm = () => {
                         />
                         <Field
                           as={Radio}
-                          id="no-third-delivery"
-                          data-testid="no-third-delivery"
+                          id="no-tertiary-destination"
+                          data-testid="no-tertiary-destination"
                           label="No"
                           name="ppmShipment.hasTertiaryDestinationAddress"
                           value="false"
@@ -250,7 +248,7 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasTertiaryDestinationAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Destination Address</h5>
-                    <AddressFields name="ppmShipment.thirdDestinationAddress" />
+                    <AddressFields name="ppmShipment.tertiaryDestinationAddress" />
                   </>
                 )}
               </>
@@ -466,8 +464,8 @@ const PrimeUIShipmentCreateForm = () => {
                     <div className={formStyles.radioGroup}>
                       <Field
                         as={Radio}
-                        id="has-secondary-delivery"
-                        data-testid="has-secondary-delivery"
+                        id="has-secondary-destination"
+                        data-testid="has-secondary-destination"
                         label="Yes"
                         name="hasSecondaryDestinationAddress"
                         value="true"
@@ -476,8 +474,8 @@ const PrimeUIShipmentCreateForm = () => {
                       />
                       <Field
                         as={Radio}
-                        id="no-secondary-delivery"
-                        data-testid="no-secondary-delivery"
+                        id="no-secondary-destination"
+                        data-testid="no-secondary-destination"
                         label="No"
                         name="hasSecondaryDestinationAddress"
                         value="false"
@@ -500,8 +498,8 @@ const PrimeUIShipmentCreateForm = () => {
                         <div className={formStyles.radioGroup}>
                           <Field
                             as={Radio}
-                            id="has-third-delivery"
-                            data-testid="has-third-delivery"
+                            id="has-tertiary-destination"
+                            data-testid="has-tertiary-destination"
                             label="Yes"
                             name="hasTertiaryDestinationAddress"
                             value="true"
@@ -510,8 +508,8 @@ const PrimeUIShipmentCreateForm = () => {
                           />
                           <Field
                             as={Radio}
-                            id="no-third-delivery"
-                            data-testid="no-third-delivery"
+                            id="no-tertiary-destination"
+                            data-testid="no-tertiary-destination"
                             label="No"
                             name="hasTertiaryDestinationAddress"
                             value="false"

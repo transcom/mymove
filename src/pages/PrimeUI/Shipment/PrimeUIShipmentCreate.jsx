@@ -208,6 +208,13 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         state: '',
         postalCode: '',
       },
+      tertiaryPickupAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
       destinationAddress: {
         streetAddress1: '',
         streetAddress2: '',
@@ -216,6 +223,13 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         postalCode: '',
       },
       secondaryDestinationAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      tertiaryDestinationAddress: {
         streetAddress1: '',
         streetAddress2: '',
         city: '',
@@ -289,8 +303,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
           pickupAddress: requiredAddressSchema.required('Required'),
           secondaryPickupAddress: OptionalAddressSchema,
+          tertiaryPickupAddress: OptionalAddressSchema,
           destinationAddress: requiredAddressSchema.required('Required'),
           secondaryDestinationAddress: OptionalAddressSchema,
+          tertiaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),
           sitLocation: Yup.string().when('sitExpected', {
             is: true,
