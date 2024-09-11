@@ -497,7 +497,10 @@ func (f estimatePPM) priceBreakdown(appCtx appcontext.AppContext, ppmShipment *m
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
 		mtoShipment = MapPPMShipmentFinalFields(*ppmShipment, totalWeightFromWeightTickets)
 	} else {
-		mtoShipment = MapPPMShipmentEstimatedFields(*ppmShipment)
+		mtoShipment, err = MapPPMShipmentEstimatedFields(appCtx, *ppmShipment)
+		if err != nil {
+			return emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, emptyPrice, err
+		}
 	}
 
 	doSITCalculation := *ppmShipment.SITExpected
