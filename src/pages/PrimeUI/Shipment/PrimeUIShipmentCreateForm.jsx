@@ -73,6 +73,8 @@ const PrimeUIShipmentCreateForm = () => {
     return undefined;
   };
 
+  console.log(values);
+
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Type</h2>
@@ -128,7 +130,48 @@ const PrimeUIShipmentCreateForm = () => {
                     />
                   </div>
                 </FormGroup>
-                {hasSecondaryPickupAddress === 'true' && <AddressFields name="ppmShipment.secondaryPickupAddress" />}
+                {hasSecondaryPickupAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
+                    <AddressFields name="ppmShipment.secondaryPickupAddress" />
+
+                    <h4>Third pickup location</h4>
+                    <FormGroup>
+                      <p>
+                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Subject to approval.)
+                      </p>
+                      <div className={formStyles.radioGroup}>
+                        <Field
+                          as={Radio}
+                          id="has-tertiary-pickup"
+                          data-testid="has-tertiary-pickup"
+                          label="Yes"
+                          name="ppmShipment.hasTertiaryPickupAddress"
+                          value="true"
+                          title="Yes, there is a tertiary pickup location"
+                          checked={hasTertiaryPickupAddress === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-tertiary-pickup"
+                          data-testid="no-tertiary-pickup"
+                          label="No"
+                          name="ppmShipment.hasTertiaryPickupAddress"
+                          value="false"
+                          title="No, there is not a tertiary pickup location"
+                          checked={hasTertiaryPickupAddress !== 'true'}
+                        />
+                      </div>
+                    </FormGroup>
+                  </>
+                )}
+                {hasTertiaryPickupAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
+                    <AddressFields name="ppmShipment.tertiaryPickupAddress" />
+                  </>
+                )}
               </>
             )}
           />
@@ -169,7 +212,46 @@ const PrimeUIShipmentCreateForm = () => {
                   </div>
                 </FormGroup>
                 {hasSecondaryDestinationAddress === 'true' && (
-                  <AddressFields name="ppmShipment.secondaryDestinationAddress" />
+                  <>
+                    <h5 className={styles.sectionHeader}>Second Destination Address</h5>
+                    <AddressFields name="ppmShipment.secondDestinationAddress" />
+
+                    <h4>Third delivery location</h4>
+                    <FormGroup>
+                      <p>
+                        Will the movers pick up any belongings from a third address? (Must be near the pickup address.
+                        Subject to approval.)
+                      </p>
+                      <div className={formStyles.radioGroup}>
+                        <Field
+                          as={Radio}
+                          id="has-third-delivery"
+                          data-testid="has-third-delivery"
+                          label="Yes"
+                          name="ppmShipment.hasTertiaryDestinationAddress"
+                          value="true"
+                          title="Yes, there is a third delivery location"
+                          checked={hasTertiaryDestinationAddress === 'true'}
+                        />
+                        <Field
+                          as={Radio}
+                          id="no-third-delivery"
+                          data-testid="no-third-delivery"
+                          label="No"
+                          name="ppmShipment.hasTertiaryDestinationAddress"
+                          value="false"
+                          title="No, there is not a third delivery location"
+                          checked={hasTertiaryDestinationAddress !== 'true'}
+                        />
+                      </div>
+                    </FormGroup>
+                  </>
+                )}
+                {hasTertiaryDestinationAddress === 'true' && (
+                  <>
+                    <h5 className={styles.sectionHeader}>Third Destination Address</h5>
+                    <AddressFields name="ppmShipment.thirdDestinationAddress" />
+                  </>
                 )}
               </>
             )}
@@ -367,7 +449,7 @@ const PrimeUIShipmentCreateForm = () => {
               )}
             />
 
-            <h3 className={styles.sectionHeader}>Destination Address</h3>
+            <h3 className={styles.sectionHeader}>Destination Info</h3>
             <AddressFields
               name="destinationAddress"
               legend="Destination Address"
@@ -407,7 +489,7 @@ const PrimeUIShipmentCreateForm = () => {
                   {hasSecondaryDestinationAddress === 'true' && (
                     <>
                       <h5 className={styles.sectionHeader}>Second Destination Address</h5>
-                      <AddressFields name="secondDestinationAddress" />
+                      <AddressFields name="secondaryDestinationAddress" />
 
                       <h4>Third delivery location</h4>
                       <FormGroup>
@@ -443,7 +525,7 @@ const PrimeUIShipmentCreateForm = () => {
                   {hasTertiaryDestinationAddress === 'true' && (
                     <>
                       <h5 className={styles.sectionHeader}>Third Destination Address</h5>
-                      <AddressFields name="thirdDestinationAddress" />
+                      <AddressFields name="tertiaryDestinationAddress" />
                     </>
                   )}
                 </>

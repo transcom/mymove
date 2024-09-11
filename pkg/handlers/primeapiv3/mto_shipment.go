@@ -54,6 +54,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
+			print("\n\n\n\n\n")
+			fmt.Printf("%+v\n", payload)
+			print("\n\n\n\n\n")
+
 			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted
 			mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)

@@ -698,6 +698,12 @@ definitions:
           additional goods exist.
         allOf:
           - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          An optional tertiary pickup location address near the origin where
+          additional goods exist.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >-
           The address of the destination location where goods are being
@@ -707,6 +713,12 @@ definitions:
       secondaryDestinationAddress:
         description: >-
           An optional secondary address near the destination where goods will be
+          dropped off.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDestinationAddress:
+        description: >-
+          An optional tertiary address near the destination where goods will be
           dropped off.
         allOf:
           - $ref: '#/definitions/Address'

@@ -90,8 +90,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           hasProGear,
           proGearWeight,
           spouseProGearWeight,
+          tertiaryPickupAddress,
+          tertiaryDestinationAddress,
           hasSecondaryPickupAddress,
           hasSecondaryDestinationAddress,
+          hasTertiaryPickupAddress,
+          hasTertiaryDestinationAddress,
         },
       } = values;
 
@@ -109,6 +113,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
             ? null
             : formatAddressForPrimeAPI(secondaryDestinationAddress),
+          tertiaryPickupAddress: isEmpty(tertiaryPickupAddress)
+            ? null
+            : formatAddressForPrimeAPI(tertiaryPickupAddress),
+          tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
+            ? null
+            : formatAddressForPrimeAPI(tertiaryDestinationAddress),
           sitExpected,
           ...(sitExpected && {
             sitLocation: sitLocation || null,
@@ -118,6 +128,8 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           }),
           hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
           hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+          hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+          hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
           estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
           hasProGear,
           ...(hasProGear && {
@@ -134,10 +146,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress,
         diversion,
         divertedFromShipmentId,
-        hasSecondPickupAddress,
-        hasSecondDeliveryAddress,
-        hasThirdPickupAddress,
-        hasThirdDeliveryAddress,
+        hasSecondaryPickupAddress,
+        hasSecondaryDestinationAddress,
+        hasTertiaryPickupAddress,
+        hasTertiaryDestinationAddress,
         secondaryPickupAddress,
         tertiaryPickupAddress,
         secondaryDestinationAddress,
@@ -163,10 +175,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
           ? null
           : formatAddressForPrimeAPI(tertiaryDestinationAddress),
-        hasSecondaryPickupAddress: hasSecondPickupAddress === 'true',
-        hasSecondaryDestinationAddress: hasThirdPickupAddress === 'true',
-        hasTertiaryPickupAddress: hasSecondDeliveryAddress === 'true',
-        hasTertiaryDestinationAddress: hasThirdDeliveryAddress === 'true',
+        hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+        hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+        hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+        hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
       };
     }
 

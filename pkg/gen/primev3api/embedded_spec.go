@@ -744,6 +744,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional tertiary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4206,6 +4222,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional tertiary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
