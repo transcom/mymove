@@ -168,8 +168,8 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   };
 
   // checking if there are any incomplete shipment
-  const hasCompletedAllShipment = () => {
-    if (!mtoShipments || !mtoShipments?.length) return false;
+  const hasIncompleteShipment = () => {
+    if (!mtoShipments) return false;
     const shipmentValidators = {
       [SHIPMENT_TYPES.PPM]: isPPMShipmentComplete,
       [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: isBoatShipmentComplete,
@@ -179,7 +179,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
     return mtoShipments.some((shipment) => {
       const validateShipment = shipmentValidators[shipment.shipmentType];
-      return validateShipment && validateShipment(shipment);
+      return validateShipment && !validateShipment(shipment);
     });
   };
 
@@ -562,7 +562,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   actionBtnDisabled={!hasOrdersAndUpload()}
                   actionBtnId="shipment-selection-btn"
                   onActionBtnClick={() => handleNewPathClick(shipmentSelectionPath)}
-                  complete={hasCompletedAllShipment()}
+                  complete={!hasIncompleteShipment() && hasAnyShipments()}
                   completedHeaderText="Shipments"
                   headerText="Set up shipments"
                   secondaryBtn={hasAnyShipments()}
@@ -593,7 +593,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   )}
                 </Step>
                 <Step
-                  actionBtnDisabled={!hasCompletedAllShipment()}
+                  actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
                   actionBtnId="review-and-submit-btn"
                   actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
                   complete={hasSubmittedMove()}
