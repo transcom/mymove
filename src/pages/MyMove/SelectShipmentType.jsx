@@ -282,7 +282,6 @@ export class SelectShipmentType extends Component {
                   value={SHIPMENT_OPTIONS.MOBILE_HOME}
                   id={SHIPMENT_OPTIONS.MOBILE_HOME}
                   cardText={mobileHomeCardText}
-                  name="Test"
                   checked={shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME && shipmentInfo.isMobileHomeSelectable}
                   disabled={!shipmentInfo.isMobileHomeSelectable}
                   onHelpClick={this.toggleBoatAndMobileInfoModal}
