@@ -113,7 +113,7 @@ export const LocationSearchBoxComponent = ({
   isDisabled,
   handleZipCityOnChange,
 }) => {
-  const { value, onChange, name: inputName } = input;
+  const { value, onChange, officeState, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -169,11 +169,12 @@ export const LocationSearchBoxComponent = ({
         ...selectedValue,
         address,
       };
-
+      officeState(newValue);
       onChange(newValue);
       return newValue;
     }
 
+    officeState(selectedValue);
     onChange(selectedValue);
 
     if (handleZipCityOnChange !== null) {
@@ -210,6 +211,7 @@ export const LocationSearchBoxComponent = ({
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : 'No Options');
   const hasLocation = !!value && !!value.address;
+
   return (
     <FormGroup>
       <div className="labelWrapper">
@@ -250,6 +252,7 @@ export const LocationSearchBoxComponent = ({
 
 export const LocationSearchBoxContainer = (props) => {
   const { searchLocations } = props;
+
   return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
 };
 
