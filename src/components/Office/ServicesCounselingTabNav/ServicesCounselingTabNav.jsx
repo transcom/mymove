@@ -10,7 +10,13 @@ import 'styles/office.scss';
 import TabNav from 'components/TabNav';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
-const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, missingOrdersInfoCount, moveCode }) => {
+const ServicesCounselingTabNav = ({
+  unapprovedShipmentCount = 0,
+  shipmentWarnConcernCount,
+  shipmentErrorConcernCount,
+  missingOrdersInfoCount,
+  moveCode,
+}) => {
   const [supportingDocsFF, setSupportingDocsFF] = React.useState(false);
   React.useEffect(() => {
     const fetchData = async () => {
@@ -20,6 +26,15 @@ const ServicesCounselingTabNav = ({ unapprovedShipmentCount = 0, missingOrdersIn
   }, []);
 
   let moveDetailsTagCount = 0;
+  if (unapprovedShipmentCount > 0) {
+    moveDetailsTagCount += unapprovedShipmentCount;
+  }
+  if (shipmentWarnConcernCount > 0) {
+    moveDetailsTagCount += shipmentWarnConcernCount;
+  }
+  if (shipmentErrorConcernCount > 0) {
+    moveDetailsTagCount += shipmentErrorConcernCount;
+  }
   if (unapprovedShipmentCount > 0) {
     moveDetailsTagCount += unapprovedShipmentCount;
   }
