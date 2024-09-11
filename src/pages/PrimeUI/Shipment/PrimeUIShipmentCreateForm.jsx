@@ -214,7 +214,7 @@ const PrimeUIShipmentCreateForm = () => {
                 {hasSecondaryDestinationAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Second Destination Address</h5>
-                    <AddressFields name="ppmShipment.secondDestinationAddress" />
+                    <AddressFields name="ppmShipment.secondaryDestinationAddress" />
 
                     <h4>Third delivery location</h4>
                     <FormGroup>
