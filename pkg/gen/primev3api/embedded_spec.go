@@ -3100,6 +3100,22 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -3150,6 +3166,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -3220,6 +3246,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional third address near the destination where goods will be dropped off.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional second pickup location near the origin where additional goods exist.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -6544,6 +6586,22 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -6594,6 +6652,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -6664,6 +6732,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional third address near the destination where goods will be dropped off.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional second pickup location near the origin where additional goods exist.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
