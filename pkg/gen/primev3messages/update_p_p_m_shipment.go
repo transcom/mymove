@@ -101,7 +101,7 @@ type UpdatePPMShipment struct {
 		Address
 	} `json:"tertiaryDestinationAddress,omitempty"`
 
-	// An optional second pickup location near the origin where additional goods exist.
+	// An optional third pickup location near the origin where additional goods exist.
 	//
 	TertiaryPickupAddress struct {
 		Address
