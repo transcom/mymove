@@ -696,7 +696,7 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
-		"assignedTo":			   "office_users.last_name",
+		"assignedTo":              "office_users.last_name",
 	}
 
 	return func(query *pop.Query) {
