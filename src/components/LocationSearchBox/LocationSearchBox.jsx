@@ -88,7 +88,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
 }) => {
-  const { value, onChange, officeState, name: inputName } = input;
+  const { value, onChange, locationState, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -144,12 +144,12 @@ export const LocationSearchBoxComponent = ({
         ...selectedValue,
         address,
       };
-      officeState(newValue);
+      locationState(newValue);
       onChange(newValue);
       return newValue;
     }
 
-    officeState(selectedValue);
+    locationState(selectedValue);
     onChange(selectedValue);
     return selectedValue;
   };

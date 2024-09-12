@@ -14,12 +14,7 @@ import SelectFilter from 'components/Table/Filters/SelectFilter';
 import TextBoxFilter from 'components/Table/Filters/TextBoxFilter';
 import Table from 'components/Table/Table';
 import { CHECK_SPECIAL_ORDERS_TYPES, SPECIAL_ORDERS_TYPES } from 'constants/orders';
-import {
-  BRANCH_OPTIONS_WITH_MARINE_CORPS,
-  MOVE_STATUS_LABELS,
-  SEARCH_QUEUE_STATUS_FILTER_OPTIONS,
-  SortShape,
-} from 'constants/queues';
+import { BRANCH_OPTIONS, MOVE_STATUS_LABELS, SEARCH_QUEUE_STATUS_FILTER_OPTIONS, SortShape } from 'constants/queues';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { DATE_FORMAT_STRING } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
@@ -107,7 +102,7 @@ const moveSearchColumns = (moveLockFlag, handleEditProfileClick) => [
       isFilterable: true,
       Filter: (props) => (
         // eslint-disable-next-line react/jsx-props-no-spreading
-        <SelectFilter options={BRANCH_OPTIONS_WITH_MARINE_CORPS} {...props} />
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
       ),
     },
   ),
