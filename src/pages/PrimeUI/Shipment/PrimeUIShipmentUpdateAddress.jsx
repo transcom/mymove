@@ -11,7 +11,7 @@ import { usePrimeSimulatorGetMove } from 'hooks/queries';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
 import { primeSimulatorRoutes } from 'constants/routes';
-import { addressSchema } from 'utils/validation';
+import { ZIP_CODE_REGEX } from 'utils/validation';
 import scrollToTop from 'shared/scrollToTop';
 import { updatePrimeMTOShipmentAddress } from 'services/primeApi';
 import primeStyles from 'pages/PrimeUI/Prime.module.scss';
@@ -22,8 +22,13 @@ import { getAddressLabel } from 'shared/constants';
 
 const updateAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
-  pickupAddress: Yup.object().shape({
-    address: addressSchema,
+  address: Yup.object().shape({
+    id: Yup.string(),
+    streetAddress1: Yup.string().required('Required'),
+    streetAddress2: Yup.string(),
+    city: Yup.string().required('Required'),
+    state: Yup.string().required('Required').length(2, 'Must use state abbreviation'),
+    postalCode: Yup.string().required('Required').matches(ZIP_CODE_REGEX, 'Must be valid zip code'),
   }),
   eTag: Yup.string(),
 });
