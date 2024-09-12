@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams, generatePath } from 'react-router-dom';
+import { useNavigate, useParams, generatePath, useLocation } from 'react-router-dom';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
 import * as Yup from 'yup';
@@ -18,18 +18,11 @@ import primeStyles from 'pages/PrimeUI/Prime.module.scss';
 import { isEmpty } from 'shared/utils';
 import { fromPrimeAPIAddressFormat } from 'utils/formatters';
 import { PRIME_SIMULATOR_MOVE } from 'constants/queryKeys';
+import { getAddressLabel } from 'shared/constants';
 
-const updatePickupAddressSchema = Yup.object().shape({
+const updateAddressSchema = Yup.object().shape({
   addressID: Yup.string(),
   pickupAddress: Yup.object().shape({
-    address: addressSchema,
-  }),
-  eTag: Yup.string(),
-});
-
-const updateDestinationAddressSchema = Yup.object().shape({
-  addressID: Yup.string(),
-  destinationAddress: Yup.object().shape({
     address: addressSchema,
   }),
   eTag: Yup.string(),
@@ -42,6 +35,11 @@ const PrimeUIShipmentUpdateAddress = () => {
   const mtoShipments = moveTaskOrder?.mtoShipments;
   const shipment = mtoShipments?.find((mtoShipment) => mtoShipment?.id === shipmentId);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const addressType = location?.state?.addressType;
+  const addressLabel = getAddressLabel(addressType);
+  const addressData = shipment ? shipment[addressType] : null;
 
   const handleClose = () => {
     navigate(generatePath(primeSimulatorRoutes.VIEW_MOVE_PATH, { moveCodeOrID }));
@@ -52,12 +50,10 @@ const PrimeUIShipmentUpdateAddress = () => {
     onSuccess: (updatedMTOShipmentAddress) => {
       const shipmentIndex = mtoShipments.findIndex((mtoShipment) => mtoShipment.id === shipmentId);
       let updateQuery = false;
-      ['pickupAddress', 'destinationAddress'].forEach((key) => {
-        if (updatedMTOShipmentAddress.id === mtoShipments[shipmentIndex][key].id) {
-          mtoShipments[shipmentIndex][key] = updatedMTOShipmentAddress;
-          updateQuery = true;
-        }
-      });
+      if (updatedMTOShipmentAddress.id === mtoShipments[shipmentIndex][addressType].id) {
+        mtoShipments[shipmentIndex][addressType] = updatedMTOShipmentAddress;
+        updateQuery = true;
+      }
       if (updateQuery) {
         moveTaskOrder.mtoShipments = mtoShipments;
         queryClient.setQueryData([PRIME_SIMULATOR_MOVE, moveCodeOrID], moveTaskOrder);
@@ -87,19 +83,16 @@ const PrimeUIShipmentUpdateAddress = () => {
   if (isError) return <SomethingWentWrong />;
 
   const onSubmit = (values, { setSubmitting }) => {
-    // Choose pickupAddress or destinationAddress by the presence of the object
-    // by the same name. It's possible that these values are blank and set to
-    // `undefined` or an empty string `""`.
-    const address = values.pickupAddress ? values.pickupAddress.address : values.destinationAddress.address;
+    const { streetAddress1, streetAddress2, streetAddress3, city, state, postalCode } = values.address;
 
     const body = {
       id: values.addressID,
-      streetAddress1: address.streetAddress1,
-      streetAddress2: address.streetAddress2,
-      streetAddress3: address.streetAddress3,
-      city: address.city,
-      state: address.state,
-      postalCode: address.postalCode,
+      streetAddress1,
+      streetAddress2,
+      streetAddress3,
+      city,
+      state,
+      postalCode,
     };
 
     // Check if the address payload contains any blank properties and remove
@@ -121,24 +114,13 @@ const PrimeUIShipmentUpdateAddress = () => {
     });
   };
 
-  const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
-  const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
-  const editablePickupAddress = !isEmpty(reformatPrimeApiPickupAddress);
-  const editableDestinationAddress = !isEmpty(reformatPrimeApiDestinationAddress);
+  const reformatPriApiAddress = fromPrimeAPIAddressFormat(addressData);
+  const editableAddress = !isEmpty(reformatPriApiAddress);
 
-  const initialValuesPickupAddress = {
-    addressID: shipment.pickupAddress?.id,
-    pickupAddress: {
-      address: reformatPrimeApiPickupAddress,
-    },
-    eTag: shipment.pickupAddress?.eTag,
-  };
-  const initialValuesDestinationAddress = {
-    addressID: shipment.destinationAddress?.id,
-    destinationAddress: {
-      address: reformatPrimeApiDestinationAddress,
-    },
-    eTag: shipment.destinationAddress?.eTag,
+  const initialValues = {
+    addressID: addressData?.id,
+    address: reformatPriApiAddress,
+    eTag: addressData?.eTag,
   };
 
   return (
@@ -155,23 +137,14 @@ const PrimeUIShipmentUpdateAddress = () => {
                   </Alert>
                 </div>
               )}
-              <h1>Update Existing Pickup & Destination Address</h1>
-              {editablePickupAddress && (
+              <h1>Update Existing {`${addressLabel}`}</h1>
+              {editableAddress && (
                 <PrimeUIShipmentUpdateAddressForm
-                  initialValues={initialValuesPickupAddress}
+                  initialValues={initialValues}
                   onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updatePickupAddressSchema}
-                  addressLocation="Pickup address"
-                  name="pickupAddress.address"
-                />
-              )}
-              {editableDestinationAddress && (
-                <PrimeUIShipmentUpdateAddressForm
-                  initialValues={initialValuesDestinationAddress}
-                  onSubmit={onSubmit}
-                  updateShipmentAddressSchema={updateDestinationAddressSchema}
-                  addressLocation="Destination address"
-                  name="destinationAddress.address"
+                  updateShipmentAddressSchema={updateAddressSchema}
+                  addressLocation={addressLabel}
+                  name="address"
                 />
               )}
             </Grid>
