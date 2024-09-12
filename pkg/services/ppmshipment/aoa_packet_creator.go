@@ -84,7 +84,6 @@ func (a *aoaPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShip
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", errMsgPrefix, err)
 	}
-	fmt.Println(page3Data)
 
 	SSWPPMWorksheet, SSWPDFInfo, err := a.SSWPPMGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data)
 	if err != nil {
