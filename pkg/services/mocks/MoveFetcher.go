@@ -42,6 +42,32 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 	return r0, r1
 }
 
+// FetchMovesForPPTASReports provides a mock function with given fields: appCtx, params
+func (_m *MoveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
+	ret := _m.Called(appCtx, params)
+
+	var r0 models.Moves
+	var r1 error
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {
+		return rf(appCtx, params)
+	}
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) models.Moves); ok {
+		r0 = rf(appCtx, params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(models.Moves)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) error); ok {
+		r1 = rf(appCtx, params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewMoveFetcher creates a new instance of MoveFetcher. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMoveFetcher(t interface {
