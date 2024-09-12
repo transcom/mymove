@@ -1,0 +1,246 @@
+description: >
+  Shipment definition used for PPTAS reports.
+properties:
+  originAddress:
+    $ref: 'Address.yaml'
+  destinationAddress:
+    $ref: 'Address.yaml'
+  travelAdvance:
+    type: number
+    format: double
+    x-nullable: true
+  moveDate:
+    type: string
+    format: date
+    x-nullable: true
+  fiscalYear:
+    type: string
+    x-nullable: true
+  appro:
+    description: Appropriation
+    type: string
+    x-nullable: true
+  subhead:
+    description: LoaObjClsID in lines_of_accounting
+    type: string
+    x-nullable: true
+  objClass:
+    description: LoaAlltSnID in lines_of_accounting
+    type: string
+    x-nullable: true
+  bcn:
+    description: LoaSbaltmtRcpntID in lines_of_accounting
+    type: string
+    x-nullable: true
+  subAllotCD:
+    description: LoaInstlAcntgActID in lines_of_accounting
+    type: string
+    x-nullable: true
+  aaa:
+    description: LoaTrnsnID in lines_of_accounting
+    type: string
+    x-nullable: true
+  typeCD:
+    description: LoaJbOrdNm in lines_of_accounting
+    type: string
+    x-nullable: true
+  paa:
+    description: LoaDocID in lines_of_accounting
+    type: string
+    x-nullable: true
+  costCD:
+    description: LoaPgmElmntID in lines_of_accounting
+    type: string
+    x-nullable: true
+  ddcd:
+    description: LoaDptID in lines_of_accounting
+    type: string
+    x-nullable: true
+  weightEstimate:
+    description: Total weight estimate
+    type: number
+    format: double
+    x-nullable: true
+  dd2278IssueDate:
+    description: Counseling Date
+    type: string
+    format: date
+  miles:
+    type: integer
+  shipmentId:
+    type: string
+    format: uuid
+  loa:
+    description: Line of Accounting
+    type: string
+    x-nullable: true
+  shipmentType:
+    type: string
+  netWeight:
+    type: integer
+    x-nullable: true
+  pbpAnde:
+    description: Pro Gear
+    type: number
+    format: double
+    x-nullable: true
+  pickupDate:
+    type: string
+    format: date
+  sitInDate:
+    description: Storage in Transit In Date
+    type: string
+    format: date
+    x-nullable: true
+  sitOutDate:
+    description: Storage in Transit Out Date
+    type: string
+    format: date
+    x-nullable: true
+  sitType:
+    description: Storage in Transit type
+    example: Destination
+    type: string
+    x-nullable: true
+  paidDate:
+    type: string
+    format: date
+    x-nullable: true
+  linehaulTotal:
+    type: number
+    format: double
+    x-nullable: true
+  linehaulFuelTotal:
+    type: number
+    format: double
+    x-nullable: true
+  originPrice:
+    type: number
+    format: double
+    x-nullable: true
+  destinationPrice:
+    type: number
+    format: double
+    x-nullable: true
+  packingPrice:
+    type: number
+    format: double
+    x-nullable: true
+  unpackingPrice:
+    type: number
+    format: double
+    x-nullable: true
+  sitOriginFirstDayTotal:
+    description: First day of Origin Storage in Transit cost
+    type: number
+    format: double
+    x-nullable: true
+  sitOriginAddlDaysTotal:
+    description: Additional day of Origin Storage in Transit cost
+    type: number
+    format: double
+    x-nullable: true
+  sitDestFirstDayTotal:
+    description: First day of Destination Storage in Transit cost
+    type: number
+    format: double
+    x-nullable: true
+  sitDestAddlDaysTotal:
+    description: Additional day of Destination Storage in Transit cost
+    type: number
+    format: double
+    x-nullable: true
+  sitPickupTotal:
+    description: Storage in Transit pickup total cost
+    type: number
+    format: double
+    x-nullable: true
+  sitDeliveryTotal:
+    description: Storage in Transit delivery total cost
+    type: number
+    format: double
+    x-nullable: true
+  sitOriginFuelSurcharge:
+    description: Storage in Transit origin fuel total cost
+    type: number
+    format: double
+    x-nullable: true
+  sitDestFuelSurcharge:
+    description: Storage in Transit destination total cost
+    type: number
+    format: double
+    x-nullable: true
+  cratingTotal:
+    type: number
+    format: double
+    x-nullable: true
+  uncratingTotal:
+    type: number
+    format: double
+    x-nullable: true
+  cratingDimensions:
+    type: array
+    items:
+      $ref: 'Crate.yaml'
+  shuttleTotal:
+    type: number
+    format: double
+    x-nullable: true
+  moveManagementFeeTotal:
+    type: number
+    format: double
+    x-nullable: true
+  counselingFeeTotal:
+    type: number
+    format: double
+    x-nullable: true
+  invoicePaidAmt:
+    description: Invoice Paid Amounts
+    type: number
+    format: double
+    x-nullable: true
+  ppmLinehaul:
+    description: Personally Procured Move Linehaul total cost
+    type: number
+    format: double
+    x-nullable: true
+  ppmFuelRateAdjTotal:
+    description: Personally Procured Move Fuel Rate Adjusted total cost
+    type: number
+    format: double
+    x-nullable: true
+  ppmOriginPrice:
+    type: number
+    format: double
+    x-nullable: true
+  ppmDestPrice:
+    type: number
+    format: double
+    x-nullable: true
+  ppmPacking:
+    type: number
+    format: double
+    x-nullable: true
+  ppmUnpacking:
+    type: number
+    format: double
+    x-nullable: true
+  ppmStorage:
+    type: number
+    format: double
+    x-nullable: true
+  ppmTotal:
+    type: number
+    format: double
+    x-nullable: true
+  deliveryDate:
+    type: string
+    format: date
+  actualOriginNetWeight:
+    type: number
+    format: double
+    x-nullable: true
+  destinationReweighNetWeight:
+    type: number
+    format: double
+    x-nullable: true
