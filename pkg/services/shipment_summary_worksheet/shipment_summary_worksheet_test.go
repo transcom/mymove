@@ -386,13 +386,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	}
 
 	ssdWithoutPPMActualMoveDate := models.ShipmentSummaryFormData{
-		ServiceMember:       serviceMember,
-		Order:               order,
-		CurrentDutyLocation: yuma,
-		NewDutyLocation:     fortGordon,
-		WeightAllotment:     wtgEntitlements,
-		PreparationDate:     time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipment:         PPMShipmentWithoutActualMoveDate,
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyLocation:     yuma,
+		NewDutyLocation:         fortGordon,
+		PPMRemainingEntitlement: 3000,
+		WeightAllotment:         wtgEntitlements,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipment:             PPMShipmentWithoutActualMoveDate,
 	}
 	sswPage1NoActualMoveDate, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssdWithoutPPMActualMoveDate, false)
 	suite.NoError(err)
