@@ -3201,6 +3201,7 @@ paths:
               closeoutInitiated,
               closeoutLocation,
               ppmStatus,
+              assignedTo,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3420,6 +3421,7 @@ paths:
               destinationDutyLocation,
               requestedMoveDate,
               appearedInTooAt,
+              assignedTo,
             ]
           description: field that results should be sorted by
         - in: query
