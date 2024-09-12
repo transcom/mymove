@@ -26,8 +26,9 @@ type SITStatus struct {
 	// current s i t
 	CurrentSIT *SITStatusCurrentSIT `json:"currentSIT,omitempty"`
 
-	// past s i t service items
-	PastSITServiceItems MTOServiceItems `json:"pastSITServiceItems,omitempty"`
+	// A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.
+	//
+	PastSITServiceItemGroupings SITServiceItemGroupings `json:"pastSITServiceItemGroupings,omitempty"`
 
 	// total days remaining
 	// Minimum: 0
@@ -50,7 +51,7 @@ func (m *SITStatus) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validatePastSITServiceItems(formats); err != nil {
+	if err := m.validatePastSITServiceItemGroupings(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -99,16 +100,16 @@ func (m *SITStatus) validateCurrentSIT(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *SITStatus) validatePastSITServiceItems(formats strfmt.Registry) error {
-	if swag.IsZero(m.PastSITServiceItems) { // not required
+func (m *SITStatus) validatePastSITServiceItemGroupings(formats strfmt.Registry) error {
+	if swag.IsZero(m.PastSITServiceItemGroupings) { // not required
 		return nil
 	}
 
-	if err := m.PastSITServiceItems.Validate(formats); err != nil {
+	if err := m.PastSITServiceItemGroupings.Validate(formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("pastSITServiceItems")
+			return ve.ValidateName("pastSITServiceItemGroupings")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("pastSITServiceItems")
+			return ce.ValidateName("pastSITServiceItemGroupings")
 		}
 		return err
 	}
@@ -148,7 +149,7 @@ func (m *SITStatus) ContextValidate(ctx context.Context, formats strfmt.Registry
 		res = append(res, err)
 	}
 
-	if err := m.contextValidatePastSITServiceItems(ctx, formats); err != nil {
+	if err := m.contextValidatePastSITServiceItemGroupings(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -179,13 +180,13 @@ func (m *SITStatus) contextValidateCurrentSIT(ctx context.Context, formats strfm
 	return nil
 }
 
-func (m *SITStatus) contextValidatePastSITServiceItems(ctx context.Context, formats strfmt.Registry) error {
+func (m *SITStatus) contextValidatePastSITServiceItemGroupings(ctx context.Context, formats strfmt.Registry) error {
 
-	if err := m.PastSITServiceItems.ContextValidate(ctx, formats); err != nil {
+	if err := m.PastSITServiceItemGroupings.ContextValidate(ctx, formats); err != nil {
 		if ve, ok := err.(*errors.Validation); ok {
-			return ve.ValidateName("pastSITServiceItems")
+			return ve.ValidateName("pastSITServiceItemGroupings")
 		} else if ce, ok := err.(*errors.CompositeError); ok {
-			return ce.ValidateName("pastSITServiceItems")
+			return ce.ValidateName("pastSITServiceItemGroupings")
 		}
 		return err
 	}
