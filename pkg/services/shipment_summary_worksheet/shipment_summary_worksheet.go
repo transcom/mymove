@@ -68,7 +68,7 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
-	page3, err := FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData, isPaymentPacket)
+	page3, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
@@ -320,7 +320,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 }
 
 // FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 3 of the Shipment Summary Worksheet
-func FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page3Values, error) {
+func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page3Values, error) {
 	var err error
 	var page3 services.Page3Values
 

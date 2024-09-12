@@ -172,6 +172,30 @@ func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mod
 	return r0, r1
 }
 
+// FormatValuesShipmentSummaryWorksheetFormPage3 provides a mock function with given fields: data, isPaymentPacket
+func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page3Values, error) {
+	ret := _m.Called(data, isPaymentPacket)
+
+	var r0 services.Page3Values
+	var r1 error
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) (services.Page3Values, error)); ok {
+		return rf(data, isPaymentPacket)
+	}
+	if rf, ok := ret.Get(0).(func(models.ShipmentSummaryFormData, bool) services.Page3Values); ok {
+		r0 = rf(data, isPaymentPacket)
+	} else {
+		r0 = ret.Get(0).(services.Page3Values)
+	}
+
+	if rf, ok := ret.Get(1).(func(models.ShipmentSummaryFormData, bool) error); ok {
+		r1 = rf(data, isPaymentPacket)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // NewSSWPPMComputer creates a new instance of SSWPPMComputer. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewSSWPPMComputer(t interface {

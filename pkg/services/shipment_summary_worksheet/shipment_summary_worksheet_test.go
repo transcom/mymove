@@ -518,7 +518,9 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
 		PPMShipment:             PPMShipment,
 	}
-	sswPage3, err := FormatValuesShipmentSummaryWorksheetFormPage3(ssd, false)
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	sswPage3, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage3(ssd, false)
 	suite.NoError(err)
 	suite.Equal(FormatDate(time.Now()), sswPage3.PreparationDate3)
 	suite.Equal(make(map[string]string), sswPage3.AddShipments)
