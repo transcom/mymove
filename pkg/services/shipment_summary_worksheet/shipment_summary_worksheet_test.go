@@ -1072,10 +1072,10 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 				},
 			},
 			expectedResult: models.WorkSheetShipment{
-				FinalIncentive:         "$50.00", // Example expected result
-				MaxAdvance:             "$18.00", // Assuming formatMaxAdvance correctly formats
-				EstimatedIncentive:     "$30.00", // Example expected result
-				AdvanceAmountReceived:  "$10.00", // Example expected result
+				FinalIncentive:         "$50.00",                     // Example expected result
+				MaxAdvance:             "$18.00",                     // Assuming formatMaxAdvance correctly formats
+				EstimatedIncentive:     "$30.00",                     // Example expected result
+				AdvanceAmountReceived:  "$10.00 Requested, Received", // Example expected result
 				ShipmentNumberAndTypes: locator,
 			},
 			entitlements: wtgEntitlements,
