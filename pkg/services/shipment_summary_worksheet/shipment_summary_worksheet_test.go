@@ -974,6 +974,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 	exampleValue2 := unit.Cents(3000)
 	exampleValue3 := unit.Cents(1000)
 	locator := "ABCDEF-01"
+
+	wtgEntitlements := models.SSWMaxWeightEntitlement{
+		Entitlement:   15000,
+		ProGear:       2000,
+		SpouseProGear: 500,
+		TotalWeight:   17500,
+	}
+
 	tests := []struct {
 		name           string
 		shipment       models.PPMShipment
@@ -997,6 +1005,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 				AdvanceAmountReceived:  "$10.00", // Example expected result
 				ShipmentNumberAndTypes: locator,
 			},
+			entitlements: wtgEntitlements,
 		},
 		{
 			name: "Final Incentive nil",
@@ -1015,6 +1024,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 				AdvanceAmountReceived:  "$10.00", // Example expected result
 				ShipmentNumberAndTypes: locator,
 			},
+			entitlements: wtgEntitlements,
 		},
 	}
 
