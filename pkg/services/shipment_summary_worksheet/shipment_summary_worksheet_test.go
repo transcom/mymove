@@ -550,7 +550,8 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		MovingExpenses: movingExpenses,
 	}
 
-	sswPage2 := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	sswPage2, err := FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
+	suite.NoError(err)
 	suite.Equal("$0.00", sswPage2.TollsGTCCPaid)
 	suite.Equal("$100.00", sswPage2.TollsMemberPaid)
 	suite.Equal("$0.00", sswPage2.OilMemberPaid)
