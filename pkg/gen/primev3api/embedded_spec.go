@@ -3423,7 +3423,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional second pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third pickup location near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -7076,7 +7076,7 @@ func init() {
           ]
         },
         "tertiaryPickupAddress": {
-          "description": "An optional second pickup location near the origin where additional goods exist.\n",
+          "description": "An optional third pickup location near the origin where additional goods exist.\n",
           "allOf": [
             {
               "$ref": "#/definitions/Address"
