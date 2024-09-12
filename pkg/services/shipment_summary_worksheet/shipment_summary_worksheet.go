@@ -168,22 +168,23 @@ func SSWGetEntitlement(grade internalmessages.OrderPayGrade, hasDependents bool,
 	return models.SSWMaxWeightEntitlement(sswEntitlements)
 }
 
-// CalculateRemainingPPMEntitlement calculates the remaining PPM entitlement for PPM moves
-// a PPMs remaining entitlement weight is equal to total entitlement - hhg weight
-func CalculateRemainingPPMEntitlement(move models.Move, totalEntitlement unit.Pound) (unit.Pound, error) {
-
-	var hhgActualWeight unit.Pound
-
-	ppmActualWeight := models.GetTotalNetWeightForMove(move)
-
-	switch ppmRemainingEntitlement := totalEntitlement - hhgActualWeight; {
-	case ppmActualWeight < ppmRemainingEntitlement:
-		return ppmActualWeight, nil
-	case ppmRemainingEntitlement < 0:
-		return 0, nil
-	default:
-		return ppmRemainingEntitlement, nil
+// Calculates cost for the Remaining PPM Incentive (pre-tax) field on page 2 of SSW form.
+func CalculateRemainingPPMEntitlement(finalIncentive *unit.Cents, sitMemberPaid float64, sitGTCCPaid float64, aoa *unit.Cents) float64 {
+	// FinalIncentive
+	var finalIncentiveFloat float64 = 0
+	if finalIncentive != nil {
+		finalIncentiveFloat = float64(*finalIncentive) / 100.0
 	}
+
+	var aoaFloat float64 = 0
+	if aoa != nil {
+		aoaFloat = float64(*aoa) / 100.0
+	}
+
+	// This costing is computed by taking the Actual Obligations 100% GCC plus the
+	// SIT cost calculated (if SIT was approved and accepted) minus any Advance
+	// Operating Allowance (AOA) the customer identified as receiving in the Document upload process
+	return (finalIncentiveFloat + sitMemberPaid + sitGTCCPaid) - aoaFloat
 }
 
 const (
@@ -264,7 +265,6 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.MaxObligationSIT = fmt.Sprintf("%02d Days in SIT", data.MaxSITStorageEntitlement)
 	page1.ActualObligationSIT = formattedSIT.DaysInStorage
 	page1.TotalWeightAllotmentRepeat = page1.TotalWeightAllotment
-	page1.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 	return page1, nil
 }
 
@@ -280,6 +280,8 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.TAC = derefStringTypes(data.Order.TAC)
 	page2.SAC = derefStringTypes(data.Order.SAC)
 	if isPaymentPacket {
+		data.PPMRemainingEntitlement = CalculateRemainingPPMEntitlement(data.PPMShipment.FinalIncentive, expensesMap["StorageMemberPaid"], expensesMap["StorageGTCCPaid"], data.PPMShipment.AdvanceAmountReceived)
+		page2.PPMRemainingEntitlement = FormatDollars(data.PPMRemainingEntitlement)
 		page2.PreparationDate2, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
 			return page2, err
@@ -288,6 +290,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	} else {
 		page2.PreparationDate2 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
 		page2.Disbursement = "N/A"
+		page2.PPMRemainingEntitlement = "N/A"
 	}
 	page2.ContractedExpenseMemberPaid = FormatDollars(expensesMap["ContractedExpenseMemberPaid"])
 	page2.ContractedExpenseGTCCPaid = FormatDollars(expensesMap["ContractedExpenseGTCCPaid"])
@@ -316,6 +319,7 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	page2.ServiceMemberSignature = certificationInfo.CustomerField
 	page2.PPPOPPSORepresentative = certificationInfo.OfficeField
 	page2.SignatureDate = certificationInfo.DateField
+
 	return page2, nil
 }
 
@@ -999,7 +1003,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 	}
 
 	weightAllotment := SSWGetEntitlement(*ppmShipment.Shipment.MoveTaskOrder.Orders.Grade, ppmShipment.Shipment.MoveTaskOrder.Orders.HasDependents, ppmShipment.Shipment.MoveTaskOrder.Orders.SpouseHasProGear)
-	ppmRemainingEntitlement := float64(0)
 
 	maxSit, err := CalculateShipmentSITAllowance(appCtx, ppmShipment.Shipment)
 	if err != nil {
@@ -1037,7 +1040,6 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		W2Address:                ppmShipment.W2Address,
 		MovingExpenses:           ppmShipment.MovingExpenses,
 		SignedCertifications:     signedCertifications,
-		PPMRemainingEntitlement:  ppmRemainingEntitlement,
 		MaxSITStorageEntitlement: maxSit,
 	}
 	return &ssd, nil

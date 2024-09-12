@@ -49,7 +49,6 @@ type Page1Values struct {
 	MaxObligationGCC95              string
 	MaxObligationSIT                string
 	MaxObligationGCCMaxAdvance      string
-	PPMRemainingEntitlement         string
 	ActualObligationGCC100          string
 	ActualObligationGCC95           string
 	ActualObligationAdvance         string
@@ -91,10 +90,11 @@ type Page2Values struct {
 	Disbursement                string
 	ShipmentPickupDates         string
 	TrustedAgentName            string
+	ServiceMemberSignature      string
+	PPPOPPSORepresentative      string
+	SignatureDate               string
+	PPMRemainingEntitlement     string
 	FormattedMovingExpenses
-	ServiceMemberSignature string
-	PPPOPPSORepresentative string
-	SignatureDate          string
 	FormattedOtherExpenses
 }
 
