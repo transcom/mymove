@@ -602,7 +602,6 @@ func mountPrimeSimulatorAPI(appCtx appcontext.AppContext, routingConfig *Config,
 				rAuth.Mount("/", api.Serve(tracingMiddleware))
 			})
 		})
-
 		site.Route("/pptas/v1", func(r chi.Router) {
 			r.Method("GET", "/swagger.yaml",
 				handlers.NewFileHandler(routingConfig.FileSystem,
