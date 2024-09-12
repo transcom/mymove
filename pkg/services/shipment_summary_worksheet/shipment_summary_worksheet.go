@@ -47,7 +47,7 @@ type SSWPPMGenerator struct {
 
 // NewSSWPPMGenerator creates a SSWPPMGenerator
 func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGenerator, error) {
-	templateReader, err := createAssetByteReader("paperwork/formtemplates/SSWPDFTemplate.pdf")
+	templateReader, err := createAssetByteReader("paperwork/formtemplates/ShipmentSummaryWorksheet.pdf")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -59,16 +59,20 @@ func NewSSWPPMGenerator(pdfGenerator *paperwork.Generator) (services.SSWPPMGener
 }
 
 // FormatValuesShipmentSummaryWorksheet returns the formatted pages for the Shipment Summary Worksheet
-func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, error) {
+func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values, services.Page3Values, error) {
 	page1, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
-		return page1, services.Page2Values{}, errors.WithStack(err)
+		return page1, services.Page2Values{}, services.Page3Values{}, errors.WithStack(err)
 	}
 	page2, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(shipmentSummaryFormData, isPaymentPacket)
 	if err != nil {
-		return page1, page2, errors.WithStack(err)
+		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
-	return page1, page2, nil
+	page3, err := SSWPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage3(shipmentSummaryFormData, isPaymentPacket)
+	if err != nil {
+		return page1, page2, services.Page3Values{}, errors.WithStack(err)
+	}
+	return page1, page2, page3, nil
 }
 
 // textField represents a text field within a form.
@@ -315,6 +319,137 @@ func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage2(data mode
 	return page2, nil
 }
 
+// FormatValuesShipmentSummaryWorksheetFormPage3 formats the data for page 3 of the Shipment Summary Worksheet
+func (s *SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage3(data models.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page3Values, error) {
+	var err error
+	var page3 services.Page3Values
+
+	if isPaymentPacket {
+		page3.PreparationDate3, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
+		if err != nil {
+			return page3, err
+		}
+	} else {
+		page3.PreparationDate3 = formatAOADate(data.SignedCertifications, data.PPMShipment.ID)
+	}
+
+	page3Map, err := formatAdditionalShipments(data)
+	if err != nil {
+		return page3, err
+	}
+	page3.AddShipments = page3Map
+	return page3, nil
+}
+
+func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]string, error) {
+	page3Map := make(map[string]string)
+	hasCurrentPPM := false
+	const rows = 16
+	for i, shipment := range ssfd.AllShipments {
+
+		// If this is the shipment the SSW is being generated for, skip it.
+		if shipment.PPMShipment.ID == ssfd.PPMShipment.ID {
+			hasCurrentPPM = true
+			continue
+		}
+
+		// This ensures that skipping the current PPM does not cause any row skips due to db fetch order
+		if !hasCurrentPPM {
+			i = i + 1
+		}
+
+		// If after skipping the current PPM, i is more than the amount of rows we have, throw an error.
+		if i > rows {
+			err := errors.New("PDF is being generated for a move with more than 17 shipments, SSW cannot display them all")
+			return nil, err
+		}
+
+		// Default values will be configured for HHG, shipment-specific values configured below in switch case
+		// This helps us to prevent redundant and confusing code for each shipment type
+		page3Map, err := formatAdditionalHHG(page3Map, i, shipment)
+		if err != nil {
+			return nil, err
+		}
+
+		// Switch handles unique values by shipment type
+		switch {
+		case shipment.ShipmentType == models.MTOShipmentTypePPM:
+			// Weights
+			totalWeight := models.GetPPMNetWeight(*shipment.PPMShipment)
+			if totalWeight != 0 {
+				page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatPPMWeightFinal(totalWeight) // Comment happens in formatter
+			} else if shipment.PPMShipment.EstimatedWeight != nil {
+				page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatPPMWeightEstimated(*shipment.PPMShipment) // Comment happens in formatter
+			} else {
+				page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = " - "
+			}
+			// Dates
+			if shipment.PPMShipment.ActualMoveDate != nil {
+				page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.PPMShipment.ActualMoveDate) + " Actual"
+
+			} else {
+				page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(shipment.PPMShipment.ExpectedDepartureDate) + " Expected"
+
+			}
+			// PPM Status instead of shipment status
+			page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatCurrentPPMStatus(*shipment.PPMShipment)
+		case shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
+		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
+		case shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l HHG"
+		case shipment.ShipmentType == models.MTOShipmentTypeInternationalUB:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l UB"
+		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"
+		case shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Haul"
+		case shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Tow"
+		}
+	}
+	return page3Map, nil
+}
+
+func formatAdditionalHHG(page3Map map[string]string, i int, shipment models.MTOShipment) (map[string]string, error) {
+	// If no shipment locator, throw error because something is wrong
+	if shipment.ShipmentLocator != nil {
+		page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " " + string(shipment.ShipmentType)
+	} else {
+		err := errors.New("PDF is being generated for a move without a locator")
+		return nil, err
+	}
+
+	// If we're missing pickup dates or weights, we return " - " instead of error. Also it may be a PPM
+	// For dates, we prefer actual -> scheduled -> requested -> -
+	if shipment.ActualPickupDate != nil {
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.ActualPickupDate) + " Actual"
+	} else if shipment.ScheduledPickupDate != nil {
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.ScheduledPickupDate) + " Scheduled"
+
+	} else if shipment.RequestedPickupDate != nil {
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = FormatDate(*shipment.RequestedPickupDate) + " Requested"
+
+	} else {
+		page3Map[fmt.Sprintf("AddShipmentPickUpDates%d", i)] = " - "
+	}
+
+	// For weights, we prefer actual -> estimated -> -
+	if shipment.PrimeActualWeight != nil {
+		page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatWeights(*shipment.PrimeActualWeight) + " Actual"
+	} else if shipment.PrimeEstimatedWeight != nil {
+		page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = FormatWeights(*shipment.PrimeEstimatedWeight) + " Estimated"
+	} else {
+		page3Map[fmt.Sprintf("AddShipmentWeights%d", i)] = " - "
+	}
+
+	// Status is always available
+	page3Map[fmt.Sprintf("AddShipmentStatus%d", i)] = FormatEnum(string(shipment.Status), "")
+
+	return page3Map, nil
+}
+
 // FormatGrade formats the service member's rank for Shipment Summary Worksheet
 func FormatGrade(grade *internalmessages.OrderPayGrade) string {
 	var gradeDisplayValue = map[internalmessages.OrderPayGrade]string{
@@ -502,32 +637,63 @@ func (s SSWPPMComputer) FormatShipment(ppm models.PPMShipment, weightAllotment m
 		formattedShipment.MaxAdvance = "Advance not available."
 		formattedShipment.EstimatedIncentive = "No estimated incentive."
 	}
-	if ppm.AdvanceAmountReceived != nil {
-		formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived)
-	} else {
-		formattedShipment.AdvanceAmountReceived = "No advance received."
-	}
 	formattedShipmentTotalWeights := unit.Pound(0)
-	formattedNumberAndTypes := ppm.Shipment.ShipmentLocator
+	formattedNumberAndTypes := *ppm.Shipment.ShipmentLocator + " PPM"
 	formattedShipmentWeights := FormatPPMWeightEstimated(ppm)
 	formattedShipmentStatuses := FormatCurrentPPMStatus(ppm)
 	if ppm.EstimatedWeight != nil {
 		formattedShipmentTotalWeights += s.calculateShipmentTotalWeight(ppm, weightAllotment)
 	}
-
 	formattedPickUpDates := FormatDate(ppm.ExpectedDepartureDate)
+	// If advance isn't configured or received, it's false
+	var hasRequestedAdvance bool
+	if ppm.HasRequestedAdvance == nil {
+		hasRequestedAdvance = false
+	} else {
+		hasRequestedAdvance = *ppm.HasRequestedAdvance
+	}
 	if isPaymentPacket {
 		formattedPickUpDates = "N/A"
 		if ppm.ActualMoveDate != nil {
 			formattedPickUpDates = FormatDate(*ppm.ActualMoveDate)
 		}
+		// If it's received, reflect that
+		if ppm.AdvanceAmountReceived != nil {
+			formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + "Customer received"
+		} else if hasRequestedAdvance {
+			// If it's requested, give amount and status
+			if *ppm.AdvanceStatus != models.PPMAdvanceStatusReceived {
+				formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountRequested) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+			} else {
+				// If it's received, give received amount and status
+				formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+			}
+		} else {
+			formattedShipment.AdvanceAmountReceived = "No Advance Requested."
+		}
+	} else {
+		// No customer received amount in AOA packet
+		if hasRequestedAdvance {
+			if ppm.AdvanceStatus != nil {
+				if *ppm.AdvanceStatus != models.PPMAdvanceStatusReceived {
+					formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountRequested) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+				} else {
+					// If it's received, give received amount and status
+					formattedShipment.AdvanceAmountReceived = FormatDollarFromCents(*ppm.AdvanceAmountReceived) + " Requested, " + FormatEnum(string(*ppm.AdvanceStatus), "")
+				}
+			}
+			// If it's requested, give amount and status
+		} else {
+			formattedShipment.AdvanceAmountReceived = "No Advance Requested."
+		}
 	}
+
 	// Last resort in case any dates are stored incorrectly
 	if formattedPickUpDates == "01-Jan-0001" {
 		formattedPickUpDates = "N/A"
 	}
 
-	formattedShipment.ShipmentNumberAndTypes = *formattedNumberAndTypes
+	formattedShipment.ShipmentNumberAndTypes = formattedNumberAndTypes
 	formattedShipment.PickUpDates = formattedPickUpDates
 	formattedShipment.ShipmentWeights = formattedShipmentWeights
 	formattedShipment.ShipmentWeightForObligation = FormatWeights(formattedShipmentTotalWeights)
@@ -805,6 +971,8 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		"Shipment.MoveTaskOrder.Orders.ServiceMember",
 		"Shipment.MoveTaskOrder.Orders.NewDutyLocation.Address",
 		"Shipment.MoveTaskOrder.Orders.OriginDutyLocation.Address",
+		"Shipment.MoveTaskOrder.MTOShipments.PPMShipment",
+		"Shipment.MoveTaskOrder.MTOShipments.BoatShipment",
 		"W2Address",
 		"WeightTickets",
 		"MovingExpenses",
@@ -852,6 +1020,7 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, errors.New("order for PPM shipment does not have a origin duty location attached")
 	}
 	ssd := models.ShipmentSummaryFormData{
+		AllShipments:             ppmShipment.Shipment.MoveTaskOrder.MTOShipments,
 		ServiceMember:            serviceMember,
 		Order:                    ppmShipment.Shipment.MoveTaskOrder.Orders,
 		Move:                     ppmShipment.Shipment.MoveTaskOrder,
@@ -901,7 +1070,7 @@ func fetchEntitlement(appCtx appcontext.AppContext, mtoShipment models.MTOShipme
 }
 
 // FillSSWPDFForm takes form data and fills an existing PDF form template with said data
-func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
+func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page1Values, Page2Values services.Page2Values, Page3Values services.Page3Values) (sswfile afero.File, pdfInfo *pdfcpu.PDFInfo, err error) {
 
 	// header represents the header section of the JSON.
 	type header struct {
@@ -934,9 +1103,9 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 	}
 
 	var sswHeader = header{
-		Source:   "SSWPDFTemplate.pdf",
+		Source:   "ShipmentSummaryWorksheet.pdf",
 		Version:  "pdfcpu v0.8.0 dev",
-		Creation: "2024-08-27 16:39:37 UTC",
+		Creation: "2024-09-06 13:06:23 UTC",
 		Producer: "macOS Version 13.5 (Build 22G74) Quartz PDFContext, AppendMode 1.1",
 	}
 
@@ -955,7 +1124,7 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		Header: sswHeader,
 		Forms: []form{
 			{ // Dynamically loops, creates, and aggregates json for text fields, merges page 1 and 2
-				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2)),
+				TextField: mergeTextFields(createTextFields(Page1Values, 1), createTextFields(Page2Values, 2), createTextFields(Page3Values, 3)),
 			},
 			// The following is the structure for using a Checkbox field
 			{
@@ -975,9 +1144,10 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 		return nil, nil, err
 	}
 
-	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted
+	// pdfInfo.PageCount is a great way to tell whether returned PDF is corrupted. Pages is expected pages
+	const pages = 3
 	pdfInfoResult, err := SSWPPMGenerator.generator.GetPdfFileInfo(SSWWorksheet.Name())
-	if err != nil || pdfInfoResult.PageCount != 2 {
+	if err != nil || pdfInfoResult.PageCount != pages {
 		return nil, nil, errors.Wrap(err, "SSWGenerator output a corrupted or incorretly altered PDF")
 	}
 	// Return PDFInfo for additional testing in other functions
@@ -988,30 +1158,48 @@ func (SSWPPMGenerator *SSWPPMGenerator) FillSSWPDFForm(Page1Values services.Page
 // CreateTextFields formats the SSW Page data to match PDF-accepted JSON
 func createTextFields(data interface{}, pages ...int) []textField {
 	var textFields []textField
-
 	val := reflect.ValueOf(data)
+
+	// Process top-level struct
 	for i := 0; i < val.NumField(); i++ {
 		field := val.Type().Field(i)
-		value := val.Field(i).Interface()
+		fieldValue := val.Field(i)
 
-		textFieldEntry := textField{
-			Pages:     pages,
-			ID:        fmt.Sprintf("%d", len(textFields)+1),
-			Name:      field.Name,
-			Value:     fmt.Sprintf("%v", value),
-			Multiline: true,
-			Locked:    false,
+		// Handle map for additional shipments on page 3
+		if fieldValue.Kind() == reflect.Map {
+			for _, key := range fieldValue.MapKeys() {
+				mapValue := fieldValue.MapIndex(key)
+
+				textFieldEntry := textField{
+					Pages:     pages,
+					ID:        fmt.Sprintf("%d", len(textFields)+1),
+					Name:      fmt.Sprintf("%v", key),
+					Value:     fmt.Sprintf("%v", mapValue.Interface()),
+					Multiline: true,
+					Locked:    false,
+				}
+				textFields = append(textFields, textFieldEntry)
+			}
+		} else {
+			// handle primitive fields
+			textFieldEntry := textField{
+				Pages:     pages,
+				ID:        fmt.Sprintf("%d", len(textFields)+1),
+				Name:      field.Name,
+				Value:     fmt.Sprintf("%v", fieldValue.Interface()),
+				Multiline: true,
+				Locked:    false,
+			}
+			textFields = append(textFields, textFieldEntry)
 		}
-
-		textFields = append(textFields, textFieldEntry)
 	}
-
 	return textFields
 }
 
-// MergeTextFields merges page 1 and page 2 data
-func mergeTextFields(fields1, fields2 []textField) []textField {
-	return append(fields1, fields2...)
+// MergeTextFields merges page 1, page 2, and page 3 data
+func mergeTextFields(fields1, fields2, fields3 []textField) []textField {
+	totalFields := append(fields1, fields2...)
+	return append(totalFields, fields3...)
 }
 
 // createAssetByteReader creates a new byte reader based on the TemplateImagePath of the formLayout
