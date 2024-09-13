@@ -803,7 +803,7 @@ const ShipmentForm = (props) => {
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
-                TEST{errorMessage}
+                {errorMessage}
               </Alert>
             )}
             <NotificationScrollToTop dependency={successMessage} />
