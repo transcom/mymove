@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Radio, FormGroup, Label, Textarea } from '@trussworks/react-uswds';
 import { Field, useField, useFormikContext } from 'formik';
 
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { isBooleanFlagEnabled } from '../../../utils/featureFlags';
+
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES, FEATURE_FLAG_KEYS } from 'shared/constants';
 import { CheckboxField, DatePickerInput, DropdownInput } from 'components/form/fields';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import styles from 'components/Office/CustomerContactInfoForm/CustomerContactInfoForm.module.scss';
@@ -19,12 +21,17 @@ const PrimeUIShipmentCreateForm = () => {
   const { values } = useFormikContext();
   const { shipmentType } = values;
   const { sitExpected, hasProGear, hasSecondaryDestinationAddress, hasSecondaryPickupAddress } = values.ppmShipment;
+  const { hasTrailer } = values.boatShipment;
   const [, , checkBoxHelperProps] = useField('diversion');
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
+  const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
+  const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
+  const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
 
   // if a shipment is a diversion, then the parent shipment id will be required for input
   const toggleParentShipmentIdTextBox = (checkboxValue) => {
@@ -50,17 +57,32 @@ const PrimeUIShipmentCreateForm = () => {
     return undefined;
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
+    };
+    fetchData();
+  }, []);
+
+  let shipmentTypeOptions = Object.values(SHIPMENT_TYPES).map((value) => ({ key: value, value }));
+  if (!enableBoat) {
+    // Disallow the Prime from choosing Boat shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter(
+      (e) => e.key !== SHIPMENT_TYPES.BOAT_HAUL_AWAY && e.key !== SHIPMENT_TYPES.BOAT_TOW_AWAY,
+    );
+  }
+  if (!enableMobileHome) {
+    // Disallow the Prime from choosing Mobile Home shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter((e) => e.key !== SHIPMENT_TYPES.MOBILE_HOME);
+  }
+
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Type</h2>
-      <DropdownInput
-        label="Shipment type"
-        name="shipmentType"
-        options={Object.values(SHIPMENT_OPTIONS).map((value) => ({ key: value, value }))}
-        id="shipmentType"
-      />
+      <DropdownInput label="Shipment type" name="shipmentType" options={shipmentTypeOptions} id="shipmentType" />
 
-      {isPPM ? (
+      {isPPM && (
         <>
           <h2 className={styles.sectionHeader}>Dates</h2>
           <DatePickerInput
@@ -223,52 +245,172 @@ const PrimeUIShipmentCreateForm = () => {
           <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
           <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
         </>
-      ) : (
-        hasShipmentType && (
-          <>
-            <h2 className={styles.sectionHeader}>Shipment Dates</h2>
-            <DatePickerInput name="requestedPickupDate" label="Requested pickup" />
+      )}
+      {hasShipmentType && !isPPM && (
+        <>
+          <h2 className={styles.sectionHeader}>Shipment Dates</h2>
+          <DatePickerInput name="requestedPickupDate" label="Requested pickup" />
 
-            <h2 className={styles.sectionHeader}>Diversion</h2>
+          <h2 className={styles.sectionHeader}>Diversion</h2>
+          <CheckboxField
+            id="diversion"
+            name="diversion"
+            label="Diversion"
+            onChange={(e) => toggleParentShipmentIdTextBox(e.target.checked)}
+          />
+          {isChecked && (
+            <TextField
+              data-testid="divertedFromShipmentIdInput"
+              label="Diverted from Shipment ID"
+              id="divertedFromShipmentIdInput"
+              name="divertedFromShipmentId"
+              labelHint="Required if diversion box is checked"
+              validate={(value) => validateUUID(value)}
+            />
+          )}
+
+          <h2 className={styles.sectionHeader}>Shipment Weights</h2>
+
+          <MaskedTextField
+            data-testid="estimatedWeightInput"
+            defaultValue="0"
+            name="estimatedWeight"
+            label="Estimated weight (lbs)"
+            id="estimatedWeightInput"
+            mask={Number}
+            scale={0} // digits after point, 0 for integers
+            signed={false} // disallow negative
+            thousandsSeparator=","
+            lazy={false} // immediate masking evaluation
+          />
+
+          <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
+          <h5 className={styles.sectionHeader}>Pickup Address</h5>
+          <AddressFields name="pickupAddress" />
+          <h5 className={styles.sectionHeader}>Destination Address</h5>
+          <AddressFields name="destinationAddress" />
+        </>
+      )}
+      {isBoat && (
+        <>
+          <h2 className={styles.sectionHeader}>Boat Model Info</h2>
+          <MaskedTextField label="Year" id="boatShipment.yearInput" name="boatShipment.year" mask={Number} />
+          <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" />
+          <TextField label="Model" id="boatShipment.modelInput" name="boatShipment.model" />
+          <h2 className={styles.sectionHeader}>Boat Dimensions</h2>
+          <figure>
+            <figcaption>
+              Dimensions must meet at least one of the following criteria to qualify as a separate boat shipment:
+            </figcaption>
+            <ul>
+              <li>Over 14 feet in length</li>
+              <li>Over 6 feet 10 inches in width</li>
+              <li>Over 6 feet 5 inches in height</li>
+            </ul>
+          </figure>
+          <MaskedTextField
+            label="Length (Feet)"
+            id="boatShipment.lengthInFeetInput"
+            name="boatShipment.lengthInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Length (Inches)"
+            id="boatShipment.lengthInInchesInput"
+            name="boatShipment.lengthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Feet)"
+            id="boatShipment.widthInFeetInput"
+            name="boatShipment.widthInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Inches)"
+            id="boatShipment.widthInInchesInput"
+            name="boatShipment.widthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Feet)"
+            id="boatShipment.heightInFeetInput"
+            name="boatShipment.heightInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Inches)"
+            id="boatShipment.heightInInchesInput"
+            name="boatShipment.heightInInches"
+            mask={Number}
+          />
+          <h2 className={styles.sectionHeader}>Trailer</h2>
+          <CheckboxField label="Has Trailer" id="boatShipment.hasTrailerInput" name="boatShipment.hasTrailer" />
+          {hasTrailer && (
             <CheckboxField
-              id="diversion"
-              name="diversion"
-              label="Diversion"
-              onChange={(e) => toggleParentShipmentIdTextBox(e.target.checked)}
+              label="Trailer is Roadworthy"
+              id="boatShipment.isRoadworthyInput"
+              name="boatShipment.isRoadworthy"
             />
-            {isChecked && (
-              <TextField
-                data-testid="divertedFromShipmentIdInput"
-                label="Diverted from Shipment ID"
-                id="divertedFromShipmentIdInput"
-                name="divertedFromShipmentId"
-                labelHint="Required if diversion box is checked"
-                validate={(value) => validateUUID(value)}
-              />
-            )}
-
-            <h2 className={styles.sectionHeader}>Shipment Weights</h2>
-
-            <MaskedTextField
-              data-testid="estimatedWeightInput"
-              defaultValue="0"
-              name="estimatedWeight"
-              label="Estimated weight (lbs)"
-              id="estimatedWeightInput"
-              mask={Number}
-              scale={0} // digits after point, 0 for integers
-              signed={false} // disallow negative
-              thousandsSeparator=","
-              lazy={false} // immediate masking evaluation
-            />
-
-            <h2 className={styles.sectionHeader}>Shipment Addresses</h2>
-            <h5 className={styles.sectionHeader}>Pickup Address</h5>
-            <AddressFields name="pickupAddress" />
-            <h5 className={styles.sectionHeader}>Destination Address</h5>
-            <AddressFields name="destinationAddress" />
-          </>
-        )
+          )}
+          <h2 className={styles.sectionHeader}>Remarks</h2>
+          <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
+          <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
+        </>
+      )}
+      {isMobileHome && (
+        <>
+          <h2 className={styles.sectionHeader}>Mobile Home Model Info</h2>
+          <MaskedTextField
+            label="Year"
+            id="mobileHomeShipment.yearInput"
+            name="mobileHomeShipment.year"
+            mask={Number}
+          />
+          <TextField label="Make" id="mobileHomeShipment.makeInput" name="mobileHomeShipment.make" />
+          <TextField label="Model" id="mobileHomeShipment.modelInput" name="mobileHomeShipment.model" />
+          <h2 className={styles.sectionHeader}>Mobile Home Dimensions</h2>
+          <MaskedTextField
+            label="Length (Feet)"
+            id="mobileHomeShipment.lengthInFeetInput"
+            name="mobileHomeShipment.lengthInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Length (Inches)"
+            id="mobileHomeShipment.lengthInInchesInput"
+            name="mobileHomeShipment.lengthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Feet)"
+            id="mobileHomeShipment.widthInFeetInput"
+            name="mobileHomeShipment.widthInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Inches)"
+            id="mobileHomeShipment.widthInInchesInput"
+            name="mobileHomeShipment.widthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Feet)"
+            id="mobileHomeShipment.heightInFeetInput"
+            name="mobileHomeShipment.heightInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Inches)"
+            id="heightInches"
+            name="mobileHomeShipment.heightInInches"
+            mask={Number}
+            max={11}
+          />
+          <h2 className={styles.sectionHeader}>Remarks</h2>
+          <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
+          <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
+        </>
       )}
     </SectionWrapper>
   );

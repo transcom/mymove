@@ -27,6 +27,9 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// boat shipment
+	BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 	// counselor remarks
 	// Example: counselor approved
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
@@ -56,6 +59,9 @@ type CreateMTOShipment struct {
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Format: uuid
 	DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
+
+	// mobile home shipment
+	MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
 
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
@@ -108,6 +114,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
@@ -119,6 +127,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 		Diversion bool `json:"diversion,omitempty"`
 
 		DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
+
+		MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
@@ -160,6 +170,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// agents
 	result.Agents = data.Agents
 
+	// boatShipment
+	result.BoatShipment = data.BoatShipment
+
 	// counselorRemarks
 	result.CounselorRemarks = data.CounselorRemarks
 
@@ -174,6 +187,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 	// divertedFromShipmentId
 	result.DivertedFromShipmentID = data.DivertedFromShipmentID
+
+	// mobileHomeShipment
+	result.MobileHomeShipment = data.MobileHomeShipment
 
 	// moveTaskOrderID
 	result.MoveTaskOrderID = data.MoveTaskOrderID
@@ -211,6 +227,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
@@ -222,6 +240,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		Diversion bool `json:"diversion,omitempty"`
 
 		DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
+
+		MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
@@ -242,6 +262,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		Agents: m.Agents,
 
+		BoatShipment: m.BoatShipment,
+
 		CounselorRemarks: m.CounselorRemarks,
 
 		CustomerRemarks: m.CustomerRemarks,
@@ -251,6 +273,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		Diversion: m.Diversion,
 
 		DivertedFromShipmentID: m.DivertedFromShipmentID,
+
+		MobileHomeShipment: m.MobileHomeShipment,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
 
@@ -290,11 +314,19 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
+	if err := m.validateBoatShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
 	if err := m.validateDivertedFromShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMobileHomeShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -349,6 +381,25 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *CreateMTOShipment) validateBoatShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.BoatShipment) { // not required
+		return nil
+	}
+
+	if m.BoatShipment != nil {
+		if err := m.BoatShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) validateDestinationAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.DestinationAddress) { // not required
 		return nil
@@ -364,6 +415,25 @@ func (m *CreateMTOShipment) validateDivertedFromShipmentID(formats strfmt.Regist
 
 	if err := validate.FormatOf("divertedFromShipmentId", "body", "uuid", m.DivertedFromShipmentID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateMobileHomeShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.MobileHomeShipment) { // not required
+		return nil
+	}
+
+	if m.MobileHomeShipment != nil {
+		if err := m.MobileHomeShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -486,7 +556,15 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateBoatShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateMobileHomeShipment(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -526,7 +604,49 @@ func (m *CreateMTOShipment) contextValidateAgents(ctx context.Context, formats s
 	return nil
 }
 
+func (m *CreateMTOShipment) contextValidateBoatShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BoatShipment != nil {
+
+		if swag.IsZero(m.BoatShipment) { // not required
+			return nil
+		}
+
+		if err := m.BoatShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
 func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateMobileHomeShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MobileHomeShipment != nil {
+
+		if swag.IsZero(m.MobileHomeShipment) { // not required
+			return nil
+		}
+
+		if err := m.MobileHomeShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }
