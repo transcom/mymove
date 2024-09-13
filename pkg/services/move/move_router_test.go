@@ -296,6 +296,32 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 					},
 				}, nil)
 
+				boatMTOSHipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status:       models.MTOShipmentStatusDraft,
+							ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+						},
+					},
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+				}, nil)
+
+				mobileHomeMTOShipment := factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+					{
+						Model: models.MTOShipment{
+							Status:       models.MTOShipmentStatusDraft,
+							ShipmentType: models.MTOShipmentTypeMobileHome,
+						},
+					},
+					{
+						Model:    move,
+						LinkOnly: true,
+					},
+				}, nil)
+
 				ppmShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
 					{
 						Model: models.PPMShipment{
@@ -303,8 +329,23 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 						},
 					},
 				}, nil)
-				move.MTOShipments = models.MTOShipments{shipment}
+
+				boatShipment := factory.BuildBoatShipmentHaulAway(suite.DB(), []factory.Customization{
+					{
+						Model: models.BoatShipment{},
+					},
+				}, nil)
+
+				mobileHomeShipment := factory.BuildMobileHomeShipment(suite.DB(), []factory.Customization{
+					{
+						Model: models.MobileHome{},
+					},
+				}, nil)
+
+				move.MTOShipments = models.MTOShipments{shipment, boatMTOSHipment, mobileHomeMTOShipment}
 				move.MTOShipments[0].PPMShipment = &ppmShipment
+				move.MTOShipments[0].BoatShipment = &boatShipment
+				move.MTOShipments[0].MobileHome = &mobileHomeShipment
 
 				newSignedCertification := factory.BuildSignedCertification(nil, []factory.Customization{
 					{
@@ -397,6 +438,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, move.MTOShipments[0].Status, "expected Submitted")
 		suite.Equal(models.PPMShipmentStatusSubmitted, move.MTOShipments[0].PPMShipment.Status, "expected Submitted")
 	})
+
 }
 
 func (suite *MoveServiceSuite) TestMoveCancellation() {
@@ -744,6 +786,28 @@ func (suite *MoveServiceSuite) TestCompleteServiceCounseling() {
 		suite.Error(err)
 		suite.IsType(apperror.ConflictError{}, err)
 		suite.Contains(err.Error(), "NTS-release shipment must include facility info")
+	})
+
+	suite.Run("Boat Shipment - status changed to 'SERVICE_COUNSELING_COMPLETED'", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
+		boatShipment := factory.BuildBoatShipment(nil, nil, nil)
+		move.MTOShipments = models.MTOShipments{boatShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
+	})
+
+	suite.Run("Mobile Home Shipment - status changed to 'SERVICE_COUNSELING_COMPLETED'", func() {
+		move := factory.BuildStubbedMoveWithStatus(models.MoveStatusNeedsServiceCounseling)
+		mobileHomeShipment := factory.BuildMobileHomeShipment(nil, nil, nil)
+		move.MTOShipments = models.MTOShipments{mobileHomeShipment.Shipment}
+
+		err := moveRouter.CompleteServiceCounseling(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusServiceCounselingCompleted, move.Status)
 	})
 }
 
