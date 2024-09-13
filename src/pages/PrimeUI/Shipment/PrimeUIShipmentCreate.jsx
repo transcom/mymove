@@ -91,8 +91,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           hasProGear,
           proGearWeight,
           spouseProGearWeight,
+          tertiaryPickupAddress,
+          tertiaryDestinationAddress,
           hasSecondaryPickupAddress,
           hasSecondaryDestinationAddress,
+          hasTertiaryPickupAddress,
+          hasTertiaryDestinationAddress,
         },
       } = values;
 
@@ -110,6 +114,12 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
             ? null
             : formatAddressForPrimeAPI(secondaryDestinationAddress),
+          tertiaryPickupAddress: isEmpty(tertiaryPickupAddress)
+            ? null
+            : formatAddressForPrimeAPI(tertiaryPickupAddress),
+          tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
+            ? null
+            : formatAddressForPrimeAPI(tertiaryDestinationAddress),
           sitExpected,
           ...(sitExpected && {
             sitLocation: sitLocation || null,
@@ -119,6 +129,8 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           }),
           hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
           hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+          hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+          hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
           estimatedWeight: estimatedWeight ? parseInt(estimatedWeight, 10) : null,
           hasProGear,
           ...(hasProGear && {
@@ -187,6 +199,14 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress,
         diversion,
         divertedFromShipmentId,
+        hasSecondaryPickupAddress,
+        hasSecondaryDestinationAddress,
+        hasTertiaryPickupAddress,
+        hasTertiaryDestinationAddress,
+        secondaryPickupAddress,
+        tertiaryPickupAddress,
+        secondaryDestinationAddress,
+        tertiaryDestinationAddress,
       } = values;
 
       body = {
@@ -198,6 +218,20 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
         divertedFromShipmentId: divertedFromShipmentId || null,
+        secondaryPickupAddress: isEmpty(secondaryPickupAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondaryPickupAddress),
+        secondaryDestinationAddress: isEmpty(secondaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(secondaryDestinationAddress),
+        tertiaryPickupAddress: isEmpty(tertiaryPickupAddress) ? null : formatAddressForPrimeAPI(tertiaryPickupAddress),
+        tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
+          ? null
+          : formatAddressForPrimeAPI(tertiaryDestinationAddress),
+        hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+        hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+        hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+        hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
       };
     }
 
@@ -227,6 +261,13 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         state: '',
         postalCode: '',
       },
+      tertiaryPickupAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
       destinationAddress: {
         streetAddress1: '',
         streetAddress2: '',
@@ -235,6 +276,13 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         postalCode: '',
       },
       secondaryDestinationAddress: {
+        streetAddress1: '',
+        streetAddress2: '',
+        city: '',
+        state: '',
+        postalCode: '',
+      },
+      tertiaryDestinationAddress: {
         streetAddress1: '',
         streetAddress2: '',
         city: '',
@@ -276,6 +324,38 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
     destinationAddress: {},
     diversion: '',
     divertedFromShipmentId: '',
+    secondaryPickupAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    tertiaryPickupAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    secondaryDestinationAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    tertiaryDestinationAddress: {
+      streetAddress1: '',
+      streetAddress2: '',
+      city: '',
+      state: '',
+      postalCode: '',
+    },
+    hasSecondaryPickupAddress: 'false',
+    hasSecondaryDestinationAddress: 'false',
+    hasTertiaryPickupAddress: 'false',
+    hasTertiaryDestinationAddress: 'false',
   };
 
   const validationSchema = Yup.object().shape({
@@ -291,8 +371,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
           pickupAddress: requiredAddressSchema.required('Required'),
           secondaryPickupAddress: OptionalAddressSchema,
+          tertiaryPickupAddress: OptionalAddressSchema,
           destinationAddress: requiredAddressSchema.required('Required'),
           secondaryDestinationAddress: OptionalAddressSchema,
+          tertiaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),
           sitLocation: Yup.string().when('sitExpected', {
             is: true,
@@ -360,7 +442,23 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
       is: (shipmentType) => shipmentType !== 'PPM',
       then: () => OptionalAddressSchema,
     }),
+    secondaryPickupAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
+    tertiaryPickupAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
     destinationAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
+    secondaryDestinationAddress: Yup.object().when('shipmentType', {
+      is: (shipmentType) => shipmentType !== 'PPM',
+      then: () => OptionalAddressSchema,
+    }),
+    tertiaryDestinationAddress: Yup.object().when('shipmentType', {
       is: (shipmentType) => shipmentType !== 'PPM',
       then: () => OptionalAddressSchema,
     }),
