@@ -522,6 +522,7 @@ MoveDetails.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
 };
 

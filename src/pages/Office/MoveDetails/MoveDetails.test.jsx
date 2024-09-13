@@ -19,6 +19,7 @@ const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
+const setShipmentErrorConcernCount = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -783,6 +784,7 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
@@ -801,6 +803,7 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
@@ -819,6 +822,7 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -885,6 +889,7 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -905,6 +910,7 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -928,6 +934,7 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -967,6 +974,7 @@ describe('MoveDetails page', () => {
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
               setExcessWeightRiskCount={setExcessWeightRiskCount}
               setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
+              setShipmentErrorConcernCount={setShipmentErrorConcernCount}
             />
           </MockProviders>,
         );
@@ -986,6 +994,7 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -1006,11 +1015,12 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
 
-      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
+      expect(await screen.findByTestId('advanceTag')).toBeInTheDocument();
     });
   });
 
@@ -1025,11 +1035,12 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
 
-      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
+      expect(await screen.findByTestId('advanceTag')).toBeInTheDocument();
     });
   });
 
@@ -1039,6 +1050,7 @@ describe('MoveDetails page', () => {
       setUnapprovedServiceItemCount,
       setExcessWeightRiskCount,
       setUnapprovedSITExtensionCount,
+      setShipmentErrorConcernCount,
     };
 
     it('renders the financial review flag button when user has permission', async () => {
@@ -1150,6 +1162,7 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
