@@ -450,6 +450,7 @@ describe('Orders page', () => {
   });
 
   it('next button patches the orders updates state', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
@@ -499,6 +500,7 @@ describe('Orders page', () => {
   });
 
   it('shows an error if the API returns an error', async () => {
+    showCounselingOffices.mockImplementation(() => Promise.resolve({}));
     selectServiceMemberFromLoggedInUser.mockImplementation(() => serviceMember);
     selectOrdersForLoggedInUser.mockImplementation(() => testProps.orders);
     selectAllMoves.mockImplementation(() => testProps.serviceMemberMoves);
