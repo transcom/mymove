@@ -340,7 +340,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 		PPMRemainingEntitlement: 3000,
 		WeightAllotment:         wtgEntitlements,
 		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipment:             PPMShipments,
+		PPMShipment:             PPMShipment,
 	}
 
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
