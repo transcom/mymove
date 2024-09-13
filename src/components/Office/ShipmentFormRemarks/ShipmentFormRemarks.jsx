@@ -68,6 +68,7 @@ ShipmentFormRemarks.propTypes = {
     SHIPMENT_OPTIONS.NTS,
     SHIPMENT_OPTIONS.NTSR,
     SHIPMENT_OPTIONS.PPM,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
   ]).isRequired,
   customerRemarks: PropTypes.string,
   counselorRemarks: PropTypes.string,
