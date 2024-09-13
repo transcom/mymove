@@ -221,7 +221,7 @@ const MovePaymentRequests = ({
       <div className={txoStyles.container} data-testid="MovePaymentRequests">
         <LeftNav sections={sections}>
           <LeftNavTag
-            background="#d63E04"
+            background="#e34b11"
             associatedSectionName="payment-requests"
             showTag={pendingCount > 0}
             testID="numOfPendingPaymentRequestsTag"
