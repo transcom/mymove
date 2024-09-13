@@ -159,6 +159,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.queryByText('BOAT_TOW_AWAY')).not.toBeInTheDocument();
     expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
     expect(await screen.findByLabelText('Shipment type')).toBeInTheDocument();
+    expect(await screen.queryByText('MOBILE_HOME')).not.toBeInTheDocument();
   });
 
   it('renders the initial form, selecting PPM and checkboxes', async () => {

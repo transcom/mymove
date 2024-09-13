@@ -258,7 +258,6 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 				return &models.Move{}, apperror.NewQueryError("MobileHomeShipment", loadErrMH, "")
 			}
 		}
-
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
 	mto.MTOShipments = filteredShipments
