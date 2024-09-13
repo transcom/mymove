@@ -4527,7 +4527,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -6089,6 +6089,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -6258,6 +6260,33 @@ definitions:
       isRoadworthy:
         type: boolean
         description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6496,8 +6525,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: '#/definitions/StorageFacility'
-      mobileHome:
-        $ref: '#/definitions/MobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
@@ -6505,9 +6534,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: '#/definitions/MobileHome'
   CreatePPMShipment:
     description: >-
       A personally procured move is a type of shipment that a service members
@@ -6632,6 +6658,34 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
@@ -8176,55 +8230,6 @@ definitions:
       eTag:
         type: string
         readOnly: true
-  MobileHome:
-    description: >-
-      A mobile home is a type of shipment that a service member moves a mobile
-      home.
-    x-nullable: true
-    properties:
-      id:
-        description: Primary auto-generated unique identifier of the Mobile Home object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      shipmentId:
-        description: The id of the parent MTOShipment object
-        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
-        format: uuid
-        type: string
-        readOnly: true
-      make:
-        description: The make of the mobile home
-        type: string
-      model:
-        description: The model of the mobile home.
-        type: string
-      year:
-        description: The year the mobile home was made.
-        type: integer
-      lengthInInches:
-        type: integer
-      widthInInches:
-        type: integer
-      heightInInches:
-        type: integer
-      updatedAt:
-        description: Timestamp of when a property of this object was last updated (UTC)
-        format: date-time
-        type: string
-        readOnly: true
-      createdAt:
-        description: Timestamp of when a property of this object was created (UTC)
-        format: date-time
-        type: string
-        readOnly: true
-      eTag:
-        description: >-
-          A hash unique to this shipment that should be used as the "If-Match"
-          header for any updates.
-        type: string
-        readOnly: true
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -8352,6 +8357,64 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/SITExtension'
+  SITSummary:
+    properties:
+      firstDaySITServiceItemID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        enum:
+          - ORIGIN
+          - DESTINATION
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitAuthorizedEndDate:
+        type: string
+        format: date-time
+      sitCustomerContacted:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date-time
+        x-nullable: true
+  SITServiceItemGrouping:
+    properties:
+      summary:
+        $ref: '#/definitions/SITSummary'
+        description: >
+          Holds the top level summary of a Service Item Grouping, detailing the
+          ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT),
+          the location (ORIGIN/DESTINATION), how many days the provided instance
+          of SIT has been in storage, SIT entry date, departure date, authorized
+          end date, customer contacted date, requested delivery date.
+
+          This is provided at a top level because due to our service item
+          architecture, SIT information is sometimes split across multiple
+          service items, and this summary is a compilation of said information.
+          This prevents the need to loop over many service items.
+      serviceItems:
+        $ref: '#/definitions/MTOServiceItems'
+  SITServiceItemGroupings:
+    description: >
+      Holds groupings of SIT service items and their summaries, detailing the
+      summary ServiceItemID of the first day SIT service item (Eg, DOFSIT,
+      DOASIT), the location (ORIGIN/DESTINATION), how many days the provided
+      instance of SIT has been in storage, SIT entry date, departure date,
+      authorized end date, customer contacted date, requested delivery date.
+    type: array
+    items:
+      $ref: '#/definitions/SITServiceItemGrouping'
   SITStatus:
     properties:
       totalSITDaysUsed:
@@ -8397,8 +8460,13 @@ definitions:
             type: string
             format: date
             x-nullable: true
-      pastSITServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
+      pastSITServiceItemGroupings:
+        $ref: '#/definitions/SITServiceItemGroupings'
+        description: >
+          A list of past SIT service item groupings. These will contain the
+          given SIT service items for an instance of SIT (Either Origin or
+          Destination), grouped by the date they went into SIT and service items
+          limited explicitly to SIT related Re Service Codes.
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -9368,6 +9436,55 @@ definitions:
       - heightInInches
       - hasTrailer
       - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
