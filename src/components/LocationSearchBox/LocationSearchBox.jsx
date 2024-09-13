@@ -113,7 +113,7 @@ export const LocationSearchBoxComponent = ({
   isDisabled,
   handleZipCityOnChange,
 }) => {
-  const { value, onChange, officeState, name: inputName } = input;
+  const { value, onChange, locationState, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -169,12 +169,12 @@ export const LocationSearchBoxComponent = ({
         ...selectedValue,
         address,
       };
-      officeState(newValue);
+      locationState(newValue);
       onChange(newValue);
       return newValue;
     }
 
-    officeState(selectedValue);
+    locationState(selectedValue);
     onChange(selectedValue);
 
     if (handleZipCityOnChange !== null) {
@@ -265,6 +265,7 @@ LocationSearchBoxContainer.propTypes = {
     name: PropTypes.string,
     onChange: PropTypes.func,
     value: DutyLocationShape,
+    locationState: PropTypes.func,
   }),
   hint: PropTypes.node,
   placeholder: PropTypes.string,
@@ -281,6 +282,7 @@ LocationSearchBoxContainer.defaultProps = {
     name: '',
     onChange: () => {},
     value: undefined,
+    locationState: () => {},
   },
   hint: '',
   placeholder: 'Start typing a duty location...',

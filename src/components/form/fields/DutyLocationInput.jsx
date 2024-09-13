@@ -7,14 +7,22 @@ import './DropdownInput.module.scss';
 
 // TODO: refactor component when we can to make it more user friendly with Formik
 export const DutyLocationInput = (props) => {
-  const { label, name, displayAddress, hint, placeholder, isDisabled, searchLocations, metaOverride, onOfficeChange } =
-    props;
+  const {
+    label,
+    name,
+    displayAddress,
+    hint,
+    placeholder,
+    isDisabled,
+    searchLocations,
+    metaOverride,
+    onDutyLocationChange,
+  } = props;
   const [field, meta, helpers] = useField(props);
-
   const { touched } = useFormikContext();
-  const handleOfficeChange = (event) => {
-    if (onOfficeChange) {
-      onOfficeChange(event);
+  const handleDutyLocationChange = (event) => {
+    if (onDutyLocationChange) {
+      onDutyLocationChange(event);
     }
   };
 
@@ -39,7 +47,7 @@ export const DutyLocationInput = (props) => {
       input={{
         value: field.value,
         onChange: handleChange,
-        officeState: handleOfficeChange,
+        locationState: handleDutyLocationChange,
         name,
       }}
       errorMsg={errorString}
@@ -63,7 +71,7 @@ DutyLocationInput.propTypes = {
   isDisabled: PropTypes.bool,
   searchLocations: PropTypes.func,
   metaOverride: PropTypes.string,
-  onOfficeChange: PropTypes.func,
+  onDutyLocationChange: PropTypes.func,
 };
 
 DutyLocationInput.defaultProps = {
@@ -73,7 +81,7 @@ DutyLocationInput.defaultProps = {
   isDisabled: false,
   searchLocations: undefined,
   metaOverride: '',
-  onOfficeChange: undefined,
+  onDutyLocationChange: undefined,
 };
 
 export default DutyLocationInput;

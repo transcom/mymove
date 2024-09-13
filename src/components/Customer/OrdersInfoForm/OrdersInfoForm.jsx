@@ -39,19 +39,19 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     origin_duty_location: Yup.object().nullable().required('Required'),
     counseling_office_id: Yup.string(),
   });
-  const [office, setOffice] = useState('');
+  const [dutyLocation, setDutyLocation] = useState('');
   const [officeOptions, setOfficeOptions] = useState(null);
   useEffect(() => {
-    showCounselingOffices(office.id).then((fetchedData) => {
+    showCounselingOffices(dutyLocation.id).then((fetchedData) => {
       if (fetchedData.body) {
-        const transformedItems = fetchedData.body.map((item) => ({
+        const counselingOffices = fetchedData.body.map((item) => ({
           key: item.id,
           value: item.name,
         }));
-        setOfficeOptions(transformedItems);
+        setOfficeOptions(counselingOffices);
       }
     });
-  }, [office]);
+  }, [dutyLocation]);
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
@@ -125,13 +125,13 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
-                onOfficeChange={(e) => {
-                  setOffice(e);
+                onDutyLocationChange={(e) => {
+                  setDutyLocation(e);
                 }}
                 required
                 metaOverride={originMeta}
               />
-              {office.provides_services_counseling && (
+              {dutyLocation.provides_services_counseling && (
                 <DropdownInput
                   label="Counseling Office"
                   name="counseling_office_id"
