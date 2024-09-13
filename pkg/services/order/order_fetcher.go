@@ -232,7 +232,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 		groupByColumms = append(groupByColumms, "ppm_shipments.id")
 	}
 	if params.Sort != nil && *params.Sort == "assignedTo" {
-		groupByColumms = append(groupByColumms, "assigned_user.last_name","assigned_user.first_name")
+		groupByColumms = append(groupByColumms, "assigned_user.last_name", "assigned_user.first_name")
 	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
@@ -699,8 +699,8 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
-		"assignedTo":			   "assigned_user.last_name,assigned_user.first_name",
-		}
+		"assignedTo":              "assigned_user.last_name,assigned_user.first_name",
+	}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
