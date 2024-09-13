@@ -445,6 +445,29 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           )}
         </>
       )}
+      {shipment.MobileHomeShipment && (
+        <>
+          <h4>Mobile-Home-Shipment Specific Fields</h4>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Year:</dt>
+            <dd>{shipment.moibleHomeShipment.year}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Make:</dt>
+            <dd>{shipment.moibleHomeShipment.make}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Model:</dt>
+            <dd>{shipment.moibleHomeShipment.model}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Mobile Home Dimensions (Inches):</dt>
+            <dd>Length: {shipment.moibleHomeShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.moibleHomeShipment.widthInInches}</dd>
+            <dd>Height: {shipment.moibleHomeShipment.heightInInches}</dd>
+          </div>
+        </>
+      )}
     </dl>
   );
 };

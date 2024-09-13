@@ -26,10 +26,12 @@ const PrimeUIShipmentCreateForm = () => {
   const [, , divertedFromIdHelperProps] = useField('divertedFromShipmentId');
   const [isChecked, setIsChecked] = useState(false);
   const [enableBoat, setEnableBoat] = useState(false);
+  const [enableMobileHome, setEnableMobileHome] = useState(false);
 
   const hasShipmentType = !!shipmentType;
   const isPPM = shipmentType === SHIPMENT_OPTIONS.PPM;
   const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
+  const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
 
   // if a shipment is a diversion, then the parent shipment id will be required for input
   const toggleParentShipmentIdTextBox = (checkboxValue) => {
@@ -58,6 +60,7 @@ const PrimeUIShipmentCreateForm = () => {
   useEffect(() => {
     const fetchData = async () => {
       setEnableBoat(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.BOAT));
+      setEnableMobileHome(await isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME));
     };
     fetchData();
   }, []);
@@ -68,6 +71,10 @@ const PrimeUIShipmentCreateForm = () => {
     shipmentTypeOptions = shipmentTypeOptions.filter(
       (e) => e.key !== SHIPMENT_TYPES.BOAT_HAUL_AWAY && e.key !== SHIPMENT_TYPES.BOAT_TOW_AWAY,
     );
+  }
+  if (!enableMobileHome) {
+    // Disallow the Prime from choosing Mobile Home shipments if the feature flag is not enabled
+    shipmentTypeOptions = shipmentTypeOptions.filter((e) => e.key !== SHIPMENT_TYPES.MOBILE_HOME);
   }
 
   return (
@@ -346,6 +353,60 @@ const PrimeUIShipmentCreateForm = () => {
               name="boatShipment.isRoadworthy"
             />
           )}
+          <h2 className={styles.sectionHeader}>Remarks</h2>
+          <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
+          <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />
+        </>
+      )}
+      {isMobileHome && (
+        <>
+          <h2 className={styles.sectionHeader}>Mobile Home Model Info</h2>
+          <MaskedTextField
+            label="Year"
+            id="mobileHomeShipment.yearInput"
+            name="mobileHomeShipment.year"
+            mask={Number}
+          />
+          <TextField label="Make" id="mobileHomeShipment.makeInput" name="mobileHomeShipment.make" />
+          <TextField label="Model" id="mobileHomeShipment.modelInput" name="mobileHomeShipment.model" />
+          <h2 className={styles.sectionHeader}>Mobile Home Dimensions</h2>
+          <MaskedTextField
+            label="Length (Feet)"
+            id="mobileHomeShipment.lengthInFeetInput"
+            name="mobileHomeShipment.lengthInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Length (Inches)"
+            id="mobileHomeShipment.lengthInInchesInput"
+            name="mobileHomeShipment.lengthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Feet)"
+            id="mobileHomeShipment.widthInFeetInput"
+            name="mobileHomeShipment.widthInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Width (Inches)"
+            id="mobileHomeShipment.widthInInchesInput"
+            name="mobileHomeShipment.widthInInches"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Feet)"
+            id="mobileHomeShipment.heightInFeetInput"
+            name="mobileHomeShipment.heightInFeet"
+            mask={Number}
+          />
+          <MaskedTextField
+            label="Height (Inches)"
+            id="heightInches"
+            name="mobileHomeShipment.heightInInches"
+            mask={Number}
+            max={11}
+          />
           <h2 className={styles.sectionHeader}>Remarks</h2>
           <Label htmlFor="counselorRemarksInput">Counselor Remarks</Label>
           <Field id="counselorRemarksInput" name="counselorRemarks" as={Textarea} className={`${formStyles.remarks}`} />

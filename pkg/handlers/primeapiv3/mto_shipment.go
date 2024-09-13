@@ -57,6 +57,23 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 					"Boat shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
 			}
 
+			/** Feature Flag - Mobile Home Shipment **/
+			featureFlagMobileHome := "mobile_home"
+			isMobileHomeFeatureOn := false
+			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagMobileHome, map[string]string{})
+			if err != nil {
+				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagMobileHome), zap.Error(err))
+				isMobileHomeFeatureOn = false
+			} else {
+				isMobileHomeFeatureOn = flagMH.Match
+			}
+
+			// Return an error if mobile home shipment is sent while the feature flag is turned off.
+			if !isMobileHomeFeatureOn && (*params.Body.ShipmentType == primev3messages.MTOShipmentTypeMOBILEHOME) {
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"Mobile Home shipment type was used but the feature flag is not enabled.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), nil
+			}
+
 			for _, mtoServiceItem := range params.Body.MtoServiceItems() {
 				// restrict creation to a list
 				if _, ok := CreateableServiceItemMap[mtoServiceItem.ModelType()]; !ok {

@@ -60,6 +60,9 @@ type CreateMTOShipment struct {
 	// Format: uuid
 	DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
 
+	// mobile home shipment
+	MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
+
 	// The ID of the move this new shipment is for.
 	// Example: 1f2270c7-7166-40ae-981e-b200ebdf3054
 	// Required: true
@@ -125,6 +128,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 
 		DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
 
+		MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
+
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		MtoServiceItems json.RawMessage `json:"mtoServiceItems"`
@@ -183,6 +188,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// divertedFromShipmentId
 	result.DivertedFromShipmentID = data.DivertedFromShipmentID
 
+	// mobileHomeShipment
+	result.MobileHomeShipment = data.MobileHomeShipment
+
 	// moveTaskOrderID
 	result.MoveTaskOrderID = data.MoveTaskOrderID
 
@@ -233,6 +241,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 
 		DivertedFromShipmentID strfmt.UUID `json:"divertedFromShipmentId,omitempty"`
 
+		MobileHomeShipment *CreateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
+
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
 
 		PickupAddress struct {
@@ -263,6 +273,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 		Diversion: m.Diversion,
 
 		DivertedFromShipmentID: m.DivertedFromShipmentID,
+
+		MobileHomeShipment: m.MobileHomeShipment,
 
 		MoveTaskOrderID: m.MoveTaskOrderID,
 
@@ -311,6 +323,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDivertedFromShipmentID(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMobileHomeShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -399,6 +415,25 @@ func (m *CreateMTOShipment) validateDivertedFromShipmentID(formats strfmt.Regist
 
 	if err := validate.FormatOf("divertedFromShipmentId", "body", "uuid", m.DivertedFromShipmentID.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateMobileHomeShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.MobileHomeShipment) { // not required
+		return nil
+	}
+
+	if m.MobileHomeShipment != nil {
+		if err := m.MobileHomeShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -529,6 +564,10 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMobileHomeShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMtoServiceItems(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -587,6 +626,27 @@ func (m *CreateMTOShipment) contextValidateBoatShipment(ctx context.Context, for
 }
 
 func (m *CreateMTOShipment) contextValidateDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateMobileHomeShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MobileHomeShipment != nil {
+
+		if swag.IsZero(m.MobileHomeShipment) { // not required
+			return nil
+		}
+
+		if err := m.MobileHomeShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
+			}
+			return err
+		}
+	}
 
 	return nil
 }
