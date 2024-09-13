@@ -231,6 +231,9 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	if params.Sort != nil && *params.Sort == "ppmStatus" {
 		groupByColumms = append(groupByColumms, "ppm_shipments.id")
 	}
+	if params.Sort != nil && *params.Sort == "assignedTo" {
+		groupByColumms = append(groupByColumms, "assigned_user.last_name","assigned_user.first_name")
+	}
 
 	err = query.GroupBy("moves.id", groupByColumms...).Paginate(int(*params.Page), int(*params.PerPage)).All(&moves)
 	if err != nil {
@@ -696,8 +699,8 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 		"ppmStatus":               "ppm_shipments.status",
 		"closeoutLocation":        "closeout_to.name",
 		"closeoutInitiated":       "MAX(ppm_shipments.submitted_at)",
-		"assignedTo":              "office_users.last_name",
-	}
+		"assignedTo":			   "assigned_user.last_name,assigned_user.first_name",
+		}
 
 	return func(query *pop.Query) {
 		// If we have a sort and order defined let's use it. Otherwise we'll use our default status desc sort order.
@@ -710,6 +713,8 @@ func sortOrder(sort *string, order *string, ppmCloseoutGblocs bool) QueryOption 
 			if sortTerm, ok := parameters[*sort]; ok {
 				if *sort == "lastName" {
 					query.Order(fmt.Sprintf("service_members.last_name %s, service_members.first_name %s", *order, *order))
+				} else if *sort == "assignedTo" {
+					query.Order(fmt.Sprintf("assigned_user.last_name %s, assigned_user.first_name %s", *order, *order))
 				} else {
 					query.Order(fmt.Sprintf("%s %s", sortTerm, *order))
 				}
