@@ -37,6 +37,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
       grade: values.grade,
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
+      counseling_office: values.counseling_office,
     };
 
     try {
