@@ -328,7 +328,7 @@ const MoveDetails = ({
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
-            background="#d63e04"
+            background="#e34b11"
             associatedSectionName="orders"
             showTag={missingOrdersInfoCount !== 0}
             testID="tag"
