@@ -93,3 +93,5 @@ export { default as approveShipmentUpdateMove } from './ApproveShipment/approveS
 export { default as createSITExtension } from './CreateSITExtension/createSITExtension';
 export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
 export { default as updateAllowanceUpdateMTOShipment } from './UpdateAllowances/updateAllowanceUpdateMTOShipment';
+export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
+export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';

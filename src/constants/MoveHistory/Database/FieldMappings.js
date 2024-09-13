@@ -139,4 +139,5 @@ export default {
   moving_expense_type: 'Expense type',
   dest_sit_auth_end_date: 'Destination SIT authorized date',
   approvals_requested_at: 'Approvals requested at',
+  approved_at: 'Approved at',
 };
