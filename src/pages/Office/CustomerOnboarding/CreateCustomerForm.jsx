@@ -41,6 +41,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
   const backupContactName = 'backup_contact';
 
   const [isSafetyMoveFF, setSafetyMoveFF] = useState(false);
+  const [secondaryTelephoneNum, setSecondaryTelephoneNum] = useState('');
 
   useEffect(() => {
     isBooleanFlagEnabled('safety_move')?.then((enabled) => {
@@ -189,6 +190,16 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
         <Grid col desktop={{ col: 8 }} className={styles.nameForm}>
           <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
             {({ isValid, handleSubmit, setValues, values, handleChange }) => {
+              const handleSubmitNext = () => {
+                setValues({
+                  ...values,
+                  secondary_telephone: secondaryTelephoneNum,
+                });
+                handleSubmit();
+              };
+              const handlePhoneNumChange = (value) => {
+                setSecondaryTelephoneNum(value);
+              };
               const handleIsSafetyMove = (e) => {
                 const { value } = e.target;
                 if (value === 'true') {
@@ -305,6 +316,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       type="tel"
                       minimum="12"
                       mask="000{-}000{-}0000"
+                      onChange={handlePhoneNumChange}
                     />
                     <TextField label="Personal email" id="personalEmail" name="personal_email" required />
                     <Label>Preferred contact method (optional)</Label>
@@ -479,7 +491,7 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
                       editMode
                       onCancelClick={handleBack}
                       disableNext={!isValid}
-                      onNextClick={handleSubmit}
+                      onNextClick={handleSubmitNext}
                     />
                   </div>
                 </Form>
