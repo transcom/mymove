@@ -68,6 +68,9 @@ type UpdateShipment struct {
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
 
+	// mobile home shipment
+	MobileHomeShipment *UpdateMobileHomeShipment `json:"mobileHomeShipment,omitempty"`
+
 	// The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.
 	// Example: 2000
 	NtsRecordedWeight *int64 `json:"ntsRecordedWeight,omitempty"`
@@ -145,6 +148,10 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateDestinationType(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateMobileHomeShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -257,6 +264,25 @@ func (m *UpdateShipment) validateDestinationType(formats strfmt.Registry) error 
 				return ve.ValidateName("destinationType")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) validateMobileHomeShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.MobileHomeShipment) { // not required
+		return nil
+	}
+
+	if m.MobileHomeShipment != nil {
+		if err := m.MobileHomeShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
 			}
 			return err
 		}
@@ -438,6 +464,10 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateMobileHomeShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidatePickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -537,6 +567,27 @@ func (m *UpdateShipment) contextValidateDestinationType(ctx context.Context, for
 				return ve.ValidateName("destinationType")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("destinationType")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *UpdateShipment) contextValidateMobileHomeShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.MobileHomeShipment != nil {
+
+		if swag.IsZero(m.MobileHomeShipment) { // not required
+			return nil
+		}
+
+		if err := m.MobileHomeShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("mobileHomeShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("mobileHomeShipment")
 			}
 			return err
 		}
