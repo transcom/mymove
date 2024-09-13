@@ -254,7 +254,7 @@ const ShipmentInfoList = ({
   const yearElementFlags = getDisplayFlags('year');
   const yearElement = (
     <div className={yearElementFlags.classes}>
-      <dt>Boat year</dt>
+      <dt>Mobile home year</dt>
       <dd data-testid="year">{year}</dd>
     </div>
   );
@@ -262,7 +262,7 @@ const ShipmentInfoList = ({
   const makeElementFlags = getDisplayFlags('make');
   const makeElement = (
     <div className={makeElementFlags.classes}>
-      <dt>Boat make</dt>
+      <dt>Mobile home make</dt>
       <dd data-testid="make">{make}</dd>
     </div>
   );
@@ -270,7 +270,7 @@ const ShipmentInfoList = ({
   const modelElementFlags = getDisplayFlags('model');
   const modelElement = (
     <div className={modelElementFlags.classes}>
-      <dt>Boat model</dt>
+      <dt>Mobile home model</dt>
       <dd data-testid="model">{model}</dd>
     </div>
   );
@@ -316,6 +316,7 @@ const ShipmentInfoList = ({
       {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
       {showElement(agentsElementFlags) && releasingAgentElement}
       {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
+      {requestedDeliveryDateElement}
       {destinationAddressElement}
       {showElement(destinationTypeFlags) && displayDestinationType && destinationTypeElement}
       {secondaryDeliveryAddressElement}

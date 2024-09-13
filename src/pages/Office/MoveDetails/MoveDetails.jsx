@@ -58,6 +58,8 @@ const MoveDetails = ({
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
+  missingOrdersInfoCount,
+  setMissingOrdersInfoCount,
   isMoveLocked,
 }) => {
   const { moveCode } = useParams();
@@ -249,6 +251,28 @@ const MoveDetails = ({
     setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
   }, [mtoShipments]);
 
+  // using useMemo here due to this being used in a useEffect
+  // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
+  // so that it only recognizes the change when the orders object changes
+  const requiredOrdersInfo = useMemo(
+    () => ({
+      ordersNumber: order?.order_number || '',
+      ordersType: order?.order_type || '',
+      ordersTypeDetail: order?.order_type_detail || '',
+      tacMDC: order?.tac || '',
+      departmentIndicator: order?.department_indicator || '',
+    }),
+    [order],
+  );
+
+  // Keep num of missing orders info synced up
+  useEffect(() => {
+    const ordersInfoCount = Object.values(requiredOrdersInfo).reduce((count, value) => {
+      return !value ? count + 1 : count;
+    }, 0);
+    setMissingOrdersInfoCount(ordersInfoCount);
+  }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
@@ -305,13 +329,6 @@ const MoveDetails = ({
     backupContact: customer.backup_contact,
   };
 
-  const requiredOrdersInfo = {
-    ordersNumber: order.order_number,
-    ordersType: order.order_type,
-    ordersTypeDetail: order.order_type_detail,
-    tacMDC: order.tac,
-  };
-
   const hasMissingOrdersRequiredInfo = Object.values(requiredOrdersInfo).some((value) => !value || value === '');
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
   const hasDestinationAddressUpdate =
@@ -337,12 +354,12 @@ const MoveDetails = ({
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
             associatedSectionName="orders"
-            showTag={hasMissingOrdersRequiredInfo}
+            showTag={missingOrdersInfoCount !== 0}
             testID="tag"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {missingOrdersInfoCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="orders"
