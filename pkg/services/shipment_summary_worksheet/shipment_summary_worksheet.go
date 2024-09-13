@@ -72,7 +72,6 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
-
 	return page1, page2, page3, nil
 }
 
@@ -228,13 +227,13 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.WeightAllotmentProgearSpouse = FormatWeights(data.WeightAllotment.SpouseProGear)
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
-	formattedShipment := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
+	formattedSIT := WorkSheetSIT{}
 
+	formattedShipment := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
 	page1.ShipmentNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
 
-	formattedSIT := WorkSheetSIT{}
 	// Shipment weights for Payment Packet are actual, for AOA Packet are estimated.
 	if isPaymentPacket {
 		formattedSIT = FormatAllSITSForPaymentPacket(data.MovingExpenses)
@@ -723,6 +722,19 @@ func FormatAllSITSForPaymentPacket(expenseDocuments models.MovingExpenses) WorkS
 	return formattedSIT
 }
 
+// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet AOA Packet
+func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
+	formattedSIT := WorkSheetSIT{}
+
+	if ppm.SITEstimatedEntryDate != nil && ppm.SITEstimatedDepartureDate != nil {
+		formattedSIT.EntryDates = FormatSITDate(ppm.SITEstimatedEntryDate)
+		formattedSIT.EndDates = FormatSITDate(ppm.SITEstimatedDepartureDate)
+		formattedSIT.DaysInStorage = FormatSITDaysInStorage(ppm.SITEstimatedEntryDate, ppm.SITEstimatedDepartureDate)
+	}
+
+	return formattedSIT
+}
+
 func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement) unit.Pound {
 
 	var err error
@@ -750,19 +762,6 @@ func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipm
 	} else {
 		return maxLimit
 	}
-}
-
-// FormatAllSITs formats SIT line items for the Shipment Summary Worksheet AOA Packet
-func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
-	formattedSIT := WorkSheetSIT{}
-
-	if ppm.SITEstimatedEntryDate != nil && ppm.SITEstimatedDepartureDate != nil {
-		formattedSIT.EntryDates = FormatSITDate(ppm.SITEstimatedEntryDate)
-		formattedSIT.EndDates = FormatSITDate(ppm.SITEstimatedDepartureDate)
-		formattedSIT.DaysInStorage = FormatSITDaysInStorage(ppm.SITEstimatedEntryDate, ppm.SITEstimatedDepartureDate)
-	}
-
-	return formattedSIT
 }
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
@@ -1010,12 +1009,13 @@ func (SSWPPMComputer *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(
 		return nil, err
 	}
 
-	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
-	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
+	serviceMember.Edipi, err = formatEmplid(serviceMember)
 	if err != nil {
 		return nil, err
 	}
-	serviceMember.Edipi, err = formatEmplid(serviceMember)
+
+	// Fetches all signed certifications for a move to be filtered in this file by ppmid and type
+	signedCertifications, err := models.FetchSignedCertifications(appCtx.DB(), session, ppmShipment.Shipment.MoveTaskOrderID)
 	if err != nil {
 		return nil, err
 	}
