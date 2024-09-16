@@ -10,6 +10,7 @@ REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
 WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
+export GODEBUG=gotypesalias=0 #GODEBUG is a temporary Mockery 2.45.1 with Go 1.23.0 compatibility workaround. See https://github.com/vektra/mockery/issues/803
 
 # if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
@@ -414,7 +415,7 @@ build_tools: bin/gin \
 build: server_build build_tools client_build ## Build the server, tools, and client
 
 .PHONY: mocks_generate
-mocks_generate: GODEBUG=gotypesalias=0 bin/mockery ## Generate mockery mocks for tests. GODEBUG is a temporary Mockery 2.45.1 with Go 1.23.0 compatibility workaround. See https://github.com/vektra/mockery/issues/803
+mocks_generate: bin/mockery ## Generate mockery mocks for tests.
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_setup
