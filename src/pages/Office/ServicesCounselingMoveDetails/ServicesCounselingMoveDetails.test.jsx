@@ -553,8 +553,6 @@ describe('MoveDetails page', () => {
 
       renderComponent();
 
-      // In this case, we would expect 3 since this shipment is missing the storage facility
-      // and tac type.
       expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
       expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
@@ -683,7 +681,6 @@ describe('MoveDetails page', () => {
       );
       expect(excessWeightAlert).toBeInTheDocument();
 
-      // In this case, we would expect 1 shipment concern since the move has excess weight
       expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
     });
 
