@@ -25,7 +25,8 @@ export const DodInfo = ({ updateServiceMember, serviceMember, oktaUser }) => {
   };
 
   const handleBack = () => {
-    navigate(customerRoutes.CONUS_OCONUS_PATH);
+    // if multimove go back to multimoves home page otherwise do nothing
+    // navigate(customerRoutes.CONUS_OCONUS_PATH);
   };
 
   const handleNext = () => {
