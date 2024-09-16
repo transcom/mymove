@@ -44,6 +44,12 @@ type UpdatePPMShipment struct {
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
+	// has tertiary destination address
+	HasTertiaryDestinationAddress *bool `json:"hasTertiaryDestinationAddress"`
+
+	// has tertiary pickup address
+	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
+
 	// The address of the origin location where goods are being moved from.
 	//
 	PickupAddress struct {
@@ -88,6 +94,18 @@ type UpdatePPMShipment struct {
 
 	// The estimated weight of the pro-gear being moved belonging to a spouse.
 	SpouseProGearWeight *int64 `json:"spouseProGearWeight,omitempty"`
+
+	// An optional third address near the destination where goods will be dropped off.
+	//
+	TertiaryDestinationAddress struct {
+		Address
+	} `json:"tertiaryDestinationAddress,omitempty"`
+
+	// An optional third pickup location near the origin where additional goods exist.
+	//
+	TertiaryPickupAddress struct {
+		Address
+	} `json:"tertiaryPickupAddress,omitempty"`
 }
 
 // Validate validates this update p p m shipment
@@ -123,6 +141,14 @@ func (m *UpdatePPMShipment) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateSitLocation(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateTertiaryPickupAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -219,6 +245,22 @@ func (m *UpdatePPMShipment) validateSitLocation(formats strfmt.Registry) error {
 	return nil
 }
 
+func (m *UpdatePPMShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) validateTertiaryPickupAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryPickupAddress) { // not required
+		return nil
+	}
+
+	return nil
+}
+
 // ContextValidate validate this update p p m shipment based on the context it is used
 func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.Registry) error {
 	var res []error
@@ -240,6 +282,14 @@ func (m *UpdatePPMShipment) ContextValidate(ctx context.Context, formats strfmt.
 	}
 
 	if err := m.contextValidateSitLocation(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.contextValidateTertiaryPickupAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -286,6 +336,16 @@ func (m *UpdatePPMShipment) contextValidateSitLocation(ctx context.Context, form
 			return err
 		}
 	}
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+
+	return nil
+}
+
+func (m *UpdatePPMShipment) contextValidateTertiaryPickupAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
