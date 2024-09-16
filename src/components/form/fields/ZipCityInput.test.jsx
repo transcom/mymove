@@ -5,7 +5,7 @@ import AsyncSelect from 'react-select/async';
 import { ZipCityInput } from './ZipCityInput';
 
 import { LocationSearchBoxComponent, LocationSearchBoxContainer } from 'components/LocationSearchBox/LocationSearchBox';
-import { searchLocationByZipCity } from 'services/internalApi';
+import { searchLocationByZipCity, showCounselingOffices } from 'services/internalApi';
 
 const mockOnChange = jest.fn();
 const mockSetValue = jest.fn();
@@ -26,6 +26,20 @@ jest.mock('formik', () => {
 
 jest.mock('services/internalApi', () => ({
   ...jest.requireActual('services/internalApi'),
+  showCounselingOffices: jest.fn().mockImplementation(() =>
+    Promise.resolve({
+      body: [
+        {
+          id: '3e937c1f-5539-4919-954d-017989130584',
+          name: 'Albuquerque AFB',
+        },
+        {
+          id: 'fa51dab0-4553-4732-b843-1f33407f77bc',
+          name: 'Glendale Luke AFB',
+        },
+      ],
+    }),
+  ),
   searchLocationByZipCity: jest.fn(),
 }));
 
@@ -50,6 +64,7 @@ describe('ZipCityInput', () => {
 
     it('triggers onChange properly', async () => {
       const cityName = 'El Paso';
+      showCounselingOffices.mockImplementation(() => Promise.resolve({}));
       searchLocationByZipCity.mockImplementation(() => Promise.resolve(cityName));
       const container = wrapper.find(LocationSearchBoxContainer).dive();
       const component = container.find(LocationSearchBoxComponent).dive();
