@@ -363,7 +363,7 @@ const MoveDetails = ({
             background="#d63E04"
             associatedSectionName="requested-shipments"
             showTag={shipmentErrorConcernCount !== 0}
-            testID="advanceTag"
+            testID="shipment-missing-info-alert"
           >
             {shipmentErrorConcernCount}
           </LeftNavTag>
@@ -541,6 +541,7 @@ MoveDetails.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
 };
 

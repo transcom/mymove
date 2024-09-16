@@ -109,7 +109,7 @@ const ServicesCounselingMoveDetails = ({
         fieldName: 'advanceStatus',
         condition: (shipment) =>
           shipment?.ppmShipment?.hasRequestedAdvance === true &&
-          shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED,
+          shipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
       },
     ],
   };
@@ -511,7 +511,7 @@ const ServicesCounselingMoveDetails = ({
             background="#d63E04"
             associatedSectionName="shipments"
             showTag={shipmentErrorConcernCount !== 0}
-            testID="advanceTag"
+            testID="shipment-missing-info-alert"
           >
             {shipmentErrorConcernCount}
           </LeftNavTag>
@@ -764,6 +764,8 @@ const ServicesCounselingMoveDetails = ({
 ServicesCounselingMoveDetails.propTypes = {
   infoSavedAlert: AlertStateShape,
   setUnapprovedShipmentCount: func.isRequired,
+  setShipmentWarnConcernCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
 };
 
 ServicesCounselingMoveDetails.defaultProps = {
