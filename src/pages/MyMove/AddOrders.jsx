@@ -62,6 +62,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
     new_duty_location: '',
     grade: '',
     origin_duty_location: '',
+    counseling_office_id: '',
   };
 
   // Only allow PCS unless feature flag is on
