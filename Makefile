@@ -414,7 +414,7 @@ build_tools: bin/gin \
 build: server_build build_tools client_build ## Build the server, tools, and client
 
 .PHONY: mocks_generate
-mocks_generate: bin/mockery ## Generate mockery mocks for tests
+mocks_generate: GODEBUG=gotypesalias=0 bin/mockery ## Generate mockery mocks for tests. GODEBUG is a temporary Mockery 2.45.1 with Go 1.23.0 compatibility workaround. See https://github.com/vektra/mockery/issues/803
 	go generate $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 .PHONY: server_test_setup
