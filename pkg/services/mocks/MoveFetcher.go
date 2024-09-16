@@ -20,6 +20,10 @@ type MoveFetcher struct {
 func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, searchParams *services.MoveFetcherParams) (*models.Move, error) {
 	ret := _m.Called(appCtx, locator, searchParams)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchMove")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *services.MoveFetcherParams) (*models.Move, error)); ok {
