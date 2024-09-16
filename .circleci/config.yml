@@ -277,13 +277,13 @@ commands:
       - create_dot_go_version
       - restore_cache:
           keys:
-            - go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+            - go-mod-sources-v8-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
 
   save_cache_for_go:
     steps:
       - create_dot_go_version
       - save_cache:
-          key: go-mod-sources-v7-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
+          key: go-mod-sources-v8-{{ checksum "go.sum" }}-{{ checksum ".go-version" }}
           paths:
             - '~/go'
             - '~/transcom/mymove/bin/swagger'
