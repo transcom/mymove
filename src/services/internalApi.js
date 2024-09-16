@@ -537,3 +537,18 @@ export async function downloadPPMAOAPacket(ppmShipmentId) {
 export async function downloadPPMPaymentPacket(ppmShipmentId) {
   return makeInternalRequestRaw('ppm.showPaymentPacket', { ppmShipmentId });
 }
+
+export async function dateSelectionIsWeekendHoliday(countryCode, date) {
+  return makeInternalRequestRaw(
+    'calendar.isDateWeekendHoliday',
+    {
+      countryCode,
+      date,
+    },
+    { normalize: false },
+  );
+}
+
+export async function showCounselingOffices(dutyLocationId) {
+  return makeInternalRequestRaw('transportation_offices.showCounselingOffices', { dutyLocationId });
+}

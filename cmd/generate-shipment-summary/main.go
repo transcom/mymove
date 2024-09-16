@@ -19,7 +19,10 @@ import (
 	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/paperwork"
+	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/route"
+	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
+	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	shipmentsummaryworksheet "github.com/transcom/mymove/pkg/services/shipment_summary_worksheet"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/uploader"
@@ -148,7 +151,11 @@ func main() {
 
 	// TODO: Future cleanup will need to remap to a different planner, but this command should remain for testing purposes
 	planner := route.NewHEREPlanner(hereClient, geocodeEndpoint, routingEndpoint, testAppID, testAppCode)
-	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	ppmEstimator := ppmshipment.NewEstimatePPM(planner, &paymentrequesthelper.RequestPaymentHelper{})
+
+	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(planner, &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
+
+	ppmComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
 
 	ssfd, err := ppmComputer.FetchDataShipmentSummaryWorksheetFormData(appCtx, &auth.Session{}, parsedID)
 	if err != nil {
@@ -169,11 +176,11 @@ func main() {
 		log.Fatal(err.Error())
 	}
 
-	page1Data, page2Data := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, false)
+	page1Data, page2Data, page3Data, err := ppmComputer.FormatValuesShipmentSummaryWorksheet(*ssfd, false)
 	noErr(err)
 	ppmGenerator, err := shipmentsummaryworksheet.NewSSWPPMGenerator(generator)
 	noErr(err)
-	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data)
+	ssw, info, err := ppmGenerator.FillSSWPDFForm(page1Data, page2Data, page3Data)
 	noErr(err)
 	fmt.Println(ssw.Name())     // Should always return
 	fmt.Println(info.PageCount) // Page count should always be 2
