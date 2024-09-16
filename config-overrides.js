@@ -38,6 +38,11 @@ module.exports = {
       }
     });
 
+    config.output = {
+      ...config.output,
+      publicPath: '/',
+    };
+
     return config;
   },
   jest: (config) => {
