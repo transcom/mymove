@@ -1,6 +1,6 @@
 module github.com/transcom/mymove
 
-go 1.22
+go 1.23
 
 require (
 	github.com/DATA-DOG/go-txdb v0.1.7
