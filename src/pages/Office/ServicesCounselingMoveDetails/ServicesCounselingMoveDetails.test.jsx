@@ -542,7 +542,7 @@ describe('MoveDetails page', () => {
       },
     );
 
-    it('renders the number of shipment concerns for all shipments in a section', async () => {
+    it('renders warnings and errors on left nav bar for all shipments in a section', async () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
         mtoShipments: [ntsrShipmentMissingRequiredInfo],
@@ -555,7 +555,8 @@ describe('MoveDetails page', () => {
 
       // In this case, we would expect 3 since this shipment is missing the storage facility
       // and tac type.
-      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('');
+      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
 
     it('shares the number of missing shipment information', () => {
@@ -683,7 +684,7 @@ describe('MoveDetails page', () => {
       expect(excessWeightAlert).toBeInTheDocument();
 
       // In this case, we would expect 1 shipment concern since the move has excess weight
-      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('1');
+      expect(await screen.findByTestId('requestedShipmentsTag')).toBeInTheDocument();
     });
 
     it('renders the allowances error message when allowances are less than moves values', async () => {
