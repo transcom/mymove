@@ -134,8 +134,11 @@ describe('Supporting Documents Viewer', () => {
     });
 
     it('hides document manager sidebar', async () => {
-      render(<SupportingDocuments {...mockProps} />);
-
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <SupportingDocuments {...mockProps} />
+        </QueryClientProvider>,
+      );
       expect(
         screen.queryByText(/PDF, JPG, or PNG only. Maximum file size 25MB. Each page must be clear and legible/),
       ).not.toBeInTheDocument();
