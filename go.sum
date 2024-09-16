@@ -104,8 +104,8 @@ github.com/brunoscheufler/aws-ecs-metadata-go v0.0.0-20221221133751-67e37ae746cd
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
-github.com/chigopher/pathlib v1.0.0 h1:SbsCrFX4vDf4M2d8mT/RTzuVlKOjTKoPHK0HidsQFak=
-github.com/chigopher/pathlib v1.0.0/go.mod h1:3+YPPV21mU9vyw8Mjp+F33CyCfE6iOzinpiqBcccv7I=
+github.com/chigopher/pathlib v0.19.1 h1:RoLlUJc0CqBGwq239cilyhxPNLXTK+HXoASGyGznx5A=
+github.com/chigopher/pathlib v0.19.1/go.mod h1:tzC1dZLW8o33UQpWkNkhvPwL5n4yyFRFm/jL1YGWFvY=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
 github.com/cncf/udpa/go v0.0.0-20191209042840-269d4d468f6f/go.mod h1:M8M6+tZqaGXZJjfX53e64911xZQV5JYwmTeXPW+k8Sc=
 github.com/cockroachdb/apd v1.1.0 h1:3LFP3629v+1aKXU5Q37mxmRxX/pIu1nijXydLShEq5I=
