@@ -128,6 +128,7 @@ func (h CreatePaymentRequestHandler) Handle(params paymentrequestop.CreatePaymen
 					return paymentrequestop.NewCreatePaymentRequestBadRequest().WithPayload(payload), err
 				default:
 					if e.Error() == "cannot have payment start date for additional days SIT earlier than or equal to SIT entry date" {
+
 						payload := payloads.ClientError(handlers.ConflictErrMessage, err.Error(), h.GetTraceIDFromRequest(params.HTTPRequest))
 
 						appCtx.Logger().Error("Payment Request",

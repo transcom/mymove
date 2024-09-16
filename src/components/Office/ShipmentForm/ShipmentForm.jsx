@@ -49,7 +49,7 @@ import {
   updateMoveCloseoutOffice,
   dateSelectionIsWeekendHoliday,
 } from 'services/ghcApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import formStyles from 'styles/form.module.scss';
 import { AccountingCodesShape } from 'types/accountingCodes';
 import { AddressShape, SimpleAddressShape } from 'types/address';
@@ -101,6 +101,7 @@ const ShipmentForm = (props) => {
   const { moveCode } = useParams();
   const navigate = useNavigate();
 
+  const [datesErrorMessage, setDatesErrorMessage] = useState(null);
   const [errorMessage, setErrorMessage] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [shipmentAddressUpdateReviewErrorMessage, setShipmentAddressUpdateReviewErrorMessage] = useState(null);
@@ -210,7 +211,7 @@ const ShipmentForm = (props) => {
   useEffect(() => {
     const onErrorHandler = (e) => {
       const { response } = e;
-      setErrorMessage(response?.body?.detail);
+      setDatesErrorMessage(response?.body?.detail);
     };
     dateSelectionWeekendHolidayCheck(
       dateSelectionIsWeekendHoliday,
@@ -227,7 +228,7 @@ const ShipmentForm = (props) => {
   useEffect(() => {
     const onErrorHandler = (e) => {
       const { response } = e;
-      setErrorMessage(response?.body?.detail);
+      setDatesErrorMessage(response?.body?.detail);
     };
     dateSelectionWeekendHolidayCheck(
       dateSelectionIsWeekendHoliday,
@@ -255,8 +256,8 @@ const ShipmentForm = (props) => {
   const isMobileHome = shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
   const isBoat =
     shipmentType === SHIPMENT_OPTIONS.BOAT ||
-    shipmentType === SHIPMENT_OPTIONS.BOAT_HAUL_AWAY ||
-    shipmentType === SHIPMENT_OPTIONS.BOAT_TOW_AWAY;
+    shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
+    shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
 
   const showAccountingCodes = isNTS || isNTSR;
 
@@ -722,7 +723,7 @@ const ShipmentForm = (props) => {
           });
           const onErrorHandler = (errResponse) => {
             const { response } = errResponse;
-            setErrorMessage(response?.body?.detail);
+            setDatesErrorMessage(response?.body?.detail);
           };
           dateSelectionWeekendHolidayCheck(
             dateSelectionIsWeekendHoliday,
@@ -793,9 +794,15 @@ const ShipmentForm = (props) => {
               errorMessage={shipmentAddressUpdateReviewErrorMessage}
               setErrorMessage={setShipmentAddressUpdateReviewErrorMessage}
             />
+            <NotificationScrollToTop dependency={datesErrorMessage} />
+            {datesErrorMessage && (
+              <Alert data-testid="datesErrorMessage" type="error" headingLevel="h4" heading="An error occurred">
+                {datesErrorMessage}
+              </Alert>
+            )}
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
-              <Alert type="error" headingLevel="h4" heading="An error occurred">
+              <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
                 {errorMessage}
               </Alert>
             )}
