@@ -70,7 +70,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
       />,
     );
     expect(screen.getByRole('heading', { name: 'Pickup address', level: 2 })).toBeInTheDocument();
-    expect(screen.getByLabelText('Address 1')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Address 1/)).toBeInTheDocument();
     expect(screen.getByLabelText(/Address 2/)).toBeInTheDocument();
     expect(screen.getByLabelText('City')).toBeInTheDocument();
     expect(screen.getByLabelText('State')).toBeInTheDocument();
@@ -89,7 +89,7 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
       />,
     );
 
-    await userEvent.type(screen.getByLabelText('Address 1'), '23 City Str');
+    await userEvent.type(screen.getByLabelText(/Address 1/), '23 City Str');
     await userEvent.type(screen.getByLabelText('City'), 'City');
     await userEvent.clear(screen.getByLabelText('ZIP'));
     await userEvent.type(screen.getByLabelText('ZIP'), '90210');
@@ -131,12 +131,10 @@ describe('PrimeUIShipmentUpdateAddressForm', () => {
         name="pickupAddress.address"
       />,
     );
-    await userEvent.clear(screen.getByLabelText('Address 1'));
-    const input = await screen.getByLabelText('Address 1');
-    await input.blur();
+    await userEvent.clear(screen.getByLabelText(/Address 1/));
+    (await screen.getByLabelText(/Address 1/)).blur();
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
-      expect(input.parentElement.parentElement.classList.contains('usa-input-error'));
     });
   });
 

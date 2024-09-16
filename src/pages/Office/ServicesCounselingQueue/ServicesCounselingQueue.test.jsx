@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table/utils';
@@ -13,11 +13,17 @@ import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const localStorageMock = (() => {
@@ -117,6 +123,7 @@ const needsCounselingMoves = {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
+        counselingOffice: '',
       },
       {
         id: 'move3',
@@ -178,6 +185,7 @@ const serviceCounselingCompletedMoves = {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
+        counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
       },
     ],
   },
@@ -394,7 +402,8 @@ describe('ServicesCounselingQueue', () => {
       ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUser],
       ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUserForCloseout],
       ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUserForCloseout],
-    ])('a %s user accessing path "%s"', (userDescription, queueType, showsCounselingTab, user) => {
+    ])('a %s user accessing path "%s"', async (userDescription, queueType, showsCounselingTab, user) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useUserQueries.mockReturnValue(user);
       useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
       useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
@@ -404,36 +413,39 @@ describe('ServicesCounselingQueue', () => {
         </MockProviders>,
       );
 
-      if (showsCounselingTab === 'counseling') {
-        // Make sure "Counseling" is the active tab.
-        const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
-        expect(counselingActive).toBeInTheDocument();
+      await waitFor(() => {
+        if (showsCounselingTab === 'counseling') {
+          // Make sure "Counseling" is the active tab.
+          const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
+          expect(counselingActive).toBeInTheDocument();
 
-        // Check for the "Counseling" columns.
-        expect(screen.getByText(/Status/)).toBeInTheDocument();
-        expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
-        expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
-        expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
-      } else if (showsCounselingTab === 'closeout') {
-        // Make sure "PPM Closeout" is the active tab.
-        const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
-        expect(ppmCloseoutActive).toBeInTheDocument();
+          // Check for the "Counseling" columns.
+          expect(screen.getByText(/Status/)).toBeInTheDocument();
+          expect(screen.getAllByText(/Requested move date/)[0]).toBeInTheDocument();
+          expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
+          expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
+        } else if (showsCounselingTab === 'closeout') {
+          // Make sure "PPM Closeout" is the active tab.
+          const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
+          expect(ppmCloseoutActive).toBeInTheDocument();
 
-        // Check for the "PPM Closeout" columns.
-        expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
-        expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
-        expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
-        expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
-        expect(screen.getByText(/Status/)).toBeInTheDocument();
-      } else {
-        // Check for the "Search" tab
-        const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
-        expect(searchActive).toBeInTheDocument();
-        expect(MoveSearchForm).toBeInTheDocument();
-        userEvent.type(screen.getByLabelText('Search'), 'Joe');
-        const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
-        expect(addCustomer).toBeInTheDocument();
-      }
+          // Check for the "PPM Closeout" columns.
+          expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
+          expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
+          expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
+          expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
+          expect(screen.getByText(/Status/)).toBeInTheDocument();
+        } else {
+          // Check for the "Search" tab
+          const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
+          expect(searchActive).toBeInTheDocument();
+          expect(MoveSearchForm).toBeInTheDocument();
+          userEvent.type(screen.getByLabelText('Search'), 'Joe');
+          const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
+          expect(addCustomer).toBeInTheDocument();
+        }
+      });
     });
   });
 });

@@ -121,9 +121,12 @@ func MTOServiceItemModelListFromCreate(mtoShipment *primev3messages.CreateMTOShi
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MTOShipment, *validate.Errors) {
+	verrs := validate.NewErrors()
+
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
 	}
 
 	var divertedFromShipmentID *uuid.UUID
@@ -180,7 +183,15 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.PPMShipment.Shipment = *model
 	}
 
-	return model
+	if mtoShipment.BoatShipment != nil {
+		model.BoatShipment, verrs = BoatShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.BoatShipment.Shipment = *model
+	}
+
+	return model, verrs
 }
 
 // Non SIT Address update Model
@@ -272,6 +283,40 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	return model
 }
 
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.BoatShipment, *validate.Errors) {
+	reasonVerrs := validateBoatShipmentType(*mtoShipment.ShipmentType)
+	if reasonVerrs.HasAny() {
+		return nil, reasonVerrs
+	}
+
+	var shipmentType models.BoatShipmentType
+
+	if *mtoShipment.ShipmentType == primev3messages.MTOShipmentTypeBOATHAULAWAY {
+		shipmentType = models.BoatShipmentTypeHaulAway
+	} else if *mtoShipment.ShipmentType == primev3messages.MTOShipmentTypeBOATTOWAWAY {
+		shipmentType = models.BoatShipmentTypeTowAway
+	}
+
+	year := int(*mtoShipment.BoatShipment.Year)
+	lengthInInches := int(*mtoShipment.BoatShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.BoatShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.BoatShipment.HeightInInches)
+	model := &models.BoatShipment{
+		Type:           shipmentType,
+		Year:           &year,
+		Make:           mtoShipment.BoatShipment.Make,
+		Model:          mtoShipment.BoatShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
+		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
+		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
+}
+
 // MTOShipmentModelFromUpdate model
 func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipment {
 	if mtoShipment == nil {
@@ -341,12 +386,28 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 	if addressModel != nil {
 		model.SecondaryDeliveryAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
 		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
+		tertiaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryDeliveryAddressID = &tertiaryDeliveryAddressID
+		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.PpmShipment != nil {
@@ -391,6 +452,15 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 		}
 	}
 
+	if ppmShipment.HasTertiaryPickupAddress != nil && *ppmShipment.HasTertiaryPickupAddress {
+		addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+		if addressModel != nil {
+			model.TertiaryPickupAddress = addressModel
+			tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+			model.TertiaryPickupAddressID = &tertiaryPickupAddressID
+		}
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -403,6 +473,15 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 			model.SecondaryDestinationAddress = addressModel
 			secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 			model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
+		}
+	}
+
+	if ppmShipment.HasTertiaryDestinationAddress != nil && *ppmShipment.HasTertiaryDestinationAddress {
+		addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+		if addressModel != nil {
+			model.TertiaryDestinationAddress = addressModel
+			tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+			model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
 		}
 	}
 
@@ -823,5 +902,16 @@ func validateReasonOriginSIT(m primev3messages.MTOServiceItemOriginSIT) *validat
 	if m.Reason == nil || m.Reason == models.StringPointer("") {
 		verrs.Add("reason", "reason is required in body.")
 	}
+	return verrs
+}
+
+// validateBoatShipmentType validates that the shipment type is a valid boat type, and is not nil.
+func validateBoatShipmentType(s primev3messages.MTOShipmentType) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if s != primev3messages.MTOShipmentTypeBOATHAULAWAY && s != primev3messages.MTOShipmentTypeBOATTOWAWAY {
+		verrs.Add("Boat Shipment Type (mtoShipment.shipmentType)", "shipmentType must be either "+string(primev3messages.BoatShipmentTypeTOWAWAY)+" or "+string(primev3messages.BoatShipmentTypeHAULAWAY))
+	}
+
 	return verrs
 }

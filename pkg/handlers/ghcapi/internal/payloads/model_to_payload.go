@@ -51,6 +51,18 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 	return nil
 }
 
+func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
+	if officeUser != nil {
+		payload := ghcmessages.AssignedOfficeUser{
+			ID:        strfmt.UUID(officeUser.ID.String()),
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+		}
+		return &payload
+	}
+	return nil
+}
+
 // Move payload
 func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
@@ -103,6 +115,9 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:          additionalDocumentsPayload,
+		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -490,7 +505,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	payload := ghcmessages.Customer{
 		Agency:             swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress:     Address(customer.ResidentialAddress),
-		DodID:              swag.StringValue(customer.Edipi),
+		Edipi:              swag.StringValue(customer.Edipi),
 		Email:              customer.PersonalEmail,
 		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
@@ -2024,6 +2039,10 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
+		var transportationOffice string
+		if move.CounselingOffice != nil {
+			transportationOffice = move.CounselingOffice.Name
+		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
@@ -2095,6 +2114,8 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
+			CounselingOffice:        &transportationOffice,
+			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 		}
 	}
 	return &queueMoves

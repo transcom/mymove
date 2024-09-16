@@ -166,13 +166,13 @@ properties:
   destinationType:
     $ref: '../../DestinationType.yaml'
   secondaryPickupAddress:
-    description: A second pickup address for this shipment, if the customer entered one. An optional field.
-    allOf:
-      - $ref: '../../Address.yaml'
+    $ref: '../../Address.yaml'
   secondaryDeliveryAddress:
-    description: A second delivery address for this shipment, if the customer entered one. An optional field.
-    allOf:
-      - $ref: '../../Address.yaml'
+    $ref: '../../Address.yaml'
+  tertiaryPickupAddress:
+    $ref: '../../Address.yaml'
+  tertiaryDeliveryAddress:
+    $ref: '../../Address.yaml'
   storageFacility:
     allOf:
       - x-nullable: true
@@ -205,6 +205,8 @@ properties:
       - DIVERSION_REQUESTED
   ppmShipment:
     $ref: 'PPMShipment.yaml'
+  boatShipment:
+    $ref: '../../BoatShipment.yaml'
   deliveryAddressUpdate:
     $ref: '../../ShipmentAddressUpdate.yaml'
   eTag:

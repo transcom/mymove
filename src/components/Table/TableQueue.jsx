@@ -23,6 +23,7 @@ import {
   getTableQueueSortParamSessionStorageValue,
   getSelectionOptionLabel,
 } from 'components/Table/utils';
+import { formatAvailableOfficeUsers } from 'utils/queues';
 
 const defaultPageSize = 20;
 const defaultPage = 1;
@@ -48,6 +49,9 @@ const TableQueue = ({
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
   sessionStorageKey,
+  isSupervisor,
+  currentUserId,
+  isHeadquartersUser,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
@@ -87,7 +91,7 @@ const TableQueue = ({
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   const gblocContext = useContext(SelectedGblocContext);
-  const { selectedGbloc } = gblocContext || { selectedGbloc: undefined };
+  const { selectedGbloc } = isHeadquartersUser && gblocContext ? gblocContext : { selectedGbloc: undefined };
 
   const multiSelectValueDelimiter = ',';
 
@@ -95,6 +99,7 @@ const TableQueue = ({
     queueResult: {
       totalCount = 0,
       data = [],
+      availableOfficeUsers = [],
       page = getTableQueuePageSessionStorageValue(sessionStorageKey) || defaultPage,
       perPage = getTableQueuePageSizeSessionStorageValue(sessionStorageKey) || defaultPageSize,
     },
@@ -118,6 +123,14 @@ const TableQueue = ({
     [],
   );
   const tableData = useMemo(() => data, [data]);
+  const formattedAvailableOfficeUsers = formatAvailableOfficeUsers(availableOfficeUsers, isSupervisor, currentUserId);
+  // attach the available office users to the moves/row
+  const tableDataWithAvailableUsers = tableData?.map((ele) => {
+    const newEle = { ...ele };
+    newEle.availableOfficeUsers = formattedAvailableOfficeUsers;
+    return newEle;
+  });
+
   const tableColumns = useMemo(() => columns, [columns]);
   const {
     getTableProps,
@@ -137,7 +150,7 @@ const TableQueue = ({
   } = useTable(
     {
       columns: tableColumns,
-      data: tableData,
+      data: tableDataWithAvailableUsers,
       initialState: {
         hiddenColumns: defaultHiddenColumns,
         pageSize: perPage,
@@ -312,6 +325,7 @@ const TableQueue = ({
             totalCount={totalCount}
             paramSort={paramSort}
             paramFilters={paramFilters}
+            isHeadquartersUser={isHeadquartersUser}
           />
         )}
       </div>
@@ -381,6 +395,8 @@ TableQueue.propTypes = {
   csvExportQueueFetcherKey: PropTypes.string,
   // session storage key to store search filters
   sessionStorageKey: PropTypes.string,
+  // isHeadquartersUser identifies if the active role is a headquarters user to allow switching GBLOCs
+  isHeadquartersUser: PropTypes.bool,
 };
 
 TableQueue.defaultProps = {
@@ -399,5 +415,6 @@ TableQueue.defaultProps = {
   csvExportQueueFetcher: null,
   csvExportQueueFetcherKey: null,
   sessionStorageKey: 'default',
+  isHeadquartersUser: false,
 };
 export default TableQueue;

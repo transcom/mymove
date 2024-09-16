@@ -32,6 +32,24 @@ const shipmentTypes = {
     serviceItemCodes.DDP,
     serviceItemCodes.DUPK,
   ],
+  BOAT_HAUL_AWAY: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DUPK,
+  ],
+  BOAT_TOW_AWAY: [
+    serviceItemCodes.DLH,
+    serviceItemCodes.DSH,
+    serviceItemCodes.FSC,
+    serviceItemCodes.DOP,
+    serviceItemCodes.DDP,
+    serviceItemCodes.DPK,
+    serviceItemCodes.DUPK,
+  ],
 };
 
 const ShipmentServiceItemsTable = ({ shipmentType, destinationZip3, pickupZip3, className }) => {

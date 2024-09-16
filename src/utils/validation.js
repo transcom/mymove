@@ -185,6 +185,7 @@ const validateRoleRequestedMethod = (value, testContext) => {
     testContext.parent.transportationContractingOfficerCheckBox ||
     testContext.parent.headquartersCheckBox ||
     testContext.parent.qualityAssuranceEvaluatorCheckBox ||
+    testContext.parent.headquartersCheckBox ||
     testContext.parent.customerSupportRepresentativeCheckBox ||
     testContext.parent.governmentSurveillanceRepresentativeCheckbox
   );

@@ -1,5 +1,4 @@
 // @ts-check
-
 import { test, expect } from '../../utils/office/officeTest';
 
 import { TooFlowPage } from './tooTestFixture';
@@ -7,6 +6,147 @@ import { TooFlowPage } from './tooTestFixture';
 test.describe('TOO user', () => {
   /** @type {TooFlowPage} */
   let tooFlowPage;
+
+  // Helper func to calculate days between 2 given dates
+  // This is to support months of 30 and 31 dayss
+  const calculateDaysDiff = (startDate, endDate) => {
+    let days = 0;
+    const currentDate = new Date(startDate);
+
+    while (currentDate < endDate) {
+      days += 1;
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return days;
+  };
+
+  test.describe('previewing shipment with current SIT with past SIT', () => {
+    test.beforeEach(async ({ officePage }) => {
+      // build move in SIT with 90 days authorized and without pending extension requests
+      // SIT entry date of 30 days ago, no departure date so it is current
+      const move = await officePage.testHarness.buildHHGMoveInSIT();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+    });
+
+    test('sum of days is correct between past Origin SIT and current Destination SIT', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+      // assert that days authorization is 90
+      await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
+      // get today
+      const today = new Date();
+      // get 1 month ago
+      const oneMonthAgo = new Date(today);
+      oneMonthAgo.setMonth(today.getMonth() - 1);
+      // get 2 months ago
+      const twoMonthsAgo = new Date(today);
+      twoMonthsAgo.setMonth(today.getMonth() - 2);
+      // get days between
+      const daysBetweenTwoMonthsAgoAndOneMonthAgo = calculateDaysDiff(twoMonthsAgo, oneMonthAgo);
+      const daysBetweenOneMonthAgoAndToday = calculateDaysDiff(oneMonthAgo, today);
+      // get sums
+      const totalDaysUsed = daysBetweenTwoMonthsAgoAndOneMonthAgo + daysBetweenOneMonthAgoAndToday;
+      const remainingDays = 90 - totalDaysUsed;
+      // assert that days used is the following sum
+      // - past origin SIT (entry 2 months ago, departure 1 month ago)
+      // - current destination SIT (entry 1 month ago, departure not given yet)
+      await expect(
+        page.getByTestId('sitStatusTable').getByText(`${totalDaysUsed}`, { exact: true }).first(),
+      ).toBeVisible();
+      // assert that days remaining is authorized minus totalDaysUsed
+      await expect(
+        page.getByTestId('sitStatusTable').getByText(`${remainingDays}`, { exact: true }).first(),
+      ).toBeVisible();
+      // assert that total days in destination sit is 1 month, inclusive of last day
+      await expect(
+        page.getByTestId('sitStartAndEndTable').getByText(`${daysBetweenOneMonthAgoAndToday}`, { exact: true }).first(),
+      ).toBeVisible();
+
+      // Get the SIT start date from the UI
+      const sitStartDateText = await page.getByTestId('sitStartAndEndTable').locator('td').nth(0).innerText();
+      const sitStartDate = new Date(sitStartDateText);
+
+      // Calculate the authorized end date by adding 90 days to the start date and then subtracting total days used
+      const authorizedEndDate = new Date(sitStartDate);
+      // Use 89 because the last day is counted as a whole day
+      // Subtract by "daysBetweenTwoMonthsAgoAndOneMonthAgo" (past SIT days) instead of total days used
+      // This is because the authorized end date is based on the remaining days at the start of the current SIT
+      authorizedEndDate.setDate(authorizedEndDate.getDate() + 89 - daysBetweenTwoMonthsAgoAndOneMonthAgo);
+      // format
+      const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(authorizedEndDate);
+      const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(authorizedEndDate);
+      const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(authorizedEndDate);
+      const expectedAuthorizedEndDate = `${day} ${month} ${year}`;
+      // assert
+      await expect(
+        page.getByTestId('sitStartAndEndTable').getByText(`${expectedAuthorizedEndDate}`, { exact: true }).first(),
+      ).toBeVisible();
+    });
+  });
+
+  test.describe('previewing shipment with past origin and destination SIT', () => {
+    test.beforeEach(async ({ officePage }) => {
+      // build move in SIT with 90 days authorized and without pending extension requests
+      // Origin sit had an entry date of four months ago, departure date of three months ago
+      // Destination sit had an entry date of two months ago, departure date of one month ago
+      const move = await officePage.testHarness.buildHHGMoveWithPastSITs();
+      await officePage.signInAsNewTOOUser();
+      tooFlowPage = new TooFlowPage(officePage, move);
+      await tooFlowPage.waitForLoading();
+      await officePage.tooNavigateToMove(tooFlowPage.moveLocator);
+    });
+
+    test('sum of days is correct between past Origin SIT and past Destination SIT', async ({ page }) => {
+      // navigate to MTO tab
+      await page.getByTestId('MoveTaskOrder-Tab').click();
+      await tooFlowPage.waitForPage.moveTaskOrder();
+      // assert that days authorization is 90
+      await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
+      // get today
+      const today = new Date();
+      // get months
+      const destinationDepartureDate = new Date(today);
+      destinationDepartureDate.setMonth(today.getMonth() - 1);
+      const destinationEntryDate = new Date(today);
+      destinationEntryDate.setMonth(today.getMonth() - 2);
+      const originDepartureDate = new Date(today);
+      originDepartureDate.setMonth(today.getMonth() - 3);
+      const originEntryDate = new Date(today);
+      originEntryDate.setMonth(today.getMonth() - 4);
+      // days between
+      const totalDaysBetweenDestination = calculateDaysDiff(destinationEntryDate, destinationDepartureDate);
+      const totalDaysBetweenOrigin = calculateDaysDiff(originEntryDate, originDepartureDate);
+      // get sums
+      const totalDaysUsed = totalDaysBetweenDestination + totalDaysBetweenOrigin;
+      const remainingDays = 90 - totalDaysUsed;
+      // assert sums
+      await expect(
+        page.getByTestId('sitStatusTable').getByText(`${totalDaysUsed}`, { exact: true }).first(),
+      ).toBeVisible();
+      // assert that days remaining is authorized minus totalDaysUsed
+      await expect(
+        page.getByTestId('sitStatusTable').getByText(`${remainingDays}`, { exact: true }).first(),
+      ).toBeVisible();
+      // assert previous sit days
+      await expect(
+        page
+          .getByTestId('previouslyUsedSitTable')
+          .getByText(`${totalDaysBetweenDestination} days at destination`, { exact: false })
+          .first(),
+      ).toBeVisible();
+      await expect(
+        page
+          .getByTestId('previouslyUsedSitTable')
+          .getByText(`${totalDaysBetweenOrigin} days at origin`, { exact: false })
+          .first(),
+      ).toBeVisible();
+    });
+  });
 
   test.describe('updating a move shipment in SIT', () => {
     test.beforeEach(async ({ officePage }) => {
@@ -24,11 +164,11 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
 
       const target = await page
-        .getByTestId('sitDaysAtCurrentLocation')
+        .getByTestId('currentSitDepartureDate')
         .locator('table[class="DataTable_dataTable__TGt9M table--data-point"]')
         .locator('tbody')
         .locator('td')
-        .nth(1)
+        .nth(0)
         .locator('div')
         .locator('span')
         .textContent();
@@ -103,8 +243,8 @@ test.describe('TOO user', () => {
         .textContent();
 
       expect(daysApprovedCapture).toEqual('90');
-      expect(daysUsedCapture).toEqual('61'); // 30 days in past origin sit, 31 days in destination sit
-      expect(daysLeftCapture).toEqual('29'); // of the 90 authorized, 61 have been used
+      expect(daysUsedCapture).toEqual('62'); // 31 days in past origin sit, 31 days in destination sit
+      expect(daysLeftCapture).toEqual('28'); // of the 90 authorized, 62 have been used
     });
 
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
@@ -248,7 +388,7 @@ test.describe('TOO user', () => {
       await expect(page.getByText('Total days remaining')).toBeVisible();
       await expect(page.getByText('SIT start date').nth(0)).toBeVisible();
       await expect(page.getByText('SIT authorized end date')).toBeVisible();
-      await expect(page.getByText('Calculated total SIT days')).toBeVisible();
+      await expect(page.getByText('Total days in destination SIT')).toBeVisible();
     });
     test('is showing the SIT Departure Date section', async ({ page }) => {
       // navigate to MTO tab
