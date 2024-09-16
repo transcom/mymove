@@ -5794,6 +5794,42 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5834,6 +5870,69 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -6673,8 +6772,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -6785,9 +6884,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -12815,6 +12947,41 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "properties": {
@@ -13265,6 +13432,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -13431,6 +13601,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
@@ -21040,6 +21214,57 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -21080,6 +21305,70 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3,
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -21923,8 +22212,8 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -22035,9 +22324,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -28196,6 +28518,41 @@ func init() {
         }
       }
     },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateMovingExpense": {
       "type": "object",
       "properties": {
@@ -28647,6 +29004,9 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
+        },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
           "type": "integer",
@@ -28817,6 +29177,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",

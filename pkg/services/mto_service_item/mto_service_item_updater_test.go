@@ -40,9 +40,9 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 	moveRouter := moverouter.NewMoveRouter()
 	shipmentFetcher := mtoshipment.NewMTOShipmentFetcher()
 	addressCreator := address.NewAddressCreator()
-	planner := &mocks.Planner{}
 	sitStatusService := sitstatus.NewShipmentSITStatus()
 
+	planner := &mocks.Planner{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -482,6 +482,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		// Verify the updated shipment authorized end date is equal to the departure date
 		// Truncate to the nearest day. This is because the shipment only inherits the day, month, year from the service item, not the hour, minute, or second
 		suite.True(updatedServiceItem.SITDepartureDate.Truncate(24 * time.Hour).Equal(postUpdatedServiceItemShipment.DestinationSITAuthEndDate.Truncate(24 * time.Hour)))
+
 	})
 
 	// Test that if a SITDepartureDate is provided successfully and it is a date before the shipments
@@ -1238,7 +1239,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 
 		newServiceItemPrime := oldServiceItemPrime
 		newServiceItemPrime.Status = models.MTOServiceItemStatusApproved
-
 		// Set shipment SIT status
 		shipment.MTOServiceItems = append(shipment.MTOServiceItems, oldServiceItemPrime, oldDOFSITServiceItemPrime)
 		sitStatus, shipmentWithCalculatedStatus, err := sitStatusService.CalculateShipmentSITStatus(suite.AppContextForTest(), shipment)
@@ -1357,7 +1357,6 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		suite.NotNil(sitStatus)
 
 		// Update MTO service item
-		shipment.MTOServiceItems = append(shipment.MTOServiceItems, newServiceItemPrime)
 
 		_, err = updater.UpdateMTOServiceItemPrime(suite.AppContextForTest(), &newServiceItemPrime, planner, shipment, eTag)
 
@@ -2331,7 +2330,7 @@ func (suite *MTOServiceItemServiceSuite) TestUpdateMTOServiceItemStatus() {
 	})
 
 	suite.Run("Returns a not found error if the updater can't find the MTO Shipment in the DB.", func() {
-		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
+		// Create ReService in DB so that ConvertItemToCustomerExpense makes it to the MTO Shipment check.
 		testdatagen.FetchOrMakeReService(suite.DB(), testdatagen.Assertions{ReService: models.ReService{Code: "DOFSIT"}})
 		_, err := updater.ConvertItemToCustomerExpense(
 			suite.AppContextForTest(), &models.MTOShipment{}, models.StringPointer("test"), true)

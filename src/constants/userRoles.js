@@ -23,6 +23,7 @@ export const adminOfficeRoles = [
   { roleType: 'headquarters', name: 'Headquarters' },
   { roleType: 'customer_service_representative', name: 'Customer Service Representative' },
   { roleType: 'gsr', name: 'Government Surveillance Representative' },
+  { roleType: 'headquarters', name: 'Headquarters' },
 ];
 
 export const officeRoles = [
