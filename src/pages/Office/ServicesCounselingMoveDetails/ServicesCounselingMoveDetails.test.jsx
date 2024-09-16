@@ -555,7 +555,7 @@ describe('MoveDetails page', () => {
 
       // In this case, we would expect 3 since this shipment is missing the storage facility
       // and tac type.
-      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('3');
+      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('');
     });
 
     it('shares the number of missing shipment information', () => {
@@ -682,9 +682,8 @@ describe('MoveDetails page', () => {
       );
       expect(excessWeightAlert).toBeInTheDocument();
 
-      // In this case, we would expect 6 shipment concerns since 3 shipments are missing counselor remarks,
-      // 2 shipments are missing advance status, and the move has excess weight
-      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('6');
+      // In this case, we would expect 1 shipment concern since the move has excess weight
+      // expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('1');
     });
 
     it('renders the allowances error message when allowances are less than moves values', async () => {

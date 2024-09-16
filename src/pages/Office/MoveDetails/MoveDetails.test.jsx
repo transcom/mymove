@@ -1020,7 +1020,7 @@ describe('MoveDetails page', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByTestId('advanceTag')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
   });
 
@@ -1040,7 +1040,7 @@ describe('MoveDetails page', () => {
         </MockProviders>,
       );
 
-      expect(await screen.findByTestId('advanceTag')).toBeInTheDocument();
+      expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
   });
 
