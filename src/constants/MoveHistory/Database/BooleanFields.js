@@ -12,4 +12,8 @@ export default {
   missing_receipt: 'missing_receipt',
   organizational_clothing_and_individual_equipment: 'organizational_clothing_and_individual_equipment',
   gun_safe: 'gun_safe',
+  email_is_preferred: 'email_is_preferred',
+  phone_is_preferred: 'phone_is_preferred',
+  uses_external_vendor: 'uses_external_vendor',
+  diversion: 'diversion',
 };
