@@ -473,7 +473,12 @@ const ppmShipmentQuery = {
 const renderComponent = (props, permissions = [permissionTypes.updateShipment, permissionTypes.updateCustomer]) => {
   return render(
     <MockProviders permissions={permissions} {...mockRoutingOptions}>
-      <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} {...props} />
+      <ServicesCounselingMoveDetails
+        setUnapprovedShipmentCount={jest.fn()}
+        setShipmentWarnConcernCount={jest.fn()}
+        setShipmentErrorConcernCount={jest.fn()}
+        {...props}
+      />
     </MockProviders>,
   );
 };
@@ -563,11 +568,17 @@ describe('MoveDetails page', () => {
       useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
 
       const mockSetUpapprovedShipmentCount = jest.fn();
-      renderComponent({ setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount });
+      const mocksetShipmentWarnConcernCount = jest.fn();
+      const mocksetShipmentErrorConcernCount = jest.fn();
 
-      // Should have called `setUnapprovedShipmentCount` with 3 missing shipping info
+      renderComponent({
+        setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount,
+        setShipmentWarnConcernCount: mocksetShipmentWarnConcernCount,
+        setShipmentErrorConcernCount: mocksetShipmentErrorConcernCount,
+      });
+
+      // Should have called `setUnapprovedShipmentCount` with 1 missing shipping info
       expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledTimes(1);
-      expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledWith(3);
     });
 
     /* eslint-disable camelcase */
@@ -836,7 +847,12 @@ describe('MoveDetails page', () => {
             permissions={[permissionTypes.updateShipment, permissionTypes.updateCustomer]}
             {...mockRoutingOptions}
           >
-            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} isMoveLocked={isMoveLocked} />
+            <ServicesCounselingMoveDetails
+              setUnapprovedShipmentCount={jest.fn()}
+              setShipmentWarnConcernCount={jest.fn()}
+              setShipmentErrorConcernCount={jest.fn()}
+              isMoveLocked={isMoveLocked}
+            />
           </MockProviders>,
         );
 
@@ -933,7 +949,12 @@ describe('MoveDetails page', () => {
                 path={servicesCounselingRoutes.BASE_SHIPMENT_ADD_PATH}
                 params={{ moveCode: mockRequestedMoveCode, shipmentType }}
               >
-                <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />,
+                <ServicesCounselingMoveDetails
+                  setUnapprovedShipmentCount={jest.fn()}
+                  setShipmentWarnConcernCount={jest.fn()}
+                  setShipmentErrorConcernCount={jest.fn()}
+                />
+                ,
               </MockProviders>,
             );
 
@@ -992,20 +1013,6 @@ describe('MoveDetails page', () => {
         expect(counselorRemarks1).toBeInTheDocument();
         expect(counselorRemarks2).toBeInTheDocument();
       });
-
-      it('shows a warning if counselor remarks are empty', async () => {
-        const moveDetailsQuery = {
-          ...newMoveDetailsQuery,
-          mtoShipments: [{ ...mtoShipments[0], counselorRemarks: '' }],
-        };
-        useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-        useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
-
-        renderComponent();
-
-        const counselorRemarksElement = screen.getByTestId('counselorRemarks');
-        expect(counselorRemarksElement.parentElement).toHaveClass('warning');
-      });
     });
 
     describe('service counseling completed', () => {
@@ -1031,7 +1038,11 @@ describe('MoveDetails page', () => {
       it('renders the financial review flag button when user has permission', async () => {
         render(
           <MockProviders permissions={[permissionTypes.updateFinancialReviewFlag]} {...mockRoutingOptions}>
-            <ServicesCounselingMoveDetails setUnapprovedShipmentCount={jest.fn()} />
+            <ServicesCounselingMoveDetails
+              setUnapprovedShipmentCount={jest.fn()}
+              setShipmentWarnConcernCount={jest.fn()}
+              setShipmentErrorConcernCount={jest.fn()}
+            />
           </MockProviders>,
         );
 

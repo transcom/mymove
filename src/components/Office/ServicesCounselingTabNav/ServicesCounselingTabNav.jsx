@@ -12,8 +12,8 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ServicesCounselingTabNav = ({
   unapprovedShipmentCount = 0,
-  shipmentWarnConcernCount,
-  shipmentErrorConcernCount,
+  shipmentWarnConcernCount = 0,
+  shipmentErrorConcernCount = 0,
   moveCode,
 }) => {
   const [supportingDocsFF, setSupportingDocsFF] = React.useState(false);
