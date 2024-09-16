@@ -683,7 +683,7 @@ describe('MoveDetails page', () => {
       expect(excessWeightAlert).toBeInTheDocument();
 
       // In this case, we would expect 1 shipment concern since the move has excess weight
-      // expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('1');
+      expect(await screen.findByTestId('requestedShipmentsTag')).toHaveTextContent('1');
     });
 
     it('renders the allowances error message when allowances are less than moves values', async () => {
