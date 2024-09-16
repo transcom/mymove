@@ -347,6 +347,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
 	sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 	suite.NoError(err)
+	suite.Equal(FormatDate(time.Now()), sswPage1.PreparationDate1)
 
 	suite.Equal(FormatDate(time.Now()), sswPage1.PreparationDate1)
 
@@ -781,7 +782,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 			ShipmentLocator: &locator,
 		},
 	}
-
 	ssd := models.ShipmentSummaryFormData{
 		AllShipments:            move.MTOShipments,
 		ServiceMember:           serviceMember,

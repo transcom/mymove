@@ -20,6 +20,10 @@ type ShipmentsPaymentSITBalance struct {
 func (_m *ShipmentsPaymentSITBalance) ListShipmentPaymentSITBalance(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) ([]services.ShipmentPaymentSITBalance, error) {
 	ret := _m.Called(appCtx, paymentRequestID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ListShipmentPaymentSITBalance")
+	}
+
 	var r0 []services.ShipmentPaymentSITBalance
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) ([]services.ShipmentPaymentSITBalance, error)); ok {

@@ -20,6 +20,10 @@ type AdminUserFetcher struct {
 func (_m *AdminUserFetcher) FetchAdminUser(appCtx appcontext.AppContext, filters []services.QueryFilter) (models.AdminUser, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchAdminUser")
+	}
+
 	var r0 models.AdminUser
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (models.AdminUser, error)); ok {
