@@ -24,6 +24,10 @@ type SSWPPMComputer struct {
 func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 services.ShipmentSummaryFormData, _a2 route.Planner) (services.Obligations, error) {
 	ret := _m.Called(_a0, _a1, _a2)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ComputeObligations")
+	}
+
 	var r0 services.Obligations
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, services.ShipmentSummaryFormData, route.Planner) (services.Obligations, error)); ok {
@@ -47,6 +51,10 @@ func (_m *SSWPPMComputer) ComputeObligations(_a0 appcontext.AppContext, _a1 serv
 // FetchDataShipmentSummaryWorksheetFormData provides a mock function with given fields: appCtx, _a1, ppmShipmentID
 func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appcontext.AppContext, _a1 *auth.Session, ppmShipmentID uuid.UUID) (*services.ShipmentSummaryFormData, error) {
 	ret := _m.Called(appCtx, _a1, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchDataShipmentSummaryWorksheetFormData")
+	}
 
 	var r0 *services.ShipmentSummaryFormData
 	var r1 error
@@ -73,6 +81,10 @@ func (_m *SSWPPMComputer) FetchDataShipmentSummaryWorksheetFormData(appCtx appco
 // FormatValuesShipmentSummaryWorksheet provides a mock function with given fields: shipmentSummaryFormData, isPaymentPacket
 func (_m *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipmentSummaryFormData services.ShipmentSummaryFormData, isPaymentPacket bool) (services.Page1Values, services.Page2Values) {
 	ret := _m.Called(shipmentSummaryFormData, isPaymentPacket)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FormatValuesShipmentSummaryWorksheet")
+	}
 
 	var r0 services.Page1Values
 	var r1 services.Page2Values

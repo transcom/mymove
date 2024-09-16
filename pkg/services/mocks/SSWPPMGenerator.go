@@ -20,6 +20,10 @@ type SSWPPMGenerator struct {
 func (_m *SSWPPMGenerator) FillSSWPDFForm(_a0 services.Page1Values, _a1 services.Page2Values) (afero.File, *pdfcpu.PDFInfo, error) {
 	ret := _m.Called(_a0, _a1)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FillSSWPDFForm")
+	}
+
 	var r0 afero.File
 	var r1 *pdfcpu.PDFInfo
 	var r2 error

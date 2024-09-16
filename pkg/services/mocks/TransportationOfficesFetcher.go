@@ -20,6 +20,10 @@ type TransportationOfficesFetcher struct {
 func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContext) (*models.GBLOCs, error) {
 	ret := _m.Called(appCtx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetAllGBLOCs")
+	}
+
 	var r0 *models.GBLOCs
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (*models.GBLOCs, error)); ok {
@@ -46,6 +50,10 @@ func (_m *TransportationOfficesFetcher) GetAllGBLOCs(appCtx appcontext.AppContex
 func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error) {
 	ret := _m.Called(appCtx, transportationOfficeID, includeOnlyPPMCloseoutOffices)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetTransportationOffice")
+	}
+
 	var r0 *models.TransportationOffice
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (*models.TransportationOffice, error)); ok {
@@ -71,6 +79,10 @@ func (_m *TransportationOfficesFetcher) GetTransportationOffice(appCtx appcontex
 // GetTransportationOffices provides a mock function with given fields: appCtx, search, forPpm
 func (_m *TransportationOfficesFetcher) GetTransportationOffices(appCtx appcontext.AppContext, search string, forPpm bool) (*models.TransportationOffices, error) {
 	ret := _m.Called(appCtx, search, forPpm)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetTransportationOffices")
+	}
 
 	var r0 *models.TransportationOffices
 	var r1 error
