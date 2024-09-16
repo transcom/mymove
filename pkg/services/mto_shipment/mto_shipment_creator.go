@@ -441,7 +441,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) error {
 	verrs := validate.NewErrors()
 
-	if shipment.MTOAgents != nil && len(shipment.MTOAgents) > 0 {
+	if len(shipment.MTOAgents) > 0 {
 		for _, agent := range shipment.MTOAgents {
 			if agent.ID != uuid.Nil {
 				verrs.Add("agents:id", "cannot be set for new agents")
