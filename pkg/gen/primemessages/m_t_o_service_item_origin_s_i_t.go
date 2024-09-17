@@ -24,6 +24,8 @@ type MTOServiceItemOriginSIT struct {
 
 	idField strfmt.UUID
 
+	lockedPriceCentsField *int64
+
 	moveTaskOrderIdField *strfmt.UUID
 
 	mtoShipmentIdField strfmt.UUID
@@ -97,6 +99,16 @@ func (m *MTOServiceItemOriginSIT) ID() strfmt.UUID {
 // SetID sets the id of this subtype
 func (m *MTOServiceItemOriginSIT) SetID(val strfmt.UUID) {
 	m.idField = val
+}
+
+// LockedPriceCents gets the locked price cents of this subtype
+func (m *MTOServiceItemOriginSIT) LockedPriceCents() *int64 {
+	return m.lockedPriceCentsField
+}
+
+// SetLockedPriceCents sets the locked price cents of this subtype
+func (m *MTOServiceItemOriginSIT) SetLockedPriceCents(val *int64) {
+	m.lockedPriceCentsField = val
 }
 
 // ModelType gets the model type of this subtype
@@ -229,6 +241,8 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
+		LockedPriceCents *int64 `json:"lockedPriceCents,omitempty"`
+
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
@@ -256,6 +270,8 @@ func (m *MTOServiceItemOriginSIT) UnmarshalJSON(raw []byte) error {
 	result.eTagField = base.ETag
 
 	result.idField = base.ID
+
+	result.lockedPriceCentsField = base.LockedPriceCents
 
 	if base.ModelType != result.ModelType() {
 		/* Not the type we're looking for. */
@@ -366,6 +382,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 
 		ID strfmt.UUID `json:"id,omitempty"`
 
+		LockedPriceCents *int64 `json:"lockedPriceCents,omitempty"`
+
 		ModelType MTOServiceItemModelType `json:"modelType"`
 
 		MoveTaskOrderID *strfmt.UUID `json:"moveTaskOrderID"`
@@ -384,6 +402,8 @@ func (m MTOServiceItemOriginSIT) MarshalJSON() ([]byte, error) {
 		ETag: m.ETag(),
 
 		ID: m.ID(),
+
+		LockedPriceCents: m.LockedPriceCents(),
 
 		ModelType: m.ModelType(),
 

@@ -1050,6 +1050,13 @@ definitions:
 
           In production, only MoveTaskOrders for which this is set will be
           available to the API.
+      approvedAt:
+        format: date-time
+        type: string
+        x-nullable: true
+        description: >
+          Indicates this MoveTaskOrder has been approved by an office user such
+          as the Task Ordering Officer (TOO).
       contractorID:
         type: string
         format: uuid
@@ -1997,6 +2004,8 @@ definitions:
         format: mime-type
         example: application/pdf
       bytes:
+        type: integer
+      rotation:
         type: integer
       status:
         type: string

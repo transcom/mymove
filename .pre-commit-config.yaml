@@ -55,7 +55,11 @@ repos:
             pkg/cli/auth.go$|
           )$
       - id: trailing-whitespace
-        exclude: ^public/swagger-ui/
+        exclude: >
+          (?x)^(
+          public/swagger-ui/|
+          pkg/edi/tpps_paid_invoice_report/parser_test.go|
+          )$
 
   - repo: https://github.com/golangci/golangci-lint
     rev: v1.57.2
@@ -134,11 +138,13 @@ repos:
         language: script
         files: swagger/.*
         types: [yaml]
-        exclude: swagger-def/.* # These are partial swagger files that are compiled into the ones in swagger/*.
-                                # They will be checked unless explicitly excluded, but they will fail.
-                                # By only validating the compiled files, we are effectively checking these files as well.
-        require_serial: true # Make sure that we only call the script once with all affected YAML files as CI seems to
-                             # have sporadic failures if we call this script in parallel.
+        exclude:
+          swagger-def/.* # These are partial swagger files that are compiled into the ones in swagger/*.
+          # They will be checked unless explicitly excluded, but they will fail.
+          # By only validating the compiled files, we are effectively checking these files as well.
+        require_serial:
+          true # Make sure that we only call the script once with all affected YAML files as CI seems to
+          # have sporadic failures if we call this script in parallel.
 
   - repo: local
     hooks:
@@ -180,7 +186,7 @@ repos:
         name: Spectral yaml linter
         entry: scripts/lint-yaml-with-spectral
         language: script
-        files: swagger/(admin|prime|prime_v2|prime_v3|support).yaml
+        files: swagger/(admin|prime|prime_v2|prime_v3|support|pptas).yaml
         types: [yaml]
 
   - repo: local

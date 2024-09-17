@@ -1,0 +1,5 @@
+ALTER TABLE tpps_paid_invoice_reports
+ADD CONSTRAINT tpps_paid_invoice_reports_invoice_number_fkey
+FOREIGN KEY (invoice_number)
+REFERENCES payment_requests(payment_request_number)
+ON DELETE CASCADE;
