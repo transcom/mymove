@@ -144,7 +144,6 @@ test.describe('Services counselor user', () => {
   });
 
   test('Services Counselor can edit an existing Mobile Home shipment', async ({ page, scPage }) => {
-    // Testdata fixture creates 2 shipments, one with the "Destination Type" field populated, which is used only for retirement moves
     await expect(page.getByText('Edit Shipment')).toHaveCount(1);
 
     // Choose a shipment, store it's container, and click the edit button
