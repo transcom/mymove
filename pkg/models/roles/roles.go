@@ -36,6 +36,8 @@ const (
 	RoleTypePrime RoleType = "prime"
 	// RoleTypeHQ is the Headquarters Role
 	RoleTypeHQ RoleType = "headquarters"
+	// RoleTypeGSR is the Government Surveillance Representative Role
+	RoleTypeGSR RoleType = "gsr"
 )
 
 // Role represents a Role for users
