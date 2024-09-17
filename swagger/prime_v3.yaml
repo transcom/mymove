@@ -852,7 +852,7 @@ definitions:
         description: Width of the Mobile Home in inches
       heightInInches:
         type: integer
-        description: Height of the Boat in inches
+        description: Height of the Mobile Home in inches
     required:
       - year
       - make

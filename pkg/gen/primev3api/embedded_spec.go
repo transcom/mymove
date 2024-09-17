@@ -810,7 +810,7 @@ func init() {
       ],
       "properties": {
         "heightInInches": {
-          "description": "Height of the Boat in inches",
+          "description": "Height of the Mobile Home in inches",
           "type": "integer"
         },
         "lengthInInches": {
@@ -4582,7 +4582,7 @@ func init() {
       ],
       "properties": {
         "heightInInches": {
-          "description": "Height of the Boat in inches",
+          "description": "Height of the Mobile Home in inches",
           "type": "integer"
         },
         "lengthInInches": {

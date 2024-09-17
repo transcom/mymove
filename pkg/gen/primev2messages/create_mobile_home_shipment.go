@@ -19,27 +19,27 @@ import (
 // swagger:model CreateMobileHomeShipment
 type CreateMobileHomeShipment struct {
 
-	// Height of the Boat in inches
+	// Height of the Mobile Home in inches
 	// Required: true
 	HeightInInches *int64 `json:"heightInInches"`
 
-	// Length of the Boat in inches
+	// Length of the Mobile Home in inches
 	// Required: true
 	LengthInInches *int64 `json:"lengthInInches"`
 
-	// Make of the Boat
+	// Make of the Mobile Home
 	// Required: true
 	Make *string `json:"make"`
 
-	// Model of the Boat
+	// Model of the Mobile Home
 	// Required: true
 	Model *string `json:"model"`
 
-	// Width of the Boat in inches
+	// Width of the Mobile Home in inches
 	// Required: true
 	WidthInInches *int64 `json:"widthInInches"`
 
-	// Year of the Boat
+	// Year of the Mobile Home
 	// Required: true
 	Year *int64 `json:"year"`
 }

@@ -19,7 +19,7 @@ import (
 // swagger:model CreateMobileHomeShipment
 type CreateMobileHomeShipment struct {
 
-	// Height of the Boat in inches
+	// Height of the Mobile Home in inches
 	// Required: true
 	HeightInInches *int64 `json:"heightInInches"`
 

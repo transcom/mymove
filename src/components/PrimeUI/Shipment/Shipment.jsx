@@ -445,26 +445,26 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
           )}
         </>
       )}
-      {shipment.MobileHomeShipment && (
+      {shipment.mobileHomeShipment && (
         <>
           <h4>Mobile-Home-Shipment Specific Fields</h4>
           <div className={descriptionListStyles.row}>
             <dt>Mobile Home Year:</dt>
-            <dd>{shipment.moibleHomeShipment.year}</dd>
+            <dd>{shipment.mobileHomeShipment.year}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Mobile Home Make:</dt>
-            <dd>{shipment.moibleHomeShipment.make}</dd>
+            <dd>{shipment.mobileHomeShipment.make}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Mobile Home Model:</dt>
-            <dd>{shipment.moibleHomeShipment.model}</dd>
+            <dd>{shipment.mobileHomeShipment.model}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Mobile Home Dimensions (Inches):</dt>
-            <dd>Length: {shipment.moibleHomeShipment.lengthInInches}</dd>
-            <dd>Width: {shipment.moibleHomeShipment.widthInInches}</dd>
-            <dd>Height: {shipment.moibleHomeShipment.heightInInches}</dd>
+            <dd>Length: {shipment.mobileHomeShipment.lengthInInches}</dd>
+            <dd>Width: {shipment.mobileHomeShipment.widthInInches}</dd>
+            <dd>Height: {shipment.mobileHomeShipment.heightInInches}</dd>
           </div>
         </>
       )}
