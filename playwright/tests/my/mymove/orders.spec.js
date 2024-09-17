@@ -105,6 +105,9 @@ test.describe('(MultiMove) Orders', () => {
     await customerPage.selectDutyLocation('Yuma AFB', 'origin_duty_location');
 
     await page.getByRole('combobox', { name: 'Pay grade' }).selectOption({ label: 'E-7' });
+    await page
+      .getByRole('combobox', { name: 'Counseling Office' })
+      .selectOption({ label: 'JPPSO - South West (LKNQ) - USN' });
 
     await customerPage.navigateForward();
     await customerPage.waitForPage.ordersUpload();
