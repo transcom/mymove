@@ -294,7 +294,13 @@ const PrimeUIShipmentCreateForm = () => {
       {isBoat && (
         <>
           <h2 className={styles.sectionHeader}>Boat Model Info</h2>
-          <MaskedTextField label="Year" id="boatShipment.yearInput" name="boatShipment.year" mask={Number} />
+          <MaskedTextField
+            label="Year"
+            id="boatShipment.yearInput"
+            name="boatShipment.year"
+            mask={Number}
+            maxLength={4}
+          />
           <TextField label="Make" id="boatShipment.makeInput" name="boatShipment.make" />
           <TextField label="Model" id="boatShipment.modelInput" name="boatShipment.model" />
           <h2 className={styles.sectionHeader}>Boat Dimensions</h2>
@@ -313,6 +319,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="boatShipment.lengthInFeetInput"
             name="boatShipment.lengthInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Length (Inches)"
@@ -325,6 +333,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="boatShipment.widthInFeetInput"
             name="boatShipment.widthInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Width (Inches)"
@@ -337,6 +347,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="boatShipment.heightInFeetInput"
             name="boatShipment.heightInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Height (Inches)"
@@ -366,8 +378,7 @@ const PrimeUIShipmentCreateForm = () => {
             id="mobileHomeShipment.yearInput"
             name="mobileHomeShipment.year"
             mask={Number}
-            min={1999}
-            max={new Date().getFullYear()}
+            maxLength={4}
           />
           <TextField label="Make" id="mobileHomeShipment.makeInput" name="mobileHomeShipment.make" />
           <TextField label="Model" id="mobileHomeShipment.modelInput" name="mobileHomeShipment.model" />
@@ -377,6 +388,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="mobileHomeShipment.lengthInFeetInput"
             name="mobileHomeShipment.lengthInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Length (Inches)"
@@ -389,6 +402,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="mobileHomeShipment.widthInFeetInput"
             name="mobileHomeShipment.widthInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Width (Inches)"
@@ -401,6 +416,8 @@ const PrimeUIShipmentCreateForm = () => {
             id="mobileHomeShipment.heightInFeetInput"
             name="mobileHomeShipment.heightInFeet"
             mask={Number}
+            min={Number.MIN_SAFE_INTEGER}
+            max={Number.MAX_SAFE_INTEGER}
           />
           <MaskedTextField
             label="Height (Inches)"
