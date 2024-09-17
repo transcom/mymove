@@ -34,6 +34,12 @@ const info = {
     state: 'TX',
     postalCode: '78234',
   },
+  tertiaryPickupAddress: {
+    streetAddress1: '1909 Electric Ave',
+    city: 'Missoula',
+    state: 'MT',
+    postalCode: '59801',
+  },
   mtoAgents: [
     {
       agentType: 'RELEASING_AGENT',
@@ -59,6 +65,7 @@ export const NTSBasic = () => (
       counselorRemarks: info.counselorRemarks,
       requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
+      requestedDeliveryDate: info.requestedDeliveryDate,
       pickupAddress: info.pickupAddress,
       tacType: info.tacType,
       sacType: info.sacType,
@@ -73,6 +80,7 @@ export const NTSBasicEvaluationReport = () => (
       counselorRemarks: info.counselorRemarks,
       requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
+      requestedDeliveryDate: info.requestedDeliveryDate,
       pickupAddress: info.pickupAddress,
       tacType: info.tacType,
       sacType: info.sacType,
@@ -112,6 +120,7 @@ export const NTSWithAllInfo = () => (
     shipment={{
       requestedPickupDate: info.requestedPickupDate,
       storageFacility: info.storageFacility,
+      requestedDeliveryDate: info.requestedDeliveryDate,
       tacType: info.tacType,
       sacType: info.sacType,
       tac: info.tac,
@@ -119,6 +128,7 @@ export const NTSWithAllInfo = () => (
       serviceOrderNumber: info.serviceOrderNumber,
       pickupAddress: info.pickupAddress,
       secondaryPickupAddress: info.secondaryPickupAddress,
+      tertiaryPickupAddress: info.tertiaryPickupAddress,
       mtoAgents: info.mtoAgents,
       counselorRemarks: info.counselorRemarks,
       customerRemarks: info.customerRemarks,

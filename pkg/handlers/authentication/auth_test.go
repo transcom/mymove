@@ -1753,3 +1753,28 @@ func (suite *AuthSuite) TestAuthorizePrime() {
 
 	suite.Equal(http.StatusUnauthorized, rr.Code)
 }
+
+func (suite *AuthSuite) TestAuthorizePPTAS() {
+	clientCert := factory.FetchOrBuildDevlocalClientCert(suite.DB())
+
+	handlerConfig := suite.HandlerConfig()
+	appnames := handlerConfig.AppNames()
+	req := httptest.NewRequest("GET", fmt.Sprintf("http://%s/pptas/v1", appnames.PrimeServername), nil)
+
+	handler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {})
+	middleware := PPTASAuthorizationMiddleware(suite.Logger())(handler)
+	rr := httptest.NewRecorder()
+
+	ctx := SetClientCertInRequestContext(req, &clientCert)
+	req = req.WithContext(ctx)
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusOK, rr.Code)
+
+	// no cert in request
+	rr = httptest.NewRecorder()
+	req = httptest.NewRequest("GET", fmt.Sprintf("http://%s/pptas/v1", appnames.PrimeServername), nil)
+	middleware.ServeHTTP(rr, req)
+
+	suite.Equal(http.StatusUnauthorized, rr.Code)
+}

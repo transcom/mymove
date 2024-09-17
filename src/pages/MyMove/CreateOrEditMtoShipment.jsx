@@ -5,7 +5,8 @@ import qs from 'query-string';
 
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   updateMTOShipment as updateMTOShipmentAction,
@@ -47,8 +48,39 @@ export class CreateOrEditMtoShipment extends Component {
     const { type } = qs.parse(location.search);
 
     const move = selectCurrentMoveFromAllMoves(serviceMemberMoves, moveId);
-    const mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
+    let mtoShipment = selectCurrentShipmentFromMove(move, mtoShipmentId);
     const { orders } = move ?? {};
+    const oldMtoShipment = location.state?.mtoShipment;
+
+    // carry over information if refirected from Boat shipment form
+    if (!mtoShipment?.id && oldMtoShipment) {
+      mtoShipment = {
+        agents: oldMtoShipment.agents?.map(({ id, ...rest }) => rest),
+        customerRemarks: oldMtoShipment.customerRemarks,
+        destinationAddress: oldMtoShipment.destinationAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.destinationAddress)
+          : null,
+        hasSecondaryDeliveryAddress: oldMtoShipment.hasSecondaryDeliveryAddress,
+        hasSecondaryPickupAddress: oldMtoShipment.hasSecondaryPickupAddress,
+        hasTertiaryDeliveryAddress: oldMtoShipment.hasTertiaryDeliveryAddress,
+        hasTertiaryPickupAddress: oldMtoShipment.hasTertiaryPickupAddress,
+        pickupAddress: oldMtoShipment.pickupAddress ? (({ id, ...rest }) => rest)(oldMtoShipment.pickupAddress) : null,
+        requestedDeliveryDate: oldMtoShipment.requestedDeliveryDate ?? null,
+        requestedPickupDate: oldMtoShipment.requestedPickupDate ?? null,
+        secondaryDeliveryAddress: oldMtoShipment.secondaryDeliveryAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.secondaryDeliveryAddress)
+          : null,
+        secondaryPickupAddress: oldMtoShipment.secondaryPickupAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.secondaryPickupAddress)
+          : null,
+        tertiaryDeliveryAddress: oldMtoShipment.tertiaryDeliveryAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.tertiaryDeliveryAddress)
+          : null,
+        tertiaryPickupAddress: oldMtoShipment.tertiaryPickupAddress
+          ? (({ id, ...rest }) => rest)(oldMtoShipment.tertiaryPickupAddress)
+          : null,
+      };
+    }
 
     // loading placeholder while data loads - this handles any async issues
     // loading placeholder while data loads - this handles any async issues
@@ -65,6 +97,21 @@ export class CreateOrEditMtoShipment extends Component {
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
             destinationDutyLocation={orders.new_duty_location}
+          />
+        );
+      }
+      if (
+        type === SHIPMENT_OPTIONS.BOAT ||
+        mtoShipment?.shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY ||
+        mtoShipment?.shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY
+      ) {
+        return (
+          <BoatShipmentCreate
+            move={move}
+            mtoShipment={mtoShipment}
+            serviceMember={serviceMember}
+            destinationDutyLocation={orders.new_duty_location}
+            serviceMemberMoves={serviceMemberMoves}
           />
         );
       }

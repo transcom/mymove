@@ -80,7 +80,10 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
     HHG_INTO_NTS_DOMESTIC: ['counselorRemarks'],
     HHG_OUTOF_NTS_DOMESTIC: ['counselorRemarks'],
   }; // add any additional fields that we also want to always show
-  const neverShow = { HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility'] };
+  const neverShow = {
+    HHG_INTO_NTS_DOMESTIC: ['usesExternalVendor', 'serviceOrderNumber', 'storageFacility', 'requestedDeliveryDate'],
+    HHG_OUTOF_NTS_DOMESTIC: ['requestedPickupDate'],
+  };
   const warnIfMissing = {
     HHG: [{ fieldName: 'counselorRemarks' }],
     HHG_INTO_NTS_DOMESTIC: [{ fieldName: 'counselorRemarks' }, { fieldName: 'tacType' }, { fieldName: 'sacType' }],
@@ -563,8 +566,14 @@ const ServicesCounselingMoveDetails = ({ infoSavedAlert, setUnapprovedShipmentCo
               editButton={
                 (counselorCanEdit || counselorCanEditNonPPM) &&
                 !isMoveLocked && (
-                  <ButtonDropdown data-testid="addShipmentButton" onChange={handleButtonDropdownChange}>
-                    <option value="">Add a new shipment</option>
+                  <ButtonDropdown
+                    ariaLabel="Add a new shipment"
+                    data-testid="addShipmentButton"
+                    onChange={handleButtonDropdownChange}
+                  >
+                    <option value="" label="Add a new shipment">
+                      Add a new shipment
+                    </option>
                     <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
                       HHG
                     </option>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -16,7 +16,10 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const NTSRShipmentInfoList = ({
   className,
@@ -25,6 +28,7 @@ const NTSRShipmentInfoList = ({
   warnIfMissing,
   errorIfMissing,
   showWhenCollapsed,
+  neverShow,
   isForEvaluationReport,
 }) => {
   const {
@@ -32,10 +36,12 @@ const NTSRShipmentInfoList = ({
     destinationType,
     displayDestinationType,
     secondaryDeliveryAddress,
+    tertiaryDeliveryAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
     ntsRecordedWeight,
+    requestedPickupDate,
     requestedDeliveryDate,
     scheduledPickupDate,
     actualPickupDate,
@@ -58,7 +64,15 @@ const NTSRShipmentInfoList = ({
     warning: shipmentDefinitionListsStyles.warning,
     missingInfoError: shipmentDefinitionListsStyles.missingInfoError,
   });
-  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, null, shipment);
+  setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
+
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
+    };
+    if (!isForEvaluationReport) fetchData();
+  }, [isForEvaluationReport]);
 
   const showElement = (elementFlags) => {
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
@@ -105,6 +119,18 @@ const NTSRShipmentInfoList = ({
       <dt>Service order #</dt>
       <dd data-testid="serviceOrderNumber">{serviceOrderNumber || getMissingOrDash('serviceOrderNumber')}</dd>
     </div>
+  );
+
+  const requestedPickupDateElementFlags = getDisplayFlags('requestedPickupDate');
+  const requestedPickupDateElement = (
+    <Restricted to={permissionTypes.updateShipment}>
+      <div className={requestedPickupDateElementFlags.classes}>
+        <dt>Requested pickup date</dt>
+        <dd data-testid="requestedPickupDate">
+          {(requestedPickupDate && formatDate(requestedPickupDate, 'DD MMM YYYY')) || '—'}
+        </dd>
+      </div>
+    </Restricted>
   );
 
   const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
@@ -212,6 +238,16 @@ const NTSRShipmentInfoList = ({
     </div>
   );
 
+  const tertiaryDeliveryAddressElementFlags = getDisplayFlags('tertiaryDeliveryAddress');
+  const tertiaryDeliveryAddressElement = (
+    <div className={tertiaryDeliveryAddressElementFlags.classes}>
+      <dt>Third delivery address</dt>
+      <dd data-testid="tertiaryDeliveryAddress">
+        {tertiaryDeliveryAddress ? formatAddress(tertiaryDeliveryAddress) : '—'}
+      </dd>
+    </div>
+  );
+
   const tacElementFlags = getDisplayFlags('tacType');
   const tacElement = (
     <div className={tacElementFlags.classes}>
@@ -266,10 +302,12 @@ const NTSRShipmentInfoList = ({
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}
       {storageFacilityAddressElement}
+      {showElement(requestedPickupDateElementFlags) && requestedPickupDateElement}
       {requestedDeliveryDateElement}
       {destinationAddressElement}
       {displayDestinationType && destinationTypeElement}
       {isExpanded && secondaryDeliveryAddressElement}
+      {isExpanded && isTertiaryAddressEnabled ? tertiaryDeliveryAddressElement : null}
       {showElement(receivingAgentFlags) && receivingAgentElement}
       {isExpanded && customerRemarksElement}
       {showElement(counselorRemarksElementFlags) && counselorRemarksElement}
@@ -326,6 +364,7 @@ NTSRShipmentInfoList.propTypes = {
   warnIfMissing: PropTypes.arrayOf(fieldValidationShape),
   errorIfMissing: PropTypes.arrayOf(fieldValidationShape),
   showWhenCollapsed: PropTypes.arrayOf(PropTypes.string),
+  neverShow: PropTypes.arrayOf(PropTypes.string),
   isForEvaluationReport: PropTypes.bool,
 };
 
@@ -335,6 +374,7 @@ NTSRShipmentInfoList.defaultProps = {
   warnIfMissing: [],
   errorIfMissing: [],
   showWhenCollapsed: [],
+  neverShow: [],
   isForEvaluationReport: false,
 };
 

@@ -73,6 +73,59 @@ func init() {
         }
       }
     },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/counseling/orders/{orderID}": {
       "patch": {
         "description": "All fields sent in this request will be set on the order referenced",
@@ -884,7 +937,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -898,7 +951,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -1895,6 +1948,11 @@ func init() {
                 "page": {
                   "description": "requested page of results",
                   "type": "integer"
+                },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
                 },
                 "perPage": {
                   "type": "integer"
@@ -5684,6 +5742,42 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "401": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -5724,6 +5818,69 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -6001,11 +6158,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -6334,6 +6494,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -6459,6 +6674,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -6482,8 +6700,28 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -6534,6 +6772,22 @@ func init() {
             }
           ]
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
@@ -6555,6 +6809,22 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "usesExternalVendor": {
           "type": "boolean",
           "x-nullable": true,
@@ -6562,9 +6832,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -7406,7 +7709,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -7530,6 +7834,38 @@ func init() {
           "additionalProperties": {
             "type": "string"
           }
+        }
+      }
+    },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
         }
       }
     },
@@ -7891,6 +8227,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -8155,6 +8497,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -8202,9 +8549,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -8570,10 +8914,23 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -8707,6 +9064,14 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -8772,6 +9137,11 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
         "heightInInches": {
           "type": "integer"
         },
@@ -8823,6 +9193,11 @@ func init() {
         },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -9236,6 +9611,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -10142,13 +10522,97 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
         }
       }
@@ -10608,6 +11072,21 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -10666,6 +11145,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsInvoiceAmountPaidTotalMillicents": {
+          "type": "integer",
+          "format": "millients",
+          "title": "Total amount that TPPS paid for all service items on the payment request in millicents",
+          "x-nullable": true
+        },
+        "tppsInvoiceSellerPaidDate": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -10753,6 +11244,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsInvoiceAmountPaidPerServiceItemMillicents": {
+          "type": "integer",
+          "format": "millicents",
+          "title": "Amount that TPPS paid for the individual service item in millicents",
+          "x-nullable": true
         }
       }
     },
@@ -11298,73 +11795,6 @@ func init() {
         }
       }
     },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
-      }
-    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -11455,6 +11885,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -11504,14 +11952,56 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer"
         },
         "totalSITDaysUsed": {
           "type": "integer"
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -11645,6 +12135,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -12241,6 +12736,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -12342,6 +12890,41 @@ func init() {
           "minLength": 1,
           "x-nullable": true,
           "example": "Increasing max billable weight"
+        }
+      }
+    },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -12578,6 +13161,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -12635,6 +13228,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "w2Address": {
           "x-nullable": true,
@@ -12728,6 +13335,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -12767,6 +13377,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -12934,6 +13547,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
@@ -13369,6 +13986,71 @@ func init() {
           },
           "500": {
             "description": "server error"
+          }
+        }
+      }
+    },
+    "/calendar/{countryCode}/is-weekend-holiday/{date}": {
+      "get": {
+        "description": "Utility API to determine if input date falls on weekend and/or holiday.\n",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "calendar"
+        ],
+        "summary": "Validate  move date selection",
+        "operationId": "isDateWeekendHoliday",
+        "parameters": [
+          {
+            "enum": [
+              "US"
+            ],
+            "type": "string",
+            "description": "country code for context of date",
+            "name": "countryCode",
+            "in": "path",
+            "required": true
+          },
+          {
+            "type": "string",
+            "format": "date",
+            "description": "input date to determine if weekend/holiday for given country.",
+            "name": "date",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully determine if given date is weekend and/or holiday for given country.",
+            "schema": {
+              "$ref": "#/definitions/IsDateWeekendHolidayInfo"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
           }
         }
       }
@@ -14412,7 +15094,7 @@ func init() {
     },
     "/lines-of-accounting": {
       "post": {
-        "description": "Fetches a line of accounting based on provided service member affiliation, order issue date, and Transportation Accounting Code (TAC).",
+        "description": "Fetches a line of accounting based on provided service member affiliation, effective date, and Transportation Accounting Code (TAC). It uses these parameters to filter the correct Line of Accounting for the provided TAC. It does this by filtering through both TAC and LOAs based on the provided code and effective date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request). Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date.\n",
         "consumes": [
           "application/json"
         ],
@@ -14426,7 +15108,7 @@ func init() {
         "operationId": "requestLineOfAccounting",
         "parameters": [
           {
-            "description": "Service member affiliation, order issue date, and TAC code.",
+            "description": "Service member affiliation, effective date, and TAC code.",
             "name": "body",
             "in": "body",
             "required": true,
@@ -15705,6 +16387,11 @@ func init() {
                 "page": {
                   "description": "requested page of results",
                   "type": "integer"
+                },
+                "paymentRequestCode": {
+                  "type": "string",
+                  "x-nullable": true,
+                  "example": "9551-6199-2"
                 },
                 "perPage": {
                   "type": "integer"
@@ -20403,6 +21090,57 @@ func init() {
         }
       }
     },
+    "/uploads/get/": {
+      "get": {
+        "description": "Gets an upload",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Gets an upload by ID",
+        "operationId": "getUpload",
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "401": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      }
+    },
     "/uploads/{uploadID}": {
       "delete": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -20443,6 +21181,70 @@ func init() {
           },
           "404": {
             "description": "not found"
+          },
+          "500": {
+            "description": "server error"
+          }
+        }
+      }
+    },
+    "/uploads/{uploadID}/update": {
+      "patch": {
+        "description": "Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "uploads"
+        ],
+        "summary": "Update an existing upload. This is only needed currently for updating the image rotation.",
+        "operationId": "updateUpload",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the upload to be updated",
+            "name": "uploadID",
+            "in": "path",
+            "required": true
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "rotation": {
+                  "description": "The rotation of the image",
+                  "type": "integer",
+                  "maximum": 3,
+                  "minimum": 0
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "updated upload",
+            "schema": {
+              "$ref": "#/definitions/Upload"
+            }
+          },
+          "400": {
+            "description": "invalid request"
+          },
+          "403": {
+            "description": "not authorized"
+          },
+          "404": {
+            "description": "not found"
+          },
+          "413": {
+            "description": "payload is too large"
           },
           "500": {
             "description": "server error"
@@ -20720,11 +21522,14 @@ func init() {
     "AvailableOfficeUser": {
       "type": "object",
       "properties": {
-        "fullName": {
+        "firstName": {
           "type": "string"
         },
         "hasSafetyPrivilege": {
           "type": "boolean"
+        },
+        "lastName": {
+          "type": "string"
         },
         "officeUserId": {
           "type": "string",
@@ -21057,6 +21862,61 @@ func init() {
         }
       }
     },
+    "CreateBoatShipment": {
+      "description": "Boat shipment information for the move.",
+      "required": [
+        "type",
+        "year",
+        "make",
+        "model",
+        "lengthInInches",
+        "widthInInches",
+        "heightInInches",
+        "hasTrailer"
+      ],
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean"
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer"
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ]
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer"
+        }
+      }
+    },
     "CreateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -21182,6 +22042,9 @@ func init() {
         "agents": {
           "$ref": "#/definitions/MTOAgents"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/CreateBoatShipment"
+        },
         "counselorRemarks": {
           "description": "The counselor can use the counselor remarks field to inform the movers about any\nspecial circumstances for this shipment. Typical examples:\n  * bulky or fragile items,\n  * weapons,\n  * access info for their address.\nCounselors enters this information when creating or editing an MTO Shipment. Optional field.\n",
           "type": "string",
@@ -21205,8 +22068,28 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
-        "mobileHome": {
-          "$ref": "#/definitions/MobileHome"
+        "hasSecondaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/CreateMobileHomeShipment"
         },
         "moveTaskOrderID": {
           "description": "The ID of the move this new shipment is for.",
@@ -21257,6 +22140,22 @@ func init() {
             }
           ]
         },
+        "secondaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "serviceOrderNumber": {
           "type": "string",
           "x-nullable": true
@@ -21278,6 +22177,22 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "description": "Where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "usesExternalVendor": {
           "type": "boolean",
           "x-nullable": true,
@@ -21285,9 +22200,42 @@ func init() {
         }
       }
     },
-    "CreateMobileHome": {
+    "CreateMobileHomeShipment": {
       "description": "A mobile home shipment that the prime moves for a service member.",
-      "$ref": "#/definitions/MobileHome"
+      "required": [
+        "make",
+        "model",
+        "year",
+        "lengthInInches",
+        "heightInInches",
+        "widthInInches"
+      ],
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "lengthInInches": {
+          "description": "Length of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "make": {
+          "description": "Make of the Mobile Home",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model of the Mobile Home",
+          "type": "string"
+        },
+        "widthInInches": {
+          "description": "Width of the Mobile Home in inches",
+          "type": "integer"
+        },
+        "year": {
+          "description": "Year of the Mobile Home",
+          "type": "integer"
+        }
+      }
     },
     "CreateOrders": {
       "type": "object",
@@ -22129,7 +23077,8 @@ func init() {
     "FetchLineOfAccountingPayload": {
       "type": "object",
       "properties": {
-        "ordersIssueDate": {
+        "effectiveDate": {
+          "description": "The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date. Effective date is used to find \"Active\" TGET data by searching for the TACs and LOAs with begin and end dates containing this date. The 'Effective Date' is the date that can be either the orders issued date (For HHG shipments), MTO approval date (For NTS shipments), or even the current date for NTS shipments with no approval yet (Just providing a preview to the office users per customer request).\n",
           "type": "string",
           "format": "date",
           "example": "2023-01-01"
@@ -22253,6 +23202,38 @@ func init() {
           "additionalProperties": {
             "type": "string"
           }
+        }
+      }
+    },
+    "IsDateWeekendHolidayInfo": {
+      "type": "object",
+      "required": [
+        "country_code",
+        "country_name",
+        "date",
+        "is_weekend",
+        "is_holiday"
+      ],
+      "properties": {
+        "country_code": {
+          "type": "string"
+        },
+        "country_name": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string",
+          "format": "date",
+          "example": "2018-09-25"
+        },
+        "details": {
+          "type": "string"
+        },
+        "is_holiday": {
+          "type": "boolean"
+        },
+        "is_weekend": {
+          "type": "boolean"
         }
       }
     },
@@ -22614,6 +23595,12 @@ func init() {
       "description": "An abbreviated definition for a move, without all the nested information (shipments, service items, etc). Used to fetch a list of moves more efficiently.\n",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true,
+          "readOnly": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -22878,6 +23865,11 @@ func init() {
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "moveTaskOrderID": {
           "type": "string",
           "format": "uuid",
@@ -22925,9 +23917,6 @@ func init() {
         },
         "serviceRequestDocuments": {
           "$ref": "#/definitions/ServiceRequestDocuments"
-        },
-        "sitAddressUpdates": {
-          "$ref": "#/definitions/SITAddressUpdates"
         },
         "sitCustomerContacted": {
           "type": "string",
@@ -23293,10 +24282,23 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDeliveryAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "type": "string",
           "format": "uuid",
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/MobileHome"
         },
         "moveTaskOrderID": {
           "type": "string",
@@ -23430,6 +24432,14 @@ func init() {
             }
           ]
         },
+        "tertiaryDeliveryAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "x-nullable": true,
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "type": "string",
           "format": "date-time"
@@ -23495,6 +24505,11 @@ func init() {
           "format": "date-time",
           "readOnly": true
         },
+        "eTag": {
+          "description": "A hash unique to this shipment that should be used as the \"If-Match\" header for any updates.",
+          "type": "string",
+          "readOnly": true
+        },
         "heightInInches": {
           "type": "integer"
         },
@@ -23546,6 +24561,11 @@ func init() {
         },
         "approvalsRequestedAt": {
           "description": "The time at which a move is sent back to the TOO becuase the prime added a new service item for approval",
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "approvedAt": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
@@ -23959,6 +24979,11 @@ func init() {
       "description": "The Move (MoveTaskOrder)",
       "type": "object",
       "properties": {
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
         "availableToPrimeAt": {
           "type": "string",
           "format": "date-time",
@@ -24866,14 +25891,170 @@ func init() {
     "PPMSITEstimatedCost": {
       "description": "The estimated cost of SIT for a single PPM shipment. Used during document review for PPM.",
       "required": [
-        "sitCost"
+        "sitCost",
+        "priceFirstDaySIT",
+        "priceAdditionalDaySIT"
       ],
       "properties": {
+        "paramsAdditionalDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "numberDaysSIT": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "30"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "0.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "paramsFirstDaySIT": {
+          "type": "object",
+          "properties": {
+            "contractYearName": {
+              "type": "string",
+              "example": "Award Term 1"
+            },
+            "escalationCompounded": {
+              "type": "string",
+              "example": "1.01"
+            },
+            "isPeak": {
+              "type": "string",
+              "example": "true"
+            },
+            "priceRateOrFactor": {
+              "type": "string",
+              "example": "20.53"
+            },
+            "serviceAreaDestination": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            },
+            "serviceAreaOrigin": {
+              "type": "string",
+              "x-nullable": true,
+              "x-omitempty": true,
+              "example": "252"
+            }
+          }
+        },
+        "priceAdditionalDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of an additional day in SIT",
+          "example": 2000
+        },
+        "priceFirstDaySIT": {
+          "type": "integer",
+          "format": "cents",
+          "title": "Price of the first day in SIT",
+          "example": 2000
+        },
         "sitCost": {
           "type": "integer",
-          "x-nullable": true,
-          "x-omitempty": false,
           "example": 2000
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsAdditionalDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "numberDaysSIT": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "30"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "0.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        }
+      }
+    },
+    "PPMSITEstimatedCostParamsFirstDaySIT": {
+      "type": "object",
+      "properties": {
+        "contractYearName": {
+          "type": "string",
+          "example": "Award Term 1"
+        },
+        "escalationCompounded": {
+          "type": "string",
+          "example": "1.01"
+        },
+        "isPeak": {
+          "type": "string",
+          "example": "true"
+        },
+        "priceRateOrFactor": {
+          "type": "string",
+          "example": "20.53"
+        },
+        "serviceAreaDestination": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
+        },
+        "serviceAreaOrigin": {
+          "type": "string",
+          "x-nullable": true,
+          "x-omitempty": true,
+          "example": "252"
         }
       }
     },
@@ -25332,6 +26513,21 @@ func init() {
         "eTag": {
           "type": "string"
         },
+        "ediErrorCode": {
+          "description": "Reported code from syncada for the EDI error encountered",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorDescription": {
+          "description": "The reason the services counselor has excluded or rejected the item.",
+          "type": "string",
+          "x-nullable": true
+        },
+        "ediErrorType": {
+          "description": "Type of EDI reporting or causing the issue. Can be EDI 997, 824, and 858.",
+          "type": "string",
+          "x-nullable": true
+        },
         "id": {
           "type": "string",
           "format": "uuid",
@@ -25390,6 +26586,18 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentRequestStatus"
+        },
+        "tppsInvoiceAmountPaidTotalMillicents": {
+          "type": "integer",
+          "format": "millients",
+          "title": "Total amount that TPPS paid for all service items on the payment request in millicents",
+          "x-nullable": true
+        },
+        "tppsInvoiceSellerPaidDate": {
+          "type": "string",
+          "format": "date-time",
+          "title": "Date that TPPS paid HS for the payment request",
+          "x-nullable": true
         }
       }
     },
@@ -25477,6 +26685,12 @@ func init() {
         },
         "status": {
           "$ref": "#/definitions/PaymentServiceItemStatus"
+        },
+        "tppsInvoiceAmountPaidPerServiceItemMillicents": {
+          "type": "integer",
+          "format": "millicents",
+          "title": "Amount that TPPS paid for the individual service item in millicents",
+          "x-nullable": true
         }
       }
     },
@@ -26024,74 +27238,6 @@ func init() {
         }
       }
     },
-    "SITAddressUpdate": {
-      "description": "An update to a SIT service item address.",
-      "type": "object",
-      "properties": {
-        "contractorRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        },
-        "distance": {
-          "description": "The distance between the old address and the new address in miles.",
-          "type": "integer",
-          "minimum": 0,
-          "example": 54
-        },
-        "eTag": {
-          "type": "string",
-          "readOnly": true
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "mtoServiceItemID": {
-          "type": "string",
-          "format": "uuid",
-          "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
-        },
-        "newAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "officeRemarks": {
-          "type": "string",
-          "x-nullable": true,
-          "x-omitempty": false,
-          "example": "The customer has found a new house closer to base."
-        },
-        "oldAddress": {
-          "$ref": "#/definitions/Address"
-        },
-        "status": {
-          "enum": [
-            "REQUESTED",
-            "APPROVED",
-            "REJECTED"
-          ]
-        },
-        "updatedAt": {
-          "type": "string",
-          "format": "date-time",
-          "readOnly": true
-        }
-      }
-    },
-    "SITAddressUpdates": {
-      "description": "A list of updates to a SIT service item address.",
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/SITAddressUpdate"
-      }
-    },
     "SITExtension": {
       "description": "A storage in transit (SIT) Extension is a request for an increase in the billable number of days a shipment is allowed to be in SIT.",
       "type": "object",
@@ -26182,6 +27328,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -26233,8 +27397,9 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -26287,6 +27452,48 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -26421,6 +27628,11 @@ func init() {
         },
         "originGBLOC": {
           "$ref": "#/definitions/GBLOC"
+        },
+        "paymentRequestCode": {
+          "type": "string",
+          "x-nullable": true,
+          "example": "9551-6199-2"
         },
         "requestedDeliveryDate": {
           "type": "string",
@@ -27023,6 +28235,59 @@ func init() {
         }
       }
     },
+    "UpdateBoatShipment": {
+      "type": "object",
+      "properties": {
+        "hasTrailer": {
+          "description": "Does the boat have a trailer",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "isRoadworthy": {
+          "description": "Is the trailer roadworthy",
+          "type": "boolean",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "HAUL_AWAY",
+            "TOW_AWAY"
+          ],
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
+        }
+      }
+    },
     "UpdateCustomerPayload": {
       "type": "object",
       "properties": {
@@ -27124,6 +28389,41 @@ func init() {
           "minLength": 1,
           "x-nullable": true,
           "example": "Increasing max billable weight"
+        }
+      }
+    },
+    "UpdateMobileHomeShipment": {
+      "type": "object",
+      "properties": {
+        "heightInInches": {
+          "description": "Height of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "lengthInInches": {
+          "description": "Length of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "make": {
+          "description": "Make of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "model": {
+          "description": "Model of the Boat",
+          "type": "string",
+          "x-nullable": true
+        },
+        "widthInInches": {
+          "description": "Width of the Boat in inches",
+          "type": "integer",
+          "x-nullable": true
+        },
+        "year": {
+          "description": "Year of the Boat",
+          "type": "integer",
+          "x-nullable": true
         }
       }
     },
@@ -27360,6 +28660,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "pickupAddress": {
           "allOf": [
             {
@@ -27417,6 +28727,20 @@ func init() {
         "spouseProGearWeight": {
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         },
         "w2Address": {
           "x-nullable": true,
@@ -27511,6 +28835,9 @@ func init() {
           "x-nullable": true,
           "example": "more weight than expected"
         },
+        "boatShipment": {
+          "$ref": "#/definitions/UpdateBoatShipment"
+        },
         "counselorRemarks": {
           "type": "string",
           "x-nullable": true,
@@ -27550,6 +28877,9 @@ func init() {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
+        },
+        "mobileHomeShipment": {
+          "$ref": "#/definitions/UpdateMobileHomeShipment"
         },
         "ntsRecordedWeight": {
           "description": "The previously recorded weight for the NTS Shipment. Used for NTS Release to know what the previous primeActualWeight or billable weight was.",
@@ -27721,6 +29051,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
