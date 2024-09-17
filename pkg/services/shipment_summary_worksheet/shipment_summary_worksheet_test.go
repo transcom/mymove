@@ -758,7 +758,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
 	suite.Equal("$105.00", sswPage2.PPMRemainingEntitlement)
 }
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
