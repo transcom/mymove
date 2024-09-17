@@ -28,7 +28,7 @@ export class WaitForPage {
         },
         // skip failures
         false,
-        'default',
+        'html',
       );
     }
   }
