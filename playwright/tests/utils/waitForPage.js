@@ -27,7 +27,7 @@ export class WaitForPage {
           detailedReport: true,
         },
         // skip failures
-        true,
+        false,
         'default',
       );
     }
