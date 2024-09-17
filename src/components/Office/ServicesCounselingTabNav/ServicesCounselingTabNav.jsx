@@ -13,7 +13,6 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 const ServicesCounselingTabNav = ({
   unapprovedShipmentCount = 0,
   shipmentWarnConcernCount = 0,
-  shipmentErrorConcernCount = 0,
   missingOrdersInfoCount,
   moveCode,
 }) => {
@@ -31,9 +30,6 @@ const ServicesCounselingTabNav = ({
   }
   if (shipmentWarnConcernCount > 0) {
     moveDetailsTagCount += shipmentWarnConcernCount;
-  }
-  if (shipmentErrorConcernCount > 0) {
-    moveDetailsTagCount += shipmentErrorConcernCount;
   }
   if (missingOrdersInfoCount > 0) {
     moveDetailsTagCount += missingOrdersInfoCount;
