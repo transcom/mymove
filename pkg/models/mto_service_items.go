@@ -55,7 +55,6 @@ type MTOServiceItem struct {
 	ActualWeight                      *unit.Pound                    `db:"actual_weight"`
 	Dimensions                        MTOServiceItemDimensions       `has_many:"mto_service_item_dimensions" fk_id:"mto_service_item_id"`
 	CustomerContacts                  MTOServiceItemCustomerContacts `many_to_many:"service_items_customer_contacts"`
-	SITAddressUpdates                 SITAddressUpdates              `has_many:"sit_address_updates" fk_id:"mto_service_item_id"`
 	ServiceRequestDocuments           ServiceRequestDocuments        `has_many:"service_request_document" fk_id:"mto_service_item_id"`
 	CreatedAt                         time.Time                      `db:"created_at"`
 	UpdatedAt                         time.Time                      `db:"updated_at"`
@@ -146,9 +145,7 @@ func FetchServiceItem(db *pop.Connection, serviceItemID uuid.UUID) (MTOServiceIt
 	var serviceItem MTOServiceItem
 	err := db.Eager("SITDestinationOriginalAddress",
 		"SITDestinationFinalAddress",
-		"SITAddressUpdates.NewAddress",
 		"ReService",
-		"SITAddressUpdates.OldAddress",
 		"CustomerContacts").Where("id = ?", serviceItemID).First(&serviceItem)
 
 	if err != nil {

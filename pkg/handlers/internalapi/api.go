@@ -16,8 +16,10 @@ import (
 	paymentrequesthelper "github.com/transcom/mymove/pkg/payment_request"
 	"github.com/transcom/mymove/pkg/services/address"
 	boatshipment "github.com/transcom/mymove/pkg/services/boat_shipment"
+	dateservice "github.com/transcom/mymove/pkg/services/calendar"
 	"github.com/transcom/mymove/pkg/services/fetch"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mobilehomeshipment "github.com/transcom/mymove/pkg/services/mobile_home_shipment"
 	move "github.com/transcom/mymove/pkg/services/move"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	movingexpense "github.com/transcom/mymove/pkg/services/moving_expense"
@@ -29,6 +31,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/paperwork"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	postalcodeservice "github.com/transcom/mymove/pkg/services/postal_codes"
+	ppmcloseout "github.com/transcom/mymove/pkg/services/ppm_closeout"
 	"github.com/transcom/mymove/pkg/services/ppmshipment"
 	progear "github.com/transcom/mymove/pkg/services/progear_weight_ticket"
 	"github.com/transcom/mymove/pkg/services/query"
@@ -55,7 +58,9 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	fetcher := fetch.NewFetcher(builder)
 	moveRouter := move.NewMoveRouter()
 	uploadCreator := upload.NewUploadCreator(handlerConfig.FileStorer())
-	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer()
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmCloseoutFetcher := ppmcloseout.NewPPMCloseoutFetcher(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, ppmEstimator)
+	SSWPPMComputer := shipmentsummaryworksheet.NewSSWPPMComputer(ppmCloseoutFetcher)
 
 	userUploader, err := uploader.NewUserUploader(handlerConfig.FileStorer(), uploader.MaxCustomerUserUploadFileSizeLimit)
 	if err != nil {
@@ -79,7 +84,6 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		log.Fatalln(err)
 	}
 
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
 	mtoShipmentRouter := mtoshipment.NewShipmentRouter()
@@ -91,6 +95,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 
 	ppmShipmentUpdater := ppmshipment.NewPPMShipmentUpdater(ppmEstimator, addressCreator, addressUpdater)
 	boatShipmentUpdater := boatshipment.NewBoatShipmentUpdater()
+	mobileHomeShipmentUpdater := mobilehomeshipment.NewMobileHomeShipmentUpdater()
 
 	primeDownloadMoveUploadPDFGenerator, err := paperwork.NewMoveUserUploadToPDFDownloader(pdfGenerator)
 	if err != nil {
@@ -110,6 +115,10 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 	internalAPI.CertificationIndexSignedCertificationHandler = IndexSignedCertificationsHandler{handlerConfig}
 
 	internalAPI.DutyLocationsSearchDutyLocationsHandler = SearchDutyLocationsHandler{handlerConfig}
+	internalAPI.TransportationOfficesShowCounselingOfficesHandler = ShowCounselingOfficesHandler{
+		handlerConfig,
+		transportationOfficeFetcher,
+	}
 
 	internalAPI.AddressesShowAddressHandler = ShowAddressHandler{handlerConfig}
 
@@ -187,7 +196,8 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		moveRouter, signedCertificationCreator, signedCertificationUpdater,
 	)
 	boatShipmentCreator := boatshipment.NewBoatShipmentCreator()
-	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator), boatShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
+	mobileHomeShipmentCreator := mobilehomeshipment.NewMobileHomeShipmentCreator()
+	shipmentCreator := shipment.NewShipmentCreator(mtoShipmentCreator, ppmshipment.NewPPMShipmentCreator(ppmEstimator, addressCreator), boatShipmentCreator, mobileHomeShipmentCreator, shipmentRouter, moveTaskOrderUpdater)
 
 	internalAPI.MtoShipmentCreateMTOShipmentHandler = CreateMTOShipmentHandler{
 		handlerConfig,
@@ -217,6 +227,7 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		),
 		ppmShipmentUpdater,
 		boatShipmentUpdater,
+		mobileHomeShipmentUpdater,
 	)
 
 	internalAPI.MtoShipmentUpdateMTOShipmentHandler = UpdateMTOShipmentHandler{
@@ -233,6 +244,9 @@ func NewInternalAPI(handlerConfig handlers.HandlerConfig) *internalops.MymoveAPI
 		handlerConfig,
 		mtoshipment.NewShipmentDeleter(moveTaskOrderUpdater, moveRouter),
 	}
+
+	dateSelectionChecker := dateservice.NewDateSelectionChecker()
+	internalAPI.CalendarIsDateWeekendHolidayHandler = IsDateWeekendHolidayHandler{handlerConfig, dateSelectionChecker}
 
 	internalAPI.PpmCreateMovingExpenseHandler = CreateMovingExpenseHandler{handlerConfig, movingexpense.NewMovingExpenseCreator()}
 	internalAPI.PpmUpdateMovingExpenseHandler = UpdateMovingExpenseHandler{handlerConfig, movingexpense.NewCustomerMovingExpenseUpdater(ppmEstimator)}

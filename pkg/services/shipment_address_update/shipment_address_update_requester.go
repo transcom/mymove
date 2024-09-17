@@ -193,7 +193,6 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 		EstimatedWeight:                 originalServiceItem.EstimatedWeight,
 		ActualWeight:                    originalServiceItem.ActualWeight,
 		Dimensions:                      originalServiceItem.Dimensions,
-		SITAddressUpdates:               originalServiceItem.SITAddressUpdates,
 		ServiceRequestDocuments:         originalServiceItem.ServiceRequestDocuments,
 		CreatedAt:                       originalServiceItem.CreatedAt,
 		ApprovedAt:                      &now,
