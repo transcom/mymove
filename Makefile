@@ -10,7 +10,6 @@ REDIS_DOCKER_CONTAINER = milmove-redis
 TASKS_DOCKER_CONTAINER = tasks
 WEBHOOK_CLIENT_DOCKER_CONTAINER = webhook-client
 export PGPASSWORD=mysecretpassword
-export GODEBUG=gotypesalias=0 #GODEBUG is a temporary Mockery 2.45.1 with Go 1.23.0 compatibility workaround. See https://github.com/vektra/mockery/issues/803
 
 # if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.

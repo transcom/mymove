@@ -2,6 +2,10 @@ module github.com/transcom/mymove
 
 go 1.23
 
+// Temporary workaroudn to mockery alias generation issue with go 1.23
+// found at https://github.com/vektra/mockery/issues/803
+godebug gotypesalias=0
+
 require (
 	github.com/DATA-DOG/go-txdb v0.1.7
 	github.com/XSAM/otelsql v0.23.0
