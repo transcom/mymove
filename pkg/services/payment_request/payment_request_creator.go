@@ -151,7 +151,7 @@ func (p *paymentRequestCreator) CreatePaymentRequest(appCtx appcontext.AppContex
 					}
 
 					if paymentServiceItem.MTOServiceItem.SITEntryDate != nil && !paymentDate.After(*paymentServiceItem.MTOServiceItem.SITEntryDate) {
-						return apperror.NewConflictError(paymentRequestArg.ID, "cannot have payment date earlier than or equal to SIT Entry date")
+						return apperror.NewConflictError(paymentRequestArg.ID, "cannot have payment start date for additional days SIT earlier than or equal to SIT entry date")
 					}
 				}
 
