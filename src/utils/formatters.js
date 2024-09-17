@@ -406,6 +406,19 @@ export const formatAddressForPrimeAPI = (address) => {
   };
 };
 
+export const formatExtraAddressForPrimeAPI = (address) => {
+  const { streetAddress1, city, state, postalCode } = address;
+  if (streetAddress1 === '' || city === '' || state === '' || postalCode === '') return null;
+  return {
+    streetAddress1: address.streetAddress1,
+    streetAddress2: address.streetAddress2,
+    streetAddress3: address.streetAddress3,
+    city: address.city,
+    state: address.state,
+    postalCode: address.postalCode,
+  };
+};
+
 const emptyAddress = {
   streetAddress1: '',
   streetAddress2: '',

@@ -951,6 +951,16 @@ definitions:
           goods exist.
         allOf:
           - $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryPickupAddress:
+        description: >
+          An optional third pickup location near the origin where additional
+          goods exist.
+        allOf:
+          - $ref: '#/definitions/Address'
       destinationAddress:
         description: >
           The address of the destination location where goods are being
@@ -964,6 +974,16 @@ definitions:
       secondaryDestinationAddress:
         description: >
           An optional secondary address near the destination where goods will be
+          dropped off.
+        allOf:
+          - $ref: '#/definitions/Address'
+      hasTertiaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        description: >
+          An optional third address near the destination where goods will be
           dropped off.
         allOf:
           - $ref: '#/definitions/Address'
@@ -1131,6 +1151,18 @@ definitions:
       secondaryDeliveryAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
+          one. An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        description: >-
+          A third pickup address for this shipment, if the customer entered one.
+          An optional field.
+        allOf:
+          - $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        description: >-
+          A third delivery address for this shipment, if the customer entered
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
