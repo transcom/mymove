@@ -124,13 +124,11 @@ test.describe('Services counselor user', () => {
   });
 
   test('Services Counselor can delete an existing Mobile Home shipment', async ({ page, scPage }) => {
-    // Testdata fixture creates 2 shipments, one with the "Destination Type" field populated, which is used only for retirement moves
     await expect(page.getByText('Edit Shipment')).toHaveCount(1);
     // Choose a shipment and store it's shipment ID
     const editShipmentButton = await page.getByRole('button', { name: 'Edit Shipment' });
     process.stdout.write(await editShipmentButton.evaluate((el) => el.outerHTML));
 
-    const shipmentButtonTestID = await editShipmentButton.evaluate((e) => e.dataset.testid);
     await editShipmentButton.click();
     await scPage.waitForLoading();
     await scPage.waitForPage.editMobileHomeShipment();
@@ -141,15 +139,11 @@ test.describe('Services counselor user', () => {
     await page.getByTestId('modal').getByRole('button', { name: 'Delete shipment' }).click();
     await scPage.waitForPage.moveDetails();
 
-    // Verify that there's only 1 shipment displayed now
-    await expect(page.getByTestId('ShipmentContainer')).toHaveCount(1);
-
-    // Verify that the deleted shipment is not on the page
-    await expect(page.getByTestId(shipmentButtonTestID)).toHaveCount(0);
+    // Verify that the shipment has been deleted
+    await expect(page.getByTestId('ShipmentContainer')).toHaveCount(0);
   });
 
   test('Services Counselor can edit an existing Mobile Home shipment', async ({ page, scPage }) => {
-    // Testdata fixture creates 2 shipments, one with the "Destination Type" field populated, which is used only for retirement moves
     await expect(page.getByText('Edit Shipment')).toHaveCount(1);
 
     // Choose a shipment, store it's container, and click the edit button
