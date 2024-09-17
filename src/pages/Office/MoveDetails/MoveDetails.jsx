@@ -343,7 +343,7 @@ const MoveDetails = ({
             {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
-            background="#d63E04"
+            background="#e34b11"
             associatedSectionName="requested-shipments"
             showTag={shipmentErrorConcernCount !== 0}
             testID="shipment-missing-info-alert"

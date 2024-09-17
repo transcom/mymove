@@ -492,7 +492,7 @@ const ServicesCounselingMoveDetails = ({
             {shipmentWarnConcernCount}
           </LeftNavTag>
           <LeftNavTag
-            background="#d63E04"
+            background="#e34b11"
             associatedSectionName="shipments"
             showTag={shipmentErrorConcernCount !== 0}
             testID="shipment-missing-info-alert"
