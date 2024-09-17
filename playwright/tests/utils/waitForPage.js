@@ -25,6 +25,7 @@ export class WaitForPage {
         undefined,
         {
           detailedReport: true,
+          detailedReportOptions: { html: true },
         },
         // skip failures
         false,
