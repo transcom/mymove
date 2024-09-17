@@ -1201,8 +1201,6 @@ jobs:
       - checkout
       - restore_cache_for_go
       - run: echo 'export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/bin' >> $BASH_ENV
-      #GODEBUG is a temporary Mockery 2.45.1 with Go 1.23.0 compatibility workaround. See https://github.com/vektra/mockery/issues/803
-      - run: echo 'export GODEBUG=gotypesalias=0' >> $BASH_ENV
       - run: make server_generate mocks_generate
       - run: scripts/check-generated-code pkg/gen/ $(find . -type d -name "*mocks" -exec echo -n '{} ' \;)
       - announce_failure
