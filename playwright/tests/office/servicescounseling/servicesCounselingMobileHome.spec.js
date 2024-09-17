@@ -113,14 +113,14 @@ test.describe('Services counselor user', () => {
 
     await expect(page.getByTestId('ShipmentContainer')).toHaveCount(2);
 
-    await expect(page.getByText('Mobile home year')).toBeVisible();
-    await expect(page.getByTestId('year')).toHaveText('2022');
-    await expect(page.getByText('Mobile home make')).toBeVisible();
-    await expect(page.getByTestId('make')).toHaveText('make');
-    await expect(page.getByText('Mobile home model')).toBeVisible();
-    await expect(page.getByTestId('model')).toHaveText('model');
-    await expect(page.getByText('Dimensions')).toBeVisible();
-    await expect(page.getByTestId('dimensions')).toHaveText("22' L x 22' W x 22' H");
+    await expect(page.getByText('Mobile home year').last()).toBeVisible();
+    await expect(page.getByTestId('year').last()).toHaveText('2022');
+    await expect(page.getByText('Mobile home make').last()).toBeVisible();
+    await expect(page.getByTestId('make').last()).toHaveText('make');
+    await expect(page.getByText('Mobile home model').last()).toBeVisible();
+    await expect(page.getByTestId('model').last()).toHaveText('model');
+    await expect(page.getByText('Dimensions').last()).toBeVisible();
+    await expect(page.getByTestId('dimensions').last()).toHaveText("22' L x 22' W x 22' H");
   });
 
   test('Services Counselor can delete an existing Mobile Home shipment', async ({ page, scPage }) => {
