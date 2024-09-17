@@ -540,22 +540,22 @@ definitions:
     properties:
       year:
         type: integer
-        description: Year of the Boat
+        description: Year of the Mobile Home
       make:
         type: string
-        description: Make of the Boat
+        description: Make of the Mobile Home
       model:
         type: string
-        description: Model of the Boat
+        description: Model of the Mobile Home
       lengthInInches:
         type: integer
-        description: Length of the Boat in inches
+        description: Length of the Mobile Home in inches
       widthInInches:
         type: integer
-        description: Width of the Boat in inches
+        description: Width of the Mobile Home in inches
       heightInInches:
         type: integer
-        description: Height of the Boat in inches
+        description: Height of the Mobile Home in inches
     required:
       - year
       - make

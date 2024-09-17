@@ -708,27 +708,27 @@ func init() {
       ],
       "properties": {
         "heightInInches": {
-          "description": "Height of the Boat in inches",
+          "description": "Height of the Mobile Home in inches",
           "type": "integer"
         },
         "lengthInInches": {
-          "description": "Length of the Boat in inches",
+          "description": "Length of the Mobile Home in inches",
           "type": "integer"
         },
         "make": {
-          "description": "Make of the Boat",
+          "description": "Make of the Mobile Home",
           "type": "string"
         },
         "model": {
-          "description": "Model of the Boat",
+          "description": "Model of the Mobile Home",
           "type": "string"
         },
         "widthInInches": {
-          "description": "Width of the Boat in inches",
+          "description": "Width of the Mobile Home in inches",
           "type": "integer"
         },
         "year": {
-          "description": "Year of the Boat",
+          "description": "Year of the Mobile Home",
           "type": "integer"
         }
       }
@@ -4172,27 +4172,27 @@ func init() {
       ],
       "properties": {
         "heightInInches": {
-          "description": "Height of the Boat in inches",
+          "description": "Height of the Mobile Home in inches",
           "type": "integer"
         },
         "lengthInInches": {
-          "description": "Length of the Boat in inches",
+          "description": "Length of the Mobile Home in inches",
           "type": "integer"
         },
         "make": {
-          "description": "Make of the Boat",
+          "description": "Make of the Mobile Home",
           "type": "string"
         },
         "model": {
-          "description": "Model of the Boat",
+          "description": "Model of the Mobile Home",
           "type": "string"
         },
         "widthInInches": {
-          "description": "Width of the Boat in inches",
+          "description": "Width of the Mobile Home in inches",
           "type": "integer"
         },
         "year": {
-          "description": "Year of the Boat",
+          "description": "Year of the Mobile Home",
           "type": "integer"
         }
       }

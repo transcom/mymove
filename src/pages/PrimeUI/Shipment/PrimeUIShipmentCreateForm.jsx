@@ -366,6 +366,9 @@ const PrimeUIShipmentCreateForm = () => {
             id="mobileHomeShipment.yearInput"
             name="mobileHomeShipment.year"
             mask={Number}
+            min={1999}
+            max={new Date().getFullYear()}
+            labelHint="Year has to be > 1999 < today's year"
           />
           <TextField label="Make" id="mobileHomeShipment.makeInput" name="mobileHomeShipment.make" />
           <TextField label="Model" id="mobileHomeShipment.modelInput" name="mobileHomeShipment.model" />
