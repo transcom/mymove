@@ -361,7 +361,11 @@ func (p *ppmCloseoutFetcher) getServiceItemPrices(appCtx appcontext.AppContext, 
 		ppmToMtoShipment = ppmshipment.MapPPMShipmentFinalFields(ppmShipment, totalWeight)
 	} else {
 		// Reassign ppm shipment fields to their expected location on the mto shipment for dates, addresses, weights ...
-		ppmToMtoShipment = ppmshipment.MapPPMShipmentEstimatedFields(ppmShipment)
+		ppmToMtoShipment, err = ppmshipment.MapPPMShipmentEstimatedFields(appCtx, ppmShipment)
+		if err != nil {
+			logger.Error("unable to map PPM estimated fields", zap.Error(err))
+			return serviceItemPrices{}, err
+		}
 	}
 
 	sitCosts, err := p.GetExpenseStoragePrice(appCtx, ppmShipment.ID)

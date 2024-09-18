@@ -509,7 +509,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 
 			suite.Equal(oldPPMShipment.PickupAddress.PostalCode, newPPM.PickupAddress.PostalCode)
 			suite.Equal(unit.Pound(5000), *newPPM.EstimatedWeight)
-			suite.Equal(unit.Cents(70064364), *ppmEstimate)
+			suite.Equal(unit.Cents(112102682), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - Success - clears advance and advance requested values", func() {
@@ -540,7 +540,7 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			suite.NilOrNoVerrs(err)
 			suite.Nil(newPPM.HasRequestedAdvance)
 			suite.Nil(newPPM.AdvanceAmountRequested)
-			suite.Equal(unit.Cents(38213948), *ppmEstimate)
+			suite.Equal(unit.Cents(112102682), *ppmEstimate)
 		})
 
 		suite.Run("Estimated Incentive - does not change when required fields are the same", func() {
@@ -1637,7 +1637,24 @@ func (suite *PPMShipmentSuite) TestPPMEstimator() {
 			setupPricerData()
 
 			destinationLocation := models.SITLocationTypeDestination
+			move := factory.BuildMove(suite.DB(), []factory.Customization{
+				{
+					Model: models.Order{
+						ID: uuid.Must(uuid.NewV4()),
+					},
+				},
+				{
+					Model: models.Entitlement{
+						ID:                 uuid.Must(uuid.NewV4()),
+						DBAuthorizedWeight: models.IntPointer(2000),
+					},
+				},
+			}, nil)
 			originalShipment := factory.BuildPPMShipment(suite.DB(), []factory.Customization{
+				{
+					Model:    move,
+					LinkOnly: true,
+				},
 				{
 					Model: models.PPMShipment{
 						SITExpected:               models.BoolPointer(true),

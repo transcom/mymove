@@ -5879,6 +5879,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -6046,6 +6048,33 @@ definitions:
       isRoadworthy:
         type: boolean
         description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6262,8 +6291,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
-      mobileHome:
-        $ref: '#/definitions/CreateMobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
@@ -6271,9 +6300,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: 'definitions/MobileHome.yaml'
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -6396,6 +6422,34 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
