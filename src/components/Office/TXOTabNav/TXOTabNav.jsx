@@ -17,6 +17,7 @@ const TXOTabNav = ({
   excessWeightRiskCount,
   pendingPaymentRequestCount,
   unapprovedSITExtensionCount,
+  shipmentErrorConcernCount,
   missingOrdersInfoCount,
   shipmentsWithDeliveryAddressUpdateRequestedCount,
   order,
@@ -36,6 +37,9 @@ const TXOTabNav = ({
   }
   if (order.uploadedAmendedOrderID && !order.amendedOrdersAcknowledgedAt) {
     moveDetailsTagCount += 1;
+  }
+  if (shipmentErrorConcernCount) {
+    moveDetailsTagCount += shipmentErrorConcernCount;
   }
   if (shipmentsWithDeliveryAddressUpdateRequestedCount) {
     moveDetailsTagCount += shipmentsWithDeliveryAddressUpdateRequestedCount;

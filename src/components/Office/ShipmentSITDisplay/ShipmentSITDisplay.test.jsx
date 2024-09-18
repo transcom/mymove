@@ -132,7 +132,27 @@ describe('ShipmentSITDisplay', () => {
     );
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021), Authorized End Date: 23 Aug 2021`),
+    ).toBeInTheDocument();
+  });
+
+  it('renders the Shipment SIT at Destination, previous destination SIT and uses a default auth end date value', async () => {
+    const SITStatusWithPastSITOriginServiceItemButWithNullAuthorizedEndDate = {
+      ...SITStatusWithPastSITOriginServiceItem,
+    };
+    SITStatusWithPastSITOriginServiceItemButWithNullAuthorizedEndDate.pastSITServiceItemGroupings[0].summary.sitAuthorizedEndDate =
+      null;
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusWithPastSITOriginServiceItem} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
+    expect(
+      screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021), Authorized End Date: —`),
+    ).toBeInTheDocument();
   });
 
   it('renders the Shipment SIT at Destination, multiple previous SIT', async () => {
@@ -142,8 +162,12 @@ describe('ShipmentSITDisplay', () => {
       </MockProviders>,
     );
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
-    expect(screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021), Authorized End Date: 23 Aug 2021`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021), Authorized End Date: 24 Sep 2021`),
+    ).toBeInTheDocument();
   });
 
   it('renders with no current or future sit and multiple departed SIT', async () => {
@@ -162,8 +186,12 @@ describe('ShipmentSITDisplay', () => {
     expect(screen.queryByText('Calculated total SIT days')).not.toBeInTheDocument();
 
     expect(screen.getByText('Previously used SIT')).toBeInTheDocument();
-    expect(screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021)`)).toBeInTheDocument();
-    expect(screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021)`)).toBeInTheDocument();
+    expect(
+      screen.getByText(`30 days at origin (24 Jul 2021 - 23 Aug 2021), Authorized End Date: 23 Aug 2021`),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(`21 days at destination (03 Sep 2021 - 24 Sep 2021), Authorized End Date: 24 Sep 2021`),
+    ).toBeInTheDocument();
   });
 
   it('renders the approved Shipment SIT Extensions', async () => {
