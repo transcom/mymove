@@ -3827,8 +3827,8 @@ paths:
     get:
       produces:
         - application/json
-      summary: Returns the transportation offices matching the search query
-      description: Returns the transportation offices matching the search query
+      summary: Returns the transportation offices matching the search query that is enabled for PPM closeout
+      description: Returns the transportation offices matching the search query that is enabled for PPM closeout
       operationId: getTransportationOffices
       tags:
         - transportationOffice
