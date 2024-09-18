@@ -7,13 +7,8 @@ import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
 
 export default {
   action: a.UPDATE,
-  eventName: o.updateMTOShipment,
+  eventName: o.updateMTOServiceItemStatus,
   tableName: t.moves,
   getEventNameDisplay: () => 'Updated move',
-  getDetails: (historyRecord) => {
-    if (historyRecord?.changedValues?.excess_weight_qualified_at) {
-      return 'Flagged for excess weight, total estimated weight > 90% weight allowance';
-    }
-    return <LabeledDetails historyRecord={historyRecord} />;
-  },
+  getDetails: (historyRecord) => <LabeledDetails historyRecord={historyRecord} />,
 };
