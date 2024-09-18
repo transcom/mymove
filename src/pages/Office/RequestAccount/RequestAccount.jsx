@@ -4,6 +4,8 @@ import { func } from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { Grid, GridContainer, Alert } from '@trussworks/react-uswds';
 
+import styles from './RequestAccount.module.scss';
+
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 import RequestAccountForm from 'components/Office/RequestAccountForm/RequestAccountForm';
 import { createOfficeAccountRequest } from 'services/ghcApi';
@@ -68,6 +70,13 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'customer_service_representative',
       });
     }
+    // this will be uncommented in B-20809
+    // if (values.governmentSurveillanceRepresentativeCheckbox) {
+    //   requestedRoles.push({
+    //     name: 'Government Surveillance Representative',
+    //     roleType: 'gsr',
+    //   });
+    // }
 
     let body = {
       email: values.officeAccountRequestEmail,
@@ -135,16 +144,20 @@ export const RequestAccount = ({ setFlashMessage }) => {
 
       {serverError && (
         <Grid row>
-          <Grid col desktop={{ col: 8, offset: 2 }}>
-            <Alert data-testid="alert2" type="error" headingLevel="h4" heading="An error occurred">
-              {serverError}
-            </Alert>
-          </Grid>
+          <Alert
+            data-testid="alert2"
+            type="error"
+            headingLevel="h4"
+            heading="An error occurred"
+            className={styles.error}
+          >
+            {serverError}
+          </Alert>
         </Grid>
       )}
 
       <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
+        <Grid col desktop={{ col: 8 }} className={styles.formContainer}>
           <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} initialValues={initialValues} />
         </Grid>
       </Grid>

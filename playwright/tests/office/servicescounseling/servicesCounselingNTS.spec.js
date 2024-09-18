@@ -113,11 +113,11 @@ test.describe('Services counselor user', () => {
     // Fill out the HHG and NTS accounting codes
     await page.getByTestId('hhgTacInput').fill(tac.tac);
     const today = new Date();
-    const formattedDate = new Intl.DateTimeFormat('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    }).format(today);
+    const day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(today);
+    const month = new Intl.DateTimeFormat('en', { month: 'short' }).format(today);
+    const year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(today);
+    const formattedDate = `${day} ${month} ${year}`;
+
     await page.locator('input[name="issueDate"]').fill(formattedDate);
 
     await page.getByTestId('hhgSacInput').fill('4K988AS098F');

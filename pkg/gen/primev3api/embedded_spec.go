@@ -1019,6 +1019,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -3276,6 +3281,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "status": {
           "type": "string",
@@ -4441,6 +4449,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -6700,6 +6713,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "status": {
           "type": "string",
