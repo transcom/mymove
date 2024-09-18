@@ -79,9 +79,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         ppmShipment: {
           expectedDepartureDate,
           pickupAddress,
-          secondaryPickupAddress,
           destinationAddress,
-          secondaryDestinationAddress,
           sitExpected,
           sitLocation,
           sitEstimatedWeight,
@@ -91,14 +89,35 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
           hasProGear,
           proGearWeight,
           spouseProGearWeight,
-          tertiaryPickupAddress,
-          tertiaryDestinationAddress,
           hasSecondaryPickupAddress,
           hasSecondaryDestinationAddress,
           hasTertiaryPickupAddress,
           hasTertiaryDestinationAddress,
         },
       } = values;
+      let {
+        ppmShipment: {
+          tertiaryPickupAddress,
+          tertiaryDestinationAddress,
+          secondaryPickupAddress,
+          secondaryDestinationAddress,
+        },
+      } = values;
+
+      if (hasSecondaryPickupAddress !== 'true') {
+        secondaryPickupAddress = {};
+        tertiaryPickupAddress = {};
+      }
+      if (hasTertiaryPickupAddress !== 'true') {
+        tertiaryPickupAddress = {};
+      }
+      if (hasSecondaryDestinationAddress !== 'true') {
+        secondaryDestinationAddress = {};
+        tertiaryDestinationAddress = {};
+      }
+      if (hasTertiaryDestinationAddress !== 'true') {
+        tertiaryDestinationAddress = {};
+      }
 
       body = {
         moveTaskOrderID: moveCodeOrID,
@@ -203,11 +222,25 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         hasSecondaryDestinationAddress,
         hasTertiaryPickupAddress,
         hasTertiaryDestinationAddress,
-        secondaryPickupAddress,
-        tertiaryPickupAddress,
-        secondaryDestinationAddress,
-        tertiaryDestinationAddress,
       } = values;
+
+      let { tertiaryPickupAddress, tertiaryDestinationAddress, secondaryPickupAddress, secondaryDestinationAddress } =
+        values;
+
+      if (hasSecondaryPickupAddress !== 'true') {
+        secondaryPickupAddress = {};
+        tertiaryPickupAddress = {};
+      }
+      if (hasTertiaryPickupAddress !== 'true') {
+        tertiaryPickupAddress = {};
+      }
+      if (hasSecondaryDestinationAddress !== 'true') {
+        secondaryDestinationAddress = {};
+        tertiaryDestinationAddress = {};
+      }
+      if (hasTertiaryDestinationAddress !== 'true') {
+        tertiaryDestinationAddress = {};
+      }
 
       body = {
         moveTaskOrderID: moveCodeOrID,
@@ -218,6 +251,10 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         destinationAddress: isEmpty(destinationAddress) ? null : formatAddressForPrimeAPI(destinationAddress),
         diversion: diversion || null,
         divertedFromShipmentId: divertedFromShipmentId || null,
+        hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
+        hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
+        hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
+        hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
         secondaryPickupAddress: isEmpty(secondaryPickupAddress)
           ? null
           : formatAddressForPrimeAPI(secondaryPickupAddress),
@@ -228,10 +265,6 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
         tertiaryDestinationAddress: isEmpty(tertiaryDestinationAddress)
           ? null
           : formatAddressForPrimeAPI(tertiaryDestinationAddress),
-        hasSecondaryPickupAddress: hasSecondaryPickupAddress === 'true',
-        hasSecondaryDestinationAddress: hasSecondaryDestinationAddress === 'true',
-        hasTertiaryPickupAddress: hasTertiaryPickupAddress === 'true',
-        hasTertiaryDestinationAddress: hasTertiaryDestinationAddress === 'true',
       };
     }
 
