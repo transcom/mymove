@@ -422,12 +422,28 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+
 	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 	if addressModel != nil {
 		model.SecondaryDeliveryAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
 		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
+		tertiaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryDeliveryAddressID = &tertiaryDeliveryAddressID
+		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.PpmShipment != nil {
@@ -472,6 +488,15 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 		}
 	}
 
+	if ppmShipment.HasTertiaryPickupAddress != nil && *ppmShipment.HasTertiaryPickupAddress {
+		addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+		if addressModel != nil {
+			model.TertiaryPickupAddress = addressModel
+			tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+			model.TertiaryPickupAddressID = &tertiaryPickupAddressID
+		}
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -484,6 +509,15 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 			model.SecondaryDestinationAddress = addressModel
 			secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 			model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
+		}
+	}
+
+	if ppmShipment.HasTertiaryDestinationAddress != nil && *ppmShipment.HasTertiaryDestinationAddress {
+		addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+		if addressModel != nil {
+			model.TertiaryDestinationAddress = addressModel
+			tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+			model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
 		}
 	}
 
