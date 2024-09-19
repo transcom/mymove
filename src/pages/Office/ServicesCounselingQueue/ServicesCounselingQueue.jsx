@@ -191,7 +191,7 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
         (row) => {
           const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
           return (
-            <div data-label="assignedSelect" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" data-testid="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
                 defaultValue={assignedToUser?.value}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
