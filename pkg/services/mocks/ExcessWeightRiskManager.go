@@ -20,6 +20,10 @@ type ExcessWeightRiskManager struct {
 func (_m *ExcessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveID, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for AcknowledgeExcessWeightRisk")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string) (*models.Move, error)); ok {
@@ -45,6 +49,10 @@ func (_m *ExcessWeightRiskManager) AcknowledgeExcessWeightRisk(appCtx appcontext
 // UpdateBillableWeightAsTOO provides a mock function with given fields: appCtx, orderID, weight, eTag
 func (_m *ExcessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(appCtx, orderID, weight, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateBillableWeightAsTOO")
+	}
 
 	var r0 *models.Order
 	var r1 uuid.UUID
@@ -80,6 +88,10 @@ func (_m *ExcessWeightRiskManager) UpdateBillableWeightAsTOO(appCtx appcontext.A
 // UpdateMaxBillableWeightAsTIO provides a mock function with given fields: appCtx, orderID, weight, remarks, eTag
 func (_m *ExcessWeightRiskManager) UpdateMaxBillableWeightAsTIO(appCtx appcontext.AppContext, orderID uuid.UUID, weight *int, remarks *string, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(appCtx, orderID, weight, remarks, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMaxBillableWeightAsTIO")
+	}
 
 	var r0 *models.Order
 	var r1 uuid.UUID

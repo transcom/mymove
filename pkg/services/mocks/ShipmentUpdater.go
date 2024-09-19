@@ -18,6 +18,10 @@ type ShipmentUpdater struct {
 func (_m *ShipmentUpdater) UpdateShipment(appCtx appcontext.AppContext, shipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipment, eTag, api)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateShipment")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, string, string) (*models.MTOShipment, error)); ok {

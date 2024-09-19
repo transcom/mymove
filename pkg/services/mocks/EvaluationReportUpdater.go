@@ -20,6 +20,10 @@ type EvaluationReportUpdater struct {
 func (_m *EvaluationReportUpdater) SubmitEvaluationReport(appCtx appcontext.AppContext, evaluationReportID uuid.UUID, officeUserID uuid.UUID, eTag string) error {
 	ret := _m.Called(appCtx, evaluationReportID, officeUserID, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SubmitEvaluationReport")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID, string) error); ok {
 		r0 = rf(appCtx, evaluationReportID, officeUserID, eTag)
@@ -33,6 +37,10 @@ func (_m *EvaluationReportUpdater) SubmitEvaluationReport(appCtx appcontext.AppC
 // UpdateEvaluationReport provides a mock function with given fields: appCtx, evaluationReport, officeUserID, eTag
 func (_m *EvaluationReportUpdater) UpdateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, officeUserID uuid.UUID, eTag string) error {
 	ret := _m.Called(appCtx, evaluationReport, officeUserID, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateEvaluationReport")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.EvaluationReport, uuid.UUID, string) error); ok {

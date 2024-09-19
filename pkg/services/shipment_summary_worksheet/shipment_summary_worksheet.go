@@ -72,7 +72,6 @@ func (SSWPPMComputer *SSWPPMComputer) FormatValuesShipmentSummaryWorksheet(shipm
 	if err != nil {
 		return page1, page2, services.Page3Values{}, errors.WithStack(err)
 	}
-
 	return page1, page2, page3, nil
 }
 
@@ -229,7 +228,6 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 	page1.TotalWeightAllotment = FormatWeights(data.WeightAllotment.TotalWeight)
 
 	formattedShipment := s.FormatShipment(data.PPMShipment, data.WeightAllotment, isPaymentPacket)
-
 	page1.ShipmentNumberAndTypes = formattedShipment.ShipmentNumberAndTypes
 	page1.ShipmentPickUpDates = formattedShipment.PickUpDates
 	page1.ShipmentCurrentShipmentStatuses = formattedShipment.CurrentShipmentStatuses
@@ -241,7 +239,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
 		page1.ShipmentWeights = finalPPMWeight
-		page1.ActualObligationGCC100 = finalPPMWeight + "; " + formattedShipment.FinalIncentive
+		page1.ActualObligationGCC100 = formattedShipment.ShipmentWeightForObligation + " - Actual lbs; "
 		page1.PreparationDate1, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
 			return page1, err
