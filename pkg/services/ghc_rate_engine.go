@@ -33,7 +33,7 @@ type ParamsPricer interface {
 //
 //go:generate mockery --name ManagementServicesPricer
 type ManagementServicesPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 
@@ -41,7 +41,7 @@ type ManagementServicesPricer interface {
 //
 //go:generate mockery --name CounselingServicesPricer
 type CounselingServicesPricer interface {
-	Price(appCtx appcontext.AppContext, contractCode string, mtoAvailableToPrimeAt time.Time) (unit.Cents, PricingDisplayParams, error)
+	Price(appCtx appcontext.AppContext, lockedPriceCents *unit.Cents) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
 }
 

@@ -19,7 +19,7 @@ const CustomerInfoList = ({ customerInfo }) => {
         </div>
         <div className={descriptionListStyles.row}>
           <dt>DoD ID</dt>
-          <dd data-testid="dodId">{customerInfo.dodId}</dd>
+          <dd data-testid="edipi">{customerInfo.edipi}</dd>
         </div>
         {customerInfo.agency === departmentIndicators.COAST_GUARD && (
           <div className={descriptionListStyles.row}>
@@ -81,7 +81,7 @@ const CustomerInfoList = ({ customerInfo }) => {
 CustomerInfoList.propTypes = {
   customerInfo: PropTypes.shape({
     name: PropTypes.string,
-    dodId: PropTypes.string,
+    edipi: PropTypes.string,
     phone: PropTypes.string,
     email: PropTypes.string,
     currentAddress: AddressShape,

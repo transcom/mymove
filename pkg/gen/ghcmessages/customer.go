@@ -34,11 +34,11 @@ type Customer struct {
 	// current address
 	CurrentAddress *Address `json:"current_address,omitempty"`
 
-	// dod ID
-	DodID string `json:"dodID,omitempty"`
-
 	// e tag
 	ETag string `json:"eTag,omitempty"`
+
+	// edipi
+	Edipi string `json:"edipi,omitempty"`
 
 	// email
 	// Pattern: ^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$
