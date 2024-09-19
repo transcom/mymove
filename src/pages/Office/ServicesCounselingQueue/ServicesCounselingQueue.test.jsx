@@ -224,7 +224,7 @@ describe('ServicesCounselingQueue', () => {
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
 
@@ -247,7 +247,7 @@ describe('ServicesCounselingQueue', () => {
     isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mount(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
 
@@ -270,12 +270,13 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.dodID').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
-      //expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
-      //expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
+      // expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
+      // expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(firstMove.find('td.originDutyLocation').text()).toBe('Area 51');
-      expect(firstMove.find('td.assignTo').text()).toBe('John, Jimmy');
+      expect(screen.findByText('John, Jimmy')).toBeInTheDocument();
+      expect(firstMove.find('td.assignedTo-0').text()).toBe('John, Jimmy');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -437,7 +438,7 @@ describe('ServicesCounselingQueue', () => {
       useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
       render(
         <MockProviders path={pagePath} params={{ queueType }}>
-          <ServicesCounselingQueue />
+          <ServicesCounselingQueue isQueueManagementFFEnabled />
         </MockProviders>,
       );
 
