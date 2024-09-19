@@ -670,6 +670,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 	ghcAPI.PaymentRequestsBulkDownloadHandler = PaymentRequestBulkDownloadHandler{
 		handlerConfig,
 		paymentRequestBulkDownloadCreator,
+  }
+
+	ghcAPI.MoveMoveCancelerHandler = MoveCancelerHandler{
+		handlerConfig,
+		move.NewMoveCanceler(),
 	}
 
 	dateSelectionChecker := dateservice.NewDateSelectionChecker()
