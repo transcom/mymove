@@ -117,7 +117,11 @@ const SitStatusTables = ({ shipment, sitExtensions, sitStatus, openModalButton, 
     // Display the dates the server used to calculate sitDaysUsed
     const start = formatDate(sitGroup.summary.sitEntryDate, swaggerDateFormat, 'DD MMM YYYY');
     const end = formatDate(sitGroup.summary.sitDepartureDate, swaggerDateFormat, 'DD MMM YYYY');
-    const text = `${sitDaysUsed} days at ${location} (${start} - ${end})`;
+    const authorizedEndDate = sitGroup.summary.sitAuthorizedEndDate
+      ? formatDate(sitGroup.summary.sitAuthorizedEndDate, swaggerDateFormat, 'DD MMM YYYY')
+      : DEFAULT_EMPTY_VALUE;
+
+    const text = `${sitDaysUsed} days at ${location} (${start} - ${end}),\nAuthorized End Date: ${authorizedEndDate}`;
 
     return <p key={sitGroup.summary.firstDaySITServiceItemID}>{text}</p>;
   });
