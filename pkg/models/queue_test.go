@@ -33,9 +33,11 @@ func (suite *ModelSuite) TestCreateMoveWithPPMNoShow() {
 func (suite *ModelSuite) TestCreateNewMoveWithNoPPMShow() {
 	orders := factory.BuildOrder(suite.DB(), nil, nil)
 	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
+	office := factory.BuildTransportationOffice(suite.DB(), nil, nil)
 
 	moveOptions := m.MoveOptions{
-		Show: m.BoolPointer(true),
+		Show:               m.BoolPointer(true),
+		CounselingOfficeID: &office.ID,
 	}
 	_, verrs, err := orders.CreateNewMove(suite.DB(), moveOptions)
 	suite.NoError(err)
