@@ -246,7 +246,7 @@ func (s *Server) Serve() (err error) {
 			PreferServerCipherSuites: true,
 			// Only use curves which have assembly implementations
 			// https://github.com/golang/go/tree/master/src/crypto/elliptic
-			CurvePreferences: []tls.CurveID{tls.CurveP256},
+			CurvePreferences: []tls.CurveID{tls.CurveP256, tls.CurveP384, tls.CurveP521},
 			// Use modern tls mode https://wiki.mozilla.org/Security/Server_Side_TLS#Modern_compatibility
 			NextProtos: []string{"h2", "http/1.1"},
 			// https://www.owasp.org/index.php/Transport_Layer_Protection_Cheat_Sheet#Rule_-_Only_Support_Strong_Protocols
