@@ -18,6 +18,10 @@ type UsPostRegionCity struct {
 func (_m *UsPostRegionCity) GetLocationsByZipCity(appCtx appcontext.AppContext, search string) (*models.UsPostRegionCities, error) {
 	ret := _m.Called(appCtx, search)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetLocationsByZipCity")
+	}
+
 	var r0 *models.UsPostRegionCities
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.UsPostRegionCities, error)); ok {

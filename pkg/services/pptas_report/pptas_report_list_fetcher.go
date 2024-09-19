@@ -483,6 +483,7 @@ func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crat
 	var newCrateDimensions pptasmessages.MTOServiceItemDimension
 	var newItemDimensions pptasmessages.MTOServiceItemDimension
 
+	// #nosec G115: it is unrealistic that an imperial measurement will exceed int32 limits
 	for dimensionIndex := range serviceItem.Dimensions {
 		if serviceItem.Dimensions[dimensionIndex].Type == "ITEM" {
 			newItemDimensions.Type = pptasmessages.DimensionTypeITEM
