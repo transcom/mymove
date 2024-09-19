@@ -10,6 +10,12 @@ import { OfficeApp } from './index';
 import { roleTypes } from 'constants/userRoles';
 import { configureStore } from 'shared/store';
 import { mockPage } from 'testUtils';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
 
 // Mock the components that are routed to from the index, ordered the same as the routes in the index file
 mockPage('pages/SignIn/SignIn');
@@ -83,6 +89,7 @@ const createMockStore = (role) => {
 
 // Render the OfficeApp component with routing and Redux setup for the provided route and role
 const renderOfficeAppAtRoute = (route, role) => {
+  isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
   const mockStore = createMockStore(role);
   const userRoles = role ? [{ roleType: role }] : [];
   render(
@@ -100,6 +107,7 @@ const renderOfficeAppAtRoute = (route, role) => {
           loginIsLoading={!!role}
           userIsLoggedIn={!!role}
           hqRoleFlag
+          gsrRoleFlag
         />
       </Provider>
     </MemoryRouter>,
@@ -258,13 +266,15 @@ describe('Office App', () => {
         '/simulator/moves/test123/shipments/ship123/reweigh/req123/update',
         roleTypes.PRIME_SIMULATOR,
       ],
+      ['QAE CSR Move Search', '/', roleTypes.QAE],
       ['QAE CSR Move Search', '/qaecsr/search', roleTypes.QAE],
+      ['QAE CSR Move Search', '/', roleTypes.GSR, true],
+      ['QAE CSR Move Search', '/qaecsr/search', roleTypes.GSR, true],
       ['TXO Move Info', '/moves/move123', roleTypes.TIO],
       ['Payment Request Queue', '/', roleTypes.TIO],
       ['Move Queue', '/', roleTypes.TOO],
       ['Headquarters Queues', '/', roleTypes.HQ],
       ['Services Counseling Queue', '/', roleTypes.SERVICES_COUNSELOR],
-      ['QAE CSR Move Search', '/', roleTypes.QAE],
       ['Prime Simulator Available Moves Queue', '/', roleTypes.PRIME_SIMULATOR],
       ['Services Counseling Move Info', '/moves/move123/shipments/:shipmentId/advance', roleTypes.TOO],
     ])('renders the %s component at %s as a %s with sufficient permissions', async (component, path, role) => {

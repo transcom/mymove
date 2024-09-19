@@ -130,7 +130,7 @@ type SITStatus struct {
 	TotalDaysRemaining       int
 	CalculatedTotalDaysInSIT int
 	CurrentSIT               *CurrentSIT
-	PastSITs                 []models.MTOServiceItem
+	PastSITs                 models.SITServiceItemGroupings
 }
 
 type CurrentSIT struct {
@@ -151,4 +151,5 @@ type ShipmentSITStatus interface {
 	CalculateShipmentsSITStatuses(appCtx appcontext.AppContext, shipments []models.MTOShipment) map[string]SITStatus
 	CalculateShipmentSITStatus(appCtx appcontext.AppContext, shipment models.MTOShipment) (*SITStatus, models.MTOShipment, error)
 	CalculateShipmentSITAllowance(appCtx appcontext.AppContext, shipment models.MTOShipment) (int, error)
+	RetrieveShipmentSIT(appCtx appcontext.AppContext, shipment models.MTOShipment) models.SITServiceItemGroupings
 }
