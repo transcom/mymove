@@ -433,7 +433,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(models.PPMShipmentStatusCancelled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
+		suite.Equal(models.PPMShipmentStatusCanceled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
 		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 	})
 
