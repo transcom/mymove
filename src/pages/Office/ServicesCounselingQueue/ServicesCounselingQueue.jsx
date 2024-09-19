@@ -184,6 +184,10 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor) 
           return row.originDutyLocation?.name;
         },
       }),
+  createHeader('Counseling office', 'counselingOffice', {
+    id: 'counselingOffice',
+    isFilterable: true,
+  }),
 ];
 export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(

@@ -22,6 +22,7 @@ import {
   SITStatusExpired,
   SITStatusShowConvert,
   SITStatusDontShowConvert,
+  SITStatusWithFullyPopulatedPastSITOriginServiceItem,
 } from './ShipmentSITDisplayTestParams';
 
 import { MockProviders } from 'testUtils';
@@ -377,6 +378,37 @@ describe('ShipmentSITDisplay', () => {
     );
     expect(screen.getByText('Expired')).toBeInTheDocument();
   });
+  it('renders the SIT departure date, customer contact date, requested delivery date even if the provided SIT is in the past', async () => {
+    // This test only applies if there is no current SIT provided by the backend
+    // Currently there is a limitation that if one SIT is provided (Either Origin or Destination)
+    // and then the departure date is in the past, then the three fields of
+    // - SIT Departure Date
+    // - Customer Contact Date
+    // - Requested Delivery Date
+    // Will all reset to empty. Per feature resolved by B-20919
+
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusWithFullyPopulatedPastSITOriginServiceItem} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    // The sitDaysAtCurrentLocation table should not appear if there is no current sit
+    const sitDaysAtCurrentLocationTable = screen.queryByTestId('sitDaysAtCurrentLocation');
+    expect(sitDaysAtCurrentLocationTable).not.toBeInTheDocument();
+
+    // Ensure that our past sit departure date table is present with the right values
+    const pastSitDepartureDateTable = await screen.findByTestId('pastSitDepartureDateTable');
+    expect(pastSitDepartureDateTable).toBeInTheDocument();
+    expect(within(pastSitDepartureDateTable).getByText('SIT departure date')).toBeInTheDocument();
+    expect(within(pastSitDepartureDateTable).getByText('23 Aug 2021')).toBeInTheDocument();
+
+    // Additional SIT data
+    expect(screen.getByText('Requested delivery date')).toBeInTheDocument();
+    expect(screen.getByText('26 Aug 2021')).toBeInTheDocument();
+    expect(screen.getByText('Customer contact date')).toBeInTheDocument();
+    expect(screen.getByText('25 Aug 2021')).toBeInTheDocument();
+  });
   it('renders the Shipment SIT at Origin, with current SIT authorized end date', async () => {
     render(
       <MockProviders>
@@ -388,5 +420,15 @@ describe('ShipmentSITDisplay', () => {
     expect(sitStartAndEndTable).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('SIT authorized end date')).toBeInTheDocument();
     expect(within(sitStartAndEndTable).getByText('27 Aug 2021')).toBeInTheDocument();
+  });
+  it('does not render pastSitDepartureDateTable if current sit', async () => {
+    render(
+      <MockProviders>
+        <ShipmentSITDisplay sitStatus={SITStatusOriginAuthorized} shipment={SITShipment} />
+      </MockProviders>,
+    );
+
+    const pastSitDepartureDateTable = screen.queryByTestId('pastSitDepartureDateTable');
+    expect(pastSitDepartureDateTable).not.toBeInTheDocument();
   });
 });

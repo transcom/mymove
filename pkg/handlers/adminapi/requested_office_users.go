@@ -53,7 +53,7 @@ func payloadForRequestedOfficeUserModel(o models.OfficeUser) *adminmessages.Offi
 		Email:                  handlers.FmtString(o.Email),
 		TransportationOfficeID: handlers.FmtUUID(o.TransportationOfficeID),
 		Active:                 handlers.FmtBool(o.Active),
-		Status:                 handlers.FmtStringPtr(o.Status),
+		Status:                 (*string)(o.Status),
 		Edipi:                  handlers.FmtStringPtr(o.EDIPI),
 		OtherUniqueID:          handlers.FmtStringPtr(o.OtherUniqueID),
 		RejectionReason:        handlers.FmtStringPtr(o.RejectionReason),
@@ -277,7 +277,8 @@ func (h UpdateRequestedOfficeUserHandler) Handle(params requested_office_users.U
 
 			// Only attempt to create an Okta account IF params.Body.Status is APPROVED
 			// Track if Okta account was successfully created or not
-			if params.Body.Status == "APPROVED" {
+			// we will skip this check if using the local dev environment
+			if params.Body.Status == "APPROVED" && appCtx.Session().IDToken != "devlocal" {
 				oktaAccountCreationResponse, createAccountError := CreateOfficeOktaAccount(appCtx, params)
 				if createAccountError != nil || oktaAccountCreationResponse.StatusCode != http.StatusOK {
 					// If there is an error creating the account or there is a respopnse code other than 200 then the account was not succssfully created
