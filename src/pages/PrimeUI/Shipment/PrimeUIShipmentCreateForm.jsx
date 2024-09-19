@@ -452,7 +452,7 @@ const PrimeUIShipmentCreateForm = () => {
                     </FormGroup>
                   </>
                 )}
-                {hasTertiaryPickupAddress === 'true' && (
+                {hasTertiaryPickupAddress === 'true' && hasSecondaryPickupAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
                     <AddressFields name="tertiaryPickupAddress" />
@@ -535,7 +535,7 @@ const PrimeUIShipmentCreateForm = () => {
                     </FormGroup>
                   </>
                 )}
-                {hasTertiaryDestinationAddress === 'true' && (
+                {hasTertiaryPickupAddress === 'true' && hasSecondaryPickupAddress === 'true' && (
                   <>
                     <h5 className={styles.sectionHeader}>Third Destination Address</h5>
                     <AddressFields name="tertiaryDestinationAddress" />
