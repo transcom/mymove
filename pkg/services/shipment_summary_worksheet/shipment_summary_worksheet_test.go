@@ -579,6 +579,102 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("SAC", sswPage2.SAC)
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
+	storageExpense := models.MovingExpenseReceiptTypeStorage
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType:      &storageExpense,
+			Amount:                 &amount,
+			PaidWithGTCC:           models.BoolPointer(false),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+		},
+	}
+
+	locator := "ABCDEF-01"
+	id := uuid.Must(uuid.NewV4())
+	PPMShipments := []models.PPMShipment{
+		{
+			FinalIncentive:        models.CentPointer(unit.Cents(500)),
+			AdvanceAmountReceived: models.CentPointer(unit.Cents(200)),
+			ID:                    id,
+			Shipment: models.MTOShipment{
+				ShipmentLocator: &locator,
+			},
+		},
+	}
+
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	cert := models.SignedCertification{
+		CertificationType: &signedCertType,
+		CertificationText: "APPROVED",
+		Signature:         "Firstname Lastname",
+		UpdatedAt:         time.Now(),
+		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
+	}
+	var certs []*models.SignedCertification
+	certs = append(certs, &cert)
+
+	ssd := models.ShipmentSummaryFormData{
+		MovingExpenses:       movingExpenses,
+		PPMShipment:          PPMShipments[0],
+		SignedCertifications: certs,
+	}
+
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+
+	suite.Equal("$4.00", sswPage2.PPMRemainingEntitlement)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiveAndAOAPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
+	storageExpense := models.MovingExpenseReceiptTypeStorage
+	amount := unit.Cents(10000)
+	movingExpenses := models.MovingExpenses{
+		{
+			MovingExpenseType:      &storageExpense,
+			Amount:                 &amount,
+			PaidWithGTCC:           models.BoolPointer(false),
+			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
+		},
+	}
+
+	locator := "ABCDEF-01"
+	id := uuid.Must(uuid.NewV4())
+	PPMShipments := []models.PPMShipment{
+		{
+
+			ID: id,
+			Shipment: models.MTOShipment{
+				ShipmentLocator: &locator,
+			},
+		},
+	}
+
+	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
+	cert := models.SignedCertification{
+		CertificationType: &signedCertType,
+		CertificationText: "APPROVED",
+		Signature:         "Firstname Lastname",
+		UpdatedAt:         time.Now(),
+		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
+	}
+	var certs []*models.SignedCertification
+	certs = append(certs, &cert)
+
+	ssd := models.ShipmentSummaryFormData{
+		MovingExpenses:       movingExpenses,
+		PPMShipment:          PPMShipments[0],
+		SignedCertifications: certs,
+	}
+
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
+	suite.Equal("$1.00", sswPage2.PPMRemainingEntitlement)
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
 	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
 	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
@@ -636,54 +732,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
 	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
-	storageExpense := models.MovingExpenseReceiptTypeStorage
-	amount := unit.Cents(10000)
-	movingExpenses := models.MovingExpenses{
-		{
-			MovingExpenseType:      &storageExpense,
-			Amount:                 &amount,
-			PaidWithGTCC:           models.BoolPointer(false),
-			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
-		},
-	}
-
-	locator := "ABCDEF-01"
-	id := uuid.Must(uuid.NewV4())
-	PPMShipments := []models.PPMShipment{
-		{
-			FinalIncentive:        models.CentPointer(unit.Cents(500)),
-			AdvanceAmountReceived: models.CentPointer(unit.Cents(200)),
-			ID:                    id,
-			Shipment: models.MTOShipment{
-				ShipmentLocator: &locator,
-			},
-		},
-	}
-
-	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
-	cert := models.SignedCertification{
-		CertificationType: &signedCertType,
-		CertificationText: "APPROVED",
-		Signature:         "Firstname Lastname",
-		UpdatedAt:         time.Now(),
-		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
-	}
-	var certs []*models.SignedCertification
-	certs = append(certs, &cert)
-
-	ssd := models.ShipmentSummaryFormData{
-		MovingExpenses:       movingExpenses,
-		PPMShipment:          PPMShipments[0],
-		SignedCertifications: certs,
-	}
-
-	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
-	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
-	suite.Equal("$4.00", sswPage2.PPMRemainingEntitlement)
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
@@ -717,53 +765,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestAOAPacketPPMEntitlementFo
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
 	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, false)
 	suite.Equal("N/A", sswPage2.PPMRemainingEntitlement)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestNullCheckForFinalIncentiveAndAOAPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
-	storageExpense := models.MovingExpenseReceiptTypeStorage
-	amount := unit.Cents(10000)
-	movingExpenses := models.MovingExpenses{
-		{
-			MovingExpenseType:      &storageExpense,
-			Amount:                 &amount,
-			PaidWithGTCC:           models.BoolPointer(false),
-			SITReimburseableAmount: models.CentPointer(unit.Cents(100)),
-		},
-	}
-
-	locator := "ABCDEF-01"
-	id := uuid.Must(uuid.NewV4())
-	PPMShipments := []models.PPMShipment{
-		{
-
-			ID: id,
-			Shipment: models.MTOShipment{
-				ShipmentLocator: &locator,
-			},
-		},
-	}
-
-	signedCertType := models.SignedCertificationTypeCloseoutReviewedPPMPAYMENT
-	cert := models.SignedCertification{
-		CertificationType: &signedCertType,
-		CertificationText: "APPROVED",
-		Signature:         "Firstname Lastname",
-		UpdatedAt:         time.Now(),
-		PpmID:             models.UUIDPointer(PPMShipments[0].ID),
-	}
-	var certs []*models.SignedCertification
-	certs = append(certs, &cert)
-
-	ssd := models.ShipmentSummaryFormData{
-		MovingExpenses:       movingExpenses,
-		PPMShipment:          PPMShipments[0],
-		SignedCertifications: certs,
-	}
-
-	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
-	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
-	suite.Equal("$1.00", sswPage2.PPMRemainingEntitlement)
 }
 
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
@@ -1389,6 +1390,41 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 	}
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
+	expensesMap := make(map[string]float64)
+
+	// Test case 1: GTCC calculation B is less than GTCC calculation A
+	// Additionally, Member should not be less than 0
+	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0)
+	expensesMap["TotalGTCCPaid"] = 200.00
+	expensesMap["StorageGTCCPaid"] = 300.00
+	ppmRemainingEntitlement := 60.00
+	expensesMap["StorageMemberPaid"] = 40.00
+	result := formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
+	// Test case 2: GTCC calculation A is less than GTCC calculation B
+	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(400.00)
+	expensesMap = make(map[string]float64)
+	expensesMap["TotalGTCCPaid"] = 60.00
+	expensesMap["StorageGTCCPaid"] = 40.00
+	ppmRemainingEntitlement = 300.00
+	expensesMap["StorageMemberPaid"] = 200.00
+	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
+	// Test case 3: GTCC calculation is less than 0
+	expectedResult = "GTCC: " + FormatDollars(0) + "\nMember: " + FormatDollars(-250.00)
+	expensesMap = make(map[string]float64)
+	expensesMap["TotalGTCCPaid"] = 0
+	expensesMap["StorageGTCCPaid"] = 0
+	ppmRemainingEntitlement = -300.00
+	expensesMap["StorageMemberPaid"] = 50.00
+	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments() {
 	locator := "ABCDEF-01"
 	now := time.Now()
@@ -1712,39 +1748,4 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMissingShipmentLocatorErr
 
 	_, err := formatAdditionalShipments(ssd)
 	suite.NotNil(err)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
-	expensesMap := make(map[string]float64)
-
-	// Test case 1: GTCC calculation B is less than GTCC calculation A
-	// Additionally, Member should not be less than 0
-	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0)
-	expensesMap["TotalGTCCPaid"] = 200.00
-	expensesMap["StorageGTCCPaid"] = 300.00
-	ppmRemainingEntitlement := 60.00
-	expensesMap["StorageMemberPaid"] = 40.00
-	result := formatDisbursement(expensesMap, ppmRemainingEntitlement)
-	suite.Equal(result, expectedResult)
-
-	// Test case 2: GTCC calculation A is less than GTCC calculation B
-	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(400.00)
-	expensesMap = make(map[string]float64)
-	expensesMap["TotalGTCCPaid"] = 60.00
-	expensesMap["StorageGTCCPaid"] = 40.00
-	ppmRemainingEntitlement = 300.00
-	expensesMap["StorageMemberPaid"] = 200.00
-	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
-	suite.Equal(result, expectedResult)
-
-	// Test case 3: GTCC calculation is less than 0
-	expectedResult = "GTCC: " + FormatDollars(0) + "\nMember: " + FormatDollars(-250.00)
-	expensesMap = make(map[string]float64)
-	expensesMap["TotalGTCCPaid"] = 0
-	expensesMap["StorageGTCCPaid"] = 0
-	ppmRemainingEntitlement = -300.00
-	expensesMap["StorageMemberPaid"] = 50.00
-	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
-	suite.Equal(result, expectedResult)
-
 }

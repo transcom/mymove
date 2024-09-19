@@ -19,6 +19,10 @@ type SyncadaSFTPSender struct {
 func (_m *SyncadaSFTPSender) SendToSyncadaViaSFTP(appCtx appcontext.AppContext, localDataReader io.Reader, syncadaFileName string) (int64, error) {
 	ret := _m.Called(appCtx, localDataReader, syncadaFileName)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SendToSyncadaViaSFTP")
+	}
+
 	var r0 int64
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.Reader, string) (int64, error)); ok {
