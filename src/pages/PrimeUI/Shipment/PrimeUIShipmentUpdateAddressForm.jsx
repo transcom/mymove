@@ -56,12 +56,7 @@ const PrimeUIShipmentUpdateAddressForm = ({
 
 PrimeUIShipmentUpdateAddressForm.propTypes = {
   initialValues: PropTypes.shape({
-    pickupAddress: PropTypes.shape({
-      address: ResidentialAddressShape,
-    }),
-    destinationAddress: PropTypes.shape({
-      address: ResidentialAddressShape,
-    }),
+    address: ResidentialAddressShape,
     addressID: PropTypes.string,
     eTag: PropTypes.string,
   }).isRequired,
@@ -71,7 +66,7 @@ PrimeUIShipmentUpdateAddressForm.propTypes = {
     addressID: PropTypes.string,
     eTag: PropTypes.string,
   }).isRequired,
-  addressLocation: PropTypes.oneOf(['Pickup address', 'Destination address']).isRequired,
+  addressLocation: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
 };
 

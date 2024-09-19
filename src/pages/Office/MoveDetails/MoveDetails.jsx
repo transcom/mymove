@@ -36,6 +36,7 @@ import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const errorIfMissing = {
   HHG_INTO_NTS_DOMESTIC: [
@@ -49,6 +50,14 @@ const errorIfMissing = {
     { fieldName: 'serviceOrderNumber' },
     { fieldName: 'tacType' },
   ],
+  PPM: [
+    {
+      fieldName: 'advanceStatus',
+      condition: (mtoShipment) =>
+        mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+        mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+    },
+  ],
 };
 
 const MoveDetails = ({
@@ -56,6 +65,8 @@ const MoveDetails = ({
   setUnapprovedServiceItemCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentErrorConcernCount,
+  shipmentErrorConcernCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
   missingOrdersInfoCount,
   setMissingOrdersInfoCount,
@@ -63,7 +74,6 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
 
@@ -224,21 +234,21 @@ const MoveDetails = ({
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
-    let shipmentIsMissingInformation = false;
+    let numberOfErrorIfMissingForAllShipments = 0;
 
     mtoShipments?.forEach((mtoShipment) => {
-      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
-        objectIsMissingFieldWithCondition(mtoShipment, field),
-      );
+      const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
-      // If there were no fields to check, then nothing was required.
-      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
-        shipmentIsMissingInformation = true;
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (objectIsMissingFieldWithCondition(mtoShipment, fieldToCheck)) {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
       }
     });
-    setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
-  }, [mtoShipments]);
+    setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
+  }, [mtoShipments, setShipmentErrorConcernCount]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
@@ -328,7 +338,7 @@ const MoveDetails = ({
       <div className={styles.container}>
         <LeftNav sections={sections}>
           <LeftNavTag
-            background="#d63e04"
+            background="#e34b11"
             associatedSectionName="orders"
             showTag={missingOrdersInfoCount !== 0}
             testID="tag"
@@ -344,18 +354,18 @@ const MoveDetails = ({
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="requested-shipments"
-            showTag={!shipmentMissingRequiredInformation}
+            showTag={submittedShipments?.length > 0}
             testID="requestedShipmentsTag"
           >
             {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
             associatedSectionName="requested-shipments"
-            showTag={shipmentMissingRequiredInformation}
+            showTag={shipmentErrorConcernCount !== 0}
             testID="shipment-missing-info-alert"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {shipmentErrorConcernCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="approved-shipments"
@@ -531,6 +541,7 @@ MoveDetails.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
 };
 

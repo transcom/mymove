@@ -7,6 +7,6 @@ export default {
   action: a.INSERT,
   eventName: '*',
   tableName: t.service_members,
-  getEventNameDisplay: () => 'Created Profile',
-  getDetails: () => <> - </>,
+  getEventNameDisplay: () => 'Created profile',
+  getDetails: () => <> New profile created </>,
 };

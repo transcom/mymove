@@ -347,7 +347,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
 	sswPage1, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage1(ssd, false)
 	suite.NoError(err)
-
 	suite.Equal(FormatDate(time.Now()), sswPage1.PreparationDate1)
 
 	suite.Equal("Jenkins Jr., Marcus Joseph", sswPage1.ServiceMemberName)
@@ -580,6 +579,63 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSumma
 	suite.Equal("SAC", sswPage2.SAC)
 }
 
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
+	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
+	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
+	wtgEntitlements := models.SSWMaxWeightEntitlement{}
+	serviceMember := models.ServiceMember{}
+	order := models.Order{}
+	expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
+	actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
+	netWeight := unit.Pound(4000)
+	cents := unit.Cents(1000)
+	locator := "ABCDEF-01"
+	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
+	PPMShipment := models.PPMShipment{
+		ID:                     move.MTOShipments[0].PPMShipment.ID,
+		ExpectedDepartureDate:  expectedPickupDate,
+		ActualMoveDate:         &actualPickupDate,
+		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
+		EstimatedWeight:        &netWeight,
+		AdvanceAmountRequested: &cents,
+		Shipment: models.MTOShipment{
+			ShipmentLocator: &locator,
+		},
+	}
+	ssd := models.ShipmentSummaryFormData{
+		AllShipments:            move.MTOShipments,
+		ServiceMember:           serviceMember,
+		Order:                   order,
+		CurrentDutyLocation:     yuma,
+		NewDutyLocation:         fortGordon,
+		PPMRemainingEntitlement: 3000,
+		WeightAllotment:         wtgEntitlements,
+		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
+		PPMShipment:             PPMShipment,
+	}
+	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
+	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
+	sswPage3, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage3(ssd, false)
+	suite.NoError(err)
+	suite.Equal(FormatDate(time.Now()), sswPage3.PreparationDate3)
+	suite.Equal(make(map[string]string), sswPage3.AddShipments)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
+	page3Map := make(map[string]string)
+	i := 1
+	hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
+	locator := "ABCDEF"
+	hhg.ShipmentLocator = &locator
+
+	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
+	suite.NoError(err)
+	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
+	suite.Equal("16-Mar-2020 Actual", page3Map["AddShipmentPickUpDates1"])
+	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
+	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
+}
+
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEntitlementFormatValuesShipmentSummaryWorksheetFormPage2() {
 	storageExpense := models.MovingExpenseReceiptTypeStorage
 	amount := unit.Cents(10000)
@@ -625,7 +681,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMemberPaidRemainingPPMEnt
 	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
 	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
 	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
-
 	suite.Equal("$4.00", sswPage2.PPMRemainingEntitlement)
 }
 
@@ -758,64 +813,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestGTCCPaidRemainingPPMEntit
 	sswPage2, _ := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage2(ssd, true)
 	suite.Equal("$105.00", sswPage2.PPMRemainingEntitlement)
 }
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatValuesShipmentSummaryWorksheetFormPage3() {
-	yuma := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	fortGordon := factory.FetchOrBuildOrdersDutyLocation(suite.DB())
-	wtgEntitlements := models.SSWMaxWeightEntitlement{}
-	serviceMember := models.ServiceMember{}
-	order := models.Order{}
-	expectedPickupDate := time.Date(2019, time.January, 11, 0, 0, 0, 0, time.UTC)
-	actualPickupDate := time.Date(2019, time.February, 11, 0, 0, 0, 0, time.UTC)
-	netWeight := unit.Pound(4000)
-	cents := unit.Cents(1000)
-	locator := "ABCDEF-01"
-	move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-	PPMShipment := models.PPMShipment{
-		ID:                     move.MTOShipments[0].PPMShipment.ID,
-		ExpectedDepartureDate:  expectedPickupDate,
-		ActualMoveDate:         &actualPickupDate,
-		Status:                 models.PPMShipmentStatusWaitingOnCustomer,
-		EstimatedWeight:        &netWeight,
-		AdvanceAmountRequested: &cents,
-		Shipment: models.MTOShipment{
-			ShipmentLocator: &locator,
-		},
-	}
-
-	ssd := models.ShipmentSummaryFormData{
-		AllShipments:            move.MTOShipments,
-		ServiceMember:           serviceMember,
-		Order:                   order,
-		CurrentDutyLocation:     yuma,
-		NewDutyLocation:         fortGordon,
-		PPMRemainingEntitlement: 3000,
-		WeightAllotment:         wtgEntitlements,
-		PreparationDate:         time.Date(2019, 1, 1, 1, 1, 1, 1, time.UTC),
-		PPMShipment:             PPMShipment,
-	}
-	mockPPMCloseoutFetcher := &mocks.PPMCloseoutFetcher{}
-	sswPPMComputer := NewSSWPPMComputer(mockPPMCloseoutFetcher)
-	sswPage3, err := sswPPMComputer.FormatValuesShipmentSummaryWorksheetFormPage3(ssd, false)
-	suite.NoError(err)
-	suite.Equal(FormatDate(time.Now()), sswPage3.PreparationDate3)
-	suite.Equal(make(map[string]string), sswPage3.AddShipments)
-}
-
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalHHG() {
-	page3Map := make(map[string]string)
-	i := 1
-	hhg := factory.BuildMTOShipment(suite.DB(), nil, nil)
-	locator := "ABCDEF"
-	hhg.ShipmentLocator = &locator
-
-	page3Map, err := formatAdditionalHHG(page3Map, i, hhg)
-	suite.NoError(err)
-	suite.Equal(*hhg.ShipmentLocator+" HHG", page3Map["AddShipmentNumberAndTypes1"])
-	suite.Equal("16-Mar-2020 Actual", page3Map["AddShipmentPickUpDates1"])
-	suite.Equal("980 Actual", page3Map["AddShipmentWeights1"])
-	suite.Equal(FormatEnum(string(hhg.Status), ""), page3Map["AddShipmentStatus1"])
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestGroupExpenses() {
 	paidWithGTCC := false
 	tollExpense := models.MovingExpenseReceiptTypeTolls
@@ -1392,41 +1389,6 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatShipment() {
 	}
 }
 
-func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
-	expensesMap := make(map[string]float64)
-
-	// Test case 1: GTCC calculation B is less than GTCC calculation A
-	// Additionally, Member should not be less than 0
-	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0)
-	expensesMap["TotalGTCCPaid"] = 200.00
-	expensesMap["StorageGTCCPaid"] = 300.00
-	ppmRemainingEntitlement := 60.00
-	expensesMap["StorageMemberPaid"] = 40.00
-	result := formatDisbursement(expensesMap, ppmRemainingEntitlement)
-	suite.Equal(result, expectedResult)
-
-	// Test case 2: GTCC calculation A is less than GTCC calculation B
-	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(400.00)
-	expensesMap = make(map[string]float64)
-	expensesMap["TotalGTCCPaid"] = 60.00
-	expensesMap["StorageGTCCPaid"] = 40.00
-	ppmRemainingEntitlement = 300.00
-	expensesMap["StorageMemberPaid"] = 200.00
-	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
-	suite.Equal(result, expectedResult)
-
-	// Test case 3: GTCC calculation is less than 0
-	expectedResult = "GTCC: " + FormatDollars(0) + "\nMember: " + FormatDollars(-250.00)
-	expensesMap = make(map[string]float64)
-	expensesMap["TotalGTCCPaid"] = 0
-	expensesMap["StorageGTCCPaid"] = 0
-	ppmRemainingEntitlement = -300.00
-	expensesMap["StorageMemberPaid"] = 50.00
-	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
-	suite.Equal(result, expectedResult)
-
-}
-
 func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments() {
 	locator := "ABCDEF-01"
 	now := time.Now()
@@ -1750,4 +1712,39 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestMissingShipmentLocatorErr
 
 	_, err := formatAdditionalShipments(ssd)
 	suite.NotNil(err)
+}
+
+func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatDisbursement() {
+	expensesMap := make(map[string]float64)
+
+	// Test case 1: GTCC calculation B is less than GTCC calculation A
+	// Additionally, Member should not be less than 0
+	expectedResult := "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(0)
+	expensesMap["TotalGTCCPaid"] = 200.00
+	expensesMap["StorageGTCCPaid"] = 300.00
+	ppmRemainingEntitlement := 60.00
+	expensesMap["StorageMemberPaid"] = 40.00
+	result := formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
+	// Test case 2: GTCC calculation A is less than GTCC calculation B
+	expectedResult = "GTCC: " + FormatDollars(100.00) + "\nMember: " + FormatDollars(400.00)
+	expensesMap = make(map[string]float64)
+	expensesMap["TotalGTCCPaid"] = 60.00
+	expensesMap["StorageGTCCPaid"] = 40.00
+	ppmRemainingEntitlement = 300.00
+	expensesMap["StorageMemberPaid"] = 200.00
+	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
+	// Test case 3: GTCC calculation is less than 0
+	expectedResult = "GTCC: " + FormatDollars(0) + "\nMember: " + FormatDollars(-250.00)
+	expensesMap = make(map[string]float64)
+	expensesMap["TotalGTCCPaid"] = 0
+	expensesMap["StorageGTCCPaid"] = 0
+	ppmRemainingEntitlement = -300.00
+	expensesMap["StorageMemberPaid"] = 50.00
+	result = formatDisbursement(expensesMap, ppmRemainingEntitlement)
+	suite.Equal(result, expectedResult)
+
 }
