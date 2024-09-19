@@ -2304,6 +2304,12 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryPickupAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
       actualPickupPostalCode:
         description: >
           The actual postal code where the PPM shipment started. To be filled
@@ -2320,6 +2326,12 @@ definitions:
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
+        type: boolean
+        x-omitempty: false
+        x-nullable: true
+      tertiaryDestinationAddress:
+        $ref: '#/definitions/Address'
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -2726,17 +2738,13 @@ definitions:
       destinationType:
         $ref: '#/definitions/DestinationType'
       secondaryPickupAddress:
-        description: >-
-          A second pickup address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
       secondaryDeliveryAddress:
-        description: >-
-          A second delivery address for this shipment, if the customer entered
-          one. An optional field.
-        allOf:
-          - $ref: '#/definitions/Address'
+        $ref: '#/definitions/Address'
+      tertiaryPickupAddress:
+        $ref: '#/definitions/Address'
+      tertiaryDeliveryAddress:
+        $ref: '#/definitions/Address'
       storageFacility:
         allOf:
           - x-nullable: true
