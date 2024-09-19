@@ -666,6 +666,11 @@ func NewGhcAPIHandler(handlerConfig handlers.HandlerConfig) *ghcops.MymoveAPI {
 		order.NewOrderUpdater(moveRouter),
 	}
 
+	ghcAPI.MoveMoveCancelerHandler = MoveCancelerHandler{
+		handlerConfig,
+		move.NewMoveCanceler(),
+	}
+
 	dateSelectionChecker := dateservice.NewDateSelectionChecker()
 	ghcAPI.CalendarIsDateWeekendHolidayHandler = IsDateWeekendHolidayHandler{handlerConfig, dateSelectionChecker}
 
