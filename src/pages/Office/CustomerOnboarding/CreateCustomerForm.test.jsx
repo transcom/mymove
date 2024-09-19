@@ -215,6 +215,66 @@ describe('CreateCustomerForm', () => {
     expect(screen.getByText('EMPLID')).toBeInTheDocument();
   });
 
+  it('payload can have an empty secondary phone number', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+
+    const { getByLabelText, getByTestId, getByRole } = render(
+      <MockProviders>
+        <CreateCustomerForm {...testProps} />
+      </MockProviders>,
+    );
+
+    const user = userEvent.setup();
+
+    const saveBtn = await screen.findByRole('button', { name: 'Save' });
+    expect(saveBtn).toBeInTheDocument();
+
+    await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
+
+    await user.type(getByLabelText('First name'), fakePayload.first_name);
+    await user.type(getByLabelText('Last name'), fakePayload.last_name);
+
+    await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
+    await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+
+    await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
+    await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
+    await user.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
+    await user.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+
+    await user.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
+    await user.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
+    await user.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
+    await user.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+
+    await user.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    await user.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
+    await user.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+
+    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
+
+    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
+
+    await waitFor(() => {
+      expect(saveBtn).toBeEnabled();
+    });
+
+    const waiter = waitFor(() => {
+      expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
+        state: {
+          isSafetyMoveSelected: false,
+        },
+      });
+    });
+
+    await user.click(saveBtn);
+    await waiter;
+    expect(mockNavigate).toHaveBeenCalled();
+
+    expect(createCustomerWithOktaOption.mock.calls[0][0]).not.toHaveProperty('secondary_number');
+  }, 10000);
+
   it('navigates the user on cancel click', async () => {
     const { getByText } = render(
       <MockProviders>

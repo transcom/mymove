@@ -3357,6 +3357,7 @@ paths:
             - closeoutInitiated
             - closeoutLocation
             - ppmStatus
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3377,6 +3378,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -6952,6 +6957,9 @@ definitions:
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
         x-nullable: true
+      counselingOffice:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -10277,6 +10285,7 @@ definitions:
       - StandaloneCrate
       - StandaloneCrateCap
       - UncappedRequestTotal
+      - LockedPriceCents
   ServiceItemParamType:
     type: string
     enum:
