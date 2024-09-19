@@ -21,6 +21,8 @@ import { showCounselingOffices } from 'services/internalApi';
 
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
+  const [dutyLocation, setDutyLocation] = useState('');
+  const [officeOptions, setOfficeOptions] = useState(null);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -35,10 +37,10 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
-    counseling_office_id: Yup.string(),
+    counseling_office_id: dutyLocation.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
   });
-  const [dutyLocation, setDutyLocation] = useState('');
-  const [officeOptions, setOfficeOptions] = useState(null);
   useEffect(() => {
     showCounselingOffices(dutyLocation.id).then((fetchedData) => {
       if (fetchedData.body) {
