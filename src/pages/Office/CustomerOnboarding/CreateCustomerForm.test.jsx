@@ -236,7 +236,8 @@ describe('CreateCustomerForm', () => {
 
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
-
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
+    
     await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
     await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
     await user.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
