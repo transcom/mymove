@@ -236,6 +236,7 @@ describe('CreateCustomerForm', () => {
 
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await user.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
     await user.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
@@ -309,6 +310,8 @@ describe('CreateCustomerForm', () => {
     await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
     await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
 
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
+
     await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
     await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
     await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
@@ -339,6 +342,57 @@ describe('CreateCustomerForm', () => {
           isSafetyMoveSelected: false,
         },
       });
+    });
+  }, 10000);
+
+  it('validates emplid against a coast guard member', async () => {
+    createCustomerWithOktaOption.mockImplementation(() => Promise.resolve(fakeResponse));
+
+    const { getByLabelText, getByTestId, getByRole } = render(
+      <MockProviders>
+        <CreateCustomerForm />
+      </MockProviders>,
+    );
+
+    const user = userEvent.setup();
+
+    const saveBtn = await screen.findByRole('button', { name: 'Save' });
+    expect(saveBtn).toBeInTheDocument();
+
+    await user.selectOptions(getByLabelText('Branch of service'), 'COAST_GUARD');
+
+    await user.type(getByLabelText('First name'), fakePayload.first_name);
+    await user.type(getByLabelText('Last name'), fakePayload.last_name);
+
+    await user.type(getByLabelText('Best contact phone'), fakePayload.telephone);
+    await user.type(getByLabelText('Personal email'), fakePayload.personal_email);
+
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
+
+    await userEvent.type(getByTestId('res-add-street1'), fakePayload.residential_address.streetAddress1);
+    await userEvent.type(getByTestId('res-add-city'), fakePayload.residential_address.city);
+    await userEvent.selectOptions(getByTestId('res-add-state'), [fakePayload.residential_address.state]);
+    await userEvent.type(getByTestId('res-add-zip'), fakePayload.residential_address.postalCode);
+
+    await userEvent.type(getByTestId('backup-add-street1'), fakePayload.backup_mailing_address.streetAddress1);
+    await userEvent.type(getByTestId('backup-add-city'), fakePayload.backup_mailing_address.city);
+    await userEvent.selectOptions(getByTestId('backup-add-state'), [fakePayload.backup_mailing_address.state]);
+    await userEvent.type(getByTestId('backup-add-zip'), fakePayload.backup_mailing_address.postalCode);
+
+    await userEvent.type(getByLabelText('Name'), fakePayload.backup_contact.name);
+    await userEvent.type(getByRole('textbox', { name: 'Email' }), fakePayload.backup_contact.email);
+    await userEvent.type(getByRole('textbox', { name: 'Phone' }), fakePayload.backup_contact.telephone);
+
+    await userEvent.type(getByTestId('create-okta-account-yes'), fakePayload.create_okta_account);
+
+    await userEvent.type(getByTestId('cac-user-no'), fakePayload.cac_user);
+
+    await waitFor(() => {
+      expect(saveBtn).toBeDisabled(); // EMPLID not set yet
+    });
+    await userEvent.type(getByTestId('emplidInput'), '1234567');
+    await waitFor(() => {
+      expect(saveBtn).toBeEnabled(); // EMPLID is set now, all validations true
     });
   }, 10000);
 
@@ -475,6 +529,7 @@ describe('CreateCustomerForm', () => {
     expect(saveBtn).toBeInTheDocument();
 
     await user.selectOptions(getByLabelText('Branch of service'), [fakePayload.affiliation]);
+    await userEvent.type(getByTestId('edipiInput'), fakePayload.edipi);
 
     await user.type(getByLabelText('First name'), fakePayload.first_name);
     await user.type(getByLabelText('Last name'), fakePayload.last_name);
