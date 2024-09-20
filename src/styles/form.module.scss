@@ -10,6 +10,9 @@
     @include typeset('body', 11, 2);
     @include u-margin-y(4);
   }
+  .hide {
+    display: none;
+  }
 
   legend {
     width: 100%;
@@ -163,7 +166,7 @@ p + .radioGroup {
   }
 }
 
-.customerPreferredContact > div{
+.customerPreferredContact > div {
   margin-top: 0;
 }
 
