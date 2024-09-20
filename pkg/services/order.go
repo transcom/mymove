@@ -68,4 +68,5 @@ type ListOrderParams struct {
 	OrderType               *string
 	PPMStatus               *string
 	ViewAsGBLOC             *string
+	CounselingOffice        *string
 }

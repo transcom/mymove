@@ -3267,6 +3267,7 @@ paths:
               closeoutInitiated,
               closeoutLocation,
               ppmStatus,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3286,6 +3287,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -4402,7 +4407,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -6699,6 +6704,9 @@ definitions:
         x-nullable: true
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
+        x-nullable: true
+      counselingOffice:
+        type: string
         x-nullable: true
   QueueMovesResult:
     type: object

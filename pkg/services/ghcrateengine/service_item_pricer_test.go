@@ -115,14 +115,9 @@ func (suite *GHCRateEngineServiceSuite) setupPriceServiceItem() models.PaymentSe
 		models.ReServiceCodeMS,
 		[]factory.CreatePaymentServiceItemParams{
 			{
-				Key:     models.ServiceItemParamNameContractCode,
-				KeyType: models.ServiceItemParamTypeString,
-				Value:   factory.DefaultContractCode,
-			},
-			{
-				Key:     models.ServiceItemParamNameMTOAvailableToPrimeAt,
-				KeyType: models.ServiceItemParamTypeTimestamp,
-				Value:   msAvailableToPrimeAt.Format(TimestampParamFormat),
+				Key:     models.ServiceItemParamNameLockedPriceCents,
+				KeyType: models.ServiceItemParamTypeInteger,
+				Value:   msPriceCents.ToMillicents().ToCents().String(),
 			},
 		}, nil, nil,
 	)
