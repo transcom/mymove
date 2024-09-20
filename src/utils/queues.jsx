@@ -5,9 +5,9 @@ import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const addAssignedOfficeUser = (users, assignedTo) => {
   const newAvailableOfficeUsers = users.slice();
-  const { lastName, firstName, id } = assignedTo;
+  const { lastname, firstname, id } = assignedTo;
   newAvailableOfficeUsers.push({
-    label: `${lastName}, ${firstName}`,
+    label: `${lastname}, ${firstname}`,
     value: id,
   });
   return newAvailableOfficeUsers;
