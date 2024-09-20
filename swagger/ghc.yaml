@@ -406,6 +406,42 @@ paths:
         Returns counseling evaluation reports for the specified move that are
         visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  /moves/{moveID}/cancel:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   /counseling/orders/{orderID}:
     parameters:
       - description: ID of order to update
@@ -3321,6 +3357,7 @@ paths:
             - closeoutInitiated
             - closeoutLocation
             - ppmStatus
+            - counselingOffice
           description: field that results should be sorted by
         - in: query
           name: order
@@ -3341,6 +3378,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -4527,7 +4568,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -6915,6 +6956,9 @@ definitions:
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
         x-nullable: true
+      counselingOffice:
+        type: string
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -8356,6 +8400,64 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/SITExtension'
+  SITSummary:
+    properties:
+      firstDaySITServiceItemID:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      location:
+        enum:
+          - ORIGIN
+          - DESTINATION
+      daysInSIT:
+        type: integer
+        minimum: 0
+      sitEntryDate:
+        type: string
+        format: date-time
+      sitDepartureDate:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitAuthorizedEndDate:
+        type: string
+        format: date-time
+      sitCustomerContacted:
+        type: string
+        format: date-time
+        x-nullable: true
+      sitRequestedDelivery:
+        type: string
+        format: date-time
+        x-nullable: true
+  SITServiceItemGrouping:
+    properties:
+      summary:
+        $ref: '#/definitions/SITSummary'
+        description: >
+          Holds the top level summary of a Service Item Grouping, detailing the
+          ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT),
+          the location (ORIGIN/DESTINATION), how many days the provided instance
+          of SIT has been in storage, SIT entry date, departure date, authorized
+          end date, customer contacted date, requested delivery date.
+
+          This is provided at a top level because due to our service item
+          architecture, SIT information is sometimes split across multiple
+          service items, and this summary is a compilation of said information.
+          This prevents the need to loop over many service items.
+      serviceItems:
+        $ref: '#/definitions/MTOServiceItems'
+  SITServiceItemGroupings:
+    description: >
+      Holds groupings of SIT service items and their summaries, detailing the
+      summary ServiceItemID of the first day SIT service item (Eg, DOFSIT,
+      DOASIT), the location (ORIGIN/DESTINATION), how many days the provided
+      instance of SIT has been in storage, SIT entry date, departure date,
+      authorized end date, customer contacted date, requested delivery date.
+    type: array
+    items:
+      $ref: '#/definitions/SITServiceItemGrouping'
   SITStatus:
     properties:
       totalSITDaysUsed:
@@ -8401,8 +8503,13 @@ definitions:
             type: string
             format: date
             x-nullable: true
-      pastSITServiceItems:
-        $ref: '#/definitions/MTOServiceItems'
+      pastSITServiceItemGroupings:
+        $ref: '#/definitions/SITServiceItemGroupings'
+        description: >
+          A list of past SIT service item groupings. These will contain the
+          given SIT service items for an instance of SIT (Either Origin or
+          Destination), grouped by the date they went into SIT and service items
+          limited explicitly to SIT related Re Service Codes.
   PPMShipmentStatus:
     description: |
       Status of the PPM Shipment:
@@ -8421,6 +8528,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
@@ -10176,6 +10284,7 @@ definitions:
       - StandaloneCrate
       - StandaloneCrateCap
       - UncappedRequestTotal
+      - LockedPriceCents
   ServiceItemParamType:
     type: string
     enum:

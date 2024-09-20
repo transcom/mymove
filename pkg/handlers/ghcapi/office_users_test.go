@@ -58,6 +58,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			},
 		}
 
+		status := models.OfficeUserStatusREQUESTED
 		// Mock successful creation in the database
 		mockCreator.On(
 			"CreateOfficeUser",
@@ -73,7 +74,7 @@ func (suite *HandlerSuite) TestRequestOfficeUserHandler() {
 			Email:                  "johndoe@example.com",
 			EDIPI:                  models.StringPointer("1234567890"),
 			TransportationOfficeID: transportationOffice.ID,
-			Status:                 models.StringPointer("REQUESTED"),
+			Status:                 &status,
 			CreatedAt:              time.Now(),
 			UpdatedAt:              time.Now(),
 		}, nil, nil).Once()
