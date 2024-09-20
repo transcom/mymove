@@ -133,6 +133,64 @@ type ReService struct {
 	UpdatedAt time.Time     `json:"updated_at" db:"updated_at"`
 }
 
+// Hold groupings of SIT for the shipment
+type SITServiceItemGroupings []SITServiceItemGrouping
+
+// Holds the relevant SIT ReServiceCodes for Domestic Origin and Destination SIT
+// service items, and provides a top-level summary due to our Service Item architecture
+type SITServiceItemGrouping struct {
+	Summary      SITSummary
+	ServiceItems []MTOServiceItem
+}
+
+// Holds the summary of "Sub-Groupings" of SIT.
+// For example, this will list the overall summary for an array of DOFSIT, DOPSIT, DOASIT, etc.,
+// and the same for destination
+type SITSummary struct {
+	FirstDaySITServiceItemID uuid.UUID // TODO: Refactor this out and instead base payments off the entire grouping rather than just DOFSIT/DOASIT
+	Location                 string
+	DaysInSIT                int
+	SITEntryDate             time.Time
+	SITDepartureDate         *time.Time
+	SITAuthorizedEndDate     time.Time
+	SITCustomerContacted     *time.Time
+	SITRequestedDelivery     *time.Time
+}
+
+// Definition of valid Domestic Origin SIT ReServiceCodes
+var ValidDomesticOriginSITReServiceCodes = []ReServiceCode{
+	ReServiceCodeDOASIT,
+	ReServiceCodeDOFSIT,
+	ReServiceCodeDOPSIT,
+	ReServiceCodeDOSFSC,
+	ReServiceCodeDOSHUT,
+}
+
+// Definition of valid Domestic Destination SIT ReServiceCodes
+var ValidDomesticDestinationSITReServiceCodes = []ReServiceCode{
+	ReServiceCodeDDASIT,
+	ReServiceCodeDDDSIT,
+	ReServiceCodeDDSFSC,
+	ReServiceCodeDDFSIT,
+	ReServiceCodeDDSHUT,
+}
+
+// Definition of valid International Origin SIT ReServiceCodes
+var ValidInternationalOriginSITReServiceCodes = []ReServiceCode{
+	ReServiceCodeIOASIT,
+	ReServiceCodeIOFSIT,
+	ReServiceCodeIOPSIT,
+	ReServiceCodeIOSHUT,
+}
+
+// Definition of valid International Destination SIT ReServiceCodes
+var ValidInternationalDestinationSITReServiceCodes = []ReServiceCode{
+	ReServiceCodeIDASIT,
+	ReServiceCodeIDDSIT,
+	ReServiceCodeIDFSIT,
+	ReServiceCodeIDSHUT,
+}
+
 // TableName overrides the table name used by Pop.
 func (r ReService) TableName() string {
 	return "re_services"

@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestGetCustomerHandlerIntegration() {
 	suite.NoError(getCustomerPayload.Validate(strfmt.Default))
 
 	suite.Equal(strfmt.UUID(customer.ID.String()), getCustomerPayload.ID)
-	suite.Equal(*customer.Edipi, getCustomerPayload.DodID)
+	suite.Equal(*customer.Edipi, getCustomerPayload.Edipi)
 	suite.Equal(strfmt.UUID(customer.UserID.String()), getCustomerPayload.UserID)
 	suite.Equal(customer.Affiliation.String(), getCustomerPayload.Agency)
 	suite.Equal(customer.PersonalEmail, getCustomerPayload.Email)

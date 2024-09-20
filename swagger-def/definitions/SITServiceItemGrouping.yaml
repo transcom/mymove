@@ -1,0 +1,14 @@
+properties:
+  summary:
+    $ref: 'SITSummary.yaml'
+    description: >
+      Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT
+      service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance
+      of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date,
+      requested delivery date.
+
+      This is provided at a top level because due to our service item architecture, SIT information is sometimes
+      split across multiple service items, and this summary is a compilation of said information. This prevents
+      the need to loop over many service items.
+  serviceItems:
+    $ref: 'MTOServiceItems.yaml'

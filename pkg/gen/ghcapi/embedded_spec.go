@@ -2286,6 +2286,58 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -3950,7 +4002,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3983,6 +4036,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -7174,10 +7233,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -10972,7 +11031,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -11471,6 +11531,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -11885,6 +11949,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -11934,14 +12016,56 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer"
         },
         "totalSITDaysUsed": {
           "type": "integer"
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -12193,7 +12317,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -16740,6 +16865,76 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -18872,7 +19067,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -18905,6 +19101,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -22482,10 +22684,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -26353,7 +26555,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -26854,6 +27057,10 @@ func init() {
           "type": "string",
           "x-nullable": true
         },
+        "counselingOffice": {
+          "type": "string",
+          "x-nullable": true
+        },
         "customer": {
           "$ref": "#/definitions/Customer"
         },
@@ -27268,6 +27475,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -27319,8 +27544,9 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -27373,6 +27599,48 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -27625,7 +27893,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
