@@ -3226,6 +3226,49 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
       "get": {
         "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
@@ -18007,6 +18050,55 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of payment request",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
