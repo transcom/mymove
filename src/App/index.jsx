@@ -85,14 +85,16 @@ const App = () => {
   if (isAdminSite) {
     return (
       <MilMoveErrorBoundary fallback={<SomethingWentWrong />}>
-        <AppContext.Provider value={adminContext}>
-          <BrowserRouter>
-            <Suspense fallback={<LoadingPlaceholder />}>
-              <PageTitle />
-              <SystemAdmin />
-            </Suspense>
-          </BrowserRouter>
-        </AppContext.Provider>
+        <Provider store={store}>
+          <AppContext.Provider value={adminContext}>
+            <BrowserRouter>
+              <Suspense fallback={<LoadingPlaceholder />}>
+                <PageTitle />
+                <SystemAdmin />
+              </Suspense>
+            </BrowserRouter>
+          </AppContext.Provider>
+        </Provider>
       </MilMoveErrorBoundary>
     );
   }

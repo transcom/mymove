@@ -46,21 +46,10 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       setFlashMessage(`MSG_CANCELATION_SUCCESS${shipmentId}`, 'success', `Successfully canceled shipment`, '', true);
       handleClose();
     },
-    // TODO: This method is duplicated for now. Refactor if neccessary.
     onError: (error) => {
       const { response: { body } = {} } = error;
 
       if (body) {
-        /*
-        {
-          "detail": "Invalid data found in input",
-          "instance":"00000000-0000-0000-0000-000000000000",
-          "title":"Validation Error",
-          "invalidFields": {
-            "primeEstimatedWeight":["the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight","Invalid Input."]
-          }
-        }
-         */
         let invalidFieldsStr = '';
         if (body.invalidFields) {
           Object.keys(body.invalidFields).forEach((key) => {
@@ -92,16 +81,6 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     onError: (error) => {
       const { response: { body } = {} } = error;
       if (body) {
-        /*
-        {
-          "detail": "Invalid data found in input",
-          "instance":"00000000-0000-0000-0000-000000000000",
-          "title":"Validation Error",
-          "invalidFields": {
-            "primeEstimatedWeight":["the time period for updating the estimated weight for a shipment has expired, please contact the TOO directly to request updates to this shipment’s estimated weight","Invalid Input."]
-          }
-        }
-         */
         let invalidFieldsStr = '';
         if (body.invalidFields) {
           Object.keys(body.invalidFields).forEach((key) => {
@@ -137,12 +116,17 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
     postalCode: '',
   };
 
-  const editableWeightEstimateField = !isValidWeight(shipment.primeEstimatedWeight);
+  const editableWeightEstimateField =
+    !isValidWeight(shipment.primeEstimatedWeight) && shipment.shipmentType !== SHIPMENT_OPTIONS.NTSR;
   const editableWeightActualField = true;
   const editableProGearWeightActualField = true;
   const editableSpouseProGearWeightActualField = true;
   const reformatPrimeApiPickupAddress = fromPrimeAPIAddressFormat(shipment.pickupAddress);
+  const reformatPrimeApiSecondaryPickupAddress = fromPrimeAPIAddressFormat(shipment.secondaryPickupAddress);
+  const reformatPrimeApiTertiaryPickupAddress = fromPrimeAPIAddressFormat(shipment.tertiaryPickupAddress);
   const reformatPrimeApiDestinationAddress = fromPrimeAPIAddressFormat(shipment.destinationAddress);
+  const reformatPrimeApiSecondaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.secondaryDeliveryAddress);
+  const reformatPrimeApiTertiaryDeliveryAddress = fromPrimeAPIAddressFormat(shipment.tertiaryDeliveryAddress);
   const editablePickupAddress = isEmpty(reformatPrimeApiPickupAddress);
   const editableDestinationAddress = isEmpty(reformatPrimeApiDestinationAddress);
 
@@ -329,7 +313,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
       scheduledDeliveryDate: shipment.scheduledDeliveryDate,
       actualDeliveryDate: shipment.actualDeliveryDate,
       pickupAddress: editablePickupAddress ? emptyAddress : reformatPrimeApiPickupAddress,
+      secondaryPickupAddress: reformatPrimeApiSecondaryPickupAddress,
+      tertiaryPickupAddress: reformatPrimeApiTertiaryPickupAddress,
       destinationAddress: editableDestinationAddress ? emptyAddress : reformatPrimeApiDestinationAddress,
+      secondaryDeliveryAddress: reformatPrimeApiSecondaryDeliveryAddress,
+      tertiaryDeliveryAddress: reformatPrimeApiTertiaryDeliveryAddress,
       destinationType: shipment.destinationType,
       diversion: shipment.diversion,
     };
@@ -384,7 +372,11 @@ const PrimeUIShipmentUpdate = ({ setFlashMessage }) => {
                           actualSpouseProGearWeight={initialValues.actualSpouseProGearWeight}
                           requestedPickupDate={initialValues.requestedPickupDate}
                           pickupAddress={initialValues.pickupAddress}
+                          secondaryPickupAddress={initialValues.secondaryPickupAddress}
+                          tertiaryPickupAddress={initialValues.tertiaryPickupAddress}
                           destinationAddress={initialValues.destinationAddress}
+                          secondaryDeliveryAddress={initialValues.secondaryDeliveryAddress}
+                          tertiaryDeliveryAddress={initialValues.tertiaryDeliveryAddress}
                           diversion={initialValues.diversion}
                         />
                       )}

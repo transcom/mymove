@@ -1019,6 +1019,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -1648,20 +1653,10 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -1691,6 +1686,12 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -2039,6 +2040,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -2136,6 +2147,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -2154,7 +2171,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -2629,7 +2647,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -3276,6 +3295,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "status": {
           "type": "string",
@@ -4441,6 +4463,11 @@ func init() {
           "readOnly": true,
           "example": "1f2270c7-7166-40ae-981e-b200ebdf3054"
         },
+        "lockedPriceCents": {
+          "type": "integer",
+          "format": "cents",
+          "x-nullable": true
+        },
         "modelType": {
           "$ref": "#/definitions/MTOServiceItemModelType"
         },
@@ -5070,20 +5097,10 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -5113,6 +5130,12 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -5461,6 +5484,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -5558,6 +5591,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -5576,7 +5615,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -6051,7 +6091,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -6700,6 +6741,9 @@ func init() {
           "type": "string",
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "rotation": {
+          "type": "integer"
         },
         "status": {
           "type": "string",
