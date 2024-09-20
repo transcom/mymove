@@ -213,7 +213,7 @@ func (g *Generator) GetPdfFileInfoByContents(file afero.File) (*pdfcpu.PDFInfo, 
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
 func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads models.Uploads) (afero.File, error) {
-	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads)
+	pdfs, err := g.ConvertUploadsToPDF(appCtx, uploads, true)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while converting uploads")
 	}
@@ -227,7 +227,7 @@ func (g *Generator) CreateMergedPDFUpload(appCtx appcontext.AppContext, uploads 
 }
 
 // ConvertUploadsToPDF turns a slice of Uploads into a slice of paths to converted PDF files
-func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads models.Uploads) ([]string, error) {
+func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads models.Uploads, doRotation bool) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
@@ -240,9 +240,18 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
 				// that have already been encountered before handling this PDF.
-				pdf, err := g.PDFFromImages(appCtx, images)
-				if err != nil {
-					return nil, errors.Wrap(err, "Converting images")
+				var pdf string
+				var err error
+				if doRotation {
+					pdf, err = g.PDFFromImages(appCtx, images)
+					if err != nil {
+						return nil, errors.Wrap(err, "Converting images")
+					}
+				} else {
+					pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+					if err != nil {
+						return nil, errors.Wrap(err, "Converting images")
+					}
 				}
 				pdfs = append(pdfs, pdf)
 				images = make([]inputFile, 0)
@@ -282,9 +291,19 @@ func (g *Generator) ConvertUploadsToPDF(appCtx appcontext.AppContext, uploads mo
 
 	// Merge all remaining images in urls into a new PDF
 	if len(images) > 0 {
-		pdf, err := g.PDFFromImages(appCtx, images)
-		if err != nil {
-			return nil, errors.Wrap(err, "Converting remaining images to pdf")
+		var pdf string
+		var err error
+
+		if doRotation {
+			pdf, err = g.PDFFromImages(appCtx, images)
+			if err != nil {
+				return nil, errors.Wrap(err, "Converting remaining images to pdf")
+			}
+		} else {
+			pdf, err = g.PDFFromImagesNoRotation(appCtx, images)
+			if err != nil {
+				return nil, errors.Wrap(err, "Converting remaining images to pdf")
+			}
 		}
 		pdfs = append(pdfs, pdf)
 	}
@@ -505,6 +524,115 @@ func (g *Generator) PDFFromImages(appCtx appcontext.AppContext, images []inputFi
 		fileCloseErr := file.Close()
 		if fileCloseErr != nil {
 			return "", errors.Wrapf(err, "error closing file: %s", optimizedFile.Name())
+		}
+	}
+
+	if err = pdf.OutputAndClose(outputFile); err != nil {
+		return "", errors.Wrap(err, "could not write PDF to outputfile")
+	}
+	return outputFile.Name(), nil
+}
+
+// PDFFromImages returns the path to tempfile PDF containing all images included
+// in urls.
+//
+// The files at those paths will be tempfiles that will need to be cleaned
+// up by the caller.
+func (g *Generator) PDFFromImagesNoRotation(appCtx appcontext.AppContext, images []inputFile) (string, error) {
+	// These constants are based on A4 page size, which we currently default to.
+	horizontalMargin := 0.0
+	topMargin := 0.0
+	bodyWidth := PdfPageWidth - (horizontalMargin * 2)
+	bodyHeight := PdfPageHeight - (topMargin * 2)
+	wToHRatio := bodyWidth / bodyHeight
+
+	pdf := gofpdf.New(PdfOrientation, PdfUnit, PdfPageSize, PdfFontDir)
+	pdf.SetMargins(horizontalMargin, topMargin, horizontalMargin)
+
+	if len(images) == 0 {
+		return "", errors.New("No images provided")
+	}
+
+	appCtx.Logger().Debug("generating PDF from image files", zap.Any("images", images))
+
+	outputFile, err := g.newTempFile()
+	if err != nil {
+		return "", err
+	}
+
+	defer func() {
+		if closeErr := outputFile.Close(); closeErr != nil {
+			appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
+		}
+	}()
+
+	var opt gofpdf.ImageOptions
+	for _, img := range images {
+		pdf.AddPage()
+		file, openErr := g.fs.Open(img.Path)
+		if openErr != nil {
+			return "", errors.Wrap(openErr, "Opening image file")
+		}
+
+		defer func() {
+			if closeErr := file.Close(); closeErr != nil {
+				appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
+			}
+		}()
+
+		if img.ContentType == uploader.FileTypePNG {
+			appCtx.Logger().Debug("Converting png to 8-bit")
+			// gofpdf isn't able to process 16-bit PNGs, so to be safe we convert all PNGs to an 8-bit color depth
+			newFile, newTemplateFileErr := g.newTempFile()
+			if newTemplateFileErr != nil {
+				return "", errors.Wrap(newTemplateFileErr, "Creating temp file for png conversion")
+			}
+
+			defer func() {
+				if closeErr := newFile.Close(); closeErr != nil {
+					appCtx.Logger().Debug("Failed to close file", zap.Error(closeErr))
+				}
+			}()
+
+			convertTo8BitPNGErr := convertTo8BitPNG(file, newFile)
+			if convertTo8BitPNGErr != nil {
+				return "", errors.Wrap(convertTo8BitPNGErr, "Converting to 8-bit png")
+			}
+			file = newFile
+			_, fileSeekErr := file.Seek(0, io.SeekStart)
+			if fileSeekErr != nil {
+				return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
+			}
+		}
+
+		widthInPdf := bodyWidth
+		heightInPdf := 0.0
+
+		// Scale using the imageOptions below
+		// BodyWidth should be set to 0 when the image height the proportion of the page
+		// is taller than wide as compared to an A4 page.
+		//
+		// The opposite is true and defaulted for when the image is wider than it is tall,
+		// in comparison to an A4 page.
+		if float64(bodyWidth/bodyHeight) < wToHRatio {
+			widthInPdf = 0
+			heightInPdf = bodyHeight
+		}
+
+		// Seek to the beginning of the file so when we register the image, it doesn't start
+		// at the end of the file.
+		_, fileSeekErr := file.Seek(0, io.SeekStart)
+		if fileSeekErr != nil {
+			return "", errors.Wrapf(fileSeekErr, "file.Seek offset: 0 whence: %d", io.SeekStart)
+		}
+		// Need to register the image using an afero reader, else it uses default filesystem
+		pdf.RegisterImageReader(img.Path, contentTypeToImageType[img.ContentType], file)
+		opt.ImageType = contentTypeToImageType[img.ContentType]
+
+		pdf.ImageOptions(img.Path, horizontalMargin, topMargin, widthInPdf, heightInPdf, false, opt, 0, "")
+		fileCloseErr := file.Close()
+		if fileCloseErr != nil {
+			return "", errors.Wrapf(err, "error closing file: %s", file.Name())
 		}
 	}
 
