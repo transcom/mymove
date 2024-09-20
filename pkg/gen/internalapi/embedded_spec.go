@@ -3987,7 +3987,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -6345,7 +6345,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -6439,7 +6440,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -6915,7 +6916,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Secondary Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -12598,7 +12599,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -14960,7 +14961,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -15054,7 +15056,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -15532,7 +15534,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Secondary Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
