@@ -23,3 +23,28 @@ export const findNextServiceMemberStep = (profileState) => {
       return generalRoutes.HOME_PATH;
   }
 };
+
+export const generateUniqueDodid = () => {
+  const prefix = 'SM';
+
+  // Custom epoch start date (e.g., 2024-01-01), generates something like 1704067200000
+  const customEpoch = new Date('2024-01-01').getTime();
+  const now = Date.now();
+
+  // Calculate milliseconds since custom epoch, then convert to an 8-digit integer
+  const uniqueNumber = Math.floor((now - customEpoch) / 1000); // Dividing by 1000 to reduce to seconds
+
+  // Convert the unique number to a string, ensuring it has 8 digits
+  const uniqueStr = uniqueNumber.toString().slice(0, 8).padStart(8, '0');
+
+  return prefix + uniqueStr;
+};
+
+export const generateUniqueEmplid = () => {
+  const prefix = 'SM';
+  const customEpoch = new Date('2024-01-01').getTime();
+  const now = Date.now();
+  const uniqueNumber = Math.floor((now - customEpoch) / 1000) % 100000; // Modulo 100000 ensures it's 5 digits
+  const uniqueStr = uniqueNumber.toString().padStart(5, '0');
+  return prefix + uniqueStr;
+};

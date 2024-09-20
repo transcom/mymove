@@ -23,8 +23,8 @@ import (
 const (
 	recalculateTestPickupZip                 = "30907"
 	recalculateTestDestinationZip            = "78234"
-	recalculateTestMSFee                     = unit.Cents(25513)
-	recalculateTestCSFee                     = unit.Cents(22399)
+	recalculateTestMSFee                     = unit.Cents(12303)
+	recalculateTestCSFee                     = unit.Cents(12303)
 	recalculateTestDLHPrice                  = unit.Millicents(6000)
 	recalculateTestFSCPrice                  = unit.Millicents(277600)
 	recalculateTestDomOtherPrice             = unit.Cents(2159)
@@ -154,12 +154,12 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeMS,
-			priceCents:     unit.Cents(25513),
+			priceCents:     unit.Cents(12303),
 		},
 		{
 			paymentRequest: &oldPaymentRequest,
 			serviceCode:    models.ReServiceCodeCS,
-			priceCents:     unit.Cents(22399),
+			priceCents:     unit.Cents(12303),
 		},
 		{
 			paymentRequest: &oldPaymentRequest,
@@ -196,13 +196,13 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeMS,
-			priceCents:          unit.Cents(25513),
+			priceCents:          unit.Cents(12303),
 		},
 		{
 			isNewPaymentRequest: true,
 			paymentRequest:      newPaymentRequest,
 			serviceCode:         models.ReServiceCodeCS,
-			priceCents:          unit.Cents(22399),
+			priceCents:          unit.Cents(12303),
 		},
 		{
 			isNewPaymentRequest: true,
@@ -406,24 +406,6 @@ func (suite *PaymentRequestServiceSuite) setupRecalculateData1() (models.Move, m
 			State:         pickupAddress.State,
 		},
 	})
-
-	// MS price data
-	msService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	msTaskOrderFee := models.ReTaskOrderFee{
-		ContractYearID: contractYear.ID,
-		ServiceID:      msService.ID,
-		PriceCents:     recalculateTestMSFee,
-	}
-	suite.MustSave(&msTaskOrderFee)
-
-	// CS price data
-	csService := factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
-	csTaskOrderFee := models.ReTaskOrderFee{
-		ContractYearID: contractYear.ID,
-		ServiceID:      csService.ID,
-		PriceCents:     recalculateTestCSFee,
-	}
-	suite.MustSave(&csTaskOrderFee)
 
 	// DLH price data
 	testdatagen.MakeReDomesticLinehaulPrice(suite.DB(), testdatagen.Assertions{
