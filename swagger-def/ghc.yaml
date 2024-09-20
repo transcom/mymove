@@ -368,6 +368,42 @@ paths:
       description: Returns counseling evaluation reports for the specified move that are visible to the current office user
       summary: Returns counseling evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  '/moves/{moveID}/cancel':
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
@@ -3201,6 +3237,7 @@ paths:
               closeoutInitiated,
               closeoutLocation,
               ppmStatus,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3220,6 +3257,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -4336,7 +4377,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -6633,6 +6674,9 @@ definitions:
         x-nullable: true
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
+        x-nullable: true
+      counselingOffice:
+        type: string
         x-nullable: true
       assignedTo:
         $ref: '#/definitions/AssignedOfficeUser'

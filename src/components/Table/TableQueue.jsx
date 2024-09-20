@@ -49,6 +49,7 @@ const TableQueue = ({
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
   sessionStorageKey,
+  isHeadquartersUser,
   isSupervisor,
   currentUserId,
 }) => {
@@ -90,7 +91,7 @@ const TableQueue = ({
   const { id, desc } = paramSort.length ? paramSort[0] : {};
 
   const gblocContext = useContext(SelectedGblocContext);
-  const { selectedGbloc } = gblocContext || { selectedGbloc: undefined };
+  const { selectedGbloc } = isHeadquartersUser && gblocContext ? gblocContext : { selectedGbloc: undefined };
 
   const multiSelectValueDelimiter = ',';
 
@@ -324,6 +325,7 @@ const TableQueue = ({
             totalCount={totalCount}
             paramSort={paramSort}
             paramFilters={paramFilters}
+            isHeadquartersUser={isHeadquartersUser}
           />
         )}
       </div>
@@ -393,6 +395,8 @@ TableQueue.propTypes = {
   csvExportQueueFetcherKey: PropTypes.string,
   // session storage key to store search filters
   sessionStorageKey: PropTypes.string,
+  // isHeadquartersUser identifies if the active role is a headquarters user to allow switching GBLOCs
+  isHeadquartersUser: PropTypes.bool,
 };
 
 TableQueue.defaultProps = {
@@ -411,5 +415,6 @@ TableQueue.defaultProps = {
   csvExportQueueFetcher: null,
   csvExportQueueFetcherKey: null,
   sessionStorageKey: 'default',
+  isHeadquartersUser: false,
 };
 export default TableQueue;

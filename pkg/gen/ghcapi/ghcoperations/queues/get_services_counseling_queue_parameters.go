@@ -46,6 +46,10 @@ type GetServicesCounselingQueueParams struct {
 	  In: query
 	*/
 	CloseoutLocation *string
+	/*filters using a counselingOffice name of the move
+	  In: query
+	*/
+	CounselingOffice *string
 	/*filters the name of the destination duty location on the orders
 	  In: query
 	*/
@@ -151,6 +155,11 @@ func (o *GetServicesCounselingQueueParams) BindRequest(r *http.Request, route *m
 
 	qCloseoutLocation, qhkCloseoutLocation, _ := qs.GetOK("closeoutLocation")
 	if err := o.bindCloseoutLocation(qCloseoutLocation, qhkCloseoutLocation, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qCounselingOffice, qhkCounselingOffice, _ := qs.GetOK("counselingOffice")
+	if err := o.bindCounselingOffice(qCounselingOffice, qhkCounselingOffice, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -323,6 +332,24 @@ func (o *GetServicesCounselingQueueParams) bindCloseoutLocation(rawData []string
 		return nil
 	}
 	o.CloseoutLocation = &raw
+
+	return nil
+}
+
+// bindCounselingOffice binds and validates parameter CounselingOffice from query.
+func (o *GetServicesCounselingQueueParams) bindCounselingOffice(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.CounselingOffice = &raw
 
 	return nil
 }
@@ -696,7 +723,7 @@ func (o *GetServicesCounselingQueueParams) bindSort(rawData []string, hasKey boo
 // validateSort carries on validations for parameter Sort
 func (o *GetServicesCounselingQueueParams) validateSort(formats strfmt.Registry) error {
 
-	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus"}, true); err != nil {
+	if err := validate.EnumCase("sort", "query", *o.Sort, []interface{}{"lastName", "dodID", "emplid", "branch", "locator", "status", "requestedMoveDate", "submittedAt", "originGBLOC", "originDutyLocation", "destinationDutyLocation", "ppmType", "closeoutInitiated", "closeoutLocation", "ppmStatus", "counselingOffice"}, true); err != nil {
 		return err
 	}
 

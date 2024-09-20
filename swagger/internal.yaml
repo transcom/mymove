@@ -726,7 +726,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         example: 212-555-5555
         x-nullable: true
         title: Secondary Phone
@@ -820,7 +820,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         example: 212-555-5555
         x-nullable: true
         title: Alternate phone
@@ -904,7 +904,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         example: 212-555-5555
         x-nullable: true
         title: Alternate Phone
@@ -2866,6 +2866,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
