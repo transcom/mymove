@@ -18,6 +18,10 @@ type WebhookSubscriptionUpdater struct {
 func (_m *WebhookSubscriptionUpdater) UpdateWebhookSubscription(appCtx appcontext.AppContext, webhooksubscription *models.WebhookSubscription, severity *int64, eTag *string) (*models.WebhookSubscription, error) {
 	ret := _m.Called(appCtx, webhooksubscription, severity, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateWebhookSubscription")
+	}
+
 	var r0 *models.WebhookSubscription
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.WebhookSubscription, *int64, *string) (*models.WebhookSubscription, error)); ok {

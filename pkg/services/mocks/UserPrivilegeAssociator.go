@@ -20,6 +20,10 @@ type UserPrivilegeAssociator struct {
 func (_m *UserPrivilegeAssociator) UpdateUserPrivileges(appCtx appcontext.AppContext, userID uuid.UUID, privileges []models.PrivilegeType) ([]models.UsersPrivileges, error) {
 	ret := _m.Called(appCtx, userID, privileges)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateUserPrivileges")
+	}
+
 	var r0 []models.UsersPrivileges
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, []models.PrivilegeType) ([]models.UsersPrivileges, error)); ok {

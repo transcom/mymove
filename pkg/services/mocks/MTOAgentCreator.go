@@ -18,6 +18,10 @@ type MTOAgentCreator struct {
 func (_m *MTOAgentCreator) CreateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent) (*models.MTOAgent, error) {
 	ret := _m.Called(appCtx, mtoAgent)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateMTOAgentPrime")
+	}
+
 	var r0 *models.MTOAgent
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent) (*models.MTOAgent, error)); ok {

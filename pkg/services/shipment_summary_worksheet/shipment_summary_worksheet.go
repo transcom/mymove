@@ -240,7 +240,7 @@ func (s SSWPPMComputer) FormatValuesShipmentSummaryWorksheetFormPage1(data model
 
 		finalPPMWeight := FormatPPMWeightFinal(data.PPMShipmentFinalWeight)
 		page1.ShipmentWeights = finalPPMWeight
-		page1.ActualObligationGCC100 = finalPPMWeight + "; " + formattedShipment.FinalIncentive
+		page1.ActualObligationGCC100 = formattedShipment.ShipmentWeightForObligation + " - Actual lbs; "
 		page1.PreparationDate1, err = formatSSWDate(data.SignedCertifications, data.PPMShipment.ID)
 		if err != nil {
 			return page1, err
@@ -733,35 +733,6 @@ func FormatAllSITSForAOAPacket(ppm models.PPMShipment) WorkSheetSIT {
 	}
 
 	return formattedSIT
-}
-
-func (s SSWPPMComputer) calculateShipmentTotalWeight(ppmShipment models.PPMShipment, weightAllotment models.SSWMaxWeightEntitlement) unit.Pound {
-
-	var err error
-	var ppmActualWeight unit.Pound
-	var maxLimit unit.Pound
-
-	// Set maxLimit equal to the maximum weight entitlement or the allowable weight, whichever is lower
-	if weightAllotment.TotalWeight < weightAllotment.Entitlement {
-		maxLimit = weightAllotment.TotalWeight
-	} else {
-		maxLimit = weightAllotment.Entitlement
-	}
-
-	// Get the actual weight of the ppmShipment
-	if len(ppmShipment.WeightTickets) > 0 {
-		ppmActualWeight, err = s.PPMCloseoutFetcher.GetActualWeight(&ppmShipment)
-		if err != nil {
-			return 0
-		}
-	}
-
-	// If actual weight is less than the lessor of maximum weight entitlement or the allowable weight, then use ppmActualWeight
-	if ppmActualWeight < maxLimit {
-		return ppmActualWeight
-	} else {
-		return maxLimit
-	}
 }
 
 // FetchMovingExpensesShipmentSummaryWorksheet fetches moving expenses for the Shipment Summary Worksheet
