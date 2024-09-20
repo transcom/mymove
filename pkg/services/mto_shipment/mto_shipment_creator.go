@@ -196,7 +196,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	transactionError := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		// create pickup and destination addresses
-		if shipment.PickupAddress != nil {
+		if shipment.PickupAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			pickupAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.PickupAddress)
 			if errAddress != nil {
 				return fmt.Errorf("failed to create pickup address %#v %e", verrs, err)
@@ -241,7 +241,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			shipment.TertiaryPickupAddress.County = county
 		}
 
-		if shipment.DestinationAddress != nil {
+		if shipment.DestinationAddress != nil && shipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
 			destinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.DestinationAddress)
 			if errAddress != nil {
 				return fmt.Errorf("failed to create destination address %#v %e", verrs, err)
@@ -301,6 +301,15 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				return fmt.Errorf("failed to create storage facility %#v %e", verrs, err)
 			}
 			shipment.StorageFacilityID = &shipment.StorageFacility.ID
+
+			// For NTS-Release set the pick up address to the storage facility
+			if shipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				shipment.PickupAddressID = &shipment.StorageFacility.AddressID
+			}
+			// For NTS set the destination address to the storage facility
+			if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+				shipment.DestinationAddressID = &shipment.StorageFacility.AddressID
+			}
 		}
 
 		//assign status to shipment draft by default
