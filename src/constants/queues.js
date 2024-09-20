@@ -52,15 +52,6 @@ export const BRANCH_OPTIONS = [
   { value: 'AIR_FORCE', label: 'Air Force' },
   { value: 'COAST_GUARD', label: 'Coast Guard' },
   { value: 'SPACE_FORCE', label: 'Space Force' },
-];
-
-export const BRANCH_OPTIONS_WITH_MARINE_CORPS = [
-  { value: '', label: 'All' },
-  { value: 'ARMY', label: 'Army' },
-  { value: 'NAVY', label: 'Navy' },
-  { value: 'AIR_FORCE', label: 'Air Force' },
-  { value: 'COAST_GUARD', label: 'Coast Guard' },
-  { value: 'SPACE_FORCE', label: 'Space Force' },
   { value: 'MARINES', label: 'Marine Corps' },
 ];
 
