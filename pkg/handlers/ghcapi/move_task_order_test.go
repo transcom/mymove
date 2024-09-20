@@ -36,6 +36,7 @@ import (
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/trace"
 )
 
@@ -68,6 +69,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 	suite.Assertions.IsType(&movetaskorderops.GetMoveTaskOrderOK{}, response)
 	suite.Equal(strfmt.UUID(moveTaskOrder.ID.String()), moveTaskOrderPayload.ID)
 	suite.Nil(moveTaskOrderPayload.AvailableToPrimeAt)
+	suite.Nil(moveTaskOrderPayload.ApprovedAt)
 	// TODO: Check that the *moveTaskOrderPayload.Status is not "canceled"
 	// suite.False(*moveTaskOrderPayload.IsCanceled)
 	suite.Equal(strfmt.UUID(moveTaskOrder.OrdersID.String()), moveTaskOrderPayload.OrderID)
@@ -75,8 +77,38 @@ func (suite *HandlerSuite) TestGetMoveTaskOrderHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeMS)
-	factory.BuildReServiceByCode(suite.DB(), models.ReServiceCodeCS)
+	setupPricerData := func() {
+		contract := testdatagen.FetchOrMakeReContract(suite.DB(), testdatagen.Assertions{})
+
+		contractYear := testdatagen.FetchOrMakeReContractYear(suite.DB(), testdatagen.Assertions{
+			ReContractYear: models.ReContractYear{
+				Contract:             contract,
+				ContractID:           contract.ID,
+				StartDate:            time.Now(),
+				EndDate:              time.Now().Add(time.Hour * 12),
+				Escalation:           1.0,
+				EscalationCompounded: 1.0,
+			},
+		})
+
+		service := factory.FetchOrBuildReServiceByCode(suite.DB(), "MS")
+		msTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&msTaskOrderFee)
+
+		service = factory.FetchOrBuildReServiceByCode(suite.DB(), "CS")
+		csTaskOrderFee := models.ReTaskOrderFee{
+			ContractYearID: contractYear.ID,
+			ServiceID:      service.ID,
+			PriceCents:     90000,
+		}
+		suite.MustSave(&csTaskOrderFee)
+	}
+
+	suite.PreloadData(setupPricerData)
 
 	setUpSignedCertificationCreatorMock := func(returnValue ...interface{}) services.SignedCertificationCreator {
 		mockCreator := &mocks.SignedCertificationCreator{}
@@ -173,6 +205,7 @@ func (suite *HandlerSuite) TestUpdateMoveTaskOrderHandlerIntegrationSuccess() {
 		suite.Assertions.IsType(&movetaskorderops.UpdateMoveTaskOrderStatusOK{}, response)
 		suite.Equal(strfmt.UUID(move.ID.String()), movePayload.ID)
 		suite.NotNil(movePayload.AvailableToPrimeAt)
+		suite.NotNil(movePayload.ApprovedAt)
 		suite.HasWebhookNotification(move.ID, traceID) // this action always creates a notification for the Prime
 
 		// also check MTO level service items are properly created

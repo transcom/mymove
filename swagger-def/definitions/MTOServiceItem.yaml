@@ -80,8 +80,6 @@ properties:
     $ref: 'Address.yaml'
   sitDestinationFinalAddress:
     $ref: 'Address.yaml'
-  sitAddressUpdates:
-    $ref: 'SITAddressUpdates.yaml'
   sitDeliveryMiles:
     type: integer
     x-nullable: true
@@ -137,6 +135,10 @@ properties:
   serviceRequestDocuments:
     $ref: 'ServiceRequestDocuments.yaml'
   estimatedPrice:
+    type: integer
+    format: cents
+    x-nullable: true
+  lockedPriceCents:
     type: integer
     format: cents
     x-nullable: true

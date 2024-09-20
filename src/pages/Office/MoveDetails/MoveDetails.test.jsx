@@ -17,9 +17,9 @@ jest.mock('hooks/queries', () => ({
 
 const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
-const setUnapprovedSITAddressUpdateCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
+const setMissingOrdersInfoCount = jest.fn();
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -361,6 +361,7 @@ const requestedMoveDetailsAmendedOrdersQuery = {
   },
   order: {
     id: '1',
+    department_indicator: 'ARMY',
     originDutyLocation: {
       address: {
         streetAddress1: '',
@@ -782,9 +783,10 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           />
         </MockProviders>,
       );
@@ -801,9 +803,10 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           />
         </MockProviders>,
       );
@@ -820,9 +823,10 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
         />
       </MockProviders>,
     );
@@ -887,9 +891,10 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
         />
       </MockProviders>,
     );
@@ -908,9 +913,10 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
         />
       </MockProviders>,
     );
@@ -932,9 +938,10 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
         />
       </MockProviders>,
     );
@@ -972,9 +979,10 @@ describe('MoveDetails page', () => {
             <MoveDetails
               setUnapprovedShipmentCount={setUnapprovedShipmentCount}
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-              setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
               setExcessWeightRiskCount={setExcessWeightRiskCount}
               setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
+              missingOrdersInfoCount={0}
+              setMissingOrdersInfoCount={setMissingOrdersInfoCount}
             />
           </MockProviders>,
         );
@@ -992,15 +1000,17 @@ describe('MoveDetails page', () => {
         <MoveDetails
           setUnapprovedShipmentCount={setUnapprovedShipmentCount}
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-          setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={2}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
         />
       </MockProviders>,
     );
 
     it('renders an error indicator in the sidebar', () => {
       expect(wrapper.find('a[href="#orders"] span[data-testid="tag"]').exists()).toBe(true);
+      expect(wrapper.find('a[href="#orders"] span[data-testid="tag"]').text()).toBe('2');
     });
   });
 
@@ -1013,9 +1023,10 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           />
         </MockProviders>,
       );
@@ -1033,9 +1044,10 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           />
         </MockProviders>,
       );
@@ -1048,9 +1060,9 @@ describe('MoveDetails page', () => {
     const testProps = {
       setUnapprovedShipmentCount,
       setUnapprovedServiceItemCount,
-      setUnapprovedSITAddressUpdateCount,
       setExcessWeightRiskCount,
       setUnapprovedSITExtensionCount,
+      setMissingOrdersInfoCount,
     };
 
     it('renders the financial review flag button when user has permission', async () => {
@@ -1160,9 +1172,10 @@ describe('MoveDetails page', () => {
           <MoveDetails
             setUnapprovedShipmentCount={setUnapprovedShipmentCount}
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           />
         </MockProviders>,
       );

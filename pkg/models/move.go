@@ -50,7 +50,7 @@ const locatorLength = 6
 // This set of letters should produce 'non-word' type strings
 var locatorLetters = []rune("346789BCDFGHJKMPQRTVWXY")
 
-// Move is an object representing a move
+// Move is an object representing a move task order which falls under an "Order" assigned to a service member
 type Move struct {
 	ID                           uuid.UUID             `json:"id" db:"id"`
 	Locator                      string                `json:"locator" db:"locator"`
@@ -65,6 +65,7 @@ type Move struct {
 	Show                         *bool                 `json:"show" db:"show"`
 	TIORemarks                   *string               `db:"tio_remarks"`
 	AvailableToPrimeAt           *time.Time            `db:"available_to_prime_at"`
+	ApprovedAt                   *time.Time            `db:"approved_at"`
 	ContractorID                 *uuid.UUID            `db:"contractor_id"`
 	Contractor                   *Contractor           `belongs_to:"contractors" fk_id:"contractor_id"`
 	PPMType                      *string               `db:"ppm_type"`
@@ -98,6 +99,8 @@ type Move struct {
 	TOOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"too_assigned_id"`
 	TIOAssignedID                *uuid.UUID            `json:"tio_assigned_id" db:"tio_assigned_id"`
 	TIOAssignedUser              *OfficeUser           `belongs_to:"office_users" fk_id:"tio_assigned_id"`
+	CounselingOfficeID           *uuid.UUID            `json:"counseling_transportation_office_id" db:"counseling_transportation_office_id"`
+	CounselingOffice             *TransportationOffice `belongs_to:"transportation_offices" fk_id:"counseling_transportation_office_id"`
 }
 
 // TableName overrides the table name used by Pop.
@@ -107,8 +110,9 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show   *bool
-	Status *MoveStatus
+	Show               *bool
+	Status             *MoveStatus
+	CounselingOfficeID *uuid.UUID
 }
 
 type Moves []Move
@@ -293,6 +297,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
 				continue
@@ -322,7 +329,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
-
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			verrs, err := db.ValidateAndCreate(&move)
 			if verrs.HasAny() {
 				return nil, verrs, nil
@@ -462,6 +471,7 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.TertiaryPickupAddress",
 		"MTOShipments.PPMShipment.TertiaryDestinationAddress",
 		"MTOShipments.BoatShipment",
+		"MTOShipments.MobileHome",
 		"Orders",
 		"Orders.UploadedOrders",
 		"Orders.UploadedOrders.UserUploads",

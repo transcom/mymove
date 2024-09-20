@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 
@@ -15,6 +15,9 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import Restricted from 'components/Restricted/Restricted';
+import { permissionTypes } from 'constants/permissions';
 
 const NTSShipmentInfoList = ({
   className,
@@ -29,12 +32,14 @@ const NTSShipmentInfoList = ({
   const {
     pickupAddress,
     secondaryPickupAddress,
+    tertiaryPickupAddress,
     mtoAgents,
     counselorRemarks,
     customerRemarks,
     requestedPickupDate,
     storageFacility,
     serviceOrderNumber,
+    requestedDeliveryDate,
     scheduledPickupDate,
     actualPickupDate,
     scheduledDeliveryDate,
@@ -55,6 +60,14 @@ const NTSShipmentInfoList = ({
   // Never show is an option since NTSShipmentInfoList is used by both the TOO
   // and services counselor and show different things.
   setDisplayFlags(errorIfMissing, warnIfMissing, showWhenCollapsed, neverShow, shipment);
+
+  const [isTertiaryAddressEnabled, setIsTertiaryAddressEnabled] = useState(false);
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsTertiaryAddressEnabled(await isBooleanFlagEnabled('third_address_available'));
+    };
+    if (!isForEvaluationReport) fetchData();
+  }, [isForEvaluationReport]);
 
   const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
 
@@ -143,6 +156,26 @@ const NTSShipmentInfoList = ({
         {secondaryPickupAddress ? formatAddress(secondaryPickupAddress) : '—'}
       </dd>
     </div>
+  );
+
+  const tertiaryPickupAddressElementFlags = getDisplayFlags('tertiaryPickupAddress');
+  const tertiaryPickupAddressElement = (
+    <div className={tertiaryPickupAddressElementFlags.classes}>
+      <dt>Third pickup address</dt>
+      <dd data-testid="tertiaryPickupAddress">{tertiaryPickupAddress ? formatAddress(tertiaryPickupAddress) : '—'}</dd>
+    </div>
+  );
+
+  const requestedDeliveryDateElementFlags = getDisplayFlags('requestedDeliveryDate');
+  const requestedDeliveryDateElement = (
+    <Restricted to={permissionTypes.updateShipment}>
+      <div className={requestedDeliveryDateElementFlags.classes}>
+        <dt>Requested delivery date</dt>
+        <dd data-testid="requestedDeliveryDate">
+          {(requestedDeliveryDate && formatDate(requestedDeliveryDate, 'DD MMM YYYY')) || '—'}
+        </dd>
+      </div>
+    </Restricted>
   );
 
   const scheduledDeliveryDateElementFlags = getDisplayFlags('scheduledDeliveryDate');
@@ -253,6 +286,8 @@ const NTSShipmentInfoList = ({
       {requestedPickupDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
+      {isTertiaryAddressEnabled ? tertiaryPickupAddressElement : null}
+      {showElement(requestedDeliveryDateElementFlags) && requestedDeliveryDateElement}
       {showElement(releasingAgentFlags) && releasingAgentElement}
       {showElement(storageFacilityInfoElementFlags) && storageFacilityInfoElement}
       {showElement(serviceOrderNumberElementFlags) && serviceOrderNumberElement}

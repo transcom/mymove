@@ -35,6 +35,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveWithNTSAndNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveWithNTSAndNeedsSC(appCtx)
 	},
+	"GoodTACAndLoaCombination": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return MakeGoodTACAndLoaCombination(appCtx)
+	},
 	"MoveWithMinimalNTSRNeedsSC": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeMoveWithMinimalNTSRNeedsSC(appCtx)
 	},

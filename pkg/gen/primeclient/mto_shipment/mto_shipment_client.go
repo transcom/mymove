@@ -32,7 +32,7 @@ type ClientOption func(*runtime.ClientOperation)
 type ClientService interface {
 	CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOption) (*CreateMTOAgentOK, error)
 
-	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error)
+	CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) error
 
 	CreateSITExtension(params *CreateSITExtensionParams, opts ...ClientOption) (*CreateSITExtensionCreated, error)
 
@@ -40,7 +40,7 @@ type ClientService interface {
 
 	UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOption) (*UpdateMTOAgentOK, error)
 
-	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error)
+	UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) error
 
 	UpdateMTOShipmentAddress(params *UpdateMTOShipmentAddressParams, opts ...ClientOption) (*UpdateMTOShipmentAddressOK, error)
 
@@ -106,19 +106,11 @@ func (a *Client) CreateMTOAgent(params *CreateMTOAgentParams, opts ...ClientOpti
 /*
 	CreateMTOShipment creates m t o shipment
 
-	_[Deprecated: sunset on 2024-04-08]_ This endpoint is deprecated and will be removed in a future version.
+	_[Deprecated: this endpoint was deprecated on August 5th, 2024]_
 
-Please use the new endpoint at `/prime/v2/createMTOShipment` instead.
-
-Creates a new shipment within the specified move. This endpoint should be used whenever the movers identify a
-need for an additional shipment. The new shipment will be submitted to the TOO for review, and the TOO must
-approve it before the contractor can proceed with billing.
-
-**WIP**: The Prime should be notified by a push notification whenever the TOO approves a shipment connected to
-one of their moves. Otherwise, the Prime can fetch the related move using the
-[getMoveTaskOrder](#operation/getMoveTaskOrder) endpoint and see if this shipment has the status `"APPROVED"`.
+Please use the new endpoint at `/prime/v3/createMTOShipment` instead.
 */
-func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) (*CreateMTOShipmentOK, error) {
+func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...ClientOption) error {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewCreateMTOShipmentParams()
@@ -139,18 +131,11 @@ func (a *Client) CreateMTOShipment(params *CreateMTOShipmentParams, opts ...Clie
 		opt(op)
 	}
 
-	result, err := a.transport.Submit(op)
+	_, err := a.transport.Submit(op)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	success, ok := result.(*CreateMTOShipmentOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for createMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
+	return nil
 }
 
 /*
@@ -297,28 +282,11 @@ func (a *Client) UpdateMTOAgent(params *UpdateMTOAgentParams, opts ...ClientOpti
 /*
 	UpdateMTOShipment updates m t o shipment
 
-	_[Deprecated: sunset on August 5th, 2024]_ This endpoint is deprecated and will be removed in a future version.
+	_[Deprecated: this endpoint was deprecated on August 5th, 2024]_
 
-Please use the new endpoint at `/prime/v2/updateMTOShipment` instead.
-
-**DEPRECATION ON AUGUST 5TH, 2024**
-Following deprecation, there is an edge case scenario where a PPM shipment with no addresses could be updated and it would also update the final destination SIT address
-for SIT service items. This edge case has been removed as you should not be able to update items using this endpoint. Third-party APIs have confirmed they will require
-deprecation for this change.
-
-Updates an existing shipment for a move.
-
-Note that there are some restrictions on nested objects:
-
-* Service items: You cannot add or update service items using this endpoint. Please use [createMTOServiceItem](#operation/createMTOServiceItem) and [updateMTOServiceItem](#operation/updateMTOServiceItem) instead.
-* Agents: You cannot add or update agents using this endpoint. Please use [createMTOAgent](#operation/createMTOAgent) and [updateMTOAgent](#operation/updateMTOAgent) instead.
-* Addresses: You can add new addresses using this endpoint (and must use this endpoint to do so), but you cannot update existing ones. Please use [updateMTOShipmentAddress](#operation/updateMTOShipmentAddress) instead.
-
-These restrictions are due to our [optimistic locking/concurrency control](https://transcom.github.io/mymove-docs/docs/dev/contributing/backend/use-optimistic-locking) mechanism.
-
-Note that some fields cannot be manually changed but will still be updated automatically, such as `primeEstimatedWeightRecordedDate` and `requiredDeliveryDate`.
+Please use the new endpoint at `/prime/v3/updateMTOShipment` instead.
 */
-func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) (*UpdateMTOShipmentOK, error) {
+func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...ClientOption) error {
 	// TODO: Validate the params before sending
 	if params == nil {
 		params = NewUpdateMTOShipmentParams()
@@ -339,18 +307,11 @@ func (a *Client) UpdateMTOShipment(params *UpdateMTOShipmentParams, opts ...Clie
 		opt(op)
 	}
 
-	result, err := a.transport.Submit(op)
+	_, err := a.transport.Submit(op)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	success, ok := result.(*UpdateMTOShipmentOK)
-	if ok {
-		return success, nil
-	}
-	// unexpected success response
-	// safeguard: normally, absent a default response, unknown success responses return an error above: so this is a codegen issue
-	msg := fmt.Sprintf("unexpected success response for updateMTOShipment: API contract not enforced by server. Client expected to get an error, but got: %T", result)
-	panic(msg)
+	return nil
 }
 
 /*

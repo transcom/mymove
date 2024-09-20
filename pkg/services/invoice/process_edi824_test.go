@@ -30,7 +30,7 @@ func TestProcessEDI824Suite(t *testing.T) {
 func (suite *ProcessEDI824Suite) TestParsingEDI824() {
 	edi824Processor := NewEDI824Processor()
 
-	suite.Run("successfully proccesses a valid EDI824", func() {
+	suite.Run("successfully processes a valid EDI824", func() {
 		paymentRequest := factory.BuildPaymentRequest(suite.DB(), nil, nil)
 		sample824EDIString := fmt.Sprintf(`
 ISA*00*0084182369*00*0000000000*ZZ*MILMOVE        *12*8004171844     *201002*1504*U*00401*00000995*0*T*|

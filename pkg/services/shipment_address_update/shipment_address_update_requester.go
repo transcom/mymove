@@ -193,7 +193,6 @@ func (f *shipmentAddressUpdateRequester) mapServiceItemWithUpdatedPriceRequireme
 		EstimatedWeight:                 originalServiceItem.EstimatedWeight,
 		ActualWeight:                    originalServiceItem.ActualWeight,
 		Dimensions:                      originalServiceItem.Dimensions,
-		SITAddressUpdates:               originalServiceItem.SITAddressUpdates,
 		ServiceRequestDocuments:         originalServiceItem.ServiceRequestDocuments,
 		CreatedAt:                       originalServiceItem.CreatedAt,
 		ApprovedAt:                      &now,
@@ -246,7 +245,7 @@ func (f *shipmentAddressUpdateRequester) RequestShipmentDeliveryAddressUpdate(ap
 		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for moves that are available to the Prime")
 	}
 	if shipment.ShipmentType != models.MTOShipmentTypeHHG && shipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
-		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTSr shipments")
+		return nil, apperror.NewUnprocessableEntityError("destination address update requests can only be created for HHG and NTS-Release shipments")
 	}
 	if eTag != etag.GenerateEtag(shipment.UpdatedAt) {
 		return nil, apperror.NewPreconditionFailedError(shipmentID, nil)

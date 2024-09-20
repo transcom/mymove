@@ -72,7 +72,8 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 	if originDSTransportInfo != nil {
 		originDutyLocationName = &originDSTransportInfo.Name
 		originDutyLocationPhoneLine = &originDSTransportInfo.PhoneLine
-
+	} else if originDutyLocation != nil {
+		originDutyLocationName = &originDutyLocation.Name
 	}
 
 	totalEntitlement := models.GetWeightAllotment(*orders.Grade)

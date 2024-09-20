@@ -50,12 +50,30 @@ type PPMSITEstimatedCost struct {
 	PPMSITEstimatedCost *unit.Pound
 }
 
+type PPMSITEstimatedCostParams struct {
+	ContractYearName       string
+	PriceRateOrFactor      string
+	IsPeak                 string
+	EscalationCompounded   string
+	ServiceAreaOrigin      string
+	ServiceAreaDestination string
+	NumberDaysSIT          string
+}
+
+type PPMSITEstimatedCostInfo struct {
+	EstimatedSITCost       *unit.Cents
+	PriceFirstDaySIT       *unit.Cents
+	PriceAdditionalDaySIT  *unit.Cents
+	ParamsFirstDaySIT      PPMSITEstimatedCostParams
+	ParamsAdditionalDaySIT PPMSITEstimatedCostParams
+}
+
 // PPMShipmentStatus represents the status of an order record's lifecycle
 type PPMShipmentStatus string
 
 const (
-	// PPMShipmentStatusCancelled captures enum value "DRAFT"
-	PPMShipmentStatusCancelled PPMShipmentStatus = "CANCELLED"
+	// PPMShipmentStatusCanceled captures enum value "CANCELED"
+	PPMShipmentStatusCanceled PPMShipmentStatus = "CANCELED"
 	// PPMShipmentStatusDraft captures enum value "DRAFT"
 	PPMShipmentStatusDraft PPMShipmentStatus = "DRAFT"
 	// PPMShipmentStatusSubmitted captures enum value "SUBMITTED"
@@ -75,7 +93,7 @@ const (
 // AllowedPPMShipmentStatuses is a list of all the allowed values for the Status of a PPMShipment as strings. Needed for
 // validation.
 var AllowedPPMShipmentStatuses = []string{
-	string(PPMShipmentStatusCancelled),
+	string(PPMShipmentStatusCanceled),
 	string(PPMShipmentStatusDraft),
 	string(PPMShipmentStatusSubmitted),
 	string(PPMShipmentStatusWaitingOnCustomer),
@@ -226,7 +244,7 @@ func (p PPMShipment) TableName() string {
 
 // Cancel marks the PPM as Canceled
 func (p *PPMShipment) CancelShipment() error {
-	p.Status = PPMShipmentStatusCancelled
+	p.Status = PPMShipmentStatusCanceled
 	return nil
 }
 

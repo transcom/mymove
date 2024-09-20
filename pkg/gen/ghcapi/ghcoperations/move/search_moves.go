@@ -108,6 +108,10 @@ type SearchMovesBody struct {
 	// requested page of results
 	Page int64 `json:"page,omitempty"`
 
+	// payment request code
+	// Example: 9551-6199-2
+	PaymentRequestCode *string `json:"paymentRequestCode,omitempty"`
+
 	// per page
 	PerPage int64 `json:"perPage,omitempty"`
 

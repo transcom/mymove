@@ -41,7 +41,7 @@ import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm
 const HeadquartersQueue = () => {
   const navigate = useNavigate();
   const { queueType } = useParams();
-  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null });
+  const [search, setSearch] = useState({ moveCode: null, dodID: null, customerName: null, paymentRequestCode: null });
   const [searchHappened, setSearchHappened] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
@@ -80,6 +80,7 @@ const HeadquartersQueue = () => {
       moveCode: null,
       dodID: null,
       customerName: null,
+      paymentRequestCode: null,
     };
     if (!isNullUndefinedOrWhitespace(values.searchText)) {
       if (values.searchType === 'moveCode') {
@@ -88,6 +89,8 @@ const HeadquartersQueue = () => {
         payload.dodID = values.searchText.trim();
       } else if (values.searchType === 'customerName') {
         payload.customerName = values.searchText.trim();
+      } else if (values.searchType === 'paymentRequestCode') {
+        payload.paymentRequestCode = values.searchText.trim();
       }
     }
     setSearch(payload);
@@ -184,6 +187,7 @@ const HeadquartersQueue = () => {
             useQueries={useMoveSearchQueries}
             moveCode={search.moveCode}
             dodID={search.dodID}
+            paymentRequestCode={search.paymentRequestCode}
             customerName={search.customerName}
             key="Move Search"
           />
@@ -213,6 +217,7 @@ const HeadquartersQueue = () => {
             useQueries={useCustomerSearchQueries}
             dodID={search.dodID}
             customerName={search.customerName}
+            paymentRequestCode={search.paymentRequestCode}
             searchType="customer"
             key="Customer Search"
           />
@@ -242,6 +247,7 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getMovesQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
+          isHeadquartersUser
         />
       </div>
     );
@@ -268,6 +274,7 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getPaymentRequestsQueue}
           csvExportQueueFetcherKey="queuePaymentRequests"
           sessionStorageKey={queueType}
+          isHeadquartersUser
         />
       </div>
     );
@@ -294,6 +301,7 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getServicesCounselingPPMQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
+          isHeadquartersUser
         />
       </div>
     );
@@ -321,6 +329,7 @@ const HeadquartersQueue = () => {
           csvExportQueueFetcher={getServicesCounselingQueue}
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
+          isHeadquartersUser
         />
       </div>
     );

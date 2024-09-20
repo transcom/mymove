@@ -11,12 +11,13 @@ import styles from './PaymentRequestCard.module.scss';
 import { PaymentRequestShape } from 'types';
 import { LOA_TYPE, PAYMENT_REQUEST_STATUS } from 'shared/constants';
 import { nonWeightReliantServiceItems } from 'content/serviceItems';
-import { toDollarString, formatDateFromIso, formatCents } from 'utils/formatters';
+import { toDollarString, formatDateFromIso, formatCents, formatDollarFromMillicents } from 'utils/formatters';
 import PaymentRequestDetails from 'components/Office/PaymentRequestDetails/PaymentRequestDetails';
 import ConnectedAcountingCodesModal from 'components/Office/AccountingCodesModal/AccountingCodesModal';
 import { groupByShipment } from 'utils/serviceItems';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { formatDateWithUTC } from 'shared/dates';
 
 const paymentRequestStatusLabel = (status) => {
   switch (status) {
@@ -31,9 +32,9 @@ const paymentRequestStatusLabel = (status) => {
     case PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED:
       return 'Rejected';
     case PAYMENT_REQUEST_STATUS.PAID:
-      return 'Paid';
+      return 'TPPS Paid';
     case PAYMENT_REQUEST_STATUS.EDI_ERROR:
-      return 'Error';
+      return 'EDI Error';
     default:
       return status;
   }
@@ -53,6 +54,13 @@ const PaymentRequestCard = ({
   const showRequestDetailsButton = !defaultShowDetails;
   // state to toggle between showing details or not
   const [showDetails, setShowDetails] = useState(defaultShowDetails);
+
+  // do not show error details by default
+  const defaultShowErrorDetails = false;
+  // only show button in reviewed/paid
+  const showErrorDetailsButton = !defaultShowErrorDetails;
+  // state to toggle between showing details or not
+  const [showErrorDetails, setShowErrorDetails] = useState(defaultShowErrorDetails);
 
   // show/hide AccountingCodesModal
   const [showModal, setShowModal] = useState(false);
@@ -123,6 +131,18 @@ const PaymentRequestCard = ({
       </a>
     ) : null;
 
+  const showErrorDetailsChevron = showErrorDetails ? 'chevron-up' : 'chevron-down';
+  const showErrorDetailsText = showErrorDetails ? 'Hide EDI error details' : 'Show EDI error details';
+  const handleToggleErrorDetails = () => setShowErrorDetails((prevState) => !prevState);
+  const {
+    ediErrorCode,
+    ediErrorDescription,
+    ediErrorType,
+    tppsInvoiceAmountPaidTotalMillicents,
+    tppsInvoiceSellerPaidDate,
+  } = paymentRequest;
+  const ediErrorsExistForPaymentRequest = ediErrorCode || ediErrorDescription || ediErrorType;
+  const tppsDataExistsForPaymentRequest = tppsInvoiceAmountPaidTotalMillicents !== undefined;
   const showViewDocuments = uploads.length > 0 ? ViewDocuments : <span>No documents provided</span>;
 
   const tacs = { HHG: tac, NTS: ntsTac };
@@ -180,37 +200,77 @@ const PaymentRequestCard = ({
     );
   };
 
-  const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
-    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX) {
-      return (
-        <div className={styles.amountAccepted}>
-          <FontAwesomeIcon icon="check" />
-          <div>
-            <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-            <span>Sent to GEX </span>
-            <span data-testid="sentToGexDate">
-              on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
-            </span>
+  const renderEDIErrorDetails = () => {
+    return (
+      <div
+        className={
+          showErrorDetailsChevron === 'chevron-up' ? styles.ediErrorDetailsExpand : styles.ediErrorDetailsCondensed
+        }
+      >
+        <div className={styles.summary}>
+          <div className={styles.footer}>
+            <dl>
+              <dt>EDI error details:</dt>
+            </dl>
+            <div className={styles.toggleDrawer}>
+              {showErrorDetailsButton && (
+                <Button
+                  aria-expanded={showErrorDetails}
+                  data-testid="showErrorDetailsButton"
+                  type="button"
+                  unstyled
+                  onClick={handleToggleErrorDetails}
+                  disabled={isMoveLocked}
+                >
+                  <FontAwesomeIcon icon={showErrorDetailsChevron} /> {showErrorDetailsText}
+                </Button>
+              )}
+            </div>
           </div>
+          {showErrorDetails && (
+            <div data-testid="toggleDrawer" className={styles.drawer}>
+              <table className="table--stacked">
+                <colgroup>
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '60%' }} />
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>EDI Type</th>
+                    <th className="align-left">Error Code</th>
+                    <th className="align-left">Error Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td data-testid="paymentRequestEDIErrorType">
+                      {ediErrorType && <div data-testid="paymentRequestEDIErrorTypeText">{ediErrorType}</div>}
+                    </td>
+                    <td data-testid="paymentRequestEDIErrorCode" align="top">
+                      {ediErrorCode && <div data-testid="paymentRequestEDIErrorCodeText">{ediErrorCode}</div>}
+                    </td>
+                    <td data-testid="paymentRequestEDIErrorDescription" align="top">
+                      {ediErrorDescription && (
+                        <div data-testid="paymentRequestEDIErrorDescriptionText">{ediErrorDescription}</div>
+                      )}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      );
-    }
-    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING) {
+      </div>
+    );
+  };
+
+  const renderApprovedRejectedPaymentRequestDetails = () => {
+    if (approvedAmount > 0 || rejectedAmount > 0) {
       return (
-        <div className={styles.amountRequested}>
-          <h2>{toDollarString(formatCents(requestedAmount))}</h2>
-          <span>Requested</span>
-        </div>
-      );
-    }
-    if (
-      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED ||
-      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED
-    ) {
-      return (
-        <div>
+        <div data-testid="tppsPaidDetails">
           {approvedAmount > 0 && (
-            <div className={styles.amountAccepted}>
+            <div className={styles.amountAccepted} data-testid="milMoveAcceptedDetailsDollarAmountTotal">
               <FontAwesomeIcon icon="check" />
               <div>
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
@@ -220,7 +280,7 @@ const PaymentRequestCard = ({
             </div>
           )}
           {rejectedAmount > 0 && (
-            <div className={styles.amountRejected}>
+            <div className={styles.amountRejected} data-testid="milMoveRejectedDetailsDollarAmountTotal">
               <FontAwesomeIcon icon="times" />
               <div>
                 <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
@@ -232,15 +292,43 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    if (paymentRequestStatus === PAYMENT_REQUEST_STATUS.TPPS_RECEIVED) {
+    return null;
+  };
+
+  const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PAID ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      tppsInvoiceSellerPaidDate
+    ) {
       return (
-        <div>
-          {approvedAmount > 0 && (
+        <div data-testid="tppsPaidDetails">
+          {tppsInvoiceAmountPaidTotalMillicents > 0 && (
             <div className={styles.amountAccepted}>
               <FontAwesomeIcon icon="check" />
-              <div>
+              <div data-testid="tppsPaidDetailsDollarAmountTotal">
+                <h2>{toDollarString(formatDollarFromMillicents(tppsInvoiceAmountPaidTotalMillicents))}</h2>
+                <span>TPPS Paid</span>
+                <span> on {formatDateWithUTC(tppsInvoiceSellerPaidDate, 'DD MMM YYYY')}</span>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.TPPS_RECEIVED ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      paymentRequest.receivedByGexAt
+    ) {
+      return (
+        <div>
+          {paymentRequest.receivedByGexAt && (
+            <div className={styles.amountAccepted}>
+              <FontAwesomeIcon icon="check" />
+              <div data-testid="tppsReceivedDetailsDollarAmountTotal">
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                <span>Received</span>
+                <span>TPPS Received</span>
                 <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
               </div>
             </div>
@@ -248,7 +336,37 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    return <div />;
+
+    if (
+      paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR && approvedAmount > 0)
+    ) {
+      return (
+        <div className={styles.amountAccepted} data-testid="sentToGexDetails">
+          <FontAwesomeIcon icon="check" />
+          <div data-testid="sentToGexDetailsDollarAmountTotal">
+            <h2>{toDollarString(formatCents(approvedAmount))}</h2>
+            <span>Sent to GEX </span>
+            <span data-testid="sentToGexDate">
+              on {paymentRequest?.sentToGexAt ? formatDateFromIso(paymentRequest.sentToGexAt, 'DD MMM YYYY') : '-'}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PENDING ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      requestedAmount > 0
+    ) {
+      return (
+        <div className={styles.amountRequested}>
+          <h2>{toDollarString(formatCents(requestedAmount))}</h2>
+          <span>Requested</span>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -273,9 +391,13 @@ const PaymentRequestCard = ({
           </span>
         </div>
         <div className={styles.totalReviewed}>
-          <div>{paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}</div>
+          <div>
+            {paymentRequest.status && renderApprovedRejectedPaymentRequestDetails(paymentRequest)}
+            {paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}
+          </div>
           {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
         </div>
+        {ediErrorsExistForPaymentRequest && renderEDIErrorDetails()}
         <div className={styles.footer}>
           <dl>
             <dt>Contract number:</dt>
@@ -337,6 +459,7 @@ const PaymentRequestCard = ({
                 tacs={tacs}
                 sacs={sacs}
                 onEditClick={onEditClick}
+                tppsDataExists={tppsDataExistsForPaymentRequest}
               />
             );
           })}
