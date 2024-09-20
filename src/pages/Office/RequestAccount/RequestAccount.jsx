@@ -70,6 +70,13 @@ export const RequestAccount = ({ setFlashMessage }) => {
         roleType: 'customer_service_representative',
       });
     }
+    // this will be uncommented in B-20809
+    // if (values.governmentSurveillanceRepresentativeCheckbox) {
+    //   requestedRoles.push({
+    //     name: 'Government Surveillance Representative',
+    //     roleType: 'gsr',
+    //   });
+    // }
 
     let body = {
       email: values.officeAccountRequestEmail,
@@ -150,7 +157,7 @@ export const RequestAccount = ({ setFlashMessage }) => {
       )}
 
       <Grid row>
-        <Grid col desktop={{ col: 8, offset: 2 }}>
+        <Grid col desktop={{ col: 8 }} className={styles.formContainer}>
           <RequestAccountForm onCancel={handleCancel} onSubmit={handleSubmit} initialValues={initialValues} />
         </Grid>
       </Grid>
