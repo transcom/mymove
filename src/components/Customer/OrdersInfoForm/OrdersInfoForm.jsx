@@ -138,6 +138,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   label="Counseling Office"
                   name="counseling_office_id"
                   id="counseling_office_id"
+                  hint="Required"
                   required
                   options={officeOptions}
                 />
