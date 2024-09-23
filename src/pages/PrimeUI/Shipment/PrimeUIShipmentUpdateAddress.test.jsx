@@ -15,6 +15,7 @@ const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
+  useLocation: () => ({ state: { addressType: 'pickupAddress' } }),
 }));
 
 jest.mock('hooks/queries', () => ({
@@ -72,54 +73,6 @@ const moveReturnValue = {
   isError: false,
 };
 
-const noDestinationAddressReturnValue = {
-  moveTaskOrder: {
-    id: '1',
-    moveCode: 'LN4T89',
-    mtoShipments: [
-      {
-        id: '4',
-        shipmentType: 'HHG',
-        requestedPickupDate: '2021-12-01',
-        pickupAddress: {
-          id: '1',
-          streetAddress1: '800 Madison Avenue',
-          city: 'New York',
-          state: 'NY',
-          postalCode: '10002',
-        },
-        destinationAddress: null,
-      },
-    ],
-  },
-  isLoading: false,
-  isError: false,
-};
-
-const noPickupAddressReturnValue = {
-  moveTaskOrder: {
-    id: '1',
-    moveCode: 'LN4T89',
-    mtoShipments: [
-      {
-        id: '4',
-        shipmentType: 'HHG',
-        requestedPickupDate: '2021-12-01',
-        pickupAddress: null,
-        destinationAddress: {
-          id: '2',
-          streetAddress1: '100 1st Avenue',
-          city: 'New York',
-          state: 'NY',
-          postalCode: '10001',
-        },
-      },
-    ],
-  },
-  isLoading: false,
-  isError: false,
-};
-
 const renderComponent = () => {
   render(
     <ReactQueryWrapper>
@@ -168,7 +121,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       renderComponent();
 
       const pageHeading = await screen.getByRole('heading', {
-        name: 'Update Existing Pickup & Destination Address',
+        name: 'Update Existing Pickup Address',
         level: 1,
       });
       expect(pageHeading).toBeInTheDocument();
@@ -179,74 +132,11 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       const shipment = moveTaskOrder.mtoShipments[shipmentIndex];
 
       await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /Pickup address/, level: 2 }));
         expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.pickupAddress.streetAddress1);
         expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
         expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.pickupAddress.city);
         expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.pickupAddress.state);
         expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.pickupAddress.postalCode);
-        expect(screen.getByRole('heading', { name: /Destination address/, level: 2 }));
-        expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue(shipment.destinationAddress.streetAddress1);
-        expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-        expect(screen.getAllByLabelText('City')[1]).toHaveValue(shipment.destinationAddress.city);
-        expect(screen.getAllByLabelText('State')[1]).toHaveValue(shipment.destinationAddress.state);
-        expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue(shipment.destinationAddress.postalCode);
-      });
-    });
-
-    it('displays only pickup address form', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(noDestinationAddressReturnValue);
-
-      renderComponent();
-
-      const pageHeading = await screen.getByRole('heading', {
-        name: 'Update Existing Pickup & Destination Address',
-        level: 1,
-      });
-      expect(pageHeading).toBeInTheDocument();
-
-      const shipmentIndex = noDestinationAddressReturnValue.moveTaskOrder.mtoShipments.findIndex(
-        (mtoShipment) => mtoShipment.id === routingParams.shipmentId,
-      );
-      const shipment = noDestinationAddressReturnValue.moveTaskOrder.mtoShipments[shipmentIndex];
-
-      await waitFor(() => {
-        expect(screen.getByRole('heading', { name: /Pickup address/, level: 2 }));
-        expect(screen.getAllByLabelText('Address 1').length).toBe(1);
-        expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.pickupAddress.streetAddress1);
-        expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.pickupAddress.city);
-        expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.pickupAddress.state);
-        expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.pickupAddress.postalCode);
-        expect(shipment.destinationAddress).toBeNull();
-      });
-    });
-
-    it('displays only destination address form', async () => {
-      usePrimeSimulatorGetMove.mockReturnValue(noPickupAddressReturnValue);
-
-      renderComponent();
-
-      const pageHeading = await screen.getByRole('heading', {
-        name: 'Update Existing Pickup & Destination Address',
-        level: 1,
-      });
-      expect(pageHeading).toBeInTheDocument();
-
-      const shipmentIndex = noPickupAddressReturnValue.moveTaskOrder.mtoShipments.findIndex(
-        (mtoShipment) => mtoShipment.id === routingParams.shipmentId,
-      );
-      const shipment = noPickupAddressReturnValue.moveTaskOrder.mtoShipments[shipmentIndex];
-
-      await waitFor(() => {
-        expect(shipment.pickupAddress).toBeNull();
-        expect(screen.getByRole('heading', { name: /Destination address/, level: 2 }));
-        expect(screen.getAllByLabelText('Address 1').length).toBe(1);
-        expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue(shipment.destinationAddress.streetAddress1);
-        expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-        expect(screen.getAllByLabelText('City')[0]).toHaveValue(shipment.destinationAddress.city);
-        expect(screen.getAllByLabelText('State')[0]).toHaveValue(shipment.destinationAddress.state);
-        expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue(shipment.destinationAddress.postalCode);
       });
     });
   });
@@ -304,7 +194,7 @@ describe('PrimeUIShipmentUpdateAddress page', () => {
       renderComponent();
 
       await act(async () => {
-        expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(2);
+        expect(screen.getAllByRole('button', { name: 'Save' }).length).toBe(1);
         await userEvent.click(screen.getAllByRole('button', { name: 'Save' })[0]);
       });
 
