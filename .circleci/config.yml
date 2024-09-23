@@ -1553,7 +1553,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v8-server-tests-coverage-{{ .BuildNum }}
+                key: v7-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1683,7 +1683,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v6-client-tests-coverage-{{ .BuildNum }}
+                key: v5-client-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always

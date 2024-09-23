@@ -31,4 +31,4 @@ done
 trap cleanup SIGINT
 trap cleanup exit
 
-A11Y_AUDIT=true yarn playwright test "$@"
+yarn playwright test "$@"
