@@ -43,6 +43,13 @@
       justify-content: space-evenly;
     }
 
+    .bulkDownload {
+      display: flex;
+      min-width: 145px;
+      justify-content: space-evenly;
+      margin-right: 25px;
+    }
+
     button {
       flex-shrink: 0;
     }
