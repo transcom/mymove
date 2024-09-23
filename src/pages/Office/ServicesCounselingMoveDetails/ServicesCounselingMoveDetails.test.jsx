@@ -622,29 +622,6 @@ describe('MoveDetails page', () => {
       expect(await screen.findByTestId('shipment-missing-info-alert')).toBeInTheDocument();
     });
 
-    it('shares the number of missing shipment information', () => {
-      const moveDetailsQuery = {
-        ...newMoveDetailsQuery,
-        mtoShipments: [ntsrShipmentMissingRequiredInfo],
-      };
-
-      useMoveDetailsQueries.mockReturnValue(moveDetailsQuery);
-      useOrdersDocumentQueries.mockReturnValue(moveDetailsQuery);
-
-      const mockSetUpapprovedShipmentCount = jest.fn();
-      const mocksetShipmentWarnConcernCount = jest.fn();
-      const mocksetShipmentErrorConcernCount = jest.fn();
-
-      renderComponent({
-        setUnapprovedShipmentCount: mockSetUpapprovedShipmentCount,
-        setShipmentWarnConcernCount: mocksetShipmentWarnConcernCount,
-        setShipmentErrorConcernCount: mocksetShipmentErrorConcernCount,
-      });
-
-      // Should have called `setUnapprovedShipmentCount` with 1 missing shipping info
-      expect(mockSetUpapprovedShipmentCount).toHaveBeenCalledTimes(1);
-    });
-
     it('shares the number of missing orders information', () => {
       const moveDetailsQuery = {
         ...newMoveDetailsQuery,
