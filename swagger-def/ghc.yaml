@@ -368,6 +368,42 @@ paths:
       description: Returns counseling evaluation reports for the specified move that are visible to the current office user
       summary: Returns counseling evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  '/moves/{moveID}/cancel':
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
@@ -3105,6 +3141,36 @@ paths:
       summary: Updates status of a payment request by id
       x-permissions:
         - update.paymentRequest
+  '/payment-requests/{paymentRequestID}/bulkDownload':
+    parameters:
+      - description: the id for the payment-request with files to be downloaded
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      summary: Downloads all Payment Request documents as a PDF
+      description: |
+        This endpoint downloads all uploaded payment request documentation combined into a single PDF.
+      operationId: bulkDownload
+      tags:
+        - paymentRequests
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Payment Request Files PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '500':
+          $ref: '#/responses/ServerError'
   /documents/{documentId}:
     get:
       summary: Returns a document
@@ -3201,6 +3267,7 @@ paths:
               closeoutInitiated,
               closeoutLocation,
               ppmStatus,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3220,6 +3287,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -3756,8 +3827,8 @@ paths:
     get:
       produces:
         - application/json
-      summary: Returns the transportation offices matching the search query
-      description: Returns the transportation offices matching the search query
+      summary: Returns the transportation offices matching the search query that is enabled for PPM closeout
+      description: Returns the transportation offices matching the search query that is enabled for PPM closeout
       operationId: getTransportationOffices
       tags:
         - transportationOffice
@@ -4336,7 +4407,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -4475,8 +4546,9 @@ definitions:
         $ref: 'definitions/Affiliation.yaml'
       edipi:
         type: string
-        example: John
-        x-nullable: true
+        example: '1234567890'
+        maxLength: 10
+        x-nullable: false
       emplid:
         type: string
         example: '9485155'
@@ -6633,6 +6705,9 @@ definitions:
         x-nullable: true
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
+        x-nullable: true
+      counselingOffice:
+        type: string
         x-nullable: true
   QueueMovesResult:
     type: object

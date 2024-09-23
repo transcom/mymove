@@ -2286,6 +2286,58 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -3174,6 +3226,49 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
       "get": {
         "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
@@ -3950,7 +4045,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3983,6 +4079,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -5607,14 +5709,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -6573,8 +6675,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -7174,10 +7277,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -10972,7 +11075,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -11468,6 +11572,10 @@ func init() {
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -12253,7 +12361,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -16800,6 +16909,76 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -17878,6 +18057,55 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
       "get": {
         "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
@@ -18932,7 +19160,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -18965,6 +19194,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -20925,14 +21160,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -21941,8 +22176,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -22542,10 +22778,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -26413,7 +26649,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -26911,6 +27148,10 @@ func init() {
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -27746,7 +27987,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
