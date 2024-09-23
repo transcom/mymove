@@ -3051,6 +3051,40 @@ func init() {
         }
       }
     },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the counseling office for a duty location",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -3647,6 +3681,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CreateBoatShipment": {
       "description": "Boat shipment information for the move.",
       "required": [
@@ -3929,7 +3987,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -6277,7 +6335,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -6371,7 +6430,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -6847,7 +6906,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Secondary Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -7652,6 +7711,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",
@@ -11590,6 +11653,40 @@ func init() {
         }
       }
     },
+    "/transportation_offices/{dutyLocationId}/counseling_offices": {
+      "get": {
+        "description": "Returns the counseling locations matching the GBLOC from the selected duty location",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "transportation_offices"
+        ],
+        "summary": "Returns the counseling locations in the GBLOC matching the duty location",
+        "operationId": "showCounselingOffices",
+        "parameters": [
+          {
+            "type": "string",
+            "format": "uuid",
+            "description": "UUID of the duty location",
+            "name": "dutyLocationId",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "the instance of the counseling office for a duty location",
+            "schema": {
+              "$ref": "#/definitions/CounselingOffices"
+            }
+          },
+          "500": {
+            "description": "internal server error"
+          }
+        }
+      }
+    },
     "/uploads": {
       "post": {
         "description": "Uploads represent a single digital file, such as a JPEG or PDF.",
@@ -12186,6 +12283,30 @@ func init() {
         }
       }
     },
+    "CounselingOffice": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "name": {
+          "type": "string",
+          "example": "Fort Bragg North Station"
+        }
+      }
+    },
+    "CounselingOffices": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/CounselingOffice"
+      }
+    },
     "CreateBoatShipment": {
       "description": "Boat shipment information for the move.",
       "required": [
@@ -12468,7 +12589,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -14820,7 +14941,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -14914,7 +15036,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Alternate Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -15392,7 +15514,7 @@ func init() {
           "type": "string",
           "format": "telephone",
           "title": "Secondary Phone",
-          "pattern": "^[2-9]\\d{2}-\\d{3}-\\d{4}$",
+          "pattern": "^([2-9]\\d{2}-\\d{3}-\\d{4})?$",
           "x-nullable": true,
           "example": "212-555-5555"
         },
@@ -16202,6 +16324,10 @@ func init() {
         },
         "isWeightTicket": {
           "type": "boolean"
+        },
+        "rotation": {
+          "type": "integer",
+          "example": 2
         },
         "status": {
           "type": "string",

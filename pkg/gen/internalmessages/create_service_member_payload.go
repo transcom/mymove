@@ -68,7 +68,7 @@ type CreateServiceMemberPayload struct {
 
 	// Alternate phone
 	// Example: 212-555-5555
-	// Pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+	// Pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
 	SecondaryTelephone *string `json:"secondary_telephone,omitempty"`
 
 	// Suffix
@@ -261,7 +261,7 @@ func (m *CreateServiceMemberPayload) validateSecondaryTelephone(formats strfmt.R
 		return nil
 	}
 
-	if err := validate.Pattern("secondary_telephone", "body", *m.SecondaryTelephone, `^[2-9]\d{2}-\d{3}-\d{4}$`); err != nil {
+	if err := validate.Pattern("secondary_telephone", "body", *m.SecondaryTelephone, `^([2-9]\d{2}-\d{3}-\d{4})?$`); err != nil {
 		return err
 	}
 

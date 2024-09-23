@@ -368,6 +368,42 @@ paths:
       description: Returns counseling evaluation reports for the specified move that are visible to the current office user
       summary: Returns counseling evaluation reports for the specified move that are visible to the current office user
       operationId: getMoveCounselingEvaluationReportsList
+  '/moves/{moveID}/cancel':
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    post:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully cancelled move
+          schema:
+            $ref: '#/definitions/Move'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '409':
+          $ref: '#/responses/Conflict'
+        '412':
+          $ref: '#/responses/PreconditionFailed'
+        '422':
+          $ref: '#/responses/UnprocessableEntity'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: cancels a move
+      operationId: moveCanceler
+      summary: Cancels a move
   '/counseling/orders/{orderID}':
     parameters:
       - description: ID of order to update
@@ -3105,6 +3141,36 @@ paths:
       summary: Updates status of a payment request by id
       x-permissions:
         - update.paymentRequest
+  '/payment-requests/{paymentRequestID}/bulkDownload':
+    parameters:
+      - description: the id for the payment-request with files to be downloaded
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      summary: Downloads all Payment Request documents as a PDF
+      description: |
+        This endpoint downloads all uploaded payment request documentation combined into a single PDF.
+      operationId: bulkDownload
+      tags:
+        - paymentRequests
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Payment Request Files PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '500':
+          $ref: '#/responses/ServerError'
   /documents/{documentId}:
     get:
       summary: Returns a document
@@ -3201,6 +3267,7 @@ paths:
               closeoutInitiated,
               closeoutLocation,
               ppmStatus,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
@@ -3220,6 +3287,10 @@ paths:
           name: lastName
           type: string
           description: filters using a prefix match on the service member's last name
+        - in: query
+          name: counselingOffice
+          type: string
+          description: filters using a counselingOffice name of the move
         - in: query
           name: dodID
           type: string
@@ -3756,8 +3827,8 @@ paths:
     get:
       produces:
         - application/json
-      summary: Returns the transportation offices matching the search query
-      description: Returns the transportation offices matching the search query
+      summary: Returns the transportation offices matching the search query that is enabled for PPM closeout
+      description: Returns the transportation offices matching the search query that is enabled for PPM closeout
       operationId: getTransportationOffices
       tags:
         - transportationOffice
@@ -3906,6 +3977,74 @@ paths:
           description: not authorized
         '404':
           description: not found
+        '500':
+          description: server error
+  /uploads/get/:
+    get:
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Successfully retrieved upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '401':
+          $ref: '#/responses/PermissionDenied'
+        '403':
+          $ref: '#/responses/PermissionDenied'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - uploads
+      description: Gets an upload
+      operationId: getUpload
+      summary: Gets an upload by ID
+  /uploads/{uploadID}/update:
+    patch:
+      summary: Update an existing upload. This is only needed currently for updating the image rotation.
+      description: Uploads represent a single digital file, such as a JPEG or PDF. The rotation is relevant to how it is displayed on the page.
+      operationId: updateUpload
+      tags:
+        - uploads
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: path
+          name: uploadID
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be updated
+        - in: body
+          name: body
+          required: true
+          schema:
+            properties:
+              rotation:
+                type: integer
+                description: The rotation of the image
+                minimum: 0
+                maximum: 3
+      responses:
+        '201':
+          description: updated upload
+          schema:
+            $ref: 'definitions/Upload.yaml'
+        '400':
+          description: invalid request
+        '403':
+          description: not authorized
+        '404':
+          description: not found
+        '413':
+          description: payload is too large
         '500':
           description: server error
   /application_parameters/{parameterName}:
@@ -4268,7 +4407,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      dodID:
+      edipi:
         type: string
       userID:
         type: string
@@ -4407,8 +4546,9 @@ definitions:
         $ref: 'definitions/Affiliation.yaml'
       edipi:
         type: string
-        example: John
-        x-nullable: true
+        example: '1234567890'
+        maxLength: 10
+        x-nullable: false
       emplid:
         type: string
         example: '9485155'
@@ -5548,6 +5688,16 @@ definitions:
         description: The reason the services counselor has excluded or rejected the item.
         type: string
         x-nullable: true
+      tppsInvoiceAmountPaidTotalMillicents:
+        type: integer
+        format: millients
+        title: Total amount that TPPS paid for all service items on the payment request in millicents
+        x-nullable: true
+      tppsInvoiceSellerPaidDate:
+        type: string
+        format: date-time
+        title: Date that TPPS paid HS for the payment request
+        x-nullable: true
     type: object
   PaymentRequests:
     items:
@@ -5607,6 +5757,11 @@ definitions:
         $ref: 'definitions/PaymentServiceItemParams.yaml'
       eTag:
         type: string
+      tppsInvoiceAmountPaidPerServiceItemMillicents:
+        type: integer
+        format: millicents
+        title: Amount that TPPS paid for the individual service item in millicents
+        x-nullable: true
     type: object
   PaymentRequestStatus:
     $ref: 'definitions/PaymentRequestStatus.yaml'
@@ -5762,6 +5917,8 @@ definitions:
         $ref: '#/definitions/UpdatePPMShipment'
       boatShipment:
         $ref: '#/definitions/UpdateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/UpdateMobileHomeShipment'
   UpdatePPMShipment:
     type: object
     properties:
@@ -5929,6 +6086,33 @@ definitions:
       isRoadworthy:
         type: boolean
         description: Is the trailer roadworthy
+        x-nullable: true
+  UpdateMobileHomeShipment:
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+        x-nullable: true
+      make:
+        type: string
+        description: Make of the Boat
+        x-nullable: true
+      model:
+        type: string
+        description: Model of the Boat
+        x-nullable: true
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+        x-nullable: true
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+        x-nullable: true
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
         x-nullable: true
   UpdateWeightTicket:
     type: object
@@ -6145,8 +6329,8 @@ definitions:
       storageFacility:
         x-nullable: true
         $ref: 'definitions/StorageFacility.yaml'
-      mobileHome:
-        $ref: '#/definitions/CreateMobileHome'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
       ppmShipment:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
@@ -6154,9 +6338,6 @@ definitions:
     required:
       - moveTaskOrderID
       - shipmentType
-  CreateMobileHome:
-    description: A mobile home shipment that the prime moves for a service member.
-    $ref: 'definitions/MobileHome.yaml'
   CreatePPMShipment:
     description: A personally procured move is a type of shipment that a service members moves themselves.
     properties:
@@ -6279,6 +6460,34 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: A mobile home shipment that the prime moves for a service member.
+    properties:
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+    required:
+      - make
+      - model
+      - year
+      - lengthInInches
+      - heightInInches
+      - widthInInches
   RejectShipment:
     properties:
       rejectionReason:
@@ -6496,6 +6705,9 @@ definitions:
         x-nullable: true
       ppmStatus:
         $ref: '#/definitions/PPMStatus'
+        x-nullable: true
+      counselingOffice:
+        type: string
         x-nullable: true
   QueueMovesResult:
     type: object

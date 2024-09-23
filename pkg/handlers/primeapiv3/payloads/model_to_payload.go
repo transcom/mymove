@@ -199,6 +199,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		PostalCode:     &address.PostalCode,
 		Country:        address.Country,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		County:         &address.County,
 	}
 }
 
@@ -490,6 +491,10 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		SecondaryDeliveryAddress:         Address(mtoShipment.SecondaryDeliveryAddress),
+		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
+		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
+		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
 	}
 
 	// Set up address payloads
@@ -502,12 +507,6 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 	if mtoShipment.DestinationType != nil {
 		destinationType := primev3messages.DestinationType(*mtoShipment.DestinationType)
 		payload.DestinationType = &destinationType
-	}
-	if mtoShipment.SecondaryPickupAddress != nil {
-		payload.SecondaryPickupAddress.Address = *Address(mtoShipment.SecondaryPickupAddress)
-	}
-	if mtoShipment.SecondaryDeliveryAddress != nil {
-		payload.SecondaryDeliveryAddress.Address = *Address(mtoShipment.SecondaryDeliveryAddress)
 	}
 
 	if mtoShipment.StorageFacility != nil {
@@ -533,14 +532,22 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		if mtoShipment.PPMShipment.SecondaryPickupAddress != nil {
 			payload.PpmShipment.SecondaryPickupAddress = Address(mtoShipment.PPMShipment.SecondaryPickupAddress)
 		}
+		if mtoShipment.PPMShipment.TertiaryPickupAddress != nil {
+			payload.PpmShipment.TertiaryPickupAddress = Address(mtoShipment.PPMShipment.TertiaryPickupAddress)
+		}
 		if mtoShipment.PPMShipment.DestinationAddress != nil {
 			payload.PpmShipment.DestinationAddress = Address(mtoShipment.PPMShipment.DestinationAddress)
 		}
 		if mtoShipment.PPMShipment.SecondaryDestinationAddress != nil {
 			payload.PpmShipment.SecondaryDestinationAddress = Address(mtoShipment.PPMShipment.SecondaryDestinationAddress)
 		}
+		if mtoShipment.PPMShipment.TertiaryDestinationAddress != nil {
+			payload.PpmShipment.TertiaryDestinationAddress = Address(mtoShipment.PPMShipment.TertiaryDestinationAddress)
+		}
 		payload.PpmShipment.HasSecondaryPickupAddress = mtoShipment.PPMShipment.HasSecondaryPickupAddress
 		payload.PpmShipment.HasSecondaryDestinationAddress = mtoShipment.PPMShipment.HasSecondaryDestinationAddress
+		payload.PpmShipment.HasTertiaryPickupAddress = mtoShipment.PPMShipment.HasTertiaryPickupAddress
+		payload.PpmShipment.HasTertiaryDestinationAddress = mtoShipment.PPMShipment.HasTertiaryDestinationAddress
 	}
 
 	return payload
