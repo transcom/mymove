@@ -84,6 +84,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		ReportViolationsAssociateReportViolationsHandler: report_violations.AssociateReportViolationsHandlerFunc(func(params report_violations.AssociateReportViolationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation report_violations.AssociateReportViolations has not yet been implemented")
 		}),
+		PaymentRequestsBulkDownloadHandler: payment_requests.BulkDownloadHandlerFunc(func(params payment_requests.BulkDownloadParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_requests.BulkDownload has not yet been implemented")
+		}),
 		OrderCounselingUpdateAllowanceHandler: order.CounselingUpdateAllowanceHandlerFunc(func(params order.CounselingUpdateAllowanceParams) middleware.Responder {
 			return middleware.NotImplemented("operation order.CounselingUpdateAllowance has not yet been implemented")
 		}),
@@ -245,6 +248,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		QueuesListPrimeMovesHandler: queues.ListPrimeMovesHandlerFunc(func(params queues.ListPrimeMovesParams) middleware.Responder {
 			return middleware.NotImplemented("operation queues.ListPrimeMoves has not yet been implemented")
+		}),
+		MoveMoveCancelerHandler: move.MoveCancelerHandlerFunc(func(params move.MoveCancelerParams) middleware.Responder {
+			return middleware.NotImplemented("operation move.MoveCanceler has not yet been implemented")
 		}),
 		ShipmentRejectShipmentHandler: shipment.RejectShipmentHandlerFunc(func(params shipment.RejectShipmentParams) middleware.Responder {
 			return middleware.NotImplemented("operation shipment.RejectShipment has not yet been implemented")
@@ -416,6 +422,8 @@ type MymoveAPI struct {
 	ShipmentApproveShipmentDiversionHandler shipment.ApproveShipmentDiversionHandler
 	// ReportViolationsAssociateReportViolationsHandler sets the operation handler for the associate report violations operation
 	ReportViolationsAssociateReportViolationsHandler report_violations.AssociateReportViolationsHandler
+	// PaymentRequestsBulkDownloadHandler sets the operation handler for the bulk download operation
+	PaymentRequestsBulkDownloadHandler payment_requests.BulkDownloadHandler
 	// OrderCounselingUpdateAllowanceHandler sets the operation handler for the counseling update allowance operation
 	OrderCounselingUpdateAllowanceHandler order.CounselingUpdateAllowanceHandler
 	// OrderCounselingUpdateOrderHandler sets the operation handler for the counseling update order operation
@@ -524,6 +532,8 @@ type MymoveAPI struct {
 	MtoShipmentListMTOShipmentsHandler mto_shipment.ListMTOShipmentsHandler
 	// QueuesListPrimeMovesHandler sets the operation handler for the list prime moves operation
 	QueuesListPrimeMovesHandler queues.ListPrimeMovesHandler
+	// MoveMoveCancelerHandler sets the operation handler for the move canceler operation
+	MoveMoveCancelerHandler move.MoveCancelerHandler
 	// ShipmentRejectShipmentHandler sets the operation handler for the reject shipment operation
 	ShipmentRejectShipmentHandler shipment.RejectShipmentHandler
 	// LinesOfAccountingRequestLineOfAccountingHandler sets the operation handler for the request line of accounting operation
@@ -698,6 +708,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.ReportViolationsAssociateReportViolationsHandler == nil {
 		unregistered = append(unregistered, "report_violations.AssociateReportViolationsHandler")
 	}
+	if o.PaymentRequestsBulkDownloadHandler == nil {
+		unregistered = append(unregistered, "payment_requests.BulkDownloadHandler")
+	}
 	if o.OrderCounselingUpdateAllowanceHandler == nil {
 		unregistered = append(unregistered, "order.CounselingUpdateAllowanceHandler")
 	}
@@ -859,6 +872,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.QueuesListPrimeMovesHandler == nil {
 		unregistered = append(unregistered, "queues.ListPrimeMovesHandler")
+	}
+	if o.MoveMoveCancelerHandler == nil {
+		unregistered = append(unregistered, "move.MoveCancelerHandler")
 	}
 	if o.ShipmentRejectShipmentHandler == nil {
 		unregistered = append(unregistered, "shipment.RejectShipmentHandler")
@@ -1086,6 +1102,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
 	o.handlers["POST"]["/report-violations/{reportID}"] = report_violations.NewAssociateReportViolations(o.context, o.ReportViolationsAssociateReportViolationsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/payment-requests/{paymentRequestID}/bulkDownload"] = payment_requests.NewBulkDownload(o.context, o.PaymentRequestsBulkDownloadHandler)
 	if o.handlers["PATCH"] == nil {
 		o.handlers["PATCH"] = make(map[string]http.Handler)
 	}
@@ -1302,6 +1322,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/queues/prime-moves"] = queues.NewListPrimeMoves(o.context, o.QueuesListPrimeMovesHandler)
+	if o.handlers["POST"] == nil {
+		o.handlers["POST"] = make(map[string]http.Handler)
+	}
+	o.handlers["POST"]["/moves/{moveID}/cancel"] = move.NewMoveCanceler(o.context, o.MoveMoveCancelerHandler)
 	if o.handlers["POST"] == nil {
 		o.handlers["POST"] = make(map[string]http.Handler)
 	}
