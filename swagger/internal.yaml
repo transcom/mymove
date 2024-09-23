@@ -730,7 +730,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         example: 212-555-5555
         x-nullable: true
         title: Secondary Phone
@@ -824,7 +824,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         example: 212-555-5555
         x-nullable: true
         title: Alternate phone
@@ -908,7 +908,7 @@ definitions:
       secondary_telephone:
         type: string
         format: telephone
-        pattern: ^[2-9]\d{2}-\d{3}-\d{4}$
+        pattern: ^([2-9]\d{2}-\d{3}-\d{4})?$
         example: 212-555-5555
         x-nullable: true
         title: Alternate Phone
@@ -2421,6 +2421,23 @@ definitions:
       - date
       - is_weekend
       - is_holiday
+  CounselingOffices:
+    type: array
+    items:
+      $ref: '#/definitions/CounselingOffice'
+  CounselingOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Fort Bragg North Station
+    required:
+      - id
+      - name
   FeatureFlagBoolean:
     description: A feature flag
     type: object
@@ -2774,6 +2791,10 @@ definitions:
       bytes:
         type: integer
         readOnly: true
+      rotation:
+        type: integer
+        readOnly: false
+        example: 2
       status:
         type: string
         enum:
@@ -2849,6 +2870,7 @@ definitions:
       - NEEDS_ADVANCE_APPROVAL
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
+      - CANCELED
   PPMAdvanceStatus:
     type: string
     title: PPM Advance Status
@@ -5276,6 +5298,31 @@ paths:
           description: user is not authorized
         '404':
           description: matching duty location not found
+        '500':
+          description: internal server error
+  /transportation_offices/{dutyLocationId}/counseling_offices:
+    get:
+      summary: Returns the counseling locations in the GBLOC matching the duty location
+      description: >-
+        Returns the counseling locations matching the GBLOC from the selected
+        duty location
+      operationId: showCounselingOffices
+      tags:
+        - transportation_offices
+      parameters:
+        - in: path
+          name: dutyLocationId
+          format: uuid
+          type: string
+          required: true
+          description: UUID of the duty location
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: the instance of the counseling office for a duty location
+          schema:
+            $ref: '#/definitions/CounselingOffices'
         '500':
           description: internal server error
   /duty_locations/{dutyLocationId}/transportation_office:

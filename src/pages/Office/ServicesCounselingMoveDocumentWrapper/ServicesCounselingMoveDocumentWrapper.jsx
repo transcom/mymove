@@ -63,7 +63,7 @@ const ServicesCounselingMoveDocumentWrapper = () => {
   return (
     <div className={styles.DocumentWrapper}>
       {documentsForViewer && (
-        <div className={styles.embed}>
+        <div data-testid="sc-doc-viewer-container" className={styles.embed}>
           <DocumentViewer files={documentsForViewer} allowDownload />
         </div>
       )}

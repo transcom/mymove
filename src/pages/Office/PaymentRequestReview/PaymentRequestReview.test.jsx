@@ -353,6 +353,7 @@ describe('PaymentRequestReview', () => {
       expect(reviewServiceItems.prop('serviceItemCards')).toEqual(expectedServiceItemCards);
     });
   });
+
   describe('clicking the next button', () => {
     describe('with pending requests', () => {
       beforeEach(async () => {

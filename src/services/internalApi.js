@@ -552,3 +552,7 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
     { normalize: false },
   );
 }
+
+export async function showCounselingOffices(dutyLocationId) {
+  return makeInternalRequestRaw('transportation_offices.showCounselingOffices', { dutyLocationId });
+}
