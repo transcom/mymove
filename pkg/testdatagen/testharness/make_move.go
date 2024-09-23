@@ -5433,26 +5433,7 @@ func HHGMoveWithPastSITs(appCtx appcontext.AppContext) models.Move {
 	twoMonthsAgo := now.AddDate(0, 0, -60)
 	oneMonthAgo := now.AddDate(0, 0, -30)
 	factory.BuildOriginSITServiceItems(appCtx.DB(), move, shipment, &fourMonthsAgo, &threeMonthsAgo)
-	destSITItems := factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
-	for i := range destSITItems {
-		if destSITItems[i].ReService.Code == models.ReServiceCodeDDDSIT {
-			sitAddressUpdate := factory.BuildSITAddressUpdate(appCtx.DB(), []factory.Customization{
-				{
-					Model:    destSITItems[i],
-					LinkOnly: true,
-				},
-			}, []factory.Trait{factory.GetTraitSITAddressUpdateOver50Miles})
-
-			originalAddress := sitAddressUpdate.OldAddress
-			finalAddress := sitAddressUpdate.NewAddress
-			destSITItems[i].SITDestinationOriginalAddressID = &originalAddress.ID
-			destSITItems[i].SITDestinationFinalAddressID = &finalAddress.ID
-			err := appCtx.DB().Update(&destSITItems[i])
-			if err != nil {
-				log.Panic(fmt.Errorf("failed to update sit service item: %w", err))
-			}
-		}
-	}
+	factory.BuildDestSITServiceItems(appCtx.DB(), move, shipment, &twoMonthsAgo, &oneMonthAgo)
 
 	return move
 }
