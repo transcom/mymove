@@ -1,6 +1,7 @@
 package order
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofrs/uuid"
@@ -10,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
+	moveservice "github.com/transcom/mymove/pkg/services/move"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -74,6 +76,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 
 	agfmPostalCode := "06001"
 	setupTestData := func() (models.OfficeUser, models.Move, auth.Session) {
+
 		// Make an office user → GBLOC X
 		officeUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
 		session := auth.Session{
@@ -154,6 +157,8 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(expectedMove.ID, move.ID)
 
 	})
+
+
 
 	suite.Run("only returns visible moves (where show = True)", func() {
 		// Under test: ListOrders
@@ -575,7 +580,71 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 	})
 }
+func (suite *OrderServiceSuite) TestListOrderWithAssignedUser(){
+	// Under test: ListOrders
+		// Set up:           Make a move, assign one to an SC office user
+		// Expected outcome: Only the one move with the assigned user should be returned
+		assignedOfficeUserUpdater := moveservice.NewAssignedOfficeUserUpdater(moveservice.NewMoveFetcher())
+		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		var orderFetcherTest orderFetcher
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           scUser.User.Roles,
+			OfficeUserID:    scUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
 
+		appCtx := suite.AppContextWithSessionForTest(&session)
+
+
+		createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx,createdMove.ID,&scUser,roles.RoleTypeServicesCounselor)
+
+		searchString := fmt.Sprintf("%s, %s",scUser.LastName,scUser.FirstName )
+		moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, &services.ListOrderParams{
+			SCAssignedUser: &searchString,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(moves[0].SCAssignedID, createdMove.SCAssignedID)
+		suite.Equal(moves[0].SCAssignedUser, createdMove.SCAssignedUser)
+}
+
+func (suite *OrderServiceSuite) TestListOrderWithAssignedUser(){
+	// Under test: ListOrders
+		// Set up:           Make a move, assign one to an SC office user
+		// Expected outcome: Only the one move with the assigned user should be returned
+		assignedOfficeUserUpdater := moveservice.NewAssignedOfficeUserUpdater(moveservice.NewMoveFetcher())
+		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		var orderFetcherTest orderFetcher
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           scUser.User.Roles,
+			OfficeUserID:    scUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		appCtx := suite.AppContextWithSessionForTest(&session)
+
+
+		createdMoveWithAssigned := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx,createdMoveWithAssigned.ID,&scUser,roles.RoleTypeServicesCounselor)
+
+		searchString := fmt.Sprintf("%s, %s",scUser.LastName,scUser.FirstName )
+		moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, &services.ListOrderParams{
+			SCAssignedUser: &searchString,
+		})
+
+		suite.FatalNoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal(moves[0].SCAssignedID, createdMoveWithAssigned.SCAssignedID)
+		suite.Equal(moves[0].SCAssignedUser, createdMoveWithAssigned.SCAssignedUser)
+}
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()
 
