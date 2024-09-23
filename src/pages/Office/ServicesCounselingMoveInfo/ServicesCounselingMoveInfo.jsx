@@ -38,7 +38,6 @@ const ServicesCounselingReviewShipmentWeights = lazy(() =>
 const SupportingDocuments = lazy(() => import('../SupportingDocuments/SupportingDocuments'));
 
 const ServicesCounselingMoveInfo = () => {
-  const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
@@ -193,7 +192,6 @@ const ServicesCounselingMoveInfo = () => {
 
       {!hideNav && (
         <ServicesCounselorTabNav
-          unapprovedShipmentCount={unapprovedShipmentCount}
           moveCode={moveCode}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
           excessWeightRiskCount={excessWeightRiskCount}
@@ -219,7 +217,6 @@ const ServicesCounselingMoveInfo = () => {
             element={
               <ServicesCounselingMoveDetails
                 infoSavedAlert={infoSavedAlert}
-                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setShipmentWarnConcernCount={setShipmentWarnConcernCount}
                 setShipmentErrorConcernCount={setShipmentErrorConcernCount}
                 shipmentWarnConcernCount={shipmentWarnConcernCount}
@@ -246,7 +243,6 @@ const ServicesCounselingMoveInfo = () => {
             end
             element={
               <MoveTaskOrder
-                setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}

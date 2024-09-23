@@ -24,7 +24,7 @@ import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirm
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
-import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
+import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -44,7 +44,6 @@ import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const ServicesCounselingMoveDetails = ({
   infoSavedAlert,
-  setUnapprovedShipmentCount,
   shipmentWarnConcernCount,
   setShipmentWarnConcernCount,
   shipmentErrorConcernCount,
@@ -426,12 +425,8 @@ const ServicesCounselingMoveDetails = ({
     if (moveHasExcessWeight) {
       shipmentWarnConcerns += 1;
     }
-    const submittedShipments = mtoShipments?.filter(
-      (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
-    );
     setShipmentWarnConcernCount(shipmentWarnConcerns);
     setShipmentErrorConcernCount(shipmentErrorConcerns);
-    setUnapprovedShipmentCount(submittedShipments?.length);
   }, [
     moveHasExcessWeight,
     mtoShipments,
@@ -439,7 +434,6 @@ const ServicesCounselingMoveDetails = ({
     numberOfWarnIfMissingForAllShipments,
     setShipmentErrorConcernCount,
     setShipmentWarnConcernCount,
-    setUnapprovedShipmentCount,
   ]);
 
   // Keep num of missing orders info synced up
@@ -763,7 +757,6 @@ const ServicesCounselingMoveDetails = ({
 
 ServicesCounselingMoveDetails.propTypes = {
   infoSavedAlert: AlertStateShape,
-  setUnapprovedShipmentCount: func.isRequired,
   setShipmentWarnConcernCount: func.isRequired,
   setShipmentErrorConcernCount: func.isRequired,
 };
