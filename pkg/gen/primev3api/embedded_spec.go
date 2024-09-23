@@ -792,8 +792,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "The second address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The second address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDestinationAddress": {
+          "description": "The third address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The third address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -934,6 +966,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional tertiary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4564,8 +4612,40 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
+        "secondaryDestinationAddress": {
+          "description": "The second address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "secondaryPickupAddress": {
+          "description": "The second address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
+        },
+        "tertiaryDestinationAddress": {
+          "description": "The third address where the movers should deliver this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "The third address where the movers should pick up this shipment.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -4706,6 +4786,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse in pounds.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional tertiary address near the destination where goods will be dropped off.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional tertiary pickup location address near the origin where additional goods exist.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
