@@ -3254,6 +3254,37 @@ paths:
       summary: Updates status of a payment request by id
       x-permissions:
         - update.paymentRequest
+  /payment-requests/{paymentRequestID}/bulkDownload:
+    parameters:
+      - description: the id for the payment-request with files to be downloaded
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      summary: Downloads all Payment Request documents as a PDF
+      description: >
+        This endpoint downloads all uploaded payment request documentation
+        combined into a single PDF.
+      operationId: bulkDownload
+      tags:
+        - paymentRequests
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Payment Request Files PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '500':
+          $ref: '#/responses/ServerError'
   /documents/{documentId}:
     get:
       summary: Returns a document
@@ -4711,8 +4742,9 @@ definitions:
         $ref: '#/definitions/Affiliation'
       edipi:
         type: string
-        example: John
-        x-nullable: true
+        example: '1234567890'
+        maxLength: 10
+        x-nullable: false
       emplid:
         type: string
         example: '9485155'
