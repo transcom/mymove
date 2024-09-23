@@ -214,7 +214,7 @@ func (router moveRouter) sendToServiceCounselor(appCtx appcontext.AppContext, mo
 			move.MTOShipments[i].Status = models.MTOShipmentStatusSubmitted
 
 			if verrs, err := appCtx.DB().ValidateAndUpdate(&move.MTOShipments[i]); verrs.HasAny() || err != nil {
-				msg := "failure saving parent MTO shipment object for boat shipment when routing move submission"
+				msg := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
 				appCtx.Logger().Error(msg, zap.Error(err))
 				return apperror.NewInvalidInputError(move.MTOShipments[i].ID, err, verrs, msg)
 			}

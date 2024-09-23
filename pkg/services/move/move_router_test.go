@@ -514,7 +514,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 		sitDaysAllowance := -1 // Invalid value that should cause a validation error on MTOShipment
 
-		expError := "failure saving parent MTO shipment object for mobile home shipment when routing move submission"
+		expError := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
 
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
@@ -566,7 +566,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 
 		sitDaysAllowance := -1 // Invalid value that should cause a validation error on MTOShipment
 
-		expError := "failure saving parent MTO shipment object for boat shipment when routing move submission"
+		expError := "failure saving parent MTO shipment object for boat/mobile home shipment when routing move submission"
 
 		move := factory.BuildMove(suite.DB(), []factory.Customization{
 			{
