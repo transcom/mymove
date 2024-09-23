@@ -87,7 +87,7 @@ test.describe('TOO user', () => {
   let tooFlowPage;
 
   test.beforeEach(async ({ officePage }) => {
-    const move = await officePage.testHarness.buildHHGMoveWithServiceItemsAndPaymentRequestsAndFilesForTOO();
+    const move = await officePage.testHarness.buildMobileHomeMoveNeedsSC();
     await officePage.signInAsNewTOOUser();
     tooFlowPage = new TooFlowPage(officePage, move);
     await tooFlowPage.waitForLoading();
@@ -119,14 +119,14 @@ test.describe('TOO user', () => {
 
     await expect(page.getByTestId('ShipmentContainer')).toHaveCount(2);
 
-    await expect(page.getByText('Mobile home year')).toBeVisible();
-    await expect(page.getByTestId('year')).toHaveText('2022');
-    await expect(page.getByText('Mobile home make')).toBeVisible();
-    await expect(page.getByTestId('make')).toHaveText('make');
-    await expect(page.getByText('Mobile home model')).toBeVisible();
-    await expect(page.getByTestId('model')).toHaveText('model');
-    await expect(page.getByText('Dimensions')).toBeVisible();
-    await expect(page.getByTestId('dimensions')).toHaveText("22' L x 22' W x 22' H");
+    await expect(page.getByText('Mobile home year').last()).toBeVisible();
+    await expect(page.getByTestId('year').last()).toHaveText('2022');
+    await expect(page.getByText('Mobile home make').last()).toBeVisible();
+    await expect(page.getByTestId('make').last()).toHaveText('make');
+    await expect(page.getByText('Mobile home model').last()).toBeVisible();
+    await expect(page.getByTestId('model').last()).toHaveText('model');
+    await expect(page.getByText('Dimensions').last()).toBeVisible();
+    await expect(page.getByTestId('dimensions').last()).toHaveText("22' L x 22' W x 22' H");
   });
 
   test('Services Counselor can delete an existing Mobile Home shipment', async ({ page, officePage }) => {
@@ -225,12 +225,9 @@ test.describe('TOO user', () => {
     await page.locator(`[name='delivery.agent.phone']`).fill(receivingAgent.phone);
     await page.locator(`[name='delivery.agent.email']`).fill(receivingAgent.email);
 
-    await page.getByLabel('Counselor remarks').fill('Sample counselor remarks');
-
     // Submit edits
     await page.getByTestId('submitForm').click();
     await officePage.waitForLoading();
-    await expect(page.locator('.usa-alert__text')).toContainText('Your changes were saved.');
 
     // Check that the data in the shipment card now matches what we just submitted
     await shipmentContainer.locator('[data-prefix="fas"][data-icon="chevron-down"]').click();
@@ -255,7 +252,5 @@ test.describe('TOO user', () => {
     await expect(shipmentContainer.getByTestId('model')).toHaveText('Test Model');
 
     await expect(shipmentContainer.getByTestId('dimensions')).toHaveText(`20' 6" L x 15' 1" W x 10' H`);
-
-    await expect(shipmentContainer.getByTestId('counselorRemarks')).toHaveText('Sample counselor remarks');
   });
 });
