@@ -240,9 +240,8 @@ const ShipmentInfoList = ({
     </div>
   );
 
-  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
-    <div className={counselorRemarksElementFlags.classes}>
+    <div className={styles.row}>
       <dt>Counselor remarks</dt>
       <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
     </div>
