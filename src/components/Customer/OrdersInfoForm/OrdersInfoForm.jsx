@@ -110,6 +110,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 }}
                 required
               />
+              <Label>
+                Select an origin duty location that most closely represents your current physical location, not where
+                your shipment will originate, if different. This will allow a nearby transportation office to assist
+                you.
+              </Label>
               {dutyLocation.provides_services_counseling && (
                 <DropdownInput
                   label="Counseling Office"
