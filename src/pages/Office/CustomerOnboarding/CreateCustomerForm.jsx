@@ -151,8 +151,26 @@ export const CreateCustomerForm = ({ userPrivileges, setFlashMessage }) => {
 
   const validationSchema = Yup.object().shape({
     affiliation: Yup.mixed().oneOf(Object.keys(SERVICE_MEMBER_AGENCY_LABELS)).required('Required'),
-    edipi: Yup.string().matches(/^(SM[0-9]{8}|[0-9]{10})$/, 'Enter a 10-digit DOD ID number'),
-    emplid: Yup.string().matches(/^(SM[0-9]{5}|[0-9]{7})$/, 'Enter a 7-digit EMPLID number'),
+    // All branches require an EDIPI unless it is a safety move
+    // where a fake DoD ID may be used
+    edipi:
+      !isSafetyMove &&
+      Yup.string()
+        .matches(/^(SM[0-9]{8}|[0-9]{10})$/, 'Enter a 10-digit DoD ID number')
+        .required('Required'),
+    // Only the coast guard requires both EDIPI and EMPLID
+    // unless it is a safety move
+    emplid:
+      !isSafetyMove &&
+      showEmplid &&
+      Yup.string().when('affiliation', {
+        is: (affiliationValue) => affiliationValue === departmentIndicators.COAST_GUARD,
+        then: () =>
+          Yup.string()
+            .matches(/^(SM[0-9]{5}|[0-9]{7})$/, 'Enter a 7-digit EMPLID number')
+            .required(`EMPLID is required for the Coast Guard`),
+        otherwise: Yup.string().notRequired(),
+      }),
     first_name: Yup.string().required('Required'),
     middle_name: Yup.string(),
     last_name: Yup.string().required('Required'),
