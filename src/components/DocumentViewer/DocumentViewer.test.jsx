@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
@@ -9,6 +9,8 @@ import samplePDF from './sample.pdf';
 import sampleJPG from './sample.jpg';
 import samplePNG from './sample2.png';
 import sampleGIF from './sample3.gif';
+
+import { bulkDownloadPaymentRequest } from 'services/ghcApi';
 
 const toggleMenuClass = () => {
   const container = document.querySelector('[data-testid="menuButtonContainer"]');
@@ -49,6 +51,11 @@ const mockFiles = [
     rotation: 3,
   },
 ];
+
+jest.mock('services/ghcApi', () => ({
+  ...jest.requireActual('services/ghcApi'),
+  bulkDownloadPaymentRequest: jest.fn(),
+}));
 
 jest.mock('./Content/Content', () => ({
   __esModule: true,
@@ -171,5 +178,38 @@ describe('DocumentViewer component', () => {
     );
 
     expect(screen.getByText('id: undefined')).toBeInTheDocument();
+  });
+
+  describe('when clicking download Download All Files button', () => {
+    it('downloads a bulk packet', async () => {
+      const mockResponse = {
+        ok: true,
+        headers: {
+          'content-disposition': 'filename="test.pdf"',
+        },
+        status: 200,
+        data: null,
+      };
+
+      render(
+        <QueryClientProvider client={new QueryClient()}>
+          <DocumentViewer
+            files={[
+              { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
+              { id: 99, filename: 'archive.zip', contentType: 'zip', url: 'path/to/archive.zip' },
+            ]}
+            paymentRequestId="PaymentRequestId"
+          />
+        </QueryClientProvider>,
+      );
+
+      bulkDownloadPaymentRequest.mockImplementation(() => Promise.resolve(mockResponse));
+
+      const downloadButton = screen.getByText('Download All Files (PDF)', { exact: false });
+      await userEvent.click(downloadButton);
+      await waitFor(() => {
+        expect(bulkDownloadPaymentRequest).toHaveBeenCalledTimes(1);
+      });
+    });
   });
 });
