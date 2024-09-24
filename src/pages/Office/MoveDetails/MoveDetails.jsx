@@ -38,28 +38,6 @@ import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 
-const errorIfMissing = {
-  HHG_INTO_NTS_DOMESTIC: [
-    { fieldName: 'storageFacility' },
-    { fieldName: 'serviceOrderNumber' },
-    { fieldName: 'tacType' },
-  ],
-  HHG_OUTOF_NTS_DOMESTIC: [
-    { fieldName: 'storageFacility' },
-    { fieldName: 'ntsRecordedWeight' },
-    { fieldName: 'serviceOrderNumber' },
-    { fieldName: 'tacType' },
-  ],
-  PPM: [
-    {
-      fieldName: 'advanceStatus',
-      condition: (mtoShipment) =>
-        mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
-        mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
-    },
-  ],
-};
-
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
@@ -76,6 +54,31 @@ const MoveDetails = ({
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+
+  // disabling the error that suggests to use useMemo here
+  // useMemo will cause issues with unnecessary increments of action counts on page refresh
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const errorIfMissing = {
+    HHG_INTO_NTS_DOMESTIC: [
+      { fieldName: 'storageFacility' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'tacType' },
+    ],
+    HHG_OUTOF_NTS_DOMESTIC: [
+      { fieldName: 'storageFacility' },
+      { fieldName: 'ntsRecordedWeight' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'tacType' },
+    ],
+    PPM: [
+      {
+        fieldName: 'advanceStatus',
+        condition: (mtoShipment) =>
+          mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+          mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+      },
+    ],
+  };
 
   const navigate = useNavigate();
 
@@ -234,8 +237,10 @@ const MoveDetails = ({
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
+    // Reset the error count before running any logic
     let numberOfErrorIfMissingForAllShipments = 0;
 
+    // Process each shipment to accumulate errors
     mtoShipments?.forEach((mtoShipment) => {
       const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
@@ -247,8 +252,10 @@ const MoveDetails = ({
         });
       }
     });
+
+    // Set the error concern count after processing
     setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
-  }, [mtoShipments, setShipmentErrorConcernCount]);
+  }, [errorIfMissing, mtoShipments, setShipmentErrorConcernCount]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
