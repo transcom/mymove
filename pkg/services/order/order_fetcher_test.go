@@ -580,7 +580,7 @@ func (suite *OrderServiceSuite) TestListOrders() {
 		suite.Equal(createdPPM.Shipment.MoveTaskOrder.Locator, moves[0].Locator)
 	})
 }
-func (suite *OrderServiceSuite) TestListOrderWithAssignedUser(){
+func (suite *OrderServiceSuite) TestListOrderWithAssignedUserSingle(){
 	// Under test: ListOrders
 		// Set up:           Make a move, assign one to an SC office user
 		// Expected outcome: Only the one move with the assigned user should be returned
@@ -599,6 +599,9 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUser(){
 
 
 		createdMove := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+		expectedMove := createdMove
+		expectedMove.SCAssignedID = scUser.UserID
+		expectedMove.SCAssignedUser = &scUser
 		assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx,createdMove.ID,&scUser,roles.RoleTypeServicesCounselor)
 
 		searchString := fmt.Sprintf("%s, %s",scUser.LastName,scUser.FirstName )
@@ -608,42 +611,8 @@ func (suite *OrderServiceSuite) TestListOrderWithAssignedUser(){
 
 		suite.FatalNoError(err)
 		suite.Equal(1, len(moves))
-		suite.Equal(moves[0].SCAssignedID, createdMove.SCAssignedID)
-		suite.Equal(moves[0].SCAssignedUser, createdMove.SCAssignedUser)
-}
-
-func (suite *OrderServiceSuite) TestListOrderWithAssignedUser(){
-	// Under test: ListOrders
-		// Set up:           Make a move, assign one to an SC office user
-		// Expected outcome: Only the one move with the assigned user should be returned
-		assignedOfficeUserUpdater := moveservice.NewAssignedOfficeUserUpdater(moveservice.NewMoveFetcher())
-		scUser := factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
-		var orderFetcherTest orderFetcher
-		session := auth.Session{
-			ApplicationName: auth.OfficeApp,
-			Roles:           scUser.User.Roles,
-			OfficeUserID:    scUser.ID,
-			IDToken:         "fake_token",
-			AccessToken:     "fakeAccessToken",
-		}
-
-		appCtx := suite.AppContextWithSessionForTest(&session)
-
-
-		createdMoveWithAssigned := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-		factory.BuildMoveWithShipment(suite.DB(), nil, nil)
-		assignedOfficeUserUpdater.UpdateAssignedOfficeUser(appCtx,createdMoveWithAssigned.ID,&scUser,roles.RoleTypeServicesCounselor)
-
-		searchString := fmt.Sprintf("%s, %s",scUser.LastName,scUser.FirstName )
-		moves, _, err := orderFetcherTest.ListOrders(suite.AppContextWithSessionForTest(&session), scUser.ID, &services.ListOrderParams{
-			SCAssignedUser: &searchString,
-		})
-
-		suite.FatalNoError(err)
-		suite.Equal(1, len(moves))
-		suite.Equal(moves[0].SCAssignedID, createdMoveWithAssigned.SCAssignedID)
-		suite.Equal(moves[0].SCAssignedUser, createdMoveWithAssigned.SCAssignedUser)
+		suite.Equal(moves[0].SCAssignedID, expectedMove.SCAssignedID)
+		suite.Equal(moves[0].SCAssignedUser, expectedMove.SCAssignedUser)
 }
 func (suite *OrderServiceSuite) TestListOrdersUSMCGBLOC() {
 	orderFetcher := NewOrderFetcher()

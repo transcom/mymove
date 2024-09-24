@@ -128,6 +128,7 @@ const needsCounselingMoves = {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
+        counselingOffice: '',
         assignedTo: {
           id: 'exampleId2',
           firstname: 'John',
@@ -204,6 +205,7 @@ const serviceCounselingCompletedMoves = {
           name: 'Los Alamos',
         },
         originGBLOC: 'LKNQ',
+        counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
         assignedTo: {
           id: 'exampleId1',
           firstname: 'Jimmy',

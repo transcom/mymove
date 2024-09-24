@@ -281,6 +281,74 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 		})
 }
 
+type MoveCancelerHandler struct {
+	handlers.HandlerConfig
+	services.MoveCanceler
+}
+
+func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			moveID := uuid.FromStringOrNil(params.MoveID.String())
+
+			move, err := h.MoveCanceler.CancelMove(appCtx, moveID)
+			if err != nil {
+				appCtx.Logger().Error("MoveCancelerHandler error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return moveop.NewMoveCancelerNotFound(), err
+				case apperror.PreconditionFailedError:
+					return moveop.NewMoveCancelerPreconditionFailed(), err
+				case apperror.InvalidInputError:
+					return moveop.NewMoveCancelerUnprocessableEntity(), err
+				case apperror.ConflictError:
+					return moveop.NewMoveCancelerConflict(), err
+				default:
+					return moveop.NewMoveCancelerInternalServerError(), err
+				}
+			}
+
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
+			return moveop.NewMoveCancelerOK().WithPayload(payload), nil
+		})
+}
+
+func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStorer, upload models.Upload, url string) (*ghcmessages.Upload, error) {
+	uploadPayload := &ghcmessages.Upload{
+		ID:          handlers.FmtUUIDValue(upload.ID),
+		Filename:    upload.Filename,
+		ContentType: upload.ContentType,
+		URL:         strfmt.URI(url),
+		Bytes:       upload.Bytes,
+		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
+		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
+	}
+	tags, err := storer.Tags(upload.StorageKey)
+	if err != nil || len(tags) == 0 {
+		uploadPayload.Status = "PROCESSING"
+	} else {
+		uploadPayload.Status = tags["av-status"]
+	}
+	return uploadPayload, nil
+}
+
+func getRole(role string) roles.RoleType {
+	var roleType roles.RoleType
+	switch role {
+	case "services_counselor":
+		roleType = roles.RoleTypeServicesCounselor
+	case "task_ordering_officer":
+		roleType = roles.RoleTypeTOO
+	case "task_invoicing_officer":
+		roleType = roles.RoleTypeTIO
+	}
+
+	return roleType
+}
+
 type DeleteAssignedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.MoveAssignedOfficeUserUpdater
@@ -342,37 +410,4 @@ func (h UpdateAssignedOfficeUserHandler) Handle(params moveop.UpdateAssignedOffi
 
 			return moveop.NewUpdateAssignedOfficeUserOK().WithPayload(payload), nil
 		})
-}
-
-func payloadForUploadModelFromAdditionalDocumentsUpload(storer storage.FileStorer, upload models.Upload, url string) (*ghcmessages.Upload, error) {
-	uploadPayload := &ghcmessages.Upload{
-		ID:          handlers.FmtUUIDValue(upload.ID),
-		Filename:    upload.Filename,
-		ContentType: upload.ContentType,
-		URL:         strfmt.URI(url),
-		Bytes:       upload.Bytes,
-		CreatedAt:   strfmt.DateTime(upload.CreatedAt),
-		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
-	}
-	tags, err := storer.Tags(upload.StorageKey)
-	if err != nil || len(tags) == 0 {
-		uploadPayload.Status = "PROCESSING"
-	} else {
-		uploadPayload.Status = tags["av-status"]
-	}
-	return uploadPayload, nil
-}
-
-func getRole(role string) roles.RoleType {
-	var roleType roles.RoleType
-	switch role {
-	case "services_counselor":
-		roleType = roles.RoleTypeServicesCounselor
-	case "task_ordering_officer":
-		roleType = roles.RoleTypeTOO
-	case "task_invoicing_officer":
-		roleType = roles.RoleTypeTIO
-	}
-
-	return roleType
 }

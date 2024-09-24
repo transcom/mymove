@@ -265,12 +265,8 @@ const PaymentRequestCard = ({
     );
   };
 
-  const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
-    if (
-      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PAID ||
-        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
-      tppsInvoiceSellerPaidDate
-    ) {
+  const renderApprovedRejectedPaymentRequestDetails = () => {
+    if (approvedAmount > 0 || rejectedAmount > 0) {
       return (
         <div data-testid="tppsPaidDetails">
           {approvedAmount > 0 && (
@@ -293,6 +289,20 @@ const PaymentRequestCard = ({
               </div>
             </div>
           )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderPaymentRequestDetailsForStatus = (paymentRequestStatus) => {
+    if (
+      (paymentRequestStatus === PAYMENT_REQUEST_STATUS.PAID ||
+        paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR) &&
+      tppsInvoiceSellerPaidDate
+    ) {
+      return (
+        <div data-testid="tppsPaidDetails">
           {tppsInvoiceAmountPaidTotalMillicents > 0 && (
             <div className={styles.amountAccepted}>
               <FontAwesomeIcon icon="check" />
@@ -313,22 +323,12 @@ const PaymentRequestCard = ({
     ) {
       return (
         <div>
-          {approvedAmount > 0 && (
+          {paymentRequest.receivedByGexAt && (
             <div className={styles.amountAccepted}>
               <FontAwesomeIcon icon="check" />
-              <div>
+              <div data-testid="tppsReceivedDetailsDollarAmountTotal">
                 <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                <span>Received</span>
-                <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
-              </div>
-            </div>
-          )}
-          {rejectedAmount > 0 && (
-            <div className={styles.amountRejected}>
-              <FontAwesomeIcon icon="times" />
-              <div>
-                <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
-                <span>Rejected</span>
+                <span>TPPS Received</span>
                 <span> on {formatDateFromIso(paymentRequest.receivedByGexAt, 'DD MMM YYYY')}</span>
               </div>
             </div>
@@ -336,36 +336,7 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    if (
-      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED ||
-      paymentRequestStatus === PAYMENT_REQUEST_STATUS.REVIEWED_AND_ALL_SERVICE_ITEMS_REJECTED ||
-      paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR
-    ) {
-      return (
-        <div>
-          {approvedAmount > 0 && (
-            <div className={styles.amountAccepted}>
-              <FontAwesomeIcon icon="check" />
-              <div>
-                <h2>{toDollarString(formatCents(approvedAmount))}</h2>
-                <span>Accepted</span>
-                <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
-              </div>
-            </div>
-          )}
-          {rejectedAmount > 0 && (
-            <div className={styles.amountRejected}>
-              <FontAwesomeIcon icon="times" />
-              <div>
-                <h2>{toDollarString(formatCents(rejectedAmount))}</h2>
-                <span>Rejected</span>
-                <span> on {formatDateFromIso(paymentRequest.reviewedAt, 'DD MMM YYYY')}</span>
-              </div>
-            </div>
-          )}
-        </div>
-      );
-    }
+
     if (
       paymentRequestStatus === PAYMENT_REQUEST_STATUS.SENT_TO_GEX ||
       (paymentRequestStatus === PAYMENT_REQUEST_STATUS.EDI_ERROR && approvedAmount > 0)
@@ -373,7 +344,7 @@ const PaymentRequestCard = ({
       return (
         <div className={styles.amountAccepted} data-testid="sentToGexDetails">
           <FontAwesomeIcon icon="check" />
-          <div>
+          <div data-testid="sentToGexDetailsDollarAmountTotal">
             <h2>{toDollarString(formatCents(approvedAmount))}</h2>
             <span>Sent to GEX </span>
             <span data-testid="sentToGexDate">
@@ -395,7 +366,7 @@ const PaymentRequestCard = ({
         </div>
       );
     }
-    return <div />;
+    return null;
   };
 
   return (
@@ -420,7 +391,10 @@ const PaymentRequestCard = ({
           </span>
         </div>
         <div className={styles.totalReviewed}>
-          <div>{paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}</div>
+          <div>
+            {paymentRequest.status && renderApprovedRejectedPaymentRequestDetails(paymentRequest)}
+            {paymentRequest.status && renderPaymentRequestDetailsForStatus(paymentRequest.status)}
+          </div>
           {paymentRequest.status === PAYMENT_REQUEST_STATUS.PENDING && renderReviewServiceItemsBtnForTIOandTOO()}
         </div>
         {ediErrorsExistForPaymentRequest && renderEDIErrorDetails()}

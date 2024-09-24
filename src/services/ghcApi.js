@@ -848,6 +848,10 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
   );
 }
 
+export async function bulkDownloadPaymentRequest(paymentRequestID) {
+  return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
+}
+
 export async function dateSelectionIsWeekendHoliday(countryCode, date) {
   return makeGHCRequestRaw(
     'calendar.isDateWeekendHoliday',

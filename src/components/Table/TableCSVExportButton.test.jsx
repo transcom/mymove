@@ -55,6 +55,11 @@ const paymentRequestsResponse = {
   ],
 };
 
+const paymentRequestsNoResultsResponse = {
+  page: 1,
+  perPage: 10,
+};
+
 const paymentRequestColumns = [
   {
     Header: ' ',
@@ -129,6 +134,9 @@ const paymentRequestColumns = [
 
 jest.mock('services/ghcApi', () => ({
   getPaymentRequestsQueue: jest.fn().mockImplementation(() => Promise.resolve(paymentRequestsResponse)),
+  getPaymentRequestsNoResultsQueue: jest
+    .fn()
+    .mockImplementation(() => Promise.resolve(paymentRequestsNoResultsResponse)),
 }));
 
 describe('TableCSVExportButton', () => {
@@ -148,6 +156,24 @@ describe('TableCSVExportButton', () => {
   it('click calls fetcher', () => {
     act(() => {
       const wrapper = mount(<TableCSVExportButton {...defaultProps} />);
+      const exportButton = wrapper.find('span[data-test-id="csv-export-btn-text"]');
+      exportButton.simulate('click');
+      wrapper.update();
+    });
+
+    expect(getPaymentRequestsQueue).toBeCalled();
+  });
+
+  const noResultsProps = {
+    tableColumns: paymentRequestColumns,
+    queueFetcher: () => Promise.resolve(paymentRequestsNoResultsResponse),
+    queueFetcherKey: 'queuePaymentRequests',
+    totalCount: 0,
+  };
+
+  it('is diabled when there is nothing to export', () => {
+    act(() => {
+      const wrapper = mount(<TableCSVExportButton {...noResultsProps} />);
       const exportButton = wrapper.find('span[data-test-id="csv-export-btn-text"]');
       exportButton.simulate('click');
       wrapper.update();
