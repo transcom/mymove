@@ -872,6 +872,7 @@ commands:
             export FEATURE_FLAG_MOVE_LOCK=false
             export FEATURE_FLAG_OKTA_DODID_INPUT=false
             export FEATURE_FLAG_HEADQUARTERS_ROLE=false
+            export FEATURE_FLAG_GSR_ROLE=false
             export FEATURE_FLAG_SAFETY_MOVE=false
             export FEATURE_FLAG_MANAGE_SUPPORTING_DOCS=false
             export FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE=false
@@ -911,6 +912,7 @@ commands:
             FEATURE_FLAG_MOVE_LOCK: 'false'
             FEATURE_FLAG_OKTA_DODID_INPUT: 'false'
             FEATURE_FLAG_HEADQUARTERS_ROLE: 'false'
+            FEATURE_FLAG_GSR_ROLE: 'false'
             FEATURE_FLAG_SAFETY_MOVE: 'false'
             FEATURE_FLAG_MANAGE_SUPPORTING_DOCS: 'false'
             FEATURE_FLAG_THIRD_ADDRESS_AVAILABLE: 'false'
@@ -1552,7 +1554,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v7-server-tests-coverage-{{ .BuildNum }}
+                key: v8-server-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-go-coverage
                 when: always
@@ -1682,7 +1684,7 @@ jobs:
             # Use the BuildNum to update the cache key so that the
             # coverage cache is always updated
             - save_cache:
-                key: v5-client-tests-coverage-{{ .BuildNum }}
+                key: v6-client-tests-coverage-{{ .BuildNum }}
                 paths:
                   - ~/transcom/mymove/tmp/baseline-jest-coverage
                 when: always

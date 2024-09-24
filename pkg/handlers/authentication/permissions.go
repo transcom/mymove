@@ -9,7 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models/roles"
 )
 
-// TODO: placeholder until we figure out where these should be stored
 type RolePermissions struct {
 	RoleType    roles.RoleType
 	Permissions []string
@@ -112,7 +111,20 @@ var CustomerServiceRepresentative = RolePermissions{
 	},
 }
 
-var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative, HQ}
+var GSR = RolePermissions{
+	RoleType: roles.RoleTypeGSR,
+	Permissions: []string{
+		"create.reportViolation",
+		"create.evaluationReport",
+		"read.paymentRequest",
+		"update.evaluationReport",
+		"delete.evaluationReport",
+		"view.closeoutOffice",
+		"read.shipmentsPaymentSITBalance",
+	},
+}
+
+var AllRolesPermissions = []RolePermissions{TOO, TIO, ServicesCounselor, QAE, CustomerServiceRepresentative, HQ, GSR}
 
 // check if a [user.role] has permissions on a given object
 func checkUserPermission(appCtx appcontext.AppContext, session *auth.Session, permission string) (bool, error) {
