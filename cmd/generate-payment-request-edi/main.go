@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/benbjohnson/clock"
 	"github.com/spf13/pflag"
@@ -51,8 +50,6 @@ func initFlags(flag *pflag.FlagSet) {
 
 	// Logging Levels
 	cli.InitLoggingFlags(flag)
-
-	cli.InitStorageFlags(flag)
 
 	// Don't sort flags
 	flag.SortFlags = false
@@ -128,10 +125,7 @@ func main() {
 	if envFlag == "production" || envFlag == "prod" || envFlag == "prd" {
 		isProd = true
 	}
-	if err != nil {
-		logger.Fatal("Failed to get next ICN value", zap.Error(err))
-	}
-	fileName := fmt.Sprintf("%s_edi858.txt", time.Now().Format("2006_01_02T15_04_05Z07_00"))
+
 	edi858c, err := generator.Generate(appCtx, paymentRequest, isProd)
 	if err != nil {
 		logger.Fatal(err.Error())
@@ -141,15 +135,6 @@ func main() {
 	if err != nil {
 		logger.Fatal(err.Error())
 	}
-	logger.Info(edi858String)
-	storeInvoice := invoice.StoreInvoice858C{}
-	verrs, err := storeInvoice.Call(appCtx, edi858String, &paymentRequest, fileName)
-	if verrs != nil && verrs.HasAny() {
-		logger.Fatal(verrs.Error())
-	}
 
-	if err != nil {
-		logger.Fatal(err.Error())
-	}
-	logger.Info("Successfully stored invoice")
+	fmt.Print(edi858String)
 }
