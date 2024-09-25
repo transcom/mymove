@@ -3269,6 +3269,7 @@ paths:
               ppmStatus,
               counselingOffice,
               assignedTo,
+              counselingOffice,
             ]
           description: field that results should be sorted by
         - in: query
