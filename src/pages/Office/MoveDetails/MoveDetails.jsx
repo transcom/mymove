@@ -272,6 +272,14 @@ const MoveDetails = ({
     setMissingOrdersInfoCount(ordersInfoCount);
   }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
 
+  // Keep num of missing orders info synced up
+  useEffect(() => {
+    const ordersInfoCount = Object.values(requiredOrdersInfo).reduce((count, value) => {
+      return !value ? count + 1 : count;
+    }, 0);
+    setMissingOrdersInfoCount(ordersInfoCount);
+  }, [order, requiredOrdersInfo, setMissingOrdersInfoCount]);
+
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 

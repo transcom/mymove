@@ -1,12 +1,13 @@
 import React from 'react';
 
+import { deleteAssignedOfficeUserForMove, updateAssignedOfficeUserForMove } from 'services/ghcApi';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
 const addAssignedOfficeUser = (users, assignedTo) => {
   const newAvailableOfficeUsers = users.slice();
-  const { lastName, firstName, id } = assignedTo;
+  const { lastname, firstname, id } = assignedTo;
   newAvailableOfficeUsers.push({
-    label: `${lastName}, ${firstName}`,
+    label: `${lastname}, ${firstname}`,
     value: id,
   });
   return newAvailableOfficeUsers;
@@ -61,4 +62,9 @@ export const formatAvailableOfficeUsersForRow = (row) => {
   ));
 
   return { formattedAvailableOfficeUsers, assignedToUser };
+};
+
+export const handleQueueAssignment = (moveID, officeUserId, roleType) => {
+  if (officeUserId === DEFAULT_EMPTY_VALUE) deleteAssignedOfficeUserForMove({ moveID, roleType });
+  else updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType });
 };

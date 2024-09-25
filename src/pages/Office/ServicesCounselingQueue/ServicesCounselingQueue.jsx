@@ -48,171 +48,170 @@ import retryPageLoading from 'utils/retryPageLoading';
 import { milmoveLogger } from 'utils/milmoveLog';
 import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm';
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
-import { formatAvailableOfficeUsersForRow } from 'utils/queues';
+import { formatAvailableOfficeUsersForRow, handleQueueAssignment } from 'utils/queues';
 
-export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
-  const cols = [
-    createHeader(
-      ' ',
-      (row) => {
-        const now = new Date();
-        // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
-        if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
-          return (
-            <div data-testid="lock-icon">
-              <FontAwesomeIcon icon="lock" />
-            </div>
-          );
-        }
-        return null;
-      },
-      { id: 'lock' },
-    ),
-    createHeader('ID', 'id', { id: 'id' }),
-    createHeader(
-      'Customer name',
-      (row) => {
+export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => [
+  createHeader(
+    ' ',
+    (row) => {
+      const now = new Date();
+      // this will render a lock icon if the move is locked & if the lockExpiresAt value is after right now
+      if (row.lockedByOfficeUserID && row.lockExpiresAt && now < new Date(row.lockExpiresAt) && moveLockFlag) {
         return (
-          <div>
-            {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
-              <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
-            ) : null}
-            {`${row.customer.last_name}, ${row.customer.first_name}`}
+          <div data-testid="lock-icon">
+            <FontAwesomeIcon icon="lock" />
           </div>
         );
-      },
-      {
-        id: 'lastName',
-        isFilterable: true,
-        exportValue: (row) => {
-          return `${row.customer.last_name}, ${row.customer.first_name}`;
-        },
-      },
-    ),
-    createHeader('DoD ID', 'customer.dodID', {
-      id: 'dodID',
+      }
+      return null;
+    },
+    { id: 'lock' },
+  ),
+  createHeader('ID', 'id', { id: 'id' }),
+  createHeader(
+    'Customer name',
+    (row) => {
+      return (
+        <div>
+          {CHECK_SPECIAL_ORDERS_TYPES(row.orderType) ? (
+            <span className={styles.specialMoves}>{SPECIAL_ORDERS_TYPES[`${row.orderType}`]}</span>
+          ) : null}
+          {`${row.customer.last_name}, ${row.customer.first_name}`}
+        </div>
+      );
+    },
+    {
+      id: 'lastName',
       isFilterable: true,
       exportValue: (row) => {
-        return row.customer.dodID;
+        return `${row.customer.last_name}, ${row.customer.first_name}`;
       },
-    }),
-    createHeader('EMPLID', 'customer.emplid', {
-      id: 'emplid',
-      isFilterable: true,
-    }),
-    createHeader('Move code', 'locator', {
-      id: 'locator',
-      isFilterable: true,
-    }),
-    createHeader(
-      'Status',
-      (row) => {
-        return row.status !== MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED
-          ? SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`]
-          : null;
-      },
-      {
-        id: 'status',
-        disableSortBy: true,
-      },
-    ),
-    createHeader(
-      'Requested move date',
-      (row) => {
-        return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
-      },
-      {
-        id: 'requestedMoveDate',
-        isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <DateSelectFilter {...props} />,
-      },
-    ),
-    createHeader(
-      'Date submitted',
-      (row) => {
-        return formatDateFromIso(row.submittedAt, DATE_FORMAT_STRING);
-      },
-      {
-        id: 'submittedAt',
-        isFilterable: true,
-        // eslint-disable-next-line react/jsx-props-no-spreading
-        Filter: (props) => <DateSelectFilter dateTime {...props} />,
-      },
-    ),
-    createHeader(
-      'Branch',
-      (row) => {
-        return serviceMemberAgencyLabel(row.customer.agency);
-      },
-      {
-        id: 'branch',
-        isFilterable: true,
-        Filter: (props) => (
-          // eslint-disable-next-line react/jsx-props-no-spreading
-          <SelectFilter options={BRANCH_OPTIONS} {...props} />
-        ),
-      },
-    ),
-    createHeader('Origin GBLOC', 'originGBLOC', {
+    },
+  ),
+  createHeader('DoD ID', 'customer.dodID', {
+    id: 'dodID',
+    isFilterable: true,
+    exportValue: (row) => {
+      return row.customer.dodID;
+    },
+  }),
+  createHeader('EMPLID', 'customer.emplid', {
+    id: 'emplid',
+    isFilterable: true,
+  }),
+  createHeader('Move code', 'locator', {
+    id: 'locator',
+    isFilterable: true,
+  }),
+  createHeader(
+    'Status',
+    (row) => {
+      return row.status !== MOVE_STATUSES.SERVICE_COUNSELING_COMPLETED
+        ? SERVICE_COUNSELING_MOVE_STATUS_LABELS[`${row.status}`]
+        : null;
+    },
+    {
+      id: 'status',
       disableSortBy: true,
-    }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
-    supervisor
-      ? createHeader(
-          'Origin duty location',
-          (row) => {
-            return `${row.originDutyLocation.name}`;
-          },
-          {
-            id: 'originDutyLocation',
-            isFilterable: true,
-            exportValue: (row) => {
-              return row.originDutyLocation?.name;
-            },
-            Filter: (props) => (
-              <MultiSelectTypeAheadCheckBoxFilter
-                options={originLocationList}
-                placeholder="Start typing a duty location..."
-                // eslint-disable-next-line react/jsx-props-no-spreading
-                {...props}
-              />
-            ),
-          },
-        )
-      : createHeader('Origin duty location', 'originDutyLocation.name', {
+    },
+  ),
+  createHeader(
+    'Requested move date',
+    (row) => {
+      return formatDateFromIso(row.requestedMoveDate, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'requestedMoveDate',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter {...props} />,
+    },
+  ),
+  createHeader(
+    'Date submitted',
+    (row) => {
+      return formatDateFromIso(row.submittedAt, DATE_FORMAT_STRING);
+    },
+    {
+      id: 'submittedAt',
+      isFilterable: true,
+      // eslint-disable-next-line react/jsx-props-no-spreading
+      Filter: (props) => <DateSelectFilter dateTime {...props} />,
+    },
+  ),
+  createHeader(
+    'Branch',
+    (row) => {
+      return serviceMemberAgencyLabel(row.customer.agency);
+    },
+    {
+      id: 'branch',
+      isFilterable: true,
+      Filter: (props) => (
+        // eslint-disable-next-line react/jsx-props-no-spreading
+        <SelectFilter options={BRANCH_OPTIONS} {...props} />
+      ),
+    },
+  ),
+  createHeader('Origin GBLOC', 'originGBLOC', {
+    disableSortBy: true,
+  }), // If the user is in the USMC GBLOC they will have many different GBLOCs and will want to sort and filter
+  supervisor
+    ? createHeader(
+        'Origin duty location',
+        (row) => {
+          return `${row.originDutyLocation.name}`;
+        },
+        {
           id: 'originDutyLocation',
           isFilterable: true,
           exportValue: (row) => {
             return row.originDutyLocation?.name;
           },
-        }),
-    createHeader('Counseling office', 'counselingOffice', {
-      id: 'counselingOffice',
-      isFilterable: true,
-    }),
-  ];
-  if (isQueueManagementEnabled)
-    cols.push(
-      createHeader(
-        'Assigned',
-        (row) => {
-          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
-          return (
-            <div data-label="assignedSelect" className={styles.assignedToCol}>
-              <Dropdown defaultValue={assignedToUser?.value} title="Assigned dropdown">
-                {formattedAvailableOfficeUsers}
-              </Dropdown>
-            </div>
-          );
+          Filter: (props) => (
+            <MultiSelectTypeAheadCheckBoxFilter
+              options={originLocationList}
+              placeholder="Start typing a duty location..."
+              // eslint-disable-next-line react/jsx-props-no-spreading
+              {...props}
+            />
+          ),
         },
-        {
-          id: 'assignedTo',
+      )
+    : createHeader('Origin duty location', 'originDutyLocation.name', {
+        id: 'originDutyLocation',
+        isFilterable: true,
+        exportValue: (row) => {
+          return row.originDutyLocation?.name;
         },
-      ),
-    );
-
-  return cols;
-};
+      }),
+  createHeader('Counseling office', 'counselingOffice', {
+    id: 'counselingOffice',
+    isFilterable: true,
+  }),
+  isQueueManagementEnabled ??
+    createHeader(
+      'Assigned',
+      (row) => {
+        const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
+        return (
+          <div data-label="assignedSelect" data-testid="assignedSelect" className={styles.assignedToCol}>
+            <Dropdown
+              defaultValue={assignedToUser?.value}
+              onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.SERVICES_COUNSELOR)}
+              title="Assigned dropdown"
+            >
+              {formattedAvailableOfficeUsers}
+            </Dropdown>
+          </div>
+        );
+      },
+      {
+        id: 'assignedTo',
+        isFilterable: true,
+      },
+    ),
+];
 export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOriginLocationList, supervisor) => [
   createHeader(
     ' ',
@@ -364,7 +363,7 @@ export const closeoutColumns = (moveLockFlag, ppmCloseoutGBLOC, ppmCloseoutOrigi
   }),
 ];
 
-const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
+const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagementFFEnabled }) => {
   const { queueType } = useParams();
   const { data, isLoading, isError } = useUserQueries();
 
@@ -372,7 +371,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const [isQueueManagementEnabled, setIsQueueManagementEnabled] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const [originLocationList, setOriginLocationList] = useState([]);
   const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
@@ -403,8 +401,6 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
         setisCounselorMoveCreateFFEnabled(isEnabled);
         const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
         setMoveLockFlag(lockedMoveFlag);
-        const assignedColFlag = await isBooleanFlagEnabled('queue_management');
-        setIsQueueManagementEnabled(assignedColFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -608,7 +604,7 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId }) => {
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled)}
+          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementFFEnabled)}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}

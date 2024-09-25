@@ -105,6 +105,11 @@ const needsCounselingMoves = {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
+        assignedTo: {
+          id: 'exampleId1',
+          firstname: 'Jimmy',
+          lastname: 'John',
+        },
       },
       {
         id: 'move2',
@@ -124,6 +129,11 @@ const needsCounselingMoves = {
         },
         originGBLOC: 'LKNQ',
         counselingOffice: '',
+        assignedTo: {
+          id: 'exampleId2',
+          firstname: 'John',
+          lastname: 'Denver',
+        },
       },
       {
         id: 'move3',
@@ -141,6 +151,11 @@ const needsCounselingMoves = {
           name: 'Denver, 80136',
         },
         originGBLOC: 'LKNQ',
+        assignedTo: {
+          id: 'exampleId1',
+          firstname: 'Jimmy',
+          lastname: 'John',
+        },
       },
     ],
   },
@@ -168,6 +183,11 @@ const serviceCounselingCompletedMoves = {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
+        assignedTo: {
+          id: 'exampleId1',
+          firstname: 'Jimmy',
+          lastname: 'John',
+        },
       },
       {
         id: 'move2',
@@ -186,6 +206,11 @@ const serviceCounselingCompletedMoves = {
         },
         originGBLOC: 'LKNQ',
         counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
+        assignedTo: {
+          id: 'exampleId1',
+          firstname: 'Jimmy',
+          lastname: 'John',
+        },
       },
     ],
   },
@@ -201,7 +226,7 @@ describe('ServicesCounselingQueue', () => {
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
 
@@ -221,12 +246,17 @@ describe('ServicesCounselingQueue', () => {
   describe('Service Counselor', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mount(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
-
+    render(
+      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
+      </MockRouterProvider>,
+    );
     it('displays move header with needs service counseling count', () => {
       expect(wrapper.find('h1').text()).toBe('Moves (3)');
     });
@@ -246,11 +276,12 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.dodID').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
-      expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
-      expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
+      expect(firstMove.find('td.requestedMoveDate').text()).toBe('28 Feb 2021');
+      expect(firstMove.find('td.submittedAt').text()).toBe('30 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(firstMove.find('td.originDutyLocation').text()).toBe('Area 51');
+      expect(firstMove.find('td.assignedTo').text()).toBe('John, Jimmy');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -258,22 +289,24 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
-      expect(secondMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
-      expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
+      expect(secondMove.find('td.requestedMoveDate').text()).toBe('14 Apr 2021');
+      expect(secondMove.find('td.submittedAt').text()).toBe('31 Dec 2020');
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(secondMove.find('td.originDutyLocation').text()).toBe('Los Alamos');
+      expect(secondMove.find('td.assignedTo').text()).toBe('Denver, John');
 
       const thirdMove = moves.at(2);
       expect(thirdMove.find('td.lastName').text()).toBe('test third last, test third first');
       expect(thirdMove.find('td.dodID').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
-      expect(thirdMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
-      expect(thirdMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
+      expect(thirdMove.find('td.requestedMoveDate').text()).toBe('14 Apr 2021');
+      expect(thirdMove.find('td.submittedAt').text()).toBe('31 Dec 2020');
       expect(thirdMove.find('td.branch').text()).toBe('Marine Corps');
       expect(thirdMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(thirdMove.find('td.originDutyLocation').text()).toBe('Denver, 80136');
+      expect(thirdMove.find('td.assignedTo').text()).toBe('John, Jimmy');
     });
 
     it('sorts by submitted at date ascending by default', () => {
@@ -293,6 +326,7 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="originDutyLocation"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
+      expect(wrapper.find('th[data-testid="assignedTo"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
     });
 
     it('disables sort by for origin GBLOC and status columns', () => {
@@ -409,7 +443,7 @@ describe('ServicesCounselingQueue', () => {
       useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
       render(
         <MockProviders path={pagePath} params={{ queueType }}>
-          <ServicesCounselingQueue />
+          <ServicesCounselingQueue isQueueManagementFFEnabled />
         </MockProviders>,
       );
 
