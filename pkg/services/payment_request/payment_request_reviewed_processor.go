@@ -133,7 +133,8 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		)
 		// Send EDI string to Syncada
 		// If sent successfully to GEX, update payment request status to SENT_TO_GEX.
-		err = paymentrequesthelper.SendToSyncada(txnAppCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
+		var fileName string
+		fileName, err = paymentrequesthelper.SendToSyncada(txnAppCtx, edi858cString, icn, p.gexSender, p.sftpSender, p.runSendToSyncada)
 		if err != nil {
 			return GexSendError{paymentRequestID: lockedPR.ID, err: err}
 		}
@@ -144,6 +145,15 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 
 		if err != nil {
 			return fmt.Errorf("failure updating payment request status: %w", err)
+		}
+		storeInvoice := invoice.StoreInvoice858C{}
+		verrs, err := storeInvoice.Call(appCtx, edi858cString, &lockedPR, fileName)
+
+		if err != nil {
+			return fmt.Errorf("failure storing invoice: %w", err)
+		}
+		if verrs != nil && verrs.HasAny() {
+			return fmt.Errorf("validation errors while storing invoice: %w", verrs)
 		}
 
 		return nil
