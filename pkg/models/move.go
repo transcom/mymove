@@ -110,8 +110,9 @@ func (m Move) TableName() string {
 
 // MoveOptions is used when creating new moves based on parameters
 type MoveOptions struct {
-	Show   *bool
-	Status *MoveStatus
+	Show               *bool
+	Status             *MoveStatus
+	CounselingOfficeID *uuid.UUID
 }
 
 type Moves []Move
@@ -296,6 +297,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			// only want safety moves move locators to start with SM, so try again
 			if strings.HasPrefix(move.Locator, "SM") {
 				continue
@@ -325,7 +329,9 @@ func createNewMove(db *pop.Connection,
 				ContractorID: &contractor.ID,
 				ReferenceID:  &referenceID,
 			}
-
+			if moveOptions.CounselingOfficeID != nil {
+				move.CounselingOfficeID = moveOptions.CounselingOfficeID
+			}
 			verrs, err := db.ValidateAndCreate(&move)
 			if verrs.HasAny() {
 				return nil, verrs, nil
