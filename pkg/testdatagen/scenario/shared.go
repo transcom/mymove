@@ -5214,24 +5214,30 @@ func createHHGWithPaymentServiceItems(
 
 	// An origin and destination SIT would normally not be on the same payment request so the TIO totals will appear
 	// off.  Refer to the PARSIT move to see a reviewed and pending payment request with origin and destination SIT.
+	doaPaymentStartDate := originEntryDate.Add(15 * 24 * time.Hour)
+	doaPaymentEndDate := originDepartureDate.Add(15 * 24 * time.Hour)
+
+	ddaPaymentStartDate := destEntryDate.Add(15 * 24 * time.Hour)
+	daaPaymentEndDate := destDepartureDate.Add(15 * 24 * time.Hour)
+
 	doasitPaymentParams := []models.PaymentServiceItemParam{
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
-			Value:       originEntryDate.Format("2006-01-02"),
+			Value:       doaPaymentStartDate.Format("2006-01-02"),
 		},
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
-			Value:       originDepartureDate.Format("2006-01-02"),
+			Value:       doaPaymentEndDate.Format("2006-01-02"),
 		}}
 
 	ddasitPaymentParams := []models.PaymentServiceItemParam{
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestStart.String(),
-			Value:       destEntryDate.Format("2006-01-02"),
+			Value:       ddaPaymentStartDate.Format("2006-01-02"),
 		},
 		{
 			IncomingKey: models.ServiceItemParamNameSITPaymentRequestEnd.String(),
-			Value:       destDepartureDate.Format("2006-01-02"),
+			Value:       daaPaymentEndDate.Format("2006-01-02"),
 		}}
 
 	// Ordering the service items based on approved date to ensure the DDFSIT is after the DOASIT.
