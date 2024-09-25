@@ -11,6 +11,7 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import formStyles from 'styles/form.module.scss';
 import { shipmentDestinationTypes } from 'constants/shipments';
+import { SHIPMENT_OPTIONS } from 'shared/constants';
 
 const emptyAddressShape = {
   streetAddress1: '',
@@ -28,7 +29,11 @@ const PrimeUIShipmentUpdateForm = ({
   editableProGearWeightActualField,
   editableSpouseProGearWeightActualField,
   editablePickupAddress,
+  editableSecondaryPickupAddress,
+  editableTertiaryPickupAddress,
   editableDestinationAddress,
+  editableSecondaryDeliveryAddress,
+  editableTertiaryDeliveryAddress,
   requestedPickupDate,
   estimatedWeight,
   actualWeight,
@@ -40,7 +45,10 @@ const PrimeUIShipmentUpdateForm = ({
   destinationAddress,
   secondaryDeliveryAddress,
   tertiaryDeliveryAddress,
+  shipmentType,
 }) => {
+  const isNTS = shipmentType === SHIPMENT_OPTIONS.NTS;
+  const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
   return (
     <SectionWrapper className={`${formStyles.formSection} ${styles.formSectionHeader}`}>
       <h2 className={styles.sectionHeader}>Shipment Dates</h2>
@@ -146,17 +154,29 @@ const PrimeUIShipmentUpdateForm = ({
       <h5 className={styles.sectionHeader}>Pickup Address</h5>
       {editablePickupAddress && <AddressFields name="pickupAddress" />}
       {!editablePickupAddress && formatAddress(pickupAddress)}
-      <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
-      {formatAddress(secondaryPickupAddress)}
-      <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
-      {formatAddress(tertiaryPickupAddress)}
+      {!isNTSR && (
+        <>
+          <h5 className={styles.sectionHeader}>Second Pickup Address</h5>
+          {editableSecondaryPickupAddress && <AddressFields name="secondaryPickupAddress" />}
+          {!editableSecondaryPickupAddress && formatAddress(secondaryPickupAddress)}
+          <h5 className={styles.sectionHeader}>Third Pickup Address</h5>
+          {editableTertiaryPickupAddress && <AddressFields name="tertiaryPickupAddress" />}
+          {!editableTertiaryPickupAddress && formatAddress(tertiaryPickupAddress)}
+        </>
+      )}
       <h5 className={styles.sectionHeader}>Destination Address</h5>
       {editableDestinationAddress && <AddressFields name="destinationAddress" />}
       {!editableDestinationAddress && formatAddress(destinationAddress)}
-      <h5 className={styles.sectionHeader}>Second Destination Address</h5>
-      {formatAddress(secondaryDeliveryAddress)}
-      <h5 className={styles.sectionHeader}>Third Destination Address</h5>
-      {formatAddress(tertiaryDeliveryAddress)}
+      {!isNTS && (
+        <>
+          <h5 className={styles.sectionHeader}>Second Delivery Address</h5>
+          {editableSecondaryDeliveryAddress && <AddressFields name="secondaryDeliveryAddress" />}
+          {!editableSecondaryDeliveryAddress && formatAddress(secondaryDeliveryAddress)}
+          <h5 className={styles.sectionHeader}>Third Delivery Address</h5>
+          {editableTertiaryDeliveryAddress && <AddressFields name="tertiaryDeliveryAddress" />}
+          {!editableTertiaryDeliveryAddress && formatAddress(tertiaryDeliveryAddress)}
+        </>
+      )}
       <DropdownInput
         label="Destination type"
         name="destinationType"

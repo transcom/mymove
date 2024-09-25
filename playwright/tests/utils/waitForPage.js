@@ -19,18 +19,17 @@ export class WaitForPage {
    */
 
   async runAccessibilityAudit() {
-    if (process.env.A11Y_AUDIT) {
-      await checkA11y(
-        this.page,
-        undefined,
-        {
-          detailedReport: true,
-        },
-        // skip failures
-        true,
-        'default',
-      );
-    }
+    await checkA11y(
+      this.page,
+      undefined,
+      {
+        detailedReport: true,
+        detailedReportOptions: { html: true },
+      },
+      // skip failures
+      false,
+      'html',
+    );
   }
 
   /**

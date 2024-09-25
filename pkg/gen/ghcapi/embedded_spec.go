@@ -3226,6 +3226,49 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
       "get": {
         "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
@@ -5666,14 +5709,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -6632,8 +6675,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -18013,6 +18057,55 @@ func init() {
         }
       ]
     },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/payment-requests/{paymentRequestID}/shipments-payment-sit-balance": {
       "get": {
         "description": "Returns all shipment payment request SIT usage to support partial SIT invoicing",
@@ -21067,14 +21160,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -22083,8 +22176,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
