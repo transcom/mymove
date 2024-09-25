@@ -5709,14 +5709,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -21160,14 +21160,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
