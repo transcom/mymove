@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
@@ -114,4 +115,8 @@ type ShipmentPaymentSITBalance struct {
 //go:generate mockery --name ShipmentsPaymentSITBalance
 type ShipmentsPaymentSITBalance interface {
 	ListShipmentPaymentSITBalance(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) ([]ShipmentPaymentSITBalance, error)
+}
+
+type PaymentRequestBulkDownloadCreator interface {
+	CreatePaymentRequestBulkDownload(appCtx appcontext.AppContext, paymentRequestID uuid.UUID) (afero.File, error)
 }
