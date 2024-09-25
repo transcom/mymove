@@ -34,11 +34,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		tempCloseoutOfficeCustoms = convertCustomizationInList(tempCloseoutOfficeCustoms, TransportationOffices.CloseoutOffice, TransportationOffice)
 		closeoutOffice = BuildTransportationOffice(db, tempCloseoutOfficeCustoms, nil)
 	}
-	/* var assignedUser models.OfficeUser
-	assignedUserResult := findValidCustomization(customs, OfficeUser)
-	if assignedUserResult != nil {
-		assignedUser = BuildOfficeUserWithRoles(db,customs ,nil)
-	} */
 
 	var defaultReferenceID string
 	var err error
@@ -71,18 +66,6 @@ func BuildMove(db *pop.Connection, customs []Customization, traits []Trait) mode
 		ContractorID: &contractor.ID,
 		ReferenceID:  &defaultReferenceID,
 	}
-	/* if(assignedUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor)){
-		move.SCAssignedUser = &assignedUser
-		move.SCAssignedID = assignedUser.UserID
-	}
-	if(assignedUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor)){
-		move.TIOAssignedUser = &assignedUser
-		move.TIOAssignedID = assignedUser.UserID
-	}
-	if(assignedUser.User.Roles.HasRole(roles.RoleTypeServicesCounselor)){
-		move.TOOAssignedUser = &assignedUser
-		move.TOOAssignedID = assignedUser.UserID
-	} */
 
 	if closeoutOfficeResult != nil {
 		move.CloseoutOffice = &closeoutOffice
