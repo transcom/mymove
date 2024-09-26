@@ -37,8 +37,9 @@ type CreateCustomerPayload struct {
 	CreateOktaAccount bool `json:"createOktaAccount,omitempty"`
 
 	// edipi
-	// Example: John
-	Edipi *string `json:"edipi,omitempty"`
+	// Example: 1234567890
+	// Max Length: 10
+	Edipi string `json:"edipi,omitempty"`
 
 	// email is preferred
 	EmailIsPreferred bool `json:"emailIsPreferred,omitempty"`
@@ -99,6 +100,10 @@ func (m *CreateCustomerPayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateBackupMailingAddress(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateEdipi(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -169,6 +174,18 @@ func (m *CreateCustomerPayload) validateBackupContact(formats strfmt.Registry) e
 func (m *CreateCustomerPayload) validateBackupMailingAddress(formats strfmt.Registry) error {
 	if swag.IsZero(m.BackupMailingAddress) { // not required
 		return nil
+	}
+
+	return nil
+}
+
+func (m *CreateCustomerPayload) validateEdipi(formats strfmt.Registry) error {
+	if swag.IsZero(m.Edipi) { // not required
+		return nil
+	}
+
+	if err := validate.MaxLength("edipi", "body", m.Edipi, 10); err != nil {
+		return err
 	}
 
 	return nil

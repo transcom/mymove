@@ -115,6 +115,9 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:          additionalDocumentsPayload,
+		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
