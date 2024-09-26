@@ -848,6 +848,20 @@ export async function patchPPMSIT({ ppmShipmentId, payload, eTag }) {
   );
 }
 
+export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType }) {
+  return makeGHCRequest('move.updateAssignedOfficeUser', {
+    moveID,
+    body: { officeUserId, roleType },
+  });
+}
+
+export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
+  return makeGHCRequest('move.deleteAssignedOfficeUser', {
+    moveID,
+    body: { roleType },
+  });
+}
+
 export async function bulkDownloadPaymentRequest(paymentRequestID) {
   return makeGHCRequestRaw('paymentRequests.bulkDownload', { paymentRequestID });
 }
@@ -861,18 +875,4 @@ export async function dateSelectionIsWeekendHoliday(countryCode, date) {
     },
     { normalize: false },
   );
-}
-
-export async function updateAssignedOfficeUserForMove({ moveID, officeUserId, roleType }) {
-  return makeGHCRequest('move.updateAssignedOfficeUser', {
-    moveID,
-    body: { officeUserId, roleType },
-  });
-}
-
-export async function deleteAssignedOfficeUserForMove({ moveID, roleType }) {
-  return makeGHCRequest('move.deleteAssignedOfficeUser', {
-    moveID,
-    body: { roleType },
-  });
 }
