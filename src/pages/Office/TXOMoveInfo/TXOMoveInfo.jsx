@@ -39,6 +39,7 @@ const TXOMoveInfo = () => {
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [missingOrdersInfoCount, setMissingOrdersInfoCount] = useState(0);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
 
@@ -150,6 +151,7 @@ const TXOMoveInfo = () => {
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
+          missingOrdersInfoCount={missingOrdersInfoCount}
           moveCode={moveCode}
           reportId={reportId}
           order={order}
@@ -177,6 +179,8 @@ const TXOMoveInfo = () => {
                 }
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                missingOrdersInfoCount={missingOrdersInfoCount}
+                setMissingOrdersInfoCount={setMissingOrdersInfoCount}
                 isMoveLocked={isMoveLocked}
               />
             }
