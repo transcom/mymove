@@ -276,8 +276,8 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.dodID').text()).toBe('555555555');
       expect(firstMove.find('td.locator').text()).toBe('AB5PC');
       expect(firstMove.find('td.status').text()).toBe('Needs counseling');
-      expect(firstMove.find('td.requestedMoveDate').text()).toBe('28 Feb 2021');
-      expect(firstMove.find('td.submittedAt').text()).toBe('30 Jan 2021');
+      expect(firstMove.find('td.requestedMoveDate').text()).toBe('01 Mar 2021');
+      expect(firstMove.find('td.submittedAt').text()).toBe('31 Jan 2021');
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(firstMove.find('td.originDutyLocation').text()).toBe('Area 51');
@@ -289,8 +289,8 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.emplid').text()).toBe('4521567');
       expect(secondMove.find('td.locator').text()).toBe('T12AR');
       expect(secondMove.find('td.status').text()).toBe('Needs counseling');
-      expect(secondMove.find('td.requestedMoveDate').text()).toBe('14 Apr 2021');
-      expect(secondMove.find('td.submittedAt').text()).toBe('31 Dec 2020');
+      expect(secondMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
+      expect(secondMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(secondMove.find('td.originDutyLocation').text()).toBe('Los Alamos');
@@ -301,8 +301,8 @@ describe('ServicesCounselingQueue', () => {
       expect(thirdMove.find('td.dodID').text()).toBe('4444444444');
       expect(thirdMove.find('td.locator').text()).toBe('T12MP');
       expect(thirdMove.find('td.status').text()).toBe('Needs counseling');
-      expect(thirdMove.find('td.requestedMoveDate').text()).toBe('14 Apr 2021');
-      expect(thirdMove.find('td.submittedAt').text()).toBe('31 Dec 2020');
+      expect(thirdMove.find('td.requestedMoveDate').text()).toBe('15 Apr 2021');
+      expect(thirdMove.find('td.submittedAt').text()).toBe('01 Jan 2021');
       expect(thirdMove.find('td.branch').text()).toBe('Marine Corps');
       expect(thirdMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(thirdMove.find('td.originDutyLocation').text()).toBe('Denver, 80136');
