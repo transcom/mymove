@@ -13,7 +13,7 @@ import { ShipmentShape } from 'types/shipment';
 import { primeSimulatorRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentDestinationTypes } from 'constants/shipments';
 import styles from 'pages/PrimeUI/MoveTaskOrder/MoveDetails.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { ADDRESS_TYPES, SHIPMENT_OPTIONS } from 'shared/constants';
 
 const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
   const [isDeleteModalVisible, setIsDeleteModalVisible] = useState(false);
@@ -136,8 +136,7 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Estimated Weight:</dt>
-        {shipment.shipmentType === SHIPMENT_OPTIONS.NTSR && <dd>{shipment.ntsRecordedWeight}</dd>}
-        {shipment.shipmentType !== SHIPMENT_OPTIONS.NTSR && <dd>{shipment.primeEstimatedWeight}</dd>}
+        <dd>{shipment.primeEstimatedWeight ? shipment.primeEstimatedWeight : '—'}</dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Actual Weight:</dt>
@@ -189,12 +188,68 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
       <div className={descriptionListStyles.row}>
         <dt>Pickup Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.pickupAddress)}</dd>
-        <dd>{shipment.pickupAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+        <dd>
+          {shipment.pickupAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.PICKUP }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Second Pickup Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryPickupAddress)}</dd>
+        <dd>
+          {shipment.secondaryPickupAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.SECOND_PICKUP }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Third Pickup Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryPickupAddress)}</dd>
+        <dd>
+          {shipment.tertiaryPickupAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.THIRD_PICKUP }}>
+              Edit
+            </Link>
+          )}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination Address:</dt>
         <dd>{formatPrimeAPIShipmentAddress(shipment.destinationAddress)}</dd>
-        <dd>{shipment.destinationAddress?.id && moveId && <Link to={editShipmentAddressUrl}>Edit</Link>}</dd>
+        <dd>
+          {shipment.destinationAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.DESTINATION }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Second Destination Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.secondaryDeliveryAddress)}</dd>
+        <dd>
+          {shipment.secondaryDeliveryAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.SECOND_DESTINATION }}>
+              Edit
+            </Link>
+          )}
+        </dd>
+      </div>
+      <div className={descriptionListStyles.row}>
+        <dt>Third Destination Address:</dt>
+        <dd>{formatPrimeAPIShipmentAddress(shipment.tertiaryDeliveryAddress)}</dd>
+        <dd>
+          {shipment.tertiaryDeliveryAddress?.id && moveId && (
+            <Link to={editShipmentAddressUrl} state={{ addressType: ADDRESS_TYPES.THIRD_DESTINATION }}>
+              Edit
+            </Link>
+          )}
+        </dd>
       </div>
       <div className={descriptionListStyles.row}>
         <dt>Destination type:</dt>
@@ -272,16 +327,24 @@ const Shipment = ({ shipment, moveId, onDelete, mtoServiceItems }) => {
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.pickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Secondary Pickup Address:</dt>
+            <dt>Second Pickup Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryPickupAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Third Pickup Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryPickupAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.destinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
-            <dt>Secondary Destination Address:</dt>
+            <dt>Second Destination Address:</dt>
             <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.secondaryDestinationAddress)}</dd>
+          </div>
+          <div className={descriptionListStyles.row}>
+            <dt>Third Destination Address:</dt>
+            <dd>{formatPrimeAPIShipmentAddress(shipment.ppmShipment.tertiaryDestinationAddress)}</dd>
           </div>
           <div className={descriptionListStyles.row}>
             <dt>PPM SIT Expected:</dt>

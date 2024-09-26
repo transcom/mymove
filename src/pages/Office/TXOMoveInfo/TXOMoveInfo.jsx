@@ -34,12 +34,12 @@ const SupportingDocuments = lazy(() => import('../SupportingDocuments/Supporting
 const TXOMoveInfo = () => {
   const [unapprovedShipmentCount, setUnapprovedShipmentCount] = React.useState(0);
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
-  const [unapprovedSITAddressUpdateCount, setUnapprovedSITAddressUpdateCount] = React.useState(0);
   const [shipmentsWithDeliveryAddressUpdateRequestedCount, setShipmentsWithDeliveryAddressUpdateRequestedCount] =
     React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [pendingPaymentRequestCount, setPendingPaymentRequestCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [missingOrdersInfoCount, setMissingOrdersInfoCount] = useState(0);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
   const [isMoveLocked, setIsMoveLocked] = useState(false);
 
@@ -147,11 +147,11 @@ const TXOMoveInfo = () => {
         <TXOTabNav
           unapprovedShipmentCount={unapprovedShipmentCount}
           unapprovedServiceItemCount={unapprovedServiceItemCount}
-          unapprovedSITAddressUpdateCount={unapprovedSITAddressUpdateCount}
           shipmentsWithDeliveryAddressUpdateRequestedCount={shipmentsWithDeliveryAddressUpdateRequestedCount}
           excessWeightRiskCount={excessWeightRiskCount}
           pendingPaymentRequestCount={pendingPaymentRequestCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
+          missingOrdersInfoCount={missingOrdersInfoCount}
           moveCode={moveCode}
           reportId={reportId}
           order={order}
@@ -174,12 +174,13 @@ const TXOMoveInfo = () => {
               <MoveDetails
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setShipmentsWithDeliveryAddressUpdateRequestedCount={
                   setShipmentsWithDeliveryAddressUpdateRequestedCount
                 }
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                missingOrdersInfoCount={missingOrdersInfoCount}
+                setMissingOrdersInfoCount={setMissingOrdersInfoCount}
                 isMoveLocked={isMoveLocked}
               />
             }
@@ -193,7 +194,6 @@ const TXOMoveInfo = () => {
               <MoveTaskOrder
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-                setUnapprovedSITAddressUpdateCount={setUnapprovedSITAddressUpdateCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
                 isMoveLocked={isMoveLocked}

@@ -78,7 +78,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 	})
 
 	suite.Run("Test requested pickup date requirement for various shipment types", func() {
-		subtestData := suite.createSubtestData(nil)
+		subtestData := suite.createSubtestDataV2(nil)
 		creator := subtestData.shipmentCreator
 
 		// Default is HHG, but we set it explicitly below via the test cases
@@ -98,17 +98,45 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{&time.Time{}, models.MTOShipmentTypeHHG, true},
 			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHG, false},
 			{nil, models.MTOShipmentTypeHHGOutOfNTSDom, false},
-			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, true},
-			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, true},
+			{&time.Time{}, models.MTOShipmentTypeHHGOutOfNTSDom, false},
+			{models.TimePointer(time.Now()), models.MTOShipmentTypeHHGOutOfNTSDom, false},
 			{nil, models.MTOShipmentTypePPM, false},
 			{models.TimePointer(time.Now()), models.MTOShipmentTypePPM, false},
 		}
 
 		for _, testCase := range testCases {
-			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
-			mtoShipmentClear.ShipmentType = testCase.shipmentType
-			mtoShipmentClear.RequestedPickupDate = testCase.input
-			_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+			var err error
+			if testCase.shipmentType == models.MTOShipmentTypeHHGOutOfNTSDom || testCase.shipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+				storageFacility := factory.BuildStorageFacility(nil, nil, nil)
+				storageFacility.ID = uuid.Must(uuid.NewV4())
+
+				mtoShipmentWithStorageFacility := factory.BuildMTOShipment(nil, []factory.Customization{
+					{
+						Model:    subtestData.move,
+						LinkOnly: true,
+					},
+					{
+						Model: models.MTOShipment{
+							ShipmentType: testCase.shipmentType,
+							Status:       models.MTOShipmentStatusSubmitted,
+						},
+					},
+					{
+						Model:    storageFacility,
+						LinkOnly: true,
+					},
+				}, nil)
+
+				mtoShipmentWithStorageFacilityClear := clearShipmentIDFields(&mtoShipmentWithStorageFacility)
+
+				_, err = creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentWithStorageFacilityClear)
+			} else {
+				mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
+				mtoShipmentClear.ShipmentType = testCase.shipmentType
+				mtoShipmentClear.RequestedPickupDate = testCase.input
+
+				_, err = creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
+			}
 
 			if testCase.shouldError {
 				if suite.Errorf(err, "should have errored for a %s shipment with requested pickup date set to %s", testCase.shipmentType, testCase.input) {
@@ -257,6 +285,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			mtoShipmentClear := clearShipmentIDFields(&mtoShipment)
 			mtoShipmentClear.MTOServiceItems = models.MTOServiceItems{}
 			mtoShipmentClear.DestinationAddress = nil
+			mtoShipmentClear.StorageFacility = nil
 
 			createdShipment, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
 

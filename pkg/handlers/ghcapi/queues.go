@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -17,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
-	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 )
 
 // GetMovesQueueHandler returns the moves for the TOO queue user via GET /queues/moves
@@ -26,7 +26,6 @@ type GetMovesQueueHandler struct {
 	services.OrderFetcher
 	services.MoveUnlocker
 	services.OfficeUserFetcherPop
-	services.OfficeUserGblocFetcher
 }
 
 // FilterOption defines the type for the functional arguments used for private functions in OrderFetcher
@@ -92,17 +91,19 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				return queues.NewGetMovesQueueInternalServerError(), err
 			}
 
-			var gblocErr error
-			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
-			if gblocErr != nil {
-				return queues.NewGetMovesQueueInternalServerError(), gblocErr
+			var officeUser models.OfficeUser
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 				appCtx,
 				roles.RoleTypeTOO,
-				officeUserGbloc,
+				officeUser.TransportationOfficeID,
 			)
 
 			if err != nil {
@@ -204,7 +205,6 @@ type GetPaymentRequestsQueueHandler struct {
 	services.PaymentRequestListFetcher
 	services.MoveUnlocker
 	services.OfficeUserFetcherPop
-	services.OfficeUserGblocFetcher
 }
 
 // Handle returns the paginated list of payment requests for the TIO user
@@ -266,17 +266,19 @@ func (h GetPaymentRequestsQueueHandler) Handle(
 				return queues.NewGetPaymentRequestsQueueInternalServerError(), err
 			}
 
-			var gblocErr error
-			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
-			if gblocErr != nil {
-				return queues.NewGetPaymentRequestsQueueInternalServerError(), gblocErr
+			var officeUser models.OfficeUser
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 				appCtx,
 				roles.RoleTypeTIO,
-				officeUserGbloc,
+				officeUser.TransportationOfficeID,
 			)
 
 			if err != nil {
@@ -327,7 +329,6 @@ type GetServicesCounselingQueueHandler struct {
 	services.OrderFetcher
 	services.MoveUnlocker
 	services.OfficeUserFetcherPop
-	services.OfficeUserGblocFetcher
 }
 
 // Handle returns the paginated list of moves for the services counselor
@@ -366,6 +367,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				CloseoutLocation:        params.CloseoutLocation,
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
+				CounselingOffice:        params.CounselingOffice,
 			}
 
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
@@ -401,17 +403,19 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				return queues.NewGetServicesCounselingQueueInternalServerError(), err
 			}
 
-			var gblocErr error
-			gblocFetcher := officeuser.NewOfficeUserGblocFetcher()
-			officeUserGbloc, gblocErr := gblocFetcher.FetchGblocForOfficeUser(appCtx, appCtx.Session().OfficeUserID)
-			if gblocErr != nil {
-				return queues.NewGetServicesCounselingQueueInternalServerError(), gblocErr
+			var officeUser models.OfficeUser
+			if appCtx.Session().OfficeUserID != uuid.Nil {
+				officeUser, err = h.OfficeUserFetcherPop.FetchOfficeUserByID(appCtx, appCtx.Session().OfficeUserID)
+				if err != nil {
+					appCtx.Logger().Error("Error retrieving office_user", zap.Error(err))
+					return queues.NewGetServicesCounselingQueueInternalServerError(), err
+				}
 			}
 
-			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUserByRoleAndGbloc(
+			officeUsers, err := h.OfficeUserFetcherPop.FetchOfficeUsersByRoleAndOffice(
 				appCtx,
 				roles.RoleTypeServicesCounselor,
-				officeUserGbloc,
+				officeUser.TransportationOfficeID,
 			)
 
 			if err != nil {

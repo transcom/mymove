@@ -83,6 +83,12 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		factory.GetTraitCustomerServiceRepresentativeRole,
 	})
 	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitHQRole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
+		factory.GetTraitGSRRole,
+	})
+	factory.BuildRole(suite.DB(), nil, []factory.Trait{
 		factory.GetTraitPrimeSimulatorRole,
 	})
 
@@ -131,7 +137,7 @@ func (suite *AuthSuite) TestCreateUserHandlerOffice() {
 		{
 			userType: MultiRoleOfficeUserType,
 			roleTypes: []roles.RoleType{roles.RoleTypeTIO, roles.RoleTypeTOO,
-				roles.RoleTypeServicesCounselor, roles.RoleTypePrimeSimulator},
+				roles.RoleTypeServicesCounselor, roles.RoleTypePrimeSimulator, roles.RoleTypeGSR, roles.RoleTypeHQ, roles.RoleTypeQae, roles.RoleTypeCustomerServiceRepresentative},
 			email: "multi_role@example.com",
 		},
 	} {

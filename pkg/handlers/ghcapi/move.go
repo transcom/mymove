@@ -281,6 +281,41 @@ func (h UploadAdditionalDocumentsHandler) Handle(params moveop.UploadAdditionalD
 		})
 }
 
+type MoveCancelerHandler struct {
+	handlers.HandlerConfig
+	services.MoveCanceler
+}
+
+func (h MoveCancelerHandler) Handle(params moveop.MoveCancelerParams) middleware.Responder {
+	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
+		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
+			moveID := uuid.FromStringOrNil(params.MoveID.String())
+
+			move, err := h.MoveCanceler.CancelMove(appCtx, moveID)
+			if err != nil {
+				appCtx.Logger().Error("MoveCancelerHandler error", zap.Error(err))
+				switch err.(type) {
+				case apperror.NotFoundError:
+					return moveop.NewMoveCancelerNotFound(), err
+				case apperror.PreconditionFailedError:
+					return moveop.NewMoveCancelerPreconditionFailed(), err
+				case apperror.InvalidInputError:
+					return moveop.NewMoveCancelerUnprocessableEntity(), err
+				case apperror.ConflictError:
+					return moveop.NewMoveCancelerConflict(), err
+				default:
+					return moveop.NewMoveCancelerInternalServerError(), err
+				}
+			}
+
+			payload, err := payloads.Move(move, h.FileStorer())
+			if err != nil {
+				return nil, err
+			}
+			return moveop.NewMoveCancelerOK().WithPayload(payload), nil
+		})
+}
+
 type DeleteAssignedOfficeUserHandler struct {
 	handlers.HandlerConfig
 	services.MoveAssignedOfficeUserUpdater
