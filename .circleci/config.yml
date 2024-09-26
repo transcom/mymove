@@ -1497,7 +1497,7 @@ jobs:
             #
             # The trailing hyphen in restore_cache seems important
             # according to the page linked above
-            - v8-server-tests-coverage-
+            - v9-server-tests-coverage-
       - run:
           name: Ensure Test Coverage Increasing
           command: |
