@@ -40,6 +40,7 @@ import {
 } from 'shared/Entities/modules/signed_certifications';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { updateMTOShipments } from 'store/entities/actions';
+import { setCanAddOrders as setCanAddOrdersAction } from 'store/general/actions';
 import {
   selectCurrentMove,
   selectCurrentOrders,
@@ -340,6 +341,11 @@ export class Home extends Component {
   };
 
   handleNewPathClick = (path) => {
+    // we want to ensure this user can only add orders once
+    const { setCanAddOrders } = this.props;
+    if (!this.hasOrders && path === '/orders/add/') {
+      setCanAddOrders(true);
+    }
     const {
       router: { navigate },
     } = this.props;
@@ -807,7 +813,6 @@ const mapStateToProps = (state) => {
     backupContacts: serviceMember?.backup_contacts || [],
     signedCertification: selectSignedCertification(state),
     mtoShipments: selectMTOShipmentsForCurrentMove(state),
-    // TODO: change when we support multiple moves
     move,
   };
 };
@@ -815,6 +820,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = {
   getSignedCertification: getSignedCertificationAction,
   updateShipmentList: updateMTOShipments,
+  setCanAddOrders: setCanAddOrdersAction,
 };
 
 // in order to avoid setting up proxy server only for storybook, pass in stub function so API requests don't fail
