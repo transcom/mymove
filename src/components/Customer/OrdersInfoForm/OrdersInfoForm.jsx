@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Formik, Field } from 'formik';
 import * as Yup from 'yup';
@@ -17,10 +17,12 @@ import SectionWrapper from 'components/Customer/SectionWrapper';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
+import { showCounselingOffices } from 'services/internalApi';
 
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
-
+  const [dutyLocation, setDutyLocation] = useState('');
+  const [officeOptions, setOfficeOptions] = useState(null);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -35,13 +37,26 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
     new_duty_location: Yup.object().nullable().required('Required'),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
+    counseling_office_id: dutyLocation.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
   });
+  useEffect(() => {
+    showCounselingOffices(dutyLocation.id).then((fetchedData) => {
+      if (fetchedData.body) {
+        const counselingOffices = fetchedData.body.map((item) => ({
+          key: item.id,
+          value: item.name,
+        }));
+        setOfficeOptions(counselingOffices);
+      }
+    });
+  }, [dutyLocation]);
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
       {({ isValid, isSubmitting, handleSubmit, values }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
-
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
@@ -90,9 +105,26 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                onDutyLocationChange={(e) => {
+                  setDutyLocation(e);
+                }}
                 required
               />
-
+              <Label>
+                Select an origin duty location that most closely represents your current physical location, not where
+                your shipment will originate, if different. This will allow a nearby transportation office to assist
+                you.
+              </Label>
+              {dutyLocation.provides_services_counseling && (
+                <DropdownInput
+                  label="Counseling Office"
+                  name="counseling_office_id"
+                  id="counseling_office_id"
+                  hint="Required"
+                  required
+                  options={officeOptions}
+                />
+              )}
               {isRetirementOrSeparation ? (
                 <>
                   <h3 className={styles.calloutLabel}>Where are you entitled to move?</h3>

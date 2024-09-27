@@ -88,7 +88,7 @@ export const LocationSearchBoxComponent = ({
   placeholder,
   isDisabled,
 }) => {
-  const { value, onChange, name: inputName } = input;
+  const { value, onChange, locationState, name: inputName } = input;
 
   const [inputValue, setInputValue] = useState('');
   let disabledStyles = {};
@@ -144,11 +144,12 @@ export const LocationSearchBoxComponent = ({
         ...selectedValue,
         address,
       };
-
+      locationState(newValue);
       onChange(newValue);
       return newValue;
     }
 
+    locationState(selectedValue);
     onChange(selectedValue);
     return selectedValue;
   };
@@ -181,6 +182,7 @@ export const LocationSearchBoxComponent = ({
 
   const noOptionsMessage = () => (inputValue.length ? 'No Options' : '');
   const hasLocation = !!value && !!value.address;
+
   return (
     <FormGroup>
       <div className="labelWrapper">
@@ -221,6 +223,7 @@ export const LocationSearchBoxComponent = ({
 
 export const LocationSearchBoxContainer = (props) => {
   const { searchLocations } = props;
+
   return <LocationSearchBoxComponent {...props} searchLocations={searchLocations} showAddress={ShowAddress} />;
 };
 
@@ -233,6 +236,7 @@ LocationSearchBoxContainer.propTypes = {
     name: PropTypes.string,
     onChange: PropTypes.func,
     value: DutyLocationShape,
+    locationState: PropTypes.func,
   }),
   hint: PropTypes.node,
   placeholder: PropTypes.string,
@@ -248,6 +252,7 @@ LocationSearchBoxContainer.defaultProps = {
     name: '',
     onChange: () => {},
     value: undefined,
+    locationState: () => {},
   },
   hint: '',
   placeholder: 'Start typing a duty location...',
