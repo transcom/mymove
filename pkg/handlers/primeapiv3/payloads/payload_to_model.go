@@ -121,9 +121,12 @@ func MTOServiceItemModelListFromCreate(mtoShipment *primev3messages.CreateMTOShi
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MTOShipment, *validate.Errors) {
+	verrs := validate.NewErrors()
+
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
 	}
 
 	var divertedFromShipmentID *uuid.UUID
@@ -180,7 +183,15 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.PPMShipment.Shipment = *model
 	}
 
-	return model
+	if mtoShipment.BoatShipment != nil {
+		model.BoatShipment, verrs = BoatShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.BoatShipment.Shipment = *model
+	}
+
+	return model, verrs
 }
 
 // Non SIT Address update Model
@@ -270,6 +281,40 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	}
 
 	return model
+}
+
+// BoatShipmentModelFromCreate model
+func BoatShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.BoatShipment, *validate.Errors) {
+	reasonVerrs := validateBoatShipmentType(*mtoShipment.ShipmentType)
+	if reasonVerrs.HasAny() {
+		return nil, reasonVerrs
+	}
+
+	var shipmentType models.BoatShipmentType
+
+	if *mtoShipment.ShipmentType == primev3messages.MTOShipmentTypeBOATHAULAWAY {
+		shipmentType = models.BoatShipmentTypeHaulAway
+	} else if *mtoShipment.ShipmentType == primev3messages.MTOShipmentTypeBOATTOWAWAY {
+		shipmentType = models.BoatShipmentTypeTowAway
+	}
+
+	year := int(*mtoShipment.BoatShipment.Year)
+	lengthInInches := int(*mtoShipment.BoatShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.BoatShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.BoatShipment.HeightInInches)
+	model := &models.BoatShipment{
+		Type:           shipmentType,
+		Year:           &year,
+		Make:           mtoShipment.BoatShipment.Make,
+		Model:          mtoShipment.BoatShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
+		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
+		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
 }
 
 // MTOShipmentModelFromUpdate model
@@ -857,5 +902,16 @@ func validateReasonOriginSIT(m primev3messages.MTOServiceItemOriginSIT) *validat
 	if m.Reason == nil || m.Reason == models.StringPointer("") {
 		verrs.Add("reason", "reason is required in body.")
 	}
+	return verrs
+}
+
+// validateBoatShipmentType validates that the shipment type is a valid boat type, and is not nil.
+func validateBoatShipmentType(s primev3messages.MTOShipmentType) *validate.Errors {
+	verrs := validate.NewErrors()
+
+	if s != primev3messages.MTOShipmentTypeBOATHAULAWAY && s != primev3messages.MTOShipmentTypeBOATTOWAWAY {
+		verrs.Add("Boat Shipment Type (mtoShipment.shipmentType)", "shipmentType must be either "+string(primev3messages.BoatShipmentTypeTOWAWAY)+" or "+string(primev3messages.BoatShipmentTypeHAULAWAY))
+	}
+
 	return verrs
 }
