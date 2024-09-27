@@ -203,7 +203,11 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Equal(paymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
 		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
 		suite.Equal(89, pendingSITBalance.TotalSITDaysRemaining)
-		suite.Equal(doasit.SITEntryDate.AddDate(0, 0, 118).String(), pendingSITBalance.TotalSITEndDate.UTC().String())
+		// Authorized end date should be 120 days from the entry date.
+		// Only add 119 to the entry date because that last day counts as one too
+		// To understand this, use a date range calculator and set start date
+		// to AUG 12 2024, end date to DEC 9 2024, and select to "Include end date in calculation"
+		suite.Equal(doasit.SITEntryDate.AddDate(0, 0, 119).String(), pendingSITBalance.TotalSITEndDate.UTC().String())
 	})
 
 	suite.Run("calculates pending destination SIT balance when origin was invoiced previously", func() {
@@ -527,10 +531,11 @@ func (suite *PaymentRequestServiceSuite) TestListShipmentPaymentSITBalance() {
 		suite.Equal(destinationPaymentEndDate.String(), pendingSITBalance.PendingBilledEndDate.String())
 
 		suite.Equal(120, pendingSITBalance.TotalSITDaysAuthorized)
-		// 120 total authorized - 30 from origin SIT - 60 from destination SIT = 30 SIT days remaining
+		// 120 total authorized - 31 from origin SIT - 61 from destination SIT = 28 SIT days remaining
 		suite.Equal(28, pendingSITBalance.TotalSITDaysRemaining)
 
-		suite.Equal(ddasit.SITEntryDate.AddDate(0, 0, 87).String(), pendingSITBalance.TotalSITEndDate.UTC().String())
+		// 120 authorized - 31 already used - 1 to be inclusive of the last day = 88
+		suite.Equal(ddasit.SITEntryDate.AddDate(0, 0, 88).String(), pendingSITBalance.TotalSITEndDate.UTC().String())
 	})
 
 	suite.Run("ignores including previously denied service items in SIT balance", func() {
