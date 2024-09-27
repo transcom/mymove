@@ -99,8 +99,8 @@ export const phoneSchema = Yup.string().matches(
 ); // min 12 includes hyphens
 
 export const emailSchema = Yup.string().matches(
-  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
-  'Must be a valid email address',
+  /^[a-zA-Z0-9._%+-]+@(mil|gov|edu)+.[a-zA-Z]{2,}$/,
+  'Domain must be .mil, .gov or .edu',
 );
 
 const validatePreferredContactMethod = (value, testContext) => {
