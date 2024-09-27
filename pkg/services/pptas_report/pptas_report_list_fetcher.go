@@ -209,7 +209,7 @@ func populateShipmentFields(
 		pptasShipment.NetWeight = &netWeight
 
 		var weightEstimate float64
-		if shipment.PPMShipment != nil {
+		if shipment.PPMShipment.EstimatedWeight != nil {
 			weightEstimate = shipment.PPMShipment.EstimatedWeight.Float64()
 		}
 
