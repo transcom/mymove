@@ -2359,6 +2359,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:
         $ref: 'definitions/TransportationOffice.yaml'
+      counselingOffice:
+        $ref: 'definitions/TransportationOffice.yaml'
       eTag:
         type: string
         readOnly: true

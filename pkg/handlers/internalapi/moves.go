@@ -101,17 +101,23 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 		if move.CloseoutOffice != nil {
 			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
 		}
+		var counselingOffice internalmessages.TransportationOffice
+		if move.CounselingOffice != nil {
+			counselingOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
+
+		}
 
 		currentMove := &internalmessages.InternalMove{
-			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
-			ETag:           eTag,
-			ID:             moveID,
-			Status:         string(move.Status),
-			MtoShipments:   *payloadShipments,
-			MoveCode:       move.Locator,
-			Orders:         orders,
-			CloseoutOffice: &closeOutOffice,
-			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
+			CreatedAt:        *handlers.FmtDateTime(move.CreatedAt),
+			ETag:             eTag,
+			ID:               moveID,
+			Status:           string(move.Status),
+			MtoShipments:     *payloadShipments,
+			MoveCode:         move.Locator,
+			Orders:           orders,
+			CloseoutOffice:   &closeOutOffice,
+			SubmittedAt:      handlers.FmtDateTimePtr(move.SubmittedAt),
+			CounselingOffice: &counselingOffice,
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {

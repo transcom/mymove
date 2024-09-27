@@ -63,6 +63,14 @@ const OrdersTable = ({
             </td>
           </tr>
           <tr>
+            <th className={reviewStyles['table-divider-top']} scope="row" style={{ borderBottom: 'none' }}>
+              Counseling office
+            </th>
+            <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
+              ADD COUNSELLING OFFICE NAME
+            </td>
+          </tr>
+          <tr>
             <th scope="row">{isRetirementOrSeparation ? 'HOR, PLEAD or HOS' : 'New duty location'}</th>
             <td>{newDutyLocationName}</td>
           </tr>

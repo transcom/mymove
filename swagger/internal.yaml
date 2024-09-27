@@ -2392,6 +2392,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:
         $ref: '#/definitions/TransportationOffice'
+      counselingOffice:
+        $ref: '#/definitions/TransportationOffice'
       eTag:
         type: string
         readOnly: true

@@ -4490,6 +4490,9 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -13102,6 +13105,9 @@ func init() {
       "type": "object",
       "properties": {
         "closeoutOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
