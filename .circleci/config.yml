@@ -48,7 +48,7 @@ references:
   # set integration-ignore-branch to the branch if you want to IGNORE
   # integration tests, or `placeholder_branch_name` if you do want to
   # run them
-  integration-ignore-branch: &integration-ignore-branch integrationTesting
+  integration-ignore-branch: &integration-ignore-branch placeholder_branch_name
 
   # set integration-mtls-ignore-branch to the branch if you want to
   # IGNORE mtls integration tests, or `placeholder_branch_name` if you
@@ -58,12 +58,12 @@ references:
   # set client-ignore-branch to the branch if you want to IGNORE
   # client tests, or `placeholder_branch_name` if you do want to run
   # them
-  client-ignore-branch: &client-ignore-branch integrationTesting
+  client-ignore-branch: &client-ignore-branch placeholder_branch_name
 
   # set server-ignore-branch to the branch if you want to IGNORE
   # server tests, or `placeholder_branch_name` if you do want to run
   # them
-  server-ignore-branch: &server-ignore-branch integrationTesting
+  server-ignore-branch: &server-ignore-branch placeholder_branch_name
 
 executors:
   base_small:
