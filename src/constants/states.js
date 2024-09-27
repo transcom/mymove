@@ -53,7 +53,4 @@ export const statesList = [
   { value: 'WY', key: 'WY' },
 ];
 
-export const unSupportedStates = [
-  { value: 'AK', key: 'AK' },
-  { value: 'HI', key: 'HI' },
-];
+export const unSupportedStates = [{ value: 'HI', key: 'HI' }];
