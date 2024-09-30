@@ -14,6 +14,7 @@ const disableRegex = /^eslint-disable(?:-next-line|-line)?(?<ruleId>$|(?:\s+(?:@
 
 const validatorStatusOptions = new Set([
   'CODEOWNER ACCEPTED',
+  'RA ACCEPTED', // THIS LINE IS DEPRECATED AS OF 9/30/2024 - leaving d/t previous implementation
   'RETURN TO DEVELOPER',
   'KNOWN ISSUE',
   'MITIGATED',
