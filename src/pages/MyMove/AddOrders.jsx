@@ -39,7 +39,7 @@ const AddOrders = ({ context, serviceMemberId, updateServiceMember, updateOrders
       spouse_has_pro_gear: false,
     };
     if (!values.origin_duty_location.provides_services_counseling) {
-      pendingValues.counseling_office_id = undefined;
+      pendingValues.counseling_office_id = null;
     }
 
     try {
