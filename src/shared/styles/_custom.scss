@@ -29,6 +29,7 @@ html {
     &--ppm,
     &--ub,
     &--boat,
+    &--mobilehome,
     &--nts,
     &--ntsr {
       @include u-radius(0);
@@ -55,6 +56,9 @@ html {
     }
     &--boat {
       @include cont-border-top($accent-boat);
+    }
+    &--mobilehome {
+      @include cont-border-top($accent-mobile-home);
     }
   }
 }
@@ -142,8 +146,6 @@ table {
       @include u-border-bottom(1px);
       @include u-border('base-darker');
     }
-    td {
-    }
   }
   &.table--stacked {
     td,
@@ -155,10 +157,10 @@ table {
     }
     .error {
       th {
-      @include u-border-left(0.5);
-      @include u-border-left('error');
+        @include u-border-left(0.5);
+        @include u-border-left('error');
       }
-      td{
+      td {
         @include u-border-left(0);
         @include u-text('error');
         @include u-text('bold');
