@@ -114,4 +114,8 @@ p.sitHeader {
 }
 .tableContainer {
   margin-top: 16px;
+
+  table tbody tr td span p:not(:last-child) {
+    padding-bottom: 1em;
+  }
 }

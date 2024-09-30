@@ -200,3 +200,23 @@ export const MOVE_DOCUMENT_TYPE = {
   AMENDMENTS: 'AMENDMENTS',
   SUPPORTING: 'SUPPORTING',
 };
+
+export const ADDRESS_TYPES = {
+  PICKUP: 'pickupAddress',
+  SECOND_PICKUP: 'secondaryPickupAddress',
+  THIRD_PICKUP: 'tertiaryPickupAddress',
+  DESTINATION: 'destinationAddress',
+  SECOND_DESTINATION: 'secondaryDeliveryAddress',
+  THIRD_DESTINATION: 'tertiaryDeliveryAddress',
+};
+
+const ADDRESS_LABELS_MAP = {
+  [ADDRESS_TYPES.PICKUP]: 'Pickup Address',
+  [ADDRESS_TYPES.SECOND_PICKUP]: 'Second Pickup Address',
+  [ADDRESS_TYPES.THIRD_PICKUP]: 'Third Pickup Address',
+  [ADDRESS_TYPES.DESTINATION]: 'Destination Address',
+  [ADDRESS_TYPES.SECOND_DESTINATION]: 'Second Destination Address',
+  [ADDRESS_TYPES.THIRD_DESTINATION]: 'Third Destination Address',
+};
+
+export const getAddressLabel = (type) => ADDRESS_LABELS_MAP[type];

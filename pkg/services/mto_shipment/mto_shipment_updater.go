@@ -158,11 +158,11 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.NTSRecordedWeight = requestedUpdatedShipment.NTSRecordedWeight
 	}
 
-	if requestedUpdatedShipment.PickupAddress != nil {
+	if requestedUpdatedShipment.PickupAddress != nil && dbShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 		dbShipment.PickupAddress = requestedUpdatedShipment.PickupAddress
 	}
 
-	if requestedUpdatedShipment.DestinationAddress != nil {
+	if requestedUpdatedShipment.DestinationAddress != nil && dbShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
 		dbShipment.DestinationAddress = requestedUpdatedShipment.DestinationAddress
 	}
 
@@ -445,7 +445,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 		//   vs "don't touch" the field, so we can't safely reset a nil DestinationAddress to the duty
 		//   location address for an HHG like we do in the MTOShipmentCreator now.  See MB-15718.
 
-		if newShipment.DestinationAddress != nil {
+		if newShipment.DestinationAddress != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGIntoNTSDom {
 			// If there is an existing DestinationAddressID associated
 			// with the shipment, grab it.
 			if dbShipment.DestinationAddressID != nil {
@@ -480,7 +480,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 		}
 
-		if newShipment.PickupAddress != nil {
+		if newShipment.PickupAddress != nil && newShipment.ShipmentType != models.MTOShipmentTypeHHGOutOfNTSDom {
 			if dbShipment.PickupAddressID != nil {
 				newShipment.PickupAddress.ID = *dbShipment.PickupAddressID
 			}
@@ -680,6 +680,15 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			}
 
 			newShipment.StorageFacilityID = &newShipment.StorageFacility.ID
+
+			// For NTS-Release set the pick up address to the storage facility
+			if newShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
+				newShipment.PickupAddressID = &newShipment.StorageFacility.AddressID
+			}
+			// For NTS set the destination address to the storage facility
+			if newShipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
+				newShipment.DestinationAddressID = &newShipment.StorageFacility.AddressID
+			}
 		}
 
 		if len(newShipment.MTOAgents) != 0 {
