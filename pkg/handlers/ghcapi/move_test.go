@@ -20,7 +20,6 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	movelocker "github.com/transcom/mymove/pkg/services/lock_move"
 	"github.com/transcom/mymove/pkg/services/mocks"
-	move "github.com/transcom/mymove/pkg/services/move"
 	moveservice "github.com/transcom/mymove/pkg/services/move"
 	officeuser "github.com/transcom/mymove/pkg/services/office_user"
 	transportationoffice "github.com/transcom/mymove/pkg/services/transportation_office"
@@ -707,7 +706,7 @@ func (suite *HandlerSuite) TestUpdateMoveCloseoutOfficeHandler() {
 func (suite *HandlerSuite) TestUploadAdditionalDocumentsHander() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	uploadCreator := upload.NewUploadCreator(fakeS3)
-	additionalDocumentsUploader := move.NewMoveAdditionalDocumentsUploader(uploadCreator)
+	additionalDocumentsUploader := moveservice.NewMoveAdditionalDocumentsUploader(uploadCreator)
 
 	setupRequestAndParams := func(move models.Move) *moveops.UploadAdditionalDocumentsParams {
 		endpoint := fmt.Sprintf("/moves/%v/upload_additional_documents", move.ID)

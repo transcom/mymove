@@ -368,6 +368,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				OrderType:               params.OrderType,
 				PPMStatus:               params.PpmStatus,
 				CounselingOffice:        params.CounselingOffice,
+				SCAssignedUser:          params.AssignedTo,
 			}
 
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {

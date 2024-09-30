@@ -120,7 +120,6 @@ type MoveCloseoutOfficeUpdater interface {
 type MoveCanceler interface {
 	CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID) (*models.Move, error)
 }
-
 type MoveAssignedOfficeUserUpdater interface {
 	UpdateAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, officeUser *models.OfficeUser, role roles.RoleType) (*models.Move, error)
 	DeleteAssignedOfficeUser(appCtx appcontext.AppContext, moveID uuid.UUID, role roles.RoleType) (*models.Move, error)
