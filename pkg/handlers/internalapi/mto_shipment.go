@@ -167,6 +167,13 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 							h.GetTraceIDFromRequest(params.HTTPRequest),
 						),
 					), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.
 						NewUpdateMTOShipmentUnprocessableEntity().
@@ -179,16 +186,6 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 							),
 						), err
 				case apperror.PreconditionFailedError:
-					return mtoshipmentops.
-						NewUpdateMTOShipmentPreconditionFailed().
-						WithPayload(
-							payloads.ClientError(
-								handlers.PreconditionErrMessage,
-								err.Error(),
-								h.GetTraceIDFromRequest(params.HTTPRequest),
-							),
-						), err
-				case apperror.DtodError:
 					return mtoshipmentops.
 						NewUpdateMTOShipmentPreconditionFailed().
 						WithPayload(

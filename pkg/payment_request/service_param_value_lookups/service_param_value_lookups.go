@@ -511,7 +511,7 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 		value, err := lookup.lookup(appCtx, s)
 		if err != nil {
 			switch err.(type) {
-			case apperror.DtodError:
+			case apperror.EventError:
 				return "", err
 			}
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)

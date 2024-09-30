@@ -431,30 +431,3 @@ func NewInternalServerError(message string) InternalServerError {
 func (e InternalServerError) Error() string {
 	return e.message
 }
-
-// NotFoundError is returned when a given struct is not found
-type DtodError struct {
-	message string
-	err     error
-}
-
-// NewNotFoundError returns an error for when a struct can not be found
-func NewDtodError(message string) DtodError {
-	return DtodError{
-		message: message,
-	}
-}
-
-func (e DtodError) Error() string {
-	return fmt.Sprintf(e.message)
-}
-
-// Wrap lets the caller add an error to be wrapped in the NotFoundError
-func (e *DtodError) Wrap(err error) {
-	e.err = err
-}
-
-// Unwrap returns the wrapped error, could be nil
-func (e *DtodError) Unwrap() error {
-	return e.err
-}
