@@ -4,11 +4,11 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const BoatInfoModal = ({ closeModal }) => (
+export const BoatAndMobileInfoModal = ({ closeModal }) => (
   <Modal>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
-      <h3>Boat & mobile homes info</h3>
+      <h3>Boat & Mobile homes info</h3>
     </ModalTitle>
     <h4>
       <strong>Boat shipment</strong>
@@ -20,6 +20,10 @@ export const BoatInfoModal = ({ closeModal }) => (
       above dimensions shall be shipped with household goods and not be considered a separate shipment. If your boat is
       under those dimensions, choose the &quot;HHG&quot; option above.
     </p>
+    <h4>
+      <strong>Mobile Home shipment</strong>
+    </h4>
+    <p>This option is for privately owned mobile homes.</p>
     <ModalActions>
       <Button secondary type="button" onClick={closeModal}>
         Got it
@@ -28,14 +32,14 @@ export const BoatInfoModal = ({ closeModal }) => (
   </Modal>
 );
 
-BoatInfoModal.propTypes = {
+BoatAndMobileInfoModal.propTypes = {
   closeModal: PropTypes.func,
 };
 
-BoatInfoModal.defaultProps = {
+BoatAndMobileInfoModal.defaultProps = {
   closeModal: () => {},
 };
 
-BoatInfoModal.displayName = 'BoatInfoModal';
+BoatAndMobileInfoModal.displayName = 'BoatAndMobileInfoModal';
 
-export default connectModal(BoatInfoModal);
+export default connectModal(BoatAndMobileInfoModal);
