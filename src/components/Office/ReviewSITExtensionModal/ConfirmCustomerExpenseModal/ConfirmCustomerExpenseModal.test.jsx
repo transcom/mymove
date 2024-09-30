@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 
-import '@testing-library/jest-dom/extend-expect'; // for additional matchers
-import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal'; // adjust path if necessary
+import '@testing-library/jest-dom/extend-expect';
+import ConfirmCustomerExpenseModal from './ConfirmCustomerExpenseModal';
 
 describe('ConfirmCustomerExpenseModal', () => {
   let setShowConfirmModal;
@@ -12,7 +12,7 @@ describe('ConfirmCustomerExpenseModal', () => {
   beforeEach(() => {
     setShowConfirmModal = jest.fn();
     setValues = jest.fn();
-    values = { convertToCustomerExpense: false }; // initial values object
+    values = { convertToCustomerExpense: false };
   });
 
   it('renders the modal with correct content', () => {
