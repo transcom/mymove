@@ -263,15 +263,6 @@ const mockPPMShipment = {
     advanceStatus: 'APPROVED',
   },
 };
-const mockBoatShipment = {
-  ...mockMtoShipment,
-  boatShipment: {
-    id: 'boat123',
-    lengthInInches: 600,
-    widthInInches: 200,
-    hasTrailer: false,
-  },
-};
 
 const mockRejectedPPMShipment = {
   ...mockMtoShipment,
