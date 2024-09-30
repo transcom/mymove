@@ -157,6 +157,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
 			"LockedByOfficeUser",
+			"SCAssignedUser",
 			"CounselingOffice",
 		).InnerJoin("orders", "orders.id = moves.orders_id").
 			InnerJoin("service_members", "orders.service_member_id = service_members.id").
