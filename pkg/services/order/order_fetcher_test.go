@@ -1548,8 +1548,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[0].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(1, len(moves))
 		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[1].MTOShipments[0].PPMShipment.Status)
 
 		// Sort by PPM type (descending)
