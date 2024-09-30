@@ -61,7 +61,26 @@
     }
   }
 
-  :global(.usa-label),
+  :global(.usa-label) {
+    color: $base-darker;
+    font-size: 13px;
+    line-height: 16px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: none;
+
+    :global(.usa-hint) {
+      font-size: 13px;
+      line-height: 1.3;
+      color: $base;
+      font-weight: normal;
+    }
+  }
+
   :global(.usa-checkbox__label) {
     @include u-margin-top(2);
   }
