@@ -27,7 +27,7 @@ const BackupContactForm = ({ initialValues, onSubmit, onBack }) => {
             </p>
             <SectionWrapper className={formStyles.formSection}>
               <div className="tablet:margin-top-neg-3">
-                <BackupContactInfoFields />
+                <BackupContactInfoFields labelHint="Required" />
               </div>
             </SectionWrapper>
             <div className={formStyles.formActions}>
