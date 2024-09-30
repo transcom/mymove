@@ -188,6 +188,16 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 								h.GetTraceIDFromRequest(params.HTTPRequest),
 							),
 						), err
+				case apperror.DtodError:
+					return mtoshipmentops.
+						NewUpdateMTOShipmentPreconditionFailed().
+						WithPayload(
+							payloads.ClientError(
+								handlers.PreconditionErrMessage,
+								err.Error(),
+								h.GetTraceIDFromRequest(params.HTTPRequest),
+							),
+						), err
 				case apperror.QueryError:
 					if e.Unwrap() != nil {
 						// If you can unwrap, log the internal error (usually a pq error) for better debugging

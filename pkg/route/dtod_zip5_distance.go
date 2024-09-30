@@ -1,5 +1,15 @@
 package route
 
+import (
+	"fmt"
+
+	"github.com/tiaguinho/gosoap"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
+)
+
 /*******************************************
 
 The struct/method dtodZip5DistanceInfo:DTODZip5Distance implements the service DTODPlannerMileage.
@@ -33,15 +43,6 @@ The Request to DTOD using the service ProcessRequest which looks like
 </soapenv:Envelope>
 
  *******************************************/
-
-import (
-	"fmt"
-
-	"github.com/tiaguinho/gosoap"
-	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/appcontext"
-)
 
 // DTODPlannerMileage is the interface for connecting to DTOD SOAP service and requesting distance mileage
 // NOTE: Placing this in a separate package/directory to avoid a circular dependency from an existing mock.
@@ -120,7 +121,7 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 	// It looks like sending a bad zip just returns a distance of -1, so test for that
 	distanceFloat := r.ProcessRequestResult.Distance
 	if distanceFloat <= 0 {
-		return distance, fmt.Errorf("invalid distance using pickup %s and destination %s", pickupZip, destinationZip)
+		return distance, apperror.NewDtodError("We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code, or the system that calculates distance (DTOD) may be down. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box. If the error persists, please try again later, or contact the Technical Help Desk.")
 	}
 
 	// TODO: DTOD gives us a float back. Should we round, floor, or ceiling? Just going to round for now.
