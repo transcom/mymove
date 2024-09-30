@@ -1,29 +1,25 @@
 import React from 'react';
 
-import t from 'constants/MoveHistory/Database/Tables';
+import o from 'constants/MoveHistory/UIDisplay/Operations';
 import a from 'constants/MoveHistory/Database/Actions';
+import t from 'constants/MoveHistory/Database/Tables';
 import LabeledDetails from 'pages/Office/MoveHistory/LabeledDetails';
+import { getMtoShipmentLabel } from 'utils/formatMtoShipment';
 
 const formatChangedValues = (historyRecord) => {
-  let newChangedValues = {
+  const newChangedValues = {
     ...historyRecord.changedValues,
+    ...getMtoShipmentLabel(historyRecord),
   };
-
-  if (historyRecord.context) {
-    newChangedValues = {
-      ...newChangedValues,
-      ...historyRecord.context[0],
-    };
-  }
 
   return { ...historyRecord, changedValues: newChangedValues };
 };
 
 export default {
-  action: a.INSERT,
-  eventName: '*', // Needs wild card to handle both createOrders and createOrder
-  tableName: t.orders,
-  getEventNameDisplay: () => 'Created orders',
+  action: a.UPDATE,
+  eventName: o.updateMTOServiceItemStatus,
+  tableName: t.mto_shipments,
+  getEventNameDisplay: () => 'Updated shipment',
   getDetails: (historyRecord) => {
     return <LabeledDetails historyRecord={formatChangedValues(historyRecord)} />;
   },
