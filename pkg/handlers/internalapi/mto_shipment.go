@@ -167,6 +167,13 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 							h.GetTraceIDFromRequest(params.HTTPRequest),
 						),
 					), err
+				case apperror.EventError:
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(
+						payloads.ClientError(handlers.InternalServerErrMessage,
+							err.Error(),
+							h.GetTraceIDFromRequest(params.HTTPRequest),
+						),
+					), err
 				case apperror.InvalidInputError:
 					return mtoshipmentops.
 						NewUpdateMTOShipmentUnprocessableEntity().
