@@ -115,7 +115,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   <Label>
                     Select an origin duty location that most closely represents your current physical location, not
                     where your shipment will originate, if different. This will allow a nearby transportation office to
-                    assist you.
+                    assist
                   </Label>
                   <DropdownInput
                     label="Counseling Office"
