@@ -864,20 +864,20 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
       expect(screen.getByLabelText('Use my current address')).not.toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[0]).toHaveValue('812 S 129th St');
+      expect(screen.getAllByLabelText(/Address 1/)[0]).toHaveValue('812 S 129th St');
       expect(screen.getAllByLabelText(/Address 2/)[0]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[0]).toHaveValue('San Antonio');
-      expect(screen.getAllByLabelText('State')[0]).toHaveValue('TX');
-      expect(screen.getAllByLabelText('ZIP')[0]).toHaveValue('78234');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(screen.getAllByLabelText(/City/)[0]).toHaveValue('San Antonio');
+      expect(screen.getAllByLabelText(/State/)[0]).toHaveValue('TX');
+      expect(screen.getAllByLabelText(/ZIP/)[0]).toHaveValue('78234');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(screen.getByTitle('Yes, I know my delivery address')).toBeChecked();
-      expect(screen.getAllByLabelText('Address 1')[1]).toHaveValue('441 SW Rio de la Plata Drive');
+      expect(screen.getAllByLabelText(/Address 1/)[1]).toHaveValue('441 SW Rio de la Plata Drive');
       expect(screen.getAllByLabelText(/Address 2/)[1]).toHaveValue('');
-      expect(screen.getAllByLabelText('City')[1]).toHaveValue('Tacoma');
-      expect(screen.getAllByLabelText('State')[1]).toHaveValue('WA');
-      expect(screen.getAllByLabelText('ZIP')[1]).toHaveValue('98421');
+      expect(screen.getAllByLabelText(/City/)[1]).toHaveValue('Tacoma');
+      expect(screen.getAllByLabelText(/State/)[1]).toHaveValue('WA');
+      expect(screen.getAllByLabelText(/ZIP/)[1]).toHaveValue('98421');
       expect(
         screen.getByLabelText(
           'Are there things about this shipment that your counselor or movers should discuss with you?',
@@ -896,8 +896,8 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
@@ -923,8 +923,8 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
@@ -950,8 +950,8 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         expect(
           screen.getByText(
@@ -977,8 +977,8 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
-      expect(screen.getByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
+      expect(screen.getByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       expect(
         screen.getByLabelText(
           'Are there things about this shipment that your counselor or movers should discuss with you?',
@@ -1099,7 +1099,7 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, shipmentType: SHIPMENT_OPTIONS.NTS, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred pickup date')).toHaveValue('01 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred pickup date/)).toHaveValue('01 Aug 2021');
       await waitFor(() => {
         // only pickup date is available. delivery alert will never be present.
         expect(
@@ -1212,7 +1212,7 @@ describe('MtoShipmentForm component', () => {
         Promise.resolve({ data: JSON.stringify(expectedDateSelectionIsWeekendHolidayResponse) }),
       );
       renderMtoShipmentForm({ isCreatePage: false, shipmentType: SHIPMENT_OPTIONS.NTSR, mtoShipment: mockMtoShipment });
-      expect(await screen.findByLabelText('Preferred delivery date')).toHaveValue('11 Aug 2021');
+      expect(await screen.findByLabelText(/Preferred delivery date/)).toHaveValue('11 Aug 2021');
       await waitFor(() => {
         // only delivery date is available. pickup alert will never be present.
         expect(
