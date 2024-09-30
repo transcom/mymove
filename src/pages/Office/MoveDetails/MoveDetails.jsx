@@ -59,7 +59,7 @@ const MoveDetails = ({
   // RA: This rule is used to enforce correct dependency arrays in hooks like useEffect, useCallback, and useMemo.
   // RA: We are disabling this rule here because adding useMemo causes undesired behavior in our case.
   // RA Developer Status: Known Issue - Intentional decision to prevent page refresh issues related to action counts.
-  // RA Validator Status: RA Approved
+  // RA Validator Status: RA ACCEPTED
   // RA Modified Severity: N/A
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const errorIfMissing = {
