@@ -8,6 +8,7 @@ import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const basicNavProps = {
   unapprovedShipmentCount: 0,
+  missingOrdersInfoCount: 0,
   moveCode: 'TESTCO',
 };
 
@@ -24,15 +25,16 @@ describe('Move details tag rendering', () => {
     expect(within(moveDetailsTab).queryByTestId('tag')).not.toBeInTheDocument();
   });
 
-  it('should render the move details tab container with a tag that shows the count of unapproved shipments', () => {
+  it('should render the move details tab container with a tag that shows the count of action items', () => {
     const moveDetailsShipmentAndAmendedOrders = {
       ...basicNavProps,
       unapprovedShipmentCount: 6,
+      missingOrdersInfoCount: 4,
     };
     render(<ServicesCounselingTabNav {...moveDetailsShipmentAndAmendedOrders} />, { wrapper: MemoryRouter });
 
     const moveDetailsTab = screen.getByTestId('MoveDetails-Tab');
-    expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('6');
+    expect(within(moveDetailsTab).getByTestId('tag')).toHaveTextContent('10');
   });
 });
 

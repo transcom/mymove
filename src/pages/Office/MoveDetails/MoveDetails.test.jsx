@@ -19,6 +19,7 @@ const setUnapprovedShipmentCount = jest.fn();
 const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
+const setMissingOrdersInfoCount = jest.fn();
 const setShipmentErrorConcernCount = jest.fn();
 
 jest.mock('react-router-dom', () => ({
@@ -361,6 +362,7 @@ const requestedMoveDetailsAmendedOrdersQuery = {
   },
   order: {
     id: '1',
+    department_indicator: 'ARMY',
     originDutyLocation: {
       address: {
         streetAddress1: '',
@@ -784,6 +786,8 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
             setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
@@ -803,6 +807,8 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
             setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
@@ -822,6 +828,8 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
@@ -889,6 +897,8 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
@@ -910,6 +920,8 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
@@ -934,6 +946,8 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={0}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
@@ -974,6 +988,8 @@ describe('MoveDetails page', () => {
               setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
               setExcessWeightRiskCount={setExcessWeightRiskCount}
               setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
+              missingOrdersInfoCount={0}
+              setMissingOrdersInfoCount={setMissingOrdersInfoCount}
               setShipmentErrorConcernCount={setShipmentErrorConcernCount}
             />
           </MockProviders>,
@@ -994,6 +1010,8 @@ describe('MoveDetails page', () => {
           setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
           setExcessWeightRiskCount={setExcessWeightRiskCount}
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+          missingOrdersInfoCount={2}
+          setMissingOrdersInfoCount={setMissingOrdersInfoCount}
           setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
@@ -1001,6 +1019,7 @@ describe('MoveDetails page', () => {
 
     it('renders an error indicator in the sidebar', () => {
       expect(wrapper.find('a[href="#orders"] span[data-testid="tag"]').exists()).toBe(true);
+      expect(wrapper.find('a[href="#orders"] span[data-testid="tag"]').text()).toBe('2');
     });
   });
 
@@ -1015,6 +1034,8 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
             setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
@@ -1035,6 +1056,8 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
             setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
@@ -1050,6 +1073,7 @@ describe('MoveDetails page', () => {
       setUnapprovedServiceItemCount,
       setExcessWeightRiskCount,
       setUnapprovedSITExtensionCount,
+      setMissingOrdersInfoCount,
       setShipmentErrorConcernCount,
     };
 
@@ -1162,6 +1186,8 @@ describe('MoveDetails page', () => {
             setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
             setExcessWeightRiskCount={setExcessWeightRiskCount}
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
+            missingOrdersInfoCount={0}
+            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
             setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,

@@ -42,6 +42,7 @@ const ServicesCounselingMoveInfo = () => {
   const [unapprovedServiceItemCount, setUnapprovedServiceItemCount] = React.useState(0);
   const [excessWeightRiskCount, setExcessWeightRiskCount] = React.useState(0);
   const [unapprovedSITExtensionCount, setUnApprovedSITExtensionCount] = React.useState(0);
+  const [missingOrdersInfoCount, setMissingOrdersInfoCount] = useState(0);
   const [shipmentWarnConcernCount, setShipmentWarnConcernCount] = useState(0);
   const [shipmentErrorConcernCount, setShipmentErrorConcernCount] = useState(0);
   const [infoSavedAlert, setInfoSavedAlert] = useState(null);
@@ -197,6 +198,7 @@ const ServicesCounselingMoveInfo = () => {
           unapprovedServiceItemCount={unapprovedServiceItemCount}
           excessWeightRiskCount={excessWeightRiskCount}
           unapprovedSITExtensionCount={unapprovedSITExtensionCount}
+          missingOrdersInfoCount={missingOrdersInfoCount}
           shipmentWarnConcernCount={shipmentWarnConcernCount}
           shipmentErrorConcernCount={shipmentErrorConcernCount}
         />
@@ -218,6 +220,8 @@ const ServicesCounselingMoveInfo = () => {
               <ServicesCounselingMoveDetails
                 infoSavedAlert={infoSavedAlert}
                 setUnapprovedShipmentCount={setUnapprovedShipmentCount}
+                missingOrdersInfoCount={missingOrdersInfoCount}
+                setMissingOrdersInfoCount={setMissingOrdersInfoCount}
                 setShipmentWarnConcernCount={setShipmentWarnConcernCount}
                 setShipmentErrorConcernCount={setShipmentErrorConcernCount}
                 shipmentWarnConcernCount={shipmentWarnConcernCount}
