@@ -103,25 +103,23 @@ export const emailSchema = Yup.string().matches(
   'Must be a valid email address',
 );
 
-const validatePreferredContactMethod = (value, testContext) => {
-  return testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred;
+export const preferredContactMethodValidation = (value) => {
+  return (
+    value?.phone_is_preferred ||
+    value?.email_is_preferred ||
+    new Yup.ValidationError('Please select a preferred method of contact.', null, 'preferredContactMethod')
+  );
 };
 
-export const contactInfoSchema = Yup.object().shape({
-  telephone: phoneSchema.required('Required'),
-  secondary_telephone: phoneSchema,
-  personal_email: emailSchema.required('Required'),
-  phone_is_preferred: Yup.bool().test(
-    'contactMethodRequired',
-    'Please select a preferred method of contact.',
-    validatePreferredContactMethod,
-  ),
-  email_is_preferred: Yup.bool().test(
-    'contactMethodRequired',
-    'Please select a preferred method of contact.',
-    validatePreferredContactMethod,
-  ),
-});
+export const contactInfoSchema = Yup.object()
+  .shape({
+    telephone: phoneSchema.required('Required'),
+    secondary_telephone: phoneSchema,
+    personal_email: emailSchema.required('Required'),
+    phone_is_preferred: Yup.bool(),
+    email_is_preferred: Yup.bool(),
+  })
+  .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
 export const backupContactInfoSchema = Yup.object().shape({
   name: Yup.string().required('Required'),
