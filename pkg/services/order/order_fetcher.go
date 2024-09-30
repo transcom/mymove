@@ -105,7 +105,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	lastNameQuery := lastNameFilter(params.LastName)
+	nameQuery := nameFilter(params.LastName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
@@ -119,7 +119,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	sortOrderQuery := sortOrder(params.Sort, params.Order, ppmCloseoutGblocs)
 	counselingQuery := counselingOfficeFilter(params.CounselingOffice)
 	// Adding to an array so we can iterate over them and apply the filters after the query structure is set below
-	options := [18]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, lastNameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, counselingQuery}
+	options := [18]QueryOption{branchQuery, locatorQuery, dodIDQuery, emplidQuery, nameQuery, originDutyLocationQuery, destinationDutyLocationQuery, moveStatusQuery, gblocQuery, submittedAtQuery, appearedInTOOAtQuery, requestedMoveDateQuery, ppmTypeQuery, closeoutInitiatedQuery, closeoutLocationQuery, ppmStatusQuery, sortOrderQuery, counselingQuery}
 	var query *pop.Query
 	if ppmCloseoutGblocs {
 		query = appCtx.DB().Q().Scope(utilities.ExcludeDeletedScope(models.MTOShipment{})).EagerPreload(
@@ -499,11 +499,11 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 	}
 }
 
-func lastNameFilter(lastName *string) QueryOption {
+func nameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
-		if lastName != nil {
-			nameSearch := fmt.Sprintf("%s%%", *lastName)
-			query.Where("service_members.last_name ILIKE ?", nameSearch)
+		if name != nil {
+			nameSearch := fmt.Sprintf("%%%s%%", *name)
+			query.Where("CONCAT(service_members.first_name, ' ', service_members.last_name) ILIKE ?", nameSearch)
 		}
 	}
 }
