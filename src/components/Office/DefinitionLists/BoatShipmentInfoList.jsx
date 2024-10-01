@@ -8,6 +8,7 @@ import styles from 'styles/descriptionList.module.scss';
 import { formatDateWithUTC } from 'shared/dates';
 import { ShipmentShape } from 'types/shipment';
 import { formatAddress, formatAgent } from 'utils/shipmentDisplay';
+import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
 import {
   setFlagStyles,
   setDisplayFlags,
@@ -15,7 +16,7 @@ import {
   getMissingOrDash,
   fieldValidationShape,
 } from 'utils/displayFlags';
-import { ADDRESS_UPDATE_STATUS } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, boatShipmentAbbr, boatShipmentTypes } from 'constants/shipments';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ShipmentInfoList = ({
@@ -49,6 +50,9 @@ const ShipmentInfoList = ({
     deliveryAddressUpdate,
   } = shipment;
 
+  const { type, year, make, model, lengthInInches, widthInInches, heightInInches, hasTrailer, isRoadworthy } =
+    shipment?.boatShipment || {};
+
   setFlagStyles({
     row: styles.row,
     warning: shipmentDefinitionListsStyles.warning,
@@ -68,8 +72,29 @@ const ShipmentInfoList = ({
     return (isExpanded || elementFlags.alwaysShow) && !elementFlags.hideRow;
   };
 
+  const length = convertInchesToFeetAndInches(lengthInInches);
+  const width = convertInchesToFeetAndInches(widthInInches);
+  const height = convertInchesToFeetAndInches(heightInInches);
+
+  const formattedDimensions = `${length?.feet}'${length?.inches > 0 ? ` ${length.inches}"` : ''} L x ${width?.feet}'${
+    width?.inches > 0 ? ` ${width.inches}"` : ''
+  } W x ${height?.feet}'${height?.inches > 0 ? ` ${height.inches}"` : ''} H`;
+
+  const hasTrailerDisplay = hasTrailer ? 'Yes' : 'No';
+  const isRoadworthyDisplay = isRoadworthy ? 'Yes' : 'No';
+
   const releasingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RELEASING_AGENT') : false;
   const receivingAgent = mtoAgents ? mtoAgents.find((agent) => agent.agentType === 'RECEIVING_AGENT') : false;
+
+  const shipmentTypeElementFlags = getDisplayFlags('type');
+  const shipmentTypeDisplay =
+    type === boatShipmentTypes.HAUL_AWAY ? boatShipmentAbbr.BOAT_HAUL_AWAY : boatShipmentAbbr.BOAT_TOW_AWAY;
+  const shipmentTypeElement = (
+    <div className={shipmentTypeElementFlags.classes}>
+      <dt>Shipment method</dt>
+      <dd data-testid="shipmentType">{shipmentTypeDisplay}</dd>
+    </div>
+  );
 
   const agentsElementFlags = getDisplayFlags('mtoAgents');
   const releasingAgentElement = !releasingAgent ? (
@@ -240,8 +265,57 @@ const ShipmentInfoList = ({
     </div>
   );
 
+  const yearElementFlags = getDisplayFlags('year');
+  const yearElement = (
+    <div className={yearElementFlags.classes}>
+      <dt>Boat year</dt>
+      <dd data-testid="year">{year}</dd>
+    </div>
+  );
+
+  const makeElementFlags = getDisplayFlags('make');
+  const makeElement = (
+    <div className={makeElementFlags.classes}>
+      <dt>Boat make</dt>
+      <dd data-testid="make">{make}</dd>
+    </div>
+  );
+
+  const modelElementFlags = getDisplayFlags('model');
+  const modelElement = (
+    <div className={modelElementFlags.classes}>
+      <dt>Boat model</dt>
+      <dd data-testid="model">{model}</dd>
+    </div>
+  );
+
+  const dimensionsElementFlags = getDisplayFlags('dimensions');
+  const dimensionsElement = (
+    <div className={dimensionsElementFlags.classes}>
+      <dt>Dimensions</dt>
+      <dd data-testid="dimensions">{formattedDimensions}</dd>
+    </div>
+  );
+
+  const hasTrailerElementFlags = getDisplayFlags('hasTrailer');
+  const hasTrailerElement = (
+    <div className={hasTrailerElementFlags.classes}>
+      <dt>Trailer</dt>
+      <dd data-testid="trailer">{hasTrailerDisplay}</dd>
+    </div>
+  );
+
+  const isRoadworthyElementFlags = getDisplayFlags('isRoadworthy');
+  const isRoadworthyElement = (
+    <div className={isRoadworthyElementFlags.classes}>
+      <dt>Is trailer roadworthy</dt>
+      <dd data-testid="isRoadworthy">{isRoadworthyDisplay}</dd>
+    </div>
+  );
+
+  const counselorRemarksElementFlags = getDisplayFlags('counselorRemarks');
   const counselorRemarksElement = (
-    <div className={styles.row}>
+    <div className={counselorRemarksElementFlags.classes}>
       <dt>Counselor remarks</dt>
       <dd data-testid="counselorRemarks">{counselorRemarks || '—'}</dd>
     </div>
@@ -266,6 +340,7 @@ const ShipmentInfoList = ({
       )}
       data-testid="shipment-info-list"
     >
+      {shipmentTypeElement}
       {requestedPickupDateElement}
       {pickupAddressElement}
       {secondaryPickupAddressElement}
@@ -277,6 +352,12 @@ const ShipmentInfoList = ({
       {secondaryDeliveryAddressElement}
       {isTertiaryAddressEnabled ? tertiaryDeliveryAddressElement : null}
       {showElement(agentsElementFlags) && receivingAgentElement}
+      {yearElement}
+      {makeElement}
+      {modelElement}
+      {dimensionsElement}
+      {hasTrailerElement}
+      {hasTrailer && isRoadworthyElement}
       {counselorRemarksElement}
       {customerRemarksElement}
     </dl>
