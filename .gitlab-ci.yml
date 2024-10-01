@@ -18,8 +18,8 @@ variables:
   DOCKER_TOKEN: DOCKER_TOKEN
   registry: https://registry.hub.docker.com/
   KUBERNETES_CPU_REQUEST: "2"
-  KUBERNETES_MEMORY_REQUEST: "8Gi"
-  KUBERNETES_MEMORY_LIMIT: "8Gi"
+  KUBERNETES_MEMORY_REQUEST: "4Gi"
+  KUBERNETES_MEMORY_LIMIT: "4Gi"
   #load_tester: &load_tester cimg/python:3.11.3
   #postgres: &postgres cimg/postgres:12.11
   #redis: &redis redis:5.0.6
@@ -38,7 +38,7 @@ variables:
   #MIGRATION_PATH: 'file:///builds/your-group/your-project/migrations/app/schema;file:///builds/your-group/your-project/migrations/app/secure'
   #EIA_KEY: db2522a43820268a41a802a16ae9fd26 # Consider storing sensitive keys as CI/CD variables instead
   #GIT_CLONE_PATH: '$CI_BUILDS_DIR/milmove/$CI_PROJECT_NAME/$CI_PIPELINE_ID'
-  #add dependency to each step 
+  #add dependency to each step
 
 
 stages:
@@ -62,7 +62,7 @@ stages:
 
 pre_deps_golang:
   stage: pre_checks
-  image: $DOCKER_APP_IMAGE 
+  image: $DOCKER_APP_IMAGE
   before_script: *setup_milmove_env
   script:
     - for i in $(seq 1 5); do go mod download && break || s=$? && sleep 5; done; (exit $s)
@@ -82,19 +82,19 @@ pre_deps_golang:
 pre_deps_yarn:
   stage: pre_checks
   image: $DOCKER_APP_IMAGE
-  needs: 
+  needs:
     - pre_deps_golang
   script:
-     - pwd 
+     - pwd
      - ls bin
      - yarn config set "strict-ssl" false
      - yarn install --frozen-lockfile --cache-folder ~/.cache/yarn
      - scripts/check-generated-code yarn.lock
      - echo "Temporarily skipping yarn installation and code checks."
   artifacts:
-    paths: 
+    paths:
       - ~/.cache/yarn
-  
+
   #  policy: pull-push # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect job execution
   #No need to uncomment after_script if it's just for passing the job
 
@@ -103,7 +103,7 @@ pre_deps_yarn:
 #   image: $DOCKER_APP_IMAGE
 #   script:
 #     - echo "check_tls_certificate_dp3"
-    
+
 #     # Setup TLS environment variables
 #     - |
 #       CI_ENVIRONMENT_SCRIPT="/tmp/ci_environment_script.sh"
@@ -113,7 +113,7 @@ pre_deps_yarn:
 #       echo "export TLS_CA=\$$(echo placeholder_env | tr 'a-z' 'A-Z')_DP3_CA" >> $CI_ENVIRONMENT_SCRIPT
 #       source $CI_ENVIRONMENT_SCRIPT
 #       echo "Setup TLS environment variables"
-      
+
 #     # Check DP3 environment and TLS pair
 #     - |
 #       if [ "$DP3_ENV" = "demo" ] || [ "$DP3_ENV" = "exp" ] || [ "$DP3_ENV" = "loadtest" ]; then
@@ -138,7 +138,7 @@ pre_deps_yarn:
 #     #- export TLS_CERT=<path_to_tls_cert>
 #   script:
 #     - echo "Temporarily skipping TLS certificate check."
-  
+
 # check_tls_certificate_prd:
 #   stage: pre_checks
 #   image: $DOCKER_APP_IMAGE  # This can reB-18585-gitlab-pipeline-work unchanged, or you can use a lightweight image since no real work is done
@@ -172,7 +172,7 @@ compile_app_server:
   #   paths:
   #     - Makefile
   #     - Dockerfile
-  #     - Dockerfile.dp3 #can possibly do "Dockerfile.*" to shorten 
+  #     - Dockerfile.dp3 #can possibly do "Dockerfile.*" to shorten
   #     - Dockerfile.e2e
   #     - Dockerfile.migrations
   #     - Dockerfile.tasks
@@ -208,7 +208,7 @@ compile_app_client:
   rules:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
   # cache:
-  #   key: "yarn-cache-v3-$(echo $(md5sum yarn.lock) | cut -d ' ' -f 1)"  
+  #   key: "yarn-cache-v3-$(echo $(md5sum yarn.lock) | cut -d ' ' -f 1)"
   #   paths:
   #     - .yarn/cache
   #     - /builds/milmove/mymove/build
@@ -229,14 +229,14 @@ build_app:
   image:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
-  needs: 
+  needs:
      - compile_app_server
      - compile_app_client
   before_script:
     - ls bin
     - mkdir -p /kaniko/.docker
     - echo "Building app Docker image..."
-    - echo "{\"credHelpers\":{\"447641181206.dkr.ecr.us-gov-west-1.amazonaws.com\":\"ecr-login\"}}" > /kaniko/.docker/config.json  
+    - echo "{\"credHelpers\":{\"447641181206.dkr.ecr.us-gov-west-1.amazonaws.com\":\"ecr-login\"}}" > /kaniko/.docker/config.json
     - echo "Checking Docker credential config:"
     #- cat /kaniko/.docker/config.json
   script:
@@ -306,8 +306,8 @@ push_migrations_gov_dev:
   script:
     # Push the migrations Docker image to ECR
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:latest"
-    # - /kaniko/executor 
-    #   --context "${CI_PROJECT_DIR}/" 
+    # - /kaniko/executor
+    #   --context "${CI_PROJECT_DIR}/"
     #   --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations"
     #   --destination "${ECR_REPOSITORY_URI}/app-migrations:latest"  # Push the image
     - echo "Migrations image pushed successfully."
@@ -327,7 +327,7 @@ push_app_gov_dev:
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
     - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "${ECR_REPOSITORY_URI}/app:latest"
-    # - /kaniko/executor 
+    # - /kaniko/executor
     #   --context "${CI_PROJECT_DIR}/"
     #   --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
       # --destination "${ECR_REPOSITORY_URI}/app:latest"
