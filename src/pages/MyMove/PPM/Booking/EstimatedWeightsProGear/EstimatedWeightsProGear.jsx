@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
@@ -17,6 +17,7 @@ import {
 } from 'store/entities/selectors';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import NotificationScrollToTop from 'components/NotificationScrollToTop';
+import { technicalHelpDeskURL } from 'shared/constants';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
@@ -74,7 +75,16 @@ const EstimatedWeightsProGear = () => {
             <h1>Estimated weight</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
-                {errorMessage}
+                {errorMessage.includes('DTOD Error') ? (
+                  <p>
+                    We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code, or
+                    the system that calculates distance (DTOD) may be down. Please check your ZIP Code to ensure it was
+                    entered correctly and is not a PO Box. If the error persists, please try again later, or contact the
+                    <Link to={technicalHelpDeskURL}> Technical Help Desk</Link>.
+                  </p>
+                ) : (
+                  errorMessage
+                )}
               </Alert>
             )}
             <EstimatedWeightsProGearForm
