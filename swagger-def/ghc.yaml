@@ -4667,7 +4667,7 @@ definitions:
     type: object
     properties:
       serviceMemberAffiliation:
-        $ref: 'definitions/Affiliation.yaml'
+        $ref: 'definitions/DepartmentIndicator.yaml'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date.

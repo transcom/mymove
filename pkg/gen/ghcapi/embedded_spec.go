@@ -7562,6 +7562,28 @@ func init() {
         }
       }
     },
+    "DepartmentIndicator": {
+      "description": "Military branch of service indicator for orders",
+      "type": "string",
+      "title": "Department indicator",
+      "enum": [
+        "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "COAST_GUARD",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
+      ],
+      "x-display-value": {
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
+        "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense"
+      },
+      "x-nullable": true
+    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -7950,7 +7972,7 @@ func init() {
           "example": "2023-01-01"
         },
         "serviceMemberAffiliation": {
-          "$ref": "#/definitions/Affiliation"
+          "$ref": "#/definitions/DepartmentIndicator"
         },
         "tacCode": {
           "type": "string",
@@ -23216,6 +23238,28 @@ func init() {
         }
       }
     },
+    "DepartmentIndicator": {
+      "description": "Military branch of service indicator for orders",
+      "type": "string",
+      "title": "Department indicator",
+      "enum": [
+        "ARMY",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "COAST_GUARD",
+        "NAVY_AND_MARINES",
+        "AIR_AND_SPACE_FORCE",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE"
+      ],
+      "x-display-value": {
+        "AIR_AND_SPACE_FORCE": "57 Air Force and Space Force",
+        "ARMY": "21 Army",
+        "ARMY_CORPS_OF_ENGINEERS": "96 Army Corps of Engineers",
+        "COAST_GUARD": "70 Coast Guard",
+        "NAVY_AND_MARINES": "17 Navy and Marine Corps",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE": "97 Office of Secretary of Defense"
+      },
+      "x-nullable": true
+    },
     "DeptIndicator": {
       "type": "string",
       "title": "Dept. indicator",
@@ -23604,7 +23648,7 @@ func init() {
           "example": "2023-01-01"
         },
         "serviceMemberAffiliation": {
-          "$ref": "#/definitions/Affiliation"
+          "$ref": "#/definitions/DepartmentIndicator"
         },
         "tacCode": {
           "type": "string",

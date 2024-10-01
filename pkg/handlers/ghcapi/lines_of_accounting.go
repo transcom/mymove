@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	linesofaccountingop "github.com/transcom/mymove/pkg/gen/ghcapi/ghcoperations/lines_of_accounting"
-	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/handlers/ghcapi/internal/payloads"
 	"github.com/transcom/mymove/pkg/models"
@@ -50,12 +49,12 @@ func (h LinesOfAccountingRequestLineOfAccountingHandler) Handle(params linesofac
 				err := apperror.NewBadDataError("Invalid request for lines of accounting: service member affiliation is nil")
 				appCtx.Logger().Error(err.Error())
 				return linesofaccountingop.NewRequestLineOfAccountingBadRequest(), err
-			} else if *payload.ServiceMemberAffiliation == ghcmessages.AffiliationNAVYANDMARINES {
-				// translate the combined affiliation from the frontend into one affiliation to fetch LOA
-				*payload.ServiceMemberAffiliation = ghcmessages.AffiliationNAVY
-			} else if *payload.ServiceMemberAffiliation == ghcmessages.AffiliationAIRANDSPACEFORCE {
-				// translate the combined affiliation from the frontend into one affiliation to fetch LOA
-				*payload.ServiceMemberAffiliation = ghcmessages.AffiliationAIRFORCE
+				// } else if *payload.ServiceMemberAffiliation == ghcmessages.AffiliationNAVYANDMARINES {
+				// 	// translate the combined affiliation from the frontend into one affiliation to fetch LOA
+				// 	*payload.ServiceMemberAffiliation = ghcmessages.AffiliationNAVY
+				// } else if *payload.ServiceMemberAffiliation == ghcmessages.AffiliationAIRANDSPACEFORCE {
+				// 	// translate the combined affiliation from the frontend into one affiliation to fetch LOA
+				// 	*payload.ServiceMemberAffiliation = ghcmessages.AffiliationAIRFORCE
 			}
 
 			loas, err := h.LineOfAccountingFetcher.FetchLongLinesOfAccounting(models.ServiceMemberAffiliation(*payload.ServiceMemberAffiliation), time.Time(payload.EffectiveDate), payload.TacCode, appCtx)

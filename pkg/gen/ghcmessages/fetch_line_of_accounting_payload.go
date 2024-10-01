@@ -26,7 +26,7 @@ type FetchLineOfAccountingPayload struct {
 	EffectiveDate strfmt.Date `json:"effectiveDate,omitempty"`
 
 	// service member affiliation
-	ServiceMemberAffiliation *Affiliation `json:"serviceMemberAffiliation,omitempty"`
+	ServiceMemberAffiliation *DepartmentIndicator `json:"serviceMemberAffiliation,omitempty"`
 
 	// tac code
 	// Example: F8J1
