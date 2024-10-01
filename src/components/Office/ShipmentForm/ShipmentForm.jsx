@@ -14,6 +14,8 @@ import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
 import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
 import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
+import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
+import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
@@ -60,6 +62,8 @@ import {
   formatPpmShipmentForDisplay,
   formatMobileHomeShipmentForDisplay,
   formatMobileHomeShipmentForAPI,
+  formatBoatShipmentForDisplay,
+  formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
@@ -285,6 +289,11 @@ const ShipmentForm = (props) => {
       isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
     );
     initialValues = formatMobileHomeShipmentForDisplay(mtoShipment?.mobileHomeShipment, hhgInitialValues);
+  } else if (isBoat) {
+    const hhgInitialValues = formatMtoShipmentForDisplay(
+      isCreatePage ? { userRole } : { userRole, shipmentType, agents: mtoShipment.mtoAgents, ...mtoShipment },
+    );
+    initialValues = formatBoatShipmentForDisplay(mtoShipment?.boatShipment, hhgInitialValues);
   } else {
     initialValues = formatMtoShipmentForDisplay(
       isCreatePage
@@ -309,6 +318,8 @@ const ShipmentForm = (props) => {
     });
   } else if (isMobileHome) {
     schema = mobileHomeShipmentSchema();
+  } else if (isBoat) {
+    schema = boatShipmentSchema();
     showDeliveryFields = true;
     showPickupFields = true;
   } else {
@@ -548,6 +559,12 @@ const ShipmentForm = (props) => {
       pendingMtoShipment = {
         ...pendingMtoShipment,
         ...mobileHomeShipmentBody,
+    // Boat Shipment
+    if (isBoat) {
+      const boatShipmentBody = formatBoatShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...boatShipmentBody,
       };
     }
 
@@ -605,6 +622,7 @@ const ShipmentForm = (props) => {
       initialValues={initialValues}
       validateOnMount
       validateOnBlur
+      validateOnChange
       validationSchema={schema}
       onSubmit={submitMTOShipment}
     >
@@ -835,6 +853,22 @@ const ShipmentForm = (props) => {
 
                 {isMobileHome && (
                   <MobileHomeShipmentForm
+                  lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
+                {isTOO && !isHHG && !isPPM && !isBoat && <ShipmentVendor />}
+
+                {isNTSR && <ShipmentWeightInput userRole={userRole} />}
+
+                {isBoat && (
+                  <BoatShipmentForm
                     lengthHasError={lengthHasError}
                     widthHasError={widthHasError}
                     heightHasError={heightHasError}
