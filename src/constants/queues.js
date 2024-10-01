@@ -62,7 +62,7 @@ export const SERVICE_COUNSELING_PPM_STATUS_OPTIONS = [
 ];
 
 export const SERVICE_COUNSELING_PPM_STATUS_LABELS = {
-  CANCELLED: 'Cancelled',
+  CANCELED: 'Canceled',
   DRAFT: 'Draft',
   SUBMITTED: 'Submitted',
   WAITING_ON_CUSTOMER: 'Waiting on customer',

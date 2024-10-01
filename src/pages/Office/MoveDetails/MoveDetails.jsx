@@ -20,6 +20,8 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import CancelMoveButton from 'components/Office/CancelMoveButton/CancelMoveButton';
+import CancelMoveModal from 'components/Office/CancelMoveModal/CancelMoveModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
@@ -63,6 +65,7 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
@@ -143,6 +146,23 @@ const MoveDetails = ({
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
   };
+
+  const handleShowCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(true);
+  };
+
+  const handleSubmitCancelMoveModal = () => {
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+    });
+    setIsCancelMoveModalVisible(false);
+  };
+
+  const handleCloseCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(false);
+  };
+
   const submittedShipments = mtoShipments?.filter(
     (shipment) => shipment.status === shipmentStatuses.SUBMITTED && !shipment.deletedAt,
   );
@@ -414,6 +434,14 @@ const MoveDetails = ({
                 <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
               </ButtonDropdown>
             </Restricted>
+          )}
+          <Restricted to={permissionTypes.cancelMoveFlag}>
+            <div className={styles.tooCancelMoveContainer}>
+              <CancelMoveButton onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked} />
+            </div>
+          </Restricted>
+          {isCancelMoveModalVisible && (
+            <CancelMoveModal onClose={handleCloseCancelMoveModal} onSubmit={handleSubmitCancelMoveModal} />
           )}
           {submittedShipments?.length > 0 && (
             <div className={styles.section} id="requested-shipments">

@@ -19,6 +19,8 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
+import CancelMoveButton from 'components/Office/CancelMoveButton/CancelMoveButton';
+import CancelMoveModal from 'components/Office/CancelMoveModal/CancelMoveModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
@@ -55,6 +57,7 @@ const ServicesCounselingMoveDetails = ({
   const [moveHasExcessWeight, setMoveHasExcessWeight] = useState(false);
   const [isSubmitModalVisible, setIsSubmitModalVisible] = useState(false);
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
+  const [isCancelMoveModalVisible, setIsCancelMoveModalVisible] = useState(false);
   const [shipmentConcernCount, setShipmentConcernCount] = useState(0);
   const { upload, amendedUpload } = useOrdersDocumentQueries(moveCode);
   const documentsForViewer = Object.values(upload || {})
@@ -442,7 +445,7 @@ const ServicesCounselingMoveDetails = ({
   if (isLoading) return <LoadingPlaceholder />;
   if (isError) return <SomethingWentWrong />;
 
-  const handleShowCancellationModal = () => {
+  const handleShowSubmitMoveModal = () => {
     setIsSubmitModalVisible(true);
   };
 
@@ -467,6 +470,22 @@ const ServicesCounselingMoveDetails = ({
 
   const handleCancelFinancialReviewModal = () => {
     setIsFinancialModalVisible(false);
+  };
+
+  const handleShowCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(true);
+  };
+
+  const handleSubmitCancelMoveModal = () => {
+    mutateFinancialReview({
+      moveID: move.id,
+      ifMatchETag: move.eTag,
+    });
+    setIsCancelMoveModalVisible(false);
+  };
+
+  const handleCloseCancelMoveModal = () => {
+    setIsCancelMoveModalVisible(false);
   };
 
   const counselorCanEditOrdersAndAllowances = () => {
@@ -525,6 +544,9 @@ const ServicesCounselingMoveDetails = ({
             initialSelection={move?.financialReviewFlag}
           />
         )}
+        {isCancelMoveModalVisible && (
+          <CancelMoveModal onClose={handleCloseCancelMoveModal} onSubmit={handleSubmitCancelMoveModal} />
+        )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
           <Grid row className={scMoveDetailsStyles.pageHeader}>
@@ -564,7 +586,7 @@ const ServicesCounselingMoveDetails = ({
                         isMoveLocked
                       }
                       type="button"
-                      onClick={handleShowCancellationModal}
+                      onClick={handleShowSubmitMoveModal}
                     >
                       Submit move details
                     </Button>
@@ -572,6 +594,11 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
+            <Restricted to={permissionTypes.cancelMoveFlag}>
+              <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                <CancelMoveButton onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked} />
+              </div>
+            </Restricted>
           </Grid>
 
           {hasInvalidProGearAllowances ? (

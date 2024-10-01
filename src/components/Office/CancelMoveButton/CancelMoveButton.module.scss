@@ -1,0 +1,25 @@
+@import 'shared/styles/basics';
+@import 'shared/styles/mixins';
+@import 'shared/styles/colors';
+
+.CancelMoveButton {
+  @include u-padding-left(0);
+  float: right;
+}
+
+.EditCancelMoveContainer {
+  display: flex;
+  align-content: baseline;
+  :global(.usa-button) {
+    width: auto;
+  }
+}
+
+.EditCancelMoveButton {
+  @include u-padding-left(1);
+  @include u-padding-top(0);
+}
+
+.CancelMoveTag {
+  background-color: $info-light !important;
+}

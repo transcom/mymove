@@ -38,6 +38,11 @@
     @include u-margin-bottom(0);
   }
 
+  .tooCancelMoveContainer {
+    @include u-margin-bottom(3);
+    align-self: right;
+  }
+
   .gridContainer {
     .shipmentCard {
       @include u-padding-left(4);

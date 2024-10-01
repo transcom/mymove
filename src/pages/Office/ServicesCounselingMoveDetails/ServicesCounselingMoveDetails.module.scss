@@ -28,6 +28,11 @@
     @include u-margin-bottom(3);
   }
 
+  .scCancelMoveContainer {
+    @include u-margin-bottom(3);
+    align-self: right;
+  }
+
   .alertContainer {
     @include u-margin-bottom(4);
   }
