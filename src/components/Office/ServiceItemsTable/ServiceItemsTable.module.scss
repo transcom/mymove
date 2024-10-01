@@ -41,3 +41,7 @@
     font-weight: 500;
   }
 }
+
+.serviceItemName {
+  @include u-margin-right(4px);
+}
