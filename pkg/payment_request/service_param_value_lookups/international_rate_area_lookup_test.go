@@ -131,4 +131,20 @@ func (suite *ServiceParamValueLookupsSuite) TestInternationalRateAreaLookup() {
 		suite.FatalNoError(err)
 		suite.Equal(zip5.RateArea.Name, value)
 	})
+
+	suite.Run("unsupported lookup returns error", func() {
+		rateAreaLookup := InternationalRateAreaLookup{
+			Address: models.Address{
+				PostalCode: "",
+			},
+		}
+
+		// Simulate lookup with an empty zip
+		_, err := rateAreaLookup.lookup(suite.AppContextForTest(), &ServiceItemParamKeyData{
+			ContractCode: "test",
+		})
+		suite.Error(err)
+		suite.Contains(err.Error(), "looking up the international rate area for addresses without zip5 codes is not supported yet")
+	})
+
 }
