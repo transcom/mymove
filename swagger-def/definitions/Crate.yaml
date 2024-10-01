@@ -1,0 +1,10 @@
+description: Crate object for PPTAS Reports
+type: object
+properties:
+  itemDimensions:
+    $ref: 'MTOServiceItemDimension.yaml'
+  crateDimensions:
+    $ref: 'MTOServiceItemDimension.yaml'
+  description:
+    type: string
+x-nullable: true
