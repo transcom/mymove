@@ -121,7 +121,7 @@ func (d *dtodZip5DistanceInfo) DTODZip5Distance(appCtx appcontext.AppContext, pi
 	// It looks like sending a bad zip just returns a distance of -1, so test for that
 	distanceFloat := r.ProcessRequestResult.Distance
 	if distanceFloat <= 0 {
-		return distance, apperror.NewEventError("We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code, or the system that calculates distance (DTOD) may be down. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box. If the error persists, please try again later, or contact the Technical Help Desk.", nil)
+		return distance, apperror.NewEventError("DTOD Error", nil)
 	}
 
 	// TODO: DTOD gives us a float back. Should we round, floor, or ceiling? Just going to round for now.
