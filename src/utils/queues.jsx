@@ -43,13 +43,16 @@ export const formatAvailableOfficeUsersForRow = (row) => {
 
   // if the move is assigned to a user not present in availableOfficeUsers
   // lets push them onto the end
-  if (row.assignedTo !== undefined && !row.availableOfficeUsers?.some((user) => user.value === row.assignedTo.id)) {
+  if (
+    row.assignedTo !== undefined &&
+    !row.availableOfficeUsers?.some((user) => user.value === row.assignedTo.officeUserId)
+  ) {
     updatedRow.availableOfficeUsers = addAssignedOfficeUser(row.availableOfficeUsers, row.assignedTo);
   }
   const { assignedTo, availableOfficeUsers } = updatedRow;
 
   // if there is an assigned user, assign to a variable so we can set a default value below
-  const assignedToUser = availableOfficeUsers.find((user) => user.value === assignedTo?.id);
+  const assignedToUser = availableOfficeUsers.find((user) => user.value === assignedTo?.officeUserId);
 
   const formattedAvailableOfficeUsers = availableOfficeUsers.map(({ value, label }) => (
     <option value={value} key={`filterOption_${value}`}>
