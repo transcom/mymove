@@ -7,3 +7,4 @@
 # Add language specific code owners if it becomes relevant
 
 * @transcom/codeowners
+/migrations/* @transcom/cacidatabaseteam
