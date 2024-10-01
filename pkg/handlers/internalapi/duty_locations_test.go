@@ -82,3 +82,67 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 	}
 
 }
+
+// ------------------------------------------------------------------------------------------
+// below is the test i have created to try and cover lines 51-53 in duty_location.go
+// im having issue being able to assert and test the return if there is an error during
+// the searchDutyLocationHandler
+//
+//	-----------------------------------------------------------------------------------------
+func (suite *HandlerSuite) TestSearchDutyLocationHandlerNotFound() {
+	// t := suite.T()
+
+	// Need a logged in user
+	lgu := uuid.Must(uuid.NewV4()).String()
+	user := models.User{
+		OktaID:    lgu,
+		OktaEmail: "email@example.com",
+	}
+	suite.MustSave(&user)
+
+	newAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "CA",
+		PostalCode:     "12345",
+		County:         "County",
+	}
+	addressCreator := address.NewAddressCreator()
+	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
+	suite.NoError(err)
+
+	location1 := models.DutyLocation{
+		Name:        "First Location",
+		AddressID:   createdAddress.ID,
+		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
+	}
+	suite.MustSave(&location1)
+
+	location2 := models.DutyLocation{
+		Name:        "Second Location",
+		AddressID:   createdAddress.ID,
+		Affiliation: internalmessages.NewAffiliation(internalmessages.AffiliationAIRFORCE),
+	}
+	suite.MustSave(&location2)
+
+	req := httptest.NewRequest("GET", "/duty_locations", nil)
+
+	// Make sure the context contains the auth values
+	session := &auth.Session{
+		ApplicationName: auth.MilApp,
+		UserID:          user.ID,
+		IDToken:         "fake token",
+	}
+	ctx := auth.SetSessionInRequestContext(req, session)
+
+	newSearchParams := locationop.SearchDutyLocationsParams{
+		HTTPRequest: req.WithContext(ctx),
+		Search:      "third",
+	}
+
+	handler := SearchDutyLocationsHandler{suite.HandlerConfig()}
+	response := handler.Handle(newSearchParams)
+
+	suite.IsType(&locationop.SearchDutyLocationsInternalServerError{}, response)
+
+}
