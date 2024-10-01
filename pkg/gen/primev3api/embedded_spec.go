@@ -1881,20 +1881,10 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -1924,6 +1914,12 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -2330,6 +2326,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -2427,6 +2433,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -2445,7 +2457,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -2920,7 +2933,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -3374,6 +3388,22 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -3424,6 +3454,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -3494,6 +3534,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional third address near the destination where goods will be dropped off.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -5597,20 +5653,10 @@ func init() {
           "x-omitempty": false
         },
         "secondaryDeliveryAddress": {
-          "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
-          "description": "A second pickup address for this shipment, if the customer entered one. An optional field.",
-          "allOf": [
-            {
-              "$ref": "#/definitions/Address"
-            }
-          ]
+          "$ref": "#/definitions/Address"
         },
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
@@ -5640,6 +5686,12 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
         },
         "updatedAt": {
           "type": "string",
@@ -6046,6 +6098,16 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
         "id": {
           "description": "The primary unique identifier of this PPM shipment",
           "type": "string",
@@ -6143,6 +6205,12 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
+        "tertiaryDestinationAddress": {
+          "$ref": "#/definitions/Address"
+        },
+        "tertiaryPickupAddress": {
+          "$ref": "#/definitions/Address"
+        },
         "updatedAt": {
           "description": "The timestamp of when a property of this object was last updated (UTC)",
           "type": "string",
@@ -6161,7 +6229,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -6636,7 +6705,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -7092,6 +7162,22 @@ func init() {
               "$ref": "#/definitions/StorageFacility"
             }
           ]
+        },
+        "tertiaryDeliveryAddress": {
+          "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "A third pickup address for this shipment, if the customer entered one. An optional field.",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
@@ -7142,6 +7228,16 @@ func init() {
           "x-omitempty": false
         },
         "hasSecondaryPickupAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryDestinationAddress": {
+          "type": "boolean",
+          "x-nullable": true,
+          "x-omitempty": false
+        },
+        "hasTertiaryPickupAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -7212,6 +7308,22 @@ func init() {
           "description": "The estimated weight of the pro-gear being moved belonging to a spouse.",
           "type": "integer",
           "x-nullable": true
+        },
+        "tertiaryDestinationAddress": {
+          "description": "An optional third address near the destination where goods will be dropped off.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
+        },
+        "tertiaryPickupAddress": {
+          "description": "An optional third pickup location near the origin where additional goods exist.\n",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Address"
+            }
+          ]
         }
       }
     },
