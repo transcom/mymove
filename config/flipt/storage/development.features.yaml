@@ -187,6 +187,70 @@ flags:
   - segment:
       key: mil-app
       value: true
+- key: domestic_mobile_home_factor_origin_price
+  name: Applies the Mobile Home Factor to all Origin Price service items that are under domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_factor_destination_price
+  name: Applies the Mobile Home Factor to all Destination Price service items that are under domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_factor_packing
+  name: Applies the Mobile Home Factor to all Packing service items that are under domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_factor_unpacking
+  name: Applies the Mobile Home Factor to all Unpacking service items that are under domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_origin_price_enabled
+  name: Completely enables/disables Origin Price service items from being applied to domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_destination_price_enabled
+  name: Completely enables/disables Destination Price service items from being applied to domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_packing_enabled
+  name: Completely enables/disables Packing service items from being applied to domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
+- key: domestic_mobile_home_unpacking_enabled
+  name: Completely enables/disables Unpacking service items from being applied to domestic Mobile Home Shipments
+  type: BOOLEAN_FLAG_TYPE
+  enabled: true
+  rollouts:
+  - segment:
+      key: mil-app
+      value: true
 segments:
 - key: mil-app
   name: Mil App
