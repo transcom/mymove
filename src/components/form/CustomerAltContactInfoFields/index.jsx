@@ -1,14 +1,18 @@
 import React, { useRef } from 'react';
 import { func, node, string } from 'prop-types';
 import { v4 as uuidv4 } from 'uuid';
-import { Label, Fieldset } from '@trussworks/react-uswds';
+import { Label, Fieldset, ErrorMessage } from '@trussworks/react-uswds';
+import { useFormikContext } from 'formik';
+import classnames from 'classnames';
 
+import formStyles from 'styles/form.module.scss';
 import TextField from 'components/form/fields/TextField/TextField';
 import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextField';
 import { CheckboxField } from 'components/form/fields';
 
 export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
   const CustomerAltContactInfoFieldsUUID = useRef(uuidv4());
+  const { errors } = useFormikContext();
 
   return (
     <Fieldset legend={legend} className={className}>
@@ -64,14 +68,13 @@ export const CustomerAltContactInfoFields = ({ legend, className, render }) => {
             </div>
             <div className="grid-row grid-gap">
               <Label>Preferred contact method</Label>
-              <div className="grid-col-3">
+              {errors.preferredContactMethod ? <ErrorMessage>{errors.preferredContactMethod}</ErrorMessage> : null}
+              <div className={classnames(formStyles.radioGroup, formStyles.customerPreferredContact)}>
                 <CheckboxField
                   id={`phoneIsPreferred_${CustomerAltContactInfoFieldsUUID.current}`}
                   label="Phone"
                   name="phoneIsPreferred"
                 />
-              </div>
-              <div className="grid-col-3">
                 <CheckboxField
                   id={`emailIsPreferred_ ${CustomerAltContactInfoFieldsUUID.current}`}
                   label="Email"
