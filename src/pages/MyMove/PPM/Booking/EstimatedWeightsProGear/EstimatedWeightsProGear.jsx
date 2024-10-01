@@ -21,6 +21,7 @@ import { technicalHelpDeskURL } from 'shared/constants';
 
 const EstimatedWeightsProGear = () => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const navigate = useNavigate();
   const { moveId, mtoShipmentId, shipmentNumber } = useParams();
   const dispatch = useDispatch();
@@ -57,6 +58,7 @@ const EstimatedWeightsProGear = () => {
       })
       .catch((err) => {
         setSubmitting(false);
+        setErrorCode(err.response.status);
         setErrorMessage(getResponseError(err.response, 'Failed to update MTO shipment due to server error.'));
       });
   };
@@ -75,15 +77,13 @@ const EstimatedWeightsProGear = () => {
             <h1>Estimated weight</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
-                {errorMessage.includes('DTOD Error') ? (
+                {errorCode === 400 || errorCode === 500 ? (
                   <p>
-                    We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code, or
-                    the system that calculates distance (DTOD) may be down. Please check your ZIP Code to ensure it was
-                    entered correctly and is not a PO Box. If the error persists, please try again later, or contact the
+                    {errorMessage} If the error persists, please try again later, or contact the
                     <Link to={technicalHelpDeskURL}> Technical Help Desk</Link>.
                   </p>
                 ) : (
-                  errorMessage
+                  { errorMessage }
                 )}
               </Alert>
             )}
