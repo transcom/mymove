@@ -313,24 +313,22 @@ func (h CreateOrderHandler) Handle(params orderop.CreateOrderParams) middleware.
 				Show:   models.BoolPointer(true),
 				Status: &status,
 			}
+			if !appCtx.Session().OfficeUserID.IsNil() {
+				officeUser, err := models.FetchOfficeUserByID(appCtx.DB(), appCtx.Session().OfficeUserID)
+				if err != nil {
+					err = apperror.NewBadDataError("Unable to fetch office user.")
+					appCtx.Logger().Error(err.Error())
+					return orderop.NewCreateOrderUnprocessableEntity(), err
+				} else {
+					moveOptions.CounselingOfficeID = &officeUser.TransportationOfficeID
+				}
+			}
 
 			if newOrder.OrdersType == "SAFETY" {
-				// if creating a Safety move, clear out the DoDID and OktaID for the customer
+				// if creating a Safety move, clear out the OktaID for the customer since they won't log into MilMove
 				err = models.UpdateUserOktaID(appCtx.DB(), &newOrder.ServiceMember.User, "")
 				if err != nil {
 					appCtx.Logger().Error("Authorization error updating user", zap.Error(err))
-					return orderop.NewUpdateOrderInternalServerError(), err
-				}
-
-				err = models.UpdateServiceMemberDoDID(appCtx.DB(), &newOrder.ServiceMember, nil)
-				if err != nil {
-					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
-					return orderop.NewUpdateOrderInternalServerError(), err
-				}
-
-				err = models.UpdateServiceMemberEMPLID(appCtx.DB(), &newOrder.ServiceMember, nil)
-				if err != nil {
-					appCtx.Logger().Error("Authorization error updating service member", zap.Error(err))
 					return orderop.NewUpdateOrderInternalServerError(), err
 				}
 			}

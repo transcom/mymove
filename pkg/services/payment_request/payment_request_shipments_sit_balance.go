@@ -114,13 +114,17 @@ func calculateReviewedSITBalance(appCtx appcontext.AppContext, paymentServiceIte
 				}
 
 				// sort the SIT service items into past, current and future to aid in the upcoming calculations
-				shipmentSITs := sitstatus.SortShipmentSITs(shipment, today)
+				shipmentSIT, err := sitstatus.NewShipmentSITStatus().RetrieveShipmentSIT(appCtx, shipment)
+				if err != nil {
+					return err
+				}
+				sortedShipmentSIT := sitstatus.SortShipmentSITs(shipmentSIT, today)
 
 				totalSITDaysAuthorized, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 				if err != nil {
 					return err
 				}
-				totalSITDaysUsed := sitstatus.CalculateTotalDaysInSIT(shipmentSITs, today)
+				totalSITDaysUsed := sitstatus.CalculateTotalDaysInSIT(sortedShipmentSIT, today)
 				totalSITDaysRemaining := totalSITDaysAuthorized - totalSITDaysUsed
 
 				shipmentSITBalance.TotalSITDaysAuthorized = totalSITDaysAuthorized
@@ -154,12 +158,11 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 			return err
 		}
 		// sort the SIT service items into past, current and future to aid in the upcoming calculations
-		shipmentSITs := sitstatus.SortShipmentSITs(shipment, today)
-		totalSITAllowance, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
+		shipmentSIT, err := sitstatus.NewShipmentSITStatus().RetrieveShipmentSIT(appCtx, shipment)
 		if err != nil {
 			return err
 		}
-		calculateTotalDaysInSIT := sitstatus.CalculateTotalDaysInSIT(shipmentSITs, today)
+		sortedShipmentSIT := sitstatus.SortShipmentSITs(shipmentSIT, today)
 
 		if shipmentSITBalance, ok := shipmentsSITBalances[shipment.ID.String()]; ok {
 			shipmentSITBalance.PendingSITDaysInvoiced = daysInSIT
@@ -171,9 +174,20 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 
 			// Even though these have been set before, we should do these calculations again in order to recalculate the
 			// totalSITEndDate using this service item's entry date.
-			totalSITEndDate := sitstatus.CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, *paymentServiceItem.MTOServiceItem.SITEntryDate, calculateTotalDaysInSIT)
-
-			shipmentSITBalance.TotalSITEndDate = totalSITEndDate
+			// Additionally retrieve the latest SIT Departure date from the current SIT if it exists. The first current SIT is chosen as there is not currently support for more than one SIT
+			// Per AC under B-20899
+			shipmentSIT, err = sitstatus.NewShipmentSITStatus().RetrieveShipmentSIT(appCtx, shipment)
+			if err != nil {
+				return err
+			}
+			sortedShipmentSIT = sitstatus.SortShipmentSITs(shipmentSIT, today)
+			// Get the latest authorized end date
+			if len(sortedShipmentSIT.CurrentSITs) == 0 {
+				// No current SIT, get the most recent authorized end date
+				shipmentSITBalance.TotalSITEndDate = sortedShipmentSIT.PastSITs[len(sortedShipmentSIT.PastSITs)-1].Summary.SITAuthorizedEndDate
+			} else {
+				shipmentSITBalance.TotalSITEndDate = sortedShipmentSIT.CurrentSITs[0].Summary.SITAuthorizedEndDate
+			}
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 		} else {
 			shipmentSITBalance := services.ShipmentPaymentSITBalance{
@@ -182,18 +196,31 @@ func calculatePendingSITBalance(appCtx appcontext.AppContext, paymentServiceItem
 				PendingBilledStartDate: start,
 				PendingBilledEndDate:   end,
 			}
+			shipmentSIT, err = sitstatus.NewShipmentSITStatus().RetrieveShipmentSIT(appCtx, shipment)
+			if err != nil {
+				return err
+			}
+			sortedShipmentSIT = sitstatus.SortShipmentSITs(shipmentSIT, today)
+
 			totalSITDaysAuthorized, err := sitstatus.NewShipmentSITStatus().CalculateShipmentSITAllowance(appCtx, shipment)
 			if err != nil {
 				return err
 			}
-			totalSITDaysUsed := sitstatus.CalculateTotalDaysInSIT(shipmentSITs, today)
+			totalSITDaysUsed := sitstatus.CalculateTotalDaysInSIT(sortedShipmentSIT, today)
 			totalSITDaysRemaining := totalSITDaysAuthorized - totalSITDaysUsed
 
-			totalSITEndDate := sitstatus.CalculateSITAuthorizedEndDate(totalSITAllowance, daysInSIT, *paymentServiceItem.MTOServiceItem.SITEntryDate, calculateTotalDaysInSIT)
+			// Retrieve the latest SIT Departure date from the current SIT if it exists. The first current SIT is chosen as there is not currently support for more than one SIT
+			// Per AC under B-20899
 
 			shipmentSITBalance.TotalSITDaysAuthorized = totalSITDaysAuthorized
 			shipmentSITBalance.TotalSITDaysRemaining = totalSITDaysRemaining
-			shipmentSITBalance.TotalSITEndDate = totalSITEndDate
+			// Get the latest authorized end date
+			if len(sortedShipmentSIT.CurrentSITs) == 0 {
+				// No current SIT, get the most recent authorized end date
+				shipmentSITBalance.TotalSITEndDate = sortedShipmentSIT.PastSITs[len(sortedShipmentSIT.PastSITs)-1].Summary.SITAuthorizedEndDate
+			} else {
+				shipmentSITBalance.TotalSITEndDate = sortedShipmentSIT.CurrentSITs[0].Summary.SITAuthorizedEndDate
+			}
 
 			shipmentsSITBalances[shipment.ID.String()] = shipmentSITBalance
 		}

@@ -152,6 +152,17 @@ func GetTraitHQRole() []Customization {
 	}
 }
 
+func GetTraitGSRRole() []Customization {
+	return []Customization{
+		{
+			Model: roles.Role{
+				RoleType: roles.RoleTypeGSR,
+				RoleName: "Government Surveillance Representative",
+			},
+		},
+	}
+}
+
 // lookup a role by role type, if it doesn't exist make it
 func FetchOrBuildRoleByRoleType(db *pop.Connection, roleType roles.RoleType) roles.Role {
 	roleName := roles.RoleName(cases.Title(language.Und).String(string(roleType)))

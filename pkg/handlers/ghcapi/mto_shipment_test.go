@@ -244,16 +244,16 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 		suite.Equal(int64(190), *payloadShipment.SitDaysAllowance)
 		suite.Equal(sitstatus.OriginSITLocation, payloadShipment.SitStatus.CurrentSIT.Location)
 		suite.Equal(int64(8), *payloadShipment.SitStatus.CurrentSIT.DaysInSIT)
-		suite.Equal(int64(175), *payloadShipment.SitStatus.TotalDaysRemaining)
-		suite.Equal(int64(15), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current
-		suite.Equal(int64(15), *payloadShipment.SitStatus.CalculatedTotalDaysInSIT)
+		suite.Equal(int64(174), *payloadShipment.SitStatus.TotalDaysRemaining)
+		suite.Equal(int64(16), *payloadShipment.SitStatus.TotalSITDaysUsed) // 7 from the previous SIT and 7 from the current (+2 for including last days)
+		suite.Equal(int64(16), *payloadShipment.SitStatus.CalculatedTotalDaysInSIT)
 		suite.Equal(subtestData.sit.SITEntryDate.Format("2006-01-02"), payloadShipment.SitStatus.CurrentSIT.SitEntryDate.String())
 		suite.Equal(subtestData.sit.SITDepartureDate.Format("2006-01-02"), payloadShipment.SitStatus.CurrentSIT.SitDepartureDate.String())
 
-		suite.Len(payloadShipment.SitStatus.PastSITServiceItems, 1)
+		suite.Len(payloadShipment.SitStatus.PastSITServiceItemGroupings, 1)
 		year, month, day := time.Now().Date()
 		lastMonthEntry := time.Date(year, month, day-37, 0, 0, 0, 0, time.UTC)
-		suite.Equal(lastMonthEntry.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.PastSITServiceItems[0].SitEntryDate.String())
+		suite.Equal(lastMonthEntry.Format(strfmt.MarshalFormat), payloadShipment.SitStatus.PastSITServiceItemGroupings[0].Summary.SitEntryDate.String())
 
 		// This one has a destination shipment type
 		payloadShipment3 := okResponse.Payload[2]

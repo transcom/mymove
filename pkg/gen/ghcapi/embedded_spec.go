@@ -2286,6 +2286,107 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "$ref": "#/responses/PermissionDenied"
+          },
+          "404": {
+            "$ref": "#/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/responses/Conflict"
+          },
+          "412": {
+            "$ref": "#/responses/PreconditionFailed"
+          },
+          "422": {
+            "$ref": "#/responses/UnprocessableEntity"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -2456,6 +2557,56 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -3168,6 +3319,49 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of payment request",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/responses/InvalidRequest"
+          },
+          "500": {
+            "$ref": "#/responses/ServerError"
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
@@ -3950,7 +4144,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -3983,6 +4178,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -5607,14 +5808,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -6142,6 +6343,38 @@ func init() {
         }
       }
     },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -6573,8 +6806,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -7174,10 +7408,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -9188,6 +9422,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -10972,7 +11215,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -11462,12 +11706,20 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -11885,6 +12137,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -11934,14 +12204,56 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer"
         },
         "totalSITDaysUsed": {
           "type": "integer"
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer"
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
         }
       }
     },
@@ -12193,7 +12505,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {
@@ -16740,6 +17053,131 @@ func init() {
         }
       ]
     },
+    "/moves/{moveID}/assignOfficeUser": {
+      "patch": {
+        "description": "assigns either a services counselor, task ordering officer, or task invoicing officer to the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "updateAssignedOfficeUser",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AssignOfficeUserBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully assigned office user to the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/cancel": {
+      "post": {
+        "description": "cancels a move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "summary": "Cancels a move",
+        "operationId": "moveCanceler",
+        "responses": {
+          "200": {
+            "description": "Successfully cancelled move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "403": {
+            "description": "The request was denied",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "404": {
+            "description": "The requested resource wasn't found",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "409": {
+            "description": "Conflict error",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "412": {
+            "description": "Precondition failed",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "422": {
+            "description": "The payload was unprocessable.",
+            "schema": {
+              "$ref": "#/definitions/ValidationError"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
     "/moves/{moveID}/counseling-evaluation-reports-list": {
       "get": {
         "description": "Returns counseling evaluation reports for the specified move that are visible to the current office user",
@@ -16955,6 +17393,59 @@ func init() {
           "name": "moveID",
           "in": "path",
           "required": true
+        }
+      ]
+    },
+    "/moves/{moveID}/unassignOfficeUser": {
+      "patch": {
+        "description": "unassigns either a services counselor, task ordering officer, or task invoicing officer from the move",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "move"
+        ],
+        "operationId": "deleteAssignedOfficeUser",
+        "responses": {
+          "200": {
+            "description": "Successfully unassigned office user from the move",
+            "schema": {
+              "$ref": "#/definitions/Move"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "format": "uuid",
+          "description": "ID of the move",
+          "name": "moveID",
+          "in": "path",
+          "required": true
+        },
+        {
+          "name": "body",
+          "in": "body",
+          "schema": {
+            "required": [
+              "roleType"
+            ],
+            "properties": {
+              "roleType": {
+                "type": "string"
+              }
+            }
+          }
         }
       ]
     },
@@ -17812,6 +18303,55 @@ func init() {
           "type": "string",
           "format": "uuid",
           "description": "UUID of payment request",
+          "name": "paymentRequestID",
+          "in": "path",
+          "required": true
+        }
+      ]
+    },
+    "/payment-requests/{paymentRequestID}/bulkDownload": {
+      "get": {
+        "description": "This endpoint downloads all uploaded payment request documentation combined into a single PDF.\n",
+        "produces": [
+          "application/pdf"
+        ],
+        "tags": [
+          "paymentRequests"
+        ],
+        "summary": "Downloads all Payment Request documents as a PDF",
+        "operationId": "bulkDownload",
+        "responses": {
+          "200": {
+            "description": "Payment Request Files PDF",
+            "schema": {
+              "type": "file",
+              "format": "binary"
+            },
+            "headers": {
+              "Content-Disposition": {
+                "type": "string",
+                "description": "File name to download"
+              }
+            }
+          },
+          "400": {
+            "description": "The request payload is invalid",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          },
+          "500": {
+            "description": "A server error occurred",
+            "schema": {
+              "$ref": "#/definitions/Error"
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "type": "string",
+          "description": "the id for the payment-request with files to be downloaded",
           "name": "paymentRequestID",
           "in": "path",
           "required": true
@@ -18872,7 +19412,8 @@ func init() {
               "ppmType",
               "closeoutInitiated",
               "closeoutLocation",
-              "ppmStatus"
+              "ppmStatus",
+              "counselingOffice"
             ],
             "type": "string",
             "description": "field that results should be sorted by",
@@ -18905,6 +19446,12 @@ func init() {
             "type": "string",
             "description": "filters using a prefix match on the service member's last name",
             "name": "lastName",
+            "in": "query"
+          },
+          {
+            "type": "string",
+            "description": "filters using a counselingOffice name of the move",
+            "name": "counselingOffice",
             "in": "query"
           },
           {
@@ -20865,14 +21412,14 @@ func init() {
     },
     "/transportation-offices": {
       "get": {
-        "description": "Returns the transportation offices matching the search query",
+        "description": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "produces": [
           "application/json"
         ],
         "tags": [
           "transportationOffice"
         ],
-        "summary": "Returns the transportation offices matching the search query",
+        "summary": "Returns the transportation offices matching the search query that is enabled for PPM closeout",
         "operationId": "getTransportationOffices",
         "parameters": [
           {
@@ -21446,6 +21993,38 @@ func init() {
         }
       }
     },
+    "AssignOfficeUserBody": {
+      "type": "object",
+      "required": [
+        "officeUserId",
+        "roleType"
+      ],
+      "properties": {
+        "officeUserId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "roleType": {
+          "type": "string"
+        }
+      }
+    },
+    "AssignedOfficeUser": {
+      "type": "object",
+      "properties": {
+        "firstName": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "lastName": {
+          "type": "string"
+        }
+      }
+    },
     "AssociateReportViolations": {
       "description": "A list of PWS violation string ids to associate with an evaluation report",
       "type": "object",
@@ -21881,8 +22460,9 @@ func init() {
         },
         "edipi": {
           "type": "string",
-          "x-nullable": true,
-          "example": "John"
+          "maxLength": 10,
+          "x-nullable": false,
+          "example": "1234567890"
         },
         "emailIsPreferred": {
           "type": "boolean"
@@ -22482,10 +23062,10 @@ func init() {
         "current_address": {
           "$ref": "#/definitions/Address"
         },
-        "dodID": {
+        "eTag": {
           "type": "string"
         },
-        "eTag": {
+        "edipi": {
           "type": "string"
         },
         "email": {
@@ -24496,6 +25076,15 @@ func init() {
     },
     "Move": {
       "properties": {
+        "SCAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TIOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
+        "TOOAssignedUser": {
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "additionalDocuments": {
           "$ref": "#/definitions/Document"
         },
@@ -26353,7 +26942,8 @@ func init() {
         "WAITING_ON_CUSTOMER",
         "NEEDS_ADVANCE_APPROVAL",
         "NEEDS_CLOSEOUT",
-        "CLOSEOUT_COMPLETE"
+        "CLOSEOUT_COMPLETE",
+        "CANCELED"
       ],
       "readOnly": true
     },
@@ -26845,12 +27435,20 @@ func init() {
           "format": "date-time",
           "x-nullable": true
         },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "closeoutInitiated": {
           "type": "string",
           "format": "date-time",
           "x-nullable": true
         },
         "closeoutLocation": {
+          "type": "string",
+          "x-nullable": true
+        },
+        "counselingOffice": {
           "type": "string",
           "x-nullable": true
         },
@@ -27268,6 +27866,24 @@ func init() {
         "DESTINATION"
       ]
     },
+    "SITServiceItemGrouping": {
+      "properties": {
+        "serviceItems": {
+          "$ref": "#/definitions/MTOServiceItems"
+        },
+        "summary": {
+          "description": "Holds the top level summary of a Service Item Grouping, detailing the ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\nThis is provided at a top level because due to our service item architecture, SIT information is sometimes split across multiple service items, and this summary is a compilation of said information. This prevents the need to loop over many service items.\n",
+          "$ref": "#/definitions/SITSummary"
+        }
+      }
+    },
+    "SITServiceItemGroupings": {
+      "description": "Holds groupings of SIT service items and their summaries, detailing the summary ServiceItemID of the first day SIT service item (Eg, DOFSIT, DOASIT), the location (ORIGIN/DESTINATION), how many days the provided instance of SIT has been in storage, SIT entry date, departure date, authorized end date, customer contacted date, requested delivery date.\n",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/SITServiceItemGrouping"
+      }
+    },
     "SITStatus": {
       "properties": {
         "calculatedTotalDaysInSIT": {
@@ -27319,8 +27935,9 @@ func init() {
             }
           }
         },
-        "pastSITServiceItems": {
-          "$ref": "#/definitions/MTOServiceItems"
+        "pastSITServiceItemGroupings": {
+          "description": "A list of past SIT service item groupings. These will contain the given SIT service items for an instance of SIT (Either Origin or Destination), grouped by the date they went into SIT and service items limited explicitly to SIT related Re Service Codes.\n",
+          "$ref": "#/definitions/SITServiceItemGroupings"
         },
         "totalDaysRemaining": {
           "type": "integer",
@@ -27373,6 +27990,48 @@ func init() {
         "sitRequestedDelivery": {
           "type": "string",
           "format": "date",
+          "x-nullable": true
+        }
+      }
+    },
+    "SITSummary": {
+      "properties": {
+        "daysInSIT": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstDaySITServiceItemID": {
+          "type": "string",
+          "format": "uuid",
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        },
+        "location": {
+          "enum": [
+            "ORIGIN",
+            "DESTINATION"
+          ]
+        },
+        "sitAuthorizedEndDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitCustomerContacted": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitDepartureDate": {
+          "type": "string",
+          "format": "date-time",
+          "x-nullable": true
+        },
+        "sitEntryDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sitRequestedDelivery": {
+          "type": "string",
+          "format": "date-time",
           "x-nullable": true
         }
       }
@@ -27625,7 +28284,8 @@ func init() {
         "ZipSITOriginHHGOriginalAddress",
         "StandaloneCrate",
         "StandaloneCrateCap",
-        "UncappedRequestTotal"
+        "UncappedRequestTotal",
+        "LockedPriceCents"
       ]
     },
     "ServiceItemParamOrigin": {

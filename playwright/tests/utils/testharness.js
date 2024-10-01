@@ -178,6 +178,14 @@ export class TestHarness {
   }
 
   /**
+   * Use testharness to build a move with an hhg shipment with a past origin and destination SIT
+   * @returns {Promise<Move>}
+   */
+  async buildHHGMoveWithPastSITs() {
+    return this.buildDefault('HHGMoveWithPastSITs');
+  }
+
+  /**
    *    * Use testharness to build a move with an hhg shipment in SIT without destination address
    * @returns {Promise<Move>}
    */

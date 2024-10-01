@@ -51,6 +51,18 @@ func OfficeUser(officeUser *models.OfficeUser) *ghcmessages.LockedOfficeUser {
 	return nil
 }
 
+func AssignedOfficeUser(officeUser *models.OfficeUser) *ghcmessages.AssignedOfficeUser {
+	if officeUser != nil {
+		payload := ghcmessages.AssignedOfficeUser{
+			ID:        strfmt.UUID(officeUser.ID.String()),
+			FirstName: officeUser.FirstName,
+			LastName:  officeUser.LastName,
+		}
+		return &payload
+	}
+	return nil
+}
+
 // Move payload
 func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, error) {
 	if move == nil {
@@ -103,6 +115,9 @@ func Move(move *models.Move, storer storage.FileStorer) (*ghcmessages.Move, erro
 		LockedByOfficeUser:           OfficeUser(move.LockedByOfficeUser),
 		LockExpiresAt:                handlers.FmtDateTimePtr(move.LockExpiresAt),
 		AdditionalDocuments:          additionalDocumentsPayload,
+		SCAssignedUser:               AssignedOfficeUser(move.SCAssignedUser),
+		TOOAssignedUser:              AssignedOfficeUser(move.TOOAssignedUser),
+		TIOAssignedUser:              AssignedOfficeUser(move.TIOAssignedUser),
 	}
 
 	return payload, nil
@@ -490,7 +505,7 @@ func Customer(customer *models.ServiceMember) *ghcmessages.Customer {
 	payload := ghcmessages.Customer{
 		Agency:             swag.StringValue((*string)(customer.Affiliation)),
 		CurrentAddress:     Address(customer.ResidentialAddress),
-		DodID:              swag.StringValue(customer.Edipi),
+		Edipi:              swag.StringValue(customer.Edipi),
 		Email:              customer.PersonalEmail,
 		FirstName:          swag.StringValue(customer.FirstName),
 		ID:                 strfmt.UUID(customer.ID.String()),
@@ -803,7 +818,7 @@ func currentSIT(currentSIT *services.CurrentSIT) *ghcmessages.SITStatusCurrentSI
 		return nil
 	}
 	return &ghcmessages.SITStatusCurrentSIT{
-		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID),
+		ServiceItemID:        *handlers.FmtUUID(currentSIT.ServiceItemID), // TODO: Refactor out service item ID dependence in GHC API. This should be based on SIT groupings / summaries
 		Location:             currentSIT.Location,
 		DaysInSIT:            handlers.FmtIntPtrToInt64(&currentSIT.DaysInSIT),
 		SitEntryDate:         handlers.FmtDate(currentSIT.SITEntryDate),
@@ -819,12 +834,13 @@ func SITStatus(shipmentSITStatuses *services.SITStatus, storer storage.FileStore
 	if shipmentSITStatuses == nil {
 		return nil
 	}
+
 	payload := &ghcmessages.SITStatus{
-		PastSITServiceItems:      MTOServiceItemModels(shipmentSITStatuses.PastSITs, storer),
-		TotalSITDaysUsed:         handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
-		TotalDaysRemaining:       handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
-		CalculatedTotalDaysInSIT: handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CalculatedTotalDaysInSIT),
-		CurrentSIT:               currentSIT(shipmentSITStatuses.CurrentSIT),
+		PastSITServiceItemGroupings: SITServiceItemGroupings(shipmentSITStatuses.PastSITs, storer),
+		TotalSITDaysUsed:            handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalSITDaysUsed),
+		TotalDaysRemaining:          handlers.FmtIntPtrToInt64(&shipmentSITStatuses.TotalDaysRemaining),
+		CalculatedTotalDaysInSIT:    handlers.FmtIntPtrToInt64(&shipmentSITStatuses.CalculatedTotalDaysInSIT),
+		CurrentSIT:                  currentSIT(shipmentSITStatuses.CurrentSIT),
 	}
 
 	return payload
@@ -1775,6 +1791,42 @@ func MTOServiceItemModel(s *models.MTOServiceItem, storer storage.FileStorer) *g
 	}
 }
 
+// SITServiceItemGrouping payload
+func SITServiceItemGrouping(s models.SITServiceItemGrouping, storer storage.FileStorer) *ghcmessages.SITServiceItemGrouping {
+	if len(s.ServiceItems) == 0 {
+		return nil
+	}
+
+	summary := ghcmessages.SITSummary{
+		FirstDaySITServiceItemID: strfmt.UUID(s.Summary.FirstDaySITServiceItemID.String()),
+		Location:                 s.Summary.Location,
+		DaysInSIT:                handlers.FmtIntPtrToInt64(&s.Summary.DaysInSIT),
+		SitEntryDate:             *handlers.FmtDateTime(s.Summary.SITEntryDate),
+		SitDepartureDate:         handlers.FmtDateTimePtr(s.Summary.SITDepartureDate),
+		SitAuthorizedEndDate:     *handlers.FmtDateTime(s.Summary.SITAuthorizedEndDate),
+		SitCustomerContacted:     handlers.FmtDateTimePtr(s.Summary.SITCustomerContacted),
+		SitRequestedDelivery:     handlers.FmtDateTimePtr(s.Summary.SITRequestedDelivery),
+	}
+
+	serviceItems := MTOServiceItemModels(s.ServiceItems, storer)
+
+	return &ghcmessages.SITServiceItemGrouping{
+		Summary:      &summary,
+		ServiceItems: serviceItems,
+	}
+}
+
+// SITServiceItemGroupings payload
+func SITServiceItemGroupings(s models.SITServiceItemGroupings, storer storage.FileStorer) ghcmessages.SITServiceItemGroupings {
+	sitGroupings := ghcmessages.SITServiceItemGroupings{}
+	for _, sitGroup := range s {
+		if sitPayload := SITServiceItemGrouping(sitGroup, storer); sitPayload != nil {
+			sitGroupings = append(sitGroupings, sitPayload)
+		}
+	}
+	return sitGroupings
+}
+
 // MTOServiceItemModels payload
 func MTOServiceItemModels(s models.MTOServiceItems, storer storage.FileStorer) ghcmessages.MTOServiceItems {
 	serviceItems := ghcmessages.MTOServiceItems{}
@@ -1987,6 +2039,10 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
+		var transportationOffice string
+		if move.CounselingOffice != nil {
+			transportationOffice = move.CounselingOffice.Name
+		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
 		// we can't easily modify our sql query to find the earliest shipment pickup date so we must do it here
@@ -2058,6 +2114,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockedByOfficeUser:      OfficeUser(move.LockedByOfficeUser),
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
+			CounselingOffice:        &transportationOffice,
 		}
 	}
 	return &queueMoves

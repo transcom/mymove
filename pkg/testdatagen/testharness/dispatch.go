@@ -59,6 +59,9 @@ var actionDispatcher = map[string]actionFunc{
 	"HHGMoveInSIT": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSIT(appCtx)
 	},
+	"HHGMoveWithPastSITs": func(appCtx appcontext.AppContext) testHarnessResponse {
+		return HHGMoveWithPastSITs(appCtx)
+	},
 	"HHGMoveInSITNoDestinationSITOutDate": func(appCtx appcontext.AppContext) testHarnessResponse {
 		return MakeHHGMoveInSITNoDestinationSITOutDate(appCtx)
 	},
