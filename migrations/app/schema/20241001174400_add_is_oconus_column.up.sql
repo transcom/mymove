@@ -2,5 +2,5 @@
 ALTER TABLE addresses
 ADD COLUMN IF NOT EXISTS is_oconus boolean;
 
--- Column comments
+-- column comments
 COMMENT ON COLUMN addresses.is_oconus IS 'Indicates whether address is CONUS (false) or OCONUS (true)';
