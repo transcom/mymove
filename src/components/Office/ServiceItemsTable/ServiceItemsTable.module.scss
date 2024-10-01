@@ -33,3 +33,11 @@
     @include u-margin-top(0);
   }
 }
+
+.resubmissionDetails {
+  @include u-margin-bottom(2);
+
+  .detailValue {
+    font-weight: 500;
+  }
+}
