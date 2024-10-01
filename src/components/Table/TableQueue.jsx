@@ -49,9 +49,9 @@ const TableQueue = ({
   csvExportQueueFetcher,
   csvExportQueueFetcherKey,
   sessionStorageKey,
+  isHeadquartersUser,
   isSupervisor,
   currentUserId,
-  isHeadquartersUser,
 }) => {
   const [isPageReload, setIsPageReload] = useState(true);
   useEffect(() => {
