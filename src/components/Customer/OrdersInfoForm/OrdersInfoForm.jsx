@@ -22,7 +22,7 @@ import { showCounselingOffices } from 'services/internalApi';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [dutyLocation, setDutyLocation] = useState('');
-  const [officeOptions, setOfficeOptions] = useState(null);
+  const [counselingOfficeOptions, setOfficeOptions] = useState(null);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -123,7 +123,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     id="counseling_office_id"
                     hint="Required"
                     required
-                    options={officeOptions}
+                    options={counselingOfficeOptions}
                   />
                 </div>
               )}
