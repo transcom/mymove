@@ -125,10 +125,10 @@ const TableQueue = ({
   const tableData = useMemo(() => data, [data]);
   const formattedAvailableOfficeUsers = formatAvailableOfficeUsers(availableOfficeUsers, isSupervisor, currentUserId);
   // attach the available office users to the moves/row
-  const tableDataWithAvailableUsers = tableData?.map((ele) => {
-    const newEle = { ...ele };
-    newEle.availableOfficeUsers = formattedAvailableOfficeUsers;
-    return newEle;
+  const tableDataWithAvailableUsers = tableData?.map((row) => {
+    const CurrentRow = { ...row };
+    CurrentRow.availableOfficeUsers = formattedAvailableOfficeUsers;
+    return row;
   });
 
   const tableColumns = useMemo(() => columns, [columns]);

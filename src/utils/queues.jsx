@@ -3,19 +3,15 @@ import React from 'react';
 import { deleteAssignedOfficeUserForMove, updateAssignedOfficeUserForMove } from 'services/ghcApi';
 import { DEFAULT_EMPTY_VALUE } from 'shared/constants';
 
-const addAssignedOfficeUser = (users, assignedTo) => {
-  const newAvailableOfficeUsers = users.slice();
-  const { lastname, firstname, id } = assignedTo;
-  newAvailableOfficeUsers.push({
-    label: `${lastname}, ${firstname}`,
-    value: id,
-  });
-  return newAvailableOfficeUsers;
-};
-
 export const formatOfficeUser = (user) => {
   const fullName = `${user?.lastName}, ${user?.firstName}`;
   return { label: fullName, value: user.officeUserId };
+};
+
+const addAssignedOfficeUser = (users, assignedTo) => {
+  const newAvailableOfficeUsers = users.slice();
+  newAvailableOfficeUsers.push(formatOfficeUser(assignedTo));
+  return newAvailableOfficeUsers;
 };
 
 export const formatAvailableOfficeUsers = (users, isSupervisor, currentUserId) => {
