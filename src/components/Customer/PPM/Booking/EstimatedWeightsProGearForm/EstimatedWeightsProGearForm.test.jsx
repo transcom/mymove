@@ -50,7 +50,7 @@ describe('EstimatedWeightsProGearForm component', () => {
       expect(screen.getByRole('heading', { level: 2, name: 'Pro-gear' })).toBeInTheDocument();
       expect(screen.getByLabelText('Yes')).toBeInstanceOf(HTMLInputElement);
       expect(screen.getByLabelText('No')).toBeInstanceOf(HTMLInputElement);
-      expect(screen.getByLabelText('Estimated weight of this PPM shipment')).toBeInstanceOf(HTMLInputElement);
+      expect(screen.getByLabelText(/Estimated weight of this PPM shipment/)).toBeInstanceOf(HTMLInputElement);
     });
   });
 
@@ -58,13 +58,13 @@ describe('EstimatedWeightsProGearForm component', () => {
     it('displays secondary pro gear weight inputs when hasProGear is true', async () => {
       render(<EstimatedWeightsProGearForm {...defaultProps} />);
       const hasProGear = await screen.getByLabelText('Yes');
-      expect(screen.queryByLabelText('Estimated weight of your pro-gear')).toBeNull();
-      expect(screen.queryByLabelText('Estimated weight of your spouse’s pro-gear')).toBeNull();
+      expect(screen.queryByLabelText(/Estimated weight of your pro-gear/)).toBeNull();
+      expect(screen.queryByLabelText(/Estimated weight of your spouse’s pro-gear/)).toBeNull();
       await userEvent.click(hasProGear);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Estimated weight of your pro-gear')).toBeInstanceOf(HTMLInputElement);
-        expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear')).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText(/Estimated weight of your pro-gear/)).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear/)).toBeInstanceOf(HTMLInputElement);
       });
     });
   });
@@ -74,11 +74,11 @@ describe('EstimatedWeightsProGearForm component', () => {
       render(<EstimatedWeightsProGearForm {...mtoShipmentProps} />);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Estimated weight of this PPM shipment').value).toBe('4,000');
+        expect(screen.getByLabelText(/Estimated weight of this PPM shipment/).value).toBe('4,000');
       });
       expect(screen.getByLabelText('Yes').value).toBe('true');
-      expect(screen.getByLabelText('Estimated weight of your pro-gear').value).toBe('1,000');
-      expect(screen.getByLabelText('Estimated weight of your spouse’s pro-gear').value).toBe('100');
+      expect(screen.getByLabelText(/Estimated weight of your pro-gear/).value).toBe('1,000');
+      expect(screen.getByLabelText(/Estimated weight of your spouse’s pro-gear/).value).toBe('100');
     });
   });
 
@@ -105,7 +105,7 @@ describe('EstimatedWeightsProGearForm component', () => {
 
       await userEvent.click(inputHasProGear);
 
-      const selfProGear = screen.getByLabelText('Estimated weight of your pro-gear');
+      const selfProGear = screen.getByLabelText(/Estimated weight of your pro-gear/);
 
       await userEvent.click(selfProGear);
       await userEvent.tab();

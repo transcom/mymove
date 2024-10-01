@@ -50,7 +50,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
               <DatePickerInput name="issueDate" label="Orders date" required />
               <DatePickerInput name="reportByDate" label="Report by date" required />
               <FormGroup>
-                <Label>Are dependents included the orders?</Label>
+                <Label>Are dependents included in the orders?</Label>
                 <div>
                   <Field
                     as={Radio}
