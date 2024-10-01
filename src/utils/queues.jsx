@@ -37,19 +37,20 @@ export const formatAvailableOfficeUsers = (users, isSupervisor, currentUserId) =
   return newAvailableOfficeUsers;
 };
 
-export const formatAvailableOfficeUsersForRow = (row) => {
+export const formatAvailableOfficeUsersForRow = (originalRow, supervisor, currentUserId) => {
   // dupe the row to avoid issues with passing office user array by reference
-  const updatedRow = { ...row };
+  const row = { ...originalRow };
 
+  row.availableOfficeUsers = formatAvailableOfficeUsers(row.availableOfficeUsers, supervisor, currentUserId);
   // if the move is assigned to a user not present in availableOfficeUsers
   // lets push them onto the end
   if (
     row.assignedTo !== undefined &&
     !row.availableOfficeUsers?.some((user) => user.value === row.assignedTo.officeUserId)
   ) {
-    updatedRow.availableOfficeUsers = addAssignedOfficeUser(row.availableOfficeUsers, row.assignedTo);
+    row.availableOfficeUsers = addAssignedOfficeUser(row.availableOfficeUsers, row.assignedTo);
   }
-  const { assignedTo, availableOfficeUsers } = updatedRow;
+  const { assignedTo, availableOfficeUsers } = row;
 
   // if there is an assigned user, assign to a variable so we can set a default value below
   const assignedToUser = availableOfficeUsers.find((user) => user.value === assignedTo?.officeUserId);

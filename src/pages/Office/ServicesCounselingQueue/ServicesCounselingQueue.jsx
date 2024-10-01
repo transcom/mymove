@@ -50,7 +50,13 @@ import CustomerSearchForm from 'components/CustomerSearchForm/CustomerSearchForm
 import MultiSelectTypeAheadCheckBoxFilter from 'components/Table/Filters/MutliSelectTypeAheadCheckboxFilter';
 import { formatAvailableOfficeUsersForRow, handleQueueAssignment } from 'utils/queues';
 
-export const counselingColumns = (moveLockFlag, originLocationList, supervisor, isQueueManagementEnabled) => {
+export const counselingColumns = (
+  moveLockFlag,
+  originLocationList,
+  supervisor,
+  isQueueManagementEnabled,
+  currentUserId,
+) => {
   const cols = [
     createHeader(
       ' ',
@@ -196,7 +202,11 @@ export const counselingColumns = (moveLockFlag, originLocationList, supervisor, 
       createHeader(
         'Assigned',
         (row) => {
-          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(row);
+          const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(
+            row,
+            supervisor,
+            currentUserId,
+          );
           return (
             <div data-label="assignedSelect" className={styles.assignedToCol}>
               <Dropdown
@@ -609,7 +619,13 @@ const ServicesCounselingQueue = ({ userPrivileges, currentUserId, isQueueManagem
           defaultSortedColumns={[{ id: 'submittedAt', desc: false }]}
           disableMultiSort
           disableSortBy={false}
-          columns={counselingColumns(moveLockFlag, originLocationList, supervisor, isQueueManagementFFEnabled)}
+          columns={counselingColumns(
+            moveLockFlag,
+            originLocationList,
+            supervisor,
+            isQueueManagementFFEnabled,
+            currentUserId,
+          )}
           title="Moves"
           handleClick={handleClick}
           useQueries={useServicesCounselingQueueQueries}
