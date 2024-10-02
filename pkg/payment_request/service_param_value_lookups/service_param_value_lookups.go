@@ -60,6 +60,8 @@ var ServiceItemParamsWithLookups = []models.ServiceItemParamName{
 	models.ServiceItemParamNameMTOAvailableToPrimeAt,
 	models.ServiceItemParamNameServiceAreaOrigin,
 	models.ServiceItemParamNameServiceAreaDest,
+	models.ServiceItemParamNameInternationalRateAreaOrigin,
+	models.ServiceItemParamNameInternationalRateAreaDest,
 	models.ServiceItemParamNameContractCode,
 	models.ServiceItemParamNameCubicFeetBilled,
 	models.ServiceItemParamNamePSILinehaulDom,
@@ -328,6 +330,14 @@ func InitializeLookups(appCtx appcontext.AppContext, shipment models.MTOShipment
 	}
 
 	lookups[models.ServiceItemParamNameServiceAreaDest] = ServiceAreaLookup{
+		Address: *shipment.DestinationAddress,
+	}
+
+	lookups[models.ServiceItemParamNameInternationalRateAreaOrigin] = InternationalRateAreaLookup{
+		Address: *shipment.PickupAddress,
+	}
+
+	lookups[models.ServiceItemParamNameInternationalRateAreaDest] = InternationalRateAreaLookup{
 		Address: *shipment.DestinationAddress,
 	}
 
