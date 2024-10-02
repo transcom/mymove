@@ -127,7 +127,7 @@ describe('RequestAccountForm component', () => {
 
     await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
     await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
-    await userEvent.type(screen.getByLabelText('Email'), 'banks@gmail.com');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@mail.mil');
     await userEvent.type(screen.getByLabelText('Telephone'), '333-333-3333');
     await userEvent.type(screen.getByTestId('officeAccountRequestEdipi'), '1111111111');
     await userEvent.type(screen.getByTestId('officeAccountRequestOtherUniqueId'), '1111111111');
@@ -143,6 +143,41 @@ describe('RequestAccountForm component', () => {
     await userEvent.click(submitButton);
 
     expect(testProps.onSubmit).toHaveBeenCalled();
+  });
+
+  it('Throws error requesting office account with invalid email domanin', async () => {
+    const mockOfficeId = '3210a533-19b8-4805-a564-7eb452afce10';
+    const mockTransportationOffice = {
+      address: {
+        city: 'Test City',
+        country: 'United States',
+        id: 'a13806fc-0e7d-4dc3-91ca-b802d9da50f1',
+        postalCode: '85309',
+        state: 'AZ',
+        streetAddress1: '7383 N Litchfield Rd',
+        streetAddress2: 'Rm 1122',
+      },
+      created_at: '2018-05-28T14:27:39.198Z',
+      gbloc: 'KKFA',
+      id: mockOfficeId,
+      name: 'Tester',
+      phone_lines: [],
+      updated_at: '2018-05-28T14:27:39.198Z',
+    };
+
+    const mockSearchTransportationOfficesOpen = () => Promise.resolve([mockTransportationOffice]);
+    searchTransportationOfficesOpen.mockImplementation(mockSearchTransportationOfficesOpen);
+
+    renderWithRouter(<RequestAccountForm {...testProps} />);
+
+    await userEvent.type(screen.getByLabelText('First Name'), 'Bob');
+    await userEvent.type(screen.getByLabelText('Last Name'), 'Banks');
+    await userEvent.type(screen.getByLabelText('Email'), 'banks@gmail.com');
+
+    const tooCheckbox = screen.getByTestId('taskOrderingOfficerCheckBox');
+    await userEvent.click(tooCheckbox);
+
+    expect(screen.getAllByText('Domain must be .mil, .gov or .edu').length).toBe(1);
   });
 
   it('shows policy error when both TOO and TIO checkboxes are both selected, and goes away after unselecting one of them', async () => {
