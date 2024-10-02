@@ -12,6 +12,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/assets"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -52,6 +53,17 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 		return emails, err
 	}
 
+	destinationAddress := orders.NewDutyLocation.Name
+	isSeparateeRetiree := orders.OrdersType == internalmessages.OrdersTypeRETIREMENT || orders.OrdersType == internalmessages.OrdersTypeSEPARATION
+	if isSeparateeRetiree && len(move.MTOShipments) > 0 {
+		destAddr := *move.MTOShipments[0].DestinationAddress
+		optionalStreetAddress2 := ""
+		if destAddr.StreetAddress2 != nil {
+			optionalStreetAddress2 = *destAddr.StreetAddress2
+		}
+		destinationAddress = fmt.Sprintf("%s %s, %s, %s %s", destAddr.StreetAddress1, optionalStreetAddress2, destAddr.City, destAddr.State, destAddr.PostalCode)
+	}
+
 	originDutyLocation := orders.OriginDutyLocation
 	providesGovernmentCounseling := false
 	if originDutyLocation != nil {
@@ -89,7 +101,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
 		OriginDutyLocation:                originDutyLocationName,
-		DestinationDutyLocation:           orders.NewDutyLocation.Name,
+		DestinationDutyLocation:           destinationAddress,
 		OriginDutyLocationPhoneLine:       originDutyLocationPhoneLine,
 		Locator:                           move.Locator,
 		WeightAllowance:                   humanize.Comma(int64(weight)),

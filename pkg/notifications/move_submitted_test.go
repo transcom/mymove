@@ -50,6 +50,32 @@ func (suite *NotificationSuite) TestMoveSubmittedoriginDSTransportInfoIsNil() {
 	suite.Contains(email.textBody, move.Orders.OriginDutyLocation.Name)
 }
 
+func (suite *NotificationSuite) TestMoveSubmittedDestinationMatchesFirstShipment() {
+	move := factory.BuildMoveWithShipment(suite.DB(), nil, nil)
+	notification := NewMoveSubmitted(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Thank you for submitting your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
+}
+
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounseling() {
 	approver := factory.BuildUser(nil, nil, nil)
 	move := factory.BuildMove(suite.DB(), nil, nil)
