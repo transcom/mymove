@@ -690,7 +690,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createLongLoaSegments(appCtx appconte
 	// pick first one (sorted by FBMC, loa_bgn_dt, tac_fy_txt) inside the service object
 	loa = loas[0]
 
-	if *orders.ServiceMember.Affiliation != models.AffiliationCOASTGUARD {
+	if models.DepartmentIndicator(*orders.DepartmentIndicator) != models.DepartmentIndicatorCOASTGUARD {
 
 		//"HE" - E-1 through E-9 and Special Enlisted
 		//"HO" - O-1 Academy graduate through O-10, W1 - W5, Aviation Cadet, Academy Cadet, and Midshipman

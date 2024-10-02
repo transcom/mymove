@@ -46,18 +46,18 @@ func (d DepartmentIndicator) String() string {
 }
 
 const (
-	// AffiliationARMY captures enum value "ARMY"
+	// DepartmentIndicatorARMY captures enum value "ARMY"
 	DepartmentIndicatorARMY DepartmentIndicator = "ARMY"
-	// AffiliationNAVY captures enum value "NAVY"
-	DepartmentIndicatorNAVY DepartmentIndicator = "NAVY"
-	// AffiliationMARINES captures enum value "MARINES"
-	DepartmentIndicatorMARINES DepartmentIndicator = "MARINES"
-	// AffiliationAIRFORCE captures enum value "AIR_FORCE"
-	DepartmentIndicatorAIRFORCE DepartmentIndicator = "AIR_FORCE"
-	// AffiliationCOASTGUARD captures enum value "COAST_GUARD"
+	// DepartmentIndicatorARMYCORPSOFENGINEERS captures enum value "ARMY_CORPS_OF_ENGINEERS"
+	DepartmentIndicatorARMYCORPSOFENGINEERS DepartmentIndicator = "ARMY_CORPS_OF_ENGINEERS"
+	// DepartmentIndicatorCOASTGUARD captures enum value "COAST_GUARD"
 	DepartmentIndicatorCOASTGUARD DepartmentIndicator = "COAST_GUARD"
-	// AffiliationCOASTGUARD captures enum value "SPACE_FORCE"
-	DepartmentIndicatorSPACEFORCE DepartmentIndicator = "SPACE_FORCE"
+	// DepartmentIndicatorNAVYANDMARINES captures enum value "NAVY_AND_MARINES"
+	DepartmentIndicatorNAVYANDMARINES DepartmentIndicator = "NAVY_AND_MARINES"
+	// DepartmentIndicatorAIRANDSPACEFORCE captures enum value "AIR_AND_SPACE_FORCE"
+	DepartmentIndicatorAIRANDSPACEFORCE DepartmentIndicator = "AIR_AND_SPACE_FORCE"
+	// DepartmentIndicatorOFFICEOFSECRETARYOFDEFENSE captures enum value "OFFICE_OF_SECRETARY_OF_DEFENSE"
+	DepartmentIndicatorOFFICEOFSECRETARYOFDEFENSE DepartmentIndicator = "OFFICE_OF_SECRETARY_OF_DEFENSE"
 )
 
 // Order is a set of orders received by a service member
