@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { unSupportedStates } from '../constants/states';
+import { getUnSupportedStates } from '../constants/states';
 
 import { ValidateZipRateData } from 'shared/api';
 
@@ -55,7 +55,9 @@ export const UnsupportedStateErrorMsg = 'Moves to this state are not supported a
 export const IsSupportedState = async (value) => {
   const selectedState = value;
 
-  const found = unSupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
+  const unsupportedStates = await getUnSupportedStates();
+
+  const found = unsupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
 
   if (found) {
     return false;
