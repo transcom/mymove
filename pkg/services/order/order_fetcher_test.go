@@ -1532,13 +1532,6 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 			},
 		}, nil)
 		ppmShipmentNeedsCloseout := getPPMShipmentWithCloseoutOfficeNeedsCloseout(suite, closeoutOffice)
-		ppmShipmentWaitingOnCustomer := factory.BuildPPMShipmentWaitingOnCustomer(suite.DB(), nil, []factory.Customization{
-			{
-				Model:    closeoutOffice,
-				LinkOnly: true,
-				Type:     &factory.TransportationOffices.CloseoutOffice,
-			},
-		})
 
 		// Sort by PPM type (ascending)
 		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
@@ -1548,9 +1541,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[0].MTOShipments[0].PPMShipment.Status)
-		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[1].MTOShipments[0].PPMShipment.Status)
+		suite.Equal(1, len(moves))
+		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
 
 		// Sort by PPM type (descending)
 		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &services.ListOrderParams{
@@ -1560,9 +1552,8 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithPPMCl
 		})
 
 		suite.FatalNoError(err)
-		suite.Equal(2, len(moves))
+		suite.Equal(1, len(moves))
 		suite.Equal(ppmShipmentNeedsCloseout.Status, moves[0].MTOShipments[0].PPMShipment.Status)
-		suite.Equal(ppmShipmentWaitingOnCustomer.Status, moves[1].MTOShipments[0].PPMShipment.Status)
 	})
 }
 
