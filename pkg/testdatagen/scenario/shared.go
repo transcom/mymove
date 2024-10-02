@@ -361,7 +361,7 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 	// If not ready for closeout, just submit the shipment
 	ppmShipmentStatus := models.PPMShipmentStatusSubmitted
 	if readyForCloseout {
-		ppmShipmentStatus = models.PPMShipmentStatusWaitingOnCustomer
+		ppmShipmentStatus = models.PPMShipmentStatusNeedsCloseout
 	}
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
