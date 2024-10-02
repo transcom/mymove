@@ -106,10 +106,22 @@ const needsCounselingMoves = {
         },
         originGBLOC: 'LKNQ',
         assignedTo: {
-          id: 'exampleId1',
-          firstname: 'Jimmy',
-          lastname: 'John',
+          officeUserId: 'exampleId1',
+          firstName: 'Jimmy',
+          lastName: 'John',
         },
+        availableOfficeUsers: [
+          {
+            officeUserId: 'exampleId1',
+            firstName: 'Jimmy',
+            lastName: 'John',
+          },
+          {
+            officeUserId: 'exampleId2',
+            firstName: 'John',
+            lastName: 'Denver',
+          },
+        ],
       },
       {
         id: 'move2',
@@ -130,10 +142,22 @@ const needsCounselingMoves = {
         originGBLOC: 'LKNQ',
         counselingOffice: '',
         assignedTo: {
-          id: 'exampleId2',
-          firstname: 'John',
-          lastname: 'Denver',
+          officeUserId: 'exampleId2',
+          firstName: 'John',
+          lastName: 'Denver',
         },
+        availableOfficeUsers: [
+          {
+            officeUserId: 'exampleId1',
+            firstName: 'Jimmy',
+            lastName: 'John',
+          },
+          {
+            officeUserId: 'exampleId2',
+            firstName: 'John',
+            lastName: 'Denver',
+          },
+        ],
       },
       {
         id: 'move3',
@@ -152,10 +176,22 @@ const needsCounselingMoves = {
         },
         originGBLOC: 'LKNQ',
         assignedTo: {
-          id: 'exampleId1',
-          firstname: 'Jimmy',
-          lastname: 'John',
+          officeUserId: 'exampleId1',
+          firstName: 'Jimmy',
+          lastName: 'John',
         },
+        availableOfficeUsers: [
+          {
+            officeUserId: 'exampleId1',
+            firstName: 'Jimmy',
+            lastName: 'John',
+          },
+          {
+            officeUserId: 'exampleId2',
+            firstName: 'John',
+            lastName: 'Denver',
+          },
+        ],
       },
     ],
   },

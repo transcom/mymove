@@ -125,43 +125,43 @@ describe('formatOfficeUser', () => {
   it('should format the office users row where the assigned user of the row is not already part of availableOfficeUsers', () => {
     // get the row data
     // row assigned to should contain a different value than available
-    const needsCounselingRowWithNewAssignedUser = { ...needsCounselingMoves };
-    needsCounselingRowWithNewAssignedUser.queueResult.data[0].availableOfficeUsers = availableOfficeUsers;
-    needsCounselingRowWithNewAssignedUser.queueResult.data[0].assignedTo = {
-      firstname: 'Adam',
-      lastname: 'Sandler',
+    const needsCounselingRowWithNewAssignedUser = { ...needsCounselingMoves.queueResult.data[0] };
+    needsCounselingRowWithNewAssignedUser.availableOfficeUsers = availableOfficeUsers;
+    needsCounselingRowWithNewAssignedUser.assignedTo = {
+      firstName: 'Adam',
+      lastName: 'Sandler',
       officeUserId: '9101112',
     };
 
     const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(
       needsCounselingRowWithNewAssignedUser,
+      true,
+      'CurrentUser123',
     );
-    expect(formattedAvailableOfficeUsers[3].officeUserId).toBe('9101112');
-    expect(formattedAvailableOfficeUsers[3].firstName).toBe('Adam');
-    expect(formattedAvailableOfficeUsers[3].lastName).toBe('Sandler');
-    expect(assignedToUser).toBe('9101112');
-    expect(assignedToUser).toBe('Adam');
-    expect(assignedToUser).toBe('Sandler');
+    expect(formattedAvailableOfficeUsers[4].props.value).toBe('9101112');
+    expect(formattedAvailableOfficeUsers[4].props.children).toBe('Sandler, Adam');
+    expect(assignedToUser.value).toBe('9101112');
+    expect(assignedToUser.label).toBe('Sandler, Adam');
   });
   it('should format the office users row where the assigned user of the row is already part of availableOfficeUsers', () => {
     // get the row data
     // row assigned to should contain a different value than available
-    const needsCounselingRowWithNewAssignedUser = { ...needsCounselingMoves };
-    needsCounselingRowWithNewAssignedUser.queueResult.data[0].availableOfficeUsers = availableOfficeUsers;
-    needsCounselingRowWithNewAssignedUser.queueResult.data[0].assignedTo = {
-      firstname: 'Current',
-      lastname: 'User',
+    const needsCounselingRowWithNewAssignedUser = { ...needsCounselingMoves.queueResult.data[0] };
+    needsCounselingRowWithNewAssignedUser.availableOfficeUsers = availableOfficeUsers;
+    needsCounselingRowWithNewAssignedUser.assignedTo = {
+      firstName: 'Current',
+      lastName: 'User',
       officeUserId: '123456',
     };
 
     const { formattedAvailableOfficeUsers, assignedToUser } = formatAvailableOfficeUsersForRow(
       needsCounselingRowWithNewAssignedUser,
+      true,
+      'CurrentUser123',
     );
-    expect(formattedAvailableOfficeUsers[3].officeUserId).toBe('9101112');
-    expect(formattedAvailableOfficeUsers[3].firstName).toBe('Adam');
-    expect(formattedAvailableOfficeUsers[3].lastName).toBe('Sandler');
-    expect(assignedToUser).toBe('123456');
-    expect(assignedToUser).toBe('Current');
-    expect(assignedToUser).toBe('User');
+    expect(formattedAvailableOfficeUsers[3].props.value).toBe('123456');
+    expect(formattedAvailableOfficeUsers[3].props.children).toBe('User, Current');
+    expect(assignedToUser.value).toBe('123456');
+    expect(assignedToUser.label).toBe('User, Current');
   });
 });
