@@ -204,6 +204,24 @@ paths:
                     estimatedWeight: 4999
                     hasProGear: false
                     sitExpected: false
+              boat:
+                summary: Boat Shipment
+                value:
+                  boatShipment:
+                    hasTrailer: true
+                    heightFeet: 2
+                    heightInches: 2
+                    isRoadworthy: false
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: HAUL_AWAY
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -761,6 +779,45 @@ definitions:
       - sitExpected
       - estimatedWeight
       - hasProGear
+  CreateBoatShipment:
+    description: >-
+      Creation object containing the `PPM` shipmentType specific data, not used
+      for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Boat
+      make:
+        type: string
+        description: Make of the Boat
+      model:
+        type: string
+        description: Model of the Boat
+      lengthInInches:
+        type: integer
+        description: Length of the Boat in inches
+      widthInInches:
+        type: integer
+        description: Width of the Boat in inches
+      heightInInches:
+        type: integer
+        description: Height of the Boat in inches
+      hasTrailer:
+        type: boolean
+        description: Does the boat have a trailer
+      isRoadworthy:
+        type: boolean
+        description: Is the trailer roadworthy
+        x-nullable: true
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
+      - hasTrailer
   MTOShipment:
     type: object
     properties:
@@ -1374,6 +1431,11 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      isOconus:
+        type: boolean
+        title: isOconus
+        x-nullable: true
+        example: false
     required:
       - streetAddress1
       - city
