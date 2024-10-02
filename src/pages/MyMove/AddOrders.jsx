@@ -74,6 +74,8 @@ const AddOrders = ({
       updateOrders(createdOrders);
       const updatedServiceMember = await getServiceMember(serviceMemberId);
       updateServiceMember(updatedServiceMember);
+      setMoveId(createdOrders?.moves[0].id);
+      setCanAddOrders(false);
       navigate(`/orders/upload/${newOrderId}`);
     } catch (error) {
       const { response } = error;
