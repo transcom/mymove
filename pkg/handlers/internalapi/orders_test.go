@@ -95,68 +95,6 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.NotEmpty(createdOrder.NAICS)
 }
 
-// ------------------------------------------------------------------------------------------
-// below is the test i made (light copy of above) in order to cover lines 247-249 and 252 in orders.go
-// When i add the counseling office to the test above it failed and raised an error, i am unsure why
-// so i made this function and just expected the raised error. I do however get a "unhandled data..."
-// error message.
-//
-//	-----------------------------------------------------------------------------------------
-func (suite *HandlerSuite) TestCreateOrderWithCounselingOffice() {
-	sm := factory.BuildExtendedServiceMember(suite.DB(), nil, nil)
-
-	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
-		{
-			Model: models.DutyLocation{
-				Name: "Not Yuma AFB",
-			},
-		},
-	}, nil)
-	dutyLocation := factory.FetchOrBuildCurrentDutyLocation(suite.DB())
-	factory.FetchOrBuildPostalCodeToGBLOC(suite.DB(), dutyLocation.Address.PostalCode, "KKFA")
-	factory.FetchOrBuildDefaultContractor(suite.DB(), nil, nil)
-
-	req := httptest.NewRequest("POST", "/orders", nil)
-	req = suite.AuthenticateRequest(req, sm)
-
-	hasDependents := true
-	spouseHasProGear := true
-	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
-	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
-	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
-	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:        handlers.FmtBool(hasDependents),
-		SpouseHasProGear:     handlers.FmtBool(spouseHasProGear),
-		IssueDate:            handlers.FmtDate(issueDate),
-		ReportByDate:         handlers.FmtDate(reportByDate),
-		OrdersType:           internalmessages.NewOrdersType(ordersType),
-		OriginDutyLocationID: *handlers.FmtUUIDPtr(&originDutyLocation.ID),
-		NewDutyLocationID:    handlers.FmtUUID(dutyLocation.ID),
-		ServiceMemberID:      handlers.FmtUUID(sm.ID),
-		OrdersNumber:         handlers.FmtString("123456"),
-		Tac:                  handlers.FmtString("E19A"),
-		Sac:                  handlers.FmtString("SacNumber"),
-		DepartmentIndicator:  internalmessages.NewDeptIndicator(deptIndicator),
-		Grade:                models.ServiceMemberGradeE1.Pointer(),
-		CounselingOfficeID:   handlers.FmtUUID(dutyLocation.ID), // added line but breaks
-	}
-
-	params := ordersop.CreateOrdersParams{
-		HTTPRequest:  req,
-		CreateOrders: payload,
-	}
-
-	fakeS3 := storageTest.NewFakeS3Storage(true)
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetFileStorer(fakeS3)
-	createHandler := CreateOrdersHandler{handlerConfig}
-
-	response := createHandler.Handle(params)
-
-	suite.Assertions.IsType(&handlers.ErrResponse{}, response)
-}
-
 func (suite *HandlerSuite) TestShowOrder() {
 	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
 		{
