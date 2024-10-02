@@ -15,7 +15,7 @@ const addAssignedOfficeUser = (users, assignedTo) => {
 };
 
 export const formatAvailableOfficeUsers = (users, isSupervisor, currentUserId) => {
-  if (!users.length || isSupervisor === undefined || currentUserId === undefined) return [];
+  if (!users?.length || isSupervisor === undefined || currentUserId === undefined) return [];
 
   // instantiate array with empty value for unassign purposes down the road
   const newAvailableOfficeUsers = [{ label: DEFAULT_EMPTY_VALUE, value: null }];
