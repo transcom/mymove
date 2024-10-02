@@ -4666,7 +4666,7 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
+      departmentIndicator:
         $ref: 'definitions/DepartmentIndicator.yaml'
       effectiveDate:
         description: >

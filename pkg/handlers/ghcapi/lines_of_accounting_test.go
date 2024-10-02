@@ -120,10 +120,10 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			}
 
 			// Handle nil body
-			var serviceMemberAffiliation *ghcmessages.Affiliation
+			var departmentIndicator *ghcmessages.DepartmentIndicator
 			if tc.serviceMemberAffiliation != nil {
-				affiliation := ghcmessages.Affiliation(*tc.serviceMemberAffiliation)
-				serviceMemberAffiliation = &affiliation
+				affiliation := ghcmessages.DepartmentIndicator(*tc.serviceMemberAffiliation)
+				departmentIndicator = &affiliation
 			}
 
 			var effectiveDate strfmt.Date
@@ -139,9 +139,9 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			var body *ghcmessages.FetchLineOfAccountingPayload
 			if !tc.shouldTheBodyBeCompletelyNil {
 				body = &ghcmessages.FetchLineOfAccountingPayload{
-					ServiceMemberAffiliation: serviceMemberAffiliation,
-					EffectiveDate:            effectiveDate,
-					TacCode:                  tacCode,
+					DepartmentIndicator: departmentIndicator,
+					EffectiveDate:       effectiveDate,
+					TacCode:             tacCode,
 				}
 			}
 
@@ -164,13 +164,13 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
-		affiliation := ghcmessages.Affiliation(models.AffiliationARMY)
+		departmentIndicator := ghcmessages.DepartmentIndicator(models.AffiliationARMY)
 		params := linesofaccountingop.RequestLineOfAccountingParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
-				ServiceMemberAffiliation: &affiliation,
-				EffectiveDate:            strfmt.Date(time.Now()),
-				TacCode:                  "MOCK",
+				DepartmentIndicator: &departmentIndicator,
+				EffectiveDate:       strfmt.Date(time.Now()),
+				TacCode:             "MOCK",
 			},
 		}
 
@@ -187,13 +187,13 @@ func (suite *HandlerSuite) TestLinesOfAccountingRequestLineOfAccountingHandler()
 			LineOfAccountingFetcher: mockLoaFetcher,
 		}
 		req := httptest.NewRequest("POST", "/lines-of-accounting", nil)
-		affiliation := ghcmessages.Affiliation(models.AffiliationARMY)
+		departmentIndicator := ghcmessages.DepartmentIndicator(models.AffiliationARMY)
 		params := linesofaccountingop.RequestLineOfAccountingParams{
 			HTTPRequest: req,
 			Body: &ghcmessages.FetchLineOfAccountingPayload{
-				ServiceMemberAffiliation: &affiliation,
-				EffectiveDate:            strfmt.Date(time.Now()),
-				TacCode:                  "MOCK",
+				DepartmentIndicator: &departmentIndicator,
+				EffectiveDate:       strfmt.Date(time.Now()),
+				TacCode:             "MOCK",
 			},
 		}
 

@@ -340,6 +340,8 @@ func init() {
         "SPACE_FORCE",
         "NAVY_AND_MARINES",
         "AIR_AND_SPACE_FORCE",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE",
         "OTHER"
       ],
       "x-display-value": {
@@ -1023,6 +1025,8 @@ func init() {
         "SPACE_FORCE",
         "NAVY_AND_MARINES",
         "AIR_AND_SPACE_FORCE",
+        "ARMY_CORPS_OF_ENGINEERS",
+        "OFFICE_OF_SECRETARY_OF_DEFENSE",
         "OTHER"
       ],
       "x-display-value": {
