@@ -34,6 +34,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	state := "FL"
 	postalcode := "33621"
 	country := "US"
+	countryId, _ := uuid.NewV4()
 	county := "HILLSBOROUGH"
 
 	expectedAddress := models.Address{
@@ -43,7 +44,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		City:           city,
 		State:          state,
 		PostalCode:     postalcode,
-		Country:        &country,
+		CountryId:      &countryId,
 		County:         county,
 	}
 
@@ -113,7 +114,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -122,7 +123,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -131,7 +132,7 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89501",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
@@ -244,7 +245,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -253,7 +254,7 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -308,7 +309,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -317,7 +318,7 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		Country:        models.StringPointer("United States"),
+		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 

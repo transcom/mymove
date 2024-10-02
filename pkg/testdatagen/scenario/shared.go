@@ -277,7 +277,7 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -2578,7 +2578,7 @@ func CreateMoveWithCloseOut(appCtx appcontext.AppContext, userUploader *uploader
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -3820,7 +3820,7 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -3835,7 +3835,7 @@ func createUnsubmittedHHGMoveMultiplePickup(appCtx appcontext.AppContext) {
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -3929,7 +3929,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -3944,7 +3944,7 @@ func createSubmittedHHGMoveMultiplePickupAmendedOrders(appCtx appcontext.AppCont
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -6413,7 +6413,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -6428,7 +6428,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				City:           "Princeton",
 				State:          "NJ",
 				PostalCode:     "08540",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -6471,7 +6471,7 @@ func createMoveWithHHGAndNTSRPaymentRequest(appCtx appcontext.AppContext, userUp
 				City:           "Houston",
 				State:          "TX",
 				PostalCode:     "77083",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -7546,7 +7546,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -7561,7 +7561,7 @@ func createMoveWith2ShipmentsAndPaymentRequest(appCtx appcontext.AppContext, use
 				City:           "Princeton",
 				State:          "NJ",
 				PostalCode:     "08540",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		},
 	}, nil)
@@ -10148,7 +10148,7 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 				City:           "Columbia",
 				State:          "SC",
 				PostalCode:     "29212",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 			Type: &factory.Addresses.DutyLocationAddress,
 		},

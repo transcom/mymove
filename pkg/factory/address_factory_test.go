@@ -166,7 +166,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
-					Country:        models.StringPointer("Canada"),
+					CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 					County:         "County",
 				},
 				LinkOnly: true,

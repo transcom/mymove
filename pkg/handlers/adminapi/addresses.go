@@ -16,7 +16,7 @@ func payloadForAddressModel(a *models.Address) *adminmessages.Address {
 		City:           models.StringPointer(a.City),
 		State:          models.StringPointer(a.State),
 		PostalCode:     models.StringPointer(a.PostalCode),
-		Country:        a.Country,
+		Country:        &a.Country.Country,
 		County:         &a.County,
 	}
 }

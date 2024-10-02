@@ -1605,7 +1605,7 @@ func (suite *OrderServiceSuite) TestListOrdersNeedingServicesCounselingWithGBLOC
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "89898",
-					Country:        models.StringPointer("United States"),
+					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 			},
 		}, nil)

@@ -197,7 +197,7 @@ func Address(address *models.Address) *primev3messages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        &address.Country.Country,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 		County:         &address.County,
 	}

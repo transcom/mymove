@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -35,14 +36,12 @@ func (suite *PlannerSuite) TestUrlencodeAddress() {
 	}
 }
 
-var usaStr = "USA"
-
 var realAddressSource = models.Address{
 	StreetAddress1: "",
 	City:           "Joint Base Lewis-McChord",
 	State:          "WA",
 	PostalCode:     "98438",
-	Country:        &usaStr,
+	CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 }
 
 var realAddressDestination = models.Address{
@@ -50,7 +49,7 @@ var realAddressDestination = models.Address{
 	City:           "Washington",
 	State:          "DC",
 	PostalCode:     "20001",
-	Country:        &usaStr,
+	CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 }
 
 // TestAddressPlanner is an expensive test which calls out to the Bing API.

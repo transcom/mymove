@@ -721,7 +721,7 @@ func (suite *PayloadsSuite) TestStorageFacility() {
 			City:           dummy,
 			State:          dummy,
 			PostalCode:     dummy,
-			Country:        &dummy,
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		},
 		Email:        &email,
 		FacilityName: facilityName,

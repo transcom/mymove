@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"github.com/gofrs/uuid"
+
 	m "github.com/transcom/mymove/pkg/models"
 )
 
@@ -57,7 +59,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        m.StringPointer("United States"),
+		CountryId:      m.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 	countryCode, err = usaCountry.CountryCode()
 	suite.NoError(err)
@@ -70,7 +72,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		Country:        m.StringPointer("US"),
+		CountryId:      m.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         "county",
 	}
 	countryCode, err = usCountry.CountryCode()
@@ -85,7 +87,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		State:          "state",
 		PostalCode:     "90210",
 		County:         "county",
-		Country:        m.StringPointer("Ireland"),
+		CountryId:      m.UUIDPointer(uuid.Must(uuid.NewV4())),
 	}
 
 	countryCode, err = notUsaCountry.CountryCode()

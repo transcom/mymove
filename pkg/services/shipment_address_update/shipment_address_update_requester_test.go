@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -85,7 +86,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Fairfield",
 			State:          "CA",
 			PostalCode:     "94535",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -113,7 +114,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     shipment.DestinationAddress.PostalCode,
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		suite.NotEmpty(move.MTOShipments)
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt.Add(-1)))
@@ -141,7 +142,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
 		suite.Error(err)
@@ -155,7 +156,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
@@ -195,7 +196,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		shipment := factory.BuildNTSShipment(suite.DB(), []factory.Customization{
 			{
@@ -214,7 +215,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		storageFacility := factory.BuildStorageFacility(suite.DB(), nil, nil)
 		shipment := factory.BuildNTSRShipment(suite.DB(), []factory.Customization{
@@ -239,7 +240,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     shipment.DestinationAddress.PostalCode,
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -285,7 +286,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -345,7 +346,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "89503",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		update, err := addressUpdateRequester.RequestShipmentDeliveryAddressUpdate(suite.AppContextForTest(), shipment.ID, newAddress, "we really need to change the address", etag.GenerateEtag(shipment.UpdatedAt))
@@ -422,7 +423,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "89503",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		move := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{
@@ -485,7 +486,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Albuquerque",
 			State:          "NM",
 			PostalCode:     "87053",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		mockPlanner.On("ZipTransitDistance",
@@ -517,7 +518,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestCreateApprovedShipmentAddres
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), nil, nil)
@@ -668,7 +669,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 					City:           "New York",
 					State:          "NY",
 					PostalCode:     "10001",
-					Country:        models.StringPointer("US"),
+					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 				Type: &factory.Addresses.OriginalAddress,
 			},
@@ -680,7 +681,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 					City:           "New York",
 					State:          "NY",
 					PostalCode:     "10001",
-					Country:        models.StringPointer("US"),
+					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 				Type: &factory.Addresses.NewAddress,
 			},
@@ -814,7 +815,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "89503",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
@@ -885,7 +886,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "89503",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
@@ -922,7 +923,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     shipment.DestinationAddress.PostalCode,
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		mockPlanner.On("ZipTransitDistance",
 			mock.AnythingOfType("*appcontext.appContext"),
@@ -980,7 +981,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "89503",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 
 		// Trigger the prime address update to get move in correct state for DLH -> DSH
@@ -1022,7 +1023,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			City:           "Beverly Hills",
 			State:          "CA",
 			PostalCode:     "90210",
-			Country:        models.StringPointer("United States"),
+			CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		}
 		move := setupTestData()
 		shipment := factory.BuildMTOShipmentWithMove(&move, suite.DB(), []factory.Customization{

@@ -63,7 +63,7 @@ func transformNilValuesForOptionalFields(address models.Address) models.Address 
 		transformedAddress.StreetAddress3 = nil
 	}
 
-	if transformedAddress.Country != nil && *transformedAddress.Country == "" {
+	if transformedAddress.Country != nil && transformedAddress.Country.Country == "" {
 		transformedAddress.Country = nil
 	}
 

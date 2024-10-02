@@ -596,7 +596,7 @@ func FormatAddress(w2Address *models.Address) string {
 			nilOrValue(w2Address.StreetAddress3),
 			w2Address.City,
 			w2Address.State,
-			nilOrValue(w2Address.Country),
+			nilOrValue(&w2Address.Country.Country),
 			w2Address.PostalCode,
 		)
 	} else {

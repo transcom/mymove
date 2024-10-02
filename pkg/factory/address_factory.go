@@ -2,6 +2,7 @@ package factory
 
 import (
 	"github.com/gobuffalo/pop/v6"
+	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -31,7 +32,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        models.StringPointer("US"),
+		CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 		County:         "LOS ANGELES",
 	}
 
@@ -80,7 +81,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		City:           "Fort Gorden",
 		State:          "GA",
 		PostalCode:     "30813",
-		Country:        models.StringPointer("US"),
+		CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 	}
 
 	// Overwrite values with those from customizations
@@ -110,7 +111,7 @@ func GetTraitAddress2() []Customization {
 				City:           "Fairfield",
 				State:          "CA",
 				PostalCode:     "94535",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}
@@ -127,7 +128,7 @@ func GetTraitAddress3() []Customization {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50309",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}
@@ -144,7 +145,7 @@ func GetTraitAddress4() []Customization {
 				City:           "Houston",
 				State:          "TX",
 				PostalCode:     "77083",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}

@@ -424,7 +424,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
+					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -436,7 +436,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					Country:        models.StringPointer("US"),
+					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -451,7 +451,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -460,7 +460,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		}
 
@@ -1174,7 +1174,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
-				Country:        models.StringPointer(""),
+				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)

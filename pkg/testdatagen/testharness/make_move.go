@@ -852,7 +852,7 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}, nil)
@@ -865,7 +865,7 @@ func MakePrimeSimulatorMoveSameBasePointCity(appCtx appcontext.AppContext) model
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}, nil)
@@ -3891,7 +3891,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Miami Gardens",
 				State:          "FL",
 				PostalCode:     "33169",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}, nil)
@@ -3904,7 +3904,7 @@ func MakeMoveWithPPMShipmentReadyForFinalCloseout(appCtx appcontext.AppContext) 
 				City:           "Key West",
 				State:          "FL",
 				PostalCode:     "33040",
-				Country:        models.StringPointer("US"),
+				CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 			},
 		},
 	}, nil)

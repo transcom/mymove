@@ -179,7 +179,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderUpdater_UpdateStatusSer
 					City:           "Houston",
 					State:          "TX",
 					PostalCode:     "77083",
-					Country:        models.StringPointer("US"),
+					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 			},
 		}, nil)
