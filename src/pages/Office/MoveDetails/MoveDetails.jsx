@@ -6,7 +6,6 @@ import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
 
 import styles from '../TXOMoveInfo/TXOTab.module.scss';
-import 'styles/office.scss';
 
 import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
@@ -387,32 +386,33 @@ const MoveDetails = ({
               initialSelection={move?.financialReviewFlag}
             />
           )}
-          <Grid row className={styles.pageHeader}>
-            {alertMessage && (
-              <Grid col={12} className={styles.alertContainer}>
-                <Alert headingLevel="h4" slim type={alertType}>
-                  {alertMessage}
-                </Alert>
-              </Grid>
-            )}
-          </Grid>
+          {alertMessage && (
+            <Grid col={12} className={styles.alertContainer}>
+              <Alert headingLevel="h4" slim type={alertType}>
+                {alertMessage}
+              </Alert>
+            </Grid>
+          )}
           {!isMoveLocked && (
             <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown
-                ariaLabel="Add a new shipment"
-                data-testid="addShipmentButton"
-                onChange={handleButtonDropdownChange}
-              >
-                <option value="" label="Add a new shipment">
-                  Add a new shipment
-                </option>
-                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                  HHG
-                </option>
-                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-              </ButtonDropdown>
+              <div className={styles.div}>
+                <ButtonDropdown
+                  className={styles.buttonDropdown}
+                  ariaLabel="Add a new shipment"
+                  data-testid="addShipmentButton"
+                  onChange={handleButtonDropdownChange}
+                >
+                  <option value="" label="Add a new shipment">
+                    Add a new shipment
+                  </option>
+                  <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                    HHG
+                  </option>
+                  <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+                  <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                  <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                </ButtonDropdown>
+              </div>
             </Restricted>
           )}
           {submittedShipments?.length > 0 && (
