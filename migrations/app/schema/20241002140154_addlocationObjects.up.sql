@@ -43,8 +43,8 @@ COMMENT ON COLUMN re_us_post_region.uspr_zip_id IS 'The unique 5 digit zip code'
 COMMENT ON COLUMN re_us_post_region.state IS 'The 2 character US state code references re_state';
 COMMENT ON COLUMN re_us_post_region.zip3 IS 'The first 3 digits of the zip code';
 
-ALTER TABLE us_post_region_cities
-DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
+--ALTER TABLE us_post_region_cities
+--DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
 
 COMMENT ON COLUMN addresses.is_oconus IS 'Indicates if address is OCONUS';
 
