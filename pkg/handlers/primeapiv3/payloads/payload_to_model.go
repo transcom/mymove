@@ -129,6 +129,11 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		return nil, verrs
 	}
 
+	if mtoShipment.MoveTaskOrderID == nil {
+		verrs.Add("mtoShipment", "MoveTaskOrderID is nil.")
+		return nil, verrs
+	}
+
 	var divertedFromShipmentID *uuid.UUID
 	if mtoShipment.DivertedFromShipmentID != "" {
 		// Create the UUID in memory so it can be referenced
@@ -215,7 +220,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.BoatShipment.Shipment = *model
 	}
 
-	return model, verrs
+	return model, nil
 }
 
 // Non SIT Address update Model
