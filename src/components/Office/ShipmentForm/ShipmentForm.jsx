@@ -62,6 +62,7 @@ import {
   formatMobileHomeShipmentForDisplay,
   formatMobileHomeShipmentForAPI,
   formatBoatShipmentForDisplay,
+  formatBoatShipmentForAPI,
 } from 'utils/formatMtoShipment';
 import { formatWeight, dropdownInputOptions } from 'utils/formatters';
 import { validateDate } from 'utils/validation';
@@ -559,6 +560,15 @@ const ShipmentForm = (props) => {
       pendingMtoShipment = {
         ...pendingMtoShipment,
         ...mobileHomeShipmentBody,
+      };
+    }
+
+    // Boat Shipment
+    if (isBoat) {
+      const boatShipmentBody = formatBoatShipmentForAPI(formValues);
+      pendingMtoShipment = {
+        ...pendingMtoShipment,
+        ...boatShipmentBody,
       };
     }
 
