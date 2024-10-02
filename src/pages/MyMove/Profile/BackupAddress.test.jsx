@@ -72,11 +72,11 @@ describe('BackupAddress page', () => {
 
     const { getByRole, getByLabelText } = render(<BackupAddress {...testProps} />);
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.type(getByLabelText(/City/), fakeAddress.city);
+    await userEvent.selectOptions(getByLabelText(/State/), [fakeAddress.state]);
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
     const submitButton = getByRole('button', { name: 'Next' });
@@ -104,7 +104,7 @@ describe('BackupAddress page', () => {
 
     const { getByLabelText, getByText } = render(<BackupAddress {...testProps} />);
 
-    await userEvent.type(getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     await userEvent.type(getByLabelText('City'), fakeAddress.city);
     await userEvent.selectOptions(getByLabelText('State'), 'HI');
@@ -114,13 +114,13 @@ describe('BackupAddress page', () => {
     let msg = getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
 
-    await userEvent.selectOptions(getByLabelText('State'), 'AL');
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.selectOptions(getByLabelText(/State/), 'AL');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
     expect(msg).not.toBeVisible();
 
-    await userEvent.selectOptions(getByLabelText('State'), 'HI');
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
     msg = getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();

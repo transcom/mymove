@@ -117,9 +117,9 @@ describe('PaymentRequestQueue', () => {
   it('renders the queue results text', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.queryByText('Payment requests (1)')).toBeInTheDocument();
   });
@@ -127,9 +127,9 @@ describe('PaymentRequestQueue', () => {
   it('renders the table with data and expected values', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.getByRole('cell', { name: 'Spacemen, Leo' })).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '3305957632' })).toBeInTheDocument();
@@ -184,9 +184,9 @@ describe('PaymentRequestQueue', () => {
   it('displays the payment request ', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // Simulate user input and form submission
     const searchInput = screen.getByTestId('searchText');
@@ -200,9 +200,9 @@ describe('PaymentRequestQueue', () => {
   it(' renders Search and Payment Request Queue tabs', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.getByTestId('payment-request-queue-tab-link')).toBeInTheDocument();
     expect(screen.getByTestId('search-tab-link')).toBeInTheDocument();
@@ -210,9 +210,9 @@ describe('PaymentRequestQueue', () => {
   it('renders SearchResultsTable when Search tab is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.queryByTestId('payment-request-queue')).not.toBeInTheDocument();
     expect(screen.queryByTestId('move-search')).toBeInTheDocument();
@@ -220,9 +220,9 @@ describe('PaymentRequestQueue', () => {
   it('renders TableQueue when Payment Request Queue tab is selected', () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     expect(screen.queryByTestId('payment-request-queue')).toBeInTheDocument();
     expect(screen.queryByTestId('move-search')).not.toBeInTheDocument();
@@ -230,9 +230,9 @@ describe('PaymentRequestQueue', () => {
   it('submits search form and displays search results', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // Simulate user input and form submission
     const searchInput = screen.getByTestId('searchText');
@@ -245,9 +245,9 @@ describe('PaymentRequestQueue', () => {
   it('searches by Move Code and displays possible filters for status', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // Simulate user input and form submission
     const searchSelection = screen.getByLabelText('Move Code');
@@ -264,9 +264,9 @@ describe('PaymentRequestQueue', () => {
   it('searches by Customer Name', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // Simulate user input and form submission
     const searchSelection = screen.getByLabelText('Move Code');
@@ -283,9 +283,9 @@ describe('PaymentRequestQueue', () => {
   it('searches by DOD ID', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // Simulate user input and form submission
     const searchSelection = screen.getByLabelText('Customer Name');
@@ -302,9 +302,9 @@ describe('PaymentRequestQueue', () => {
   it('searches by Move Code and displays possible filters for status', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // Simulate user input and form submission
     const searchSelection = screen.getByLabelText('Payment Request Number');
@@ -321,9 +321,9 @@ describe('PaymentRequestQueue', () => {
   it('has 4 options for searches', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: generalRoutes.QUEUE_SEARCH_PATH });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // This pattern allows minimal test changes if the search options were ever to change.
     SEARCH_OPTIONS.forEach((option) => expect(screen.findByLabelText(option)));
@@ -331,9 +331,9 @@ describe('PaymentRequestQueue', () => {
   it('only displays payment requests with a status of Payment Requested', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: tioRoutes.PAYMENT_REQUEST_QUEUE });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     // expect Payment requested status to appear in the TIO queue
     expect(screen.queryByText('Payment requested')).toBeInTheDocument();
@@ -346,9 +346,9 @@ describe('PaymentRequestQueue', () => {
   it('renders a 404 if a bad route is provided', async () => {
     reactRouterDom.useParams.mockReturnValue({ queueType: 'BadRoute' });
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await expect(screen.getByText('Error - 404')).toBeInTheDocument();
     await expect(screen.getByText("We can't find the page you're looking for")).toBeInTheDocument();
@@ -358,9 +358,9 @@ describe('PaymentRequestQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(true);
 
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');
@@ -372,9 +372,9 @@ describe('PaymentRequestQueue', () => {
     isBooleanFlagEnabled.mockResolvedValue(false);
 
     render(
-      <reactRouterDom.BrowserRouter>
+      <MockProviders>
         <PaymentRequestQueue />
-      </reactRouterDom.BrowserRouter>,
+      </MockProviders>,
     );
     await waitFor(() => {
       const lockIcon = screen.queryByTestId('lock-icon');

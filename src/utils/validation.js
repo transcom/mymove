@@ -98,30 +98,33 @@ export const phoneSchema = Yup.string().matches(
   'Please enter a valid phone number. Phone numbers must be entered as ###-###-####.',
 ); // min 12 includes hyphens
 
+export const OfficeAccountRequestEmailSchema = Yup.string().matches(
+  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+[.]{1}(?<!gov|edu|mil)(gov|edu|mil)(?!gov|edu|mil)$/,
+  'Domain must be .mil, .gov or .edu',
+);
+
 export const emailSchema = Yup.string().matches(
   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,}$/,
   'Must be a valid email address',
 );
 
-const validatePreferredContactMethod = (value, testContext) => {
-  return testContext.parent.phone_is_preferred || testContext.parent.email_is_preferred;
+export const preferredContactMethodValidation = (value) => {
+  return (
+    value?.phone_is_preferred ||
+    value?.email_is_preferred ||
+    new Yup.ValidationError('Please select a preferred method of contact.', null, 'preferredContactMethod')
+  );
 };
 
-export const contactInfoSchema = Yup.object().shape({
-  telephone: phoneSchema.required('Required'),
-  secondary_telephone: phoneSchema,
-  personal_email: emailSchema.required('Required'),
-  phone_is_preferred: Yup.bool().test(
-    'contactMethodRequired',
-    'Please select a preferred method of contact.',
-    validatePreferredContactMethod,
-  ),
-  email_is_preferred: Yup.bool().test(
-    'contactMethodRequired',
-    'Please select a preferred method of contact.',
-    validatePreferredContactMethod,
-  ),
-});
+export const contactInfoSchema = Yup.object()
+  .shape({
+    telephone: phoneSchema.required('Required'),
+    secondary_telephone: phoneSchema,
+    personal_email: emailSchema.required('Required'),
+    phone_is_preferred: Yup.bool(),
+    email_is_preferred: Yup.bool(),
+  })
+  .test('contactMethodRequired', 'Please select a preferred method of contact.', preferredContactMethodValidation);
 
 export const backupContactInfoSchema = Yup.object().shape({
   name: Yup.string().required('Required'),
@@ -236,7 +239,7 @@ export const officeAccountRequestSchema = Yup.object().shape({
     .matches(/^[A-Za-z0-9]+$/, otherUniqueIdErrorMsg)
     .test('officeAccountRequestOtherUniqueId', 'Required if not using DODID#', validateOtherUniqueId),
   officeAccountRequestTelephone: phoneSchema.required('Required'),
-  officeAccountRequestEmail: emailSchema.required('Required'),
+  officeAccountRequestEmail: OfficeAccountRequestEmailSchema.required('Required'),
   officeAccountTransportationOffice: Yup.object().required('Required'),
   taskOrderingOfficerCheckBox: Yup.bool()
     .test('roleRequestedRequired', 'You must select at least one role.', validateRoleRequestedMethod)
