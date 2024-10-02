@@ -106,9 +106,9 @@ describe('BackupAddress page', () => {
 
     await userEvent.type(getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(getByLabelText('State'), 'HI');
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.type(getByLabelText(/City/), fakeAddress.city);
+    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
     let msg = getByText('Moves to this state are not supported at this time.');
