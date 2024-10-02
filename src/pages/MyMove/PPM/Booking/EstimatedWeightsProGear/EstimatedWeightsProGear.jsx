@@ -79,8 +79,11 @@ const EstimatedWeightsProGear = () => {
               <Alert headingLevel="h4" slim type="error">
                 {errorCode === 400 || errorCode === 500 ? (
                   <p>
-                    {errorMessage} If the error persists, please try again later, or contact the
-                    <Link to={technicalHelpDeskURL}> Technical Help Desk</Link>.
+                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                      Technical Help Desk
+                    </Link>
+                    .
                   </p>
                 ) : (
                   { errorMessage }
