@@ -42,6 +42,10 @@ type Address struct {
 	// Format: uuid
 	ID strfmt.UUID `json:"id,omitempty"`
 
+	// isOconus
+	// Example: false
+	IsOconus *bool `json:"isOconus,omitempty"`
+
 	// ZIP
 	// Example: 90210
 	// Required: true
