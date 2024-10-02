@@ -2797,7 +2797,7 @@ func (suite *GHCInvoiceSuite) TestUseTacToFindLoa() {
 			},
 		}, nil)
 
-		// Update service member affiliation to Army
+		// Update Department Indicator to Army
 		testCaseDepartmentIndicator := string(models.DepartmentIndicatorARMY)
 		move.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
 		paymentRequest.MoveTaskOrder.Orders.DepartmentIndicator = &testCaseDepartmentIndicator
