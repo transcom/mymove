@@ -24,7 +24,7 @@ let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
   const [dutyLocation, setDutyLocation] = useState('');
-  const [counselingOfficeOptions, setcounselingOfficeOptions] = useState(null);
+  const [counselingOfficeOptions, setCounselingOfficeOptions] = useState(null);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -50,7 +50,7 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
           key: item.id,
           value: item.name,
         }));
-        setcounselingOfficeOptions(counselingOffices);
+        setCounselingOfficeOptions(counselingOffices);
       }
     });
   }, [dutyLocation]);
