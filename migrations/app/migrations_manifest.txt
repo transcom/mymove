@@ -1001,3 +1001,4 @@
 20240917165710_update_duty_locations_provides_services_counseling.up.sql
 20241002140154_addlocationObjects.up.sql
 20241002140444_populateReCountry.up.sql
+20241002140539_populateStates.up.sql
