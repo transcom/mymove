@@ -72,7 +72,7 @@ flags:
   rollouts:
   - segment:
       key: mil-app
-      value: true
+      value: false
 - key: okta_dodid_input
   name: Customer DODID input being pulled from Okta and disabling text input
   type: BOOLEAN_FLAG_TYPE
