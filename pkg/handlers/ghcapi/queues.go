@@ -133,7 +133,7 @@ func (h GetMovesQueueHandler) Handle(params queues.GetMovesQueueParams) middlewa
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves)
+			queueMoves := payloads.QueueMoves(moves, nil)
 			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
@@ -370,7 +370,9 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				CounselingOffice:        params.CounselingOffice,
 			}
 
+			var requestedPpmStatus models.PPMShipmentStatus
 			if params.NeedsPPMCloseout != nil && *params.NeedsPPMCloseout {
+				requestedPpmStatus = models.PPMShipmentStatusNeedsCloseout
 				ListOrderParams.Status = []string{string(models.MoveStatusAPPROVED), string(models.MoveStatusServiceCounselingCompleted)}
 			} else if len(params.Status) == 0 {
 				ListOrderParams.Status = []string{string(models.MoveStatusNeedsServiceCounseling)}
@@ -445,7 +447,7 @@ func (h GetServicesCounselingQueueHandler) Handle(
 				}
 			}
 
-			queueMoves := payloads.QueueMoves(moves)
+			queueMoves := payloads.QueueMoves(moves, &requestedPpmStatus)
 			availableOfficeUsers := payloads.QueueAvailableOfficeUsers(officeUsers)
 
 			result := &ghcmessages.QueueMovesResult{
