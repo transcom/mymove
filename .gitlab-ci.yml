@@ -305,7 +305,7 @@ push_migrations_gov_dev:
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
     # Push the migrations Docker image to ECR
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations" --destination "${ECR_REPOSITORY_URI}/app-migrations:$CI_COMMIT_SHORT_SHA"
     # - /kaniko/executor
     #   --context "${CI_PROJECT_DIR}/"
     #   --dockerfile "${CI_PROJECT_DIR}/Dockerfile.migrations"
@@ -326,7 +326,7 @@ push_app_gov_dev:
     - mkdir -p /kaniko/.docker
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "${ECR_REPOSITORY_URI}/app:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile" --destination "${ECR_REPOSITORY_URI}/app:$CI_COMMIT_SHORT_SHA"
     # - /kaniko/executor
     #   --context "${CI_PROJECT_DIR}/"
     #   --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
@@ -346,7 +346,7 @@ push_tasks_gov_dev:
      - mkdir -p /kaniko/.docker
      - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:latest"
+    - /kaniko/executor --context "${CI_PROJECT_DIR}/" --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks" --destination "${ECR_REPOSITORY_URI}/app-tasks:$CI_COMMIT_SHORT_SHA"
     #- /kaniko/executor
     #  --context "${CI_PROJECT_DIR}/"
     #  --dockerfile "${CI_PROJECT_DIR}/Dockerfile.tasks"
