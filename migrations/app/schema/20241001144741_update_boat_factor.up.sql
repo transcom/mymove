@@ -6,7 +6,7 @@ UPDATE re_shipment_type_prices AS rstp SET factor = 45.77 FROM re_services AS rs
 INSERT INTO service_item_param_keys
 (id, key,description,type,origin,created_at,updated_at)
 VALUES
-('b03af5dc-7701-4e22-a986-d1889a2a8f27', 'DomesticBoatTowAwayFactor', 'Domestic Boat Tow-Away Factor applied to calculation (if applicable)', 'DECIMAL', 'PRICER', now(), now());
+('b03af5dc-7701-4e22-a986-d1889a2a8f27', 'DomesticBoatTowAwayFactor', 'Domestic Boat Tow-Away Factor applied to calculation (if applicable)', 'DECIMAL', 'PRICER', now(), now()),
 ('add5114b-2a23-4e23-92b3-6dd0778dfc33', 'DomesticBoatHaulAwayFactor', 'Domestic Boat Haul-Away Factor applied to calculation (if applicable)', 'DECIMAL', 'PRICER', now(), now());
 
 -- Map to service item
