@@ -11,7 +11,7 @@ import (
 
 // TransportationAssignment is the transportation office the OfficeUser is assigned to
 type TransportationAssignment struct {
-	UserID                 *uuid.UUID           `json:"user_id" db:"user_id"`
+	ID                     uuid.UUID            `json:"id" db:"id"`
 	TransportationOfficeID uuid.UUID            `json:"transportation_office_id" db:"transportation_office_id"`
 	TransportationOffice   TransportationOffice `belongs_to:"transportation_office" fk_id:"transportation_office_id"`
 	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
