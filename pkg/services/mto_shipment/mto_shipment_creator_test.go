@@ -683,8 +683,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
@@ -727,8 +725,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
@@ -790,8 +786,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
@@ -873,8 +867,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
@@ -917,8 +909,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},
@@ -961,8 +951,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			shipmentType models.MTOShipmentType
 		}{
 			{"HHG", models.MTOShipmentTypeHHG},
-			{"INTERNATIONAL_HHG", models.MTOShipmentTypeInternationalHHG},
-			{"INTERNATIONAL_UB", models.MTOShipmentTypeInternationalUB},
 			{"HHG_INTO_NTS_DOMESTIC", models.MTOShipmentTypeHHGIntoNTSDom},
 			{"HHG_OUTOF_NTS_DOMESTIC", models.MTOShipmentTypeHHGOutOfNTSDom},
 			{"MOBILE_HOME", models.MTOShipmentTypeMobileHome},

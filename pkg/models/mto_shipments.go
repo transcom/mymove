@@ -26,10 +26,6 @@ const (
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
-	// MTOShipmentTypeInternationalHHG is a Shipment Type for International HHG
-	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
-	// MTOShipmentTypeInternationalUB is a Shipment Type for International UB
-	MTOShipmentTypeInternationalUB MTOShipmentType = "INTERNATIONAL_UB"
 	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic

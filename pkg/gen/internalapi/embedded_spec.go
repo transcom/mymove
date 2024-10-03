@@ -4834,8 +4834,6 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -13439,8 +13437,6 @@ func init() {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
-        "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
