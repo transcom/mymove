@@ -15,11 +15,8 @@ import { permissionTypes } from 'constants/permissions';
 import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
 import { tooRoutes } from 'constants/routes';
 
-const mockRequestedMoveCode = 'TE5TC0DE';
-
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
-  useOrdersDocumentQueries: jest.fn(),
 }));
 
 const setUnapprovedShipmentCount = jest.fn();
@@ -30,6 +27,7 @@ const setMissingOrdersInfoCount = jest.fn();
 const setShipmentErrorConcernCount = jest.fn();
 
 const mockNavigate = jest.fn();
+const mockRequestedMoveCode = 'TE5TC0DE';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useParams: () => ({ moveCode: mockRequestedMoveCode }),
