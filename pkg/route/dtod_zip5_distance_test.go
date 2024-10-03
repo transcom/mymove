@@ -8,10 +8,10 @@ import (
 	"github.com/tiaguinho/gosoap"
 
 	"github.com/transcom/mymove/pkg/apperror"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route/ghcmocks"
 )
 
-const dtodComment = "We are unable to calculate your distance. It may be that you have entered an invalid ZIP Code, or the system that calculates distance (DTOD) may be down. Please check your ZIP Code to ensure it was entered correctly and is not a PO Box."
 const distanceResponseTemplate = `<ProcessRequestResponse xmlns="https://dtod.sddc.army.mil/service/">
   <ProcessRequestResult>
 	<Date>2020-12-22T16:09:41.7847017+00:00</Date>
@@ -98,7 +98,7 @@ func (suite *GHCTestSuite) TestDTODZip5DistanceFake() {
 				suite.Error(err)
 				switch err.(type) {
 				case apperror.EventError:
-					suite.Equal(err.Error(), dtodComment)
+					suite.Equal(err.Error(), notifications.DtodErrorMessage)
 				}
 			} else {
 				suite.NoError(err)
