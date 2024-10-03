@@ -288,6 +288,7 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 
 			switch serviceItem.MTOServiceItem.ReService.Name {
 			case "Domestic linehaul":
+				linehaulTotal += totalPrice
 			case "Domestic shorthaul":
 				linehaulTotal += totalPrice
 			case "Move management":
