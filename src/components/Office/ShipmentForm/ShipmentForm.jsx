@@ -14,6 +14,7 @@ import ppmShipmentSchema from './ppmShipmentSchema';
 import styles from './ShipmentForm.module.scss';
 import MobileHomeShipmentForm from './MobileHomeShipmentForm/MobileHomeShipmentForm';
 import mobileHomeShipmentSchema from './MobileHomeShipmentForm/mobileHomeShipmentSchema';
+import BoatShipmentForm from './BoatShipmentForm/BoatShipmentForm';
 import boatShipmentSchema from './BoatShipmentForm/boatShipmentSchema';
 
 import ppmStyles from 'components/Customer/PPM/PPM.module.scss';
@@ -854,6 +855,19 @@ const ShipmentForm = (props) => {
                 {isTOO && !isHHG && !isPPM && !isBoat && !isMobileHome && <ShipmentVendor />}
 
                 {isNTSR && <ShipmentWeightInput userRole={userRole} />}
+
+                {isBoat && (
+                  <BoatShipmentForm
+                    lengthHasError={lengthHasError}
+                    widthHasError={widthHasError}
+                    heightHasError={heightHasError}
+                    values={values}
+                    setFieldTouched={setFieldTouched}
+                    setFieldError={setFieldError}
+                    validateForm={validateForm}
+                    dimensionError={dimensionError}
+                  />
+                )}
 
                 {isMobileHome && (
                   <MobileHomeShipmentForm
