@@ -269,7 +269,8 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('modal')).toBeVisible();
       let modal = page.getByTestId('modal');
       // Storage facility info
-      await modal.locator('#facilityName').clear();
+      const facilityName = modal.locator('#facilityName');
+      await facilityName.clear();
       await modal.locator('#facilityName').fill('New Facility Name');
       await modal.locator('#facilityPhone').clear();
       await modal.locator('#facilityPhone').fill('999-999-9999');
