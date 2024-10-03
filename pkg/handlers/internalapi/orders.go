@@ -342,6 +342,24 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationID = &originDutyLocationID
 			}
 
+			moveID, err := uuid.FromString(payload.MoveID.String())
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
+			if err != nil {
+				return handlers.ResponseForError(appCtx.Logger(), err), err
+			}
+			counselingOfficeID := uuid.FromStringOrNil(payload.CounselingOfficeID.String())
+			if move.CounselingOfficeID != &counselingOfficeID {
+				move.CounselingOfficeID = &counselingOfficeID
+
+				verrs, err := models.SaveMoveDependencies(appCtx.DB(), move)
+				if err != nil || verrs.HasAny() {
+					return handlers.ResponseForError(appCtx.Logger(), err), err
+				}
+			}
+
 			if payload.OrdersType == nil {
 				errMsg := "missing required field: OrdersType"
 				return handlers.ResponseForError(appCtx.Logger(), errors.New(errMsg)), apperror.NewBadDataError("missing required field: OrdersType")

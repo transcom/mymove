@@ -33,6 +33,8 @@ const EditOrdersForm = ({
   ordersTypeOptions,
   onCancel,
 }) => {
+  const [officeOptions, setOfficeOptions] = useState(null);
+  const [dutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const validationSchema = Yup.object().shape({
     orders_type: Yup.mixed()
       .oneOf(ordersTypeOptions.map((i) => i.key))
@@ -58,6 +60,9 @@ const EditOrdersForm = ({
       .min(1),
     grade: Yup.mixed().oneOf(Object.keys(ORDERS_PAY_GRADE_OPTIONS)).required('Required'),
     origin_duty_location: Yup.object().nullable().required('Required'),
+    counseling_office_id: dutyLocation.provides_services_counseling
+      ? Yup.string().required('Required')
+      : Yup.string().notRequired(),
   });
 
   const enableDelete = () => {
@@ -65,8 +70,6 @@ const EditOrdersForm = ({
     return isValuePresent;
   };
 
-  const [officeOptions, setOfficeOptions] = useState(null);
-  const [dutyLocation, setDutyLocation] = useState(initialValues.origin_duty_location);
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
   useEffect(() => {

@@ -70,6 +70,9 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 	if move.PrimeCounselingCompletedAt != nil {
 		movePayload.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 	}
+	if move.CounselingOfficeID != nil {
+		movePayload.CounselingOfficeID = *handlers.FmtUUID(*move.CounselingOfficeID)
+	}
 	return movePayload, nil
 }
 
@@ -101,27 +104,30 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 		if move.CloseoutOffice != nil {
 			closeOutOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
 		}
-		var counselingOffice internalmessages.TransportationOffice
-		if move.CounselingOffice != nil {
-			counselingOffice = *payloads.TransportationOffice(*move.CloseoutOffice)
-
-		}
 
 		currentMove := &internalmessages.InternalMove{
-			CreatedAt:        *handlers.FmtDateTime(move.CreatedAt),
-			ETag:             eTag,
-			ID:               moveID,
-			Status:           string(move.Status),
-			MtoShipments:     *payloadShipments,
-			MoveCode:         move.Locator,
-			Orders:           orders,
-			CloseoutOffice:   &closeOutOffice,
-			SubmittedAt:      handlers.FmtDateTimePtr(move.SubmittedAt),
-			CounselingOffice: &counselingOffice,
+			CreatedAt:      *handlers.FmtDateTime(move.CreatedAt),
+			ETag:           eTag,
+			ID:             moveID,
+			Status:         string(move.Status),
+			MtoShipments:   *payloadShipments,
+			MoveCode:       move.Locator,
+			Orders:         orders,
+			CloseoutOffice: &closeOutOffice,
+			SubmittedAt:    handlers.FmtDateTimePtr(move.SubmittedAt),
 		}
 
 		if move.PrimeCounselingCompletedAt != nil {
 			currentMove.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
+		}
+
+		if move.CounselingOfficeID != nil {
+			currentMove.CounselingOfficeID = *handlers.FmtUUID(*move.CounselingOfficeID)
+		}
+		var counselingOffice internalmessages.TransportationOffice
+		if move.CounselingOffice != nil {
+			counselingOffice = *payloads.TransportationOffice(*move.CounselingOffice)
+			currentMove.CounselingOffice = &counselingOffice
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)

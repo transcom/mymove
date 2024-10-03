@@ -25,6 +25,11 @@ type InternalMove struct {
 	// counseling office
 	CounselingOffice *TransportationOffice `json:"counselingOffice,omitempty"`
 
+	// counseling office ID
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	CounselingOfficeID strfmt.UUID `json:"counselingOfficeID,omitempty"`
+
 	// created at
 	// Read Only: true
 	// Format: date-time
@@ -84,6 +89,10 @@ func (m *InternalMove) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCounselingOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -154,6 +163,18 @@ func (m *InternalMove) validateCounselingOffice(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *InternalMove) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counselingOfficeID", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil

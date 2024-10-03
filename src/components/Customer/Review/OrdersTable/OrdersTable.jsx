@@ -19,6 +19,7 @@ const OrdersTable = ({
   originDutyLocationName,
   payGrade,
   orderId,
+  counselingOfficeName,
 }) => {
   const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(orderType);
   const editPath = `/move/${moveId}/review/edit-orders/${orderId}`;
@@ -67,7 +68,7 @@ const OrdersTable = ({
               Counseling office
             </th>
             <td className={reviewStyles['table-divider-top']} style={{ borderBottom: 'none' }}>
-              ADD COUNSELLING OFFICE NAME
+              {counselingOfficeName}
             </td>
           </tr>
           <tr>
