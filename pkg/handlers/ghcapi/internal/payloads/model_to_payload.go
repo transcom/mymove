@@ -2034,7 +2034,7 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, officeID uuid.UUID) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2185,7 +2185,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeID uuid.UUID) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser) *ghcmessages.QueuePaymentRequests {
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
