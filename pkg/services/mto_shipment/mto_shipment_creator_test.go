@@ -691,6 +691,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -734,6 +735,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -796,6 +798,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -878,6 +881,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -921,6 +925,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {
@@ -964,6 +969,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			{"BOAT_HAUL_AWAY", models.MTOShipmentTypeBoatHaulAway},
 			{"BOAT_TOW_AWAY", models.MTOShipmentTypeBoatTowAway},
 			{"PPM", models.MTOShipmentTypePPM},
+			{"UNACCOMPANIED_BAGGAGE", models.MTOShipmentTypeUnaccompaniedBaggage},
 		}
 
 		for _, tt := range testCases {

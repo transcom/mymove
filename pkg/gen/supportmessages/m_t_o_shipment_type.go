@@ -39,6 +39,9 @@ const (
 
 	// MTOShipmentTypeINTERNATIONALUB captures enum value "INTERNATIONAL_UB"
 	MTOShipmentTypeINTERNATIONALUB MTOShipmentType = "INTERNATIONAL_UB"
+
+	// MTOShipmentTypeUNACCOMPANIEDBAGGAGE captures enum value "UNACCOMPANIED_BAGGAGE"
+	MTOShipmentTypeUNACCOMPANIEDBAGGAGE MTOShipmentType = "UNACCOMPANIED_BAGGAGE"
 )
 
 // for schema
@@ -46,7 +49,7 @@ var mTOShipmentTypeEnum []interface{}
 
 func init() {
 	var res []MTOShipmentType
-	if err := json.Unmarshal([]byte(`["HHG","INTERNATIONAL_HHG","INTERNATIONAL_UB"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["HHG","INTERNATIONAL_HHG","INTERNATIONAL_UB","UNACCOMPANIED_BAGGAGE"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

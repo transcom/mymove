@@ -1803,6 +1803,7 @@ definitions:
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   MTOShipment:
     properties:
       moveTaskOrderID:

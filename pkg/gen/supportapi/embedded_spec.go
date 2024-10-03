@@ -1769,12 +1769,14 @@ func init() {
       "enum": [
         "HHG",
         "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "INTERNATIONAL_UB",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },
@@ -4597,12 +4599,14 @@ func init() {
       "enum": [
         "HHG",
         "INTERNATIONAL_HHG",
-        "INTERNATIONAL_UB"
+        "INTERNATIONAL_UB",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "HHG": "HHG",
         "INTERNATIONAL_HHG": "International HHG",
-        "INTERNATIONAL_UB": "International UB"
+        "INTERNATIONAL_UB": "International UB",
+        "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
       },
       "example": "HHG"
     },

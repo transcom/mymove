@@ -1473,10 +1473,12 @@ definitions:
       - HHG
       - INTERNATIONAL_HHG
       - INTERNATIONAL_UB
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
       INTERNATIONAL_HHG: International HHG
       INTERNATIONAL_UB: International UB
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   Order:
     properties:
       id:

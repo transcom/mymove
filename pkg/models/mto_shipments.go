@@ -42,6 +42,8 @@ const (
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 	// MTOShipmentTypePPM is a Shipment Type for Personally Procured Move shipments
 	MTOShipmentTypePPM MTOShipmentType = "PPM"
+	// MTOShipmentTypeUB is a Shipment Type for Unaccompanied Baggage shipments
+	MTOShipmentTypeUnaccompaniedBaggage MTOShipmentType = "UNACCOMPANIED_BAGGAGE"
 )
 
 // These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when
