@@ -101,7 +101,7 @@ func (m MoveSubmitted) emails(appCtx appcontext.AppContext) ([]emailContent, err
 
 	htmlBody, textBody, err := m.renderTemplates(appCtx, moveSubmittedEmailData{
 		OriginDutyLocation:                originDutyLocationName,
-		DestinationDutyLocation:           destinationAddress,
+		DestinationLocation:               destinationAddress,
 		OriginDutyLocationPhoneLine:       originDutyLocationPhoneLine,
 		Locator:                           move.Locator,
 		WeightAllowance:                   humanize.Comma(int64(weight)),
@@ -141,7 +141,7 @@ func (m MoveSubmitted) renderTemplates(appCtx appcontext.AppContext, data moveSu
 
 type moveSubmittedEmailData struct {
 	OriginDutyLocation                *string
-	DestinationDutyLocation           string
+	DestinationLocation               string
 	OriginDutyLocationPhoneLine       *string
 	Locator                           string
 	WeightAllowance                   string

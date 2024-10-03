@@ -154,7 +154,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                &originDutyLocation,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
@@ -266,7 +266,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                &originDutyLocation,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
@@ -365,7 +365,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                nil,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       nil,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
@@ -468,7 +468,7 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                &originDutyLocation,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
