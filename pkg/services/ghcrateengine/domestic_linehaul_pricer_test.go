@@ -52,7 +52,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.setupDomesticLinehaulPrice(dlhTestServiceArea, dlhTestIsPeakPeriod, dlhTestWeightLower, dlhTestWeightUpper, dlhTestMilesLower, dlhTestMilesUpper, dlhTestBasePriceMillicents, dlhTestContractYearName, dlhTestEscalationCompounded)
 		isPPM := false
 		//paymentServiceItem := suite.setupDomesticLinehaulServiceItem()
-		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(dlhPriceCents, priceCents)
 	})
@@ -85,7 +85,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.setupDomesticLinehaulServiceItem()
 		isPPM := true
 		// < 50 mile distance with PPM
-		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea, isPPM)
+		priceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, unit.Miles(49), dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(unit.Cents(10391), priceCents)
 	})
@@ -114,14 +114,14 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		suite.setupDomesticLinehaulServiceItem()
 		isPPM := true
 		// the PPM price for weights < 500 should be prorated from a base of 500
-		basePriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(500), dlhTestServiceArea, isPPM)
+		basePriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(500), dlhTestServiceArea, isPPM, false)
 		suite.NoError(err)
 
-		halfPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(250), dlhTestServiceArea, isPPM)
+		halfPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(250), dlhTestServiceArea, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/2, halfPriceCents)
 
-		fifthPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(100), dlhTestServiceArea, isPPM)
+		fifthPriceCents, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(100), dlhTestServiceArea, isPPM, false)
 		suite.NoError(err)
 		suite.Equal(basePriceCents/5, fifthPriceCents)
 	})
@@ -166,7 +166,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		}
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 		isPPM := false
-		_, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), "BOGUS", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		_, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), "BOGUS", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.Error(err)
 	})
 
@@ -181,26 +181,26 @@ func (suite *GHCRateEngineServiceSuite) TestPriceDomesticLinehaul() {
 		paramsWithBelowMinimumWeight[weightBilledIndex].Value = "200"
 		isPPM := false
 		// No contract code
-		_, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), "", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		_, _, err := linehaulServicePricer.Price(suite.AppContextForTest(), "", dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Equal("ContractCode is required", err.Error())
 
 		// No reference date
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Time{}, dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Equal("ReferenceDate is required", err.Error())
 
 		// No weight
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(0), dlhTestServiceArea, isPPM)
+		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, unit.Pound(0), dlhTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Equal("Weight must be at least 500", err.Error())
 
 		// No service area
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, "", isPPM)
+		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, dlhRequestedPickupDate, dlhTestDistance, dlhTestWeight, "", isPPM, false)
 		suite.Error(err)
 		suite.Equal("ServiceArea is required", err.Error())
 
-		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Date(testdatagen.TestYear+1, 1, 1, 1, 1, 1, 1, time.UTC), dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM)
+		_, _, err = linehaulServicePricer.Price(suite.AppContextForTest(), testdatagen.DefaultContractCode, time.Date(testdatagen.TestYear+1, 1, 1, 1, 1, 1, 1, time.UTC), dlhTestDistance, dlhTestWeight, dlhTestServiceArea, isPPM, false)
 		suite.Error(err)
 		suite.Contains(err.Error(), "could not fetch domestic linehaul rate")
 	})

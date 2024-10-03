@@ -1,7 +1,6 @@
 package routing
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/http/pprof"
@@ -724,7 +723,7 @@ func mountDefaultStaticRoute(appCtx appcontext.AppContext, routingConfig *Config
 
 func mountSessionRoutes(appCtx appcontext.AppContext, routingConfig *Config, baseSite chi.Router, sessionManager auth.SessionManager, fn func(r chi.Router)) {
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(appCtx.Logger(), routingConfig.HandlerConfig.AppNames(), routingConfig.HandlerConfig.SessionManagers())
-	maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(routingConfig.HandlerConfig.UseSecureCookie())
+	// maskedCSRFMiddleware := auth.MaskedCSRFMiddleware(routingConfig.HandlerConfig.UseSecureCookie())
 
 	baseSite.Route("/", func(r chi.Router) {
 		// need to load and save in the session manager before any other
@@ -732,9 +731,9 @@ func mountSessionRoutes(appCtx appcontext.AppContext, routingConfig *Config, bas
 		r.Use(sessionCookieMiddleware)
 		r.Use(middleware.RequestLogger())
 
-		appCtx.Logger().Info("Enabling CSRF protection")
-		r.Use(routingConfig.CSRFMiddleware)
-		r.Use(maskedCSRFMiddleware)
+		// appCtx.Logger().Info("Enabling CSRF protection")
+		// r.Use(routingConfig.CSRFMiddleware)
+		// r.Use(maskedCSRFMiddleware)
 
 		mountAuthRoutes(appCtx, routingConfig, r)
 		// invoke callback to mount session routes
@@ -837,9 +836,9 @@ func InitRouting(serverName string, appCtx appcontext.AppContext, redisPool *red
 	routingConfig *Config, telemetryConfig *telemetry.Config) (http.Handler, error) {
 
 	// check for missing CSRF middleware ASAP
-	if routingConfig.CSRFMiddleware == nil {
-		return nil, errors.New("missing CSRF Middleware")
-	}
+	// if routingConfig.CSRFMiddleware == nil {
+	// 	return nil, errors.New("Missing CSRF Middleware")
+	// }
 
 	// With chi, we have to register all middleware before setting up
 	// routes

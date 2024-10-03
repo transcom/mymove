@@ -20,6 +20,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -3606,7 +3607,7 @@ func MakeHHGMoveWithApprovedNTSShipmentsForTOO(appCtx appcontext.AppContext) mod
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 	for i := range newmove.MTOShipments {
@@ -3710,7 +3711,7 @@ func MakeHHGMoveWithApprovedNTSRShipmentsForTOO(appCtx appcontext.AppContext) mo
 
 	queryBuilder := query.NewQueryBuilder()
 	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
 
 	updatedShipments := make([]*models.MTOShipment, len(newmove.MTOShipments))
 	for i := range newmove.MTOShipments {

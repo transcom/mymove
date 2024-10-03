@@ -885,6 +885,7 @@ type mtoShipmentStatusUpdater struct {
 	builder   UpdateMTOShipmentQueryBuilder
 	siCreator services.MTOServiceItemCreator
 	planner   route.Planner
+	services.FeatureFlagFetcher
 }
 
 // UpdateMTOShipmentStatus updates MTO Shipment Status
@@ -960,7 +961,7 @@ func (o *mtoShipmentStatusUpdater) UpdateMTOShipmentStatus(appCtx appcontext.App
 
 // createShipmentServiceItems creates shipment level service items
 func (o *mtoShipmentStatusUpdater) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	reServiceCodes := reServiceCodesForShipment(*shipment)
+	reServiceCodes := reServiceCodesForShipment(o.FeatureFlagFetcher, *shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.
@@ -1047,7 +1048,7 @@ func fetchShipment(appCtx appcontext.AppContext, shipmentID uuid.UUID, builder U
 	return &shipment, nil
 }
 
-func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCode {
+func reServiceCodesForShipment(flagFetcher services.FeatureFlagFetcher, shipment models.MTOShipment) []models.ReServiceCode {
 	// We will detect the type of shipment we're working with and then call a helper with the correct
 	// default service items that we want created as a side effect.
 	// More info in MB-1140: https://dp3.atlassian.net/browse/MB-1140
@@ -1098,6 +1099,11 @@ func reServiceCodesForShipment(shipment models.MTOShipment) []models.ReServiceCo
 		}
 	case models.MTOShipmentTypeMobileHome:
 		// Need to create: Dom Linehaul, Fuel Surcharge, Dom Origin Price, Dom Destination Price, Dom Mobile Home Factor
+
+		// Check flags to determine if service items have been toggled on or off.
+		// if DOPFeatureFlag, err := flagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, "domestic_mobile_home_origin_price_enabled", map[string]string{}); err != nil{
+
+		// }
 		return []models.ReServiceCode{
 			models.ReServiceCodeDLH,
 			models.ReServiceCodeFSC,
@@ -1198,8 +1204,8 @@ func constructMTOServiceItemModels(shipmentID uuid.UUID, mtoID uuid.UUID, reServ
 }
 
 // NewMTOShipmentStatusUpdater creates a new MTO Shipment Status Updater
-func NewMTOShipmentStatusUpdater(builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner) services.MTOShipmentStatusUpdater {
-	return &mtoShipmentStatusUpdater{builder, siCreator, planner}
+func NewMTOShipmentStatusUpdater(builder UpdateMTOShipmentQueryBuilder, siCreator services.MTOServiceItemCreator, planner route.Planner, fetcher services.FeatureFlagFetcher) services.MTOShipmentStatusUpdater {
+	return &mtoShipmentStatusUpdater{builder, siCreator, planner, fetcher}
 }
 
 // ConflictStatusError returns an error for a conflict in status

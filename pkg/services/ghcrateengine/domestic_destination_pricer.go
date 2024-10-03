@@ -22,7 +22,7 @@ func NewDomesticDestinationPricer() services.DomesticDestinationPricer {
 }
 
 // Price determines the price for the destination service area
-func (p domesticDestinationPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticDestinationPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -105,5 +105,7 @@ func (p domesticDestinationPricer) PriceUsingParams(appCtx appcontext.AppContext
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest, isPPM)
+	var isMobileHome = false
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaDest, isPPM, isMobileHome)
 }

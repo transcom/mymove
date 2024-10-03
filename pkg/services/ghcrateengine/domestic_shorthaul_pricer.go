@@ -28,7 +28,8 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 	referenceDate time.Time,
 	distance unit.Miles,
 	weight unit.Pound,
-	serviceArea string) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
+	serviceArea string,
+	isMobileHome bool) (totalCost unit.Cents, params services.PricingDisplayParams, err error) {
 	// Validate parameters
 	if len(contractCode) == 0 {
 		return 0, nil, errors.New("ContractCode is required")
@@ -60,27 +61,38 @@ func (p domesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCod
 		return 0, nil, fmt.Errorf("could not calculate escalated price: %w", err)
 	}
 
-	escalatedPrice = escalatedPrice * distance.Float64() * weight.ToCWTFloat64()
+	var pricingRateEngineParams services.PricingDisplayParams
+
+	if isMobileHome { // Need to apply mobile home factor to calculation
+		mobileHomeFactorRow, err := fetchShipmentTypePrice(appCtx, contractCode, models.ReServiceCodeDMHF, models.MarketConus)
+		if err != nil {
+			return 0, nil, fmt.Errorf("could not fetch mobile home factor from database: %w", err)
+		}
+
+		escalatedPrice = roundToPrecision(escalatedPrice*mobileHomeFactorRow.Factor, 2)
+
+		// Include mobile home factor in display params
+		pricingRateEngineParams = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domServiceAreaPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: strconv.FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+			{Key: models.ServiceItemParamNameMobileHomeFactor, Value: FormatFloat(mobileHomeFactorRow.Factor, 3)},
+		}
+	} else {
+		escalatedPrice = escalatedPrice * distance.Float64() * weight.ToCWTFloat64()
+
+		// Exclude mobile home factor
+		pricingRateEngineParams = services.PricingDisplayParams{
+			{Key: models.ServiceItemParamNameContractYearName, Value: contractYear.Name},
+			{Key: models.ServiceItemParamNamePriceRateOrFactor, Value: FormatCents(domServiceAreaPrice.PriceCents)},
+			{Key: models.ServiceItemParamNameIsPeak, Value: strconv.FormatBool(isPeakPeriod)},
+			{Key: models.ServiceItemParamNameEscalationCompounded, Value: FormatEscalation(contractYear.EscalationCompounded)},
+		}
+	}
+
 	totalCost = unit.Cents(math.Round(escalatedPrice))
 
-	var pricingRateEngineParams = services.PricingDisplayParams{
-		{
-			Key:   models.ServiceItemParamNameContractYearName,
-			Value: contractYear.Name,
-		},
-		{
-			Key:   models.ServiceItemParamNamePriceRateOrFactor,
-			Value: FormatCents(domServiceAreaPrice.PriceCents),
-		},
-		{
-			Key:   models.ServiceItemParamNameIsPeak,
-			Value: strconv.FormatBool(isPeakPeriod),
-		},
-		{
-			Key:   models.ServiceItemParamNameEscalationCompounded,
-			Value: FormatEscalation(contractYear.EscalationCompounded),
-		},
-	}
 	return totalCost, pricingRateEngineParams, nil
 }
 
@@ -110,5 +122,7 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 		return unit.Cents(0), nil, err
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin)
+	var isMobileHome = false
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin, isMobileHome)
 }

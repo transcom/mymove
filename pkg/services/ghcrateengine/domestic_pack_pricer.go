@@ -18,7 +18,7 @@ func NewDomesticPackPricer() services.DomesticPackPricer {
 }
 
 // Price determines the price for a domestic pack service
-func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM)
 }
 
@@ -52,5 +52,7 @@ func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, param
 		isPPM = true
 	}
 
-	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleOrigin, isPPM)
+	var isMobileHome = false
+
+	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleOrigin, isPPM, isMobileHome)
 }

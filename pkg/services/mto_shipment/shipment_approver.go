@@ -20,15 +20,17 @@ type shipmentApprover struct {
 	siCreator   services.MTOServiceItemCreator
 	planner     route.Planner
 	moveWeights services.MoveWeights
+	services.FeatureFlagFetcher
 }
 
 // NewShipmentApprover creates a new struct with the service dependencies
-func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights) services.ShipmentApprover {
+func NewShipmentApprover(router services.ShipmentRouter, siCreator services.MTOServiceItemCreator, planner route.Planner, moveWeights services.MoveWeights, featureFlagFetcher services.FeatureFlagFetcher) services.ShipmentApprover {
 	return &shipmentApprover{
 		router,
 		siCreator,
 		planner,
 		moveWeights,
+		featureFlagFetcher,
 	}
 }
 
@@ -174,7 +176,7 @@ func (f *shipmentApprover) setRequiredDeliveryDate(appCtx appcontext.AppContext,
 }
 
 func (f *shipmentApprover) createShipmentServiceItems(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
-	reServiceCodes := reServiceCodesForShipment(*shipment)
+	reServiceCodes := reServiceCodesForShipment(f.FeatureFlagFetcher, *shipment)
 	serviceItemsToCreate := constructMTOServiceItemModels(shipment.ID, shipment.MoveTaskOrderID, reServiceCodes)
 	for _, serviceItem := range serviceItemsToCreate {
 		copyOfServiceItem := serviceItem // Make copy to avoid implicit memory aliasing of items from a range statement.

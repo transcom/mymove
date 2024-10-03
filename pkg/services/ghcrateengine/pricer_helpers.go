@@ -193,6 +193,7 @@ func priceDomesticAdditionalDaysSIT(appCtx appcontext.AppContext, additionalDayS
 
 func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDeliverySITCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipOriginal string, zipActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	var sitType, sitModifier, zipOriginalName, zipActualName string
+	var isMobileHome = false
 	if pickupDeliverySITCode == models.ReServiceCodeDDDSIT {
 		sitType = "destination"
 		sitModifier = "delivery"
@@ -265,7 +266,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 	if zip3Original == zip3Actual {
 		// Do a normal shorthaul calculation
 		shorthaulPricer := NewDomesticShorthaulPricer()
-		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea)
+		totalPriceCents, displayParams, err := shorthaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isMobileHome)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price shorthaul: %w", err)
 		}
@@ -281,7 +282,7 @@ func priceDomesticPickupDeliverySIT(appCtx appcontext.AppContext, pickupDelivery
 		linehaulPricer := NewDomesticLinehaulPricer()
 		// TODO: This will need adjusting once SIT is implemented for PPMs
 		isPPM := false
-		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM)
+		totalPriceCents, displayParams, err := linehaulPricer.Price(appCtx, contractCode, referenceDate, distance, weight, serviceArea, isPPM, isMobileHome)
 		if err != nil {
 			return unit.Cents(0), nil, fmt.Errorf("could not price linehaul: %w", err)
 		}

@@ -16,6 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	mockservices "github.com/transcom/mymove/pkg/services/mocks"
 	shipmentmocks "github.com/transcom/mymove/pkg/services/mocks"
 	moverouter "github.com/transcom/mymove/pkg/services/move"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
@@ -94,8 +95,8 @@ func (suite *MTOShipmentServiceSuite) createApproveShipmentSubtestData() (subtes
 	subtestData.planner = &mocks.Planner{}
 	subtestData.moveWeights = moverouter.NewMoveWeights(NewShipmentReweighRequester())
 
-	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights)
-	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights)
+	subtestData.shipmentApprover = NewShipmentApprover(router, siCreator, subtestData.planner, subtestData.moveWeights, mockservices.NewFeatureFlagFetcher(suite.T()))
+	subtestData.mockedShipmentApprover = NewShipmentApprover(subtestData.mockedShipmentRouter, siCreator, subtestData.planner, subtestData.moveWeights, mockservices.NewFeatureFlagFetcher(suite.T()))
 	subtestData.appCtx = suite.AppContextWithSessionForTest(&auth.Session{
 		ApplicationName: auth.OfficeApp,
 		OfficeUserID:    uuid.Must(uuid.NewV4()),

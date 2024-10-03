@@ -157,6 +157,8 @@ const (
 	ServiceItemParamNameUncappedRequestTotal ServiceItemParamName = "UncappedRequestTotal"
 	// ServiceItemParamNameLockedPriceCents is the param key name LockedPriceCents
 	ServiceItemParamNameLockedPriceCents ServiceItemParamName = "LockedPriceCents"
+	// ServiceItemParamNameMobileHomeFactor is the param key name MobileHomeFactor
+	ServiceItemParamNameMobileHomeFactor ServiceItemParamName = "MobileHomeFactor"
 )
 
 // ServiceItemParamType is a type of service item parameter

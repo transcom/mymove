@@ -1758,6 +1758,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	planner := &mocks.Planner{}
+	featureFlagFetcher := mockservices.NewFeatureFlagFetcher(suite.T())
 	var TransitDistancePickupArg string
 	var TransitDistanceDestinationArg string
 	planner.On("ZipTransitDistance",
@@ -1770,7 +1771,7 @@ func (suite *MTOShipmentServiceSuite) TestUpdateMTOShipmentStatus() {
 	})
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
 
-	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner, featureFlagFetcher)
 
 	suite.Run("If the mtoShipment is approved successfully it should create approved mtoServiceItems", func() {
 		setupTestData()
@@ -2914,13 +2915,14 @@ func (suite *MTOShipmentServiceSuite) TestUpdateStatusServiceItems() {
 	builder := query.NewQueryBuilder()
 	moveRouter := moveservices.NewMoveRouter()
 	planner := &mocks.Planner{}
+	featureFlagFetcher := mockservices.NewFeatureFlagFetcher(suite.T())
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
 		mock.Anything,
 	).Return(400, nil)
 	siCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, builder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
-	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner)
+	updater := NewMTOShipmentStatusUpdater(builder, siCreator, planner, featureFlagFetcher)
 
 	suite.Run("Shipments with different origin/destination ZIP3 have longhaul service item", func() {
 		setupTestData()

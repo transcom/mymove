@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
+	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
 	mtoserviceitem "github.com/transcom/mymove/pkg/services/mto_service_item"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
@@ -4230,7 +4231,7 @@ func createHHGWithOriginSITServiceItems(
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "30813").Return(2361, nil)
 
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
@@ -4495,7 +4496,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "30813").Return(2361, nil)
 
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
@@ -4926,7 +4927,7 @@ func createHHGWithPaymentServiceItems(
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(400, nil).Times(3)
 
 	for _, shipment := range []models.MTOShipment{longhaulShipment, shorthaulShipment, shipmentWithOriginalWeight, shipmentWithOriginalAndReweighWeight, shipmentWithOriginalAndReweighWeightReweihBolded, shipmentWithOriginalReweighAndAdjustedWeight, shipmentWithOriginalAndAdjustedWeight} {
-		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner)
+		shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
 		_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 		if updateErr != nil {
 			logger.Fatal("Error updating shipment status", zap.Error(updateErr))

@@ -93,6 +93,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 	fetcher := fetch.NewFetcher(queryBuilder)
 	moveRouter := moverouter.NewMoveRouter()
 	planner := &routemocks.Planner{}
+	featureFlagFetcher := &mocks.FeatureFlagFetcher{}
 	planner.On("ZipTransitDistance",
 		mock.AnythingOfType("*appcontext.appContext"),
 		mock.Anything,
@@ -109,7 +110,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentStatusHandler() {
 		mock.Anything,
 		mock.Anything,
 	).Return(1000, nil)
-	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner)
+	updater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, siCreator, planner, featureFlagFetcher)
 
 	setupHandler := func() UpdateMTOShipmentStatusHandlerFunc {
 		return UpdateMTOShipmentStatusHandlerFunc{
