@@ -17,6 +17,7 @@ import { DropdownInput } from 'components/form/fields/DropdownInput';
  * @param formikFunctionsToValidatePostalCodeOnChange If you are intending to validate the postal code on change, you
  * will need to pass the handleChange and setFieldTouched Formik functions through in an object here.
  * See ResidentialAddressForm for an example.
+ * @param isAddress1Required boolean to display labelHint if Optional(when not required)
  * @return {JSX.Element}
  * @constructor
  */
@@ -27,6 +28,7 @@ export const AddressFields = ({
   render,
   validators,
   formikFunctionsToValidatePostalCodeOnChange,
+  isAddress1Required,
 }) => {
   const addressFieldsUUID = useRef(uuidv4());
 
@@ -63,12 +65,18 @@ export const AddressFields = ({
     );
   }
 
+  let address1LabelHint = '';
+  if (!isAddress1Required) {
+    address1LabelHint = 'Optional';
+  }
+
   return (
     <Fieldset legend={legend} className={className}>
       {render(
         <>
           <TextField
             label="Address 1"
+            labelHint={`${address1LabelHint}`}
             id={`mailingAddress1_${addressFieldsUUID.current}`}
             name={`${name}.streetAddress1`}
             validate={validators?.streetAddress1}
@@ -128,6 +136,7 @@ AddressFields.propTypes = {
     handleChange: PropTypes.func,
     setFieldTouched: PropTypes.func,
   }),
+  isAddress1Required: PropTypes.bool,
 };
 
 AddressFields.defaultProps = {
@@ -136,6 +145,7 @@ AddressFields.defaultProps = {
   render: (fields) => fields,
   validators: {},
   formikFunctionsToValidatePostalCodeOnChange: null,
+  isAddress1Required: true,
 };
 
 export default AddressFields;

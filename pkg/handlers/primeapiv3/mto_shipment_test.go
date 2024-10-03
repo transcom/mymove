@@ -94,6 +94,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
 	var destinationAddress primev3messages.Address
+	var ppmDestinationAddress primev3messages.PPMDestinationAddress
 	var secondaryDestinationAddress primev3messages.Address
 
 	creator := paymentrequest.NewPaymentRequestCreator(planner, ghcrateengine.NewServiceItemPricer())
@@ -251,6 +252,15 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			StreetAddress2: expectedDestinationAddress.StreetAddress2,
 			StreetAddress3: expectedDestinationAddress.StreetAddress3,
 		}
+		ppmDestinationAddress = primev3messages.PPMDestinationAddress{
+			City:           &expectedDestinationAddress.City,
+			Country:        expectedDestinationAddress.Country,
+			PostalCode:     &expectedDestinationAddress.PostalCode,
+			State:          &expectedDestinationAddress.State,
+			StreetAddress1: &expectedDestinationAddress.StreetAddress1,
+			StreetAddress2: expectedDestinationAddress.StreetAddress2,
+			StreetAddress3: expectedDestinationAddress.StreetAddress3,
+		}
 
 		expectedSecondaryDestinationAddress := address2
 		secondaryDestinationAddress = primev3messages.Address{
@@ -270,10 +280,12 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 				ShipmentType:     primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypePPM),
 				CounselorRemarks: &counselorRemarks,
 				PpmShipment: &primev3messages.CreatePPMShipment{
-					ExpectedDepartureDate:       handlers.FmtDate(expectedDepartureDate),
-					PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
-					SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
-					DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+					ExpectedDepartureDate:  handlers.FmtDate(expectedDepartureDate),
+					PickupAddress:          struct{ primev3messages.Address }{pickupAddress},
+					SecondaryPickupAddress: struct{ primev3messages.Address }{secondaryPickupAddress},
+					DestinationAddress: struct {
+						primev3messages.PPMDestinationAddress
+					}{ppmDestinationAddress},
 					SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
 					SitExpected:                 &sitExpected,
 					SitLocation:                 &sitLocation,

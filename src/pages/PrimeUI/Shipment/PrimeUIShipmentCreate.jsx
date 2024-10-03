@@ -18,7 +18,7 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import { isEmpty, isValidWeight } from 'shared/utils';
 import { formatAddressForPrimeAPI, formatSwaggerDate } from 'utils/formatters';
 import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import PrimeUIShipmentCreateForm from 'pages/PrimeUI/Shipment/PrimeUIShipmentCreateForm';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
@@ -223,7 +223,7 @@ const PrimeUIShipmentCreate = ({ setFlashMessage }) => {
             .typeError('Invalid date. Must be in the format: DD MMM YYYY'),
           pickupAddress: requiredAddressSchema.required('Required'),
           secondaryPickupAddress: OptionalAddressSchema,
-          destinationAddress: requiredAddressSchema.required('Required'),
+          destinationAddress: partialRequiredAddressSchema.required('Required'),
           secondaryDestinationAddress: OptionalAddressSchema,
           sitExpected: Yup.boolean().required('Required'),
           sitLocation: Yup.string().when('sitExpected', {

@@ -18,8 +18,9 @@ import { searchTransportationOffices } from 'services/internalApi';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+// import { formatPPMDestinationAddressForOptionalAddress1Display } from 'utils/formatMtoShipment';
 
 let meta = '';
 
@@ -36,7 +37,7 @@ let validationShape = {
     address: requiredAddressSchema,
   }),
   destinationAddress: Yup.object().shape({
-    address: requiredAddressSchema,
+    address: partialRequiredAddressSchema,
   }),
   secondaryPickupAddress: Yup.object().shape({
     address: OptionalAddressSchema,
@@ -79,6 +80,9 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
 
   if (mtoShipment?.ppmShipment?.destinationAddress) {
     initialValues.destinationAddress = { address: { ...mtoShipment.ppmShipment.destinationAddress } };
+    // initialValues.destinationAddress.address = formatPPMDestinationAddressForOptionalAddress1Display(
+    //   initialValues.destinationAddress.address,
+    // );
   }
 
   if (mtoShipment?.ppmShipment?.secondaryDestinationAddress) {
@@ -294,6 +298,7 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
                 <h2>Destination</h2>
                 <AddressFields
                   name="destinationAddress.address"
+                  isAddress1Required={false}
                   render={(fields) => (
                     <>
                       <p>Please input your destination address.</p>
