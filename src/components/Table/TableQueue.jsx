@@ -119,6 +119,7 @@ const TableQueue = ({
     [],
   );
   const tableData = useMemo(() => data, [data]);
+
   const tableColumns = useMemo(() => columns, [columns]);
   const {
     getTableProps,

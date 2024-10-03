@@ -112,6 +112,7 @@ export class OfficeApp extends Component {
       oktaNeedsLoggedOut: undefined,
       hqRoleFlag: !!props.hqRoleFlag,
       gsrRoleFlag: undefined,
+      queueManagementFlag: undefined,
     };
   }
 
@@ -152,6 +153,10 @@ export class OfficeApp extends Component {
         this.setState({
           gsrRoleFlag: gsrRoleFlagValue,
         });
+        const isQueueManagementFlagValue = await isBooleanFlagEnabled('queue_management');
+        this.setState({
+          queueManagementFlag: isQueueManagementFlagValue,
+        });
       } catch (error) {
         retryPageLoading(error);
       }
@@ -171,7 +176,8 @@ export class OfficeApp extends Component {
   }
 
   render() {
-    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag } = this.state;
+    const { hasError, error, info, oktaLoggedOut, oktaNeedsLoggedOut, hqRoleFlag, gsrRoleFlag, queueManagementFlag } =
+      this.state;
     const {
       activeRole,
       officeUserId,
@@ -267,7 +273,11 @@ export class OfficeApp extends Component {
                         end
                         element={
                           <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                            <MoveQueue />
+                            <MoveQueue
+                              userPrivileges={userPrivileges}
+                              currentUserId={officeUserId}
+                              isQueueManagementFFEnabled={queueManagementFlag}
+                            />
                           </PrivateRoute>
                         }
                       />
@@ -307,7 +317,11 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.SERVICES_COUNSELOR]}>
-                              <ServicesCounselingQueue />
+                              <ServicesCounselingQueue
+                                userPrivileges={userPrivileges}
+                                currentUserId={officeUserId}
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                              />
                             </PrivateRoute>
                           }
                         />
@@ -345,7 +359,11 @@ export class OfficeApp extends Component {
                           end
                           element={
                             <PrivateRoute requiredRoles={[roleTypes.TOO]}>
-                              <MoveQueue />
+                              <MoveQueue
+                                userPrivileges={userPrivileges}
+                                currentUserId={officeUserId}
+                                isQueueManagementFFEnabled={queueManagementFlag}
+                              />
                             </PrivateRoute>
                           }
                         />

@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import { OFFICE_TABLE_QUEUE_SESSION_STORAGE_ID } from '../../../components/Table/utils';
@@ -13,11 +13,17 @@ import { MOVE_STATUSES } from 'shared/constants';
 import SERVICE_MEMBER_AGENCIES from 'content/serviceMemberAgencies';
 import { servicesCounselingRoutes } from 'constants/routes';
 import MoveSearchForm from 'components/MoveSearchForm/MoveSearchForm';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 jest.mock('hooks/queries', () => ({
   useUserQueries: jest.fn(),
   useServicesCounselingQueueQueries: jest.fn(),
   useServicesCounselingQueuePPMQueries: jest.fn(),
+}));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
 }));
 
 const localStorageMock = (() => {
@@ -99,6 +105,23 @@ const needsCounselingMoves = {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
+        assignedTo: {
+          officeUserId: 'exampleId1',
+          firstName: 'Jimmy',
+          lastName: 'John',
+        },
+        availableOfficeUsers: [
+          {
+            officeUserId: 'exampleId1',
+            firstName: 'Jimmy',
+            lastName: 'John',
+          },
+          {
+            officeUserId: 'exampleId2',
+            firstName: 'John',
+            lastName: 'Denver',
+          },
+        ],
       },
       {
         id: 'move2',
@@ -118,6 +141,23 @@ const needsCounselingMoves = {
         },
         originGBLOC: 'LKNQ',
         counselingOffice: '',
+        assignedTo: {
+          officeUserId: 'exampleId2',
+          firstName: 'John',
+          lastName: 'Denver',
+        },
+        availableOfficeUsers: [
+          {
+            officeUserId: 'exampleId1',
+            firstName: 'Jimmy',
+            lastName: 'John',
+          },
+          {
+            officeUserId: 'exampleId2',
+            firstName: 'John',
+            lastName: 'Denver',
+          },
+        ],
       },
       {
         id: 'move3',
@@ -135,6 +175,23 @@ const needsCounselingMoves = {
           name: 'Denver, 80136',
         },
         originGBLOC: 'LKNQ',
+        assignedTo: {
+          officeUserId: 'exampleId1',
+          firstName: 'Jimmy',
+          lastName: 'John',
+        },
+        availableOfficeUsers: [
+          {
+            officeUserId: 'exampleId1',
+            firstName: 'Jimmy',
+            lastName: 'John',
+          },
+          {
+            officeUserId: 'exampleId2',
+            firstName: 'John',
+            lastName: 'Denver',
+          },
+        ],
       },
     ],
   },
@@ -162,6 +219,11 @@ const serviceCounselingCompletedMoves = {
           name: 'Area 51',
         },
         originGBLOC: 'LKNQ',
+        assignedTo: {
+          id: 'exampleId1',
+          firstname: 'Jimmy',
+          lastname: 'John',
+        },
       },
       {
         id: 'move2',
@@ -180,6 +242,11 @@ const serviceCounselingCompletedMoves = {
         },
         originGBLOC: 'LKNQ',
         counselingOffice: '67592323-fc7e-4b35-83a7-57faa53b7acf',
+        assignedTo: {
+          id: 'exampleId1',
+          firstname: 'Jimmy',
+          lastname: 'John',
+        },
       },
     ],
   },
@@ -195,7 +262,7 @@ describe('ServicesCounselingQueue', () => {
     useServicesCounselingQueueQueries.mockReturnValue(emptyServiceCounselingMoves);
     const wrapper = mount(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
 
@@ -215,12 +282,17 @@ describe('ServicesCounselingQueue', () => {
   describe('Service Counselor', () => {
     useUserQueries.mockReturnValue(serviceCounselorUser);
     useServicesCounselingQueueQueries.mockReturnValue(needsCounselingMoves);
+    isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
     const wrapper = mount(
       <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
-        <ServicesCounselingQueue />
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
       </MockRouterProvider>,
     );
-
+    render(
+      <MockRouterProvider path={pagePath} params={{ queueType: 'counseling' }}>
+        <ServicesCounselingQueue isQueueManagementFFEnabled />
+      </MockRouterProvider>,
+    );
     it('displays move header with needs service counseling count', () => {
       expect(wrapper.find('h1').text()).toBe('Moves (3)');
     });
@@ -245,6 +317,7 @@ describe('ServicesCounselingQueue', () => {
       expect(firstMove.find('td.branch').text()).toBe('Army');
       expect(firstMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(firstMove.find('td.originDutyLocation').text()).toBe('Area 51');
+      expect(firstMove.find('td.assignedTo').text()).toBe('John, Jimmy');
 
       const secondMove = moves.at(1);
       expect(secondMove.find('td.lastName').text()).toBe('test another last, test another first');
@@ -257,6 +330,7 @@ describe('ServicesCounselingQueue', () => {
       expect(secondMove.find('td.branch').text()).toBe('Coast Guard');
       expect(secondMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(secondMove.find('td.originDutyLocation').text()).toBe('Los Alamos');
+      expect(secondMove.find('td.assignedTo').text()).toBe('Denver, John');
 
       const thirdMove = moves.at(2);
       expect(thirdMove.find('td.lastName').text()).toBe('test third last, test third first');
@@ -268,6 +342,7 @@ describe('ServicesCounselingQueue', () => {
       expect(thirdMove.find('td.branch').text()).toBe('Marine Corps');
       expect(thirdMove.find('td.originGBLOC').text()).toBe('LKNQ');
       expect(thirdMove.find('td.originDutyLocation').text()).toBe('Denver, 80136');
+      expect(thirdMove.find('td.assignedTo').text()).toBe('John, Jimmy');
     });
 
     it('sorts by submitted at date ascending by default', () => {
@@ -287,6 +362,7 @@ describe('ServicesCounselingQueue', () => {
       expect(wrapper.find('th[data-testid="originDutyLocation"][role="columnheader"]').prop('onClick')).not.toBe(
         undefined,
       );
+      expect(wrapper.find('th[data-testid="assignedTo"][role="columnheader"]').prop('onClick')).not.toBe(undefined);
     });
 
     it('disables sort by for origin GBLOC and status columns', () => {
@@ -396,46 +472,50 @@ describe('ServicesCounselingQueue', () => {
       ['counselor', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUser],
       ['closeout', servicesCounselingRoutes.QUEUE_COUNSELING_PATH, 'counseling', serviceCounselorUserForCloseout],
       ['closeout', servicesCounselingRoutes.QUEUE_CLOSEOUT_PATH, 'closeout', serviceCounselorUserForCloseout],
-    ])('a %s user accessing path "%s"', (userDescription, queueType, showsCounselingTab, user) => {
+    ])('a %s user accessing path "%s"', async (userDescription, queueType, showsCounselingTab, user) => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
       useUserQueries.mockReturnValue(user);
       useServicesCounselingQueueQueries.mockReturnValue(serviceCounselingCompletedMoves);
       useServicesCounselingQueuePPMQueries.mockReturnValue(emptyServiceCounselingMoves);
       render(
         <MockProviders path={pagePath} params={{ queueType }}>
-          <ServicesCounselingQueue />
+          <ServicesCounselingQueue isQueueManagementFFEnabled />
         </MockProviders>,
       );
 
-      if (showsCounselingTab === 'counseling') {
-        // Make sure "Counseling" is the active tab.
-        const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
-        expect(counselingActive).toBeInTheDocument();
+      await waitFor(() => {
+        if (showsCounselingTab === 'counseling') {
+          // Make sure "Counseling" is the active tab.
+          const counselingActive = screen.getByText('Counseling Queue', { selector: '.usa-current .tab-title' });
+          expect(counselingActive).toBeInTheDocument();
 
-        // Check for the "Counseling" columns.
-        expect(screen.getByText(/Status/)).toBeInTheDocument();
-        expect(screen.getByText(/Requested move date/)).toBeInTheDocument();
-        expect(screen.getByText(/Date submitted/)).toBeInTheDocument();
-        expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
-      } else if (showsCounselingTab === 'closeout') {
-        // Make sure "PPM Closeout" is the active tab.
-        const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
-        expect(ppmCloseoutActive).toBeInTheDocument();
+          // Check for the "Counseling" columns.
+          expect(screen.getByText(/Status/)).toBeInTheDocument();
+          expect(screen.getAllByText(/Requested move date/)[0]).toBeInTheDocument();
+          expect(screen.getAllByText(/Date submitted/)[0]).toBeInTheDocument();
+          expect(screen.getByText(/Origin GBLOC/)).toBeInTheDocument();
+          expect(screen.getByText(/Assigned/)).toBeInTheDocument();
+        } else if (showsCounselingTab === 'closeout') {
+          // Make sure "PPM Closeout" is the active tab.
+          const ppmCloseoutActive = screen.getByText('PPM Closeout Queue', { selector: '.usa-current .tab-title' });
+          expect(ppmCloseoutActive).toBeInTheDocument();
 
-        // Check for the "PPM Closeout" columns.
-        expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
-        expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
-        expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
-        expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
-        expect(screen.getByText(/Status/)).toBeInTheDocument();
-      } else {
-        // Check for the "Search" tab
-        const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
-        expect(searchActive).toBeInTheDocument();
-        expect(MoveSearchForm).toBeInTheDocument();
-        userEvent.type(screen.getByLabelText('Search'), 'Joe');
-        const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
-        expect(addCustomer).toBeInTheDocument();
-      }
+          // Check for the "PPM Closeout" columns.
+          expect(screen.getByText(/Closeout initiated/)).toBeInTheDocument();
+          expect(screen.getByText(/PPM closeout location/)).toBeInTheDocument();
+          expect(screen.getByText(/Full or partial PPM/)).toBeInTheDocument();
+          expect(screen.getByText(/Destination duty location/)).toBeInTheDocument();
+          expect(screen.getByText(/Status/)).toBeInTheDocument();
+        } else {
+          // Check for the "Search" tab
+          const searchActive = screen.getByText('Search', { selector: '.usa-current .tab-title' });
+          expect(searchActive).toBeInTheDocument();
+          expect(MoveSearchForm).toBeInTheDocument();
+          userEvent.type(screen.getByLabelText('Search'), 'Joe');
+          const addCustomer = screen.getByText('Add Customer', { selector: '.usa-current .tab-title' });
+          expect(addCustomer).toBeInTheDocument();
+        }
+      });
     });
   });
 });
