@@ -1211,7 +1211,7 @@ const ShipmentForm = (props) => {
                             <h4>Second pickup address</h4>
                             <FormGroup>
                               <p>
-                                Will you move any belongings from a second addresss? (Must be near the pickup address.
+                                Will you move any belongings from a second address? (Must be near the pickup address.
                                 Subject to approval.)
                               </p>
                               <div className={formStyles.radioGroup}>
