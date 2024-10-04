@@ -269,18 +269,11 @@ test.describe('TOO user', () => {
       await expect(page.getByTestId('modal')).toBeVisible();
       let modal = page.getByTestId('modal');
       // Storage facility info
-      await expect(modal.locator('#facilityName')).toBeEditable();
-      await expect(modal.locator('#facilityName')).toBeEnabled();
-      await expect(modal.locator('#facilityName')).toBeVisible();
-      await modal.locator('#facilityName').clear({ force: true });
-      await modal.locator('#facilityName').fill('New Facility Name', { force: true });
-
-      await modal.locator('#facilityPhone').isEditable();
-      await modal.locator('#facilityPhone').isEnabled();
-      await modal.locator('#facilityPhone').isVisible();
-      await modal.locator('#facilityPhone').clear({ force: true });
-      await modal.locator('#facilityPhone').fill('999-999-9999', { force: true });
-      await modal.locator('#facilityEmail').clear({ force: true });
+      await modal.locator('#facilityName').clear();
+      await modal.locator('#facilityName').fill('New Facility Name');
+      await modal.locator('#facilityPhone').clear();
+      await modal.locator('#facilityPhone').fill('999-999-9999');
+      await modal.locator('#facilityEmail').clear();
       await modal.locator('#facilityEmail').fill('new@example.com');
       await modal.locator('#facilityServiceOrderNumber').clear();
       await modal.locator('#facilityServiceOrderNumber').fill('098098');

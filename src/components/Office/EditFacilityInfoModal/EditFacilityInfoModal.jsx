@@ -16,7 +16,14 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { StorageFacilityAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 
-export const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serviceOrderNumber, shipmentType }) => {
+export const EditFacilityInfoModal = ({
+  onClose,
+  onSubmit,
+  storageFacility,
+  serviceOrderNumber,
+  shipmentType,
+  enabledAK,
+}) => {
   const editFacilityInfoSchema = Yup.object().shape({
     serviceOrderNumber: Yup.string()
       .required('Required')
@@ -32,7 +39,11 @@ export const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serv
         <h2 className={styles.ModalTitle}>Edit facility info and address</h2>
       </ModalTitle>
       <Formik
-        validationSchema={editFacilityInfoSchema}
+        validate={async (values) => {
+          await editFacilityInfoSchema.validate(values, {
+            context: { enabledAK },
+          });
+        }}
         onSubmit={onSubmit}
         initialValues={{
           storageFacility,
