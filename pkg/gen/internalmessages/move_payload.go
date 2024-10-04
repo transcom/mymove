@@ -29,6 +29,14 @@ type MovePayload struct {
 	// closeout office
 	CloseoutOffice *TransportationOffice `json:"closeout_office,omitempty"`
 
+	// counseling office
+	CounselingOffice *TransportationOffice `json:"counseling_office,omitempty"`
+
+	// counseling office id
+	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
+	// Format: uuid
+	CounselingOfficeID *strfmt.UUID `json:"counseling_office_id,omitempty"`
+
 	// created at
 	// Required: true
 	// Format: date-time
@@ -91,6 +99,14 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCloseoutOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOffice(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateCounselingOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -177,6 +193,37 @@ func (m *MovePayload) validateCloseoutOffice(formats strfmt.Registry) error {
 			}
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateCounselingOffice(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOffice) { // not required
+		return nil
+	}
+
+	if m.CounselingOffice != nil {
+		if err := m.CounselingOffice.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counseling_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counseling_office")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovePayload) validateCounselingOfficeID(formats strfmt.Registry) error {
+	if swag.IsZero(m.CounselingOfficeID) { // not required
+		return nil
+	}
+
+	if err := validate.FormatOf("counseling_office_id", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
+		return err
 	}
 
 	return nil
@@ -334,6 +381,10 @@ func (m *MovePayload) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateCounselingOffice(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateMtoShipments(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -390,6 +441,27 @@ func (m *MovePayload) contextValidateCloseoutOffice(ctx context.Context, formats
 				return ve.ValidateName("closeout_office")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
 				return ce.ValidateName("closeout_office")
+			}
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (m *MovePayload) contextValidateCounselingOffice(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.CounselingOffice != nil {
+
+		if swag.IsZero(m.CounselingOffice) { // not required
+			return nil
+		}
+
+		if err := m.CounselingOffice.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("counseling_office")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("counseling_office")
 			}
 			return err
 		}

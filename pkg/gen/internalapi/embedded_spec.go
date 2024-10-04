@@ -4146,6 +4146,11 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
@@ -4495,6 +4500,15 @@ func init() {
       "properties": {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -5142,6 +5156,15 @@ func init() {
         },
         "closeout_office": {
           "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
           "type": "string",
@@ -12764,6 +12787,11 @@ func init() {
           "title": "Orders date",
           "example": "2018-04-26"
         },
+        "move_id": {
+          "type": "string",
+          "format": "uuid",
+          "example": "cf1addea-a4f9-4173-8506-2bb82a064cb7"
+        },
         "new_duty_location_id": {
           "type": "string",
           "format": "uuid",
@@ -13115,6 +13143,15 @@ func init() {
       "properties": {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counselingOfficeID": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
           "type": "string",
@@ -13764,6 +13801,15 @@ func init() {
         },
         "closeout_office": {
           "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office": {
+          "$ref": "#/definitions/TransportationOffice"
+        },
+        "counseling_office_id": {
+          "type": "string",
+          "format": "uuid",
+          "x-nullable": true,
+          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
           "type": "string",
