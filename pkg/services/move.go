@@ -26,6 +26,7 @@ type MoveListFetcher interface {
 //go:generate mockery --name MoveFetcher
 type MoveFetcher interface {
 	FetchMove(appCtx appcontext.AppContext, locator string, searchParams *MoveFetcherParams) (*models.Move, error)
+	FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *MoveTaskOrderFetcherParams) (models.Moves, error)
 }
 
 //go:generate mockery --name MoveSearcher
