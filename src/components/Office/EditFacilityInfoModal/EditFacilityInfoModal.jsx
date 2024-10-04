@@ -29,6 +29,7 @@ export const EditFacilityInfoModal = ({
       .required('Required')
       .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
     storageFacility: StorageFacilityAddressSchema,
+    enabledAK,
   });
 
   return (
@@ -39,15 +40,12 @@ export const EditFacilityInfoModal = ({
         <h2 className={styles.ModalTitle}>Edit facility info and address</h2>
       </ModalTitle>
       <Formik
-        validate={async (values) => {
-          await editFacilityInfoSchema.validate(values, {
-            context: { enabledAK },
-          });
-        }}
+        validationSchema={editFacilityInfoSchema}
         onSubmit={onSubmit}
         initialValues={{
           storageFacility,
           serviceOrderNumber,
+          enabledAK,
         }}
       >
         {({ isValid }) => {
