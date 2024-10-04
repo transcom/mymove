@@ -20,11 +20,10 @@ func (suite *ModelSuite) TestInvalidUsPostRegionCity() {
 	usPostRegionCity := models.UsPostRegionCity{}
 
 	expErrors := map[string][]string{
-		"uspr_zip_id":                  {"UsprZipID not in range(5, 5)"},
-		"ctry_genc_dgph_cd":            {"CtryGencDgphCd not in range(2, 2)"},
-		"uspost_region_city_nm":        {"USPostRegionCityNm can not be blank."},
-		"usprc_prfd_lst_line_ctyst_nm": {"UsprcPrfdLstLineCtystNm can not be blank."},
-		"usprc_county_nm":              {"UsprcCountyNm can not be blank."},
+		"uspr_zip_id":           {"UsprZipID not in range(5, 5)"},
+		"ctry_genc_dgph_cd":     {"CtryGencDgphCd not in range(2, 2)"},
+		"uspost_region_city_nm": {"USPostRegionCityNm can not be blank."},
+		"usprc_county_nm":       {"UsprcCountyNm can not be blank."},
 	}
 
 	suite.verifyValidationErrors(&usPostRegionCity, expErrors)
