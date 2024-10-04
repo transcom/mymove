@@ -1,11 +1,20 @@
 import React from 'react';
 import { render, waitFor, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Provider } from 'react-redux';
 
 import AddOrdersForm from './AddOrdersForm';
 
 import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
+import { configureStore } from 'shared/store';
+
+jest.mock('store/flash/actions', () => ({
+  ...jest.requireActual('store/flash/actions'),
+  setFlashMessage: jest.fn(),
+}));
+
+const mockStore = configureStore({});
 
 describe('CreateMoveCustomerInfo Component', () => {
   const initialValues = {
@@ -22,12 +31,22 @@ describe('CreateMoveCustomerInfo Component', () => {
     ordersTypeOptions: dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS),
     onSubmit: jest.fn(),
     onBack: jest.fn(),
+    setFlashMessage: jest.fn(),
   };
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('renders the form inputs', async () => {
-    render(<AddOrdersForm {...testProps} />);
+    render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
 
     await waitFor(() => {
+      expect(testProps.setFlashMessage).not.toHaveBeenCalled();
       expect(screen.getByText('Tell us about the orders')).toBeInTheDocument();
       expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
       expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
@@ -41,7 +60,11 @@ describe('CreateMoveCustomerInfo Component', () => {
   });
 
   it('shows an error message if trying to submit an invalid form', async () => {
-    const { getByRole, findAllByRole, getByLabelText } = render(<AddOrdersForm {...testProps} />);
+    const { getByRole, findAllByRole, getByLabelText } = render(
+      <Provider store={mockStore.store}>
+        <AddOrdersForm {...testProps} />
+      </Provider>,
+    );
     await userEvent.click(getByLabelText('Orders type'));
     await userEvent.click(getByLabelText('Orders date'));
     await userEvent.click(getByLabelText('Report by date'));
