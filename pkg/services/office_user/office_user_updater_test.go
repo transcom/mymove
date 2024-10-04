@@ -8,21 +8,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/gen/adminmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/query"
 )
 
 func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 	queryBuilder := query.NewQueryBuilder()
 	updater := NewOfficeUserUpdater(queryBuilder)
-	setupTestData := func() models.OfficeUser {
-		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
-		return officeUser
-	}
 
 	// Happy path
 	suite.Run("If the user is updated successfully it should be returned", func() {
-		officeUser := setupTestData()
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 
 		firstName := "Lea"
@@ -52,7 +47,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 
 	// Bad transportation office ID
 	suite.Run("If we are provided a transportation office that doesn't exist, the create should fail", func() {
-		officeUser := setupTestData()
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		payload := &adminmessages.OfficeUserUpdate{
 			TransportationOfficeID: strfmt.UUID("00000000-0000-0000-0000-000000000001"),
 		}

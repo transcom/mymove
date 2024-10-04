@@ -23,7 +23,7 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		}
 	}
 
-	country := BuildUSCountry(db, nil, nil)
+	country := BuildUSCountry(db, customs, nil)
 
 	// Create default Address
 	address := models.Address{

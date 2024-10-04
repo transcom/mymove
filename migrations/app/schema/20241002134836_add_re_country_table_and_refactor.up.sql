@@ -12,13 +12,14 @@ country			VARCHAR(2)	NOT NULL,
 country_name	VARCHAR(50)	NOT NULL,
 created_at		TIMESTAMP	NOT NULL DEFAULT NOW(),
 updated_at		TIMESTAMP	NOT NULL DEFAULT NOW(),
-CONSTRAINT re_countries_pkey PRIMARY KEY (id),
-CONSTRAINT unique_re_countries UNIQUE (country)
+CONSTRAINT re_countries_pkey PRIMARY KEY (id)
 );
 
 COMMENT ON TABLE re_countries IS 'Stores US country codes and names';
 COMMENT ON COLUMN re_countries.country IS 'The unique 2 character country code';
 COMMENT ON COLUMN re_countries.country_name IS 'The name of the country';
+
+CREATE INDEX IF NOT EXISTS idx_country ON re_countries (country);
 
 -- populating with data
 INSERT INTO public.re_countries (id,country,country_name,created_at,updated_at) VALUES
