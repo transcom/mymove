@@ -18,7 +18,7 @@ VALUES
 ('3b99ff81-9d32-4835-89ee-13758085fc28', (SELECT id FROM re_services WHERE code='DPK'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatTowAwayFactor'), now(), now(), TRUE),
 ('572fb69e-3499-43b9-a43b-c0e1578a5711', (SELECT id FROM re_services WHERE code='DUPK'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatTowAwayFactor'), now(), now(), TRUE),
 ('d6030866-99a8-4d3f-a710-7e7bf3a366b5', (SELECT id FROM re_services WHERE code='DOP'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatTowAwayFactor'), now(), now(), TRUE),
-('65112ef3-4193-45aa-a883-0f17e2a5224d', (SELECT id FROM re_services WHERE code='DDP'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatTowAwayFactor'), now(), now(), TRUE);
+('65112ef3-4193-45aa-a883-0f17e2a5224d', (SELECT id FROM re_services WHERE code='DDP'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatTowAwayFactor'), now(), now(), TRUE),
 ('d5c0e434-03eb-4839-9c31-4ecc26342728', (SELECT id FROM re_services WHERE code='DLH'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatHaulAwayFactor'), now(), now(), TRUE),
 ('32c1366b-d3e0-4d95-93fe-ddc4acb665f1', (SELECT id FROM re_services WHERE code='DSH'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatHaulAwayFactor'), now(), now(), TRUE),
 ('e4ea110b-30cd-468c-a938-1e47f47e6a9c', (SELECT id FROM re_services WHERE code='DPK'), (SELECT id FROM service_item_param_keys WHERE key='DomesticBoatHaulAwayFactor'), now(), now(), TRUE),
