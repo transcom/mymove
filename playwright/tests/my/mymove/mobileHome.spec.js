@@ -131,11 +131,11 @@ test.describe('(MultiMove) Mobile Home shipment', () => {
     await page.getByRole('button', { name: 'Save & Continue' }).click();
     await customerPage.waitForPage.reviewShipments();
 
-    await expect(page.getByRole('heading', { name: 'Mobile Home 1' })).toBeVisible();
+    await expect(page.getByTestId('ShipmentCardNumber')).toBeVisible();
     await page.getByTestId('deleteShipmentButton').click();
     await expect(page.getByRole('heading', { name: 'Delete this?' })).toBeVisible();
     await page.getByText('Yes, Delete').click();
 
-    await expect(page.getByRole('heading', { name: 'Mobile Home 1' })).not.toBeVisible();
+    await expect(page.getByTestId('ShipmentCardNumber')).not.toBeVisible();
   });
 });
