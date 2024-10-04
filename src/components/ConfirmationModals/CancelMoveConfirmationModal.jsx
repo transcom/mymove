@@ -26,8 +26,6 @@ CancelMoveConfirmationModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   onSubmit: PropTypes.func.isRequired,
 
-  moveID: PropTypes.string.isRequired,
-
   title: PropTypes.string,
   content: PropTypes.string,
   submitText: PropTypes.string,

@@ -1993,7 +1993,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }
@@ -16688,7 +16689,8 @@ func init() {
                       "APPROVALS REQUESTED",
                       "APPROVED",
                       "NEEDS SERVICE COUNSELING",
-                      "SERVICE COUNSELING COMPLETED"
+                      "SERVICE COUNSELING COMPLETED",
+                      "CANCELED"
                     ]
                   }
                 }

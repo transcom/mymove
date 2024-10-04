@@ -24,13 +24,13 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
-import { updateMoveStatus, updateMTOShipmentStatus, updateFinancialFlag } from 'services/ghcApi';
+import { updateMoveStatus, updateMTOShipmentStatus, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
 import Restricted from 'components/Restricted/Restricted';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import SomethingWentWrong from 'shared/SomethingWentWrong';
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
+import { SHIPMENT_OPTIONS_URL, MOVE_STATUSES } from 'shared/constants';
 import { SIT_EXTENSION_STATUS } from 'constants/sitExtensions';
 import { ORDERS_TYPE } from 'constants/orders';
 import { permissionTypes } from 'constants/permissions';
@@ -74,6 +74,7 @@ const MoveDetails = ({
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
+  const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED;
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
 
@@ -106,6 +107,19 @@ const MoveDetails = ({
       queryClient.setQueryData([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID, false], mtoShipments);
       queryClient.invalidateQueries([MTO_SHIPMENTS, updatedMTOShipment.moveTaskOrderID]);
       queryClient.invalidateQueries([MTO_SERVICE_ITEMS, updatedMTOShipment.moveTaskOrderID]);
+    },
+  });
+
+  const { mutate: mutateCancelMove } = useMutation(cancelMove, {
+    onSuccess: (data) => {
+      queryClient.setQueryData([MOVES, data.moveTaskOrderID], data);
+      queryClient.invalidateQueries([MOVES, data.moveTaskOrderID]);
+      setAlertMessage('Move canceled.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      setAlertType('error');
     },
   });
 
@@ -146,12 +160,12 @@ const MoveDetails = ({
     setIsFinancialModalVisible(false);
   };
 
-  const showCancelMoveModal = () => {
+  const handleShowCancelMoveModal = () => {
     setIsCancelMoveModalVisible(true);
   };
 
   const handleCancelMove = () => {
-    mutateMoveStatus({
+    mutateCancelMove({
       moveID: move.id,
       ifMatchETag: move.eTag,
     });
@@ -437,19 +451,19 @@ const MoveDetails = ({
             )}
             <Restricted to={permissionTypes.cancelMoveFlag}>
               <div className={styles.tooCancelMoveContainer}>
-                <Button type="button" unstyled onClick={showCancelMoveModal} isMoveLocked={isMoveLocked}>
-                  Cancel move
-                </Button>
+                {tooCanCancelMove && (
+                  <Button type="button" unstyled onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked}>
+                    Cancel move
+                  </Button>
+                )}
               </div>
             </Restricted>
           </Grid>
-          {isCancelMoveModalVisible && (
-            <CancelMoveConfirmationModal
-              isOpen={isCancelMoveModalVisible}
-              onClose={handleCloseCancelMoveModal}
-              onSubmit={handleCancelMove}
-            />
-          )}
+          <CancelMoveConfirmationModal
+            isOpen={isCancelMoveModalVisible}
+            onClose={handleCloseCancelMoveModal}
+            onSubmit={handleCancelMove}
+          />
           {submittedShipments?.length > 0 && (
             <div className={styles.section} id="requested-shipments">
               <SubmittedRequestedShipments

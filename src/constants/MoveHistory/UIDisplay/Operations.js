@@ -56,4 +56,5 @@ export default {
   deleteMovingExpense: 'deleteMovingExpense', // internal.yaml
   submitPPMShipmentDocumentation: 'submitPPMShipmentDocumentation', // internal.yaml
   finishDocumentReview: 'finishDocumentReview', // ghc.yaml
+  moveCanceler: 'moveCanceler', // ghc.yaml
 };

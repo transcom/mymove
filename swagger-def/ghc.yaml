@@ -3706,6 +3706,7 @@ paths:
                     - APPROVED
                     - NEEDS SERVICE COUNSELING
                     - SERVICE COUNSELING COMPLETED
+                    - CANCELED
               originPostalCode:
                 type: string
                 x-nullable: true

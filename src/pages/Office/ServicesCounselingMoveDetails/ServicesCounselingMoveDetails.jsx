@@ -23,7 +23,7 @@ import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMov
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
-import { updateMoveStatusServiceCounselingCompleted, updateFinancialFlag } from 'services/ghcApi';
+import { updateMoveStatusServiceCounselingCompleted, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
 import { ppmShipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
@@ -75,6 +75,7 @@ const ServicesCounselingMoveDetails = ({
   let counselorCanReview;
   let reviewWeightsURL;
   let counselorCanEdit;
+  let counselorCanCancelMove;
   let counselorCanEditNonPPM;
 
   const sections = useMemo(() => {
@@ -229,6 +230,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
+    counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
@@ -395,6 +397,19 @@ const ServicesCounselingMoveDetails = ({
     },
   });
 
+  const { mutate: mutateCancelMove } = useMutation(cancelMove, {
+    onSuccess: (data) => {
+      queryClient.setQueryData([MOVES, data.id], data);
+      queryClient.invalidateQueries([MOVES, data.id]);
+      setAlertMessage('Move canceled.');
+      setAlertType('success');
+    },
+    onError: () => {
+      setAlertMessage('There was a problem cancelling the move. Please try again later.');
+      setAlertType('error');
+    },
+  });
+
   const { mutate: mutateFinancialReview } = useMutation(updateFinancialFlag, {
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
@@ -471,12 +486,12 @@ const ServicesCounselingMoveDetails = ({
     setIsFinancialModalVisible(false);
   };
 
-  const showCancelMoveModal = () => {
+  const handleShowCancelMoveModal = () => {
     setIsCancelMoveModalVisible(true);
   };
 
   const handleCancelMove = () => {
-    mutateMoveStatus({
+    mutateCancelMove({
       moveID: move.id,
       ifMatchETag: move.eTag,
     });
@@ -543,13 +558,11 @@ const ServicesCounselingMoveDetails = ({
             initialSelection={move?.financialReviewFlag}
           />
         )}
-        {isCancelMoveModalVisible && (
-          <CancelMoveConfirmationModal
-            isOpen={isCancelMoveModalVisible}
-            onClose={handleCloseCancelMoveModal}
-            onSubmit={handleCancelMove}
-          />
-        )}
+        <CancelMoveConfirmationModal
+          isOpen={isCancelMoveModalVisible}
+          onClose={handleCloseCancelMoveModal}
+          onSubmit={handleCancelMove}
+        />
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
           <Grid row className={scMoveDetailsStyles.pageHeader}>
@@ -600,9 +613,11 @@ const ServicesCounselingMoveDetails = ({
             <Grid col={12}>
               <Restricted to={permissionTypes.cancelMoveFlag}>
                 <div className={scMoveDetailsStyles.scCancelMoveContainer}>
-                  <Button type="button" unstyled onClick={showCancelMoveModal} isMoveLocked={isMoveLocked}>
-                    Cancel move
-                  </Button>
+                  {counselorCanCancelMove && (
+                    <Button type="button" unstyled onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked}>
+                      Cancel move
+                    </Button>
+                  )}
                 </div>
               </Restricted>
             </Grid>
