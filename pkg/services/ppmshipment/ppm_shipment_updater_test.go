@@ -1226,7 +1226,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
-		suite.Equal(address.Country.Country, updatedPPM.W2Address.Country.Country)
+		suite.Equal(address.CountryId, updatedPPM.W2Address.CountryId)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add Pickup and Destination address", func() {

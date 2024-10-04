@@ -256,7 +256,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.City)
 			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.State)
 			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.PostalCode)
-			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.Country)
+			suite.NotEmpty(subtestData.move.Orders.NewDutyLocation.Address.CountryId)
 		}
 
 		testCases := []struct {

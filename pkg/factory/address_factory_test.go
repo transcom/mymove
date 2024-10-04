@@ -28,6 +28,9 @@ func (suite *FactorySuite) TestBuildAddress() {
 
 		address := BuildAddress(suite.DB(), nil, nil)
 
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		suite.NoError(err)
+
 		// VALIDATE RESULTS
 		suite.Equal(defaultAddress1, address.StreetAddress1)
 		suite.Equal("P.O. Box 12345", *address.StreetAddress2)
@@ -35,7 +38,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(defaultCity, address.City)
 		suite.Equal(defaultState, address.State)
 		suite.Equal(defaultPostalCode, address.PostalCode)
-		suite.Equal("US", address.Country.Country)
+		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal(defaultCounty, address.County)
 	})
 
@@ -56,6 +59,9 @@ func (suite *FactorySuite) TestBuildAddress() {
 			},
 		}, nil)
 
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		suite.NoError(err)
+
 		// VALIDATE RESULTS
 		suite.Equal(customAddress1, address.StreetAddress1)
 		suite.Equal(customAddress2, address.StreetAddress2)
@@ -63,7 +69,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(customCity, address.City)
 		suite.Equal(customState, address.State)
 		suite.Equal(customPostalCode, address.PostalCode)
-		suite.Equal("US", address.Country.Country)
+		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal(customCounty, address.County)
 	})
 
@@ -76,6 +82,8 @@ func (suite *FactorySuite) TestBuildAddress() {
 				GetTraitAddress2,
 			})
 
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		suite.NoError(err)
 		// VALIDATE RESULTS
 		suite.Equal("987 Any Avenue", address.StreetAddress1)
 		suite.Equal("P.O. Box 9876", *address.StreetAddress2)
@@ -83,7 +91,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Fairfield", address.City)
 		suite.Equal("CA", address.State)
 		suite.Equal("94535", address.PostalCode)
-		suite.Equal("US", address.Country.Country)
+		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal("SOLANO", address.County)
 	})
 
@@ -102,6 +110,9 @@ func (suite *FactorySuite) TestBuildAddress() {
 			GetTraitAddress3,
 		})
 
+		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)
+		suite.NoError(err)
+
 		// VALIDATE RESULTS
 		suite.Equal(customAddress1, address.StreetAddress1)
 		suite.Equal(customAddress2, address.StreetAddress2)
@@ -109,7 +120,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Des Moines", address.City)
 		suite.Equal("IA", address.State)
 		suite.Equal("50309", address.PostalCode)
-		suite.Equal("US", address.Country.Country)
+		suite.Equal(country.ID, *address.CountryId)
 		suite.Equal("POLK", address.County)
 	})
 
@@ -138,7 +149,6 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Houston", address.City)
 		suite.Equal("TX", address.State)
 		suite.Equal("77083", address.PostalCode)
-		suite.Equal("US", address.Country.Country)
 		suite.Equal("db nil when created", address.County)
 
 		// Count how many addresses are in the DB, no new addresses should have been created
