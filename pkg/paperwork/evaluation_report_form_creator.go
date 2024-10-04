@@ -612,6 +612,8 @@ func (f *EvaluationReportFormFiller) formatShipmentType(shipmentType models.MTOS
 		return "NTS"
 	} else if shipmentType == models.MTOShipmentTypeHHGOutOfNTSDom {
 		return "NTS-R"
+	} else if shipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+		return "UB"
 	} else if strings.Contains(string(shipmentType), "HHG") {
 		return "HHG"
 	}
