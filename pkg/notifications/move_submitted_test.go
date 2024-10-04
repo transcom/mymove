@@ -79,6 +79,7 @@ func (suite *NotificationSuite) TestMoveSubmittedDestinationIsFirstShipmentForSe
 	suite.NotEmpty(email.textBody)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
 	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
@@ -111,6 +112,7 @@ func (suite *NotificationSuite) TestMoveSubmittedDestinationIsFirstShipmentForRe
 	suite.NotEmpty(email.textBody)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
 	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
 	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
@@ -142,6 +144,9 @@ func (suite *NotificationSuite) TestMoveSubmittedDestinationIsDutyStationForPcsT
 	suite.NotEmpty(email.htmlBody)
 	suite.NotEmpty(email.textBody)
 	suite.Contains(email.textBody, move.Orders.NewDutyLocation.Name)
+	suite.NotContains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.NotContains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.NotContains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
 }
 
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounseling() {
