@@ -1578,7 +1578,7 @@ func (suite *HandlerSuite) TestGetServicesCounselingQueueHandler() {
 		// Validate outgoing payload
 		suite.NoError(payload.Validate(strfmt.Default))
 
-		suite.Len(payload.QueueMoves, 3)
+		suite.Len(payload.QueueMoves, 5)
 
 		for _, move := range payload.QueueMoves {
 			// Test that only moves with postal code in the officer user gbloc are returned
