@@ -50,7 +50,7 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	}
 	address := Address{}
 	var response *Address
-	if err := dbConnection.Find(&address, id); err != nil {
+	if err := dbConnection.Q().Eager("Country").Find(&address, id); err != nil {
 		response = nil
 		if err.Error() != RecordNotFoundErrorString {
 			// This is an unknown error from the db
@@ -144,7 +144,6 @@ func (e NotImplementedCountryCode) Error() string {
 }
 
 // CountryCode returns 2-3 character code for country, returns nil if no Country
-// TODO: since we only support CONUS at this time this just returns USA and otherwise throws a NotImplementedCountryCode
 func (a *Address) CountryCode() (*string, error) {
 	if a.Country != nil {
 		return &a.Country.Country, nil

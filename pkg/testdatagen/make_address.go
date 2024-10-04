@@ -2,7 +2,6 @@ package testdatagen
 
 import (
 	"github.com/gobuffalo/pop/v6"
-	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -16,7 +15,6 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "90210",
-		CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 		County:         "LOS ANGELES",
 	}
 
@@ -36,8 +34,8 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Fairfield",
 		State:          "CA",
 		PostalCode:     "94535",
-		CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
-		County:         "SOLANO",
+
+		County: "SOLANO",
 	}
 
 	mergeModels(&address, assertions.Address)
@@ -56,7 +54,6 @@ func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
 		City:           "Des Moines",
 		State:          "IA",
 		PostalCode:     "50309",
-		CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 		County:         "POLK",
 	}
 

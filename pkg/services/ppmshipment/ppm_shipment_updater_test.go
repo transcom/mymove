@@ -424,7 +424,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Des Moines",
 					State:          "IA",
 					PostalCode:     "50309",
-					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
@@ -436,7 +435,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 					City:           "Fort Eisenhower",
 					State:          "GA",
 					PostalCode:     "50309",
-					CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
@@ -451,7 +449,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Des Moines",
 				State:          "IA",
 				PostalCode:     "50308",
-				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 			DestinationAddress: &models.Address{
 				StreetAddress1: "987 Other Avenue",
@@ -460,7 +457,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "30183",
-				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		}
 
@@ -1174,7 +1170,6 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 				City:           city,
 				State:          state,
 				PostalCode:     postalCode,
-				CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 			},
 		}
 		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
@@ -1231,7 +1226,7 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(state, updatedPPM.W2Address.State)
 		suite.Equal(postalCode, updatedPPM.W2Address.PostalCode)
 		suite.Equal(*address.StreetAddress3, *updatedPPM.W2Address.StreetAddress3)
-		suite.Equal(*address.Country, *updatedPPM.W2Address.Country)
+		suite.Equal(address.Country.Country, updatedPPM.W2Address.Country.Country)
 	})
 
 	suite.Run("Can successfully update a PPMShipment - add Pickup and Destination address", func() {

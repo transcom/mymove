@@ -15,7 +15,6 @@ var pickupAddressModel = models.Address{
 	City:           "Miami Gardens",
 	State:          "FL",
 	PostalCode:     "33169",
-	CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 }
 
 var destinationAddressModel = models.Address{
@@ -25,7 +24,6 @@ var destinationAddressModel = models.Address{
 	City:           "Key West",
 	State:          "FL",
 	PostalCode:     "33040",
-	CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 }
 
 var affiliationDisplayValue = map[models.ServiceMemberAffiliation]string{

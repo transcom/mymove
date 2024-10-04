@@ -458,7 +458,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyLocation.Address",
+		"NewDutyLocation.Address.Country",
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
@@ -477,7 +477,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	// cannot eager load the address as "OriginDutyLocation.Address" because
 	// OriginDutyLocation is a pointer.
 	if order.OriginDutyLocation != nil {
-		err = appCtx.DB().Load(order.OriginDutyLocation, "Address")
+		err = appCtx.DB().Load(order.OriginDutyLocation, "Address", "Address.Country")
 		if err != nil {
 			return order, err
 		}

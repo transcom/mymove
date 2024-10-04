@@ -27,7 +27,6 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		City:           *rawAddress.City,
 		State:          *rawAddress.State,
 		PostalCode:     *rawAddress.PostalCode,
-		Country:        &models.Country{Country: *rawAddress.Country},
 		County:         *rawAddress.County,
 	}
 }
@@ -39,7 +38,6 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.City = *payload.City
 	a.State = *payload.State
 	a.PostalCode = *payload.PostalCode
-	a.Country.Country = *payload.Country
 	if payload.County == nil {
 		a.County = ""
 	} else {

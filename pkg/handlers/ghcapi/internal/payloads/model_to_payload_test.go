@@ -33,9 +33,11 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 	city := "Tampa"
 	state := "FL"
 	postalcode := "33621"
-	country := "US"
-	countryId, _ := uuid.NewV4()
 	county := "HILLSBOROUGH"
+
+	country := models.Country{
+		Country: "US",
+	}
 
 	expectedAddress := models.Address{
 		StreetAddress1: streetAddress1,
@@ -44,7 +46,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		City:           city,
 		State:          state,
 		PostalCode:     postalcode,
-		CountryId:      &countryId,
+		Country:        &country,
 		County:         county,
 	}
 
@@ -64,7 +66,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.PickupAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.PickupAddress.City)
 		suite.Equal(&state, returnedPPMShipment.PickupAddress.State)
-		suite.Equal(&country, returnedPPMShipment.PickupAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.PickupAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.PickupAddress.County)
 
 		suite.Equal(&streetAddress1, returnedPPMShipment.DestinationAddress.StreetAddress1)
@@ -73,7 +75,7 @@ func (suite *PayloadsSuite) TestFetchPPMShipment() {
 		suite.Equal(&postalcode, returnedPPMShipment.DestinationAddress.PostalCode)
 		suite.Equal(&city, returnedPPMShipment.DestinationAddress.City)
 		suite.Equal(&state, returnedPPMShipment.DestinationAddress.State)
-		suite.Equal(&country, returnedPPMShipment.DestinationAddress.Country)
+		suite.Equal(&country.Country, returnedPPMShipment.DestinationAddress.Country)
 		suite.Equal(&county, returnedPPMShipment.DestinationAddress.County)
 
 	})
@@ -114,7 +116,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -123,7 +124,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -132,7 +132,6 @@ func (suite *PayloadsSuite) TestShipmentAddressUpdate() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89501",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 	officeRemarks := "some office remarks"
@@ -245,7 +244,6 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -254,7 +252,6 @@ func (suite *PayloadsSuite) TestCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -309,7 +306,6 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89503",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 
@@ -318,7 +314,6 @@ func (suite *PayloadsSuite) TestCreateCustomer() {
 		City:           "Beverly Hills",
 		State:          "CA",
 		PostalCode:     "89502",
-		CountryId:      models.UUIDPointer(uuid.Must(uuid.NewV4())),
 		County:         *models.StringPointer("WASHOE"),
 	}
 

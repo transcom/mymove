@@ -1,8 +1,7 @@
 package models_test
 
 import (
-	"github.com/gofrs/uuid"
-
+	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
 )
 
@@ -52,19 +51,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.NoError(err)
 	suite.Equal(expected, countryCode)
 
-	usaCountry := m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		CountryId:      m.UUIDPointer(uuid.Must(uuid.NewV4())),
-	}
-	countryCode, err = usaCountry.CountryCode()
-	suite.NoError(err)
-	suite.Equal("USA", *countryCode)
-
+	country := factory.BuildUSCountry(suite.DB(), nil, nil)
 	usCountry := m.Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
@@ -72,27 +59,9 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 		City:           "city",
 		State:          "state",
 		PostalCode:     "90210",
-		CountryId:      m.UUIDPointer(uuid.Must(uuid.NewV4())),
-		County:         "county",
+		Country:        &country,
 	}
 	countryCode, err = usCountry.CountryCode()
 	suite.NoError(err)
-	suite.Equal("USA", *countryCode)
-
-	notUsaCountry := m.Address{
-		StreetAddress1: "street 1",
-		StreetAddress2: m.StringPointer("street 2"),
-		StreetAddress3: m.StringPointer("street 3"),
-		City:           "city",
-		State:          "state",
-		PostalCode:     "90210",
-		County:         "county",
-		CountryId:      m.UUIDPointer(uuid.Must(uuid.NewV4())),
-	}
-
-	countryCode, err = notUsaCountry.CountryCode()
-	suite.Nil(countryCode)
-	suite.Error(err)
-	suite.Equal("NotImplementedCountryCode: Country 'Ireland'", err.Error())
-
+	suite.Equal("US", *countryCode)
 }

@@ -36,6 +36,21 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.County = county
 	}
 
+	// until international moves are supported, we will default the country for created addresses to "US"
+	if address.Country != nil && address.Country.Country != "" {
+		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.CountryId = &country.ID
+	} else {
+		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.CountryId = &country.ID
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {

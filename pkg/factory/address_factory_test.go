@@ -35,7 +35,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(defaultCity, address.City)
 		suite.Equal(defaultState, address.State)
 		suite.Equal(defaultPostalCode, address.PostalCode)
-		suite.Equal("US", *address.Country)
+		suite.Equal("US", address.Country.Country)
 		suite.Equal(defaultCounty, address.County)
 	})
 
@@ -63,7 +63,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(customCity, address.City)
 		suite.Equal(customState, address.State)
 		suite.Equal(customPostalCode, address.PostalCode)
-		suite.Equal(models.StringPointer("US"), address.Country)
+		suite.Equal("US", address.Country.Country)
 		suite.Equal(customCounty, address.County)
 	})
 
@@ -83,7 +83,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Fairfield", address.City)
 		suite.Equal("CA", address.State)
 		suite.Equal("94535", address.PostalCode)
-		suite.Equal("US", *address.Country)
+		suite.Equal("US", address.Country.Country)
 		suite.Equal("SOLANO", address.County)
 	})
 
@@ -109,7 +109,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Des Moines", address.City)
 		suite.Equal("IA", address.State)
 		suite.Equal("50309", address.PostalCode)
-		suite.Equal("US", *address.Country)
+		suite.Equal("US", address.Country.Country)
 		suite.Equal("POLK", address.County)
 	})
 
@@ -138,7 +138,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal("Houston", address.City)
 		suite.Equal("TX", address.State)
 		suite.Equal("77083", address.PostalCode)
-		suite.Equal("US", *address.Country)
+		suite.Equal("US", address.Country.Country)
 		suite.Equal("db nil when created", address.County)
 
 		// Count how many addresses are in the DB, no new addresses should have been created
@@ -166,7 +166,6 @@ func (suite *FactorySuite) TestBuildAddress() {
 					City:           customCity,
 					State:          customState,
 					PostalCode:     customPostalCode,
-					CountryId:      models.UUIDPointer(uuid.FromStringOrNil("791899e6-cd77-46f2-981b-176ecb8d7098")),
 					County:         "County",
 				},
 				LinkOnly: true,
@@ -184,7 +183,6 @@ func (suite *FactorySuite) TestBuildAddress() {
 		suite.Equal(customCity, address.City)
 		suite.Equal(customState, address.State)
 		suite.Equal(customPostalCode, address.PostalCode)
-		suite.Equal("Canada", *address.Country)
 		suite.Equal("County", address.County)
 	})
 }

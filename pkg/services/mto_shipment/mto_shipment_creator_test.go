@@ -309,7 +309,6 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.City, createdShipment.DestinationAddress.City, testCase.shipmentType)
 					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.State, createdShipment.DestinationAddress.State, testCase.shipmentType)
 					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.PostalCode, createdShipment.DestinationAddress.PostalCode, testCase.shipmentType)
-					suite.Equal(subtestData.move.Orders.NewDutyLocation.Address.Country, createdShipment.DestinationAddress.Country, testCase.shipmentType)
 				}
 			} else {
 				suite.Nil(createdShipment.DestinationAddressID, testCase.shipmentType)
