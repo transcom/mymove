@@ -19,8 +19,7 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-import CancelMoveButton from 'components/Office/CancelMoveButton/CancelMoveButton';
-import CancelMoveModal from 'components/Office/CancelMoveModal/CancelMoveModal';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ShipmentDisplay from 'components/Office/ShipmentDisplay/ShipmentDisplay';
 import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirmationModal/SubmitMoveConfirmationModal';
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
@@ -472,12 +471,12 @@ const ServicesCounselingMoveDetails = ({
     setIsFinancialModalVisible(false);
   };
 
-  const handleShowCancelMoveModal = () => {
+  const showCancelMoveModal = () => {
     setIsCancelMoveModalVisible(true);
   };
 
-  const handleSubmitCancelMoveModal = () => {
-    mutateFinancialReview({
+  const handleCancelMove = () => {
+    mutateMoveStatus({
       moveID: move.id,
       ifMatchETag: move.eTag,
     });
@@ -545,7 +544,11 @@ const ServicesCounselingMoveDetails = ({
           />
         )}
         {isCancelMoveModalVisible && (
-          <CancelMoveModal onClose={handleCloseCancelMoveModal} onSubmit={handleSubmitCancelMoveModal} />
+          <CancelMoveConfirmationModal
+            isOpen={isCancelMoveModalVisible}
+            onClose={handleCloseCancelMoveModal}
+            onSubmit={handleCancelMove}
+          />
         )}
         <GridContainer className={classnames(styles.gridContainer, scMoveDetailsStyles.ServicesCounselingMoveDetails)}>
           <NotificationScrollToTop dependency={alertMessage || infoSavedAlert} />
@@ -594,11 +597,15 @@ const ServicesCounselingMoveDetails = ({
                 </div>
               )}
             </Grid>
-            <Restricted to={permissionTypes.cancelMoveFlag}>
-              <div className={scMoveDetailsStyles.scCancelMoveContainer}>
-                <CancelMoveButton onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked} />
-              </div>
-            </Restricted>
+            <Grid col={12}>
+              <Restricted to={permissionTypes.cancelMoveFlag}>
+                <div className={scMoveDetailsStyles.scCancelMoveContainer}>
+                  <Button type="button" unstyled onClick={showCancelMoveModal} isMoveLocked={isMoveLocked}>
+                    Cancel move
+                  </Button>
+                </div>
+              </Restricted>
+            </Grid>
           </Grid>
 
           {hasInvalidProGearAllowances ? (

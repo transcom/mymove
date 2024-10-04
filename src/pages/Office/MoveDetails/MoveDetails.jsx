@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { generatePath, Link, useNavigate, useParams } from 'react-router-dom';
-import { Alert, Grid, GridContainer } from '@trussworks/react-uswds';
+import { Alert, Grid, GridContainer, Button } from '@trussworks/react-uswds';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useQueryClient, useMutation } from '@tanstack/react-query';
 import { func } from 'prop-types';
@@ -20,8 +20,7 @@ import OrdersList from 'components/Office/DefinitionLists/OrdersList';
 import DetailsPanel from 'components/Office/DetailsPanel/DetailsPanel';
 import FinancialReviewButton from 'components/Office/FinancialReviewButton/FinancialReviewButton';
 import FinancialReviewModal from 'components/Office/FinancialReviewModal/FinancialReviewModal';
-import CancelMoveButton from 'components/Office/CancelMoveButton/CancelMoveButton';
-import CancelMoveModal from 'components/Office/CancelMoveModal/CancelMoveModal';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 import ApprovedRequestedShipments from 'components/Office/RequestedShipments/ApprovedRequestedShipments';
 import SubmittedRequestedShipments from 'components/Office/RequestedShipments/SubmittedRequestedShipments';
 import { useMoveDetailsQueries } from 'hooks/queries';
@@ -147,12 +146,12 @@ const MoveDetails = ({
     setIsFinancialModalVisible(false);
   };
 
-  const handleShowCancelMoveModal = () => {
+  const showCancelMoveModal = () => {
     setIsCancelMoveModalVisible(true);
   };
 
-  const handleSubmitCancelMoveModal = () => {
-    mutateFinancialReview({
+  const handleCancelMove = () => {
+    mutateMoveStatus({
       moveID: move.id,
       ifMatchETag: move.eTag,
     });
@@ -416,32 +415,40 @@ const MoveDetails = ({
               </Grid>
             )}
           </Grid>
-          {!isMoveLocked && (
-            <Restricted to={permissionTypes.createTxoShipment}>
-              <ButtonDropdown
-                ariaLabel="Add a new shipment"
-                data-testid="addShipmentButton"
-                onChange={handleButtonDropdownChange}
-              >
-                <option value="" label="Add a new shipment">
-                  Add a new shipment
-                </option>
-                <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
-                  HHG
-                </option>
-                <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
-                <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
-              </ButtonDropdown>
+          <Grid row col={12}>
+            {!isMoveLocked && (
+              <Restricted to={permissionTypes.createTxoShipment}>
+                <ButtonDropdown
+                  ariaLabel="Add a new shipment"
+                  data-testid="addShipmentButton"
+                  onChange={handleButtonDropdownChange}
+                >
+                  <option value="" label="Add a new shipment">
+                    Add a new shipment
+                  </option>
+                  <option data-testid="hhgOption" value={SHIPMENT_OPTIONS_URL.HHG}>
+                    HHG
+                  </option>
+                  <option value={SHIPMENT_OPTIONS_URL.PPM}>PPM</option>
+                  <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
+                  <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
+                </ButtonDropdown>
+              </Restricted>
+            )}
+            <Restricted to={permissionTypes.cancelMoveFlag}>
+              <div className={styles.tooCancelMoveContainer}>
+                <Button type="button" unstyled onClick={showCancelMoveModal} isMoveLocked={isMoveLocked}>
+                  Cancel move
+                </Button>
+              </div>
             </Restricted>
-          )}
-          <Restricted to={permissionTypes.cancelMoveFlag}>
-            <div className={styles.tooCancelMoveContainer}>
-              <CancelMoveButton onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked} />
-            </div>
-          </Restricted>
+          </Grid>
           {isCancelMoveModalVisible && (
-            <CancelMoveModal onClose={handleCloseCancelMoveModal} onSubmit={handleSubmitCancelMoveModal} />
+            <CancelMoveConfirmationModal
+              isOpen={isCancelMoveModalVisible}
+              onClose={handleCloseCancelMoveModal}
+              onSubmit={handleCancelMove}
+            />
           )}
           {submittedShipments?.length > 0 && (
             <div className={styles.section} id="requested-shipments">
