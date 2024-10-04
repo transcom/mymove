@@ -1,4 +1,5 @@
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { mount } from 'enzyme';
 
 import ToolTip from './ToolTip';
@@ -55,5 +56,13 @@ describe('ToolTip', () => {
 
     // Assert that the tooltip content is displayed
     expect(tooltipContent.text()).toBe(text);
+  });
+  it('verify data-testid is present', () => {
+    const text = 'Test Text';
+    render(<ToolTip text={text} icon="circle-question" position="left" />);
+
+    // Verify data-testid is present
+    const tooltipIcon = screen.getByTestId('tooltip-container');
+    expect(tooltipIcon).toBeInTheDocument();
   });
 });

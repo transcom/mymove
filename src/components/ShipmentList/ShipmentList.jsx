@@ -27,6 +27,7 @@ export const ShipmentListItem = ({
   isMissingWeight,
   showShipmentTooltip,
 }) => {
+  const isMobileHome = shipment.shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
   const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
   const isBoat =
     shipment.shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY || shipment.shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY;
@@ -37,6 +38,7 @@ export const ShipmentListItem = ({
     [styles[`shipment-list-item-HHG`]]: shipment.shipmentType === SHIPMENT_OPTIONS.HHG,
     [styles[`shipment-list-item-PPM`]]: isPPM,
     [styles[`shipment-list-item-Boat`]]: isBoat,
+    [styles[`shipment-list-item-MobileHome`]]: isMobileHome,
   });
   const estimated = 'Estimated';
   const actual = 'Actual';
@@ -49,6 +51,7 @@ export const ShipmentListItem = ({
       }
     }
   }
+
   return (
     <div
       className={`${styles['shipment-list-item-container']} ${shipmentClassName} ${
@@ -65,7 +68,8 @@ export const ShipmentListItem = ({
         {showShipmentTooltip &&
           (shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
             shipment.shipmentType === SHIPMENT_OPTIONS.NTS ||
-            isBoat) && (
+            isBoat ||
+            isMobileHome) && (
             <>
               <span>{formatWeight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT)} </span>
               <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
