@@ -1526,6 +1526,43 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
     });
+
+    it('PPM - destination address street 1 is OPTIONAL', async () => {
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />,
+      );
+
+      expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+
+      // controlled test. we expect alert to be raised if we type in whitespaces to trigger required alert
+      // for pickup
+      await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '  ');
+      await userEvent.tab();
+      await waitFor(() => {
+        const requiredAlerts = screen.getAllByRole('alert');
+        expect(requiredAlerts.length).toBe(1);
+      });
+
+      await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '123 New Street');
+      await userEvent.tab();
+      await waitFor(() => {
+        // verify no alerts are present
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      });
+
+      // test that destination address street1 is OPTIONAL and not raise any required alert
+      await userEvent.type(document.querySelector('input[name="destination.address.streetAddress1"]'), '  ');
+      await userEvent.tab();
+      await waitFor(() => {
+        // verify required alert was not raised
+        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      });
+    });
   });
 
   describe('TOO editing an already existing PPM shipment', () => {
@@ -1732,7 +1769,58 @@ describe('ShipmentForm component', () => {
         expect(screen.getAllByLabelText('Yes')[2]).toBeChecked();
         expect(screen.getAllByLabelText('No')[2]).not.toBeChecked();
       });
+
+      it('test destination address street 1 is OPTIONAL', async () => {
+        isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+        renderWithRouter(
+          <ShipmentForm
+            {...defaultProps}
+            isCreatePage={false}
+            shipmentType={SHIPMENT_OPTIONS.PPM}
+            mtoShipment={mockPPMShipment}
+          />,
+        );
+
+        // controlled test. we expect alert to be raised if we type in whitespaces to trigger required alert
+        // for pickup
+        // await userEvent.type(
+        //   document.querySelector('input[name="pickup.address.streetAddress1"]'),
+        //   '  ',
+        // );
+        await userEvent.clear(document.querySelector('input[name="pickup.address.streetAddress1"]'));
+        await userEvent.tab();
+        await waitFor(() => {
+          const requiredAlerts = screen.getAllByRole('alert');
+          expect(requiredAlerts.length).toBe(1);
+        });
+
+        await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '123 New Street');
+        await userEvent.tab();
+        await waitFor(() => {
+          // verify no alerts are present
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+        });
+
+        // test that destination address street1 is OPTIONAL and not raise any required alert
+        await userEvent.clear(document.querySelector('input[name="destination.address.streetAddress1"]'));
+        await userEvent.tab();
+        await waitFor(() => {
+          // verify required alert was not raised
+          expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+
+          // 'Optional' labelHint on address display. expecting a total of 9(2 for pickup address and 3 destination address, 4 for secondary addrs).
+          // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the destination address
+          // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
+          const hints = document.getElementsByClassName('usa-hint');
+          expect(hints.length).toBe(9);
+          // verify labelHints are actually 'Optional'
+          for (let i = 0; i < hints.length; i += 1) {
+            expect(hints[i]).toHaveTextContent('Optional');
+          }
+        });
+      });
     });
+
     it('renders the PPM shipment form with pre-filled requested values for Advance Page', async () => {
       renderWithRouter(
         <ShipmentForm

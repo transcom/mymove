@@ -226,9 +226,20 @@ describe('AboutForm component', () => {
       // it's OPTIONAL during onboarding..etc...
       await expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeEnabled();
 
-      // verfiy save is enabled
+      // verify save is enabled
       await userEvent.type(input, '123 Street');
       await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+
+      // 'Optional' labelHint on address display. expecting a total of 6(2 for pickup address, 2 destination address, 2 w2 address).
+      // This is to verify Optional labelHints are displayed correctly for PPM doc uploading for the destination address
+      // street 1 is now OPTIONAL for onboarding but required for PPM doc upload. If this fails it means addtional labelHints
+      // have been introduced elsewhere within the control.
+      const hints = document.getElementsByClassName('usa-hint');
+      expect(hints.length).toBe(6);
+      // verify labelHints are actually 'Optional'
+      for (let i = 0; i < hints.length; i += 1) {
+        expect(hints[i]).toHaveTextContent('Optional');
+      }
     });
 
     it('displays type error messages for invalid input', async () => {

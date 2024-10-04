@@ -288,6 +288,16 @@ describe('validates form fields and displays error messages', () => {
         const requiredAlerts = screen.getAllByRole('alert');
         // only expecting postalCode alert
         expect(requiredAlerts.length).toBe(1);
+
+        // 'Optional' labelHint on address display. expecting a total of 5(2 for pickup address and 3 destination address).
+        // This is to verify Optional labelHints are displayed correctly for PPM onboarding/edit for the destination address
+        // street 1 is now OPTIONAL. If this fails it means addtional labelHints have been introduced elsewhere within the control.
+        const hints = document.getElementsByClassName('usa-hint');
+        expect(hints.length).toBe(5);
+        // verify labelHints are actually 'Optional'
+        for (let i = 0; i < hints.length; i += 1) {
+          expect(hints[i]).toHaveTextContent('Optional');
+        }
       });
     });
   });

@@ -20,7 +20,6 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
-// import { formatPPMDestinationAddressForOptionalAddress1Display } from 'utils/formatMtoShipment';
 
 let meta = '';
 
