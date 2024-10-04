@@ -65,6 +65,9 @@ const AddOrders = ({
       origin_duty_location_id: values.origin_duty_location.id,
       spouse_has_pro_gear: false,
     };
+    if (!values.origin_duty_location.provides_services_counseling) {
+      pendingValues.counseling_office_id = null;
+    }
 
     try {
       const createdOrders = await createOrders(pendingValues);
@@ -74,6 +77,8 @@ const AddOrders = ({
       updateOrders(createdOrders);
       const updatedServiceMember = await getServiceMember(serviceMemberId);
       updateServiceMember(updatedServiceMember);
+      setMoveId(createdOrders?.moves[0].id);
+      setCanAddOrders(false);
       navigate(`/orders/upload/${newOrderId}`);
     } catch (error) {
       const { response } = error;

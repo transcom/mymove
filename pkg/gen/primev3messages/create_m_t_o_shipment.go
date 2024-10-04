@@ -27,6 +27,9 @@ type CreateMTOShipment struct {
 	// agents
 	Agents MTOAgents `json:"agents,omitempty"`
 
+	// boat shipment
+	BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 	// counselor remarks
 	// Example: counselor approved
 	CounselorRemarks *string `json:"counselorRemarks,omitempty"`
@@ -128,6 +131,8 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	var data struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
@@ -196,6 +201,9 @@ func (m *CreateMTOShipment) UnmarshalJSON(raw []byte) error {
 	// agents
 	result.Agents = data.Agents
 
+	// boatShipment
+	result.BoatShipment = data.BoatShipment
+
 	// counselorRemarks
 	result.CounselorRemarks = data.CounselorRemarks
 
@@ -259,6 +267,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	b1, err = json.Marshal(struct {
 		Agents MTOAgents `json:"agents,omitempty"`
 
+		BoatShipment *CreateBoatShipment `json:"boatShipment,omitempty"`
+
 		CounselorRemarks *string `json:"counselorRemarks,omitempty"`
 
 		CustomerRemarks *string `json:"customerRemarks,omitempty"`
@@ -305,6 +315,8 @@ func (m CreateMTOShipment) MarshalJSON() ([]byte, error) {
 	}{
 
 		Agents: m.Agents,
+
+		BoatShipment: m.BoatShipment,
 
 		CounselorRemarks: m.CounselorRemarks,
 
@@ -359,6 +371,10 @@ func (m *CreateMTOShipment) Validate(formats strfmt.Registry) error {
 	var res []error
 
 	if err := m.validateAgents(formats); err != nil {
+		res = append(res, err)
+	}
+
+	if err := m.validateBoatShipment(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -432,6 +448,25 @@ func (m *CreateMTOShipment) validateAgents(formats strfmt.Registry) error {
 			return ce.ValidateName("agents")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) validateBoatShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.BoatShipment) { // not required
+		return nil
+	}
+
+	if m.BoatShipment != nil {
+		if err := m.BoatShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -606,6 +641,10 @@ func (m *CreateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateBoatShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -657,6 +696,27 @@ func (m *CreateMTOShipment) contextValidateAgents(ctx context.Context, formats s
 			return ce.ValidateName("agents")
 		}
 		return err
+	}
+
+	return nil
+}
+
+func (m *CreateMTOShipment) contextValidateBoatShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BoatShipment != nil {
+
+		if swag.IsZero(m.BoatShipment) { // not required
+			return nil
+		}
+
+		if err := m.BoatShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil

@@ -459,6 +459,33 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev3messages.PPMShipment {
 	return payloadPPMShipment
 }
 
+// BoatShipment payload
+func BoatShipment(boatShipment *models.BoatShipment) *primev3messages.BoatShipment {
+	if boatShipment == nil || boatShipment.ID.IsNil() {
+		return nil
+	}
+
+	boatShipmentType := string(boatShipment.Type)
+	payloadPPMShipment := &primev3messages.BoatShipment{
+		ID:             *handlers.FmtUUID(boatShipment.ID),
+		ShipmentID:     *handlers.FmtUUID(boatShipment.ShipmentID),
+		CreatedAt:      strfmt.DateTime(boatShipment.CreatedAt),
+		UpdatedAt:      strfmt.DateTime(boatShipment.UpdatedAt),
+		Type:           &boatShipmentType,
+		Year:           handlers.FmtIntPtrToInt64(boatShipment.Year),
+		Make:           boatShipment.Make,
+		Model:          boatShipment.Model,
+		LengthInInches: handlers.FmtIntPtrToInt64(boatShipment.LengthInInches),
+		WidthInInches:  handlers.FmtIntPtrToInt64(boatShipment.WidthInInches),
+		HeightInInches: handlers.FmtIntPtrToInt64(boatShipment.HeightInInches),
+		HasTrailer:     boatShipment.HasTrailer,
+		IsRoadworthy:   boatShipment.IsRoadworthy,
+		ETag:           etag.GenerateEtag(boatShipment.UpdatedAt),
+	}
+
+	return payloadPPMShipment
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
 	payload := &primev3messages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -488,6 +515,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		CreatedAt:                        strfmt.DateTime(mtoShipment.CreatedAt),
 		UpdatedAt:                        strfmt.DateTime(mtoShipment.UpdatedAt),
 		PpmShipment:                      PPMShipment(mtoShipment.PPMShipment),
+		BoatShipment:                     BoatShipment(mtoShipment.BoatShipment),
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
