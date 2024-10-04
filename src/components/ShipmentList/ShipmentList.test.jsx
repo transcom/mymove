@@ -102,7 +102,7 @@ describe('ShipmentList shipment weight tooltip', () => {
     [SHIPMENT_OPTIONS.NTSR, 'ID-4', '110% Previously Recorded Weight'],
     [SHIPMENT_TYPES.BOAT_HAUL_AWAY, 'ID-5', '110% Prime Estimated Weight'],
     [SHIPMENT_TYPES.BOAT_TOW_AWAY, 'ID-6', '110% Prime Estimated Weight'],
-    [SHIPMENT_TYPES.MOBILE_HOME, 'ID-7', '110% Prime Estimated Weight'],
+    [SHIPMENT_OPTIONS.MOBILE_HOME, 'ID-7', '110% Prime Estimated Weight'],
   ])('shipment weight tooltip, show is true. %s', async (type, id, expectedTooltipText) => {
     // Render component
     const props = { ...defaultProps, showShipmentTooltip: true, shipments: [{ id, shipmentType: type }] };
@@ -126,7 +126,7 @@ describe('ShipmentList shipment weight tooltip', () => {
     [SHIPMENT_OPTIONS.NTSR, 'ID-4'],
     [SHIPMENT_TYPES.BOAT_HAUL_AWAY, 'ID-5'],
     [SHIPMENT_TYPES.BOAT_TOW_AWAY, 'ID-6'],
-    [SHIPMENT_TYPES.MOBILE_HOME, 'ID-7'],
+    [SHIPMENT_OPTIONS.MOBILE_HOME, 'ID-7'],
   ])('shipment weight tooltip, show is false. %s', async (type, id) => {
     // Render component
     const props = { ...defaultProps, showShipmentTooltip: false, shipments: [{ id, shipmentType: type }] };
