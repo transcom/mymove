@@ -1365,7 +1365,7 @@ describe('ShipmentForm component', () => {
         await userEvent.selectOptions(pickupStateInput, 'CA');
         await userEvent.type(screen.getAllByLabelText('ZIP')[0], '90210');
 
-        await userEvent.type(screen.getAllByLabelText('Address 1')[1], 'Test Street 3');
+        await userEvent.type(screen.getAllByLabelText(/Address 1/)[1], 'Test Street 3');
         await userEvent.type(screen.getAllByLabelText('City')[1], 'TestTwo City');
         const destinationStateInput = screen.getAllByLabelText('State')[1];
         await userEvent.selectOptions(destinationStateInput, 'CA');
@@ -1571,7 +1571,7 @@ describe('ShipmentForm component', () => {
         mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -1587,7 +1587,7 @@ describe('ShipmentForm component', () => {
         mockPPMShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
@@ -1694,7 +1694,7 @@ describe('ShipmentForm component', () => {
           mockPPMShipment.ppmShipment.secondaryPickupAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
           mockPPMShipment.ppmShipment.destinationAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -1710,7 +1710,7 @@ describe('ShipmentForm component', () => {
           mockPPMShipment.ppmShipment.destinationAddress.postalCode,
         );
 
-        expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+        expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
           mockPPMShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
         );
         expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(

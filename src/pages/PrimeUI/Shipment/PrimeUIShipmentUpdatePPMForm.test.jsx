@@ -216,7 +216,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       initialValues.ppmShipment.tertiaryPickupAddress.postalCode,
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
       initialValues.ppmShipment.destinationAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
@@ -228,7 +228,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       initialValues.ppmShipment.destinationAddress.postalCode,
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[4]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[4]).toHaveValue(
@@ -244,7 +244,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       initialValues.ppmShipment.secondaryDestinationAddress.postalCode,
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[5]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[5]).toHaveValue(

@@ -390,7 +390,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ppmShipment.ppmShipment.secondaryPickupAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[2]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[2]).toHaveValue(
         ppmShipment.ppmShipment.destinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[2]).toHaveValue(
@@ -402,7 +402,7 @@ describe('ServicesCounselingEditShipmentDetails component', () => {
         ppmShipment.ppmShipment.destinationAddress.postalCode,
       );
 
-      expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+      expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
         ppmShipment.ppmShipment.secondaryDestinationAddress.streetAddress1,
       );
       expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(

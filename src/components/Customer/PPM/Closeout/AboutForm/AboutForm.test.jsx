@@ -208,6 +208,29 @@ describe('AboutForm component', () => {
       await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
     });
 
+    it('PPM destination street1 is required', async () => {
+      render(<AboutForm {...shipmentProps} />);
+      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+
+      // Start controlled test case to verify everything is working.
+      const input = await document.querySelector('input[name="destinationAddress.streetAddress1"]');
+      expect(input).toBeInTheDocument();
+      // clear
+      await userEvent.clear(input);
+      await userEvent.tab();
+      // verify Required alert is displayed
+      const requiredAlerts = screen.getByRole('alert');
+      expect(requiredAlerts).toHaveTextContent('Required');
+
+      // verify validation disables save button. destination street 1 is required only in PPM doc upload while
+      // it's OPTIONAL during onboarding..etc...
+      await expect(screen.getByRole('button', { name: 'Save & Continue' })).not.toBeEnabled();
+
+      // verfiy save is enabled
+      await userEvent.type(input, '123 Street');
+      await expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeEnabled();
+    });
+
     it('displays type error messages for invalid input', async () => {
       render(<AboutForm {...defaultProps} />);
 

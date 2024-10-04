@@ -48,7 +48,7 @@ describe('DateAndLocationForm component', () => {
       render(<DateAndLocationForm {...defaultProps} />);
       expect(await screen.getByRole('heading', { level: 2, name: 'Origin' })).toBeInTheDocument();
       const postalCodes = screen.getAllByLabelText('ZIP');
-      const address1 = screen.getAllByLabelText('Address 1');
+      const address1 = screen.getAllByLabelText('Address 1', { exact: false });
       const address2 = screen.getAllByLabelText('Address 2', { exact: false });
       const address3 = screen.getAllByLabelText('Address 3', { exact: false });
       const state = screen.getAllByLabelText('State');
@@ -265,6 +265,33 @@ describe('validates form fields and displays error messages', () => {
       });
     });
   });
+
+  it('destination address 1 is empty passes validation schema - destination street 1 is OPTIONAL', async () => {
+    await act(async () => {
+      render(<DateAndLocationForm {...defaultProps} />);
+
+      // type something in for destination address 1
+      await userEvent.type(
+        document.querySelector('input[name="destinationAddress.address.streetAddress1"]'),
+        '1234 Street',
+      );
+      // now clear out text, should not raise required alert because street is OPTIONAL in DateAndLocationForm context.
+      await userEvent.clear(document.querySelector('input[name="destinationAddress.address.streetAddress1"]'));
+
+      // must fail validation
+      await userEvent.type(document.querySelector('input[name="pickupAddress.address.postalCode"]'), '1111');
+
+      await userEvent.click(screen.getByRole('button', { name: 'Save & Continue' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Save & Continue' })).toBeDisabled();
+        const requiredAlerts = screen.getAllByRole('alert');
+        // only expecting postalCode alert
+        expect(requiredAlerts.length).toBe(1);
+      });
+    });
+  });
+
   it('displays tertiary pickup Address input when hasTertiaryPickupAddress is true', async () => {
     await act(async () => {
       render(<DateAndLocationForm {...defaultProps} />);

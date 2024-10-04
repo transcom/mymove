@@ -80,9 +80,6 @@ const DateAndLocationForm = ({ mtoShipment, destinationDutyLocation, serviceMemb
 
   if (mtoShipment?.ppmShipment?.destinationAddress) {
     initialValues.destinationAddress = { address: { ...mtoShipment.ppmShipment.destinationAddress } };
-    // initialValues.destinationAddress.address = formatPPMDestinationAddressForOptionalAddress1Display(
-    //   initialValues.destinationAddress.address,
-    // );
   }
 
   if (mtoShipment?.ppmShipment?.secondaryDestinationAddress) {
