@@ -7,11 +7,10 @@ import (
 
 func (suite *ModelSuite) TestCanSaveValidUsPostRegionCity() {
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:               "12345",
-		USPostRegionCityNm:      "USPRC City",
-		UsprcPrfdLstLineCtystNm: "USPRC Preferred City Name",
-		UsprcCountyNm:           "USPRC County",
-		CtryGencDgphCd:          "US",
+		UsprZipID:          "12345",
+		USPostRegionCityNm: "USPRC City",
+		UsprcCountyNm:      "USPRC County",
+		CtryGencDgphCd:     "US",
 	}
 
 	suite.MustCreate(&usPostRegionCity)
@@ -47,11 +46,10 @@ func (suite *ModelSuite) TestCanSaveAndFetchUsPostRegionCity() {
 func (suite *ModelSuite) TestFindCountyByZipCode() {
 	// Create a dummy USPRC
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:               "00000",
-		USPostRegionCityNm:      "00000 City Name",
-		UsprcPrfdLstLineCtystNm: "00000 Preferred City Name",
-		UsprcCountyNm:           "00000's County",
-		CtryGencDgphCd:          "US",
+		UsprZipID:          "00000",
+		USPostRegionCityNm: "00000 City Name",
+		UsprcCountyNm:      "00000's County",
+		CtryGencDgphCd:     "US",
 	}
 
 	suite.MustCreate(&usPostRegionCity)

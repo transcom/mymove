@@ -1003,3 +1003,6 @@
 20240930171315_updatePostalCodeToGbloc233BGNC.up.sql
 20241001144741_update_boat_factor.up.sql
 20241001174400_add_is_oconus_column.up.sql
+20241002140154_addlocationObjects.up.sql
+20241002140539_populateStates.up.sql
+20241004124121_populateUsPostRegion.up.sql
