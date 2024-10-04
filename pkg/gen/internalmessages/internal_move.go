@@ -28,7 +28,7 @@ type InternalMove struct {
 	// counseling office ID
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	CounselingOfficeID strfmt.UUID `json:"counselingOfficeID,omitempty"`
+	CounselingOfficeID *strfmt.UUID `json:"counselingOfficeID,omitempty"`
 
 	// created at
 	// Read Only: true

@@ -133,8 +133,10 @@ const EditOrders = ({
       // ppm office edit orders
       spouse_has_pro_gear: currentOrder.spouse_has_pro_gear,
       move_id: move.id,
-      // counseling_office_id: currentOrder.counseling_office.id || null,
     };
+    if (fieldValues.counseling_office_id === '') {
+      pendingValues.counseling_office_id = null;
+    }
     return patchOrders(pendingValues)
       .then((response) => {
         updateOrders(response);

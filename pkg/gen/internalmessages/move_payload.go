@@ -35,7 +35,7 @@ type MovePayload struct {
 	// counseling office id
 	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
 	// Format: uuid
-	CounselingOfficeID strfmt.UUID `json:"counseling_office_id,omitempty"`
+	CounselingOfficeID *strfmt.UUID `json:"counseling_office_id,omitempty"`
 
 	// created at
 	// Required: true

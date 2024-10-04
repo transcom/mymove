@@ -71,7 +71,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		movePayload.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 	}
 	if move.CounselingOfficeID != nil {
-		movePayload.CounselingOfficeID = *handlers.FmtUUID(*move.CounselingOfficeID)
+		movePayload.CounselingOfficeID = handlers.FmtUUID(*move.CounselingOfficeID)
 	}
 	return movePayload, nil
 }
@@ -122,7 +122,7 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 		}
 
 		if move.CounselingOfficeID != nil {
-			currentMove.CounselingOfficeID = *handlers.FmtUUID(*move.CounselingOfficeID)
+			currentMove.CounselingOfficeID = handlers.FmtUUID(*move.CounselingOfficeID)
 		}
 		var counselingOffice internalmessages.TransportationOffice
 		if move.CounselingOffice != nil {

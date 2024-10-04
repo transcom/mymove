@@ -4501,6 +4501,7 @@ func init() {
         "counselingOfficeID": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
@@ -5156,6 +5157,7 @@ func init() {
         "counseling_office_id": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
@@ -13136,6 +13138,7 @@ func init() {
         "counselingOfficeID": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "createdAt": {
@@ -13793,6 +13796,7 @@ func init() {
         "counseling_office_id": {
           "type": "string",
           "format": "uuid",
+          "x-nullable": true,
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
