@@ -1,5 +1,5 @@
 --B-21435
-create table IF NOT EXISTS re_state
+create table IF NOT EXISTS re_states
 (id			uuid		NOT NULL,
 state		varchar(2)	NOT NULL,
 state_name	varchar(50)	NOT NULL,
@@ -9,44 +9,31 @@ updated_at	timestamp	NOT NULL,
 CONSTRAINT re_state_pkey PRIMARY KEY (id),
 CONSTRAINT unique_re_state UNIQUE (state));
 
-COMMENT ON TABLE re_state IS 'Stores US state codes and names';
-COMMENT ON COLUMN re_state.state IS 'The unique 2 character US state code';
-COMMENT ON COLUMN re_state.state_name IS 'The name of the US state';
-COMMENT ON COLUMN re_state.is_oconus IS 'Indicates if state is OCONUS';
-
-create table IF NOT EXISTS re_country
-(id				uuid		NOT NULL,
-country			varchar(2)	NOT NULL,
-country_name	varchar(50)	NOT NULL,
-created_at		timestamp	NOT NULL,
-updated_at		timestamp	NOT NULL,
-CONSTRAINT re_country_pkey PRIMARY KEY (id),
-CONSTRAINT unique_re_country UNIQUE (country));
-
-COMMENT ON TABLE re_country IS 'Stores US country codes and names';
-COMMENT ON COLUMN re_country.country IS 'The unique 2 character country code';
-COMMENT ON COLUMN re_country.country_name IS 'The name of the country';
+COMMENT ON TABLE re_states IS 'Stores US state codes and names';
+COMMENT ON COLUMN re_states.state IS 'The unique 2 character US state code';
+COMMENT ON COLUMN re_states.state_name IS 'The name of the US state';
+COMMENT ON COLUMN re_states.is_oconus IS 'Indicates if state is OCONUS';
 
 create table IF NOT EXISTS re_us_post_region
 (id			uuid		NOT NULL,
 uspr_zip_id	varchar(5)	NOT NULL,
-state		varchar(2)	NOT NULL
-	CONSTRAINT re_us_post_region_fkey01 REFERENCES re_state (state),
+state_id	uuid	NOT NULL
+CONSTRAINT re_us_post_region_fkey01 REFERENCES re_states (id),
 zip3		varchar(3)	NOT NULL,
 created_at	timestamp	NOT NULL,
-updated_at	timestamp	NOT NULL,
+updated_at	timestamp	 NULL,
 CONSTRAINT re_us_post_region_pkey PRIMARY KEY (id),
-CONSTRAINT unique_re_us_post_region UNIQUE (uspr_zip_id, state));
+CONSTRAINT unique_re_us_post_region UNIQUE (uspr_zip_id, id));
 
 COMMENT ON TABLE re_us_post_region IS 'Stores US zip codes';
 COMMENT ON COLUMN re_us_post_region.uspr_zip_id IS 'The unique 5 digit zip code';
-COMMENT ON COLUMN re_us_post_region.state IS 'The 2 character US state code references re_state';
+COMMENT ON COLUMN re_us_post_region.state_id IS 'The id of the state references in re_state';
 COMMENT ON COLUMN re_us_post_region.zip3 IS 'The first 3 digits of the zip code';
 
---ALTER TABLE us_post_region_cities
---DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
+ALTER TABLE us_post_region_cities
+DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
 
-COMMENT ON COLUMN addresses.is_oconus IS 'Indicates if address is OCONUS';
+--COMMENT ON COLUMN addresses.is_oconus IS 'Indicates if address is OCONUS';
 
 ALTER TABLE re_zip5_rate_areas
 ADD COLUMN IF NOT EXISTS inactive_flag   varchar(1);
@@ -54,17 +41,17 @@ ADD COLUMN IF NOT EXISTS inactive_flag   varchar(1);
 CREATE TABLE IF NOT EXISTS re_oconus_rate_areas
 (id 			uuid		NOT NULL,
 rate_area_id	uuid		NOT NULL,
-country			varchar(2)	NOT NULL
-	CONSTRAINT re_oconus_rate_areas_fkey01 REFERENCES re_country (country),
+---approvery			varchar(2)	NOT NULL
+--	CONSTRAINT re_oconus_rate_areas_fkey01 REFERENCES re_country (country),
 created_at		timestamp	NOT NULL,
 updated_at		timestamp	NOT NULL,
-inactive_flag	varchar(1),
-CONSTRAINT re_oconus_rate_areas_pkey PRIMARY KEY (id),
-CONSTRAINT unique_re_oconus_rate_areas UNIQUE (rate_area_id, country));
+inactive_flag	varchar(1));
+--CONSTRAINT re_oconus_rate_areas_pkey PRIMARY KEY (id),
+--CONSTRAINT unique_re_oconus_rate_areas UNIQUE (rate_area_id, country));
 
 COMMENT ON TABLE re_oconus_rate_areas IS 'Associates a country with a rate area.';
 COMMENT ON COLUMN re_oconus_rate_areas.rate_area_id IS 'The associated rate area id for this country.';
-COMMENT ON COLUMN re_oconus_rate_areas.country IS 'The associated country code.';
+--COMMENT ON COLUMN re_oconus_rate_areas.country IS 'The associated country code.';
 
 CREATE TABLE IF NOT EXISTS re_intl_transit_times
 (id 						uuid		NOT NULL,
@@ -85,4 +72,3 @@ COMMENT ON COLUMN re_intl_transit_times.origin_rate_area_id IS 'The rate area id
 COMMENT ON COLUMN re_intl_transit_times.destination_rate_area_id IS 'The rate area id for the destination.';
 COMMENT ON COLUMN re_intl_transit_times.hhg_transit_time IS 'The HHG transit time between the origin and destination rate area.';
 COMMENT ON COLUMN re_intl_transit_times.ub_transit_time IS 'The UB transit time between the origin and destination rate area.';
-

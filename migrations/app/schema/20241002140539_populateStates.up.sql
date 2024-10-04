@@ -1,4 +1,4 @@
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('8b7b9431-be18-4395-8f87-0ac4536bc5cb'::uuid,'AA','ARMED FORCES AMERICAS, EXCEPT CANADA ',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('7e030ed1-dc0c-480b-b9d4-dd3651bc0d9f'::uuid,'AE','ARMED FORCES EUROPE, MIDDLE EAST, AND CANADA ',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('cb5e2e40-0698-41a9-9367-23e5777a427c'::uuid,'AK','ALASKA',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
@@ -9,7 +9,7 @@ INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at
 	 ('a6905138-3156-4403-9ee9-7e78a857901b'::uuid,'AZ','ARIZONA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('05dbc84f-e93e-4c5c-8f6d-7179cfb5eb8b'::uuid,'CA','CALIFORNIA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('d5722ba1-832e-4886-8e2a-6edc127087d7'::uuid,'CO','COLORADO',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('de0219b7-1137-4138-a644-5af4ee34da0f'::uuid,'CT','CONNECTICUT',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('de478ad1-30d1-4562-80fe-c758e63fc425'::uuid,'DC','DISTRICT OF COLUMBIA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('0576a89d-374f-4ef0-ba45-aebc2ad02d3e'::uuid,'DE','DELAWARE',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
@@ -20,7 +20,7 @@ INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at
 	 ('4c9cc5d4-6926-4f6f-a831-c0c8ccb1e2a4'::uuid,'HI','HAWAII',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('5ef44c38-d967-42c9-902f-4eb4c234f61f'::uuid,'IA','IOWA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('8de0dc0d-9e90-48fb-addb-2b3dc833d99d'::uuid,'ID','IDAHO',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('42c50f20-874c-4f5c-ac0e-9b1023b3c712'::uuid,'IL','ILLINOIS',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('9bab40ac-cd1a-4d39-bc74-3839bb494d17'::uuid,'IN','INDIANA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('63b51758-711f-4ba4-a581-fa78af94aa70'::uuid,'KS','KANSAS',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
@@ -31,7 +31,7 @@ INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at
 	 ('815d51c2-2e71-48bd-8799-2644b0bdb41a'::uuid,'ME','MAINE',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('29b71f18-05dd-4d69-b849-8fff9cf52d65'::uuid,'MH','Marshall Islands',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('20ec3809-7297-4991-8dde-7471ac4c5bbe'::uuid,'MI','MICHIGAN',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('fec9f049-25f2-417d-a0ce-0aca3204a298'::uuid,'MN','MINNESOTA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('462178cb-6abc-4091-b1e1-8c2b58d925d9'::uuid,'MO','MISSOURI',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('b6bc6931-1cfd-4cf4-9acd-0eb023f2c1ed'::uuid,'MP','Northern Mariana Islands',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
@@ -42,7 +42,7 @@ INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at
 	 ('4bd022f9-0ec0-4a86-86af-3be6ad969f83'::uuid,'NE','NEBRASKA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('1ad69b8d-2a89-4ed4-923b-593a88be8dba'::uuid,'NH','NEW HAMPSHIRE',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('92c4ec75-b134-4f53-a079-5f268307bb99'::uuid,'NJ','NEW JERSEY',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('617ce0e5-4431-455e-8ecf-e98c2943381c'::uuid,'NM','NEW MEXICO',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('2a0843b3-785c-4c7c-803a-f27d61eceab0'::uuid,'NV','NEVADA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('95729f59-2f01-4079-935b-1a0d7136f5fe'::uuid,'NY','NEW YORK',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
@@ -53,7 +53,7 @@ INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at
 	 ('c8340b5a-900e-4759-8548-bab52be07cdc'::uuid,'PR','Puerto Rico',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('b8c6ac00-40f8-4a74-82d7-fdb685925888'::uuid,'PW','Palau',true,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('8637bcdb-edbc-4ceb-a889-8889df36ac54'::uuid,'RI','RHODE ISLAND',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('401692e2-1a84-43db-8438-faea8e7d9ef3'::uuid,'SC','SOUTH CAROLINA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('e381c3f2-03d7-4948-baab-cabbf51c6a06'::uuid,'SD','SOUTH DAKOTA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('cd5aba12-e7b9-40b8-b5a2-71531b04bb0c'::uuid,'TN','TENNESSEE',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
@@ -64,6 +64,6 @@ INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at
 	 ('b45b67de-65fb-4347-aa0b-6638d3fa6a04'::uuid,'VT','VERMONT',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('2619a31c-265f-4a08-9058-c1b1b336ef9b'::uuid,'WA','WASHINGTON',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('9b2db6dd-1e65-4f96-868e-b16b644e6e98'::uuid,'WI','WISCONSIN',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
-INSERT INTO public.re_state (id,state,state_name,is_oconus,created_at,updated_at) VALUES
+INSERT INTO public.re_states (id,state,state_name,is_oconus,created_at,updated_at) VALUES
 	 ('3cc5dda7-3b17-4a63-a70c-bc1396ec44ed'::uuid,'WV','WEST VIRGINIA',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998'),
 	 ('9fb57101-be3c-421b-aa02-4e038bb62732'::uuid,'WY','WYOMING',false,'2024-10-01 12:19:08.214998','2024-10-01 12:19:08.214998');
