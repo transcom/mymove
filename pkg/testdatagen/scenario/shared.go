@@ -4931,7 +4931,11 @@ func createHHGWithPaymentServiceItems(
 	// have a departure date for the payment request param lookup to not encounter an error
 	originEntryDate := actualPickupDate
 
+	// Prep country with a real db
+	country := factory.BuildUSCountry(db, nil, nil)
 	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
+	// Manually set Country ID. Customizations will not work because DB is nil
+	originSITAddress.CountryId = &country.ID
 	originSITAddress.ID = uuid.Nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
