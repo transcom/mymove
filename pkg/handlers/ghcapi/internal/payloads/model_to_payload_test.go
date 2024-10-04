@@ -357,12 +357,12 @@ func (suite *PayloadsSuite) TestSearchMoves() {
 
 	marines := models.AffiliationMARINES
 	moveUSMC := factory.BuildMove(suite.DB(), []factory.Customization{
-			{
-				Model: models.ServiceMember{
-					Affiliation: &marines,
-				},
+		{
+			Model: models.ServiceMember{
+				Affiliation: &marines,
 			},
-		}, nil)
+		},
+	}, nil)
 
 	moves := models.Moves{moveUSMC}
 	suite.Run("Success - Returns a ghcmessages Upload payload from Upload Struct", func() {
