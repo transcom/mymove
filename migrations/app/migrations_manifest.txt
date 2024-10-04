@@ -1003,3 +1003,4 @@
 20240930171315_updatePostalCodeToGbloc233BGNC.up.sql
 20241001144741_update_boat_factor.up.sql
 20241001174400_add_is_oconus_column.up.sql
+20241004203140_update_addresses_is_oconus.up.sql
