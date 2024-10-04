@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-import { unSupportedStates } from '../constants/states';
+import { getUnSupportedStates, unSupportedStates, unSupportedStatesDisabledAlaska } from '../constants/states';
 
 import { ValidateZipRateData } from 'shared/api';
 
@@ -52,10 +52,18 @@ export const validatePostalCode = async (value, postalCodeType, errMsg = Unsuppo
 };
 
 export const UnsupportedStateErrorMsg = 'Moves to this state are not supported at this time.';
-export const IsSupportedState = async (value) => {
+export const IsSupportedState = async (value, context) => {
   const selectedState = value;
 
-  const found = unSupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
+  const enableAK = 'enabledAK';
+  let unsupportedStates;
+  if (enableAK in context.options.context) {
+    unsupportedStates = context.options.context.enabledAK ? unSupportedStates : unSupportedStatesDisabledAlaska;
+  } else {
+    unsupportedStates = await getUnSupportedStates();
+  }
+
+  const found = unsupportedStates.find((unsupportedState) => unsupportedState.key === selectedState);
 
   if (found) {
     return false;
