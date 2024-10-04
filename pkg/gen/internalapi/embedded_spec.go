@@ -4828,12 +4828,15 @@ func init() {
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
@@ -13431,12 +13434,15 @@ func init() {
         "PPM",
         "BOAT_HAUL_AWAY",
         "BOAT_TOW_AWAY",
-        "MOBILE_HOME"
+        "MOBILE_HOME",
+        "UNACCOMPANIED_BAGGAGE"
       ],
       "x-display-value": {
         "BOAT_HAUL_AWAY": "Boat Haul-Away",
         "BOAT_TOW_AWAY": "Boat Tow-Away",
         "HHG": "HHG",
+        "HHG_INTO_NTS_DOMESTIC": "NTS",
+        "HHG_OUTOF_NTS_DOMESTIC": "NTS Release",
         "MOBILE_HOME": "Mobile Home",
         "PPM": "PPM",
         "UNACCOMPANIED_BAGGAGE": "Unaccompanied Baggage"
