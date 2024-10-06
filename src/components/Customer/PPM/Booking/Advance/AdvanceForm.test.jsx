@@ -49,7 +49,7 @@ describe('AdvanceForm component', () => {
     it('displays input for amount requested when advance requested is true', async () => {
       render(<AdvanceForm {...defaultProps} />);
       const requestAdvance = screen.getByLabelText('Yes');
-      expect(await screen.queryByLabelText('Amount requested')).toBeNull();
+      expect(await screen.queryByLabelText(/Amount requested/)).toBeNull();
       expect(
         screen.queryByLabelText(
           "I acknowledge that any advance I'm given will be deducted from my final incentive payment. If my advance ends up being more than my incentive, I will need to repay the difference.",
@@ -58,7 +58,7 @@ describe('AdvanceForm component', () => {
       await userEvent.click(requestAdvance);
 
       await waitFor(() => {
-        expect(screen.getByLabelText('Amount requested')).toBeInstanceOf(HTMLInputElement);
+        expect(screen.getByLabelText(/Amount requested/)).toBeInstanceOf(HTMLInputElement);
         expect(
           screen.getByLabelText(
             "I acknowledge that any advance I'm given will be deducted from my final incentive payment. If my advance ends up being more than my incentive, I will need to repay the difference.",
@@ -74,7 +74,7 @@ describe('AdvanceForm component', () => {
 
       await userEvent.click(inputHasRequestedAdvance);
 
-      const advanceAmountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText(/Amount requested/);
 
       await userEvent.click(advanceAmountRequested);
       await userEvent.tab();
@@ -95,7 +95,7 @@ describe('AdvanceForm component', () => {
 
       await userEvent.click(inputHasRequestedAdvance);
 
-      const advanceAmountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText(/Amount requested/);
 
       await userEvent.click(advanceAmountRequested);
       await userEvent.type(advanceAmountRequested, '0');
@@ -119,7 +119,7 @@ describe('AdvanceForm component', () => {
 
       await userEvent.click(inputHasRequestedAdvance);
 
-      const advanceAmountRequested = screen.getByLabelText('Amount requested');
+      const advanceAmountRequested = screen.getByLabelText(/Amount requested/);
 
       await userEvent.click(advanceAmountRequested);
       await userEvent.type(advanceAmountRequested, '10000');
@@ -140,7 +140,7 @@ describe('AdvanceForm component', () => {
       render(<AdvanceForm {...mtoShipmentProps} />);
       await waitFor(() => {
         expect(screen.queryByLabelText('Yes').checked).toBe(true);
-        expect(screen.getByLabelText('Amount requested').value).toBe('300');
+        expect(screen.getByLabelText(/Amount requested/).value).toBe('300');
       });
     });
   });

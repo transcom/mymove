@@ -103,7 +103,7 @@ describe('PrimeUIShipmentCreateForm', () => {
     expect(await screen.getAllByLabelText(/Address 1/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.streetAddress1,
     );
-    expect(await screen.getAllByLabelText('City')[1]).toHaveValue(
+    expect(await screen.getAllByLabelText(/City/)[1]).toHaveValue(
       initialValues.ppmShipment.secondaryPickupAddress.city,
     );
     expect(await screen.getAllByLabelText('State')[1]).toHaveValue(

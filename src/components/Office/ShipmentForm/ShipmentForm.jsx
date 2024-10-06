@@ -1282,7 +1282,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Destination Address"
-                        isAddress1Required={false}
+                        address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}
