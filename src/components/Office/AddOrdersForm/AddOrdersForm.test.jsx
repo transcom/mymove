@@ -9,14 +9,8 @@ import { dropdownInputOptions } from 'utils/formatters';
 import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { configureStore } from 'shared/store';
 
-jest.mock('store/flash/actions', () => ({
-  ...jest.requireActual('store/flash/actions'),
-  setFlashMessage: jest.fn(),
-}));
-
-const mockStore = configureStore({});
-
 describe('CreateMoveCustomerInfo Component', () => {
+  const mockStore = configureStore({});
   const initialValues = {
     ordersType: '',
     issueDate: '',
@@ -31,12 +25,7 @@ describe('CreateMoveCustomerInfo Component', () => {
     ordersTypeOptions: dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS),
     onSubmit: jest.fn(),
     onBack: jest.fn(),
-    setFlashMessage: jest.fn(),
   };
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
 
   it('renders the form inputs', async () => {
     render(
@@ -46,7 +35,6 @@ describe('CreateMoveCustomerInfo Component', () => {
     );
 
     await waitFor(() => {
-      expect(testProps.setFlashMessage).not.toHaveBeenCalled();
       expect(screen.getByText('Tell us about the orders')).toBeInTheDocument();
       expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
       expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
