@@ -4,6 +4,7 @@ import * as PropTypes from 'prop-types';
 import { Button, Checkbox, Fieldset } from '@trussworks/react-uswds';
 import { generatePath } from 'react-router-dom';
 import { debounce } from 'lodash';
+import { connect } from 'react-redux';
 
 import styles from './RequestedShipments.module.scss';
 
@@ -21,6 +22,7 @@ import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import { MoveTaskOrderShape, MTOServiceItemShape, OrdersInfoShape } from 'types/order';
 import { ShipmentShape } from 'types/shipment';
 import { fieldValidationShape } from 'utils/displayFlags';
+import { setFlashMessage as setFlashMessageAction } from 'store/flash/actions';
 
 // nts defaults show preferred pickup date and pickup address, flagged items when collapsed
 // ntsr defaults shows preferred delivery date, storage facility address, destination address, flagged items when collapsed
@@ -50,6 +52,7 @@ const SubmittedRequestedShipments = ({
   displayDestinationType,
   mtoServiceItems,
   isMoveLocked,
+  setFlashMessage,
 }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [filteredShipments, setFilteredShipments] = useState([]);
@@ -122,11 +125,13 @@ const SubmittedRequestedShipments = ({
                       onError: () => {
                         // TODO: Decide if we want to display an error notice, log error event, or retry
                         setSubmitting(false);
+                        setFlashMessage(null);
                       },
                     },
                   );
                 }),
               );
+              setFlashMessage('TASK_ORDER_CREATE_SUCCESS', 'success', 'Task order created successfully.');
               handleAfterSuccess('../mto', { showMTOpostedMessage: true });
             } catch {
               setSubmitting(false);
@@ -332,4 +337,7 @@ SubmittedRequestedShipments.defaultProps = {
   mtoServiceItems: [],
 };
 
-export default SubmittedRequestedShipments;
+const mapDispatchToProps = {
+  setFlashMessage: setFlashMessageAction,
+};
+export default connect(() => ({}), mapDispatchToProps)(SubmittedRequestedShipments);
