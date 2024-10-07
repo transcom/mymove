@@ -16,6 +16,8 @@ export const hostname = window && window.location && window.location.hostname;
 export const isMilmoveSite = hostname.startsWith('my') || hostname.startsWith('mil') || '';
 export const isOfficeSite = hostname.startsWith('office') || '';
 export const isAdminSite = hostname.startsWith('admin') || '';
+export const technicalHelpDeskURL =
+  'https://www.militaryonesource.mil/resources/gov/customer-service-contacts-for-military-pcs/#technical-help-desk';
 
 export function serviceName() {
   if (isAdminSite) {
@@ -120,7 +122,7 @@ export const shipmentOptionLabels = [
   { key: SHIPMENT_OPTIONS.HHG, label: 'HHG' },
   { key: SHIPMENT_OPTIONS.PPM, label: 'PPM' },
   { key: SHIPMENT_OPTIONS.BOAT, label: 'Boat' },
-  { key: SHIPMENT_OPTIONS.MOBILE_HOME, label: 'MobileHome' },
+  { key: SHIPMENT_OPTIONS.MOBILE_HOME, label: 'Mobile Home' },
   { key: SHIPMENT_TYPES.BOAT_HAUL_AWAY, label: 'Boat' },
   { key: SHIPMENT_TYPES.BOAT_TOW_AWAY, label: 'Boat' },
 ];
