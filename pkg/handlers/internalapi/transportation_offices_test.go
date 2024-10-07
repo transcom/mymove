@@ -135,7 +135,6 @@ func (suite *HandlerSuite) TestShowCounselingOfficesHandler() {
 		County:         "County",
 	}
 	addressCreator := address.NewAddressCreator()
-	factory.BuildCountry(suite.AppContextForTest().DB(), nil, nil)
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
 	suite.NoError(err)
 

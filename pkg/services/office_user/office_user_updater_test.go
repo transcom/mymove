@@ -18,14 +18,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 
 	// Happy path
 	suite.Run("If the user is updated successfully it should be returned", func() {
-		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
-			{
-				Model: models.Country{
-					Country:     "US",
-					CountryName: "UNITED STATES",
-				},
-			},
-		}, nil)
+		officeUser := factory.BuildOfficeUser(suite.DB(), nil, nil)
 		transportationOffice := factory.BuildDefaultTransportationOffice(suite.DB())
 
 		firstName := "Lea"
@@ -58,7 +51,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.Country{
-					Country:     "US",
+					Country:     "AL",
 					CountryName: "UNITED STATES",
 				},
 			},

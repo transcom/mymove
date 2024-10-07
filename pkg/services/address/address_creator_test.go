@@ -4,7 +4,6 @@ import (
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
-	"github.com/transcom/mymove/pkg/factory"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -16,7 +15,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 	suite.Run("Successfully creates an address", func() {
 		addressCreator := NewAddressCreator()
-		factory.BuildCountry(suite.DB(), nil, nil)
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,
 			City:           city,
@@ -37,7 +35,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 	suite.Run("Successfully creates an address with empty strings for optional fields", func() {
 		addressCreator := NewAddressCreator()
-		factory.BuildCountry(suite.DB(), nil, nil)
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,
 			StreetAddress2: models.StringPointer(""),
@@ -61,7 +58,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 	suite.Run("Fails to add an address because an ID is passed (fails to pass rules check)", func() {
 		addressCreator := NewAddressCreator()
-		factory.BuildCountry(suite.DB(), nil, nil)
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			ID:             uuid.FromStringOrNil("06c82380-4fc3-469f-803d-76763e6f87dd"),
 			StreetAddress1: streetAddress1,
@@ -81,7 +77,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 	suite.Run("Fails because of missing field", func() {
 		addressCreator := NewAddressCreator()
-		factory.BuildCountry(suite.DB(), nil, nil)
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{})
 
 		suite.Nil(address)
@@ -99,7 +94,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 	suite.Run("Fails when zip code is invalid", func() {
 		addressCreator := NewAddressCreator()
-		factory.BuildCountry(suite.DB(), nil, nil)
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,
 			City:           city,

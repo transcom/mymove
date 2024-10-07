@@ -314,16 +314,3 @@ ALTER TABLE addresses DROP COLUMN country;
 ALTER TABLE addresses
 ADD CONSTRAINT fk_country_addresses
 FOREIGN KEY (country_id) REFERENCES re_countries(id);
-
--- Update the "us_post_region_cities" table since it contains an existing "country" column
--- ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS country_id uuid;
-
--- UPDATE us_post_region_cities
--- SET country_id = (SELECT id FROM re_countries WHERE country = 'US')
--- WHERE ctry_genc_dgph_cd IS NULL OR ctry_genc_dgph_cd IN ('US', 'United States', 'USA');
-
--- ALTER TABLE us_post_region_cities DROP COLUMN ctry_genc_dgph_cd;
-
--- ALTER TABLE us_post_region_cities
--- ADD CONSTRAINT fk_country_us_post_region_cities
--- FOREIGN KEY (country_id) REFERENCES re_countries(id);

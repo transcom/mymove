@@ -11,7 +11,7 @@ func (suite *FactorySuite) TestBuildUSCountry() {
 			CountryName: "UNITED STATES",
 		}
 
-		country := BuildCountry(suite.DB(), nil, nil)
+		country := FetchOrBuildCountry(suite.DB(), nil, nil)
 		suite.Equal(defaultCountry.Country, country.Country)
 		suite.Equal(defaultCountry.CountryName, country.CountryName)
 	})
