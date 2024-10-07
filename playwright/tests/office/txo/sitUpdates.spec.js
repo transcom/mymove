@@ -13,13 +13,25 @@ test.describe('TOO user', () => {
     let days = 0;
     const currentDate = new Date(startDate);
 
-    while (currentDate < endDate) {
+    while (currentDate <= endDate) {
       days += 1;
       currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return days;
   };
+  // get today
+  const today = new Date();
+  // get 1 month ago
+  const oneMonthAgo = new Date(today);
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+  // get 2 months ago
+  const twoMonthsAgo = new Date(today);
+  twoMonthsAgo.setMonth(today.getMonth() - 2);
+
+  // get days between
+  const daysBetweenTwoMonthsAgoAndOneMonthAgo = calculateDaysDiff(twoMonthsAgo, oneMonthAgo);
+  const daysBetweenOneMonthAgoAndToday = calculateDaysDiff(oneMonthAgo, today);
 
   test.describe('previewing shipment with current SIT with past SIT', () => {
     test.beforeEach(async ({ officePage }) => {
@@ -38,17 +50,6 @@ test.describe('TOO user', () => {
       await tooFlowPage.waitForPage.moveTaskOrder();
       // assert that days authorization is 90
       await expect(page.getByTestId('sitStatusTable').getByText('90', { exact: true }).first()).toBeVisible();
-      // get today
-      const today = new Date();
-      // get 1 month ago
-      const oneMonthAgo = new Date(today);
-      oneMonthAgo.setMonth(today.getMonth() - 1);
-      // get 2 months ago
-      const twoMonthsAgo = new Date(today);
-      twoMonthsAgo.setMonth(today.getMonth() - 2);
-      // get days between
-      const daysBetweenTwoMonthsAgoAndOneMonthAgo = calculateDaysDiff(twoMonthsAgo, oneMonthAgo);
-      const daysBetweenOneMonthAgoAndToday = calculateDaysDiff(oneMonthAgo, today);
       // get sums
       const totalDaysUsed = daysBetweenTwoMonthsAgoAndOneMonthAgo + daysBetweenOneMonthAgoAndToday;
       const remainingDays = 90 - totalDaysUsed;
@@ -243,8 +244,12 @@ test.describe('TOO user', () => {
         .textContent();
 
       expect(daysApprovedCapture).toEqual('90');
-      expect(daysUsedCapture).toEqual('62'); // 31 days in past origin sit, 31 days in destination sit
-      expect(daysLeftCapture).toEqual('28'); // of the 90 authorized, 62 have been used
+      expect(daysUsedCapture).toEqual(
+        (daysBetweenTwoMonthsAgoAndOneMonthAgo + daysBetweenOneMonthAgoAndToday).toString(),
+      );
+      expect(daysLeftCapture).toEqual(
+        (90 - (daysBetweenTwoMonthsAgoAndOneMonthAgo + daysBetweenOneMonthAgoAndToday)).toString(),
+      );
     });
 
     test('is unable to decrease the SIT authorization below the number of days already used', async ({ page }) => {
