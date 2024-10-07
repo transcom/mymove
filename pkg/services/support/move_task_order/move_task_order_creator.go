@@ -118,7 +118,7 @@ func createOrder(appCtx appcontext.AppContext, customer *models.ServiceMember, o
 		originDutyLocation = &models.DutyLocation{}
 		originDutyLocationID := uuid.FromStringOrNil(orderPayload.OriginDutyLocationID.String())
 		err = appCtx.DB().Q().EagerPreload(
-			"Address",
+			"Address", "Address.Country",
 		).Find(originDutyLocation, originDutyLocationID)
 		if err != nil {
 			appCtx.Logger().Error("supportapi.createOrder error", zap.Error(err))
