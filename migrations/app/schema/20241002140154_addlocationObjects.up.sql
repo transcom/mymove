@@ -41,18 +41,18 @@ CREATE TABLE IF NOT EXISTS re_oconus_rate_areas
 rate_area_id	uuid		NOT NULL,
 country_id	    uuid	    NOT NULL
 	CONSTRAINT re_oconus_rate_areas_fkey01 REFERENCES re_countries (id),
-us_post_region_id	uuid	NOT NULL
-	CONSTRAINT re_oconus_rate_areas_fkey02 REFERENCES re_us_post_regions (id),
+us_post_region_city_id	uuid	NOT NULL
+	CONSTRAINT re_oconus_rate_areas_fkey02 REFERENCES us_post_region_cities (id),
 created_at		timestamp	NOT NULL DEFAULT NOW(),
 updated_at		timestamp	NOT NULL DEFAULT NOW(),
 inactive_flag	varchar(1)  DEFAULT 'N',
 CONSTRAINT re_oconus_rate_areas_pkey PRIMARY KEY (id),
-CONSTRAINT unique_re_oconus_rate_areas UNIQUE (rate_area_id, country_id, us_post_region_id));
+CONSTRAINT unique_re_oconus_rate_areas UNIQUE (rate_area_id, country_id, us_post_region_city_id));
 
 COMMENT ON TABLE re_oconus_rate_areas IS 'Associates a country with a rate area.';
 COMMENT ON COLUMN re_oconus_rate_areas.rate_area_id IS 'The associated rate area id for this country.';
 COMMENT ON COLUMN re_oconus_rate_areas.country_id IS 'The associated country id for this country.';
-COMMENT ON COLUMN re_oconus_rate_areas.us_post_region_id IS 'The associated id for this zip5 and state. Used to associate AK and HI rate areas.';
+COMMENT ON COLUMN re_oconus_rate_areas.us_post_region_city_id IS 'The associated id for this zip5, state and city association. Used to associate AK and HI rate areas.';
 COMMENT ON COLUMN re_oconus_rate_areas.inactive_flag IS 'Set to Y if record is inactive';
 
 CREATE TABLE IF NOT EXISTS re_intl_transit_times
