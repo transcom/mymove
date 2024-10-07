@@ -114,7 +114,7 @@ func (s *S3) TempFileSystem() *afero.Afero {
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 minutes.
-func (s *S3) PresignedURL(key string, contentType string) (string, error) {
+func (s *S3) PresignedURL(key string, contentType string, filename string) (string, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 	presignClient := s3.NewPresignClient(s.client)
 
@@ -123,7 +123,7 @@ func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 			Bucket:                     &s.bucket,
 			Key:                        &namespacedKey,
 			ResponseContentType:        &contentType,
-			ResponseContentDisposition: models.StringPointer("attachment"),
+			ResponseContentDisposition: models.StringPointer("attachment; filename=" + filename),
 		},
 		func(opts *s3.PresignOptions) {
 			opts.Expires = 15 * time.Minute

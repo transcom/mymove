@@ -54,8 +54,8 @@ func (fake *FakeS3Storage) Fetch(key string) (io.ReadCloser, error) {
 }
 
 // PresignedURL returns a URL that can be used to retrieve a file.
-func (fake *FakeS3Storage) PresignedURL(key string, contentType string) (string, error) {
-	url := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&signed=test", key, contentType)
+func (fake *FakeS3Storage) PresignedURL(key string, contentType string, filename string) (string, error) {
+	url := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&filename=%s&signed=test", key, contentType, filename)
 	return url, nil
 }
 
