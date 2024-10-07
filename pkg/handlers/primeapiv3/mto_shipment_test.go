@@ -598,7 +598,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 		}
 		// *************************************************************************************
 		// *************************************************************************************
-		// Run with whitespaces in destination street 1. Whitespaces will be trimmed and seen as
+		// Run with whitespace in destination street 1. Whitespace will be trimmed and seen as
 		// as empty on the server side.
 		// *************************************************************************************
 		ppmDestinationAddressOptionalStreet1ContainingWhitespaces := primev3messages.PPMDestinationAddress{
@@ -606,7 +606,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 			Country:        models.StringPointer("US"),
 			PostalCode:     models.StringPointer("90210"),
 			State:          models.StringPointer("CA"),
-			StreetAddress1: models.StringPointer("  "), //whitespaces
+			StreetAddress1: models.StringPointer("  "), //whitespace
 		}
 		patchParams.Body.PpmShipment = &primev3messages.UpdatePPMShipment{
 			DestinationAddress: struct {
@@ -627,7 +627,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandler() {
 
 		updatedPPM := updatedShipment.PpmShipment
 		suite.Equal(ppmDestinationAddressOptionalStreet1ContainingWhitespaces.City, updatedPPM.DestinationAddress.City)
-		// test whitespaces has been trimmed. it should not be equal after update
+		// test whitespace has been trimmed. it should not be equal after update
 		suite.NotEqual(ppmDestinationAddressOptionalStreet1ContainingWhitespaces.StreetAddress1, updatedPPM.DestinationAddress.StreetAddress1)
 		// verify street address1 is returned as empty string
 		suite.True(len(*updatedPPM.DestinationAddress.StreetAddress1) == 0)
