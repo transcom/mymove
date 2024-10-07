@@ -1003,3 +1003,5 @@
 20241002140154_addlocationObjects.up.sql
 20241002140539_populateStates.up.sql
 20241004124121_populateUsPostRegion.up.sql
+20241007184230_insertReOconusRateAreas.up.sql
+20241007184259_insertReIntlTransTime.up.sql
