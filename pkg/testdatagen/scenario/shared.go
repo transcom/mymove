@@ -4234,6 +4234,7 @@ func createHHGWithOriginSITServiceItems(
 	// the prime API requires it to be specified.
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
+	originSITAddress.Country = nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -4932,10 +4933,11 @@ func createHHGWithPaymentServiceItems(
 	originEntryDate := actualPickupDate
 
 	// Prep country with a real db
-	country := factory.BuildCountry(db, nil, nil)
+	country := factory.FetchOrBuildCountry(db, nil, nil)
 	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 	// Manually set Country ID. Customizations will not work because DB is nil
 	originSITAddress.CountryId = &country.ID
+	originSITAddress.Country = nil
 	originSITAddress.ID = uuid.Nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{

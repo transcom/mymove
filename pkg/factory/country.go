@@ -27,7 +27,7 @@ func BuildCountry(db *pop.Connection, customs []Customization, traits []Trait) m
 		}
 	}
 
-	// Check if the "US" country already exists in the database
+	// Check if the country provided already exists in the database
 	if db != nil {
 		var existingCountry models.Country
 		err := db.Where("country = ?", cCountry.Country).First(&existingCountry)
