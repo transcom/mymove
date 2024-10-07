@@ -26,7 +26,6 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 		ID:             uuid.FromStringOrNil(address.ID.String()),
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
-		Country:        address.Country,
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
@@ -223,7 +222,6 @@ func PPMShipmentModelFromCreate(ppmShipment *primev2messages.CreatePPMShipment) 
 		City:           "DEPV1",
 		State:          "CA",
 		PostalCode:     "90210",
-		Country:        models.StringPointer("US"),
 	}
 
 	model.PickupAddress = addressModel
