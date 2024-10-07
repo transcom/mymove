@@ -232,12 +232,20 @@ func populateShipmentFields(
 
 func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, appCtx appcontext.AppContext, shipment models.MTOShipment) error {
 	var paymentRequests []models.PaymentRequest
+	approvedStatuses := []string{
+		models.PaymentRequestStatusReviewed.String(),
+		models.PaymentRequestStatusSentToGex.String(),
+		models.PaymentRequestStatusPaid.String(),
+		models.PaymentRequestStatusEDIError.String(),
+		models.PaymentRequestStatusTppsReceived.String(),
+	}
+
 	prQErr := appCtx.DB().EagerPreload(
 		"PaymentServiceItems.MTOServiceItem.ReService").
 		InnerJoin("payment_service_items", "payment_requests.id = payment_service_items.payment_request_id").
 		InnerJoin("mto_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
 		Where("mto_service_items.mto_shipment_id = ?", shipment.ID).
-		Where("payment_requests.status = ?", models.PaymentRequestStatusReviewed).
+		Where("payment_requests.status in (?)", approvedStatuses).
 		GroupBy("payment_requests.id").
 		All(&paymentRequests)
 	if prQErr != nil {
@@ -280,6 +288,7 @@ func populatePaymentRequestFields(pptasShipment *pptasmessages.PPTASShipment, ap
 
 			switch serviceItem.MTOServiceItem.ReService.Name {
 			case "Domestic linehaul":
+				linehaulTotal += totalPrice
 			case "Domestic shorthaul":
 				linehaulTotal += totalPrice
 			case "Move management":
