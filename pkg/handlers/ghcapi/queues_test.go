@@ -1384,7 +1384,6 @@ func (suite *HandlerSuite) makeServicesCounselingSubtestData() (subtestData *ser
 				City:           "Fort Eisenhower",
 				State:          "GA",
 				PostalCode:     "77777",
-				Country:        models.StringPointer("United States"),
 			},
 		},
 	}, nil)

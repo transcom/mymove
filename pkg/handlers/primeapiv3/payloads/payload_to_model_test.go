@@ -573,7 +573,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 
 	pickupAddress = primev3messages.Address{
 		City:           &address.City,
-		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -582,7 +581,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	destinationAddress = primev3messages.Address{
 		City:           &address.City,
-		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -591,7 +589,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	secondaryPickupAddress = primev3messages.Address{
 		City:           &address2.City,
-		Country:        address2.Country,
 		PostalCode:     &address2.PostalCode,
 		State:          &address2.State,
 		StreetAddress1: &address2.StreetAddress1,
@@ -600,7 +597,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	secondaryDestinationAddress = primev3messages.Address{
 		City:           &address2.City,
-		Country:        address2.Country,
 		PostalCode:     &address2.PostalCode,
 		State:          &address2.State,
 		StreetAddress1: &address2.StreetAddress1,
@@ -609,7 +605,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	tertiaryPickupAddress = primev3messages.Address{
 		City:           &address3.City,
-		Country:        address3.Country,
+		Country:        &address3.Country.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,
@@ -618,7 +614,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 	tertiaryDestinationAddress = primev3messages.Address{
 		City:           &address3.City,
-		Country:        address3.Country,
+		Country:        &address3.Country.Country,
 		PostalCode:     &address3.PostalCode,
 		State:          &address3.State,
 		StreetAddress1: &address3.StreetAddress1,

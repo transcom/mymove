@@ -10,7 +10,7 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
-COPY public.re_us_post_region (id, uspr_zip_id, state_id, zip3, created_at) FROM stdin;
+COPY public.re_us_post_regions (id, uspr_zip_id, state_id, zip3, created_at) FROM stdin;
 7cf3b4a9-80d8-4745-88e7-fe7a9ab7a56b	48621	20ec3809-7297-4991-8dde-7471ac4c5bbe	486	now()
 e6d4934c-3f69-49cd-b222-eaccb1fa55e9	55420	fec9f049-25f2-417d-a0ce-0aca3204a298	554	now()
 1f121491-41bb-4bd1-bf55-1ccb0f0cdfa8	99720	cb5e2e40-0698-41a9-9367-23e5777a427c	997	now()

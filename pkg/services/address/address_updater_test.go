@@ -47,7 +47,6 @@ func (suite *AddressSuite) TestAddressUpdater() {
 		suite.NotNil(updatedAddress.StreetAddress3)
 		suite.Equal(originalAddress.StreetAddress3, updatedAddress.StreetAddress3)
 		suite.NotNil(updatedAddress.Country)
-		suite.Equal(originalAddress.Country, updatedAddress.Country)
 		suite.Equal(county, desiredAddress.County)
 	})
 
