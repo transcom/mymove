@@ -1,32 +1,32 @@
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('11132ab5-7bd5-4dd1-8c32-a495049654f2', 'First Street', 'Bldg 601, Room 39', 'Fort Greely', 'AK', '99731', now(), now(), 'US', 'Southeast Fairbanks');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('11132ab5-7bd5-4dd1-8c32-a495049654f2', 'First Street', 'Bldg 601, Room 39', 'Fort Greely', 'AK', '99731', now(), now(), 'US', 'Southeast Fairbanks', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('69f358f2-8b09-4ad4-aecf-0a6a4423eb52', '3401 Santiago Avenue', 'Bldg 3401, Room 120', 'Fort Wainwright', 'AK', '99703', now(), now(), 'US', 'NORTH STAR');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('69f358f2-8b09-4ad4-aecf-0a6a4423eb52', '3401 Santiago Avenue', 'Bldg 3401, Room 120', 'Fort Wainwright', 'AK', '99703', now(), now(), 'US', 'NORTH STAR', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('214852ab-7b16-452a-bc35-523be06b00bc', 'ATTN: Transportation Office', 'PO Box 195119', 'Kodiak', 'AK', '99619', now(), now(), 'US', 'KODIAK');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('214852ab-7b16-452a-bc35-523be06b00bc', 'ATTN: Transportation Office', 'PO Box 195119', 'Kodiak', 'AK', '99619', now(), now(), 'US', 'KODIAK', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('65523bb6-34d9-4516-b796-ec1008550964', '8517 20th St', '773 LRS/LGRTJ, Room 239', 'JB Elmendorf-Richardson', 'AK', '99506', now(), now(), 'US', 'ANCHORAGE');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('65523bb6-34d9-4516-b796-ec1008550964', '8517 20th St', '773 LRS/LGRTJ, Room 239', 'JB Elmendorf-Richardson', 'AK', '99506', now(), now(), 'US', 'ANCHORAGE', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('3eaf3632-3eea-47cd-b47c-3588dde5d997', '8517 20th St', '773 LRS/LGRNP, Room 247', 'JB Elmendorf-Richardson', 'AK', '99506', now(), now(), 'US', 'ANCHORAGE');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('3eaf3632-3eea-47cd-b47c-3588dde5d997', '8517 20th St', '773 LRS/LGRNP, Room 247', 'JB Elmendorf-Richardson', 'AK', '99506', now(), now(), 'US', 'ANCHORAGE', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('2e92b1d1-4027-4de0-8a25-7b798810ce74', '600 Richardson Dr', '773 LRS/LGRNP, Room B145', 'JB Elmendorf-Richardson', 'AK', '99505', now(), now(), 'US', 'ANCHORAGE');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('2e92b1d1-4027-4de0-8a25-7b798810ce74', '600 Richardson Dr', '773 LRS/LGRNP, Room B145', 'JB Elmendorf-Richardson', 'AK', '99505', now(), now(), 'US', 'ANCHORAGE', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('56f58c55-c7a1-43bb-9bd2-19d126e27434', 'JPPSO - Hawaii Code 448', '4825 Bougainville Dr', 'Honolulu', 'HI', '96818', now(), now(), 'US', 'Honolulu');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('56f58c55-c7a1-43bb-9bd2-19d126e27434', 'JPPSO - Hawaii Code 448', '4825 Bougainville Dr', 'Honolulu', 'HI', '96818', now(), now(), 'US', 'Honolulu', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('d5523db1-873f-4661-a664-3a4585c2535c', '3112 Broadway Ave, Ste 1A', '354 LRS/LGRDF', 'Eielson AFB', 'AK', '99702', now(), now(), 'US', 'FAIRBANKS NORTH STAR');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('d5523db1-873f-4661-a664-3a4585c2535c', '3112 Broadway Ave, Ste 1A', '354 LRS/LGRDF', 'Eielson AFB', 'AK', '99702', now(), now(), 'US', 'FAIRBANKS NORTH STAR', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('f2b2ce60-9549-4949-809f-086b9227c8d3', 'Transportation Office - Soldier Support Center', 'Bldg 750 Ayers Rd, Room 140', 'Schofield Barracks', 'HI', '96857', now(), now(), 'US', 'Honolulu');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('f2b2ce60-9549-4949-809f-086b9227c8d3', 'Transportation Office - Soldier Support Center', 'Bldg 750 Ayers Rd, Room 140', 'Schofield Barracks', 'HI', '96857', now(), now(), 'US', 'Honolulu', true);
 
-INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county)
-VALUES ('9ee3339b-2fdf-4030-8f02-01e356b8efce', '900 Hangar Avenue', 'Bldg 2060', 'Hickam AFB', 'HI', '96853', now(), now(), 'US', 'HONOLULU');
+INSERT INTO addresses(id, street_address_1, street_address_2, city, state, postal_code, created_at, updated_at, country, county, is_oconus)
+VALUES ('9ee3339b-2fdf-4030-8f02-01e356b8efce', '900 Hangar Avenue', 'Bldg 2060', 'Hickam AFB', 'HI', '96853', now(), now(), 'US', 'HONOLULU', true);
 
 INSERT INTO transportation_offices(id, name, address_id, latitude, longitude, hours, services, created_at, updated_at, gbloc, provides_ppm_closeout)
 VALUES ('dd2c98a6-303d-4596-86e8-b067a7deb1a2', 'PPPO Fort Greely', 'c35e7dbd-797a-48c2-88de-8cb5bf13418d', 63.905016, -145.554566, null, null, now(), now(), 'JEAT', true);
@@ -229,8 +229,8 @@ VALUES ('8efaff8b-b41a-4492-8720-8ff4ae1fdf3d', '812fa266-86e2-4607-b434-8a23d4d
 --ask Beth/Dre
 --select * from postal_code_to_gblocs pctg where postal_code in ('99703','99731');
 --select * from addresses a where a.postal_code in ('99703','99731'); --6 rows, none used in transportation_offices or in duty_locaitons
-INSERT INTO postal_code_to_gblocs(postal_code, gbloc, created_at, updated_at, id)
-VALUES ('99731', 'JEAT', now(), now(), uuid_generate_v4());  --dd366219-6c3b-45c1-a59a-e04d0efe1a6d
+--INSERT INTO postal_code_to_gblocs(postal_code, gbloc, created_at, updated_at, id)
+--VALUES ('99731', 'JEAT', now(), now(), uuid_generate_v4());  --dd366219-6c3b-45c1-a59a-e04d0efe1a6d
 
-INSERT INTO postal_code_to_gblocs(postal_code, gbloc, created_at, updated_at, id)
-VALUES ('99703', 'JEAT', now(), now(), uuid_generate_v4());  --5f47676a-520d-4106-9889-009b0ab29726
+--INSERT INTO postal_code_to_gblocs(postal_code, gbloc, created_at, updated_at, id)
+--VALUES ('99703', 'JEAT', now(), now(), uuid_generate_v4());  --5f47676a-520d-4106-9889-009b0ab29726
