@@ -405,22 +405,10 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 	suite.Run("defaults to nil reason if empty string provided", func() {
 		move := factory.BuildMove(nil, nil, nil)
 
-		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Nil(move.CancelReason)
-	})
-
-	suite.Run("adds reason if provided", func() {
-		move := factory.BuildMove(nil, nil, nil)
-
-		reason := "SM's orders revoked"
-		err := moveRouter.Cancel(suite.AppContextForTest(), reason, &move)
-
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
 	})
 
 	suite.Run("cancels PPM and Order when move is canceled", func() {
@@ -429,7 +417,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 
 		move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
 
-		err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
@@ -456,7 +444,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 				move.Status = tt.status
 				move.Orders.Status = models.OrderStatusSUBMITTED
 
-				err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
+				err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 
 				suite.NoError(err)
 				suite.Equal(models.MoveStatusCANCELED, move.Status)
@@ -477,7 +465,7 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 
 				move.Status = tt.status
 
-				err := moveRouter.Cancel(suite.AppContextForTest(), "", &move)
+				err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 
 				suite.Error(err)
 				suite.Contains(err.Error(), "cannot cancel a move that is already canceled")

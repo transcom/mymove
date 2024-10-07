@@ -180,15 +180,9 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
 	req = suite.AuthenticateOfficeRequest(req, officeUser)
 
-	// And params include the cancel reason
-	reason := "Orders revoked."
-	reasonPayload := &internalmessages.CancelMove{
-		CancelReason: &reason,
-	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
-		CancelMove:  reasonPayload,
 	}
 
 	// And: a move is canceled
@@ -217,15 +211,9 @@ func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
 	req = suite.AuthenticateRequest(req, user)
 
-	// And params include the cancel reason
-	reason := "Orders revoked."
-	reasonPayload := &internalmessages.CancelMove{
-		CancelReason: &reason,
-	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
-		CancelMove:  reasonPayload,
 	}
 	// And: a move is canceled
 	handlerConfig := suite.HandlerConfig()

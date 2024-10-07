@@ -881,14 +881,6 @@ func init() {
             "name": "moveId",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "cancelMove",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CancelMove"
-            }
           }
         ],
         "responses": {
@@ -9055,14 +9047,6 @@ func init() {
             "name": "moveId",
             "in": "path",
             "required": true
-          },
-          {
-            "name": "cancelMove",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/CancelMove"
-            }
           }
         ],
         "responses": {
