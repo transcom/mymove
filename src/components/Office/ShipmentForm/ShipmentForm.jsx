@@ -1402,6 +1402,7 @@ const ShipmentForm = (props) => {
                       <AddressFields
                         name="destination.address"
                         legend="Destination Address"
+                        address1LabelHint="Optional"
                         render={(fields) => (
                           <>
                             {fields}

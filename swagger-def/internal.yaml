@@ -1938,7 +1938,7 @@ definitions:
       secondaryPickupAddress:
         $ref: "definitions/Address.yaml"
       destinationAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       tertiaryDestinationAddress:
@@ -1997,7 +1997,7 @@ definitions:
         pattern: ^(\d{5})$
         x-nullable: true
       destinationAddress:
-        $ref: "definitions/Address.yaml"
+        $ref: "definitions/PPMDestinationAddress.yaml"
       secondaryDestinationAddress:
         $ref: 'definitions/Address.yaml'
       hasSecondaryDestinationAddress:
