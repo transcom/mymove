@@ -34,7 +34,6 @@ func BuildAddress(db *pop.Connection, customs []Customization, traits []Trait) m
 		County:         "LOS ANGELES",
 	}
 
-	// country := BuildUSCountry(db, customs, nil)
 	// Find/create the Country if customization is provided
 	var country models.Country
 	if result := findValidCustomization(customs, Country); result != nil {

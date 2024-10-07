@@ -51,7 +51,7 @@ func BuildCountry(db *pop.Connection, customs []Customization, traits []Trait) m
 	return country
 }
 
-// FetchOrBuildReService tries fetching a ReService using ReServiceCode, then falls back to creating one
+// FetchOrBuildCountry tries fetching a Country using a provided customization, then falls back to creating a default "US" country
 func FetchOrBuildCountry(db *pop.Connection, customs []Customization, traits []Trait) models.Country {
 	if db == nil {
 		return BuildCountry(db, customs, traits)
