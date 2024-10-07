@@ -1539,7 +1539,7 @@ describe('ShipmentForm component', () => {
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
 
-      // controlled test. we expect alert to be raised if we type in whitespaces to trigger required alert
+      // controlled test. we expect alert to be raised if we type in whitespace to trigger required alert
       // for pickup
       await userEvent.type(document.querySelector('input[name="pickup.address.streetAddress1"]'), '  ');
       await userEvent.tab();
@@ -1781,12 +1781,6 @@ describe('ShipmentForm component', () => {
           />,
         );
 
-        // controlled test. we expect alert to be raised if we type in whitespaces to trigger required alert
-        // for pickup
-        // await userEvent.type(
-        //   document.querySelector('input[name="pickup.address.streetAddress1"]'),
-        //   '  ',
-        // );
         await userEvent.clear(document.querySelector('input[name="pickup.address.streetAddress1"]'));
         await userEvent.tab();
         await waitFor(() => {
