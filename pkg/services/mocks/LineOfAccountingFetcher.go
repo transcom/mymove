@@ -20,6 +20,10 @@ type LineOfAccountingFetcher struct {
 func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
 	ret := _m.Called(loa)
 
+	if len(ret) == 0 {
+		panic("no return value specified for BuildFullLineOfAccountingString")
+	}
+
 	var r0 string
 	if rf, ok := ret.Get(0).(func(models.LineOfAccounting) string); ok {
 		r0 = rf(loa)

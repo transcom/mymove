@@ -50,6 +50,10 @@ func (_m *MoveFetcher) FetchMove(appCtx appcontext.AppContext, locator string, s
 func (_m *MoveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, params *services.MoveTaskOrderFetcherParams) (models.Moves, error) {
 	ret := _m.Called(appCtx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchMovesForPPTASReports")
+	}
+
 	var r0 models.Moves
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *services.MoveTaskOrderFetcherParams) (models.Moves, error)); ok {

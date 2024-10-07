@@ -149,6 +149,10 @@ func (_m *PPMEstimator) FinalIncentiveWithDefaultChecks(appCtx appcontext.AppCon
 func (_m *PPMEstimator) PriceBreakdown(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) (unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, unit.Cents, error) {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for PriceBreakdown")
+	}
+
 	var r0 unit.Cents
 	var r1 unit.Cents
 	var r2 unit.Cents
