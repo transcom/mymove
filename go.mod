@@ -78,7 +78,7 @@ require (
 	github.com/vektra/mockery/v2 v2.45.1
 	github.com/xuri/excelize/v2 v2.8.1
 	go.flipt.io/flipt/rpc/flipt v1.45.0
-	go.flipt.io/flipt/sdk/go v0.5.0
+	go.flipt.io/flipt/sdk/go v0.12.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.opentelemetry.io/contrib/detectors/aws/ecs v1.18.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.43.0
