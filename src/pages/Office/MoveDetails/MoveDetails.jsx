@@ -433,6 +433,7 @@ const MoveDetails = ({
                   <option value={SHIPMENT_OPTIONS_URL.NTS}>NTS</option>
                   <option value={SHIPMENT_OPTIONS_URL.NTSrelease}>NTS-release</option>
                   <option value={SHIPMENT_OPTIONS_URL.BOAT}>Boat</option>
+                  <option value={SHIPMENT_OPTIONS_URL.MOBILE_HOME}>Mobile Home</option>
                 </ButtonDropdown>
               </div>
             </Restricted>
