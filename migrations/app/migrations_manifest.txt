@@ -1005,3 +1005,4 @@
 20241004151611_insert_re_us_post_regions.up.sql
 20241004151723_update_us_post_regions_id_us_post_region_cities.up.sql
 20241004170350_insert_us_post_region_cities_AK_HI.up.sql
+20241007224427_update_addresses_us_post_region_cities_id.up.sql

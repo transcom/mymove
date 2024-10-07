@@ -4,6 +4,11 @@ SET statement_timeout = 300000;
 SET lock_timeout = 300000;
 SET idle_in_transaction_session_timeout = 300000;
 
+ALTER TABLE us_post_region_cities ALTER COLUMN uspr_zip_id DROP NOT NULL;
+ALTER TABLE us_post_region_cities ALTER COLUMN u_s_post_region_city_nm DROP NOT NULL;
+ALTER TABLE us_post_region_cities ALTER COLUMN usprc_prfd_lst_line_ctyst_nm DROP NOT NULL;
+ALTER TABLE us_post_region_cities ALTER COLUMN ctry_genc_dgph_cd DROP NOT NULL;
+
 INSERT INTO us_post_region_cities (id,usprc_county_nm,cities_id,us_post_regions_id,created_at,updated_at) VALUES
 	 ('c514b5e2-1048-484f-bd95-e634bc292a9a'::uuid,'HONOLULU','42e35ede-c460-4dc4-b3a8-af2ae75a7961'::uuid,'d74a9c61-2194-40f9-a461-fa5251d34cf9'::uuid,'2024-10-04 14:28:10.664501-05','2024-10-04 14:28:10.664501-05'),
 	 ('8ebcaf7e-7ef5-4125-b186-0266b975ccc4'::uuid,'KAUAI','434f6a24-94eb-4bc5-b106-4dd19d6d3bc8'::uuid,'d030aca4-49c2-4667-92eb-ee803390368e'::uuid,'2024-10-04 14:28:10.664501-05','2024-10-04 14:28:10.664501-05'),
