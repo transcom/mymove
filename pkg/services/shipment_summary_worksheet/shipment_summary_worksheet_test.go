@@ -1116,7 +1116,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
 	suite.Equal(expectedValidResult, resultValid)
 
 	// Test case 2: Valid W2 Address with country
-	country := factory.BuildUSCountry(suite.DB(), nil, nil)
+	country := factory.BuildCountry(suite.DB(), nil, nil)
 	validAddress2 := &models.Address{
 		StreetAddress1: "123 Main St",
 		City:           "Cityville",

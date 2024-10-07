@@ -25,7 +25,7 @@ func (suite *ModelSuite) Test_TransportationOfficeInstantiation() {
 }
 
 func CreateTestShippingOffice(suite *ModelSuite) m.TransportationOffice {
-	factory.BuildUSCountry(suite.DB(), nil, nil)
+	factory.BuildCountry(suite.DB(), nil, nil)
 	addressCreator := address.NewAddressCreator()
 	newAddress := &m.Address{
 		StreetAddress1: "123 washington Ave",

@@ -4932,7 +4932,7 @@ func createHHGWithPaymentServiceItems(
 	originEntryDate := actualPickupDate
 
 	// Prep country with a real db
-	country := factory.BuildUSCountry(db, nil, nil)
+	country := factory.BuildCountry(db, nil, nil)
 	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 	// Manually set Country ID. Customizations will not work because DB is nil
 	originSITAddress.CountryId = &country.ID

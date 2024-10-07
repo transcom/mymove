@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestSearchDutyLocationHandler() {
 		PostalCode:     "12345",
 		County:         "County",
 	}
-	factory.BuildUSCountry(suite.AppContextForTest().DB(), nil, nil)
+	factory.BuildCountry(suite.AppContextForTest().DB(), nil, nil)
 	addressCreator := address.NewAddressCreator()
 	createdAddress, err := addressCreator.CreateAddress(suite.AppContextForTest(), &newAddress)
 	suite.NoError(err)

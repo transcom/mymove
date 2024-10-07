@@ -57,6 +57,12 @@ func (suite *FactorySuite) TestBuildAddress() {
 					PostalCode:     customPostalCode,
 				},
 			},
+			{
+				Model: models.Country{
+					Country:     "AL",
+					CountryName: "UNITED STATES",
+				},
+			},
 		}, nil)
 
 		country, err := models.FetchCountryByID(suite.DB(), *address.CountryId)

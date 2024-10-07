@@ -12,7 +12,8 @@ country			VARCHAR(2)	NOT NULL,
 country_name	VARCHAR(50)	NOT NULL,
 created_at		TIMESTAMP	NOT NULL DEFAULT NOW(),
 updated_at		TIMESTAMP	NOT NULL DEFAULT NOW(),
-CONSTRAINT re_countries_pkey PRIMARY KEY (id)
+CONSTRAINT re_countries_pkey PRIMARY KEY (id),
+CONSTRAINT unique_re_countries UNIQUE (country)
 );
 
 COMMENT ON TABLE re_countries IS 'Stores US country codes and names';

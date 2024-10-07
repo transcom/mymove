@@ -51,7 +51,7 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.NoError(err)
 	suite.Equal(expected, countryCode)
 
-	country := factory.BuildUSCountry(suite.DB(), nil, nil)
+	country := factory.BuildCountry(suite.DB(), nil, nil)
 	usCountry := m.Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: m.StringPointer("street 2"),
