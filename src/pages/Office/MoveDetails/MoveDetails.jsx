@@ -12,7 +12,7 @@ import hasRiskOfExcess from 'utils/hasRiskOfExcess';
 import { MOVES, MTO_SERVICE_ITEMS, MTO_SHIPMENTS } from 'constants/queryKeys';
 import { tooRoutes } from 'constants/routes';
 import SERVICE_ITEM_STATUSES from 'constants/serviceItems';
-import { ADDRESS_UPDATE_STATUS, shipmentStatuses } from 'constants/shipments';
+import { ADDRESS_UPDATE_STATUS, shipmentStatuses, ppmShipmentStatuses } from 'constants/shipments';
 import AllowancesList from 'components/Office/DefinitionLists/AllowancesList';
 import CustomerInfoList from 'components/Office/DefinitionLists/CustomerInfoList';
 import ButtonDropdown from 'components/ButtonDropdown/ButtonDropdown';
@@ -74,9 +74,9 @@ const MoveDetails = ({
   const { move, customerData, order, closeoutOffice, mtoShipments, mtoServiceItems, isLoading, isError } =
     useMoveDetailsQueries(moveCode);
 
-  const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED;
   // for now we are only showing dest type on retiree and separatee orders
   let isRetirementOrSeparation = false;
+  let numberOfShipmentsNotAllowedForCancel = 0;
 
   isRetirementOrSeparation =
     order?.order_type === ORDERS_TYPE.RETIREMENT || order?.order_type === ORDERS_TYPE.SEPARATION;
@@ -210,6 +210,18 @@ const MoveDetails = ({
   }, [shipmentWithDestinationAddressChangeRequest?.length, setShipmentsWithDeliveryAddressUpdateRequestedCount]);
 
   const shipmentsInfoNonPPM = mtoShipments?.filter((shipment) => shipment.shipmentType !== 'PPM');
+  if (mtoShipments) {
+    const nonDeletedShipments = mtoShipments?.filter((shipment) => !shipment.deletedAt);
+    const nonPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const nonPpmApprovedShipments = nonPpmShipments.filter(
+      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+    );
+    const onlyPpmShipments = nonDeletedShipments.filter((shipment) => shipment.shipmentType === 'PPM');
+    const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+    );
+    numberOfShipmentsNotAllowedForCancel = nonPpmApprovedShipments.length + ppmCloseoutCompleteShipments.length;
+  }
 
   useEffect(() => {
     const shipmentCount = submittedShipments?.length || 0;
@@ -355,6 +367,7 @@ const MoveDetails = ({
   const hasAmendedOrders = ordersInfo.uploadedAmendedOrderID && !ordersInfo.amendedOrdersAcknowledgedAt;
   const hasDestinationAddressUpdate =
     shipmentWithDestinationAddressChangeRequest && shipmentWithDestinationAddressChangeRequest.length > 0;
+  const tooCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
 
   return (
     <div className={styles.tabContent}>
@@ -451,8 +464,8 @@ const MoveDetails = ({
             )}
             <Restricted to={permissionTypes.cancelMoveFlag}>
               <div className={styles.tooCancelMoveContainer}>
-                {tooCanCancelMove && (
-                  <Button type="button" unstyled onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked}>
+                {tooCanCancelMove && !isMoveLocked && (
+                  <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
                     Cancel move
                   </Button>
                 )}

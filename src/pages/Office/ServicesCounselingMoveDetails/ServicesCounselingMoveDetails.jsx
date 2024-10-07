@@ -25,7 +25,7 @@ import { SubmitMoveConfirmationModal } from 'components/Office/SubmitMoveConfirm
 import { useMoveDetailsQueries, useOrdersDocumentQueries } from 'hooks/queries';
 import { updateMoveStatusServiceCounselingCompleted, cancelMove, updateFinancialFlag } from 'services/ghcApi';
 import { MOVE_STATUSES, SHIPMENT_OPTIONS_URL, SHIPMENT_OPTIONS } from 'shared/constants';
-import { ppmShipmentStatuses } from 'constants/shipments';
+import { ppmShipmentStatuses, shipmentStatuses } from 'constants/shipments';
 import shipmentCardsStyles from 'styles/shipmentCards.module.scss';
 import LeftNav from 'components/LeftNav/LeftNav';
 import LeftNavTag from 'components/LeftNavTag/LeftNavTag';
@@ -117,6 +117,7 @@ const ServicesCounselingMoveDetails = ({
   let shipmentsInfo = [];
   let ppmShipmentsInfoNeedsApproval = [];
   let ppmShipmentsOtherStatuses = [];
+  let numberOfShipmentsNotAllowedForCancel = 0;
   let disableSubmit = false;
   let disableSubmitDueToMissingOrderInfo = false;
   let numberOfErrorIfMissingForAllShipments = 0;
@@ -168,6 +169,15 @@ const ServicesCounselingMoveDetails = ({
     ppmShipmentsOtherStatuses = onlyPpmShipments.filter(
       (shipment) => shipment.ppmShipment?.status !== ppmShipmentStatuses.NEEDS_CLOSEOUT,
     );
+
+    const nonPpmShipments = submittedShipments.filter((shipment) => shipment.shipmentType !== 'PPM');
+    const nonPpmApprovedShipments = nonPpmShipments.filter(
+      (shipment) => shipment?.status === shipmentStatuses.APPROVED,
+    );
+    const ppmCloseoutCompleteShipments = onlyPpmShipments.filter(
+      (shipment) => shipment.ppmShipment?.status === ppmShipmentStatuses.CLOSEOUT_COMPLETE,
+    );
+    numberOfShipmentsNotAllowedForCancel = nonPpmApprovedShipments.length + ppmCloseoutCompleteShipments.length;
 
     ppmShipmentsInfoNeedsApproval = ppmNeedsApprovalShipments.map((shipment) => {
       const reviewURL = `../${generatePath(servicesCounselingRoutes.SHIPMENT_REVIEW_PATH, {
@@ -230,7 +240,7 @@ const ServicesCounselingMoveDetails = ({
     counselorCanReview = ppmShipmentsInfoNeedsApproval.length > 0;
     reviewWeightsURL = generatePath(servicesCounselingRoutes.BASE_REVIEW_SHIPMENT_WEIGHTS_PATH, { moveCode });
     counselorCanEdit = move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && ppmShipmentsOtherStatuses.length > 0;
-    counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED;
+    counselorCanCancelMove = move.status !== MOVE_STATUSES.CANCELED && numberOfShipmentsNotAllowedForCancel === 0;
     counselorCanEditNonPPM =
       move.status === MOVE_STATUSES.NEEDS_SERVICE_COUNSELING && shipmentsInfo.shipmentType !== 'PPM';
 
@@ -613,8 +623,8 @@ const ServicesCounselingMoveDetails = ({
             <Grid col={12}>
               <Restricted to={permissionTypes.cancelMoveFlag}>
                 <div className={scMoveDetailsStyles.scCancelMoveContainer}>
-                  {counselorCanCancelMove && (
-                    <Button type="button" unstyled onClick={handleShowCancelMoveModal} isMoveLocked={isMoveLocked}>
+                  {counselorCanCancelMove && !isMoveLocked && (
+                    <Button type="button" unstyled onClick={handleShowCancelMoveModal}>
                       Cancel move
                     </Button>
                   )}

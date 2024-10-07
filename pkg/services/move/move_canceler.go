@@ -39,7 +39,7 @@ func (f *moveCanceler) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID
 
 			if shipment.PPMShipment != nil {
 				if shipment.PPMShipment.Status == models.PPMShipmentStatusCloseoutComplete {
-					return apperror.NewConflictError(move.ID, " cannot cancel move with approved shipment.")
+					return apperror.NewConflictError(move.ID, " cannot cancel move with a closeout complete shipment.")
 				}
 				var ppmshipment models.PPMShipment
 				qerr := appCtx.DB().Where("id = ?", shipment.PPMShipment.ID).First(&ppmshipment)
