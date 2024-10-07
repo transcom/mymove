@@ -286,7 +286,7 @@ func ServeCustomError(rw http.ResponseWriter, r *http.Request, err error) {
 	default:
 		rw.WriteHeader(http.StatusInternalServerError)
 		if r == nil || r.Method != http.MethodHead {
-			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, err.Error()), traceID))
+			_, _ = rw.Write(errorAsJSON(openapierrors.New(http.StatusInternalServerError, "%s", err.Error()), traceID))
 		}
 	}
 }

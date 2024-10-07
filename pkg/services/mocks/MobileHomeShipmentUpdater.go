@@ -20,6 +20,10 @@ type MobileHomeShipmentUpdater struct {
 func (_m *MobileHomeShipmentUpdater) UpdateMobileHomeShipmentWithDefaultCheck(appCtx appcontext.AppContext, mobileHomeshipment *models.MobileHome, mtoShipmentID uuid.UUID) (*models.MobileHome, error) {
 	ret := _m.Called(appCtx, mobileHomeshipment, mtoShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMobileHomeShipmentWithDefaultCheck")
+	}
+
 	var r0 *models.MobileHome
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MobileHome, uuid.UUID) (*models.MobileHome, error)); ok {
