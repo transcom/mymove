@@ -33,8 +33,6 @@ COMMENT ON COLUMN re_us_post_regions.zip3 IS 'The first 3 digits of the zip code
 ALTER TABLE us_post_region_cities
 DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
 
---COMMENT ON COLUMN addresses.is_oconus IS 'Indicates if address is OCONUS';
-
 ALTER TABLE re_zip5_rate_areas
 ADD COLUMN IF NOT EXISTS inactive_flag   varchar(1);
 
