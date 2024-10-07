@@ -24,6 +24,10 @@ type FuelSurchargePricer struct {
 func (_m *FuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupDate time.Time, distance unit.Miles, weight unit.Pound, fscWeightBasedDistanceMultiplier float64, eiaFuelPrice unit.Millicents, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, actualPickupDate, distance, weight, fscWeightBasedDistanceMultiplier, eiaFuelPrice, isPPM)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
+
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
@@ -56,6 +60,10 @@ func (_m *FuelSurchargePricer) Price(appCtx appcontext.AppContext, actualPickupD
 // PriceUsingParams provides a mock function with given fields: appCtx, params
 func (_m *FuelSurchargePricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceUsingParams")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams

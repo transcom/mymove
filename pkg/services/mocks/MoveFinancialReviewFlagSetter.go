@@ -20,6 +20,10 @@ type MoveFinancialReviewFlagSetter struct {
 func (_m *MoveFinancialReviewFlagSetter) SetFinancialReviewFlag(appCtx appcontext.AppContext, moveID uuid.UUID, eTag string, flagForReview bool, remarks *string) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveID, eTag, flagForReview, remarks)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SetFinancialReviewFlag")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, bool, *string) (*models.Move, error)); ok {
