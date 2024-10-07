@@ -10,7 +10,6 @@
 package models_test
 
 import (
-	"github.com/transcom/mymove/pkg/factory"
 	m "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services/address"
 )
@@ -25,7 +24,6 @@ func (suite *ModelSuite) Test_TransportationOfficeInstantiation() {
 }
 
 func CreateTestShippingOffice(suite *ModelSuite) m.TransportationOffice {
-	factory.BuildCountry(suite.DB(), nil, nil)
 	addressCreator := address.NewAddressCreator()
 	newAddress := &m.Address{
 		StreetAddress1: "123 washington Ave",
