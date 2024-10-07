@@ -95,6 +95,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
             updatedItemName={updatedItemName}
             setUpdatedItemName={setUpdatedItemName}
             readOnly={readOnly}
+            expanded
           />
         </section>
         {showAllFields && (
