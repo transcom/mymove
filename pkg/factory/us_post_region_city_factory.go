@@ -20,11 +20,10 @@ func BuildUsPostRegionCity(db *pop.Connection, customs []Customization, traits [
 	}
 
 	usPostRegionCity := models.UsPostRegionCity{
-		UsprZipID:               "33608",
-		USPostRegionCityNm:      "MacDill AFB",
-		UsprcPrfdLstLineCtystNm: "MacDill",
-		UsprcCountyNm:           "Hillsborough",
-		CtryGencDgphCd:          "US",
+		UsprZipID:          "33608",
+		USPostRegionCityNm: "MacDill AFB",
+		UsprcCountyNm:      "Hillsborough",
+		CtryGencDgphCd:     "US",
 	}
 
 	testdatagen.MergeModels(&usPostRegionCity, cUsPostRegionCity)

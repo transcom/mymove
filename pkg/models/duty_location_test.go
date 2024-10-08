@@ -10,6 +10,7 @@ import (
 
 func (suite *ModelSuite) TestFindDutyLocations() {
 	addressCreator := address.NewAddressCreator()
+	factory.BuildUSCountry(suite.DB(), nil, nil)
 	newAddress := models.Address{
 		StreetAddress1: "some address",
 		City:           "city",

@@ -351,11 +351,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -3843,11 +3845,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
