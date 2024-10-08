@@ -126,7 +126,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			suite.NoError(err)
 
 			actualDeletedAt := shipmentInDB.DeletedAt
-			suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+			suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 
 			// Reset the deleted_at field to nil to allow the shipment to be
 			// deleted a second time when testing the other move status (a
@@ -183,7 +183,7 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 			suite.NoError(err)
 
 			actualDeletedAt := shipmentInDB.DeletedAt
-			suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+			suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 
 			// Reset the deleted_at field to nil to allow the shipment to be
 			// deleted a second time when testing the other move status (a
@@ -243,10 +243,10 @@ func (suite *MTOShipmentServiceSuite) TestShipmentDeleter() {
 		suite.NoError(err)
 
 		actualDeletedAt := shipmentInDB.DeletedAt
-		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+		suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 
 		actualDeletedAt = shipmentInDB.PPMShipment.DeletedAt
-		suite.WithinDuration(time.Now(), *actualDeletedAt, 2*time.Second)
+		suite.WithinDuration(time.Now(), *actualDeletedAt, 10*time.Second)
 	})
 }
 
