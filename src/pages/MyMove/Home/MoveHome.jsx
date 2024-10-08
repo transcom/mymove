@@ -645,7 +645,12 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                   </Step>
 
                   {!hasSubmittedMove() && !showCancelSuccessAlert ? (
-                    <Button onClick={() => setShowCancelMoveModal(true)} unstyled className={styles.printBtn}>
+                    <Button
+                      onClick={() => setShowCancelMoveModal(true)}
+                      unstyled
+                      className={styles.printBtn}
+                      data-testid="cancel-move-button"
+                    >
                       Cancel Move
                     </Button>
                   ) : null}
