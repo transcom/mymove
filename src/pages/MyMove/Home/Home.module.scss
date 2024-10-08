@@ -209,9 +209,9 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
 
   button {
-    height: auto
+    height: auto;
   }
 }
