@@ -18,6 +18,10 @@ type ShipmentRouter struct {
 func (_m *ShipmentRouter) Approve(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	ret := _m.Called(appCtx, shipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Approve")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
 		r0 = rf(appCtx, shipment)
@@ -31,6 +35,10 @@ func (_m *ShipmentRouter) Approve(appCtx appcontext.AppContext, shipment *models
 // ApproveDiversion provides a mock function with given fields: appCtx, shipment
 func (_m *ShipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	ret := _m.Called(appCtx, shipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ApproveDiversion")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
@@ -46,6 +54,10 @@ func (_m *ShipmentRouter) ApproveDiversion(appCtx appcontext.AppContext, shipmen
 func (_m *ShipmentRouter) Cancel(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	ret := _m.Called(appCtx, shipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Cancel")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
 		r0 = rf(appCtx, shipment)
@@ -59,6 +71,10 @@ func (_m *ShipmentRouter) Cancel(appCtx appcontext.AppContext, shipment *models.
 // Reject provides a mock function with given fields: appCtx, shipment, rejectionReason
 func (_m *ShipmentRouter) Reject(appCtx appcontext.AppContext, shipment *models.MTOShipment, rejectionReason *string) error {
 	ret := _m.Called(appCtx, shipment, rejectionReason)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Reject")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *string) error); ok {
@@ -74,6 +90,10 @@ func (_m *ShipmentRouter) Reject(appCtx appcontext.AppContext, shipment *models.
 func (_m *ShipmentRouter) RequestCancellation(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	ret := _m.Called(appCtx, shipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RequestCancellation")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
 		r0 = rf(appCtx, shipment)
@@ -88,6 +108,10 @@ func (_m *ShipmentRouter) RequestCancellation(appCtx appcontext.AppContext, ship
 func (_m *ShipmentRouter) RequestDiversion(appCtx appcontext.AppContext, shipment *models.MTOShipment, diversionReason *string) error {
 	ret := _m.Called(appCtx, shipment, diversionReason)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RequestDiversion")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment, *string) error); ok {
 		r0 = rf(appCtx, shipment, diversionReason)
@@ -101,6 +125,10 @@ func (_m *ShipmentRouter) RequestDiversion(appCtx appcontext.AppContext, shipmen
 // Submit provides a mock function with given fields: appCtx, shipment
 func (_m *ShipmentRouter) Submit(appCtx appcontext.AppContext, shipment *models.MTOShipment) error {
 	ret := _m.Called(appCtx, shipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Submit")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOShipment) error); ok {
