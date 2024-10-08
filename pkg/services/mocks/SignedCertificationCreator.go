@@ -18,6 +18,10 @@ type SignedCertificationCreator struct {
 func (_m *SignedCertificationCreator) CreateSignedCertification(appCtx appcontext.AppContext, signedCertification models.SignedCertification) (*models.SignedCertification, error) {
 	ret := _m.Called(appCtx, signedCertification)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateSignedCertification")
+	}
+
 	var r0 *models.SignedCertification
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.SignedCertification) (*models.SignedCertification, error)); ok {

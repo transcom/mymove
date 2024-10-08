@@ -20,6 +20,10 @@ type TransportationAccountingCodeFetcher struct {
 func (_m *TransportationAccountingCodeFetcher) FetchOrderTransportationAccountingCodes(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error) {
 	ret := _m.Called(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOrderTransportationAccountingCodes")
+	}
+
 	var r0 []models.TransportationAccountingCode
 	var r1 error
 	if rf, ok := ret.Get(0).(func(models.ServiceMemberAffiliation, time.Time, string, appcontext.AppContext) ([]models.TransportationAccountingCode, error)); ok {

@@ -20,6 +20,10 @@ type MoveUnlocker struct {
 func (_m *MoveUnlocker) CheckForLockedMovesAndUnlock(appCtx appcontext.AppContext, officeUserID uuid.UUID) error {
 	ret := _m.Called(appCtx, officeUserID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CheckForLockedMovesAndUnlock")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r0 = rf(appCtx, officeUserID)
@@ -33,6 +37,10 @@ func (_m *MoveUnlocker) CheckForLockedMovesAndUnlock(appCtx appcontext.AppContex
 // UnlockMove provides a mock function with given fields: appCtx, move, officeUserID
 func (_m *MoveUnlocker) UnlockMove(appCtx appcontext.AppContext, move *models.Move, officeUserID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(appCtx, move, officeUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UnlockMove")
+	}
 
 	var r0 *models.Move
 	var r1 error
