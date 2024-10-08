@@ -28,6 +28,8 @@ type UsPostRegionCity struct {
 	CtryGencDgphCd     string    `db:"ctry_genc_dgph_cd" json:"ctry_genc_dgph_cd"`
 	CreatedAt          time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt          time.Time `db:"updated_at" json:"updated_at"`
+	UsPostRegionsID	   uuid.UUID `db:"us_post_regions_id" json:"us_post_regions_id"`
+	CitiesID	       uuid.UUID `db:"cities_id" json:"cities_id"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
