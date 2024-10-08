@@ -134,7 +134,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 			PickupAddressID:            oldMTOShipment.PickupAddressID,
 			RequestedPickupDate:        &requestedPickupDate,
 			ScheduledPickupDate:        &scheduledPickupDate,
-			ShipmentType:               "INTERNATIONAL_UB",
+			ShipmentType:               "UNACCOMPANIED_BAGGAGE",
 			PrimeActualWeight:          &primeActualWeight,
 			PrimeEstimatedWeight:       &primeEstimatedWeight,
 			FirstAvailableDeliveryDate: &firstAvailableDeliveryDate,
@@ -193,7 +193,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment.MoveTaskOrder.ID)
-		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
+		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
 
 		suite.Equal(updatedMTOShipment.PickupAddressID, oldMTOShipment.PickupAddressID)
 
@@ -210,7 +210,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		oldMTOShipment2 := factory.BuildMTOShipment(suite.DB(), nil, nil)
 		mtoShipment2 := models.MTOShipment{
 			ID:           oldMTOShipment2.ID,
-			ShipmentType: "INTERNATIONAL_UB",
+			ShipmentType: "UNACCOMPANIED_BAGGAGE",
 		}
 
 		eTag := etag.GenerateEtag(oldMTOShipment2.UpdatedAt)
@@ -220,7 +220,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Require().NoError(err)
 		suite.Equal(updatedMTOShipment.ID, oldMTOShipment2.ID)
 		suite.Equal(updatedMTOShipment.MoveTaskOrder.ID, oldMTOShipment2.MoveTaskOrder.ID)
-		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeInternationalUB)
+		suite.Equal(updatedMTOShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})

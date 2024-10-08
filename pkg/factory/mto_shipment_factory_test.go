@@ -78,6 +78,35 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.Equal(mtoShipment.MoveTaskOrder.Locator, locator)
 	})
 
+	suite.Run("Successful creation of custom MTO Shipment with UB shipment type", func() {
+		// Under test:      BuildBaseMTOShipment
+		// Set up:          Create a custom mtoShipment with UB shipment type and custom move
+		// Expected outcome: Create a move, and mtoShipment
+
+		// SETUP
+		locator := "ABC123"
+
+		move := models.Move{
+			Locator: locator,
+		}
+
+		mtoShipment := BuildBaseMTOShipment(suite.DB(), []Customization{
+			{
+				Model: models.MTOShipment{
+					ShipmentType: models.MTOShipmentTypeUnaccompaniedBaggage,
+					Status:       models.MTOShipmentStatusApproved,
+				},
+			},
+			{
+				Model: move,
+			},
+		}, nil)
+
+		suite.Equal(mtoShipment.ShipmentType, models.MTOShipmentTypeUnaccompaniedBaggage)
+		suite.Equal(mtoShipment.Status, models.MTOShipmentStatusApproved)
+		suite.Equal(mtoShipment.MoveTaskOrder.Locator, locator)
+	})
+
 	suite.Run("Successful creation of default MTOShipment with other associated set relationships", func() {
 		defaultCustomerRemarks := models.StringPointer("Please treat gently")
 		// Under test:      BuildMTOShipment
