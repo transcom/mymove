@@ -239,7 +239,7 @@ const MoveQueue = ({ userPrivileges, currentUserId, isQueueManagementFFEnabled }
     if (editProfileDiv) {
       navigate(generatePath(tooRoutes.BASE_CUSTOMER_INFO_EDIT_PATH, { moveCode: values.locator }));
     } else if (assignedSelect) {
-      // do nothing
+      // don't want to page redirect if clicking in the assigned dropdown
     } else {
       navigate(generatePath(tooRoutes.BASE_MOVE_VIEW_PATH, { moveCode: values.locator }));
     }
