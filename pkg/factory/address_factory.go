@@ -97,6 +97,7 @@ func BuildMinimalAddress(db *pop.Connection, customs []Customization, traits []T
 		City:           "Fort Gorden",
 		State:          "GA",
 		PostalCode:     "30813",
+		County:         "RICHMOND",
 	}
 
 	// Find/create the Country if customization is provided
