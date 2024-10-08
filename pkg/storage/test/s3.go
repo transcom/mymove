@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"io"
+	"net/url"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -55,7 +56,11 @@ func (fake *FakeS3Storage) Fetch(key string) (io.ReadCloser, error) {
 
 // PresignedURL returns a URL that can be used to retrieve a file.
 func (fake *FakeS3Storage) PresignedURL(key string, contentType string, filename string) (string, error) {
-	url := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&filename=%s&signed=test", key, contentType, filename)
+	values := url.Values{}
+	values.Add("response-content-type", contentType)
+	values.Add("response-content-disposition", "attachment; filename="+filename)
+	values.Add("signed", "test")
+	url := fmt.Sprintf("https://example.com/dir/%s?", key) + values.Encode()
 	return url, nil
 }
 
