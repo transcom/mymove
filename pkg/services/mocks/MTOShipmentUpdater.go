@@ -20,6 +20,10 @@ type MTOShipmentUpdater struct {
 func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.AppContext, mtoShipmentID uuid.UUID) (bool, error) {
 	ret := _m.Called(appCtx, mtoShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for MTOShipmentsMTOAvailableToPrime")
+	}
+
 	var r0 bool
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (bool, error)); ok {
@@ -43,6 +47,10 @@ func (_m *MTOShipmentUpdater) MTOShipmentsMTOAvailableToPrime(appCtx appcontext.
 // UpdateMTOShipment provides a mock function with given fields: appCtx, mtoShipment, eTag, api
 func (_m *MTOShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mtoShipment *models.MTOShipment, eTag string, api string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, mtoShipment, eTag, api)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMTOShipment")
+	}
 
 	var r0 *models.MTOShipment
 	var r1 error

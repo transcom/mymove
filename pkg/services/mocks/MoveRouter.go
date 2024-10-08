@@ -18,6 +18,10 @@ type MoveRouter struct {
 func (_m *MoveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) error {
 	ret := _m.Called(appCtx, move)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Approve")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
 		r0 = rf(appCtx, move)
@@ -31,6 +35,10 @@ func (_m *MoveRouter) Approve(appCtx appcontext.AppContext, move *models.Move) e
 // ApproveOrRequestApproval provides a mock function with given fields: appCtx, move
 func (_m *MoveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, move models.Move) (*models.Move, error) {
 	ret := _m.Called(appCtx, move)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ApproveOrRequestApproval")
+	}
 
 	var r0 *models.Move
 	var r1 error
@@ -58,6 +66,10 @@ func (_m *MoveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, mov
 func (_m *MoveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
 	ret := _m.Called(appCtx, reason, move)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Cancel")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *models.Move) error); ok {
 		r0 = rf(appCtx, reason, move)
@@ -71,6 +83,10 @@ func (_m *MoveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *
 // CompleteServiceCounseling provides a mock function with given fields: appCtx, move
 func (_m *MoveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, move *models.Move) error {
 	ret := _m.Called(appCtx, move)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CompleteServiceCounseling")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
@@ -86,6 +102,10 @@ func (_m *MoveRouter) CompleteServiceCounseling(appCtx appcontext.AppContext, mo
 func (_m *MoveRouter) RouteAfterAmendingOrders(appCtx appcontext.AppContext, move *models.Move) error {
 	ret := _m.Called(appCtx, move)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RouteAfterAmendingOrders")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
 		r0 = rf(appCtx, move)
@@ -100,6 +120,10 @@ func (_m *MoveRouter) RouteAfterAmendingOrders(appCtx appcontext.AppContext, mov
 func (_m *MoveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *models.Move) error {
 	ret := _m.Called(appCtx, move)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SendToOfficeUser")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
 		r0 = rf(appCtx, move)
@@ -113,6 +137,10 @@ func (_m *MoveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *model
 // Submit provides a mock function with given fields: appCtx, move, newSignedCertification
 func (_m *MoveRouter) Submit(appCtx appcontext.AppContext, move *models.Move, newSignedCertification *models.SignedCertification) error {
 	ret := _m.Called(appCtx, move, newSignedCertification)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Submit")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, *models.SignedCertification) error); ok {

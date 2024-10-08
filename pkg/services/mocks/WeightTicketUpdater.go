@@ -18,6 +18,10 @@ type WeightTicketUpdater struct {
 func (_m *WeightTicketUpdater) UpdateWeightTicket(appCtx appcontext.AppContext, weightTicket models.WeightTicket, eTag string) (*models.WeightTicket, error) {
 	ret := _m.Called(appCtx, weightTicket, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateWeightTicket")
+	}
+
 	var r0 *models.WeightTicket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.WeightTicket, string) (*models.WeightTicket, error)); ok {

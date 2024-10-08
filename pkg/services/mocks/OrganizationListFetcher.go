@@ -20,6 +20,10 @@ type OrganizationListFetcher struct {
 func (_m *OrganizationListFetcher) FetchOrganizationCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOrganizationCount")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (int, error)); ok {
@@ -43,6 +47,10 @@ func (_m *OrganizationListFetcher) FetchOrganizationCount(appCtx appcontext.AppC
 // FetchOrganizationList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
 func (_m *OrganizationListFetcher) FetchOrganizationList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.Organizations, error) {
 	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOrganizationList")
+	}
 
 	var r0 models.Organizations
 	var r1 error
