@@ -20,6 +20,10 @@ type CustomerSearcher struct {
 func (_m *CustomerSearcher) SearchCustomers(appCtx appcontext.AppContext, params *services.SearchCustomersParams) (models.ServiceMemberSearchResults, int, error) {
 	ret := _m.Called(appCtx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SearchCustomers")
+	}
+
 	var r0 models.ServiceMemberSearchResults
 	var r1 int
 	var r2 error
