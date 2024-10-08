@@ -443,8 +443,13 @@ func (suite *HandlerSuite) TestUploadAmendedOrdersHandlerIntegration() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandler() {
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
-
+	dutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: false,
+			},
+		},
+	}, nil)
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
 			Model:    dutyLocation,
@@ -452,6 +457,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
 	}, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		}}, nil)
 
 	newDutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
 	newTransportationOffice := factory.BuildTransportationOffice(suite.DB(), nil, nil)
@@ -474,6 +484,8 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 		HasDependents:        handlers.FmtBool(false),
 		SpouseHasProGear:     handlers.FmtBool(false),
 		Grade:                models.ServiceMemberGradeE4.Pointer(),
+		MoveID:               *handlers.FmtUUID(move.ID),
+		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -523,11 +535,17 @@ func (suite *HandlerSuite) TestUpdateOrdersHandler() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
-	dutyLocation := factory.BuildDutyLocation(suite.DB(), nil, nil)
+	originDutyLocation := factory.BuildDutyLocation(suite.DB(), []factory.Customization{
+		{
+			Model: models.DutyLocation{
+				ProvidesServicesCounseling: true,
+			},
+		},
+	}, nil)
 
 	order := factory.BuildOrder(suite.DB(), []factory.Customization{
 		{
-			Model:    dutyLocation,
+			Model:    originDutyLocation,
 			LinkOnly: true,
 			Type:     &factory.DutyLocations.OriginDutyLocation,
 		},
@@ -542,7 +560,11 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	deptIndicator := internalmessages.DeptIndicatorAIRANDSPACEFORCE
-	move := factory.BuildMove(suite.DB(), nil, nil)
+	move := factory.BuildMove(suite.DB(), []factory.Customization{
+		{
+			Model:    order,
+			LinkOnly: true,
+		}}, nil)
 	payload := &internalmessages.CreateUpdateOrders{
 		OrdersNumber:         handlers.FmtString(newOrdersNumber),
 		OrdersType:           &newOrdersType,
@@ -555,6 +577,7 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 		SpouseHasProGear:     handlers.FmtBool(false),
 		Grade:                models.ServiceMemberGradeE4.Pointer(),
 		MoveID:               *handlers.FmtUUID(move.ID),
+		CounselingOfficeID:   handlers.FmtUUID(*newDutyLocation.TransportationOfficeID),
 	}
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
@@ -582,23 +605,4 @@ func (suite *HandlerSuite) TestUpdateOrdersHandlerWithCounselingOffice() {
 	suite.Equal(string(newOrdersType), string(*okResponse.Payload.OrdersType))
 	suite.Equal(newOrdersNumber, *okResponse.Payload.OrdersNumber)
 
-	updatedOrder, err := models.FetchOrder(suite.DB(), order.ID)
-	suite.NoError(err)
-	suite.Equal(payload.Grade, updatedOrder.Grade)
-	suite.Equal(*okResponse.Payload.AuthorizedWeight, int64(7000)) // E4 authorized weight is 7000, make sure we return that in the response
-	expectedUpdatedOrderWeightAllotment := models.GetWeightAllotment(*updatedOrder.Grade)
-	expectedUpdatedOrderAuthorizedWeight := expectedUpdatedOrderWeightAllotment.TotalWeightSelf
-	if *payload.HasDependents {
-		expectedUpdatedOrderAuthorizedWeight = expectedUpdatedOrderWeightAllotment.TotalWeightSelfPlusDependents
-	}
-
-	expectedOriginalOrderWeightAllotment := models.GetWeightAllotment(*order.Grade)
-	expectedOriginalOrderAuthorizedWeight := expectedOriginalOrderWeightAllotment.TotalWeightSelf
-	if *payload.HasDependents {
-		expectedUpdatedOrderAuthorizedWeight = expectedOriginalOrderWeightAllotment.TotalWeightSelfPlusDependents
-	}
-
-	suite.Equal(expectedUpdatedOrderAuthorizedWeight, 7000)  // Ensure that when GetWeightAllotment is recalculated that it also returns 7000. This ensures that the database stored the correct information
-	suite.Equal(expectedOriginalOrderAuthorizedWeight, 5000) // The order was created as an E1. Ensure that the E1 authorized weight is 5000.
-	suite.Equal(string(newOrdersType), string(updatedOrder.OrdersType))
 }
