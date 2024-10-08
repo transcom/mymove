@@ -379,6 +379,7 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 		var dutyLocations models.DutyLocations
 		associations := NewQueryAssociations([]services.QueryAssociation{
 			NewQueryAssociation("Address"),
+			NewQueryAssociation("Address.Country"),
 		})
 
 		err := builder.FetchMany(suite.AppContextForTest(), &dutyLocations, nil, associations, nil, nil)
