@@ -2116,7 +2116,6 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
 		}
 
