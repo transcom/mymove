@@ -18,6 +18,10 @@ type EvaluationReportDeleter struct {
 func (_m *EvaluationReportDeleter) DeleteEvaluationReport(appCtx appcontext.AppContext, reportID uuid.UUID) error {
 	ret := _m.Called(appCtx, reportID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DeleteEvaluationReport")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
 		r0 = rf(appCtx, reportID)

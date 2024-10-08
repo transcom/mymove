@@ -21,6 +21,10 @@ type WeightTicketComputer struct {
 func (_m *WeightTicketComputer) ParseWeightEstimatorExcelFile(appCtx appcontext.AppContext, file io.ReadCloser) (*services.WeightEstimatorPages, error) {
 	ret := _m.Called(appCtx, file)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ParseWeightEstimatorExcelFile")
+	}
+
 	var r0 *services.WeightEstimatorPages
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, io.ReadCloser) (*services.WeightEstimatorPages, error)); ok {
