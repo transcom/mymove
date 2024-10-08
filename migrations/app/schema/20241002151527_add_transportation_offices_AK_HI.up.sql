@@ -70,8 +70,6 @@ VALUES ('b0d787ad-94f8-4bb6-8230-85bad755f07c', 'PPPO Schofield Barracks', '066c
 INSERT INTO transportation_offices(id, name, address_id, latitude, longitude, hours, services, created_at, updated_at, gbloc, provides_ppm_closeout)
 VALUES ('812fa266-86e2-4607-b434-8a23d4d0a51d', 'PPPO Hickam AFB', '9ee3339b-2fdf-4030-8f02-01e356b8efce', 21.3360, -157.9557, null, null, now(), now(), 'MLNQ', true);
 
-----------------------------
---**start here, run in DB to get id
 INSERT INTO office_phone_lines(id, transportation_office_id, number, is_dsn_number, type, created_at, updated_at)
 VALUES ('70d149e5-9d2c-4012-aee4-c836ddd6a241', 'dd2c98a6-303d-4596-86e8-b067a7deb1a2', '907-873-5144', false, 'voice', now(), now());
 
@@ -225,12 +223,5 @@ VALUES ('96be4a8f-6a80-40fb-9bb5-298ffb5dccca', '812fa266-86e2-4607-b434-8a23d4d
 INSERT INTO office_phone_lines(id, transportation_office_id, number, is_dsn_number, type, created_at, updated_at)
 VALUES ('8efaff8b-b41a-4492-8720-8ff4ae1fdf3d', '812fa266-86e2-4607-b434-8a23d4d0a51d', '808-448-0742', false, 'voice', now(), now());
 
---currently in DB as 'MBFL'
---ask Beth/Dre
---select * from postal_code_to_gblocs pctg where postal_code in ('99703','99731');
---select * from addresses a where a.postal_code in ('99703','99731'); --6 rows, none used in transportation_offices or in duty_locaitons
---INSERT INTO postal_code_to_gblocs(postal_code, gbloc, created_at, updated_at, id)
---VALUES ('99731', 'JEAT', now(), now(), uuid_generate_v4());  --dd366219-6c3b-45c1-a59a-e04d0efe1a6d
-
---INSERT INTO postal_code_to_gblocs(postal_code, gbloc, created_at, updated_at, id)
---VALUES ('99703', 'JEAT', now(), now(), uuid_generate_v4());  --5f47676a-520d-4106-9889-009b0ab29726
+UPDATE postal_code_to_gblocs set gbloc = 'JEAT', updated_at = now()
+where postal_code in ('99731', '99703');
