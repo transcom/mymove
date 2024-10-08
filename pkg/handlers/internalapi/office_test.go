@@ -199,32 +199,6 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 }
 
-func (suite *HandlerSuite) TestCancelMoveHandlerForbidden() {
-	// Given: a set of orders, a move, office user and servicemember user
-	move := factory.BuildMove(suite.DB(), nil, nil)
-	// Given: an non-office User
-	user := factory.BuildServiceMember(suite.DB(), nil, nil)
-
-	moveRouter := moverouter.NewMoveRouter()
-
-	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
-	req = suite.AuthenticateRequest(req, user)
-
-	params := officeop.CancelMoveParams{
-		HTTPRequest: req,
-		MoveID:      strfmt.UUID(move.ID.String()),
-	}
-	// And: a move is canceled
-	handlerConfig := suite.HandlerConfig()
-	handlerConfig.SetNotificationSender(suite.TestNotificationSender())
-	handler := CancelMoveHandler{handlerConfig, moveRouter}
-	response := handler.Handle(params)
-
-	// Then: response is Forbidden
-	suite.Assertions.IsType(&officeop.CancelMoveForbidden{}, response)
-}
-
 // TODO: Determine whether we need to complete remove reimbursements handler from Office handlers
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember

@@ -57,7 +57,7 @@ func (f *moveCanceler) CancelMove(appCtx appcontext.AppContext, moveID uuid.UUID
 				}
 			}
 
-			if shipment.Status != models.MTOShipmentStatusApproved {
+			if shipment.Status != models.MTOShipmentStatusApproved && shipment.PPMShipment.Status != models.PPMShipmentStatusCloseoutComplete {
 				verrs, err := txnAppCtx.DB().ValidateAndUpdate(&shipmentDelta)
 				if verrs != nil && verrs.HasAny() {
 					return apperror.NewInvalidInputError(shipment.ID, err, verrs, "Validation errors found while setting shipment status")

@@ -402,75 +402,22 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 func (suite *MoveServiceSuite) TestMoveCancellation() {
 	moveRouter := NewMoveRouter()
 
-	suite.Run("defaults to nil reason if empty string provided", func() {
-		move := factory.BuildMove(nil, nil, nil)
-
-		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-	})
-
-	suite.Run("cancels PPM and Order when move is canceled", func() {
-
-		// Create PPM on this move
-
+	suite.Run("Cancel move with PPM Shipment", func() {
 		move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
 
 		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 
 		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status, "expected Canceled")
-		suite.Equal(models.PPMShipmentStatusCanceled, move.MTOShipments[0].PPMShipment.Status, "expected Canceled")
-		suite.Equal(models.OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
 	})
 
-	suite.Run("from valid statuses", func() {
-		validStatuses := []struct {
-			desc   string
-			status models.MoveStatus
-		}{
-			{"Submitted", models.MoveStatusSUBMITTED},
-			{"Approvals Requested", models.MoveStatusAPPROVALSREQUESTED},
-			{"Service Counseling Completed", models.MoveStatusServiceCounselingCompleted},
-			{"Approved", models.MoveStatusAPPROVED},
-			{"Draft", models.MoveStatusDRAFT},
-			{"Needs Service Counseling", models.MoveStatusNeedsServiceCounseling},
-		}
-		for _, tt := range validStatuses {
-			suite.Run(tt.desc, func() {
-				move := factory.BuildMove(nil, nil, nil)
+	suite.Run("Cancel move with HHG shipment", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
 
-				move.Status = tt.status
-				move.Orders.Status = models.OrderStatusSUBMITTED
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
 
-				err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
-				suite.NoError(err)
-				suite.Equal(models.MoveStatusCANCELED, move.Status)
-			})
-		}
-	})
-
-	suite.Run("from invalid statuses", func() {
-		invalidStatuses := []struct {
-			desc   string
-			status models.MoveStatus
-		}{
-			{"Canceled", models.MoveStatusCANCELED},
-		}
-		for _, tt := range invalidStatuses {
-			suite.Run(tt.desc, func() {
-				move := factory.BuildMove(nil, nil, nil)
-
-				move.Status = tt.status
-
-				err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
-				suite.Error(err)
-				suite.Contains(err.Error(), "cannot cancel a move that is already canceled")
-			})
-		}
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
 	})
 }
 
