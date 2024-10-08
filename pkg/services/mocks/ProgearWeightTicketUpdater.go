@@ -18,6 +18,10 @@ type ProgearWeightTicketUpdater struct {
 func (_m *ProgearWeightTicketUpdater) UpdateProgearWeightTicket(appCtx appcontext.AppContext, progearWeightTicket models.ProgearWeightTicket, eTag string) (*models.ProgearWeightTicket, error) {
 	ret := _m.Called(appCtx, progearWeightTicket, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateProgearWeightTicket")
+	}
+
 	var r0 *models.ProgearWeightTicket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.ProgearWeightTicket, string) (*models.ProgearWeightTicket, error)); ok {

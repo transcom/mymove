@@ -442,7 +442,7 @@ func GetDestinationForDistanceLookup(appCtx appcontext.AppContext, mtoShipment m
 	if err != nil {
 		return models.Address{}, apperror.NewNotFoundError(shipmentCopy.ID, "MTOShipment not found in Destination For Distance Lookup")
 	}
-	if shipmentCopy.MTOServiceItems == nil || len(shipmentCopy.MTOServiceItems) == 0 {
+	if len(shipmentCopy.MTOServiceItems) == 0 {
 		return *mtoShipment.DestinationAddress, nil
 	}
 
