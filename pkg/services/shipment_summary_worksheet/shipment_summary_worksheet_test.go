@@ -1115,6 +1115,22 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
 
 	suite.Equal(expectedValidResult, resultValid)
 
+	// Test case 2: Valid W2 Address with country
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	validAddress2 := &models.Address{
+		StreetAddress1: "123 Main St",
+		City:           "Cityville",
+		State:          "ST",
+		PostalCode:     "12345",
+		Country:        &country,
+	}
+
+	expectedValidResult2 := "123 Main St,  Cityville ST US12345"
+
+	resultValid2 := FormatAddress(validAddress2)
+
+	suite.Equal(expectedValidResult2, resultValid2)
+
 	// Test case 2: Nil W2 address
 	nilAddress := (*models.Address)(nil)
 

@@ -588,6 +588,13 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 func FormatAddress(w2Address *models.Address) string {
 	var addressString string
 
+	var country string
+	if w2Address != nil && w2Address.Country != nil && w2Address.Country.Country != "" {
+		country = w2Address.Country.Country
+	} else {
+		country = ""
+	}
+
 	if w2Address != nil {
 		addressString = fmt.Sprintf("%s, %s %s%s %s %s%s",
 			w2Address.StreetAddress1,
@@ -595,7 +602,7 @@ func FormatAddress(w2Address *models.Address) string {
 			nilOrValue(w2Address.StreetAddress3),
 			w2Address.City,
 			w2Address.State,
-			nilOrValue(w2Address.Country),
+			nilOrValue(&country),
 			w2Address.PostalCode,
 		)
 	} else {
