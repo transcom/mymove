@@ -18,6 +18,10 @@ type Fetcher struct {
 func (_m *Fetcher) FetchRecord(appCtx appcontext.AppContext, model interface{}, filters []services.QueryFilter) error {
 	ret := _m.Called(appCtx, model, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRecord")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, interface{}, []services.QueryFilter) error); ok {
 		r0 = rf(appCtx, model, filters)
