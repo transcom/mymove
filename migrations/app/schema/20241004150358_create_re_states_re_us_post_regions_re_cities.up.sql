@@ -1,6 +1,3 @@
-CONSTRAINT re_state_pkey PRIMARY KEY (id),
-CONSTRAINT unique_re_state UNIQUE (state));
-
 create table IF NOT EXISTS re_states
 (id			uuid		NOT NULL,
 state		varchar(2)	NOT NULL,
@@ -52,9 +49,6 @@ COMMENT ON COLUMN re_cities.country_id IS 'The id for the 2 character country co
 
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS us_post_regions_id uuid;
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS cities_id uuid;
-
-ALTER TABLE us_post_region_cities
-DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
 
 ALTER TABLE re_zip5_rate_areas
 ADD COLUMN IF NOT EXISTS inactive_flag   varchar(1);
