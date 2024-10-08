@@ -175,7 +175,6 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			LeftJoin("duty_locations as dest_dl", "dest_dl.id = orders.new_duty_location_id").
 			LeftJoin("office_users", "office_users.id = moves.locked_by").
 			LeftJoin("transportation_offices", "moves.counseling_transportation_office_id = transportation_offices.id").
-			// LeftJoin("office_users as assigned_user", "moves.sc_assigned_id  = assigned_user.id").
 			Where("show = ?", models.BoolPointer(true))
 
 		if !privileges.HasPrivilege(models.PrivilegeTypeSafety) {
