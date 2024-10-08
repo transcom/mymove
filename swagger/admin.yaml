@@ -1236,6 +1236,21 @@ definitions:
       ACTIVE: Active
       FAILING: Failing
       DISABLED: Disabled
+  PaymentRequestEdis:
+    type: array
+    items:
+      $ref: '#/definitions/PaymentRequestEdis'
+  PaymentRequestEDI:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edi:
+        type: string
+      paymentRequestNumber:
+        type: string
 paths:
   /user:
     get:
@@ -2556,3 +2571,50 @@ paths:
             $ref: '#/definitions/ValidationError'
         '500':
           description: Server error
+  /payment-request-edis:
+    get:
+      produces:
+        - application/json
+      summary: List Payment Request EDI Files
+      description: Returns a list of Payment Request EDI files
+      operationId: indexPaymentRequestEdiFiles
+      tags:
+        - Payment Request EDI Files
+      parameters:
+        - in: query
+          name: paymentRequestNumber
+          type: string
+          required: false
+          description: Optional payment request number to filter results
+        - in: query
+          name: filter
+          type: string
+        - in: query
+          name: page
+          type: integer
+        - in: query
+          name: perPage
+          type: integer
+        - in: query
+          name: sort
+          type: string
+        - in: query
+          name: order
+          type: boolean
+      responses:
+        '200':
+          description: success
+          headers:
+            Content-Range:
+              type: string
+              description: Used for pagination
+          schema:
+            $ref: '#/definitions/PaymentRequestEdis'
+        '400':
+          description: invalid request
+        '401':
+          description: request requires user authentication
+        '404':
+          description: Payment Request EDI Files not found
+        '500':
+          description: server error

@@ -47,3 +47,12 @@ func FetchAllPaymentRequestEdiFiles(db *pop.Connection) (PaymentRequestEdiFiles,
 	}
 	return paymentRequestEdiFiles, nil
 }
+
+func FetchPaymentRequestEdiByPaymentRequestNumber(db *pop.Connection, paymentRequestNumber string) (PaymentRequestEdiFile, error) {
+	var paymentRequestEdiFile PaymentRequestEdiFile
+	err := db.Where("payment_request_number = ?", paymentRequestNumber).First(&paymentRequestEdiFile)
+	if err != nil {
+		return PaymentRequestEdiFile{}, err
+	}
+	return paymentRequestEdiFile, nil
+}
