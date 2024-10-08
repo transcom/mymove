@@ -18,6 +18,10 @@ type PWSViolationsFetcher struct {
 func (_m *PWSViolationsFetcher) GetPWSViolations(appCtx appcontext.AppContext) (*models.PWSViolations, error) {
 	ret := _m.Called(appCtx)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetPWSViolations")
+	}
+
 	var r0 *models.PWSViolations
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext) (*models.PWSViolations, error)); ok {

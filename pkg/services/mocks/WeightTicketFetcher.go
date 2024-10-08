@@ -20,6 +20,10 @@ type WeightTicketFetcher struct {
 func (_m *WeightTicketFetcher) GetWeightTicket(appCtx appcontext.AppContext, weightTicketID uuid.UUID) (*models.WeightTicket, error) {
 	ret := _m.Called(appCtx, weightTicketID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetWeightTicket")
+	}
+
 	var r0 *models.WeightTicket
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.WeightTicket, error)); ok {

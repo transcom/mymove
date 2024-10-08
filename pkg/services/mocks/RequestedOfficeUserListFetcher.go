@@ -20,6 +20,10 @@ type RequestedOfficeUserListFetcher struct {
 func (_m *RequestedOfficeUserListFetcher) FetchRequestedOfficeUsersCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRequestedOfficeUsersCount")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (int, error)); ok {
@@ -43,6 +47,10 @@ func (_m *RequestedOfficeUserListFetcher) FetchRequestedOfficeUsersCount(appCtx 
 // FetchRequestedOfficeUsersList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
 func (_m *RequestedOfficeUserListFetcher) FetchRequestedOfficeUsersList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.OfficeUsers, error) {
 	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchRequestedOfficeUsersList")
+	}
 
 	var r0 models.OfficeUsers
 	var r1 error
