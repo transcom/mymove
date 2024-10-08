@@ -18,6 +18,10 @@ type EvaluationReportCreator struct {
 func (_m *EvaluationReportCreator) CreateEvaluationReport(appCtx appcontext.AppContext, evaluationReport *models.EvaluationReport, locator string) (*models.EvaluationReport, error) {
 	ret := _m.Called(appCtx, evaluationReport, locator)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateEvaluationReport")
+	}
+
 	var r0 *models.EvaluationReport
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.EvaluationReport, string) (*models.EvaluationReport, error)); ok {
