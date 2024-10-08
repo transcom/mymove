@@ -2123,6 +2123,7 @@ func QueueMoves(moves []models.Move) *ghcmessages.QueueMoves {
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
+			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 		}
 	}
 	return &queueMoves
