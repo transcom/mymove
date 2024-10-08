@@ -38,6 +38,11 @@ type GetMovesQueueParams struct {
 	  In: query
 	*/
 	AppearedInTooAt *strfmt.DateTime
+	/*Used to illustrate which user is assigned to this move.
+
+	  In: query
+	*/
+	AssignedTo *string
 	/*
 	  In: query
 	*/
@@ -117,6 +122,11 @@ func (o *GetMovesQueueParams) BindRequest(r *http.Request, route *middleware.Mat
 
 	qAppearedInTooAt, qhkAppearedInTooAt, _ := qs.GetOK("appearedInTooAt")
 	if err := o.bindAppearedInTooAt(qAppearedInTooAt, qhkAppearedInTooAt, route.Formats); err != nil {
+		res = append(res, err)
+	}
+
+	qAssignedTo, qhkAssignedTo, _ := qs.GetOK("assignedTo")
+	if err := o.bindAssignedTo(qAssignedTo, qhkAssignedTo, route.Formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -234,6 +244,24 @@ func (o *GetMovesQueueParams) validateAppearedInTooAt(formats strfmt.Registry) e
 	if err := validate.FormatOf("appearedInTooAt", "query", "date-time", o.AppearedInTooAt.String(), formats); err != nil {
 		return err
 	}
+	return nil
+}
+
+// bindAssignedTo binds and validates parameter AssignedTo from query.
+func (o *GetMovesQueueParams) bindAssignedTo(rawData []string, hasKey bool, formats strfmt.Registry) error {
+	var raw string
+	if len(rawData) > 0 {
+		raw = rawData[len(rawData)-1]
+	}
+
+	// Required: false
+	// AllowEmptyValue: false
+
+	if raw == "" { // empty values pass all other validations
+		return nil
+	}
+	o.AssignedTo = &raw
+
 	return nil
 }
 
