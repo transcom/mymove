@@ -888,6 +888,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.FmtPoundPtr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
@@ -1150,7 +1151,6 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
-		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}

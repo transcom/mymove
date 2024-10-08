@@ -1004,3 +1004,4 @@
 20241001144741_update_boat_factor.up.sql
 20241001174400_add_is_oconus_column.up.sql
 20241001193619_market-code-enum.up.sql
+20241008133341_consolidate_allowable_weight_in_ppm_shipments.up.sql
