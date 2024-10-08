@@ -355,7 +355,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 						fmt.Print(err)
 						return handlers.ResponseForError(appCtx.Logger(), err), err
 					}
-
 					if originDutyLocation.ProvidesServicesCounseling {
 						counselingOfficeID, err := uuid.FromString(payload.CounselingOfficeID.String())
 						if err != nil {
