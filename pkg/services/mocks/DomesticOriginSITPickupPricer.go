@@ -24,6 +24,10 @@ type DomesticOriginSITPickupPricer struct {
 func (_m *DomesticOriginSITPickupPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, serviceArea string, sitSchedule int, zipSITOriginOriginal string, zipSITOriginActual string, distance unit.Miles) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, serviceArea, sitSchedule, zipSITOriginOriginal, zipSITOriginActual, distance)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
+
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
@@ -56,6 +60,10 @@ func (_m *DomesticOriginSITPickupPricer) Price(appCtx appcontext.AppContext, con
 // PriceUsingParams provides a mock function with given fields: appCtx, params
 func (_m *DomesticOriginSITPickupPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceUsingParams")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
