@@ -582,6 +582,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
 		SITExpected:                    ppmShipment.SitExpected,
 		EstimatedWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.PoundPtrFromInt64Ptr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.PoundPtrFromInt64Ptr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight),

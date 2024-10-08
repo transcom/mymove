@@ -6080,6 +6080,11 @@ definitions:
         type: integer
         example: 4200
         x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        x-nullable: true
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear.

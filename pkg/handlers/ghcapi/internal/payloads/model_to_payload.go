@@ -888,6 +888,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.FmtPoundPtr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),

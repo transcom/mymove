@@ -3622,6 +3622,12 @@ definitions:
         example: 4200
         x-nullable: true
         x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        x-nullable: true
+        x-omitempty: false
       hasProGear:
         description: >
           Indicates whether PPM shipment has pro gear for themselves or their

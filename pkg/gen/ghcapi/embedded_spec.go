@@ -10916,6 +10916,13 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -13370,6 +13377,12 @@ func init() {
         "advanceStatus": {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
         },
         "destinationAddress": {
           "allOf": [
@@ -26643,6 +26656,13 @@ func init() {
         "advanceStatus": {
           "$ref": "#/definitions/PPMAdvanceStatus"
         },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "x-omitempty": false,
+          "example": 4300
+        },
         "approvedAt": {
           "description": "The timestamp of when the shipment was approved and the service member can begin their move.",
           "type": "string",
@@ -29155,6 +29175,12 @@ func init() {
         "advanceStatus": {
           "x-nullable": true,
           "$ref": "#/definitions/PPMAdvanceStatus"
+        },
+        "allowableWeight": {
+          "description": "The allowable weight of the PPM shipment goods being moved.",
+          "type": "integer",
+          "x-nullable": true,
+          "example": 4300
         },
         "destinationAddress": {
           "allOf": [
