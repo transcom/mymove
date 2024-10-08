@@ -208,7 +208,6 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-        $ref: 'definitions/TransportationOffice.yaml'
       cancel_reason:
         type: string
         example: 'Change of orders'
