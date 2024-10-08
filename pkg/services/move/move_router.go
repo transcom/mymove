@@ -422,18 +422,12 @@ func (router moveRouter) SendToOfficeUser(appCtx appcontext.AppContext, move *mo
 
 // Cancel cancels the Move and its associated PPMs
 func (router moveRouter) Cancel(appCtx appcontext.AppContext, move *models.Move) error {
-	mmove := &models.Move{}
-	err := appCtx.DB().Find(mmove, move.ID)
-	if err != nil {
-		return apperror.NewNotFoundError(move.ID, "while looking for a move")
-	}
-
 	moveDelta := move
 	moveDelta.Status = models.MoveStatusCANCELED
 
 	// get all shipments in move for cancellation
 	var shipments []models.MTOShipment
-	err = appCtx.DB().EagerPreload("Status", "PPMShipment", "PPMShipment.Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
+	err := appCtx.DB().EagerPreload("Status", "PPMShipment", "PPMShipment.Status").Where("mto_shipments.move_id = $1", move.ID).All(&shipments)
 	if err != nil {
 		return apperror.NewNotFoundError(move.ID, "while looking for shipments")
 	}
