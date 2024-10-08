@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, generatePath, useNavigate } from 'react-router-dom';
 import * as PropTypes from 'prop-types';
 import { Button } from '@trussworks/react-uswds';
@@ -15,6 +15,7 @@ import { OrdersLOAShape } from 'types/order';
 import { tooRoutes } from 'constants/routes';
 import Restricted from 'components/Restricted/Restricted';
 import { permissionTypes } from 'constants/permissions';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const ShipmentDetailsSidebar = ({
   className,
@@ -36,6 +37,7 @@ const ShipmentDetailsSidebar = ({
   const [isEditFacilityInfoModalVisible, setIsEditFacilityInfoModalVisible] = useState(false);
   const [isSonModalVisible, setIsSonModalVisible] = useState(false);
   const [isAccountingCodesModalVisible, setIsAccountingCodesModalVisible] = useState(false);
+  const [enabledAK, setEnabledAK] = useState(false);
 
   const handleShowEditFacilityInfoModal = () => {
     setIsEditFacilityInfoModalVisible(true);
@@ -51,6 +53,15 @@ const ShipmentDetailsSidebar = ({
     setIsAccountingCodesModalVisible(true);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      isBooleanFlagEnabled('enabled_alaska').then((enabled) => {
+        setEnabledAK(enabled);
+      });
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className={className}>
       <ConnectedEditFacilityInfoModal
@@ -65,6 +76,7 @@ const ShipmentDetailsSidebar = ({
         storageFacility={shipment.storageFacility}
         serviceOrderNumber={shipment.serviceOrderNumber}
         shipmentType={shipment.shipmentType}
+        enabledAK={enabledAK}
       />
 
       <ConnectedServiceOrderNumberModal
