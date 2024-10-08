@@ -20,6 +20,10 @@ type BoatShipmentUpdater struct {
 func (_m *BoatShipmentUpdater) UpdateBoatShipmentWithDefaultCheck(appCtx appcontext.AppContext, boatshipment *models.BoatShipment, mtoShipmentID uuid.UUID) (*models.BoatShipment, error) {
 	ret := _m.Called(appCtx, boatshipment, mtoShipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateBoatShipmentWithDefaultCheck")
+	}
+
 	var r0 *models.BoatShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.BoatShipment, uuid.UUID) (*models.BoatShipment, error)); ok {
