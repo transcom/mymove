@@ -27,7 +27,7 @@ type Address struct {
 	CountryId      *uuid.UUID `json:"country_id" db:"country_id"`
 	Country        *Country   `belongs_to:"re_countries" fk_id:"country_id"`
 	County         string     `json:"county" db:"county"`
-  IsOconus       *bool     `json:"is_oconus" db:"is_oconus"`
+	IsOconus       *bool      `json:"is_oconus" db:"is_oconus"`
 }
 
 // TableName overrides the table name used by Pop.
