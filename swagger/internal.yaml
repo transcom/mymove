@@ -1703,7 +1703,7 @@ definitions:
         description: zip code, international allowed
         format: zip
         title: ZIP
-        example: '''90210'' or ''N15 3NL'''
+        example: "'90210' or 'N15 3NL'"
       postal_code_type:
         type: string
         enum:
@@ -2654,6 +2654,11 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      isOconus:
+        type: boolean
+        title: isOconus
+        x-nullable: true
+        example: false
     required:
       - streetAddress1
       - city

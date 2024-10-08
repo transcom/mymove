@@ -196,7 +196,7 @@ func mergePPMShipment(newPPMShipment models.PPMShipment, oldPPMShipment *models.
 		ppmShipment.ExpectedDepartureDate = newPPMShipment.ExpectedDepartureDate
 	}
 
-	if newPPMShipment.WeightTickets != nil && len(newPPMShipment.WeightTickets) >= 1 {
+	if len(newPPMShipment.WeightTickets) >= 1 {
 		ppmShipment.WeightTickets = newPPMShipment.WeightTickets
 	}
 
