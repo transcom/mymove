@@ -157,7 +157,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 
 	// Populate the destination address fields with the new duty location's address when
 	// we have an HHG or Boat with no destination address, but don't copy over any street fields.
-	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment) && shipment.DestinationAddress == nil {
+	if (shipment.ShipmentType == models.MTOShipmentTypeHHG || isBoatShipment || isMobileHomeShipment) && shipment.DestinationAddress == nil {
 		err = appCtx.DB().Load(&move, "Orders.NewDutyLocation.Address")
 		if err != nil {
 			return nil, apperror.NewQueryError("Orders", err, "")
@@ -446,7 +446,7 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTOServiceItems) error {
 	verrs := validate.NewErrors()
 
-	if shipment.MTOAgents != nil && len(shipment.MTOAgents) > 0 {
+	if len(shipment.MTOAgents) > 0 {
 		for _, agent := range shipment.MTOAgents {
 			if agent.ID != uuid.Nil {
 				verrs.Add("agents:id", "cannot be set for new agents")
