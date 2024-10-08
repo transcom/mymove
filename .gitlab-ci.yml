@@ -1,7 +1,4 @@
-
-
-
- # SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
+# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
 # Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
 # Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
 # Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
@@ -60,6 +57,35 @@ stages:
     - export PATH=${PATH}:${GOPATH}/bin:~/transcom/mymove/builds/milmove/mymove
     - export REACT_APP_ERROR_LOGGING=otel
 
+# base_noop:
+#   stage: pre_checks
+#   image: $DOCKER_APP_IMAGE
+#   script: 
+# - echo "noop"
+
+# anti_virus:
+#   stage: pre_checks
+#   image: milmove/clamav-ci # This can reB-18585-gitlab-pipeline-work as is, or use any lightweight image since we're skipping the actual work.
+#   script:
+#      - clamscan --version
+#      - cp -v ~/transcom/mymove/anti-virus/whitelist-*.{fp,ign2} /var/lib/clamav/
+#      - >
+#        clamscan \
+#          --recursive \
+#          --infected \
+#          --detect-pua=yes \
+#          --exclude-pua=NetTool \
+#          --exclude-pua=PWTool \
+#          --max-scansize=300M \
+#          --max-filesize=100M \
+#          --max-recursion=30 \
+#        --max-files=50000 \
+#          --tempdir=/tmp \
+#          ~/transcom/mymove
+#      - echo "Skipping anti-virus checks temporarily."
+#   after_script:
+#      - echo "Replace this line with your failure announcement logic."
+
 pre_deps_golang:
   stage: pre_checks
   image: $DOCKER_APP_IMAGE
@@ -95,8 +121,8 @@ pre_deps_yarn:
     paths:
       - ~/.cache/yarn
 
-  #  policy: pull-push # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect job execution
-  #No need to uncomment after_script if it's just for passing the job
+#  policy: pull-push # This can reB-18585-gitlab-pipeline-work as is, since it doesn't affect job execution
+# No need to uncomment after_script if it's just for passing the job
 
 # check_tls_certificate_dp3:
 #   stage: pre_checks
@@ -148,6 +174,64 @@ pre_deps_yarn:
 #   script:
 #     - echo "Temporarily skipping TLS certificate check."
 
+# build_storybook:
+#   stage: build
+#   image: $DOCKER_APP_IMAGE 
+#   needs: 
+#     - pre_deps_yarn
+#   cache:
+#     - key: "v3-cache-yarn-v3-$(echo yarn.lock | md5sum)" # Adjust as necessary for GitLab CI
+#       paths:
+#         - ~/ .cache/yarn
+#         - node_modules/ # Assuming yarn cache directory is .yarn/cache
+#       policy: pull
+#   script:
+#     # - yarn install --frozen-lockfile
+#     - yarn build-storybook
+#     - echo "Skipping build storybook steps."
+#    # - sleep 600
+#   artifacts:
+#     paths:
+#       - storybook-static/
+#     expire_in: 1 week
+#   rules:
+#     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+
+
+compile_app_client:
+  stage: build
+  image: $DOCKER_APP_IMAGE # Replace with the actual Docker image name if different.
+  before_script: *setup_milmove_env
+  needs:
+    - pre_deps_yarn
+  variables:
+    KUBERNETES_CPU_REQUEST: "2"
+    KUBERNETES_MEMORY_REQUEST: "4Gi"
+    KUBERNETES_MEMORY_LIMIT: "4Gi"
+  script:
+    #- ls bin
+    - make client_build
+    - echo "Skipping actual build steps."
+    - sleep 60
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
+  # cache:
+  #   key: "yarn-cache-v3-$(echo $(md5sum yarn.lock) | cut -d ' ' -f 1)"
+  #   paths:
+  #     - .yarn/cache
+  #     - /builds/milmove/mymove/build
+  artifacts:
+    paths:
+      - ~/.cache/yarn
+      - /builds/milmove/mymove/bin
+      - /builds/milmove/mymove/build
+      - playwright
+      - playwright.config.js
+      - package.json
+      - yarn.lock
+      - eslint-plugin-ato
+    expire_in: 1 week
+
 compile_app_server:
   stage: build
   image: $DOCKER_APP_IMAGE
@@ -187,42 +271,25 @@ compile_app_server:
   #     - pkg/testdatagen/testdata
     expire_in: 1 week
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
 
-
-compile_app_client:
-  stage: build
-  image: $DOCKER_APP_IMAGE # Replace with the actual Docker image name if different.
-  before_script: *setup_milmove_env
-  needs:
-    - pre_deps_yarn
-  variables:
-    KUBERNETES_CPU_REQUEST: "2"
-    KUBERNETES_MEMORY_REQUEST: "4Gi"
-    KUBERNETES_MEMORY_LIMIT: "4Gi"
+push_otel_collector_image_demo:
+  stage: build  # Define the appropriate stage
+  image: 
+    name: gcr.io/kaniko-project/executor:v1.14.0-debug  # Uncomment if you need a specific Docker image to run your job.
+    entrypoint: [""]
+  needs: 
+    - compile_app_server
+  before_script:
+     - mkdir -p /kaniko/.docker
+     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
   script:
-    #- ls bin
-    - make client_build
-    - echo "Skipping actual build steps."
-    - sleep 60
+    - /kaniko/executor --context dir://dev/null --dockerfile /dev/null --destination "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${OTEL_VERSION}" --build-arg BASE_IMAGE="public.ecr.aws/aws-observability/aws-otel-collector:${OTEL_VERSION}"
+  after_script:
+    - echo "Tagging and pushing the AWS OTel Collector image to ECR..."
+  allow_failure: false
   rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-pipeline-work" || $CI_COMMIT_BRANCH == "main"'
-  # cache:
-  #   key: "yarn-cache-v3-$(echo $(md5sum yarn.lock) | cut -d ' ' -f 1)"
-  #   paths:
-  #     - .yarn/cache
-  #     - /builds/milmove/mymove/build
-  artifacts:
-    paths:
-      - ~/.cache/yarn
-      - /builds/milmove/mymove/bin
-      - /builds/milmove/mymove/build
-      - playwright
-      - playwright.config.js
-      - package.json
-      - yarn.lock
-      - eslint-plugin-ato
-    expire_in: 1 week
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
 
 build_app:
   stage: build
@@ -230,8 +297,8 @@ build_app:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
-     - compile_app_server
      - compile_app_client
+     - compile_app_server
   before_script:
     - ls bin
     - mkdir -p /kaniko/.docker
@@ -275,8 +342,8 @@ build_tasks:
     name: gcr.io/kaniko-project/executor:v1.14.0-debug
     entrypoint: [""]
   needs:
-    - compile_app_client
     - compile_app_server
+    - compile_app_client
     - build_app  # Added dependency on build_app to use Kaniko for building images
   before_script:
     - mkdir -p /kaniko/.docker
@@ -292,14 +359,13 @@ build_tasks:
   after_script:
     - echo "Tasks image built successfully."
 
-
 push_migrations_gov_dev:
   stage: deploy
   image: gcr.io/kaniko-project/executor:v1.14.0-debug # Uncomment and use the correct image if needed
   needs:
     - build_migrations
-    - compile_app_server
     - compile_app_client
+    - compile_app_server
   before_script:
     - mkdir -p /kaniko/.docker
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
@@ -320,8 +386,8 @@ push_app_gov_dev:
   image: gcr.io/kaniko-project/executor:v1.14.0-debug
   needs:
     - build_app
-    - compile_app_server
     - compile_app_client
+    - compile_app_server
   before_script:
     - mkdir -p /kaniko/.docker
     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
@@ -340,8 +406,8 @@ push_tasks_gov_dev:
   image: gcr.io/kaniko-project/executor:v1.14.0-debug
   needs:
     - build_tasks
-    - compile_app_server
     - compile_app_client
+    - compile_app_server
   before_script:
      - mkdir -p /kaniko/.docker
      - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
@@ -353,3 +419,6 @@ push_tasks_gov_dev:
     #  --destination "${ECR_REPOSITORY_URI}/app-tasks:latest"
   after_script:
     - echo "Tasks image pushed to AWS ECR successfully."
+
+
+
