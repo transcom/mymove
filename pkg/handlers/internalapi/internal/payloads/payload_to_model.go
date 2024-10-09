@@ -28,7 +28,6 @@ func AddressModel(address *internalmessages.Address) *models.Address {
 		City:           *address.City,
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
 		County:         *address.County,
 	}
 }
@@ -47,7 +46,6 @@ func PPMDestinationAddressModel(address *internalmessages.PPMDestinationAddress)
 		City:           *address.City,
 		State:          *address.State,
 		PostalCode:     *address.PostalCode,
-		Country:        address.Country,
 		County:         *address.County,
 	}
 	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {

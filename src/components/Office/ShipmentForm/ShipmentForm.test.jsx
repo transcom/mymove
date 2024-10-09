@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { render, screen, waitFor, within, act } from '@testing-library/react';
+import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import ShipmentForm from './ShipmentForm';
@@ -2097,6 +2097,59 @@ describe('ShipmentForm component', () => {
       );
 
       expect(await screen.findByTestId('tag')).toHaveTextContent('PPM');
+      expect(screen.getByText('What address are you moving from?')).toBeInTheDocument();
+      expect(screen.getByText('Second pickup address')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Will you move any belongings from a second address? (Must be near the pickup address. Subject to approval.)',
+        ),
+      ).toBeInTheDocument();
+
+      expect(screen.getByText('Delivery Address')).toBeInTheDocument();
+      expect(screen.getByText('Second delivery address')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'Will you move any belongings to a second address? (Must be near the delivery address. Subject to approval.)',
+        ),
+      ).toBeInTheDocument();
+    });
+    it('displays the third pickup address question when the Yes option for second pickup address is selected', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />,
+      );
+      expect(screen.queryByText('Third pickup address')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('has-secondary-pickup'));
+      expect(await screen.findByText('Third pickup address')).toBeInTheDocument();
+      expect(
+        await screen.findByText(
+          'Will you move any belongings from a third address? (Must be near the pickup address. Subject to approval.)',
+        ),
+      ).toBeInTheDocument();
+    });
+    it('displays the third delivery address question when the Yes option for second delivery address is selected', async () => {
+      isBooleanFlagEnabled.mockImplementation(() => Promise.resolve(true));
+      renderWithRouter(
+        <ShipmentForm
+          {...defaultProps}
+          shipmentType={SHIPMENT_OPTIONS.PPM}
+          isCreatePage
+          userRole={roleTypes.SERVICES_COUNSELOR}
+        />,
+      );
+      expect(screen.queryByText('Third delivery address')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('has-secondary-destination'));
+      expect(await screen.findByText('Third delivery address')).toBeInTheDocument();
+      expect(
+        await screen.findByText(
+          'Will you move any belongings to a third address? (Must be near the delivery address. Subject to approval.)',
+        ),
+      ).toBeInTheDocument();
     });
   });
 

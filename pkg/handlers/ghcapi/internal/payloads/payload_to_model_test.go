@@ -24,7 +24,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 
 	pickupAddress = ghcmessages.Address{
 		City:           &address.City,
-		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -33,7 +32,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	}
 	destinationAddress = ghcmessages.PPMDestinationAddress{
 		City:           &address.City,
-		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: models.StringPointer(""), // empty string
@@ -100,7 +98,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 
 	pickupAddress = ghcmessages.Address{
 		City:           &address.City,
-		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: &address.StreetAddress1,
@@ -109,7 +106,6 @@ func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1Fr
 	}
 	destinationAddress = ghcmessages.PPMDestinationAddress{
 		City:           &address.City,
-		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
 		StreetAddress1: models.StringPointer(""), // empty string
