@@ -225,6 +225,11 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 						Message: handlers.FmtString(err.Error()),
 					}
 					return mtoshipmentops.NewCreateMTOShipmentNotFound().WithPayload(&payload), err
+				case apperror.EventError:
+					payload := ghcmessages.Error{
+						Message: handlers.FmtString(err.Error()),
+					}
+					return mtoshipmentops.NewUpdateMTOShipmentBadRequest().WithPayload(&payload), err
 				case apperror.InvalidInputError:
 					payload := payloadForValidationError(
 						"Validation errors",

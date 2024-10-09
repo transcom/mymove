@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { generatePath, useNavigate, useParams, useLocation } from 'react-router-dom';
+import { generatePath, useNavigate, useParams, useLocation, Link } from 'react-router-dom';
 import { GridContainer, Grid, Alert } from '@trussworks/react-uswds';
 
 import { isBooleanFlagEnabled } from '../../../../../utils/featureFlags';
@@ -12,7 +12,7 @@ import { customerRoutes, generalRoutes } from 'constants/routes';
 import { shipmentTypes } from 'constants/shipments';
 import ppmPageStyles from 'pages/MyMove/PPM/PPM.module.scss';
 import { createMTOShipment, getAllMoves, patchMove, patchMTOShipment } from 'services/internalApi';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, technicalHelpDeskURL } from 'shared/constants';
 import { formatDateForSwagger } from 'shared/dates';
 import { updateMTOShipment, updateMove, updateAllMoves } from 'store/entities/actions';
 import { DutyLocationShape } from 'types';
@@ -24,6 +24,7 @@ import { formatAddressForAPI } from 'utils/formatMtoShipment';
 
 const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, move }) => {
   const [errorMessage, setErrorMessage] = useState(null);
+  const [errorCode, setErrorCode] = useState(null);
   const [multiMove, setMultiMove] = useState(false);
   const navigate = useNavigate();
   const { moveId } = useParams();
@@ -69,6 +70,15 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         mtoShipmentId: response.id,
       }),
     );
+  };
+
+  const handleSetError = (error) => {
+    setErrorCode(error.statusCode);
+    if (error?.response?.body.detail !== null || error?.response?.body.detail !== undefined) {
+      setErrorMessage(`${error?.response?.body.detail}`);
+    } else {
+      setErrorMessage('There was an error attempting to update your shipment.');
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
@@ -170,9 +180,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
-        .catch(() => {
+        .catch((error) => {
           setSubmitting(false);
-          setErrorMessage('There was an error attempting to update your shipment.');
+          handleSetError(error);
         });
     }
   };
@@ -187,7 +197,17 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
             <h1>PPM date & location</h1>
             {errorMessage && (
               <Alert headingLevel="h4" slim type="error">
-                {errorMessage}
+                {errorCode === 400 || errorCode === 500 ? (
+                  <p>
+                    {errorMessage} If the error persists, please try again later, or contact the&nbsp;
+                    <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
+                      Technical Help Desk
+                    </Link>
+                    .
+                  </p>
+                ) : (
+                  <p>{errorMessage}</p>
+                )}
               </Alert>
             )}
             <DateAndLocationForm
