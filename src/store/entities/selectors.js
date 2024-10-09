@@ -313,3 +313,11 @@ export const selectProGearEntitlements = (state) => {
   const orders = selectCurrentOrders(state);
   return orders?.entitlement || null;
 };
+
+export const selectCanAddOrders = (state) => {
+  return state.generalState?.canAddOrders || false;
+};
+
+export const selectMoveId = (state) => {
+  return state.generalState?.moveId || '';
+};
