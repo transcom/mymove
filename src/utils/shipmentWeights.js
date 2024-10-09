@@ -65,9 +65,6 @@ export const getWeightTicketNetWeight = (weightTicket) => {
     return weightTicket.adjustedNetWeight ?? calculateWeightTicketWeightDifference(weightTicket);
   return 0;
 };
-export const getAllowableWeight = (weightTicket) => {
-  return weightTicket.allowableWeight ?? getWeightTicketNetWeight(weightTicket);
-};
 
 export const getTotalNetWeightForWeightTickets = (weightTickets = []) => {
   return weightTickets
