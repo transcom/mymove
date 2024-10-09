@@ -30,7 +30,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal(state, address.State)
 		suite.Equal(postalCode, address.PostalCode)
 		suite.Nil(address.StreetAddress2)
-		suite.Nil(address.Country)
+		suite.NotNil(address.CountryId)
 	})
 
 	suite.Run("Successfully creates an address with empty strings for optional fields", func() {

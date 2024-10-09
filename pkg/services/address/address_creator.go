@@ -37,8 +37,9 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	}
 
 	// until international moves are supported, we will default the country for created addresses to "US"
+	var country models.Country
 	if address.Country != nil && address.Country.Country != "" {
-		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+		country, err = models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
 		if err != nil {
 			return nil, err
 		}
@@ -51,12 +52,7 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.CountryId = &country.ID
 	}
 
-	if transformedAddress.CountryId != nil {
-		country, err := models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
-		if err != nil {
-			return nil, err
-		}
-
+	if country.ID != uuid.Nil {
 		if country.Country != "US" && transformedAddress.State != "AK" && transformedAddress.State != "HI" {
 			boolTrueVal := true
 			transformedAddress.IsOconus = &boolTrueVal
