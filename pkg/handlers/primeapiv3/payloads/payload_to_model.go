@@ -236,7 +236,15 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.BoatShipment.Shipment = *model
 	}
 
-	return model, nil
+	if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome, verrs = MobileHomeShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.MobileHome.Shipment = *model
+	}
+
+	return model, verrs
 }
 
 // Non SIT Address update Model
@@ -369,6 +377,24 @@ func BoatShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment)
 		HeightInInches: &heightInInches,
 		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
 		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MobileHome, *validate.Errors) {
+	year := int(*mtoShipment.MobileHomeShipment.Year)
+	lengthInInches := int(*mtoShipment.MobileHomeShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.MobileHomeShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.MobileHomeShipment.HeightInInches)
+	model := &models.MobileHome{
+		Year:           &year,
+		Make:           mtoShipment.MobileHomeShipment.Make,
+		Model:          mtoShipment.MobileHomeShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
 	}
 
 	return model, nil
