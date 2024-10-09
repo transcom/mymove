@@ -6,7 +6,7 @@ import (
 	"github.com/gofrs/uuid"
 )
 
-type ReState struct {
+type ReCities struct {
 	ID         uuid.UUID `json:"id" db:"id"`
 	CityName  string    `json:"city_name" db:"city_name"`
 	StateID    uuid.UUID `json:"state_id" db:"state_id"`
