@@ -191,6 +191,14 @@ func Document(document *models.Document) *supportmessages.Document {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address converts Address model to payload
 func Address(address *models.Address) *supportmessages.Address {
 	if address == nil {
@@ -204,7 +212,7 @@ func Address(address *models.Address) *supportmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}

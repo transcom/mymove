@@ -42,7 +42,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 			City:           city,
 			State:          state,
 			PostalCode:     postalCode,
-			Country:        models.StringPointer(""),
 		})
 
 		suite.Nil(err)

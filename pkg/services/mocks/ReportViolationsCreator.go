@@ -20,6 +20,10 @@ type ReportViolationsCreator struct {
 func (_m *ReportViolationsCreator) AssociateReportViolations(appCtx appcontext.AppContext, reportViolations *models.ReportViolations, reportID uuid.UUID) error {
 	ret := _m.Called(appCtx, reportViolations, reportID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for AssociateReportViolations")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.ReportViolations, uuid.UUID) error); ok {
 		r0 = rf(appCtx, reportViolations, reportID)
