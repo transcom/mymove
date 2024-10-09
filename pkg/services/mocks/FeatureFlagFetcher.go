@@ -23,6 +23,10 @@ type FeatureFlagFetcher struct {
 func (_m *FeatureFlagFetcher) GetBooleanFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 	ret := _m.Called(ctx, logger, entityID, key, flagContext)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetBooleanFlag")
+	}
+
 	var r0 services.FeatureFlag
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *zap.Logger, string, string, map[string]string) (services.FeatureFlag, error)); ok {
@@ -46,6 +50,10 @@ func (_m *FeatureFlagFetcher) GetBooleanFlag(ctx context.Context, logger *zap.Lo
 // GetBooleanFlagForUser provides a mock function with given fields: ctx, appCtx, key, flagContext
 func (_m *FeatureFlagFetcher) GetBooleanFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 	ret := _m.Called(ctx, appCtx, key, flagContext)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetBooleanFlagForUser")
+	}
 
 	var r0 services.FeatureFlag
 	var r1 error
@@ -71,6 +79,10 @@ func (_m *FeatureFlagFetcher) GetBooleanFlagForUser(ctx context.Context, appCtx 
 func (_m *FeatureFlagFetcher) GetVariantFlag(ctx context.Context, logger *zap.Logger, entityID string, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 	ret := _m.Called(ctx, logger, entityID, key, flagContext)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetVariantFlag")
+	}
+
 	var r0 services.FeatureFlag
 	var r1 error
 	if rf, ok := ret.Get(0).(func(context.Context, *zap.Logger, string, string, map[string]string) (services.FeatureFlag, error)); ok {
@@ -94,6 +106,10 @@ func (_m *FeatureFlagFetcher) GetVariantFlag(ctx context.Context, logger *zap.Lo
 // GetVariantFlagForUser provides a mock function with given fields: ctx, appCtx, key, flagContext
 func (_m *FeatureFlagFetcher) GetVariantFlagForUser(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
 	ret := _m.Called(ctx, appCtx, key, flagContext)
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetVariantFlagForUser")
+	}
 
 	var r0 services.FeatureFlag
 	var r1 error

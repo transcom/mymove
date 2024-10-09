@@ -487,6 +487,7 @@ func calculatePPMNetWeight(ppmShipment models.PPMShipment) float64 {
 	return totalNetWeight.Float64()
 }
 
+// #nosec G115: it is unrealistic that an imperial measurement will exceed int32 limits
 func buildServiceItemCrate(serviceItem models.MTOServiceItem) pptasmessages.Crate {
 	var newServiceItemCrate pptasmessages.Crate
 	var newCrateDimensions pptasmessages.MTOServiceItemDimension
