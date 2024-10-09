@@ -3,7 +3,6 @@ package internalapi
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime"
@@ -343,22 +342,17 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationID = &originDutyLocationID
 
 				if payload.MoveID != "" {
-					fmt.Print("Starting Counseling test")
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
-						fmt.Print("Jonathan 1 - Invalid move ID")
 						return handlers.ResponseForError(appCtx.Logger(), err), err
 					}
 					move, err := models.FetchMove(appCtx.DB(), appCtx.Session(), moveID)
 					if err != nil {
-						fmt.Print("Jonathan 2 - Invalid move")
-						fmt.Print(err)
 						return handlers.ResponseForError(appCtx.Logger(), err), err
 					}
 					if originDutyLocation.ProvidesServicesCounseling {
 						counselingOfficeID, err := uuid.FromString(payload.CounselingOfficeID.String())
 						if err != nil {
-							fmt.Print("Jonathan 3 - Invalid counseling ID")
 							return handlers.ResponseForError(appCtx.Logger(), err), err
 						}
 						if move.CounselingOfficeID != &counselingOfficeID {
