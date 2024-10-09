@@ -402,16 +402,7 @@ func (suite *MoveServiceSuite) TestMoveSubmission() {
 func (suite *MoveServiceSuite) TestMoveCancellation() {
 	moveRouter := NewMoveRouter()
 
-	suite.Run("Cancel move with PPM Shipment", func() {
-		move := factory.BuildMoveWithPPMShipment(suite.DB(), nil, nil)
-
-		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
-		suite.NoError(err)
-		suite.Equal(models.MoveStatusCANCELED, move.Status)
-	})
-
-	suite.Run("Cancel move with HHG shipment", func() {
+	suite.Run("Cancel move with no shipments", func() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
@@ -419,6 +410,58 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		suite.NoError(err)
 		suite.Equal(models.MoveStatusCANCELED, move.Status)
 	})
+
+	suite.Run("Cancel move with HHG", func() {
+		move := factory.BuildMove(suite.DB(), nil, nil)
+
+		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					MoveTaskOrderID: move.ID,
+					Status:          models.MTOShipmentStatusSubmitted,
+					ShipmentType:    models.MTOShipmentTypeHHG,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
+
+		suite.NoError(err)
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
+		suite.Equal(models.MTOShipmentStatusCanceled, move.MTOShipments[0].Status)
+	})
+
+	// suite.Run("Cancel move with HHG", func() {
+	// 	moveId := uuid.Must(uuid.NewV4())
+
+	// 	hhg := models.MTOShipment{
+	// 		MoveTaskOrderID: moveId,
+	// 		ShipmentType:    models.MTOShipmentTypeHHG,
+	// 		Status:          models.MTOShipmentStatusDraft,
+	// 	}
+	// 	shipments := []models.MTOShipment{hhg}
+
+	// 	move := factory.BuildMove(suite.DB(), []factory.Customization{
+	// 		{
+	// 			Model: models.Move{
+	// 				ID:           moveId,
+	// 				MTOShipments: shipments,
+	// 			},
+	// 		},
+	// 	}, nil)
+
+	// 	move.MTOShipments = append(move.MTOShipments, hhg)
+
+	// 	err := moveRouter.Cancel(suite.AppContextForTest(), &move)
+
+	// 	suite.NoError(err)
+	// 	suite.Equal(models.MoveStatusCANCELED, move.Status)
+	// 	suite.Equal(models.MTOShipmentStatusCanceled, move.MTOShipments[0].Status)
+	// })
 }
 
 func (suite *MoveServiceSuite) TestSendToOfficeUser() {

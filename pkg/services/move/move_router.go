@@ -432,6 +432,8 @@ func (router moveRouter) Cancel(appCtx appcontext.AppContext, move *models.Move)
 		return apperror.NewNotFoundError(move.ID, "while looking for shipments")
 	}
 
+	fmt.Printf("\n\n%+v\n\n", shipments)
+
 	txnErr := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		for _, shipment := range shipments {
 			shipmentDelta := shipment
