@@ -186,12 +186,12 @@ const ShipmentForm = (props) => {
     });
   };
 
-  const handleSetError = (error) => {
+  const handleSetError = (error, defaultError) => {
     setErrorCode(error.statusCode);
-    if (error?.response?.body.message !== null || error?.response?.body.message !== undefined) {
+    if (error?.response?.body.message !== null && error?.response?.body.message !== undefined) {
       setErrorMessage(`${error?.response?.body.message}`);
     } else {
-      setErrorMessage('There was an error attempting to update your shipment.');
+      setErrorMessage(defaultError);
     }
   };
 
@@ -410,7 +410,7 @@ const ShipmentForm = (props) => {
                     },
                     onError: (error) => {
                       actions.setSubmitting(false);
-                      handleSetError(error);
+                      handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
                     },
                   },
                 );
@@ -425,7 +425,7 @@ const ShipmentForm = (props) => {
             },
             onError: (error) => {
               actions.setSubmitting(false);
-              handleSetError(error);
+              handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
             },
           },
         );
@@ -473,7 +473,7 @@ const ShipmentForm = (props) => {
                 },
                 onError: (error) => {
                   actions.setSubmitting(false);
-                  handleSetError(error);
+                  handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
                 },
               },
             );
@@ -498,7 +498,7 @@ const ShipmentForm = (props) => {
         },
         onError: (error) => {
           actions.setSubmitting(false);
-          handleSetError(error);
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
       return;
@@ -601,7 +601,7 @@ const ShipmentForm = (props) => {
             navigate(moveDetailsPath);
           },
           onError: (error) => {
-            handleSetError(error);
+            handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
           },
         },
       );
@@ -615,7 +615,7 @@ const ShipmentForm = (props) => {
           onUpdate('success');
         },
         onError: (error) => {
-          handleSetError(error);
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
@@ -626,7 +626,7 @@ const ShipmentForm = (props) => {
           navigate(moveDetailsPath);
         },
         onError: (error) => {
-          handleSetError(error);
+          handleSetError(error, `Something went wrong, and your changes were not saved. Please try again.`);
         },
       });
     }
