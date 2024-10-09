@@ -16,6 +16,10 @@ type DTODPlannerMileage struct {
 func (_m *DTODPlannerMileage) DTODZip5Distance(appCtx appcontext.AppContext, pickup string, destination string) (int, error) {
 	ret := _m.Called(appCtx, pickup, destination)
 
+	if len(ret) == 0 {
+		panic("no return value specified for DTODZip5Distance")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {

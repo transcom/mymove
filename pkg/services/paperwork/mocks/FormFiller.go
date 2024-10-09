@@ -18,6 +18,10 @@ type FormFiller struct {
 func (_m *FormFiller) AppendPage(_a0 io.ReadSeeker, _a1 map[string]paperwork.FieldPos, _a2 interface{}) error {
 	ret := _m.Called(_a0, _a1, _a2)
 
+	if len(ret) == 0 {
+		panic("no return value specified for AppendPage")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(io.ReadSeeker, map[string]paperwork.FieldPos, interface{}) error); ok {
 		r0 = rf(_a0, _a1, _a2)
@@ -31,6 +35,10 @@ func (_m *FormFiller) AppendPage(_a0 io.ReadSeeker, _a1 map[string]paperwork.Fie
 // Output provides a mock function with given fields: _a0
 func (_m *FormFiller) Output(_a0 io.Writer) error {
 	ret := _m.Called(_a0)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Output")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(io.Writer) error); ok {
