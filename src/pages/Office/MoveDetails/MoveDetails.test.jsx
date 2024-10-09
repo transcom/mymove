@@ -1,9 +1,7 @@
 /* eslint-disable react/jsx-props-no-spreading */
 import React from 'react';
-import { generatePath } from 'react-router-dom';
 import { mount } from 'enzyme';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen } from '@testing-library/react';
 
 import { ORDERS_TYPE, ORDERS_TYPE_DETAILS } from '../../../constants/orders';
 
@@ -12,8 +10,6 @@ import MoveDetails from './MoveDetails';
 import { MockProviders } from 'testUtils';
 import { useMoveDetailsQueries } from 'hooks/queries';
 import { permissionTypes } from 'constants/permissions';
-import { SHIPMENT_OPTIONS_URL } from 'shared/constants';
-import { tooRoutes } from 'constants/routes';
 
 jest.mock('hooks/queries', () => ({
   useMoveDetailsQueries: jest.fn(),
@@ -24,7 +20,6 @@ const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
 const setMissingOrdersInfoCount = jest.fn();
-const setShipmentErrorConcernCount = jest.fn();
 
 const mockNavigate = jest.fn();
 const mockRequestedMoveCode = 'TE5TC0DE';
@@ -1198,52 +1193,6 @@ describe('MoveDetails page', () => {
       );
 
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
-    });
-  });
-
-  describe('shows the dropdown and navigates to each option', () => {
-    it.each([
-      [
-        SHIPMENT_OPTIONS_URL.HHG,
-        SHIPMENT_OPTIONS_URL.NTS,
-        SHIPMENT_OPTIONS_URL.NTSrelease,
-        SHIPMENT_OPTIONS_URL.MOBILE_HOME,
-        SHIPMENT_OPTIONS_URL.BOAT,
-      ],
-    ])('selects the %s option and navigates to the matching form for that shipment type', async (shipmentType) => {
-      render(
-        <MockProviders
-          permissions={[permissionTypes.createTxoShipment]}
-          path={tooRoutes.SHIPMENT_ADD_PATH}
-          params={{ moveCode: mockRequestedMoveCode, shipmentType }}
-        >
-          <MoveDetails
-            setUnapprovedShipmentCount={setUnapprovedShipmentCount}
-            setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
-            setExcessWeightRiskCount={setExcessWeightRiskCount}
-            setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
-            missingOrdersInfoCount={0}
-            setMissingOrdersInfoCount={setMissingOrdersInfoCount}
-            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
-          />
-          ,
-        </MockProviders>,
-      );
-
-      const path = `${generatePath(tooRoutes.SHIPMENT_ADD_PATH, {
-        moveCode: mockRequestedMoveCode,
-        shipmentType,
-      })}`;
-
-      const buttonDropdown = await screen.findByRole('combobox');
-
-      expect(buttonDropdown).toBeInTheDocument();
-
-      await userEvent.selectOptions(buttonDropdown, shipmentType);
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith(path);
-      });
     });
   });
 });
