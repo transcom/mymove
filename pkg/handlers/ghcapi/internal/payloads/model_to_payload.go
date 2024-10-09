@@ -2043,14 +2043,16 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles.RoleType) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles.RoleType, officeUser models.OfficeUser, isSupervisor bool) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
 
 		var transportationOffice string
+		var transportationOfficeId uuid.UUID
 		if move.CounselingOffice != nil {
 			transportationOffice = move.CounselingOffice.Name
+			transportationOfficeId = move.CounselingOffice.ID
 		}
 		var validMTOShipments []models.MTOShipment
 		var earliestRequestedPickup *time.Time
@@ -2124,16 +2126,51 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
+			CounselingOfficeID:      handlers.FmtUUID(transportationOfficeId),
+			// AvailableOfficeUsers:    *QueueAvailableOfficeUsers(availableOfficeUsers),
 		}
 
-		if role == roles.RoleTypeServicesCounselor {
+		availableOfficeUsers := officeUsers
+		// if there is no counseling office
+		// OR if our current user doesn't work at the move's counseling office
+		// only available user should be themself
+		if (move.CounselingOfficeID == nil) || (move.CounselingOfficeID != nil && *move.CounselingOfficeID != officeUser.TransportationOfficeID) {
+			availableOfficeUsers = models.OfficeUsers{officeUser}
+		}
+
+		// set the assignedTo prop depending on what queue you're looking at
+		if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil {
 			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
+			// if the assigned user is outside the transportation office of the logged in office user
+			// append said user to end of availableOfficeUsers
+			if move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+				availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+			}
 		}
-		if role == roles.RoleTypeTOO {
+		if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil {
 			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
+			if move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+				availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
+			}
 		}
 
+		queueMoves[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
+
+		// rules for enabling assign
+		isAssignEnabled := false
+		// if its unassigned, its assignable
+		if queueMoves[i].AssignedTo == nil {
+			isAssignEnabled = true
+		}
+
+		// if it is assigned
+		// its only assignable if the user is a supervisor
+		// and if the move's counseling office is the supervisor's
+		if queueMoves[i].AssignedTo != nil && isSupervisor && move.CounselingOfficeID != nil && *move.CounselingOfficeID == officeUser.TransportationOfficeID {
+			isAssignEnabled = true
+		}
+
+		queueMoves[i].Assignable = isAssignEnabled
 	}
 	return &queueMoves
 }
