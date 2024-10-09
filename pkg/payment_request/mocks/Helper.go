@@ -18,6 +18,10 @@ type Helper struct {
 func (_m *Helper) FetchServiceParamList(appCtx appcontext.AppContext, mtoServiceItem models.MTOServiceItem) (models.ServiceParams, error) {
 	ret := _m.Called(appCtx, mtoServiceItem)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchServiceParamList")
+	}
+
 	var r0 models.ServiceParams
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MTOServiceItem) (models.ServiceParams, error)); ok {
@@ -43,6 +47,10 @@ func (_m *Helper) FetchServiceParamList(appCtx appcontext.AppContext, mtoService
 // FetchServiceParamsForServiceItems provides a mock function with given fields: appCtx, mtoServiceItems
 func (_m *Helper) FetchServiceParamsForServiceItems(appCtx appcontext.AppContext, mtoServiceItems []models.MTOServiceItem) (models.ServiceParams, error) {
 	ret := _m.Called(appCtx, mtoServiceItems)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchServiceParamsForServiceItems")
+	}
 
 	var r0 models.ServiceParams
 	var r1 error
