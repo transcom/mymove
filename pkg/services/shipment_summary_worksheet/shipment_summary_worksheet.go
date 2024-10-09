@@ -401,17 +401,16 @@ func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
-		case shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l HHG"
-		case shipment.ShipmentType == models.MTOShipmentTypeInternationalUB:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l UB"
 		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Haul"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Tow"
+		case shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " UB"
 		}
+
 	}
 	return page3Map, nil
 }
