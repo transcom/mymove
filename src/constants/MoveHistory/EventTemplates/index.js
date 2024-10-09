@@ -95,3 +95,5 @@ export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/update
 export { default as updateAllowanceUpdateMTOShipment } from './UpdateAllowances/updateAllowanceUpdateMTOShipment';
 export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
 export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
+export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
+export { default as uploadAdditionalDocuments } from './UploadAdditionalDocuments/uploadAdditionalDocuments';
