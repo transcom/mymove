@@ -18,6 +18,10 @@ type PaymentRequestStatusUpdater struct {
 func (_m *PaymentRequestStatusUpdater) UpdatePaymentRequestStatus(appCtx appcontext.AppContext, paymentRequest *models.PaymentRequest, eTag string) (*models.PaymentRequest, error) {
 	ret := _m.Called(appCtx, paymentRequest, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePaymentRequestStatus")
+	}
+
 	var r0 *models.PaymentRequest
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PaymentRequest, string) (*models.PaymentRequest, error)); ok {

@@ -20,6 +20,10 @@ type MTOShipmentFetcher struct {
 func (_m *MTOShipmentFetcher) GetDiversionChain(appCtx appcontext.AppContext, shipmentID uuid.UUID) (*[]models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipmentID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetDiversionChain")
+	}
+
 	var r0 *[]models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*[]models.MTOShipment, error)); ok {
@@ -53,6 +57,10 @@ func (_m *MTOShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipment
 	_ca = append(_ca, _va...)
 	ret := _m.Called(_ca...)
 
+	if len(ret) == 0 {
+		panic("no return value specified for GetShipment")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, ...string) (*models.MTOShipment, error)); ok {
@@ -78,6 +86,10 @@ func (_m *MTOShipmentFetcher) GetShipment(appCtx appcontext.AppContext, shipment
 // ListMTOShipments provides a mock function with given fields: appCtx, moveID
 func (_m *MTOShipmentFetcher) ListMTOShipments(appCtx appcontext.AppContext, moveID uuid.UUID) ([]models.MTOShipment, error) {
 	ret := _m.Called(appCtx, moveID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListMTOShipments")
+	}
 
 	var r0 []models.MTOShipment
 	var r1 error
