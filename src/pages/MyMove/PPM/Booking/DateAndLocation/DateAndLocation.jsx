@@ -73,8 +73,10 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   };
 
   const handleSetError = (error, defaultError) => {
-    setErrorCode(error.statusCode);
     if (error?.response?.body.detail !== null && error?.response?.body.detail !== undefined) {
+      if (error?.statusCode !== null && error?.statusCode !== undefined) {
+        setErrorCode(error.statusCode);
+      }
       setErrorMessage(`${error?.response?.body.detail}`);
     } else {
       setErrorMessage(defaultError);

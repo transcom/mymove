@@ -179,8 +179,10 @@ const ShipmentForm = (props) => {
   };
 
   const handleSetError = (error, defaultError) => {
-    setErrorCode(error.statusCode);
     if (error?.response?.body.message !== null && error?.response?.body.message !== undefined) {
+      if (error?.statusCode !== null && error?.statusCode !== undefined) {
+        setErrorCode(error.statusCode);
+      }
       setErrorMessage(`${error?.response?.body.message}`);
     } else {
       setErrorMessage(defaultError);
