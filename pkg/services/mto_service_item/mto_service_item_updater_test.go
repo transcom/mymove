@@ -105,7 +105,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
-		country := factory.BuildUSCountry(suite.DB(), nil, nil)
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 		newAddress := factory.BuildAddress(nil, nil, nil)
 		newAddress.Country = &country
 		newAddress.CountryId = &country.ID
@@ -146,7 +146,7 @@ func (suite *MTOServiceItemServiceSuite) TestMTOServiceItemUpdater() {
 		reason := "because we did this service"
 		sitEntryDate := time.Date(2020, time.December, 02, 0, 0, 0, 0, time.UTC)
 
-		country := factory.BuildUSCountry(suite.DB(), nil, nil)
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 		newAddress := factory.BuildAddress(nil, nil, nil)
 		newAddress.Country = &country
 		newAddress.CountryId = &country.ID

@@ -33,7 +33,7 @@ func (suite *ModelSuite) TestCountryValidation() {
 func (suite *ModelSuite) TestFetchCountryByCode() {
 
 	suite.Run("successful fetch of country by code", func() {
-		country := factory.BuildUSCountry(suite.DB(), nil, nil)
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 
 		goodCountry, err := models.FetchCountryByCode(suite.DB(), country.Country)
 
@@ -53,7 +53,7 @@ func (suite *ModelSuite) TestFetchCountryByCode() {
 func (suite *ModelSuite) TestFetchCountryByID() {
 
 	suite.Run("successful fetch of country by id", func() {
-		country := factory.BuildUSCountry(suite.DB(), nil, nil)
+		country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
 
 		goodCountry, err := models.FetchCountryByID(suite.DB(), country.ID)
 
