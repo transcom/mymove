@@ -20,6 +20,10 @@ type PPMShipmentNewSubmitter struct {
 func (_m *PPMShipmentNewSubmitter) SubmitNewCustomerCloseOut(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, signedCertification models.SignedCertification) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, signedCertification)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SubmitNewCustomerCloseOut")
+	}
+
 	var r0 *models.PPMShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, models.SignedCertification) (*models.PPMShipment, error)); ok {
