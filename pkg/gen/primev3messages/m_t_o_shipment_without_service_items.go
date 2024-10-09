@@ -44,6 +44,9 @@ type MTOShipmentWithoutServiceItems struct {
 	// Format: date
 	ApprovedDate *strfmt.Date `json:"approvedDate"`
 
+	// boat shipment
+	BoatShipment *BoatShipment `json:"boatShipment,omitempty"`
+
 	// The counselor can use the counselor remarks field to inform the movers about any
 	// special circumstances for this shipment. Typical examples:
 	//   * bulky or fragile items,
@@ -241,6 +244,10 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
+	if err := m.validateBoatShipment(formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.validateCreatedAt(formats); err != nil {
 		res = append(res, err)
 	}
@@ -411,6 +418,25 @@ func (m *MTOShipmentWithoutServiceItems) validateApprovedDate(formats strfmt.Reg
 
 	if err := validate.FormatOf("approvedDate", "body", "date", m.ApprovedDate.String(), formats); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) validateBoatShipment(formats strfmt.Registry) error {
+	if swag.IsZero(m.BoatShipment) { // not required
+		return nil
+	}
+
+	if m.BoatShipment != nil {
+		if err := m.BoatShipment.Validate(formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil
@@ -883,6 +909,10 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
+	if err := m.contextValidateBoatShipment(ctx, formats); err != nil {
+		res = append(res, err)
+	}
+
 	if err := m.contextValidateCounselorRemarks(ctx, formats); err != nil {
 		res = append(res, err)
 	}
@@ -1011,6 +1041,27 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateApprovedDate(ctx context
 
 	if err := validate.ReadOnly(ctx, "approvedDate", "body", m.ApprovedDate); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (m *MTOShipmentWithoutServiceItems) contextValidateBoatShipment(ctx context.Context, formats strfmt.Registry) error {
+
+	if m.BoatShipment != nil {
+
+		if swag.IsZero(m.BoatShipment) { // not required
+			return nil
+		}
+
+		if err := m.BoatShipment.ContextValidate(ctx, formats); err != nil {
+			if ve, ok := err.(*errors.Validation); ok {
+				return ve.ValidateName("boatShipment")
+			} else if ce, ok := err.(*errors.CompositeError); ok {
+				return ce.ValidateName("boatShipment")
+			}
+			return err
+		}
 	}
 
 	return nil

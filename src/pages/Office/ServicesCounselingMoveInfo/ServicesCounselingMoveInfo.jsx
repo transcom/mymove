@@ -246,6 +246,7 @@ const ServicesCounselingMoveInfo = () => {
                 setUnapprovedServiceItemCount={setUnapprovedServiceItemCount}
                 setExcessWeightRiskCount={setExcessWeightRiskCount}
                 setUnapprovedSITExtensionCount={setUnApprovedSITExtensionCount}
+                userRole={roleTypes.SERVICES_COUNSELOR}
                 isMoveLocked={isMoveLocked}
               />
             }

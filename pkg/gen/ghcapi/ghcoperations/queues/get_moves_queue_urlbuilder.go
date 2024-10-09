@@ -17,6 +17,7 @@ import (
 // GetMovesQueueURL generates an URL for the get moves queue operation
 type GetMovesQueueURL struct {
 	AppearedInTooAt         *strfmt.DateTime
+	AssignedTo              *string
 	Branch                  *string
 	DestinationDutyLocation *string
 	DodID                   *string
@@ -73,6 +74,14 @@ func (o *GetMovesQueueURL) Build() (*url.URL, error) {
 	}
 	if appearedInTooAtQ != "" {
 		qs.Set("appearedInTooAt", appearedInTooAtQ)
+	}
+
+	var assignedToQ string
+	if o.AssignedTo != nil {
+		assignedToQ = *o.AssignedTo
+	}
+	if assignedToQ != "" {
+		qs.Set("assignedTo", assignedToQ)
 	}
 
 	var branchQ string
