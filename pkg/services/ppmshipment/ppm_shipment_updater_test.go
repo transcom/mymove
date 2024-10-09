@@ -655,6 +655,35 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 		suite.Equal(*newFakeEstimatedIncentive, *updatedPPM.EstimatedIncentive)
 	})
 
+	suite.Run("Can successfully update a PPMShipment - edit just allowable weight", func() {
+		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
+
+		subtestData := setUpForTests(nil, nil, nil)
+
+		originalPPM := factory.BuildMinimalPPMShipment(appCtx.DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					EstimatedWeight: models.PoundPointer(4000),
+					AllowableWeight: models.PoundPointer(3000),
+				},
+			},
+		}, nil)
+
+		newPPM := models.PPMShipment{
+			AllowableWeight: models.PoundPointer(4545),
+		}
+
+		updatedPPM, err := subtestData.ppmShipmentUpdater.UpdatePPMShipmentWithDefaultCheck(appCtx, &newPPM, originalPPM.ShipmentID)
+
+		suite.NilOrNoVerrs(err)
+
+		// Fields that shouldn't have changed
+		suite.Equal(originalPPM.EstimatedWeight, updatedPPM.EstimatedWeight)
+
+		// Fields that should now be updated
+		suite.Equal(*newPPM.AllowableWeight, *updatedPPM.AllowableWeight)
+	})
+
 	suite.Run("Can successfully update a PPMShipment - add advance info - no advance", func() {
 		appCtx := suite.AppContextWithSessionForTest(&auth.Session{})
 

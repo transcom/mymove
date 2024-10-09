@@ -49,7 +49,6 @@ func (suite *ModelSuite) TestWeightTicketValidation() {
 				Reason:                            models.StringPointer(""),
 				AdjustedNetWeight:                 models.PoundPointer(unit.Pound(-1)),
 				NetWeightRemarks:                  models.StringPointer(""),
-				AllowableWeight:                   models.PoundPointer(unit.Pound(-1)),
 			},
 			expectedErrs: map[string][]string{
 				"deleted_at":          {"DeletedAt can not be blank."},

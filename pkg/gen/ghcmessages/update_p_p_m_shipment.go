@@ -50,6 +50,10 @@ type UpdatePPMShipment struct {
 	// advance status
 	AdvanceStatus *PPMAdvanceStatus `json:"advanceStatus,omitempty"`
 
+	// The allowable weight of the PPM shipment goods being moved.
+	// Example: 4300
+	AllowableWeight *int64 `json:"allowableWeight,omitempty"`
+
 	// destination address
 	DestinationAddress struct {
 		Address
