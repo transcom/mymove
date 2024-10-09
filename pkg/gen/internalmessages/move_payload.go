@@ -32,11 +32,6 @@ type MovePayload struct {
 	// counseling office
 	CounselingOffice *TransportationOffice `json:"counseling_office,omitempty"`
 
-	// counseling office id
-	// Example: c56a4180-65aa-42ec-a945-5fd21dec0538
-	// Format: uuid
-	CounselingOfficeID *strfmt.UUID `json:"counseling_office_id,omitempty"`
-
 	// created at
 	// Required: true
 	// Format: date-time
@@ -103,10 +98,6 @@ func (m *MovePayload) Validate(formats strfmt.Registry) error {
 	}
 
 	if err := m.validateCounselingOffice(formats); err != nil {
-		res = append(res, err)
-	}
-
-	if err := m.validateCounselingOfficeID(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -212,18 +203,6 @@ func (m *MovePayload) validateCounselingOffice(formats strfmt.Registry) error {
 			}
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (m *MovePayload) validateCounselingOfficeID(formats strfmt.Registry) error {
-	if swag.IsZero(m.CounselingOfficeID) { // not required
-		return nil
-	}
-
-	if err := validate.FormatOf("counseling_office_id", "body", "uuid", m.CounselingOfficeID.String(), formats); err != nil {
-		return err
 	}
 
 	return nil

@@ -4506,12 +4506,6 @@ func init() {
         "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counselingOfficeID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -5163,12 +5157,6 @@ func init() {
         },
         "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
-        },
-        "counseling_office_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
           "type": "string",
@@ -13153,12 +13141,6 @@ func init() {
         "counselingOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counselingOfficeID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
-        },
         "createdAt": {
           "type": "string",
           "format": "date-time",
@@ -13812,12 +13794,6 @@ func init() {
         },
         "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
-        },
-        "counseling_office_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
         "created_at": {
           "type": "string",
