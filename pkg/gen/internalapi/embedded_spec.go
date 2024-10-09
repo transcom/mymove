@@ -4501,11 +4501,8 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counselingOfficeID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
           "type": "string",
@@ -5154,11 +5151,8 @@ func init() {
         "closeout_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counseling_office_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "counseling_office": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
           "type": "string",
@@ -13138,11 +13132,8 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counselingOfficeID": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "counselingOffice": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "createdAt": {
           "type": "string",
@@ -13793,11 +13784,8 @@ func init() {
         "closeout_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counseling_office_id": {
-          "type": "string",
-          "format": "uuid",
-          "x-nullable": true,
-          "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
+        "counseling_office": {
+          "$ref": "#/definitions/TransportationOffice"
         },
         "created_at": {
           "type": "string",

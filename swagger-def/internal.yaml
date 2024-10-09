@@ -203,11 +203,6 @@ definitions:
         $ref: "definitions/TransportationOffice.yaml"
       counseling_office:
         $ref: "definitions/TransportationOffice.yaml"
-      counseling_office_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
       cancel_reason:
         type: string
         example: "Change of orders"
@@ -2372,11 +2367,6 @@ definitions:
         $ref: 'definitions/TransportationOffice.yaml'
       counselingOffice:
         $ref: 'definitions/TransportationOffice.yaml'
-      counselingOfficeID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        x-nullable: true
       eTag:
         type: string
         readOnly: true

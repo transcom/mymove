@@ -202,11 +202,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeout_office:
         $ref: '#/definitions/TransportationOffice'
-      counseling_office_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      counseling_office:
+        $ref: '#/definitions/TransportationOffice'
       cancel_reason:
         type: string
         example: Change of orders
@@ -2401,11 +2398,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:
         $ref: '#/definitions/TransportationOffice'
-      counselingOfficeID:
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        format: uuid
-        type: string
-        x-nullable: true
+      counselingOffice:
+        $ref: '#/definitions/TransportationOffice'
       eTag:
         type: string
         readOnly: true
