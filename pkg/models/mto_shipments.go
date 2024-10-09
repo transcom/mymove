@@ -34,10 +34,6 @@ const (
 const (
 	// MTOShipmentTypeHHG is an HHG Shipment Type default
 	MTOShipmentTypeHHG MTOShipmentType = "HHG"
-	// MTOShipmentTypeInternationalHHG is a Shipment Type for International HHG
-	MTOShipmentTypeInternationalHHG MTOShipmentType = "INTERNATIONAL_HHG"
-	// MTOShipmentTypeInternationalUB is a Shipment Type for International UB
-	MTOShipmentTypeInternationalUB MTOShipmentType = "INTERNATIONAL_UB"
 	// MTOShipmentTypeHHGIntoNTSDom is an HHG Shipment Type for going into NTS Domestic
 	MTOShipmentTypeHHGIntoNTSDom MTOShipmentType = NTSRaw
 	// MTOShipmentTypeHHGOutOfNTSDom is an HHG Shipment Type for going out of NTS Domestic
@@ -50,6 +46,8 @@ const (
 	MTOShipmentTypeBoatTowAway MTOShipmentType = "BOAT_TOW_AWAY"
 	// MTOShipmentTypePPM is a Shipment Type for Personally Procured Move shipments
 	MTOShipmentTypePPM MTOShipmentType = "PPM"
+	// MTOShipmentTypeUB is a Shipment Type for Unaccompanied Baggage shipments
+	MTOShipmentTypeUnaccompaniedBaggage MTOShipmentType = "UNACCOMPANIED_BAGGAGE"
 )
 
 // These are meant to be the default number of SIT days that a customer is allowed to have. They should be used when

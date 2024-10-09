@@ -19,6 +19,10 @@ type CustomerSupportRemarkUpdater struct {
 func (_m *CustomerSupportRemarkUpdater) UpdateCustomerSupportRemark(appCtx appcontext.AppContext, params customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) (*models.CustomerSupportRemark, error) {
 	ret := _m.Called(appCtx, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateCustomerSupportRemark")
+	}
+
 	var r0 *models.CustomerSupportRemark
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, customer_support_remarks.UpdateCustomerSupportRemarkForMoveParams) (*models.CustomerSupportRemark, error)); ok {

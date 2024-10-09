@@ -20,6 +20,10 @@ type UploadInformationFetcher struct {
 func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.AppContext, _a1 uuid.UUID) (services.UploadInformation, error) {
 	ret := _m.Called(appCtx, _a1)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchUploadInformation")
+	}
+
 	var r0 services.UploadInformation
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (services.UploadInformation, error)); ok {
@@ -43,6 +47,10 @@ func (_m *UploadInformationFetcher) FetchUploadInformation(appCtx appcontext.App
 // FetchUploadInformationForDeletion provides a mock function with given fields: appCtx, _a1, moveLocator
 func (_m *UploadInformationFetcher) FetchUploadInformationForDeletion(appCtx appcontext.AppContext, _a1 uuid.UUID, moveLocator string) (services.UploadInformation, error) {
 	ret := _m.Called(appCtx, _a1, moveLocator)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchUploadInformationForDeletion")
+	}
 
 	var r0 services.UploadInformation
 	var r1 error
