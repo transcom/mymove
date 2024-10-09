@@ -18,6 +18,10 @@ type MovingExpenseUpdater struct {
 func (_m *MovingExpenseUpdater) UpdateMovingExpense(appCtx appcontext.AppContext, movingExpense models.MovingExpense, eTag string) (*models.MovingExpense, error) {
 	ret := _m.Called(appCtx, movingExpense, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMovingExpense")
+	}
+
 	var r0 *models.MovingExpense
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, models.MovingExpense, string) (*models.MovingExpense, error)); ok {

@@ -89,7 +89,7 @@ describe('requireCustomerState HOC', () => {
     await waitFor(() => {
       expect(wrapper.exists()).toBe(true);
     });
-    expect(mockNavigate).toHaveBeenCalledWith('/service-member/conus-oconus');
+    expect(mockNavigate).toHaveBeenCalledWith('/service-member/dod-info');
   });
 
   it('does not redirect if the current state equals the required state', () => {

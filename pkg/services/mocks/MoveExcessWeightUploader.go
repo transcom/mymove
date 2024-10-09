@@ -23,6 +23,10 @@ type MoveExcessWeightUploader struct {
 func (_m *MoveExcessWeightUploader) CreateExcessWeightUpload(appCtx appcontext.AppContext, moveID uuid.UUID, file io.ReadCloser, uploadFilename string, uploadType models.UploadType) (*models.Move, error) {
 	ret := _m.Called(appCtx, moveID, file, uploadFilename, uploadType)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateExcessWeightUpload")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, io.ReadCloser, string, models.UploadType) (*models.Move, error)); ok {

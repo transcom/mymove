@@ -3340,6 +3340,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isOconus": {
+          "type": "boolean",
+          "title": "isOconus",
+          "x-nullable": true,
+          "example": false
+        },
         "postalCode": {
           "type": "string",
           "format": "zip",
@@ -4495,9 +4501,6 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counselingOffice": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
         "counselingOfficeID": {
           "type": "string",
           "format": "uuid",
@@ -5149,9 +5152,6 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
-        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "counseling_office_id": {
@@ -11975,6 +11975,12 @@ func init() {
           "format": "uuid",
           "example": "c56a4180-65aa-42ec-a945-5fd21dec0538"
         },
+        "isOconus": {
+          "type": "boolean",
+          "title": "isOconus",
+          "x-nullable": true,
+          "example": false
+        },
         "postalCode": {
           "type": "string",
           "format": "zip",
@@ -13132,9 +13138,6 @@ func init() {
         "closeoutOffice": {
           "$ref": "#/definitions/TransportationOffice"
         },
-        "counselingOffice": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
         "counselingOfficeID": {
           "type": "string",
           "format": "uuid",
@@ -13788,9 +13791,6 @@ func init() {
           "example": "Change of orders"
         },
         "closeout_office": {
-          "$ref": "#/definitions/TransportationOffice"
-        },
-        "counseling_office": {
           "$ref": "#/definitions/TransportationOffice"
         },
         "counseling_office_id": {
