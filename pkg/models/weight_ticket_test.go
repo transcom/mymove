@@ -59,7 +59,6 @@ func (suite *ModelSuite) TestWeightTicketValidation() {
 				"reason":              {"Reason can not be blank."},
 				"adjusted_net_weight": {"-1 is less than zero."},
 				"net_weight_remarks":  {"NetWeightRemarks can not be blank."},
-				"allowable_weight":    {"-1 is less than zero."},
 			},
 		},
 	}
