@@ -13,12 +13,21 @@ import { ReactComponent as ArrowLeft } from 'shared/icon/arrow-left.svg';
 import { ReactComponent as ArrowRight } from 'shared/icon/arrow-right.svg';
 */
 
-const DocViewerContent = ({ fileType, filePath, saveRotation, setRotationValue, rotationValue, disableSaveButton }) => (
+const DocViewerContent = ({
+  fileType,
+  filePath,
+  saveRotation,
+  setRotationValue,
+  rotationValue,
+  disableSaveButton,
+  onError,
+}) => (
   <div data-testid="DocViewerContent" className={styles.DocViewerContent}>
     <FileViewer
       key={`fileViewer_${filePath}`}
       fileType={fileType}
       filePath={filePath}
+      onError={onError}
       saveRotation={saveRotation}
       rotationValue={rotationValue}
       setRotationValue={setRotationValue}
