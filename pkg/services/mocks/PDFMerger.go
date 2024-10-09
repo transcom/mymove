@@ -19,6 +19,10 @@ type PDFMerger struct {
 func (_m *PDFMerger) MergePDFs(appCtx appcontext.AppContext, pdfsToMerge []io.ReadCloser) (io.ReadCloser, error) {
 	ret := _m.Called(appCtx, pdfsToMerge)
 
+	if len(ret) == 0 {
+		panic("no return value specified for MergePDFs")
+	}
+
 	var r0 io.ReadCloser
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []io.ReadCloser) (io.ReadCloser, error)); ok {
