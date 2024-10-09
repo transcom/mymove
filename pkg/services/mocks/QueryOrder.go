@@ -13,6 +13,10 @@ type QueryOrder struct {
 func (_m *QueryOrder) Column() *string {
 	ret := _m.Called()
 
+	if len(ret) == 0 {
+		panic("no return value specified for Column")
+	}
+
 	var r0 *string
 	if rf, ok := ret.Get(0).(func() *string); ok {
 		r0 = rf()
@@ -28,6 +32,10 @@ func (_m *QueryOrder) Column() *string {
 // SortOrder provides a mock function with given fields:
 func (_m *QueryOrder) SortOrder() *bool {
 	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for SortOrder")
+	}
 
 	var r0 *bool
 	if rf, ok := ret.Get(0).(func() *bool); ok {
