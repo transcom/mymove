@@ -337,7 +337,7 @@ describe('ReviewDocuments', () => {
 
       await userEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
       await waitFor(() => {
-        expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
+        expect(screen.getByText('Show Details', { exact: false })).toBeInTheDocument();
       });
 
       const h2 = await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 });

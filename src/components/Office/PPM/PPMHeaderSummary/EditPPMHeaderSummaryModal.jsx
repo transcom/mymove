@@ -6,7 +6,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import styles from './EditPPMHeaderSummaryModal.module.scss';
 
-import { formatCentsTruncateWhole } from 'utils/formatters';
+import { formatCentsTruncateWhole, formatWeight } from 'utils/formatters';
 import { Form } from 'components/form';
 import { ModalContainer, Overlay } from 'components/MigratedModal/MigratedModal';
 import { DatePickerInput } from 'components/form/fields';
@@ -16,7 +16,8 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import { requiredAddressSchema } from 'utils/validation';
 
 const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit, editItemName }) => {
-  const { actualMoveDate, advanceAmountReceived, pickupAddressObj, destinationAddressObj } = sectionInfo;
+  const { actualMoveDate, advanceAmountReceived, allowableWeight, pickupAddressObj, destinationAddressObj } =
+    sectionInfo;
   let title = 'Edit';
   if (sectionType === 'shipmentInfo') {
     title = 'Edit Shipment Info';
@@ -27,6 +28,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
     editItemName,
     actualMoveDate: actualMoveDate || '',
     advanceAmountReceived: formatCentsTruncateWhole(advanceAmountReceived).replace(/,/g, ''),
+    allowableWeight: formatWeight(allowableWeight),
     pickupAddress: pickupAddressObj,
     destinationAddress: destinationAddressObj,
   };
@@ -52,6 +54,11 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
       then: () => requiredAddressSchema,
       otherwise: (schema) => schema,
     }),
+    allowableWeight: Yup.number().when('editItemName', {
+      is: 'allowableWeight',
+      then: (schema) => schema.required('Required'),
+      otherwise: (schema) => schema,
+    }),
   });
 
   return (
@@ -74,6 +81,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         label="Actual move start date"
                         id="actualMoveDate"
                         disabledDays={{ after: new Date() }}
+                        formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                       />
                     )}
                     {editItemName === 'advanceAmountReceived' && (
@@ -104,6 +112,21 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
                         legend="Destination Address"
                         className={styles.AddressFieldSet}
                         formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                      />
+                    )}
+                    {editItemName === 'allowableWeight' && (
+                      <MaskedTextField
+                        label="Allowable Weight"
+                        name="allowableWeight"
+                        id="allowableWeight"
+                        defaultValue="0"
+                        mask={Number}
+                        scale={0} // digits after point, 0 for integers
+                        signed={false} // disallow negative
+                        thousandsSeparator=","
+                        lazy={false} // immediate masking evaluation
+                        suffix="lbs"
+                        data-testid="editAllowableWeightInput"
                       />
                     )}
                   </div>

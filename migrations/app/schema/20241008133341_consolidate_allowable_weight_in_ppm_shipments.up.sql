@@ -10,10 +10,20 @@ COMMENT on COLUMN ppm_shipments.allowable_weight IS 'Combined allowable weight f
 UPDATE ppm_shipments
 SET allowable_weight = summed_weights.summed_allowable_weight
 FROM (
-	SELECT ppm_shipment_id, SUM(full_weight - empty_weight) AS summed_allowable_weight FROM public.weight_tickets
+	SELECT ppm_shipment_id, SUM(coalesce(full_weight, 0) - coalesce(empty_weight, 0)) AS summed_allowable_weight FROM public.weight_tickets
 	GROUP BY ppm_shipment_id
 ) AS summed_weights
-WHERE ppm_shipments.id = summed_weights.ppm_shipment_id;
+WHERE ppm_shipments.id = summed_weights.ppm_shipment_id
+AND ppm_shipments.status = 'NEEDS_CLOSEOUT';
+
+UPDATE ppm_shipments
+SET allowable_weight = summed_weights.summed_allowable_weight
+FROM (
+	SELECT ppm_shipment_id, SUM(weight_tickets.allowable_weight) AS summed_allowable_weight FROM public.weight_tickets
+	GROUP BY ppm_shipment_id
+) AS summed_weights
+WHERE ppm_shipments.id = summed_weights.ppm_shipment_id
+AND ppm_shipments.status = 'CLOSEOUT_COMPLETE';
 
 ALTER TABLE weight_tickets
     DROP COLUMN allowable_weight;

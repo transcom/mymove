@@ -1202,6 +1202,7 @@ func createApprovedMoveWithPPMExcessWeight(appCtx appcontext.AppContext, userUpl
 			AdvanceAmountReceived:       models.CentPointer(unit.Cents(340000)),
 			AdvanceStatus:               (*models.PPMAdvanceStatus)(models.StringPointer(string(models.PPMAdvanceStatusApproved))),
 			W2Address:                   &address,
+			AllowableWeight:             models.PoundPointer(19000),
 		},
 	}
 
