@@ -1,15 +1,26 @@
 ALTER TABLE addresses ADD IF NOT EXISTS us_post_region_cities_id uuid;
 
--- UPDATE addresses
--- SET us_post_region_cities_id=uprc.id
--- FROM us_post_region_cities uprc
--- WHERE upper(city)=upper(uprc.u_s_post_region_city_nm)
---   AND postal_code=uprc.uspr_zip_id;
+update addresses set postal_code = substr(postal_code,1,5) where length(postal_code) > 5;
+update addresses set postal_code = '61866' where city = 'RANTOUL' and postal_code = '61868';
+update addresses set city = 'Corona' where city = 'Coronal' and state = 'CA';
 
-UPDATE addresses
-SET us_post_region_cities_id=uprc.id
-FROM us_post_region_cities uprc,
-     re_us_post_regions upr,
-	   re_cities c
-WHERE uprc.cities_id = c.id
-  AND uprc.us_post_regions_id = upr.id;
+update addresses a
+   set us_post_region_cities_id = u.uprc_id
+from (
+	select c.city_name uprc_city,
+		   s.state uprc_state,
+		   upr.uspr_zip_id uprc_zip,
+		   uprc.usprc_county_nm uprc_county,
+		   uprc.id uprc_id
+	from us_post_region_cities uprc
+	join re_us_post_regions upr
+	  on uprc.us_post_regions_id = upr.id
+	join re_cities c
+	  on uprc.cities_id = c.id
+	join re_states s
+	  on upr.state_id = s.id
+ ) u
+where upper(a.county) = u.uprc_county
+and upper(a.city) = u.uprc_city
+and a.postal_code = u.uprc_zip
+and a.state = u.uprc_state;

@@ -29,6 +29,8 @@ COMMENT ON COLUMN re_us_post_regions.uspr_zip_id IS 'The unique 5 digit zip code
 COMMENT ON COLUMN re_us_post_regions.state_id IS 'The id for the 2 character US state code references re_states';
 COMMENT ON COLUMN re_us_post_regions.zip3 IS 'The first 3 digits of the zip code';
 
+CREATE INDEX IF NOT EXISTS re_us_post_regions_idx01 ON re_us_post_regions (state_id);
+
 create table IF NOT EXISTS re_cities
 (id			uuid			NOT NULL,
 city_name	varchar(100)	NOT NULL,
@@ -49,3 +51,5 @@ COMMENT ON COLUMN re_cities.country_id IS 'The id for the 2 character country co
 
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS us_post_regions_id uuid;
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS cities_id uuid;
+
+CREATE INDEX IF NOT EXISTS us_post_region_cities_idx01 ON us_post_region_cities (us_post_regions_id, cities_id);
