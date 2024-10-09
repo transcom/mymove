@@ -20,6 +20,10 @@ type OfficeListFetcher struct {
 func (_m *OfficeListFetcher) FetchOfficeCount(appCtx appcontext.AppContext, filters []services.QueryFilter) (int, error) {
 	ret := _m.Called(appCtx, filters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOfficeCount")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter) (int, error)); ok {
@@ -43,6 +47,10 @@ func (_m *OfficeListFetcher) FetchOfficeCount(appCtx appcontext.AppContext, filt
 // FetchOfficeList provides a mock function with given fields: appCtx, filters, associations, pagination, ordering
 func (_m *OfficeListFetcher) FetchOfficeList(appCtx appcontext.AppContext, filters []services.QueryFilter, associations services.QueryAssociations, pagination services.Pagination, ordering services.QueryOrder) (models.TransportationOffices, error) {
 	ret := _m.Called(appCtx, filters, associations, pagination, ordering)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOfficeList")
+	}
 
 	var r0 models.TransportationOffices
 	var r1 error
