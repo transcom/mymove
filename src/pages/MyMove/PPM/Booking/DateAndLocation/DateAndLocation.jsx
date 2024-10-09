@@ -72,12 +72,12 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
     );
   };
 
-  const handleSetError = (error) => {
+  const handleSetError = (error, defaultError) => {
     setErrorCode(error.statusCode);
-    if (error?.response?.body.detail !== null || error?.response?.body.detail !== undefined) {
+    if (error?.response?.body.detail !== null && error?.response?.body.detail !== undefined) {
       setErrorMessage(`${error?.response?.body.detail}`);
     } else {
-      setErrorMessage('There was an error attempting to update your shipment.');
+      setErrorMessage(defaultError);
     }
   };
 
@@ -182,7 +182,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
         })
         .catch((error) => {
           setSubmitting(false);
-          handleSetError(error);
+          handleSetError(error, 'There was an error attempting to update your shipment.');
         });
     }
   };
