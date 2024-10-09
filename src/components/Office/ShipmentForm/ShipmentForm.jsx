@@ -815,7 +815,7 @@ const ShipmentForm = (props) => {
             <NotificationScrollToTop dependency={errorMessage} />
             {errorMessage && (
               <Alert data-testid="errorMessage" type="error" headingLevel="h4" heading="An error occurred">
-                {errorCode === 400 || errorCode === 500 ? (
+                {errorCode === 400 ? (
                   <p>
                     {errorMessage} If the error persists, please try again later, or contact the&nbsp;
                     <Link to={technicalHelpDeskURL} target="_blank" rel="noreferrer">
