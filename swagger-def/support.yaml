@@ -736,6 +736,11 @@ definitions:
         title: County
         x-nullable: true
         example: LOS ANGELES
+      isOconus:
+        type: boolean
+        title: isOconus
+        x-nullable: true
+        example: false
     required:
       - streetAddress1
       - city

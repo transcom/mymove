@@ -28,6 +28,10 @@ type OrderUpdater struct {
 func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateAllowanceAsCounselor")
+	}
+
 	var r0 *models.Order
 	var r1 uuid.UUID
 	var r2 error
@@ -62,6 +66,10 @@ func (_m *OrderUpdater) UpdateAllowanceAsCounselor(appCtx appcontext.AppContext,
 // UpdateAllowanceAsTOO provides a mock function with given fields: appCtx, orderID, payload, eTag
 func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateAllowancePayload, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(appCtx, orderID, payload, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateAllowanceAsTOO")
+	}
 
 	var r0 *models.Order
 	var r1 uuid.UUID
@@ -98,6 +106,10 @@ func (_m *OrderUpdater) UpdateAllowanceAsTOO(appCtx appcontext.AppContext, order
 func (_m *OrderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.CounselingUpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateOrderAsCounselor")
+	}
+
 	var r0 *models.Order
 	var r1 uuid.UUID
 	var r2 error
@@ -133,6 +145,10 @@ func (_m *OrderUpdater) UpdateOrderAsCounselor(appCtx appcontext.AppContext, ord
 func (_m *OrderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID uuid.UUID, payload ghcmessages.UpdateOrderPayload, eTag string) (*models.Order, uuid.UUID, error) {
 	ret := _m.Called(appCtx, orderID, payload, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateOrderAsTOO")
+	}
+
 	var r0 *models.Order
 	var r1 uuid.UUID
 	var r2 error
@@ -167,6 +183,10 @@ func (_m *OrderUpdater) UpdateOrderAsTOO(appCtx appcontext.AppContext, orderID u
 // UploadAmendedOrdersAsCustomer provides a mock function with given fields: appCtx, userID, orderID, file, filename, storer
 func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
 	ret := _m.Called(appCtx, userID, orderID, file, filename, storer)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UploadAmendedOrdersAsCustomer")
+	}
 
 	var r0 models.Upload
 	var r1 string
@@ -207,6 +227,10 @@ func (_m *OrderUpdater) UploadAmendedOrdersAsCustomer(appCtx appcontext.AppConte
 // UploadAmendedOrdersAsOffice provides a mock function with given fields: appCtx, userID, orderID, file, filename, storer
 func (_m *OrderUpdater) UploadAmendedOrdersAsOffice(appCtx appcontext.AppContext, userID uuid.UUID, orderID uuid.UUID, file io.ReadCloser, filename string, storer storage.FileStorer) (models.Upload, string, *validate.Errors, error) {
 	ret := _m.Called(appCtx, userID, orderID, file, filename, storer)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UploadAmendedOrdersAsOffice")
+	}
 
 	var r0 models.Upload
 	var r1 string
