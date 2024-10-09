@@ -18,6 +18,10 @@ type CustomerSupportRemarksCreator struct {
 func (_m *CustomerSupportRemarksCreator) CreateCustomerSupportRemark(appCtx appcontext.AppContext, customerSupportRemark *models.CustomerSupportRemark, moveCode string) (*models.CustomerSupportRemark, error) {
 	ret := _m.Called(appCtx, customerSupportRemark, moveCode)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateCustomerSupportRemark")
+	}
+
 	var r0 *models.CustomerSupportRemark
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.CustomerSupportRemark, string) (*models.CustomerSupportRemark, error)); ok {

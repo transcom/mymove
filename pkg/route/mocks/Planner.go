@@ -20,6 +20,10 @@ type Planner struct {
 func (_m *Planner) LatLongTransitDistance(appCtx appcontext.AppContext, source route.LatLong, destination route.LatLong) (int, error) {
 	ret := _m.Called(appCtx, source, destination)
 
+	if len(ret) == 0 {
+		panic("no return value specified for LatLongTransitDistance")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, route.LatLong, route.LatLong) (int, error)); ok {
@@ -43,6 +47,10 @@ func (_m *Planner) LatLongTransitDistance(appCtx appcontext.AppContext, source r
 // TransitDistance provides a mock function with given fields: appCtx, source, destination
 func (_m *Planner) TransitDistance(appCtx appcontext.AppContext, source *models.Address, destination *models.Address) (int, error) {
 	ret := _m.Called(appCtx, source, destination)
+
+	if len(ret) == 0 {
+		panic("no return value specified for TransitDistance")
+	}
 
 	var r0 int
 	var r1 error
@@ -68,6 +76,10 @@ func (_m *Planner) TransitDistance(appCtx appcontext.AppContext, source *models.
 func (_m *Planner) Zip3TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	ret := _m.Called(appCtx, source, destination)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Zip3TransitDistance")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
@@ -91,6 +103,10 @@ func (_m *Planner) Zip3TransitDistance(appCtx appcontext.AppContext, source stri
 // Zip5TransitDistance provides a mock function with given fields: appCtx, source, destination
 func (_m *Planner) Zip5TransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	ret := _m.Called(appCtx, source, destination)
+
+	if len(ret) == 0 {
+		panic("no return value specified for Zip5TransitDistance")
+	}
 
 	var r0 int
 	var r1 error
@@ -116,6 +132,10 @@ func (_m *Planner) Zip5TransitDistance(appCtx appcontext.AppContext, source stri
 func (_m *Planner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	ret := _m.Called(appCtx, source, destination)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Zip5TransitDistanceLineHaul")
+	}
+
 	var r0 int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, string) (int, error)); ok {
@@ -139,6 +159,10 @@ func (_m *Planner) Zip5TransitDistanceLineHaul(appCtx appcontext.AppContext, sou
 // ZipTransitDistance provides a mock function with given fields: appCtx, source, destination
 func (_m *Planner) ZipTransitDistance(appCtx appcontext.AppContext, source string, destination string) (int, error) {
 	ret := _m.Called(appCtx, source, destination)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ZipTransitDistance")
+	}
 
 	var r0 int
 	var r1 error
