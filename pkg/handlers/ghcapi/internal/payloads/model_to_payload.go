@@ -2043,7 +2043,7 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles.RoleType) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2093,7 +2093,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, role roles
 		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
 			if shipment.PPMShipment != nil {
-				ppmStatus = shipment.PPMShipment.Status
+				if requestedPpmStatus != nil {
+					if shipment.PPMShipment.Status == *requestedPpmStatus {
+						ppmStatus = shipment.PPMShipment.Status
+					}
+				} else {
+					ppmStatus = shipment.PPMShipment.Status
+				}
 				if shipment.PPMShipment.SubmittedAt != nil {
 					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
 						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
