@@ -18,6 +18,10 @@ type PPMShipmentCreator struct {
 func (_m *PPMShipmentCreator) CreatePPMShipmentWithDefaultCheck(appCtx appcontext.AppContext, ppmshipment *models.PPMShipment) (*models.PPMShipment, error) {
 	ret := _m.Called(appCtx, ppmshipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreatePPMShipmentWithDefaultCheck")
+	}
+
 	var r0 *models.PPMShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) (*models.PPMShipment, error)); ok {
