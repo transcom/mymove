@@ -401,17 +401,16 @@ func formatAdditionalShipments(ssfd models.ShipmentSummaryFormData) (map[string]
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS Release"
 		case shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " NTS"
-		case shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l HHG"
-		case shipment.ShipmentType == models.MTOShipmentTypeInternationalUB:
-			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Int'l UB"
 		case shipment.ShipmentType == models.MTOShipmentTypeMobileHome:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Mobile Home"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Haul"
 		case shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway:
 			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " Boat Tow"
+		case shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage:
+			page3Map[fmt.Sprintf("AddShipmentNumberAndTypes%d", i)] = *shipment.ShipmentLocator + " UB"
 		}
+
 	}
 	return page3Map, nil
 }
@@ -589,6 +588,13 @@ func formatSSWDate(signedCertifications []*models.SignedCertification, ppmid uui
 func FormatAddress(w2Address *models.Address) string {
 	var addressString string
 
+	var country string
+	if w2Address != nil && w2Address.Country != nil && w2Address.Country.Country != "" {
+		country = w2Address.Country.Country
+	} else {
+		country = ""
+	}
+
 	if w2Address != nil {
 		addressString = fmt.Sprintf("%s, %s %s%s %s %s%s",
 			w2Address.StreetAddress1,
@@ -596,7 +602,7 @@ func FormatAddress(w2Address *models.Address) string {
 			nilOrValue(w2Address.StreetAddress3),
 			w2Address.City,
 			w2Address.State,
-			nilOrValue(w2Address.Country),
+			nilOrValue(&country),
 			w2Address.PostalCode,
 		)
 	} else {
