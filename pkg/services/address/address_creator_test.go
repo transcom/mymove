@@ -12,8 +12,9 @@ func (suite *AddressSuite) TestAddressCreator() {
 	city := "Elizabethtown"
 	state := "KY"
 	postalCode := "42701"
+	oConusState := "AK"
 
-	suite.Run("Successfully creates an address", func() {
+	suite.Run("Successfully creates a CONUS address", func() {
 		addressCreator := NewAddressCreator()
 		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
 			StreetAddress1: streetAddress1,
@@ -29,8 +30,47 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal(city, address.City)
 		suite.Equal(state, address.State)
 		suite.Equal(postalCode, address.PostalCode)
+		suite.False(*address.IsOconus)
 		suite.Nil(address.StreetAddress2)
-		suite.Nil(address.Country)
+		suite.NotNil(address.Country)
+	})
+
+	suite.Run("Successfully creates an OCONUS address with AK state", func() {
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          oConusState,
+			PostalCode:     postalCode,
+		})
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		suite.NotNil(address.ID)
+		suite.Equal(streetAddress1, address.StreetAddress1)
+		suite.Equal(city, address.City)
+		suite.Equal(oConusState, address.State)
+		suite.Equal(postalCode, address.PostalCode)
+		suite.True(*address.IsOconus)
+		suite.Nil(address.StreetAddress2)
+		suite.NotNil(address.Country)
+	})
+
+	suite.Run("Successfully creates an OCONUS address with OCONUS country", func() {
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: streetAddress1,
+			City:           city,
+			State:          oConusState,
+			PostalCode:     postalCode,
+			Country:        &models.Country{Country: "GB"},
+		})
+
+		suite.Nil(err)
+		suite.NotNil(address)
+		suite.NotNil(address.ID)
+		suite.True(*address.IsOconus)
+		suite.NotNil(address.Country)
 	})
 
 	suite.Run("Successfully creates an address with empty strings for optional fields", func() {
@@ -53,7 +93,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal(postalCode, address.PostalCode)
 		suite.Nil(address.StreetAddress2)
 		suite.Nil(address.StreetAddress3)
-		suite.Nil(address.Country)
+		suite.NotNil(address.Country)
 	})
 
 	suite.Run("Fails to add an address because an ID is passed (fails to pass rules check)", func() {

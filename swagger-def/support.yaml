@@ -1468,6 +1468,14 @@ definitions:
       pointOfContact:
         type: string
         description: Email or id of a contact person for this update.
+      marketCode:
+        type: string
+        x-nullable: true
+        enum:
+          - 'd'
+          - 'i'
+        example: 'd'
+        description: 'Single-letter designator for domestic (d) or international (i) shipments'
   MTOShipments:
     items:
       $ref: '#/definitions/MTOShipment'

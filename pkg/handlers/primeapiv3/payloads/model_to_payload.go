@@ -494,6 +494,14 @@ func BoatShipment(boatShipment *models.BoatShipment) *primev3messages.BoatShipme
 	return payloadPPMShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) *string {
+	if marketCode == nil {
+		return nil
+	}
+	return (*string)(marketCode)
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
 	payload := &primev3messages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -531,6 +539,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
+		MarketCode:                       MarketCode(mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
