@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate/v3"
 	"github.com/gobuffalo/validate/v3/validators"
 	"github.com/gofrs/uuid"
+
 	"github.com/transcom/mymove/pkg/apperror"
 )
 
