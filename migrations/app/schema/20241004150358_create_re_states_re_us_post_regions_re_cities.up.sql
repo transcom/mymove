@@ -38,7 +38,7 @@ state_id	uuid
 	CONSTRAINT fk_re_cities_re_states REFERENCES re_states (id),
 country_id	uuid		NOT NULL
 	CONSTRAINT rk_re_cities_re_countries REFERENCES re_countries (id),
-is_oconus	bool,
+is_oconus	bool		NOT NULL,
 created_at	timestamp	NOT NULL default now(),
 updated_at	timestamp	NOT NULL default now(),
 CONSTRAINT re_cities_pkey PRIMARY KEY (id),
