@@ -325,7 +325,8 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		shipment.SITDaysAllowance = &defaultSITDays
 
 		// when populating the market_code column, it is considered domestic if both pickup & dest are CONUS addresses
-		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil {
+		if shipment.PickupAddress != nil && shipment.DestinationAddress != nil &&
+			shipment.PickupAddress.IsOconus != nil && shipment.DestinationAddress.IsOconus != nil {
 			pickupAddress := shipment.PickupAddress
 			destAddress := shipment.DestinationAddress
 			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
