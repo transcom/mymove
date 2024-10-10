@@ -472,6 +472,7 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 						return newDestAddErr
 					}
 					newShipment.DestinationAddressID = &newDestinationAddress.ID
+					newShipment.DestinationAddress = newDestinationAddress
 				} else {
 					// Otherwise, there is no original address to update and this new address already has an ID
 					newShipment.DestinationAddressID = &newShipment.DestinationAddress.ID
