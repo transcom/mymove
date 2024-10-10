@@ -4878,8 +4878,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: '#/definitions/Affiliation'
+      departmentIndicator:
+        $ref: '#/definitions/DepartmentIndicator'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg,
@@ -6284,7 +6284,7 @@ definitions:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/PPMDestinationAddress'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once
@@ -6717,7 +6717,7 @@ definitions:
           - $ref: '#/definitions/Address'
       destinationAddress:
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
@@ -7723,8 +7723,6 @@ definitions:
       - AIR_FORCE
       - COAST_GUARD
       - SPACE_FORCE
-      - NAVY_AND_MARINES
-      - AIR_AND_SPACE_FORCE
       - OTHER
     x-display-value:
       ARMY: Army
@@ -7880,8 +7878,10 @@ definitions:
         type: string
         title: Country
         x-nullable: true
-        example: USA
-        default: USA
+        example: US
+        default: US
+        pattern: ^[A-Z]{2}$
+        description: Two-letter country code
       county:
         type: string
         title: County
@@ -8374,22 +8374,20 @@ definitions:
       - HHG
       - HHG_INTO_NTS_DOMESTIC
       - HHG_OUTOF_NTS_DOMESTIC
-      - INTERNATIONAL_HHG
-      - INTERNATIONAL_UB
       - PPM
       - BOAT_HAUL_AWAY
       - BOAT_TOW_AWAY
       - MOBILE_HOME
+      - UNACCOMPANIED_BAGGAGE
     x-display-value:
       HHG: HHG
-      INTERNATIONAL_HHG: International HHG
-      INTERNATIONAL_UB: International UB
       HHG_INTO_NTS_DOMESTIC: NTS
       HHG_OUTOF_NTS_DOMESTIC: NTS Release
       PPM: PPM
       BOAT_HAUL_AWAY: Boat Haul-Away
       BOAT_TOW_AWAY: Boat Tow-Away
       MOBILE_HOME: Mobile Home
+      UNACCOMPANIED_BAGGAGE: Unaccompanied Baggage
   LOAType:
     description: The Line of accounting (TAC/SAC) type that will be used for the shipment
     type: string
@@ -8425,6 +8423,164 @@ definitions:
       eTag:
         type: string
         readOnly: true
+  PPMDestinationAddress:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        x-nullable: true
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+        readOnly: true
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+    required:
+      - city
+      - state
+      - postalCode
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -10533,6 +10689,25 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/CustomerSupportRemark'
+  DepartmentIndicator:
+    type: string
+    x-nullable: true
+    title: Department indicator
+    description: Military branch of service indicator for orders
+    enum:
+      - ARMY
+      - ARMY_CORPS_OF_ENGINEERS
+      - COAST_GUARD
+      - NAVY_AND_MARINES
+      - AIR_AND_SPACE_FORCE
+      - OFFICE_OF_SECRETARY_OF_DEFENSE
+    x-display-value:
+      ARMY: 21 Army
+      ARMY_CORPS_OF_ENGINEERS: 96 Army Corps of Engineers
+      COAST_GUARD: 70 Coast Guard
+      NAVY_AND_MARINES: 17 Navy and Marine Corps
+      AIR_AND_SPACE_FORCE: 57 Air Force and Space Force
+      OFFICE_OF_SECRETARY_OF_DEFENSE: 97 Office of Secretary of Defense
   LineOfAccounting:
     type: object
     properties:

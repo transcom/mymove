@@ -191,7 +191,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
 					LeftJoin("transportation_offices as closeout_to", "closeout_to.id = moves.closeout_office_id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -430,7 +430,7 @@ func (f orderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, office
 		if params.NeedsPPMCloseout != nil {
 			if *params.NeedsPPMCloseout {
 				query.InnerJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
-					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusWaitingOnCustomer, models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
+					Where("ppm_shipments.status IN (?)", models.PPMShipmentStatusNeedsCloseout, models.PPMShipmentStatusCloseoutComplete).
 					Where("service_members.affiliation NOT IN (?)", models.AffiliationNAVY, models.AffiliationMARINES, models.AffiliationCOASTGUARD)
 			} else {
 				query.LeftJoin("ppm_shipments", "ppm_shipments.shipment_id = mto_shipments.id").
@@ -472,7 +472,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	err := appCtx.DB().Q().Eager(
 		"ServiceMember.BackupContacts",
 		"ServiceMember.ResidentialAddress",
-		"NewDutyLocation.Address",
+		"NewDutyLocation.Address.Country",
 		"OriginDutyLocation",
 		"Entitlement",
 		"Moves",
@@ -491,7 +491,7 @@ func (f orderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID
 	// cannot eager load the address as "OriginDutyLocation.Address" because
 	// OriginDutyLocation is a pointer.
 	if order.OriginDutyLocation != nil {
-		err = appCtx.DB().Load(order.OriginDutyLocation, "Address")
+		err = appCtx.DB().Load(order.OriginDutyLocation, "Address", "Address.Country")
 		if err != nil {
 			return order, err
 		}

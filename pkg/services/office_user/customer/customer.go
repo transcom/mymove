@@ -21,7 +21,7 @@ func NewCustomerFetcher() services.CustomerFetcher {
 // FetchCustomer retrieves a Customer for a given UUID
 func (f fetchCustomer) FetchCustomer(appCtx appcontext.AppContext, customerID uuid.UUID) (*models.ServiceMember, error) {
 	customer := &models.ServiceMember{}
-	if err := appCtx.DB().Eager().Find(customer, customerID); err != nil {
+	if err := appCtx.DB().EagerPreload("ResidentialAddress.Country", "BackupMailingAddress.Country", "BackupContacts").Find(customer, customerID); err != nil {
 		switch err {
 		case sql.ErrNoRows:
 			return &models.ServiceMember{}, apperror.NewNotFoundError(customerID, "")

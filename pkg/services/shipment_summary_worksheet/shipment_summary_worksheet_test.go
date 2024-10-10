@@ -1115,6 +1115,22 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAddress() {
 
 	suite.Equal(expectedValidResult, resultValid)
 
+	// Test case 2: Valid W2 Address with country
+	country := factory.FetchOrBuildCountry(suite.DB(), nil, nil)
+	validAddress2 := &models.Address{
+		StreetAddress1: "123 Main St",
+		City:           "Cityville",
+		State:          "ST",
+		PostalCode:     "12345",
+		Country:        &country,
+	}
+
+	expectedValidResult2 := "123 Main St,  Cityville ST US12345"
+
+	resultValid2 := FormatAddress(validAddress2)
+
+	suite.Equal(expectedValidResult2, resultValid2)
+
 	// Test case 2: Nil W2 address
 	nilAddress := (*models.Address)(nil)
 
@@ -1483,7 +1499,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1492,7 +1508,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalUB,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1528,7 +1544,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			RequestedPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1536,7 +1552,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			ActualPickupDate:     &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1544,7 +1560,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:          &ppm2,
-			ShipmentType:         models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:         models.MTOShipmentTypePPM,
 			ShipmentLocator:      &locator,
 			ScheduledPickupDate:  &now,
 			Status:               models.MTOShipmentStatusSubmitted,
@@ -1552,7 +1568,7 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 		},
 		{
 			PPMShipment:     &ppm2,
-			ShipmentType:    models.MTOShipmentTypeInternationalHHG,
+			ShipmentType:    models.MTOShipmentTypePPM,
 			ShipmentLocator: &locator,
 			Status:          models.MTOShipmentStatusSubmitted,
 		},
@@ -1580,16 +1596,14 @@ func (suite *ShipmentSummaryWorksheetServiceSuite) TestFormatAdditionalShipments
 					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS Release"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeHHGIntoNTSDom {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "NTS"), value)
-				} else if shipment.ShipmentType == models.MTOShipmentTypeInternationalHHG {
-					suite.Equal(fmt.Sprintf("%s %s", locator, "Int'l HHG"), value)
-				} else if shipment.ShipmentType == models.MTOShipmentTypeInternationalUB {
-					suite.Equal(fmt.Sprintf("%s %s", locator, "Int'l UB"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeMobileHome {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Mobile Home"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Boat Haul"), value)
 				} else if shipment.ShipmentType == models.MTOShipmentTypeBoatTowAway {
 					suite.Equal(fmt.Sprintf("%s %s", locator, "Boat Tow"), value)
+				} else if shipment.ShipmentType == models.MTOShipmentTypeUnaccompaniedBaggage {
+					suite.Equal(fmt.Sprintf("%s %s", locator, "UB"), value)
 				} else {
 					suite.Fail(fmt.Sprintf("unaccounted type: %s", string(shipment.ShipmentType)))
 				}
