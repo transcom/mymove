@@ -39,13 +39,14 @@ const getSectionTitle = (sectionInfo) => {
   }
 };
 
-const OpenModalButton = ({ onClick, isDisabled, dataTestId }) => (
+const OpenModalButton = ({ onClick, isDisabled, dataTestId, ariaLabel }) => (
   <Button
     type="button"
     data-testid={dataTestId || 'editTextButton'}
     className={styles['edit-btn']}
     onClick={onClick}
     disabled={isDisabled}
+    aria-label={ariaLabel}
   >
     <span>
       <FontAwesomeIcon icon="pencil" style={{ marginRight: '5px', color: isDisabled ? 'black' : 'inherit' }} />
@@ -104,6 +105,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'actualMoveDate')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit actual move start date"
                   />
                 </>
               )}
@@ -120,6 +122,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'pickupAddress')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit pickup address"
                   />
                 </>
               )}
@@ -136,6 +139,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'destinationAddress')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit destination address"
                   />
                 </>
               )}
@@ -170,6 +174,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
                   isDisabled={isFetchingItems || readOnly}
                   dataTestId="editAllowableWeightButton"
+                  ariaLabel="Edit allowable weight"
                 />
               </>
             )}
@@ -223,6 +228,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                   <OpenModalButton
                     onClick={() => handleEditOnClick(sectionInfo.type, 'advanceAmountReceived')}
                     isDisabled={isFetchingItems || readOnly}
+                    ariaLabel="Edit advance amount received"
                   />
                 </>
               )}
