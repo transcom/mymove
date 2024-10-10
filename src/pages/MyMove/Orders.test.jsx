@@ -424,13 +424,13 @@ describe('Orders page', () => {
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    expect(screen.getByLabelText('Orders type')).toHaveValue('PERMANENT_CHANGE_OF_STATION');
-    expect(screen.getByLabelText('Orders date')).toHaveValue('08 Nov 2020');
-    expect(screen.getByLabelText('Report by date')).toHaveValue('26 Nov 2020');
+    expect(screen.getByLabelText(/Orders type/)).toHaveValue('PERMANENT_CHANGE_OF_STATION');
+    expect(screen.getByLabelText(/Orders date/)).toHaveValue('08 Nov 2020');
+    expect(screen.getByLabelText(/Report by date/)).toHaveValue('26 Nov 2020');
     expect(screen.getByLabelText('Yes')).not.toBeChecked();
     expect(screen.getByLabelText('No')).toBeChecked();
     expect(screen.queryByText('Yuma AFB')).toBeInTheDocument();
-    expect(screen.getByLabelText('Pay grade')).toHaveValue('E_8');
+    expect(screen.getByLabelText(/Pay grade/)).toHaveValue('E_8');
     expect(screen.queryByText('Altus AFB')).toBeInTheDocument();
   });
 
