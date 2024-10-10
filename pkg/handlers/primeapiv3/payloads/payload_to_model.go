@@ -1,6 +1,7 @@
 package payloads
 
 import (
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -43,6 +44,43 @@ func AddressModel(address *primev3messages.Address) *models.Address {
 	}
 	if address.StreetAddress1 != nil {
 		modelAddress.StreetAddress1 = *address.StreetAddress1
+	}
+	if address.City != nil {
+		modelAddress.City = *address.City
+	}
+	if address.State != nil {
+		modelAddress.State = *address.State
+	}
+	if address.PostalCode != nil {
+		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
+	}
+	return modelAddress
+}
+
+func PPMDestinationAddressModel(address *primev3messages.PPMDestinationAddress) *models.Address {
+	// To check if the model is intended to be blank, we'll look at ID and City, State, PostalCode
+	// We should always have ID if the user intends to update an Address,
+	// and City, State, PostalCode is a required field on creation. If both are blank, it should be treated as nil.
+	var blankSwaggerID strfmt.UUID
+	// unlike other addresses PPM destination address can be created without StreetAddress1
+	if address == nil || (address.ID == blankSwaggerID && address.City == nil && address.State == nil && address.PostalCode == nil) {
+		return nil
+	}
+	modelAddress := &models.Address{
+		ID:             uuid.FromStringOrNil(address.ID.String()),
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	if address.StreetAddress1 != nil && len(strings.Trim(*address.StreetAddress1, " ")) > 0 {
+		modelAddress.StreetAddress1 = *address.StreetAddress1
+	} else {
+		// Street address 1 is optional for certain business context but not nullable on the database level.
+		// Use place holder text to represent NULL.
+		modelAddress.StreetAddress1 = models.STREET_ADDRESS_1_NOT_PROVIDED
 	}
 	if address.City != nil {
 		modelAddress.City = *address.City
@@ -236,6 +274,14 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.BoatShipment.Shipment = *model
 	}
 
+	if mtoShipment.MobileHomeShipment != nil {
+		model.MobileHome, verrs = MobileHomeShipmentModelFromCreate(mtoShipment)
+		if verrs != nil && verrs.HasAny() {
+			return nil, verrs
+		}
+		model.MobileHome.Shipment = *model
+	}
+
 	return model, nil
 }
 
@@ -297,7 +343,7 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}
@@ -369,6 +415,24 @@ func BoatShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment)
 		HeightInInches: &heightInInches,
 		HasTrailer:     mtoShipment.BoatShipment.HasTrailer,
 		IsRoadworthy:   mtoShipment.BoatShipment.IsRoadworthy,
+	}
+
+	return model, nil
+}
+
+// MobileHomeShipmentModelFromCreate model
+func MobileHomeShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MobileHome, *validate.Errors) {
+	year := int(*mtoShipment.MobileHomeShipment.Year)
+	lengthInInches := int(*mtoShipment.MobileHomeShipment.LengthInInches)
+	widthInInches := int(*mtoShipment.MobileHomeShipment.WidthInInches)
+	heightInInches := int(*mtoShipment.MobileHomeShipment.HeightInInches)
+	model := &models.MobileHome{
+		Year:           &year,
+		Make:           mtoShipment.MobileHomeShipment.Make,
+		Model:          mtoShipment.MobileHomeShipment.Model,
+		LengthInInches: &lengthInInches,
+		WidthInInches:  &widthInInches,
+		HeightInInches: &heightInInches,
 	}
 
 	return model, nil
@@ -518,7 +582,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 		}
 	}
 
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
+	addressModel = PPMDestinationAddressModel(&ppmShipment.DestinationAddress.PPMDestinationAddress)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}
