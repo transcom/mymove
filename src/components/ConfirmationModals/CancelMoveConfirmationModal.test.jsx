@@ -15,7 +15,7 @@ describe('CancelMoveConfirmationModal', () => {
   const moveID = '123456';
 
   it('renders the component', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={moveID} />);
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
 
     expect(await screen.findByRole('heading', { level: 3, name: 'Are you sure?' })).toBeInTheDocument();
   });
@@ -31,9 +31,9 @@ describe('CancelMoveConfirmationModal', () => {
   });
 
   it('closes the modal when the keep button is clicked', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={moveID} />);
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
 
-    const keepButton = await screen.findByRole('button', { name: 'Keep shipment' });
+    const keepButton = await screen.findByRole('button', { name: 'Keep move' });
 
     await userEvent.click(keepButton);
 
@@ -41,7 +41,7 @@ describe('CancelMoveConfirmationModal', () => {
   });
 
   it('calls the submit function when cancel button is clicked', async () => {
-    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} shipmentID={moveID} />);
+    render(<CancelMoveConfirmationModal onSubmit={onSubmit} onClose={onClose} moveID={moveID} />);
 
     const cancelButton = await screen.findByRole('button', { name: 'Cancel move' });
 

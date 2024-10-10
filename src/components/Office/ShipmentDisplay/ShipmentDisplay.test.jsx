@@ -78,9 +78,9 @@ describe('Shipment Container', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={diversionInfo} onChange={jest.fn()} isSubmitted={false} />);
       expect(screen.getByText('diversion')).toBeInTheDocument();
     });
-    it('renders with cancelled tag', () => {
+    it('renders with canceled tag', () => {
       render(<ShipmentDisplay shipmentId="1" displayInfo={cancelledInfo} onChange={jest.fn()} isSubmitted={false} />);
-      expect(screen.getByText('cancelled')).toBeInTheDocument();
+      expect(screen.getByText('canceled')).toBeInTheDocument();
     });
     it('renders a disabled button when move is locked', () => {
       render(
