@@ -10,6 +10,7 @@ import { createCustomerWithOktaOption } from 'services/ghcApi';
 import { servicesCounselingRoutes } from 'constants/routes';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
 import departmentIndicators from 'constants/departmentIndicators';
+import { setCanAddOrders } from 'store/general/actions';
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
@@ -30,6 +31,14 @@ jest.mock('store/flash/actions', () => ({
 jest.mock('utils/featureFlags', () => ({
   ...jest.requireActual('utils/featureFlags'),
   isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
+jest.mock('store/general/actions', () => ({
+  ...jest.requireActual('store/general/actions'),
+  setCanAddOrders: jest.fn().mockImplementation(() => ({
+    type: '',
+    payload: '',
+  })),
 }));
 
 beforeEach(jest.resetAllMocks);
@@ -169,6 +178,7 @@ const mockUserPrivileges = [
 
 const testProps = {
   setFlashMessage: jest.fn(),
+  setCanAddOrders: jest.fn(),
   userPrivileges: mockUserPrivileges,
 };
 
@@ -336,6 +346,7 @@ describe('CreateCustomerForm', () => {
     await userEvent.click(saveBtn);
 
     await waitFor(() => {
+      expect(setCanAddOrders).toHaveBeenCalledWith(true);
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
