@@ -174,7 +174,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
             )}
             <ToolTip
               icon="info-circle"
-              style={{ display: 'inline-block' }}
+              style={{ display: 'inline-block', height: '15px', margin: '0' }}
               textAreaSize="large"
               text="The total PPM weight moved (all trips combined). The Counselor may edit this field to reflect the customer's remaining weight entitlement if the combined weight of all shipments exceeds the customer's weight entitlement."
             />
