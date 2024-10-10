@@ -25,6 +25,8 @@ export const mtoShipmentTypes = {
   [SHIPMENT_OPTIONS.NTSR]: 'Non-temp storage release',
   [SHIPMENT_OPTIONS.HHG]: 'Household goods',
   [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE]: 'Unaccompanied baggage',
+  [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat haul-away',
+  [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat tow-away',
 };
 
 export const shipmentStatuses = {
