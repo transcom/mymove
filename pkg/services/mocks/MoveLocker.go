@@ -20,6 +20,10 @@ type MoveLocker struct {
 func (_m *MoveLocker) LockMove(appCtx appcontext.AppContext, move *models.Move, officeUserID uuid.UUID) (*models.Move, error) {
 	ret := _m.Called(appCtx, move, officeUserID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for LockMove")
+	}
+
 	var r0 *models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move, uuid.UUID) (*models.Move, error)); ok {

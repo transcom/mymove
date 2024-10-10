@@ -24,6 +24,10 @@ type DomesticShorthaulPricer struct {
 func (_m *DomesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, distance unit.Miles, weight unit.Pound, serviceArea string) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, contractCode, requestedPickupDate, distance, weight, serviceArea)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Price")
+	}
+
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
@@ -56,6 +60,10 @@ func (_m *DomesticShorthaulPricer) Price(appCtx appcontext.AppContext, contractC
 // PriceUsingParams provides a mock function with given fields: appCtx, params
 func (_m *DomesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, params models.PaymentServiceItemParams) (unit.Cents, services.PricingDisplayParams, error) {
 	ret := _m.Called(appCtx, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for PriceUsingParams")
+	}
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
