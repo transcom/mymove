@@ -13,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// CountryModel model
+func CountryModel(country *string) *models.Country {
+	// The prime doesn't know the uuids of our countries, so for now we are going to just populate the name so we can query that
+	// when creating the address IF it is provided - else this will be nil and a US country will be created
+	if country == nil {
+		return nil
+	}
+
+	modelCountry := &models.Country{
+		Country: *country,
+	}
+	return modelCountry
+}
+
 // AddressModel model
 func AddressModel(address *primev2messages.Address) *models.Address {
 	// To check if the model is intended to be blank, we'll look at both ID and StreetAddress1
@@ -38,6 +52,9 @@ func AddressModel(address *primev2messages.Address) *models.Address {
 	}
 	if address.PostalCode != nil {
 		modelAddress.PostalCode = *address.PostalCode
+	}
+	if address.Country != nil {
+		modelAddress.Country = CountryModel(address.Country)
 	}
 	return modelAddress
 }
