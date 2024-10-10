@@ -23,7 +23,6 @@ jest.mock('services/ghcApi', () => ({
 }));
 
 jest.mock('store/flash/actions', () => ({
-  ...jest.requireActual('store/flash/actions'),
   setFlashMessage: jest.fn(),
 }));
 
@@ -33,11 +32,7 @@ jest.mock('utils/featureFlags', () => ({
 }));
 
 jest.mock('store/general/actions', () => ({
-  ...jest.requireActual('store/general/actions'),
-  setCanAddOrders: jest.fn().mockImplementation(() => ({
-    type: '',
-    payload: '',
-  })),
+  setCanAddOrders: jest.fn(),
 }));
 
 beforeEach(jest.resetAllMocks);
@@ -346,6 +341,7 @@ describe('CreateCustomerForm', () => {
 
     await waitFor(() => {
       expect(createCustomerWithOktaOption).toHaveBeenCalled();
+      expect(testProps.setCanAddOrders).toHaveBeenCalledWith(true);
       expect(mockNavigate).toHaveBeenCalledWith(ordersPath, {
         state: {
           isSafetyMoveSelected: false,
