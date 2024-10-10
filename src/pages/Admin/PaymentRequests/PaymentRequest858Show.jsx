@@ -6,6 +6,11 @@ const PaymentRequest858ShowTitle = () => {
   return <span>{`Payment Request EDI File Id: ${record.id}`}</span>;
 };
 
+const CustomEdiStringField = ({ source }) => {
+  const record = useRecordContext();
+  return <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace' }}>{record[source]}</div>;
+};
+
 const PaymentRequest858Show = () => {
   return (
     <Show title={<PaymentRequest858ShowTitle />}>
@@ -13,7 +18,7 @@ const PaymentRequest858Show = () => {
         <TextField source="id" />
         <TextField source="paymentRequestNumber" />
         <TextField source="fileName" />
-        <TextField source="ediString" />
+        <CustomEdiStringField source="ediString" />
         <TextField source="createdAt" />
       </SimpleShowLayout>
     </Show>
