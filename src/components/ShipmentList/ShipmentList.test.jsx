@@ -24,7 +24,7 @@ describe('ShipmentList component', () => {
     { id: 'ID-2', shipmentType: SHIPMENT_OPTIONS.HHG },
     { id: 'ID-3', shipmentType: SHIPMENT_OPTIONS.NTS },
     { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.NTSR },
-    { id: 'ID-4', shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE },
+    { id: 'ID-5', shipmentType: SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE },
   ];
   const onShipmentClick = jest.fn();
   const onDeleteClick = jest.fn();
@@ -76,7 +76,7 @@ describe('ShipmentList component', () => {
     await checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.NTSR);
 
     editBtn = queryByRole(screen.getAllByTestId('shipment-list-item-container')[4], 'button', { name: 'Edit' });
-    await checkShipmentClick('ID-4', 1, SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE);
+    await checkShipmentClick('ID-5', 1, SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE);
   });
 
   it.each([
