@@ -54,6 +54,9 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
       then: () => requiredAddressSchema,
       otherwise: (schema) => schema,
     }),
+  });
+
+  const weightValidationSchema = Yup.object().shape({
     allowableWeight: Yup.number().when('editItemName', {
       is: 'allowableWeight',
       then: (schema) => schema.required('Required'),
@@ -70,7 +73,11 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
           <ModalTitle className={styles.ModalTitle}>
             <h3>{title}</h3>
           </ModalTitle>
-          <Formik validationSchema={validationSchema} initialValues={initialValues} onSubmit={onSubmit}>
+          <Formik
+            validationSchema={editItemName === 'allowableWeight' ? weightValidationSchema : validationSchema}
+            initialValues={initialValues}
+            onSubmit={onSubmit}
+          >
             {({ isValid, handleChange, setFieldTouched }) => {
               return (
                 <Form>
