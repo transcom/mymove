@@ -315,16 +315,30 @@ func (suite *PayloadsSuite) TestMTOServiceItemModelListFromCreate() {
 }
 
 func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
+	genericAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "CA",
+		PostalCode:     "90210",
+	}
+	genericAddressMessage := primev3messages.Address{
+		StreetAddress1: &genericAddress.StreetAddress1,
+		City:           &genericAddress.City,
+		State:          &genericAddress.State,
+		PostalCode:     &genericAddress.PostalCode,
+	}
 	suite.Run("nil", func() {
-		model := MTOShipmentModelFromUpdate(nil, strfmt.UUID(uuid.Must(uuid.NewV4()).String()))
+		model, verr := MTOShipmentModelFromUpdate(nil, strfmt.UUID(uuid.Must(uuid.NewV4()).String()))
+		suite.NotNil(verr)
 		suite.Nil(model)
 	})
 
 	suite.Run("notnil", func() {
 		mtoShipment := &primev3messages.UpdateMTOShipment{}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+		model, verr := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
 
+		suite.Nil(verr)
 		suite.NotNil(model)
 	})
 
@@ -338,21 +352,211 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 			PrimeEstimatedWeight: &estimatedWeight,
 		}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+		model, verr := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
 
+		suite.Nil(verr)
 		suite.NotNil(model.PrimeActualWeight)
 		suite.NotNil(model.NTSRecordedWeight)
 		suite.NotNil(model.PrimeEstimatedWeight)
 	})
 
-	suite.Run("ppm", func() {
+	suite.Run("empty ppm", func() {
 		mtoShipment := &primev3messages.UpdateMTOShipment{
 			PpmShipment: &primev3messages.UpdatePPMShipment{},
 		}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-		model := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+		model, verr := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
 
+		suite.Nil(verr)
+		suite.NotNil(model)
+	})
+	suite.Run("non empty ppm", func() {
+
+		ppmShipment := primev3messages.UpdatePPMShipment{
+			PickupAddress:               struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryPickupAddress:      struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryPickupAddress:       struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:          struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryDestinationAddress: struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDestinationAddress:  struct{ primev3messages.Address }{genericAddressMessage},
+		}
+		mtoShipment := &primev3messages.UpdateMTOShipment{
+			PickupAddress:            struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryPickupAddress:   struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryPickupAddress:    struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:       struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryDeliveryAddress: struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDeliveryAddress:  struct{ primev3messages.Address }{genericAddressMessage},
+			PpmShipment:              &ppmShipment,
+		}
+		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+		model, verr := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
+
+		suite.Nil(verr)
 		suite.NotNil(model.PPMShipment)
+	})
+
+	moveUuid, err := uuid.NewV4()
+	newMtoShipmentID := strfmt.UUID(uuid.Must(moveUuid, err).String())
+
+	suite.Run("tertiaryPickupAddress with secondaryPickupAddressNil produces error", func() {
+
+		createMTOShipmentMessage := &primev3messages.UpdateMTOShipment{
+			PickupAddress:         struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:    struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryPickupAddress: struct{ primev3messages.Address }{genericAddressMessage},
+		}
+
+		model, err := MTOShipmentModelFromUpdate(createMTOShipmentMessage, newMtoShipmentID)
+
+		suite.Nil(model)
+		suite.NotNil(err)
+	})
+
+	suite.Run("tertiaryDestinationAddress with secondaryDestinationAddressNil produces error", func() {
+
+		createMTOShipmentMessage := &primev3messages.UpdateMTOShipment{
+			PickupAddress:           struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:      struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDeliveryAddress: struct{ primev3messages.Address }{genericAddressMessage},
+		}
+
+		model, err := MTOShipmentModelFromUpdate(createMTOShipmentMessage, newMtoShipmentID)
+
+		suite.Nil(model)
+		suite.NotNil(err)
+	})
+
+	suite.Run("tertiaryDestinationAddress with secondaryDestinationAddress provided does not produce error", func() {
+
+		createMTOShipmentMessage := &primev3messages.UpdateMTOShipment{
+			PickupAddress:            struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryPickupAddress:   struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryPickupAddress:    struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:       struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryDeliveryAddress: struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDeliveryAddress:  struct{ primev3messages.Address }{genericAddressMessage},
+		}
+
+		model, err := MTOShipmentModelFromUpdate(createMTOShipmentMessage, newMtoShipmentID)
+
+		suite.NotNil(model)
+		suite.Nil(err)
+	})
+
+}
+
+func (suite *PayloadsSuite) TestMTOShipmentModelFromCreate() {
+	suite.Run("nil", func() {
+		model, err := MTOShipmentModelFromCreate(nil)
+		suite.Nil(model)
+		suite.NotNil(err)
+	})
+
+	suite.Run("empty but not nil", func() {
+		mtoShipment := &primev3messages.CreateMTOShipment{}
+		model, err := MTOShipmentModelFromCreate(mtoShipment)
+
+		suite.Nil(model)
+		suite.NotNil(err)
+	})
+
+	genericAddress := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "CA",
+		PostalCode:     "90210",
+	}
+
+	genericAddressMessage := primev3messages.Address{
+		StreetAddress1: &genericAddress.StreetAddress1,
+		City:           &genericAddress.City,
+		State:          &genericAddress.State,
+		PostalCode:     &genericAddress.PostalCode,
+	}
+	emptyAddress := primev3messages.Address{}
+
+	agentEmail := "test@test.gov"
+	firstName := "John"
+	lastName := "Doe"
+	phone := "123-456-7890"
+	agent := primev3messages.MTOAgent{
+		AgentType: "type",
+		Email:     &agentEmail,
+		FirstName: &firstName,
+		LastName:  &lastName,
+		Phone:     &phone,
+	}
+
+	agents := primev3messages.MTOAgents{
+		&agent,
+	}
+
+	moveUuid, _ := uuid.NewV4()
+	moveUuidString := moveUuid.String()
+	divertedUuid, _ := uuid.NewV4()
+	divertedUuidString := divertedUuid.String()
+
+	createMTOShipmentMessage := &primev3messages.CreateMTOShipment{
+		MoveTaskOrderID:        (*strfmt.UUID)(&moveUuidString),
+		Agents:                 agents,
+		CustomerRemarks:        nil,
+		PointOfContact:         "John Doe",
+		PrimeEstimatedWeight:   handlers.FmtInt64(1200),
+		RequestedPickupDate:    handlers.FmtDatePtr(models.TimePointer(time.Now())),
+		ShipmentType:           primev3messages.NewMTOShipmentType(primev3messages.MTOShipmentTypeBOATHAULAWAY),
+		PickupAddress:          struct{ primev3messages.Address }{genericAddressMessage},
+		DestinationAddress:     struct{ primev3messages.Address }{genericAddressMessage},
+		DivertedFromShipmentID: (strfmt.UUID)(divertedUuidString),
+	}
+
+	suite.Run("with actual payload", func() {
+		model, err := MTOShipmentModelFromCreate(createMTOShipmentMessage)
+
+		suite.Nil(err)
+
+		suite.NotNil(model.PickupAddress)
+		suite.NotNil(model.DestinationAddress)
+		suite.NotNil(model.ShipmentType)
+		suite.NotNil(model.PrimeEstimatedWeight)
+	})
+	suite.Run("with tertiary pickup address (but no secondary pickup address)", func() {
+		createMTOShipmentMessage.TertiaryPickupAddress = struct{ primev3messages.Address }{genericAddressMessage}
+		model, err := MTOShipmentModelFromCreate(createMTOShipmentMessage)
+
+		suite.NotNil(err)
+		suite.Nil(model)
+
+		// post test cleanup
+		createMTOShipmentMessage.TertiaryPickupAddress = struct{ primev3messages.Address }{emptyAddress}
+	})
+
+	suite.Run("with tertiary destination address (but no secondary destination address)", func() {
+
+		createMTOShipmentMessage.TertiaryDestinationAddress = struct{ primev3messages.Address }{genericAddressMessage}
+		model, err := MTOShipmentModelFromCreate(createMTOShipmentMessage)
+
+		suite.NotNil(err)
+		suite.Nil(model)
+
+		// post test cleanup
+		createMTOShipmentMessage.TertiaryDestinationAddress = struct{ primev3messages.Address }{emptyAddress}
+	})
+	suite.Run("with tertiary destination address and secondary address", func() {
+		createMTOShipmentMessage.SecondaryPickupAddress = struct{ primev3messages.Address }{genericAddressMessage}
+		createMTOShipmentMessage.TertiaryPickupAddress = struct{ primev3messages.Address }{genericAddressMessage}
+		createMTOShipmentMessage.SecondaryDestinationAddress = struct{ primev3messages.Address }{genericAddressMessage}
+		createMTOShipmentMessage.TertiaryDestinationAddress = struct{ primev3messages.Address }{genericAddressMessage}
+		model, err := MTOShipmentModelFromCreate(createMTOShipmentMessage)
+
+		suite.Nil(err)
+		suite.NotNil(model)
+
+		// post test cleanup
+		createMTOShipmentMessage.SecondaryPickupAddress = struct{ primev3messages.Address }{emptyAddress}
+		createMTOShipmentMessage.TertiaryPickupAddress = struct{ primev3messages.Address }{emptyAddress}
+		createMTOShipmentMessage.SecondaryDestinationAddress = struct{ primev3messages.Address }{emptyAddress}
+		createMTOShipmentMessage.TertiaryDestinationAddress = struct{ primev3messages.Address }{emptyAddress}
 	})
 }
 
@@ -462,19 +666,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		State:          "state",
 		PostalCode:     "12345",
 	}
-	address2 := models.Address{
-		StreetAddress1: "some address",
-		City:           "city",
-		State:          "state",
-		PostalCode:     "11111",
-	}
-
-	var pickupAddress primev3messages.Address
-	var secondaryPickupAddress primev3messages.Address
-	var destinationAddress primev3messages.Address
-	var secondaryDestinationAddress primev3messages.Address
-
-	pickupAddress = primev3messages.Address{
+	var genericAddress = primev3messages.Address{
 		City:           &address.City,
 		Country:        address.Country,
 		PostalCode:     &address.PostalCode,
@@ -483,57 +675,79 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 	}
-	destinationAddress = primev3messages.Address{
-		City:           &address.City,
-		Country:        address.Country,
-		PostalCode:     &address.PostalCode,
-		State:          &address.State,
-		StreetAddress1: &address.StreetAddress1,
-		StreetAddress2: address.StreetAddress2,
-		StreetAddress3: address.StreetAddress3,
-	}
-	secondaryPickupAddress = primev3messages.Address{
-		City:           &address2.City,
-		Country:        address2.Country,
-		PostalCode:     &address2.PostalCode,
-		State:          &address2.State,
-		StreetAddress1: &address2.StreetAddress1,
-		StreetAddress2: address2.StreetAddress2,
-		StreetAddress3: address2.StreetAddress3,
-	}
-	secondaryDestinationAddress = primev3messages.Address{
-		City:           &address2.City,
-		Country:        address2.Country,
-		PostalCode:     &address2.PostalCode,
-		State:          &address2.State,
-		StreetAddress1: &address2.StreetAddress1,
-		StreetAddress2: address2.StreetAddress2,
-		StreetAddress3: address2.StreetAddress3,
-	}
 
-	ppmShipment := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate:       expectedDepartureDate,
-		PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
-		SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
-		DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
-		SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
-		SitExpected:                 &sitExpected,
-		EstimatedWeight:             &estimatedWeight,
-		HasProGear:                  &hasProGear,
-		ProGearWeight:               &proGearWeight,
-		SpouseProGearWeight:         &spouseProGearWeight,
-	}
+	suite.Run("with a secondary pickup address missing in payload", func() {
+		ppmShipment := primev3messages.CreatePPMShipment{
+			ExpectedDepartureDate:       expectedDepartureDate,
+			PickupAddress:               struct{ primev3messages.Address }{genericAddress},
+			TertiaryPickupAddress:       struct{ primev3messages.Address }{genericAddress},
+			DestinationAddress:          struct{ primev3messages.Address }{genericAddress},
+			SecondaryDestinationAddress: struct{ primev3messages.Address }{genericAddress},
+			TertiaryDestinationAddress:  struct{ primev3messages.Address }{genericAddress},
+			SitExpected:                 &sitExpected,
+			EstimatedWeight:             &estimatedWeight,
+			HasProGear:                  &hasProGear,
+			ProGearWeight:               &proGearWeight,
+			SpouseProGearWeight:         &spouseProGearWeight,
+		}
 
-	model := PPMShipmentModelFromCreate(&ppmShipment)
+		model, verr := PPMShipmentModelFromCreate(&ppmShipment)
 
-	suite.NotNil(model)
-	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
-	suite.True(*model.SITExpected)
-	suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
-	suite.True(*model.HasProGear)
-	suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
-	suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
-	suite.True(*model.HasSecondaryPickupAddress)
-	suite.True(*model.HasSecondaryDestinationAddress)
-	suite.NotNil(model)
+		suite.NotNil(verr)
+		suite.Nil(model)
+	})
+
+	suite.Run("with a secondary destination address missing in payload", func() {
+		ppmShipment := primev3messages.CreatePPMShipment{
+			ExpectedDepartureDate:      expectedDepartureDate,
+			PickupAddress:              struct{ primev3messages.Address }{genericAddress},
+			SecondaryPickupAddress:     struct{ primev3messages.Address }{genericAddress},
+			TertiaryPickupAddress:      struct{ primev3messages.Address }{genericAddress},
+			DestinationAddress:         struct{ primev3messages.Address }{genericAddress},
+			TertiaryDestinationAddress: struct{ primev3messages.Address }{genericAddress},
+			SitExpected:                &sitExpected,
+			EstimatedWeight:            &estimatedWeight,
+			HasProGear:                 &hasProGear,
+			ProGearWeight:              &proGearWeight,
+			SpouseProGearWeight:        &spouseProGearWeight,
+		}
+
+		model, verr := PPMShipmentModelFromCreate(&ppmShipment)
+
+		suite.NotNil(verr)
+		suite.Nil(model)
+	})
+
+	suite.Run("with a complete payload", func() {
+		ppmShipment := primev3messages.CreatePPMShipment{
+			ExpectedDepartureDate:       expectedDepartureDate,
+			PickupAddress:               struct{ primev3messages.Address }{genericAddress},
+			SecondaryPickupAddress:      struct{ primev3messages.Address }{genericAddress},
+			TertiaryPickupAddress:       struct{ primev3messages.Address }{genericAddress},
+			DestinationAddress:          struct{ primev3messages.Address }{genericAddress},
+			SecondaryDestinationAddress: struct{ primev3messages.Address }{genericAddress},
+			TertiaryDestinationAddress:  struct{ primev3messages.Address }{genericAddress},
+			SitExpected:                 &sitExpected,
+			EstimatedWeight:             &estimatedWeight,
+			HasProGear:                  &hasProGear,
+			ProGearWeight:               &proGearWeight,
+			SpouseProGearWeight:         &spouseProGearWeight,
+		}
+		model, verr := PPMShipmentModelFromCreate(&ppmShipment)
+
+		suite.Nil(verr)
+		suite.NotNil(model)
+		suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
+		suite.True(*model.SITExpected)
+		suite.Equal(unit.Pound(estimatedWeight), *model.EstimatedWeight)
+		suite.True(*model.HasProGear)
+		suite.Equal(unit.Pound(proGearWeight), *model.ProGearWeight)
+		suite.Equal(unit.Pound(spouseProGearWeight), *model.SpouseProGearWeight)
+		suite.True(*model.HasSecondaryPickupAddress)
+		suite.True(*model.HasSecondaryDestinationAddress)
+		suite.True(*model.HasTertiaryPickupAddress)
+		suite.True(*model.HasTertiaryDestinationAddress)
+		suite.NotNil(model)
+	})
+
 }

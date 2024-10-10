@@ -11,6 +11,8 @@ import (
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/utils"
 )
 
 // Address is an address
@@ -168,4 +170,15 @@ func (a *Address) Copy() *Address {
 		return &address
 	}
 	return nil
+}
+
+// checks that Address is not empty, nil, or only whitespace or has the default value of "n/a"
+func IsAddressEmpty(a *Address) bool {
+	return a == nil || ((utils.IsNullOrWhiteSpace(&a.StreetAddress1) || IsDefaultAddressValue(a.StreetAddress1)) &&
+		(utils.IsNullOrWhiteSpace(&a.City) || IsDefaultAddressValue(a.StreetAddress1)) &&
+		(utils.IsNullOrWhiteSpace(&a.State) || IsDefaultAddressValue(a.StreetAddress1)) &&
+		(utils.IsNullOrWhiteSpace(&a.PostalCode) || IsDefaultAddressValue(a.StreetAddress1)))
+}
+func IsDefaultAddressValue(s string) bool {
+	return s == "n/a"
 }

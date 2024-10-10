@@ -121,9 +121,18 @@ func MTOServiceItemModelListFromCreate(mtoShipment *primev3messages.CreateMTOShi
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) (*models.MTOShipment, error) {
+	verrs := validate.NewErrors()
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("error creating MTO Shipment", "Cannot create MTO Shipment without a payload")
+		return nil, verrs
+	}
+	var mtoID uuid.UUID
+	if mtoShipment.MoveTaskOrderID == nil {
+		verrs.Add("tertiary delivery address", "Cannot create MTO Shipment without an ID within the payload")
+		return nil, verrs
+	} else {
+		mtoID = uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String())
 	}
 
 	var divertedFromShipmentID *uuid.UUID
@@ -134,7 +143,7 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID:             uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		MoveTaskOrderID:             mtoID,
 		CustomerRemarks:             mtoShipment.CustomerRemarks,
 		Diversion:                   mtoShipment.Diversion,
 		DivertedFromShipmentID:      divertedFromShipmentID,
@@ -166,9 +175,41 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 		model.PickupAddress = addressModel
 	}
 
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+	if model.SecondaryPickupAddress == nil && model.TertiaryPickupAddress != nil {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
+
 	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.SecondaryDeliveryAddress = addressModel
+		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDeliveryAddress = addressModel
+		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
+	}
+	if model.SecondaryDeliveryAddress == nil && model.TertiaryDeliveryAddress != nil {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return nil, verrs
 	}
 
 	if mtoShipment.Agents != nil {
@@ -176,11 +217,16 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	}
 
 	if mtoShipment.PpmShipment != nil {
-		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		ppmShipment, err := PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		if err != nil {
+			verrs.Add("Error creating PPM Shipment", "An error occurred while creating the ppm shipment")
+			return nil, verrs
+		}
+		model.PPMShipment = ppmShipment
 		model.PPMShipment.Shipment = *model
 	}
 
-	return model
+	return model, nil
 }
 
 // Non SIT Address update Model
@@ -204,9 +250,11 @@ func ShipmentAddressUpdateModel(nonSITAddressUpdate *primev3messages.UpdateShipm
 }
 
 // PPMShipmentModelFromCreate model
-func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) *models.PPMShipment {
+func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) (*models.PPMShipment, error) {
+	verrs := validate.NewErrors()
 	if ppmShipment == nil {
-		return nil
+		verrs.Add("ppmShipment", "ppmShipment object is nil.")
+		return nil, verrs
 	}
 
 	model := &models.PPMShipment{
@@ -235,6 +283,16 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+	if model.SecondaryPickupAddress == nil && model.TertiaryPickupAddress != nil {
+		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -244,6 +302,16 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
+	}
+	if model.SecondaryDestinationAddress == nil && model.TertiaryDestinationAddress != nil {
+		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+		return nil, verrs
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -269,13 +337,15 @@ func PPMShipmentModelFromCreate(ppmShipment *primev3messages.CreatePPMShipment) 
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
 	}
 
-	return model
+	return model, nil
 }
 
 // MTOShipmentModelFromUpdate model
-func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) *models.MTOShipment {
+func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, mtoShipmentID strfmt.UUID) (*models.MTOShipment, error) {
+	verrs := validate.NewErrors()
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
 	}
 
 	model := &models.MTOShipment{
@@ -348,6 +418,10 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
+	if model.SecondaryPickupAddress == nil && model.TertiaryPickupAddress != nil {
+		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
 
 	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 	if addressModel != nil {
@@ -364,19 +438,31 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		model.TertiaryDeliveryAddressID = &tertiaryDeliveryAddressID
 		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
 	}
-
-	if mtoShipment.PpmShipment != nil {
-		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
-		model.PPMShipment.Shipment = *model
+	if model.SecondaryDeliveryAddress == nil && model.TertiaryDeliveryAddress != nil {
+		verrs.Add("tertiary address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return nil, verrs
 	}
 
-	return model
+	if mtoShipment.PpmShipment != nil {
+		ppmShipment, err := PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
+		if err != nil {
+			verrs.Add("Error creating PPM Shipment", "An error occurred while creating the ppm shipment")
+			return nil, verrs
+		} else {
+			model.PPMShipment = ppmShipment
+			model.PPMShipment.Shipment = *model
+		}
+
+	}
+	return model, nil
 }
 
 // PPMShipmentModelFromUpdate model
-func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) *models.PPMShipment {
+func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) (*models.PPMShipment, error) {
+	verrs := validate.NewErrors()
 	if ppmShipment == nil {
-		return nil
+		verrs.Add("ppmShipment", "ppmShipment object is nil.")
+		return nil, verrs
 	}
 
 	model := &models.PPMShipment{
@@ -409,11 +495,15 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 
 	if ppmShipment.HasTertiaryPickupAddress != nil && *ppmShipment.HasTertiaryPickupAddress {
 		addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
-		if addressModel != nil {
+		if addressModel != nil && model.SecondaryPickupAddress != nil {
 			model.TertiaryPickupAddress = addressModel
 			tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 			model.TertiaryPickupAddressID = &tertiaryPickupAddressID
 		}
+	}
+	if model.SecondaryPickupAddress == nil && model.TertiaryPickupAddress != nil {
+		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+		return nil, verrs
 	}
 
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
@@ -433,11 +523,15 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 
 	if ppmShipment.HasTertiaryDestinationAddress != nil && *ppmShipment.HasTertiaryDestinationAddress {
 		addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
-		if addressModel != nil {
+		if addressModel != nil && model.SecondaryDestinationAddress == nil {
 			model.TertiaryDestinationAddress = addressModel
 			tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 			model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
 		}
+	}
+	if model.SecondaryDestinationAddress == nil && model.TertiaryDestinationAddress != nil {
+		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+		return nil, verrs
 	}
 
 	expectedDepartureDate := handlers.FmtDatePtrToPopPtr(ppmShipment.ExpectedDepartureDate)
@@ -460,8 +554,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *primev3messages.UpdatePPMShipment) 
 	if sitEstimatedDepartureDate != nil && !sitEstimatedDepartureDate.IsZero() {
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
 	}
-
-	return model
+	return model, nil
 }
 
 // MTOServiceItemModel model

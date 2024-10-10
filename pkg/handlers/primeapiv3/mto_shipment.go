@@ -54,7 +54,13 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
+			mtoShipment, err := payloads.MTOShipmentModelFromCreate(payload)
+			if err != nil {
+				appCtx.Logger().Error("Error creating MTO Shipment: ", zap.Error(err))
+
+				return mtoshipmentops.NewCreateMTOShipmentUnprocessableEntity().WithPayload(payloads.ValidationError(
+					"The MTO service item list is invalid.", h.GetTraceIDFromRequest(params.HTTPRequest), nil)), err
+			}
 			mtoShipment.Status = models.MTOShipmentStatusSubmitted
 			mtoServiceItemsList, verrs := payloads.MTOServiceItemModelListFromCreate(payload)
 
@@ -115,8 +121,11 @@ type UpdateMTOShipmentHandler struct {
 func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			mtoShipment := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
-
+			mtoShipment, err := payloads.MTOShipmentModelFromUpdate(params.Body, params.MtoShipmentID)
+			if err != nil {
+				return mtoshipmentops.NewUpdateMTOShipmentInternalServerError().WithPayload(
+					payloads.InternalServerError(nil, h.GetTraceIDFromRequest(params.HTTPRequest))), err
+			}
 			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID,
 				"DestinationAddress",
 				"SecondaryPickupAddress",
