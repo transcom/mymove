@@ -32,7 +32,13 @@ import MOVE_STATUSES from 'constants/moves';
 import { customerRoutes } from 'constants/routes';
 import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
-import { deleteMTOShipment, getAllMoves, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
+import {
+  deleteMTOShipment,
+  getAllMoves,
+  getMTOShipmentsForMove,
+  downloadPPMAOAPacket,
+  cancelMove,
+} from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
 import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
@@ -61,6 +67,7 @@ import {
 import withRouter from 'utils/routing';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 import { isBooleanFlagEnabled } from 'utils/featureFlags';
+import CancelMoveConfirmationModal from 'components/ConfirmationModals/CancelMoveConfirmationModal';
 
 const Description = ({ className, children, dataTestId }) => (
   <p className={`${styles.description} ${className}`} data-testid={dataTestId}>
@@ -86,7 +93,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   let { state } = useLocation();
   state = { ...state, moveId };
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCancelMoveModal, setShowCancelMoveModal] = useState(false);
   const [targetShipmentId, setTargetShipmentId] = useState(null);
+  const [showCancelSuccessAlert, setShowCancelSuccessAlert] = useState(false);
   const [showDeleteSuccessAlert, setShowDeleteSuccessAlert] = useState(false);
   const [showDeleteErrorAlert, setShowDeleteErrorAlert] = useState(false);
   const [showErrorAlert, setShowErrorAlert] = useState(false);
@@ -423,6 +432,21 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
     );
   };
 
+  const moveCanceler = () => {
+    cancelMove(moveId)
+      .then(() => {
+        setShowCancelSuccessAlert(true);
+      })
+      .catch(() => {
+        setShowDeleteErrorAlert(true);
+        setShowCancelSuccessAlert(false);
+      })
+      .finally(() => {
+        setShowCancelMoveModal(false);
+        window.location.reload();
+      });
+  };
+
   const togglePPMPacketErrorModal = () => {
     setShowErrorAlert(!showErrorAlert);
   };
@@ -470,6 +494,16 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
   const shipmentNumbersByType = {};
   return (
     <>
+      <CancelMoveConfirmationModal
+        isOpen={showCancelMoveModal}
+        moveID={moveId}
+        onClose={() => setShowCancelMoveModal(false)}
+        onSubmit={moveCanceler}
+        title="Cancel this move?"
+        content="Your move will be cancelled and all associated information will be removed. This cannot be undone."
+        submitText="Yes, Cancel"
+        closeText="No, Keep It"
+      />
       <ConnectedDestructiveShipmentConfirmationModal
         isOpen={showDeleteModal}
         shipmentID={targetShipmentId}
@@ -491,6 +525,11 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
           </div>
         </header>
         <div className={`usa-prose grid-container ${styles['grid-container']}`}>
+          {showCancelSuccessAlert && (
+            <Alert headingLevel="h4" slim type="success">
+              Your move was cancelled.
+            </Alert>
+          )}
           {showDeleteSuccessAlert && (
             <Alert headingLevel="h4" slim type="success">
               The shipment was deleted.
@@ -523,7 +562,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 {!hasSubmittedMove() && (
                   <Step
                     complete={hasOrdersAndUpload()}
-                    completedHeaderText="Orders uploaded"
+                    completedHeaderText="window.location.reloadOrders uploaded"
                     editBtnLabel={hasOrdersAndUpload() ? 'Edit' : ''}
                     onEditBtnClick={() => handleNewPathClick(ordersEditPath)}
                     headerText="Upload orders"
@@ -592,33 +631,48 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                     </Description>
                   )}
                 </Step>
-                <Step
-                  actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
-                  actionBtnId="review-and-submit-btn"
-                  actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
-                  complete={hasSubmittedMove()}
-                  completedHeaderText="Move request confirmed"
-                  containerClassName="margin-bottom-8"
-                  headerText="Confirm move request"
-                  onActionBtnClick={() => handleNewPathClick(confirmationPath)}
-                  secondaryBtn={hasSubmittedMove()}
-                  secondaryBtnClassName={styles.secondaryBtn}
-                  step="4"
-                >
-                  {hasSubmittedMove() ? (
-                    <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
-                      Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
-                      <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
-                        Print the legal agreement
-                      </Button>
-                    </Description>
-                  ) : (
-                    <Description>
-                      Review your move details and sign the legal paperwork, then send the info on to your move
-                      counselor.
-                    </Description>
-                  )}
-                </Step>
+                <div className={styles.confirm_cancel_container}>
+                  <Step
+                    actionBtnDisabled={hasIncompleteShipment() || !hasAnyShipments()}
+                    actionBtnId="review-and-submit-btn"
+                    actionBtnLabel={!hasSubmittedMove() ? 'Review and submit' : 'Review your request'}
+                    complete={hasSubmittedMove()}
+                    completedHeaderText="Move request confirmed"
+                    containerClassName="margin-bottom-8"
+                    headerText="Confirm move request"
+                    onActionBtnClick={() => handleNewPathClick(confirmationPath)}
+                    secondaryBtn={hasSubmittedMove()}
+                    secondaryBtnClassName={styles.secondaryBtn}
+                    step="4"
+                  >
+                    {hasSubmittedMove() ? (
+                      <Description className={styles.moveSubmittedDescription} dataTestId="move-submitted-description">
+                        Move submitted {formatCustomerDate(move.submittedAt) || 'Not submitted yet'}.<br />
+                        <Button unstyled onClick={handlePrintLegalese} className={styles.printBtn}>
+                          Print the legal agreement
+                        </Button>
+                      </Description>
+                    ) : (
+                      <Description>
+                        Review your move details and sign the legal paperwork, then send the info on to your move
+                        counselor.
+                      </Description>
+                    )}
+                  </Step>
+
+                  {!hasSubmittedMove() && !showCancelSuccessAlert ? (
+                    <Button
+                      onClick={() => {
+                        setShowCancelMoveModal(true);
+                      }}
+                      unstyled
+                      className={styles.printBtn}
+                      data-testid="cancel-move-button"
+                    >
+                      Cancel Move
+                    </Button>
+                  ) : null}
+                </div>
                 {!!ppmShipments.length && hasSubmittedMove() && hasAdvanceRequested() && (
                   <Step
                     complete={hasAdvanceApproved() || hasAllAdvancesRejected()}

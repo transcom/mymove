@@ -62,17 +62,17 @@ func (_m *MoveRouter) ApproveOrRequestApproval(appCtx appcontext.AppContext, mov
 	return r0, r1
 }
 
-// Cancel provides a mock function with given fields: appCtx, reason, move
-func (_m *MoveRouter) Cancel(appCtx appcontext.AppContext, reason string, move *models.Move) error {
-	ret := _m.Called(appCtx, reason, move)
+// Cancel provides a mock function with given fields: appCtx, move
+func (_m *MoveRouter) Cancel(appCtx appcontext.AppContext, move *models.Move) error {
+	ret := _m.Called(appCtx, move)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Cancel")
 	}
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, *models.Move) error); ok {
-		r0 = rf(appCtx, reason, move)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.Move) error); ok {
+		r0 = rf(appCtx, move)
 	} else {
 		r0 = ret.Error(0)
 	}
