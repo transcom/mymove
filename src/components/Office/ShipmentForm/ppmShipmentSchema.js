@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 import { getFormattedMaxAdvancePercentage } from 'utils/incentives';
-import { requiredAddressSchema } from 'utils/validation';
+import { requiredAddressSchema, partialRequiredAddressSchema } from 'utils/validation';
 import { OptionalAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 import { ADVANCE_STATUSES } from 'constants/ppms';
 
@@ -32,7 +32,7 @@ const ppmShipmentSchema = ({
       address: requiredAddressSchema,
     }),
     destination: Yup.object().shape({
-      address: requiredAddressSchema,
+      address: partialRequiredAddressSchema,
     }),
     secondaryPickup: Yup.object().shape({
       address: OptionalAddressSchema,
