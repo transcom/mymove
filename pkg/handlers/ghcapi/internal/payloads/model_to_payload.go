@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"math"
+	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -16,6 +17,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/ghcmessages"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models/roles"
 	"github.com/transcom/mymove/pkg/services"
 	mtoshipment "github.com/transcom/mymove/pkg/services/mto_shipment"
 	"github.com/transcom/mymove/pkg/storage"
@@ -708,6 +710,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *ghcmessages.DutyLocation {
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *ghcmessages.Address {
 	if address == nil {
@@ -721,10 +731,27 @@ func Address(address *models.Address) *ghcmessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
+}
+
+// PPM destination Address payload
+func PPMDestinationAddress(address *models.Address) *ghcmessages.Address {
+	payload := Address(address)
+
+	if payload == nil {
+		return nil
+	}
+
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
 }
 
 // StorageFacility payload
@@ -879,7 +906,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		ReviewedAt:                     handlers.FmtDateTimePtr(ppmShipment.ReviewedAt),
 		ApprovedAt:                     handlers.FmtDateTimePtr(ppmShipment.ApprovedAt),
 		PickupAddress:                  Address(ppmShipment.PickupAddress),
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
 		ActualDestinationPostalCode:    ppmShipment.ActualDestinationPostalCode,
 		SitExpected:                    ppmShipment.SITExpected,
@@ -2034,7 +2061,7 @@ func QueueAvailableOfficeUsers(officeUsers []models.OfficeUser) *ghcmessages.Ava
 }
 
 // QueueMoves payload
-func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessages.QueueMoves {
+func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser, requestedPpmStatus *models.PPMShipmentStatus, role roles.RoleType) *ghcmessages.QueueMoves {
 	queueMoves := make(ghcmessages.QueueMoves, len(moves))
 	for i, move := range moves {
 		customer := move.Orders.ServiceMember
@@ -2084,7 +2111,13 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessag
 		var ppmStatus models.PPMShipmentStatus
 		for _, shipment := range move.MTOShipments {
 			if shipment.PPMShipment != nil {
-				ppmStatus = shipment.PPMShipment.Status
+				if requestedPpmStatus != nil {
+					if shipment.PPMShipment.Status == *requestedPpmStatus {
+						ppmStatus = shipment.PPMShipment.Status
+					}
+				} else {
+					ppmStatus = shipment.PPMShipment.Status
+				}
 				if shipment.PPMShipment.SubmittedAt != nil {
 					if closeoutInitiated.Before(*shipment.PPMShipment.SubmittedAt) {
 						closeoutInitiated = *shipment.PPMShipment.SubmittedAt
@@ -2115,9 +2148,16 @@ func QueueMoves(moves []models.Move, officeUsers []models.OfficeUser) *ghcmessag
 			LockExpiresAt:           handlers.FmtDateTimePtr(move.LockExpiresAt),
 			PpmStatus:               ghcmessages.PPMStatus(ppmStatus),
 			CounselingOffice:        &transportationOffice,
-			AssignedTo:              AssignedOfficeUser(move.SCAssignedUser),
 			AvailableOfficeUsers:    *QueueAvailableOfficeUsers(officeUsers),
 		}
+
+		if role == roles.RoleTypeServicesCounselor {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.SCAssignedUser)
+		}
+		if role == roles.RoleTypeTOO {
+			queueMoves[i].AssignedTo = AssignedOfficeUser(move.TOOAssignedUser)
+		}
+
 	}
 	return &queueMoves
 }

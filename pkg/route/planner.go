@@ -43,7 +43,7 @@ func urlencodeAddress(address *models.Address) string {
 	}
 	s = append(s, address.City, address.State, address.PostalCode)
 	if address.Country != nil {
-		s = append(s, *address.Country)
+		s = append(s, address.Country.Country)
 	}
 	return url.QueryEscape(strings.Join(s, ","))
 }
