@@ -428,7 +428,10 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
         setShowDeleteErrorAlert(true);
         setShowCancelSuccessAlert(false);
       })
-      .finally(() => setShowCancelMoveModal(false));
+      .finally(() => {
+        setShowCancelMoveModal(false);
+        window.location.reload();
+      });
   };
 
   const togglePPMPacketErrorModal = () => {
@@ -546,7 +549,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 {!hasSubmittedMove() && (
                   <Step
                     complete={hasOrdersAndUpload()}
-                    completedHeaderText="Orders uploaded"
+                    completedHeaderText="window.location.reloadOrders uploaded"
                     editBtnLabel={hasOrdersAndUpload() ? 'Edit' : ''}
                     onEditBtnClick={() => handleNewPathClick(ordersEditPath)}
                     headerText="Upload orders"
@@ -646,7 +649,9 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
 
                   {!hasSubmittedMove() && !showCancelSuccessAlert ? (
                     <Button
-                      onClick={() => setShowCancelMoveModal(true)}
+                      onClick={() => {
+                        setShowCancelMoveModal(true);
+                      }}
                       unstyled
                       className={styles.printBtn}
                       data-testid="cancel-move-button"
