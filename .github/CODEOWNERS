@@ -6,4 +6,4 @@
 # owners will be requested for a review.
 # Add language specific code owners if it becomes relevant
 
-/migrations/* @transcom/cacidatabaseteam
+/migrations/ @transcom/cacidatabaseteam
