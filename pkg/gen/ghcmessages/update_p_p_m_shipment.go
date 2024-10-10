@@ -57,7 +57,7 @@ type UpdatePPMShipment struct {
 
 	// destination address
 	DestinationAddress struct {
-		Address
+		PPMDestinationAddress
 	} `json:"destinationAddress,omitempty"`
 
 	// estimated weight

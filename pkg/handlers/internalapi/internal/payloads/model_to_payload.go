@@ -2,6 +2,7 @@ package payloads
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/validate/v3"
@@ -41,6 +42,23 @@ func Address(address *models.Address) *internalmessages.Address {
 		PostalCode:     &address.PostalCode,
 		County:         &address.County,
 	}
+}
+
+// PPM Destination Address payload
+func PPMDestinationAddress(address *models.Address) *internalmessages.Address {
+	payload := Address(address)
+
+	if payload == nil {
+		return nil
+	}
+
+	// Street address 1 is optional per business rule but not nullable on the database level.
+	// Check if streetAddress 1 is using place holder value to represent 'NULL'.
+	// If so return empty string.
+	if strings.EqualFold(*payload.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED) {
+		payload.StreetAddress1 = models.StringPointer("")
+	}
+	return payload
 }
 
 // MTOAgent payload
@@ -101,7 +119,7 @@ func PPMShipment(storer storage.FileStorer, ppmShipment *models.PPMShipment) *in
 		TertiaryPickupAddress:          Address(ppmShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		ActualPickupPostalCode:         ppmShipment.ActualPickupPostalCode,
-		DestinationAddress:             Address(ppmShipment.DestinationAddress),
+		DestinationAddress:             PPMDestinationAddress(ppmShipment.DestinationAddress),
 		SecondaryDestinationAddress:    Address(ppmShipment.SecondaryDestinationAddress),
 		HasSecondaryDestinationAddress: ppmShipment.HasSecondaryDestinationAddress,
 		TertiaryDestinationAddress:     Address(ppmShipment.TertiaryDestinationAddress),
