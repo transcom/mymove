@@ -1,5 +1,5 @@
 import React from 'react';
-import { BooleanField, Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
+import { Show, SimpleShowLayout, TextField, useRecordContext } from 'react-admin';
 
 const PaymentRequest858ShowTitle = () => {
   const record = useRecordContext();
@@ -15,7 +15,6 @@ const PaymentRequest858Show = () => {
         <TextField source="fileName" />
         <TextField source="ediString" />
         <TextField source="createdAt" />
-        <BooleanField source="active" />
       </SimpleShowLayout>
     </Show>
   );

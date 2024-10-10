@@ -99,8 +99,8 @@ const Home = () => (
       <Resource name="users" options={{ label: 'Users' }} list={UserList} show={UserShow} edit={UserEdit} />
       <Resource name="moves" options={{ label: 'Moves' }} list={MoveList} show={MoveShow} edit={MoveEdit} />
       <Resource
-        name="paymentRequest858s"
-        options={{ label: 'Payment Requests 858s' }}
+        name="payment-request-syncada-files"
+        options={{ label: 'Payment Request Syncada Files' }}
         list={PaymentRequest858List}
         show={PaymentRequest858Show}
       />
