@@ -432,6 +432,35 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		suite.Equal(models.MoveStatusCANCELED, move.Status)
 		suite.Equal(models.MTOShipmentStatusCanceled, move.MTOShipments[0].Status)
 	})
+
+	suite.Run("Cancel move with PPM", func() {
+		move := factory.BuildMove(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
+				},
+			},
+		}, nil)
+
+		ppm := factory.BuildPPMShipment(suite.AppContextForTest().DB(), []factory.Customization{
+			{
+				Model: models.PPMShipment{
+					Status: models.PPMShipmentStatusSubmitted,
+				},
+			},
+			{
+				Model:    move,
+				LinkOnly: true,
+			},
+		}, nil)
+
+		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
+		suite.NoError(err)
+		_ = suite.DB().Reload(&move.MTOShipments)
+		suite.Equal(models.MoveStatusCANCELED, move.Status)
+		ppms, _ := models.FetchPPMShipmentByPPMShipmentID(suite.AppContextForTest().DB(), ppm.ID)
+		suite.Equal(models.PPMShipmentStatusCanceled, ppms.Status)
+	})
 }
 
 func (suite *MoveServiceSuite) TestSendToOfficeUser() {
