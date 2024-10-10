@@ -6083,6 +6083,7 @@ definitions:
       allowableWeight:
         description: The allowable weight of the PPM shipment goods being moved.
         type: integer
+        minimum: 0
         example: 4300
         x-nullable: true
       hasProGear:

@@ -135,6 +135,7 @@ properties:
     description: The allowable weight of the PPM shipment goods being moved.
     type: integer
     example: 4300
+    minimum: 0
     x-nullable: true
     x-omitempty: false
   hasProGear:

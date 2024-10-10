@@ -26661,6 +26661,7 @@ func init() {
         "allowableWeight": {
           "description": "The allowable weight of the PPM shipment goods being moved.",
           "type": "integer",
+          "minimum": 0,
           "x-nullable": true,
           "x-omitempty": false,
           "example": 4300
@@ -29181,6 +29182,7 @@ func init() {
         "allowableWeight": {
           "description": "The allowable weight of the PPM shipment goods being moved.",
           "type": "integer",
+          "minimum": 0,
           "x-nullable": true,
           "example": 4300
         },
