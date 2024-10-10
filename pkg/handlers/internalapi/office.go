@@ -89,6 +89,10 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 				return handlers.ResponseForError(appCtx.Logger(), err), err
 			}
 
+			if move.Status != models.MoveStatusDRAFT {
+				return officeop.NewApproveMoveConflict(), apperror.NewConflictError(move.ID, "move must be in draft status")
+			}
+
 			logger := appCtx.Logger().With(zap.String("moveLocator", move.Locator))
 			// Canceling move will result in canceled associated PPMs
 			err = h.MoveRouter.Cancel(appCtx, move)

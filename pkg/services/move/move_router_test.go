@@ -406,62 +406,32 @@ func (suite *MoveServiceSuite) TestMoveCancellation() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
 		suite.NoError(err)
+
 		suite.Equal(models.MoveStatusCANCELED, move.Status)
 	})
 
 	suite.Run("Cancel move with HHG", func() {
-		move := factory.BuildMove(suite.DB(), nil, nil)
-
-		factory.BuildMTOShipmentMinimal(suite.DB(), []factory.Customization{
+		move := factory.BuildMoveWithShipment(suite.AppContextForTest().DB(), []factory.Customization{
 			{
-				Model: models.MTOShipment{
-					MoveTaskOrderID: move.ID,
-					Status:          models.MTOShipmentStatusSubmitted,
-					ShipmentType:    models.MTOShipmentTypeHHG,
+				Model: models.Move{
+					Status: models.MoveStatusDRAFT,
 				},
 			},
 			{
-				Model:    move,
-				LinkOnly: true,
+				Model: models.MTOShipment{
+					Status: models.MTOShipmentStatusDraft,
+				},
 			},
 		}, nil)
 
 		err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
 		suite.NoError(err)
+
+		_ = suite.DB().Reload(&move.MTOShipments)
 		suite.Equal(models.MoveStatusCANCELED, move.Status)
 		suite.Equal(models.MTOShipmentStatusCanceled, move.MTOShipments[0].Status)
 	})
-
-	// suite.Run("Cancel move with HHG", func() {
-	// 	moveId := uuid.Must(uuid.NewV4())
-
-	// 	hhg := models.MTOShipment{
-	// 		MoveTaskOrderID: moveId,
-	// 		ShipmentType:    models.MTOShipmentTypeHHG,
-	// 		Status:          models.MTOShipmentStatusDraft,
-	// 	}
-	// 	shipments := []models.MTOShipment{hhg}
-
-	// 	move := factory.BuildMove(suite.DB(), []factory.Customization{
-	// 		{
-	// 			Model: models.Move{
-	// 				ID:           moveId,
-	// 				MTOShipments: shipments,
-	// 			},
-	// 		},
-	// 	}, nil)
-
-	// 	move.MTOShipments = append(move.MTOShipments, hhg)
-
-	// 	err := moveRouter.Cancel(suite.AppContextForTest(), &move)
-
-	// 	suite.NoError(err)
-	// 	suite.Equal(models.MoveStatusCANCELED, move.Status)
-	// 	suite.Equal(models.MTOShipmentStatusCanceled, move.MTOShipments[0].Status)
-	// })
 }
 
 func (suite *MoveServiceSuite) TestSendToOfficeUser() {
