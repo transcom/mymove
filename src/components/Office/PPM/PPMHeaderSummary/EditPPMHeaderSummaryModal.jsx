@@ -59,7 +59,7 @@ const EditPPMHeaderSummaryModal = ({ sectionType, sectionInfo, onClose, onSubmit
   const weightValidationSchema = Yup.object().shape({
     allowableWeight: Yup.number().when('editItemName', {
       is: 'allowableWeight',
-      then: (schema) => schema.required('Required'),
+      then: (schema) => schema.required('Required').min(0, 'Allowable weight must be greater than or equal to zero'),
       otherwise: (schema) => schema,
     }),
   });
