@@ -37,9 +37,8 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	}
 
 	// until international moves are supported, we will default the country for created addresses to "US"
-	var country models.Country
 	if address.Country != nil && address.Country.Country != "" {
-		country, err = models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
 		if err != nil {
 			return nil, err
 		}
@@ -52,15 +51,26 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.CountryId = &country.ID
 	}
 
+	// Use country data we already have if not fetch the country data
+	var country models.Country
+	if transformedAddress.Country != nil {
+		country = *transformedAddress.Country
+	} else if transformedAddress.CountryId != nil {
+		country, err = models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	// If we have country data go through is_oconus logic if not default to false
 	if country.ID != uuid.Nil {
-		if country.Country != "US" && transformedAddress.State != "AK" && transformedAddress.State != "HI" {
+		if country.Country != "US" || country.Country != "US" && transformedAddress.State == "AK" || country.Country != "US" && transformedAddress.State == "HI" {
 			boolTrueVal := true
 			transformedAddress.IsOconus = &boolTrueVal
 		} else {
 			boolFalseVal := false
 			transformedAddress.IsOconus = &boolFalseVal
 		}
-
 	} else {
 		boolFalseVal := false
 		transformedAddress.IsOconus = &boolFalseVal

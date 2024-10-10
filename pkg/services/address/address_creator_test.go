@@ -31,6 +31,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Equal(postalCode, address.PostalCode)
 		suite.Nil(address.StreetAddress2)
 		suite.NotNil(address.CountryId)
+		suite.False(*address.IsOconus)
 	})
 
 	suite.Run("Successfully creates an address with empty strings for optional fields", func() {
@@ -104,5 +105,23 @@ func (suite *AddressSuite) TestAddressCreator() {
 		suite.Nil(address)
 		suite.NotNil(err)
 		suite.Equal("No county found for provided zip code 11111", err.Error())
+	})
+
+	suite.Run("Successfully creates a CONUS address", func() {
+		country := &models.Country{}
+		country.Country = "US"
+		addressCreator := NewAddressCreator()
+		address, err := addressCreator.CreateAddress(suite.AppContextForTest(), &models.Address{
+			StreetAddress1: "7645 Ballinshire N",
+			City:           "Indianapolis",
+			State:          "IN",
+			PostalCode:     "46254",
+			Country:        country,
+		})
+
+		suite.False(*address.IsOconus)
+		suite.NotNil(address.ID)
+		suite.Nil(err)
+		suite.NotNil(address.Country)
 	})
 }
