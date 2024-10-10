@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { func } from 'prop-types';
 import qs from 'query-string';
 
+import MobileHomeShipmentCreate from 'pages/MyMove/MobileHome/MobileHomeShipmentCreate/MobileHomeShipmentCreate';
 import MtoShipmentForm from 'components/Customer/MtoShipmentForm/MtoShipmentForm';
 import DateAndLocation from 'pages/MyMove/PPM/Booking/DateAndLocation/DateAndLocation';
 import BoatShipmentCreate from 'pages/MyMove/Boat/BoatShipmentCreate/BoatShipmentCreate';
@@ -107,6 +108,17 @@ export class CreateOrEditMtoShipment extends Component {
       ) {
         return (
           <BoatShipmentCreate
+            move={move}
+            mtoShipment={mtoShipment}
+            serviceMember={serviceMember}
+            destinationDutyLocation={orders.new_duty_location}
+            serviceMemberMoves={serviceMemberMoves}
+          />
+        );
+      }
+      if (type === SHIPMENT_OPTIONS.MOBILE_HOME || mtoShipment?.shipmentType === SHIPMENT_TYPES.MOBILE_HOME) {
+        return (
+          <MobileHomeShipmentCreate
             move={move}
             mtoShipment={mtoShipment}
             serviceMember={serviceMember}
