@@ -88,10 +88,6 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 		panic("no return value specified for ListOrders")
 	}
 
-	if len(ret) == 0 {
-		panic("no return value specified for ListOrders")
-	}
-
 	var r0 []models.Move
 	var r1 int
 	var r2 error

@@ -42,10 +42,6 @@ func (_m *LineOfAccountingFetcher) FetchLongLinesOfAccounting(departmentIndicato
 		panic("no return value specified for FetchLongLinesOfAccounting")
 	}
 
-	if len(ret) == 0 {
-		panic("no return value specified for FetchLongLinesOfAccounting")
-	}
-
 	var r0 []models.LineOfAccounting
 	var r1 error
 	if rf, ok := ret.Get(0).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) ([]models.LineOfAccounting, error)); ok {

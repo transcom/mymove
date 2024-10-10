@@ -24,10 +24,6 @@ func (_m *TransportationAccountingCodeFetcher) FetchOrderTransportationAccountin
 		panic("no return value specified for FetchOrderTransportationAccountingCodes")
 	}
 
-	if len(ret) == 0 {
-		panic("no return value specified for FetchOrderTransportationAccountingCodes")
-	}
-
 	var r0 []models.TransportationAccountingCode
 	var r1 error
 	if rf, ok := ret.Get(0).(func(models.DepartmentIndicator, time.Time, string, appcontext.AppContext) ([]models.TransportationAccountingCode, error)); ok {
