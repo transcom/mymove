@@ -39,10 +39,10 @@ const getSectionTitle = (sectionInfo) => {
   }
 };
 
-const OpenModalButton = ({ onClick, isDisabled }) => (
+const OpenModalButton = ({ onClick, isDisabled, dataTestId }) => (
   <Button
     type="button"
-    data-testid="editTextButton"
+    data-testid={dataTestId || 'editTextButton'}
     className={styles['edit-btn']}
     onClick={onClick}
     disabled={isDisabled}
@@ -169,6 +169,7 @@ const getSectionMarkup = (sectionInfo, handleEditOnClick, isFetchingItems, updat
                 <OpenModalButton
                   onClick={() => handleEditOnClick(sectionInfo.type, 'allowableWeight')}
                   isDisabled={isFetchingItems || readOnly}
+                  dataTestId="editAllowableWeightButton"
                 />
               </>
             )}
