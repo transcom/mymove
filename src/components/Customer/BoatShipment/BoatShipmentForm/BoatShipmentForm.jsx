@@ -79,7 +79,7 @@ const BoatShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
     widthInches: width.inches,
     heightFeet: height.feet,
     heightInches: height.inches,
-    hasTrailer: hasTrailer ? 'true' : 'false',
+    hasTrailer: hasTrailer === null ? '' : hasTrailer?.toString(),
     isRoadworthy: isRoadworthy === null ? '' : isRoadworthy?.toString(),
     customerRemarks: mtoShipment?.customerRemarks,
   };

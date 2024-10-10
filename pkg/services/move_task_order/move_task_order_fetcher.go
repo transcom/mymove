@@ -121,6 +121,22 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 		isBoatFeatureOn = flag.Match
 	}
 
+	/** Feature Flag - Mobile Home Shipment **/
+	isMobileHomeFeatureOn := false
+	featureFlagMH := "mobile_home"
+	configMH := cli.GetFliptFetcherConfig(viper.GetViper())
+	flagFetcherMH, err := featureflag.NewFeatureFlagFetcher(configMH)
+	if err != nil {
+		appCtx.Logger().Error("Error initializing FeatureFlagFetcherMH", zap.String("featureFlagKey", featureFlagMH), zap.Error(err))
+	}
+
+	flagMH, err := flagFetcherMH.GetBooleanFlagForUser(context.TODO(), appCtx, featureFlagMH, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagMH), zap.Error(err))
+	} else {
+		isMobileHomeFeatureOn = flagMH.Match
+	}
+
 	query := appCtx.DB().EagerPreload(
 		"Contractor",
 		"PaymentRequests.PaymentServiceItems.PaymentServiceItemParams.ServiceItemParamKey",
@@ -234,8 +250,14 @@ func (f moveTaskOrderFetcher) FetchMoveTaskOrder(appCtx appcontext.AppContext, s
 			if loadErr != nil {
 				return &models.Move{}, apperror.NewQueryError("BoatShipment", loadErr, "")
 			}
+		} else if isMobileHomeFeatureOn && (mto.MTOShipments[i].ShipmentType == models.MTOShipmentTypeMobileHome) {
+			loadErrMH := appCtx.DB().Load(&mto.MTOShipments[i],
+				"MobileHome",
+			)
+			if loadErrMH != nil {
+				return &models.Move{}, apperror.NewQueryError("MobileHomeShipment", loadErrMH, "")
+			}
 		}
-
 		filteredShipments = append(filteredShipments, mto.MTOShipments[i])
 	}
 	mto.MTOShipments = filteredShipments

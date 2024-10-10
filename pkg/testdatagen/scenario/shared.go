@@ -360,7 +360,7 @@ func CreateMoveWithHHGAndPPM(appCtx appcontext.AppContext, userUploader *uploade
 	// If not ready for closeout, just submit the shipment
 	ppmShipmentStatus := models.PPMShipmentStatusSubmitted
 	if readyForCloseout {
-		ppmShipmentStatus = models.PPMShipmentStatusWaitingOnCustomer
+		ppmShipmentStatus = models.PPMShipmentStatusNeedsCloseout
 	}
 
 	factory.BuildPPMShipment(appCtx.DB(), []factory.Customization{
@@ -13562,4 +13562,210 @@ func createMultipleMovesThreeMovesPPMShipments(appCtx appcontext.AppContext) {
 			},
 		},
 	}, nil)
+}
+
+func CreateBoatHaulAwayMoveForSC(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+	oktaID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        moveInfo.UserID,
+				OktaID:    oktaID.String(),
+				OktaEmail: moveInfo.Email,
+				Active:    true,
+			}},
+	}, nil)
+
+	smWithBoat := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            moveInfo.SmID,
+				FirstName:     models.StringPointer(moveInfo.FirstName),
+				LastName:      models.StringPointer(moveInfo.LastName),
+				PersonalEmail: models.StringPointer(moveInfo.Email),
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithBoat,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      models.MoveStatusNeedsServiceCounseling,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	if *smWithBoat.Affiliation == models.AffiliationARMY || *smWithBoat.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildBoatShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.BoatShipment{
+				Type:           models.BoatShipmentTypeHaulAway,
+				Year:           models.IntPointer(2000),
+				Make:           models.StringPointer("Boat Make"),
+				Model:          models.StringPointer("Boat Model"),
+				LengthInInches: models.IntPointer(300),
+				WidthInInches:  models.IntPointer(108),
+				HeightInInches: models.IntPointer(72),
+				HasTrailer:     models.BoolPointer(true),
+				IsRoadworthy:   models.BoolPointer(false),
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return move
+}
+
+func CreateBoatHaulAwayMoveForTOO(appCtx appcontext.AppContext, userUploader *uploader.UserUploader, _ services.MoveRouter, moveInfo MoveCreatorInfo) models.Move {
+	oktaID := uuid.Must(uuid.NewV4())
+	submittedAt := time.Now()
+
+	user := factory.BuildUser(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.User{
+				ID:        moveInfo.UserID,
+				OktaID:    oktaID.String(),
+				OktaEmail: moveInfo.Email,
+				Active:    true,
+			}},
+	}, nil)
+
+	smWithBoat := factory.BuildExtendedServiceMember(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.ServiceMember{
+				ID:            moveInfo.SmID,
+				FirstName:     models.StringPointer(moveInfo.FirstName),
+				LastName:      models.StringPointer(moveInfo.LastName),
+				PersonalEmail: models.StringPointer(moveInfo.Email),
+				CacValidated:  true,
+			},
+		},
+		{
+			Model:    user,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	move := factory.BuildMove(appCtx.DB(), []factory.Customization{
+		{
+			Model:    smWithBoat,
+			LinkOnly: true,
+		},
+		{
+			Model: models.Move{
+				ID:          moveInfo.MoveID,
+				Locator:     moveInfo.MoveLocator,
+				Status:      models.MoveStatusSUBMITTED,
+				SubmittedAt: &submittedAt,
+			},
+		},
+		{
+			Model: models.UserUpload{},
+			ExtendedParams: &factory.UserUploadExtendedParams{
+				UserUploader: userUploader,
+				AppContext:   appCtx,
+			},
+		},
+	}, nil)
+
+	if *smWithBoat.Affiliation == models.AffiliationARMY || *smWithBoat.Affiliation == models.AffiliationAIRFORCE {
+		move.CloseoutOfficeID = &DefaultCloseoutOfficeID
+		testdatagen.MustSave(appCtx.DB(), &move)
+	}
+	mtoShipment := factory.BuildMTOShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.MTOShipment{
+				ShipmentType: models.MTOShipmentTypeBoatHaulAway,
+				Status:       models.MTOShipmentStatusSubmitted,
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildBoatShipment(appCtx.DB(), []factory.Customization{
+		{
+			Model: models.BoatShipment{
+				Type:           models.BoatShipmentTypeHaulAway,
+				Year:           models.IntPointer(2000),
+				Make:           models.StringPointer("Boat Make"),
+				Model:          models.StringPointer("Boat Model"),
+				LengthInInches: models.IntPointer(300),
+				WidthInInches:  models.IntPointer(108),
+				HeightInInches: models.IntPointer(72),
+				HasTrailer:     models.BoolPointer(true),
+				IsRoadworthy:   models.BoolPointer(false),
+			},
+		},
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+		{
+			Model:    mtoShipment,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	factory.BuildSignedCertification(appCtx.DB(), []factory.Customization{
+		{
+			Model:    move,
+			LinkOnly: true,
+		},
+	}, nil)
+
+	return move
 }
