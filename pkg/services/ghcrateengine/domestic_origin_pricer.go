@@ -14,11 +14,12 @@ import (
 )
 
 type domesticOriginPricer struct {
+	services.FeatureFlagFetcher
 }
 
 // NewDomesticOriginPricer creates a new pricer for domestic origin services
-func NewDomesticOriginPricer() services.DomesticOriginPricer {
-	return &domesticOriginPricer{}
+func NewDomesticOriginPricer(featureFlagFetcher services.FeatureFlagFetcher) services.DomesticOriginPricer {
+	return &domesticOriginPricer{featureFlagFetcher}
 }
 
 // Price determines the price for a domestic origin
@@ -125,7 +126,16 @@ func (p domesticOriginPricer) PriceUsingParams(appCtx appcontext.AppContext, par
 		isPPM = true
 	}
 
+	// Check if packing service items have been enabled for Mobile Home shipments
+	isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomeDOPEnabled)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
 	var isMobileHome = false
+	if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+		isMobileHome = true
+	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), serviceAreaOrigin, isPPM, isMobileHome)
 }

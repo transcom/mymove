@@ -107,7 +107,7 @@ func (suite *HandlerSuite) TestGetPPMCloseoutHandler() {
 		uuidForShipment, _ := uuid.NewV4()
 		officeUser := factory.BuildOfficeUser(nil, nil, nil)
 		handlerConfig := suite.HandlerConfig()
-		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{}, &mocks.PPMEstimator{})
+		fetcher := ppmcloseout.NewPPMCloseoutFetcher(suite.HandlerConfig().DTODPlanner(), &paymentrequest.RequestPaymentHelper{}, &mocks.PPMEstimator{}, suite.HandlerConfig().FeatureFlagFetcher())
 		request := httptest.NewRequest("GET", fmt.Sprintf("/ppm-shipments/%s/closeout", uuidForShipment.String()), nil)
 		request = suite.AuthenticateOfficeRequest(request, officeUser)
 

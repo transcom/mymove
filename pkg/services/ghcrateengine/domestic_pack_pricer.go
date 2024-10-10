@@ -10,16 +10,17 @@ import (
 )
 
 type domesticPackPricer struct {
+	services.FeatureFlagFetcher
 }
 
 // NewDomesticPackPricer creates a new pricer for the domestic pack service
-func NewDomesticPackPricer() services.DomesticPackPricer {
-	return &domesticPackPricer{}
+func NewDomesticPackPricer(featureFlagFetcher services.FeatureFlagFetcher) services.DomesticPackPricer {
+	return &domesticPackPricer{featureFlagFetcher}
 }
 
 // Price determines the price for a domestic pack service
 func (p domesticPackPricer) Price(appCtx appcontext.AppContext, contractCode string, referenceDate time.Time, weight unit.Pound, servicesScheduleOrigin int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
-	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM)
+	return priceDomesticPackUnpack(appCtx, models.ReServiceCodeDPK, contractCode, referenceDate, weight, servicesScheduleOrigin, isPPM, isMobileHome)
 }
 
 // PriceUsingParams determines the price for a domestic pack service given PaymentServiceItemParams
@@ -52,7 +53,16 @@ func (p domesticPackPricer) PriceUsingParams(appCtx appcontext.AppContext, param
 		isPPM = true
 	}
 
+	// Check if packing service items have been enabled for Mobile Home shipments
+	isMobileHomePackingItemOn, err := getFeatureFlagValue(appCtx, p.FeatureFlagFetcher, services.DomesticMobileHomePackingEnabled)
+	if err != nil {
+		return unit.Cents(0), nil, err
+	}
+
 	var isMobileHome = false
+	if isMobileHomePackingItemOn && params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+		isMobileHome = true
+	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Pound(weightBilled), servicesScheduleOrigin, isPPM, isMobileHome)
 }

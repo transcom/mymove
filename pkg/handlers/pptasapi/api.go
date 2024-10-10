@@ -24,7 +24,7 @@ func NewPPTASAPI(handlerConfig handlers.HandlerConfig) *pptasops.MymoveAPI {
 	pptasAPI := pptasops.NewMymoveAPI(pptasSpec)
 	pptasAPI.ServeError = handlers.ServeCustomError
 
-	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{})
+	ppmEstimator := ppmshipment.NewEstimatePPM(handlerConfig.DTODPlanner(), &paymentrequesthelper.RequestPaymentHelper{}, handlerConfig.FeatureFlagFetcher())
 	moveFetcher := move.NewMoveFetcher()
 	tacFetcher := transportationaccountingcode.NewTransportationAccountingCodeFetcher()
 	loaFetcher := lineofaccounting.NewLinesOfAccountingFetcher(tacFetcher)

@@ -12,11 +12,12 @@ import (
 
 // serviceItemPricer is a service object to price service items
 type serviceItemPricer struct {
+	services.FeatureFlagFetcher
 }
 
 // NewServiceItemPricer constructs a pricer for service items
-func NewServiceItemPricer() services.ServiceItemPricer {
-	return &serviceItemPricer{}
+func NewServiceItemPricer(featureFlagFetcher services.FeatureFlagFetcher) services.ServiceItemPricer {
+	return &serviceItemPricer{featureFlagFetcher}
 }
 
 // PriceServiceItem returns a price for any PaymentServiceItem
@@ -45,10 +46,10 @@ func (p serviceItemPricer) PriceServiceItem(appCtx appcontext.AppContext, item m
 }
 
 func (p serviceItemPricer) getPricer(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
-	return PricerForServiceItem(serviceCode)
+	return PricerForServiceItem(serviceCode, p.FeatureFlagFetcher)
 }
 
-func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPricer, error) {
+func PricerForServiceItem(serviceCode models.ReServiceCode, featureFlagFetcher services.FeatureFlagFetcher) (services.ParamsPricer, error) {
 	switch serviceCode {
 	case models.ReServiceCodeMS:
 		return NewManagementServicesPricer(), nil
@@ -59,9 +60,9 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 	case models.ReServiceCodeDSH:
 		return NewDomesticShorthaulPricer(), nil
 	case models.ReServiceCodeDOP:
-		return NewDomesticOriginPricer(), nil
+		return NewDomesticOriginPricer(featureFlagFetcher), nil
 	case models.ReServiceCodeDDP:
-		return NewDomesticDestinationPricer(), nil
+		return NewDomesticDestinationPricer(featureFlagFetcher), nil
 	case models.ReServiceCodeDDSHUT:
 		return NewDomesticDestinationShuttlingPricer(), nil
 	case models.ReServiceCodeDOSHUT:
@@ -71,11 +72,11 @@ func PricerForServiceItem(serviceCode models.ReServiceCode) (services.ParamsPric
 	case models.ReServiceCodeDUCRT:
 		return NewDomesticUncratingPricer(), nil
 	case models.ReServiceCodeDPK:
-		return NewDomesticPackPricer(), nil
+		return NewDomesticPackPricer(featureFlagFetcher), nil
 	case models.ReServiceCodeDNPK:
 		return NewDomesticNTSPackPricer(), nil
 	case models.ReServiceCodeDUPK:
-		return NewDomesticUnpackPricer(), nil
+		return NewDomesticUnpackPricer(featureFlagFetcher), nil
 	case models.ReServiceCodeFSC:
 		return NewFuelSurchargePricer(), nil
 	case models.ReServiceCodeDOFSIT:

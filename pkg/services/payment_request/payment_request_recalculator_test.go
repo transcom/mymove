@@ -58,7 +58,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestSuccess() 
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
-	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(mockFeatureFlagFetcher))
 	paymentRequest, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
 	suite.FatalNoError(err)
 
@@ -298,7 +298,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculatePaymentRequestErrors() {
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
-	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(mockFeatureFlagFetcher))
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 

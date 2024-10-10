@@ -123,6 +123,9 @@ func (p domesticShorthaulPricer) PriceUsingParams(appCtx appcontext.AppContext, 
 	}
 
 	var isMobileHome = false
+	if params[0].PaymentServiceItem.MTOServiceItem.MTOShipment.ShipmentType == models.MTOShipmentTypeMobileHome {
+		isMobileHome = true
+	}
 
 	return p.Price(appCtx, contractCode, referenceDate, unit.Miles(distanceZip), unit.Pound(weightBilled), serviceAreaOrigin, isMobileHome)
 }

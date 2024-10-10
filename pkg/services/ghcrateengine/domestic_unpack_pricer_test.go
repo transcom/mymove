@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -25,7 +26,8 @@ const (
 var dupkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC).AddDate(0, 0, -1)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticUnpackPricer() {
-	pricer := NewDomesticUnpackPricer()
+	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
+	pricer := NewDomesticUnpackPricer(mockFeatureFlagFetcher)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDUPK, dupkTestServicesScheduleDest, dupkTestIsPeakPeriod, dupkTestBasePriceCents, dupkTestContractYearName, dupkTestEscalationCompounded)

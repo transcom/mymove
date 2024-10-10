@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/route/mocks"
 	servicemocks "github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -30,7 +31,8 @@ func (suite *PPMCloseoutSuite) TestPPMShipmentCreator() {
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
 	mockPpmEstimator := &servicemocks.PPMEstimator{}
-	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper, mockPpmEstimator)
+	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
+	ppmCloseoutFetcher := NewPPMCloseoutFetcher(mockedPlanner, mockedPaymentRequestHelper, mockPpmEstimator, mockFeatureFlagFetcher)
 	serviceParams := mockServiceParamsTables()
 
 	suite.PreloadData(func() {

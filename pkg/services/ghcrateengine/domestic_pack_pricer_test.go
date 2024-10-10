@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -20,12 +21,14 @@ const (
 	dpkTestContractYearName       = "DPK Test Year"
 	dpkTestBasePriceCents         = unit.Cents(146)
 	dpkTestPriceCents             = unit.Cents(3192)
+	mobileHomeFactor              = 33.51
 )
 
 var dpkTestRequestedPickupDate = time.Date(testdatagen.TestYear, peakStart.month, peakStart.day, 0, 0, 0, 0, time.UTC)
 
 func (suite *GHCRateEngineServiceSuite) TestDomesticPackPricer() {
-	pricer := NewDomesticPackPricer()
+	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
+	pricer := NewDomesticPackPricer(mockFeatureFlagFetcher)
 
 	suite.Run("success using PaymentServiceItemParams", func() {
 		suite.setupDomesticOtherPrice(models.ReServiceCodeDPK, dpkTestServicesScheduleOrigin, dpkTestIsPeakPeriod, dpkTestBasePriceCents, dpkTestContractYearName, dpkTestEscalationCompounded)

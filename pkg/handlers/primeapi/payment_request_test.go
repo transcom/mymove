@@ -24,6 +24,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/mocks"
 	paymentrequest "github.com/transcom/mymove/pkg/services/payment_request"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -31,6 +32,8 @@ const (
 	dlhTestServiceArea = "004"
 	dlhTestWeight      = unit.Pound(4000)
 )
+
+var mockFeatureFlagFetcher = testhelpers.SetupMockFeatureFlagFetcher(true)
 
 type createPaymentRequestHandlerSubtestData struct {
 	moveTaskOrderID  uuid.UUID
@@ -750,7 +753,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
-			ghcrateengine.NewServiceItemPricer(),
+			ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()),
 		)
 
 		handler := CreatePaymentRequestHandler{
@@ -808,7 +811,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
-			ghcrateengine.NewServiceItemPricer(),
+			ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()),
 		)
 
 		handler := CreatePaymentRequestHandler{
@@ -852,7 +855,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerNewPaymentRequestCreat
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
-			ghcrateengine.NewServiceItemPricer(),
+			ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()),
 		)
 
 		handler := CreatePaymentRequestHandler{
@@ -909,7 +912,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
-			ghcrateengine.NewServiceItemPricer(),
+			ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()),
 		)
 
 		handler := CreatePaymentRequestHandler{
@@ -974,7 +977,7 @@ func (suite *HandlerSuite) TestCreatePaymentRequestHandlerInvalidMTOReferenceID(
 
 		paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 			planner,
-			ghcrateengine.NewServiceItemPricer(),
+			ghcrateengine.NewServiceItemPricer(suite.HandlerConfig().FeatureFlagFetcher()),
 		)
 
 		handler := CreatePaymentRequestHandler{

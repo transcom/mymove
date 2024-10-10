@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
@@ -15,7 +16,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
+func priceDomesticPackUnpack(appCtx appcontext.AppContext, packUnpackCode models.ReServiceCode, contractCode string, referenceDate time.Time, weight unit.Pound, servicesSchedule int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
 	// Validate parameters
 	var domOtherPriceCode models.ReServiceCode
 	switch packUnpackCode {
@@ -504,4 +505,17 @@ func escalatePriceForContractYear(appCtx appcontext.AppContext, contractID uuid.
 func roundToPrecision(value float64, precision int) float64 {
 	ratio := math.Pow(10, float64(precision))
 	return math.Round(value*ratio) / ratio
+}
+
+func getFeatureFlagValue(appCtx appcontext.AppContext, featureFlagFetcher services.FeatureFlagFetcher, featureFlagName string) (bool, error) {
+	flagValue := false
+	flag, err := featureFlagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, featureFlagName, map[string]string{})
+	if err != nil {
+		appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
+		return flagValue, err
+	} else {
+		flagValue = flag.Match
+	}
+
+	return flagValue, nil
 }

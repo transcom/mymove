@@ -8,13 +8,16 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 )
+
+var mockFeatureFlagFetcher = testhelpers.SetupMockFeatureFlagFetcher(true)
 
 func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 	suite.Run("golden path", func() {
 		suite.setupPriceServiceItemData()
 		paymentServiceItem := suite.setupPriceServiceItem()
-		serviceItemPricer := NewServiceItemPricer()
+		serviceItemPricer := NewServiceItemPricer(mockFeatureFlagFetcher)
 
 		priceCents, _, err := serviceItemPricer.PriceServiceItem(suite.AppContextForTest(), paymentServiceItem)
 		suite.NoError(err)
@@ -23,7 +26,7 @@ func (suite *GHCRateEngineServiceSuite) TestPriceServiceItem() {
 
 	suite.Run("not implemented pricer", func() {
 		suite.setupPriceServiceItemData()
-		serviceItemPricer := NewServiceItemPricer()
+		serviceItemPricer := NewServiceItemPricer(mockFeatureFlagFetcher)
 
 		badPaymentServiceItem := factory.BuildPaymentServiceItem(suite.DB(), []factory.Customization{
 			{
@@ -67,7 +70,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 
 	for _, testCase := range testCases {
 		suite.Run(fmt.Sprintf("testing pricer for service code %s", testCase.serviceCode), func() {
-			serviceItemPricerInterface := NewServiceItemPricer()
+			serviceItemPricerInterface := NewServiceItemPricer(mockFeatureFlagFetcher)
 			serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
 
 			pricer, err := serviceItemPricer.getPricer(testCase.serviceCode)
@@ -77,7 +80,7 @@ func (suite *GHCRateEngineServiceSuite) TestGetPricer() {
 	}
 
 	suite.Run("pricer not found", func() {
-		serviceItemPricerInterface := NewServiceItemPricer()
+		serviceItemPricerInterface := NewServiceItemPricer(mockFeatureFlagFetcher)
 		serviceItemPricer := serviceItemPricerInterface.(*serviceItemPricer)
 
 		_, err := serviceItemPricer.getPricer("BOGUS")

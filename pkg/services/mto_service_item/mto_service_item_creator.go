@@ -37,7 +37,7 @@ type mtoServiceItemCreator struct {
 	originPricer        services.DomesticOriginPricer
 	destinationPricer   services.DomesticDestinationPricer
 	fuelSurchargePricer services.FuelSurchargePricer
-	services.FeatureFlagFetcher
+	featureFlagFetcher  services.FeatureFlagFetcher
 }
 
 func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext, serviceItem *models.MTOServiceItem, mtoShipment models.MTOShipment) (unit.Cents, error) {
@@ -57,7 +57,7 @@ func (o *mtoServiceItemCreator) findEstimatedPrice(appCtx appcontext.AppContext,
 		/** Feature Flag - Mobile Home  **/
 		featureFlagName := "mobile_home"
 		isMobileHomeFeatureOn := false
-		flag, err := o.FeatureFlagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, featureFlagName, map[string]string{})
+		flag, err := o.featureFlagFetcher.GetBooleanFlagForUser(appCtx.DB().Context(), appCtx, featureFlagName, map[string]string{})
 		if err != nil {
 			appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
 			isMobileHomeFeatureOn = false
@@ -734,13 +734,13 @@ func (o *mtoServiceItemCreator) makeExtraSITServiceItem(appCtx appcontext.AppCon
 }
 
 // NewMTOServiceItemCreator returns a new MTO service item creator
-func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, unpackPricer services.DomesticUnpackPricer, packPricer services.DomesticPackPricer, linehaulPricer services.DomesticLinehaulPricer, shorthaulPricer services.DomesticShorthaulPricer, originPricer services.DomesticOriginPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer) services.MTOServiceItemCreator {
+func NewMTOServiceItemCreator(planner route.Planner, builder createMTOServiceItemQueryBuilder, moveRouter services.MoveRouter, unpackPricer services.DomesticUnpackPricer, packPricer services.DomesticPackPricer, linehaulPricer services.DomesticLinehaulPricer, shorthaulPricer services.DomesticShorthaulPricer, originPricer services.DomesticOriginPricer, destinationPricer services.DomesticDestinationPricer, fuelSurchargePricer services.FuelSurchargePricer, featureFlagFetcher services.FeatureFlagFetcher) services.MTOServiceItemCreator {
 	// used inside a transaction and mocking
 	createNewBuilder := func() createMTOServiceItemQueryBuilder {
 		return query.NewQueryBuilder()
 	}
 
-	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, unpackPricer: unpackPricer, packPricer: packPricer, linehaulPricer: linehaulPricer, shorthaulPricer: shorthaulPricer, originPricer: originPricer, destinationPricer: destinationPricer, fuelSurchargePricer: fuelSurchargePricer}
+	return &mtoServiceItemCreator{planner: planner, builder: builder, createNewBuilder: createNewBuilder, moveRouter: moveRouter, unpackPricer: unpackPricer, packPricer: packPricer, linehaulPricer: linehaulPricer, shorthaulPricer: shorthaulPricer, originPricer: originPricer, destinationPricer: destinationPricer, fuelSurchargePricer: fuelSurchargePricer, featureFlagFetcher: featureFlagFetcher}
 }
 
 func validateTimeMilitaryField(_ appcontext.AppContext, timeMilitary string) error {

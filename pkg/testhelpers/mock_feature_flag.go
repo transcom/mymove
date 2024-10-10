@@ -1,0 +1,46 @@
+package testhelpers
+
+import (
+	"context"
+
+	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/services"
+	"github.com/transcom/mymove/pkg/services/mocks"
+)
+
+func MockGetFlagFunc(_ context.Context, _ *zap.Logger, entityID string, key string, _ map[string]string, mockVariant string, flagValue bool) (services.FeatureFlag, error) {
+	return services.FeatureFlag{
+		Entity:    entityID,
+		Key:       key,
+		Match:     flagValue,
+		Variant:   mockVariant,
+		Namespace: "test",
+	}, nil
+}
+
+func SetupMockFeatureFlagFetcher(flagValue bool) *mocks.FeatureFlagFetcher {
+	mockFeatureFlagFetcher := &mocks.FeatureFlagFetcher{}
+	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+		mock.Anything,
+		mock.AnythingOfType("*appcontext.appContext"),
+		mock.AnythingOfType("string"),
+		mock.Anything,
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", flagValue)
+	})
+
+	return mockFeatureFlagFetcher
+}
+
+func EditFeatureFlagMockValue(mockFeatureFlagFetcher *mocks.FeatureFlagFetcher, flagKey string, flagValue bool) {
+	mockFeatureFlagFetcher.On("GetBooleanFlagForUser",
+		mock.MatchedBy(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) bool {
+			return key == flagKey // Only mock this function call if FF key matches the one passed in
+		}),
+	).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+		return MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", flagValue)
+	})
+}

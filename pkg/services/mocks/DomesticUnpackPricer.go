@@ -20,32 +20,32 @@ type DomesticUnpackPricer struct {
 	mock.Mock
 }
 
-// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM
-func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool) (unit.Cents, services.PricingDisplayParams, error) {
-	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
+// Price provides a mock function with given fields: appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM, isMobileHome
+func (_m *DomesticUnpackPricer) Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int, isPPM bool, isMobileHome bool) (unit.Cents, services.PricingDisplayParams, error) {
+	ret := _m.Called(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 
 	var r0 unit.Cents
 	var r1 services.PricingDisplayParams
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
-		return rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool, bool) (unit.Cents, services.PricingDisplayParams, error)); ok {
+		return rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) unit.Cents); ok {
-		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool, bool) unit.Cents); ok {
+		r0 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 	} else {
 		r0 = ret.Get(0).(unit.Cents)
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) services.PricingDisplayParams); ok {
-		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool, bool) services.PricingDisplayParams); ok {
+		r1 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 	} else {
 		if ret.Get(1) != nil {
 			r1 = ret.Get(1).(services.PricingDisplayParams)
 		}
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool) error); ok {
-		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, string, time.Time, unit.Pound, int, bool, bool) error); ok {
+		r2 = rf(appCtx, contractCode, requestedPickupDate, weight, servicesScheduleDest, isPPM, isMobileHome)
 	} else {
 		r2 = ret.Error(2)
 	}

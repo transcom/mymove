@@ -12,13 +12,15 @@ import (
 	prhelpermocks "github.com/transcom/mymove/pkg/payment_request/mocks"
 	"github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *PPMShipmentSuite) TestPPMEstimator() {
 	mockedPlanner := &mocks.Planner{}
 	mockedPaymentRequestHelper := &prhelpermocks.Helper{}
-	ppmEstimator := NewEstimatePPM(mockedPlanner, mockedPaymentRequestHelper)
+	mockFeatureFlagFetcher := testhelpers.SetupMockFeatureFlagFetcher(true)
+	ppmEstimator := NewEstimatePPM(mockedPlanner, mockedPaymentRequestHelper, mockFeatureFlagFetcher)
 
 	// To avoid creating all of the re_services and their corresponding params using factories, we can create this
 	// mapping to help mock the response

@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/gofrs/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/cli"
 	"github.com/transcom/mymove/pkg/etag"
 	"github.com/transcom/mymove/pkg/factory"
 	fakedata "github.com/transcom/mymove/pkg/fakedata_approved"
@@ -22,6 +24,7 @@ import (
 	routemocks "github.com/transcom/mymove/pkg/route/mocks"
 	"github.com/transcom/mymove/pkg/services"
 	"github.com/transcom/mymove/pkg/services/address"
+	"github.com/transcom/mymove/pkg/services/featureflag"
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	movetaskorder "github.com/transcom/mymove/pkg/services/move_task_order"
@@ -4207,7 +4210,12 @@ func createHHGWithOriginSITServiceItems(
 	).Return(400, nil)
 
 	queryBuilder := query.NewQueryBuilder()
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
 
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
 	signedCertificationUpdater := signedcertification.NewSignedCertificationUpdater()
@@ -4231,7 +4239,7 @@ func createHHGWithOriginSITServiceItems(
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "30813").Return(2361, nil)
 
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, featureFlagFetcher)
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
@@ -4307,7 +4315,7 @@ func createHHGWithOriginSITServiceItems(
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		planner,
-		ghcrateengine.NewServiceItemPricer(),
+		ghcrateengine.NewServiceItemPricer(featureFlagFetcher),
 	)
 
 	paymentRequest := models.PaymentRequest{
@@ -4471,7 +4479,12 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 		mock.Anything,
 	).Return(400, nil)
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
 
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
@@ -4496,7 +4509,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"),
 		"90210", "30813").Return(2361, nil)
 
-	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, &mocks.FeatureFlagFetcher{})
+	shipmentUpdater := mtoshipment.NewMTOShipmentStatusUpdater(queryBuilder, serviceItemCreator, planner, featureFlagFetcher)
 	_, updateErr := shipmentUpdater.UpdateMTOShipmentStatus(appCtx, shipment.ID, models.MTOShipmentStatusApproved, nil, nil, etag.GenerateEtag(shipment.UpdatedAt))
 	if updateErr != nil {
 		logger.Fatal("Error updating shipment status", zap.Error(updateErr))
@@ -4568,7 +4581,7 @@ func createHHGWithDestinationSITServiceItems(appCtx appcontext.AppContext, prime
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		planner,
-		ghcrateengine.NewServiceItemPricer(),
+		ghcrateengine.NewServiceItemPricer(featureFlagFetcher),
 	)
 
 	paymentRequest := models.PaymentRequest{
@@ -4877,7 +4890,13 @@ func createHHGWithPaymentServiceItems(
 	planner := &routemocks.Planner{}
 	planner.On("ZipTransitDistance", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, mock.Anything).Return(123, nil).Once()
 
-	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(), ghcrateengine.NewDomesticPackPricer(), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(), ghcrateengine.NewDomesticDestinationPricer(), ghcrateengine.NewFuelSurchargePricer())
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+	if err != nil {
+		logger.Panic(fmt.Sprintf("Error setting up feature flag fetcher: %s", err))
+	}
+
+	serviceItemCreator := mtoserviceitem.NewMTOServiceItemCreator(planner, queryBuilder, moveRouter, ghcrateengine.NewDomesticUnpackPricer(featureFlagFetcher), ghcrateengine.NewDomesticPackPricer(featureFlagFetcher), ghcrateengine.NewDomesticLinehaulPricer(), ghcrateengine.NewDomesticShorthaulPricer(), ghcrateengine.NewDomesticOriginPricer(featureFlagFetcher), ghcrateengine.NewDomesticDestinationPricer(featureFlagFetcher), ghcrateengine.NewFuelSurchargePricer(), featureFlagFetcher)
 
 	//////////////////////////////////////////////////
 	signedCertificationCreator := signedcertification.NewSignedCertificationCreator()
@@ -5200,7 +5219,7 @@ func createHHGWithPaymentServiceItems(
 
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		planner,
-		ghcrateengine.NewServiceItemPricer(),
+		ghcrateengine.NewServiceItemPricer(featureFlagFetcher),
 	)
 
 	paymentRequest := models.PaymentRequest{
@@ -5502,9 +5521,12 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		mock.Anything,
 	).Return(910, nil)
 
+	v := viper.New()
+	featureFlagFetcher, err := featureflag.NewFeatureFlagFetcher(cli.GetFliptFetcherConfig(v))
+
 	paymentRequestCreator := paymentrequest.NewPaymentRequestCreator(
 		planner,
-		ghcrateengine.NewServiceItemPricer(),
+		ghcrateengine.NewServiceItemPricer(featureFlagFetcher),
 	)
 
 	paymentRequest := &models.PaymentRequest{
@@ -5529,9 +5551,9 @@ func createHHGMoveWithPaymentRequest(appCtx appcontext.AppContext, userUploader 
 		},
 	}
 
-	paymentRequest, err := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
+	paymentRequest, paymentRequestErr := paymentRequestCreator.CreatePaymentRequestCheck(appCtx, paymentRequest)
 
-	if err != nil {
+	if paymentRequestErr != nil {
 		logger.Fatal("error while creating payment request:", zap.Error(err))
 	}
 	logger.Debug("create payment request ok: ", zap.Any("", paymentRequest))

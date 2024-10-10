@@ -14,7 +14,10 @@ import (
 	"github.com/transcom/mymove/pkg/services/ghcrateengine"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/services/query"
+	"github.com/transcom/mymove/pkg/testhelpers"
 )
+
+var mockFeatureFlagFetcher = testhelpers.SetupMockFeatureFlagFetcher(true)
 
 func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSuccess() {
 	// Setup baseline move/shipment/service items data along with needed rate data.
@@ -30,7 +33,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestSu
 	).Return(recalculateTestZip3Distance, nil)
 
 	// Create an initial payment request.
-	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(mockFeatureFlagFetcher))
 
 	// Payment Request 1
 	paymentRequest1, err := creator.CreatePaymentRequestCheck(suite.AppContextForTest(), &paymentRequestArg)
@@ -138,7 +141,7 @@ func (suite *PaymentRequestServiceSuite) TestRecalculateShipmentPaymentRequestEr
 		recalculateTestDestinationZip,
 	).Return(recalculateTestZip3Distance, nil)
 
-	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer())
+	creator := NewPaymentRequestCreator(mockPlanner, ghcrateengine.NewServiceItemPricer(mockFeatureFlagFetcher))
 	statusUpdater := NewPaymentRequestStatusUpdater(query.NewQueryBuilder())
 	recalculator := NewPaymentRequestRecalculator(creator, statusUpdater)
 	shipmentRecalculator := NewPaymentRequestShipmentRecalculator(recalculator)

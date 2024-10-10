@@ -1,6 +1,7 @@
 package ppmshipment
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -8,6 +9,7 @@ import (
 	"github.com/gofrs/uuid"
 	"github.com/stretchr/testify/mock"
 
+	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
@@ -17,6 +19,7 @@ import (
 	"github.com/transcom/mymove/pkg/services/address"
 	"github.com/transcom/mymove/pkg/services/mocks"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/testhelpers"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -35,6 +38,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 	// setUpForTests - Sets up objects/mocks that need to be set up on a per-test basis.
 	setUpForTests := func(estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+			return testhelpers.MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", true)
+		})
 		ppmEstimator.
 			On(
 				"FinalIncentiveWithDefaultChecks",
@@ -62,6 +73,14 @@ func (suite *PPMShipmentSuite) TestUpdatePPMShipment() {
 
 	setUpForFinalIncentiveTests := func(finalIncentiveAmount *unit.Cents, finalIncentiveError error, estimatedIncentiveAmount *unit.Cents, sitEstimatedCost *unit.Cents, estimatedIncentiveError error) (subtestData updateSubtestData) {
 		ppmEstimator := mocks.PPMEstimator{}
+		ppmEstimator.On("GetBooleanFlagForUser",
+			mock.Anything,
+			mock.AnythingOfType("*appcontext.appContext"),
+			mock.AnythingOfType("string"),
+			mock.Anything,
+		).Return(func(ctx context.Context, appCtx appcontext.AppContext, key string, flagContext map[string]string) (services.FeatureFlag, error) {
+			return testhelpers.MockGetFlagFunc(ctx, appCtx.Logger(), "user@example.com", key, flagContext, "", true)
+		})
 		ppmEstimator.
 			On(
 				"FinalIncentiveWithDefaultChecks",
