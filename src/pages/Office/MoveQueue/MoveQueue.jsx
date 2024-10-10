@@ -150,9 +150,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
         'Assigned',
         (row) => {
           return !row?.assignable ? (
-            <div>{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
+            <div data-testid="assigned-col">{`${row.assignedTo?.lastName}, ${row.assignedTo?.firstName}`}</div>
           ) : (
-            <div data-label="assignedSelect" data-testid="assigned-select" className={styles.assignedToCol}>
+            <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
                 onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TOO)}
