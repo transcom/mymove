@@ -103,6 +103,6 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 		suite.Nil(address)
 		suite.NotNil(err)
-		suite.Equal("No county found for provided zip code 11111", err.Error())
+		suite.Equal("No county found for provided zip code 11111.", err.Error())
 	})
 }
