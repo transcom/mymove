@@ -97,6 +97,11 @@ export class Summary extends Component {
         enableMobileHome: enabled,
       });
     });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
+      this.setState({
+        enableMobileHome: enabled,
+      });
+    });
   }
 
   handleEditClick = (path) => {
