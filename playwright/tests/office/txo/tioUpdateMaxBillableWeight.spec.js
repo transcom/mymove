@@ -24,7 +24,7 @@ test.describe('TIO user', () => {
     await expect(page.getByTestId('MovePaymentRequests')).toBeVisible();
 
     // Review Weights
-    const reviewWeightsBtn = page.locator('#billable-weights').getByText('Review weights');
+    const reviewWeightsBtn = page.locator('#billable-weights').getByText('Review shipment weights');
     await reviewWeightsBtn.click();
 
     await page.getByRole('heading', { name: 'Review weights' }).waitFor({ state: 'visible' });

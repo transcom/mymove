@@ -4678,8 +4678,8 @@ definitions:
   FetchLineOfAccountingPayload:
     type: object
     properties:
-      serviceMemberAffiliation:
-        $ref: 'definitions/Affiliation.yaml'
+      departmentIndicator:
+        $ref: 'definitions/DepartmentIndicator.yaml'
       effectiveDate:
         description: >
           The effective date for the Line Of Accounting (LOA) being fetched. Eg, the orders issue date or the Non-Temporary Storage (NTS) Move Task Order (MTO) approval date.
@@ -6031,7 +6031,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -6439,7 +6439,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'

@@ -567,7 +567,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	var pickupAddress primev3messages.Address
 	var secondaryPickupAddress primev3messages.Address
 	var tertiaryPickupAddress primev3messages.Address
-	var destinationAddress primev3messages.Address
+	var destinationAddress primev3messages.PPMDestinationAddress
 	var secondaryDestinationAddress primev3messages.Address
 	var tertiaryDestinationAddress primev3messages.Address
 
@@ -579,7 +579,7 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 		StreetAddress2: address.StreetAddress2,
 		StreetAddress3: address.StreetAddress3,
 	}
-	destinationAddress = primev3messages.Address{
+	destinationAddress = primev3messages.PPMDestinationAddress{
 		City:           &address.City,
 		PostalCode:     &address.PostalCode,
 		State:          &address.State,
@@ -621,11 +621,13 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	}
 
 	ppmShipment := primev3messages.CreatePPMShipment{
-		ExpectedDepartureDate:       expectedDepartureDate,
-		PickupAddress:               struct{ primev3messages.Address }{pickupAddress},
-		SecondaryPickupAddress:      struct{ primev3messages.Address }{secondaryPickupAddress},
-		TertiaryPickupAddress:       struct{ primev3messages.Address }{tertiaryPickupAddress},
-		DestinationAddress:          struct{ primev3messages.Address }{destinationAddress},
+		ExpectedDepartureDate:  expectedDepartureDate,
+		PickupAddress:          struct{ primev3messages.Address }{pickupAddress},
+		SecondaryPickupAddress: struct{ primev3messages.Address }{secondaryPickupAddress},
+		TertiaryPickupAddress:  struct{ primev3messages.Address }{tertiaryPickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
 		SecondaryDestinationAddress: struct{ primev3messages.Address }{secondaryDestinationAddress},
 		TertiaryDestinationAddress:  struct{ primev3messages.Address }{tertiaryDestinationAddress},
 		SitExpected:                 &sitExpected,
@@ -649,6 +651,151 @@ func (suite *PayloadsSuite) TestPPMShipmentModelFromCreate() {
 	suite.True(*model.HasTertiaryPickupAddress)
 	suite.True(*model.HasTertiaryDestinationAddress)
 	suite.NotNil(model)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromCreate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "12345",
+	}
+
+	var pickupAddress primev3messages.Address
+	var destinationAddress primev3messages.PPMDestinationAddress
+
+	pickupAddress = primev3messages.Address{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	destinationAddress = primev3messages.PPMDestinationAddress{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: models.StringPointer(""), // empty string
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	ppmShipment := primev3messages.CreatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model := PPMShipmentModelFromCreate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.Equal(models.PPMShipmentStatusSubmitted, model.Status)
+	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+
+	// test when street address 1 contains white spaces
+	destinationAddress.StreetAddress1 = models.StringPointer("  ")
+	ppmShipmentWhiteSpaces := primev3messages.CreatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model2 := PPMShipmentModelFromCreate(&ppmShipmentWhiteSpaces)
+	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+
+	// test with valid street address 2
+	streetAddress1 := "1234 Street"
+	destinationAddress.StreetAddress1 = &streetAddress1
+	ppmShipmentValidDestinatonStreet1 := primev3messages.CreatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model3 := PPMShipmentModelFromCreate(&ppmShipmentValidDestinatonStreet1)
+	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
+}
+
+func (suite *PayloadsSuite) TestPPMShipmentModelWithOptionalDestinationStreet1FromUpdate() {
+	time := time.Now()
+	expectedDepartureDate := handlers.FmtDatePtr(&time)
+
+	address := models.Address{
+		StreetAddress1: "some address",
+		City:           "city",
+		State:          "state",
+		PostalCode:     "12345",
+	}
+
+	var pickupAddress primev3messages.Address
+	var destinationAddress primev3messages.PPMDestinationAddress
+
+	pickupAddress = primev3messages.Address{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: &address.StreetAddress1,
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+	destinationAddress = primev3messages.PPMDestinationAddress{
+		City:           &address.City,
+		PostalCode:     &address.PostalCode,
+		State:          &address.State,
+		StreetAddress1: models.StringPointer(""), // empty string
+		StreetAddress2: address.StreetAddress2,
+		StreetAddress3: address.StreetAddress3,
+	}
+
+	ppmShipment := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model := PPMShipmentModelFromUpdate(&ppmShipment)
+
+	suite.NotNil(model)
+	suite.Equal(model.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+
+	// test when street address 1 contains white spaces
+	destinationAddress.StreetAddress1 = models.StringPointer("  ")
+	ppmShipmentWhiteSpaces := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model2 := PPMShipmentModelFromUpdate(&ppmShipmentWhiteSpaces)
+	suite.Equal(model2.DestinationAddress.StreetAddress1, models.STREET_ADDRESS_1_NOT_PROVIDED)
+
+	// test with valid street address 2
+	streetAddress1 := "1234 Street"
+	destinationAddress.StreetAddress1 = &streetAddress1
+	ppmShipmentValidDestinatonStreet1 := primev3messages.UpdatePPMShipment{
+		ExpectedDepartureDate: expectedDepartureDate,
+		PickupAddress:         struct{ primev3messages.Address }{pickupAddress},
+		DestinationAddress: struct {
+			primev3messages.PPMDestinationAddress
+		}{destinationAddress},
+	}
+
+	model3 := PPMShipmentModelFromUpdate(&ppmShipmentValidDestinatonStreet1)
+	suite.Equal(model3.DestinationAddress.StreetAddress1, streetAddress1)
 }
 
 func (suite *PayloadsSuite) TestCountryModel_WithValidCountry() {
