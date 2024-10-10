@@ -13,7 +13,7 @@ type ReOconusRateArea struct {
 	RateAreaId         uuid.UUID `json:"rate_area_id" db:"rate_area_id"`
 	CountryId          uuid.UUID `json:"country_id" db:"country_id"`
 	UsPostRegionCityId uuid.UUID `json:"us_post_region_city_id" db:"us_post_region_city_id"`
-	InactiveFlag       bool      `json:"inactive_flag" db:"inactive_flag"`
+	Active             bool      `json:"active" db:"active"`
 }
 
 func (ReOconusRateArea) TableName() string {

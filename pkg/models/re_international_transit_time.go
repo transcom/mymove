@@ -14,7 +14,7 @@ type ReInternationalTransitTime struct {
 	DestinationRateAreaId uuid.UUID `json:"destination_rate_area_id" db:"destination_rate_area_id"`
 	HhgTransitTime        int       `json:"hhg_transit_time" db:"hhg_transit_time"`
 	UbTransitTime         int       `json:"ub_transit_time" db:"ub_transit_time"`
-	InactiveFlag          bool      `json:"inactive_flag" db:"inactive_flag"`
+	Active                bool      `json:"active" db:"active"`
 }
 
 func (ReInternationalTransitTime) TableName() string {
