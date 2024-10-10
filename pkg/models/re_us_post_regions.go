@@ -16,6 +16,6 @@ type ReUsPostRegions struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (d ReUsPostRegions) TableName() string {
+func (r ReUsPostRegions) TableName() string {
 	return "re_us_post_regions"
 }

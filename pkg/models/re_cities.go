@@ -17,6 +17,6 @@ type ReCities struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (d ReCities) TableName() string {
+func (c ReCities) TableName() string {
 	return "re_cities"
 }

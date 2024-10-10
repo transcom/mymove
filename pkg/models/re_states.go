@@ -16,6 +16,6 @@ type ReStates struct {
 }
 
 // TableName overrides the table name used by Pop.
-func (d ReStates) TableName() string {
+func (s ReStates) TableName() string {
 	return "re_states"
 }
