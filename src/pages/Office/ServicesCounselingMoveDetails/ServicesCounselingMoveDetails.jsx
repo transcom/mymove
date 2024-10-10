@@ -409,8 +409,8 @@ const ServicesCounselingMoveDetails = ({
 
   const { mutate: mutateCancelMove } = useMutation(cancelMove, {
     onSuccess: (data) => {
-      queryClient.setQueryData([MOVES, data.id], data);
-      queryClient.invalidateQueries([MOVES, data.id]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
       setAlertMessage('Move canceled.');
       setAlertType('success');
     },

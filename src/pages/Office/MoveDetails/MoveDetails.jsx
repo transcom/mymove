@@ -112,8 +112,11 @@ const MoveDetails = ({
 
   const { mutate: mutateCancelMove } = useMutation(cancelMove, {
     onSuccess: (data) => {
-      queryClient.setQueryData([MOVES, data.moveTaskOrderID], data);
-      queryClient.invalidateQueries([MOVES, data.moveTaskOrderID]);
+      queryClient.setQueryData([MOVES, data.locator], data);
+      queryClient.invalidateQueries([MOVES, data.locator]);
+      queryClient
+        .invalidateQueries([MTO_SHIPMENTS, data.moveTaskOrderID])
+        .then(() => queryClient.refetchQueries([MTO_SHIPMENTS, data.moveTaskOrderID]));
       setAlertMessage('Move canceled.');
       setAlertType('success');
     },
@@ -443,7 +446,7 @@ const MoveDetails = ({
             )}
           </Grid>
           <Grid row col={12}>
-            {!isMoveLocked && (
+            {!isMoveLocked && move.status !== MOVE_STATUSES.CANCELED && (
               <Restricted to={permissionTypes.createTxoShipment}>
                 <ButtonDropdown
                   ariaLabel="Add a new shipment"
