@@ -2,9 +2,9 @@ CREATE TABLE IF NOT EXISTS re_oconus_rate_areas
 (id 			uuid		NOT NULL,
 rate_area_id	uuid		NOT NULL,
 country_id	    uuid	    NOT NULL
-	CONSTRAINT re_oconus_rate_areas_fkey01 REFERENCES re_countries (id),
+	CONSTRAINT fk_re_oconus_rate_areas_country_id REFERENCES re_countries (id),
 us_post_region_cities_id	uuid	NOT NULL
-	CONSTRAINT re_oconus_rate_areas_fkey02 REFERENCES us_post_region_cities (id),
+	CONSTRAINT fk_re_oconus_rate_areas_usprc_id REFERENCES us_post_region_cities (id),
 created_at		timestamp	NOT NULL DEFAULT NOW(),
 updated_at		timestamp	NOT NULL DEFAULT NOW(),
 inactive_flag	varchar(1)  DEFAULT 'N',
@@ -20,9 +20,9 @@ COMMENT ON COLUMN re_oconus_rate_areas.inactive_flag IS 'Set to Y if record is i
 CREATE TABLE IF NOT EXISTS re_intl_transit_times
 (id 						uuid		NOT NULL,
 origin_rate_area_id			uuid		NOT NULL
-	CONSTRAINT re_intl_transit_times_fkey01 REFERENCES re_rate_areas (id),
+	CONSTRAINT fk_re_intl_transit_times_orgn_rate_area_id REFERENCES re_rate_areas (id),
 destination_rate_area_id	uuid		NOT NULL
-	CONSTRAINT re_intl_transit_times_fkey02 REFERENCES re_rate_areas (id),
+	CONSTRAINT fk_re_intl_transit_times_dstn_rate_area_id REFERENCES re_rate_areas (id),
 hhg_transit_time			int,
 ub_transit_time				int,
 created_at		timestamp	NOT NULL DEFAULT NOW(),
