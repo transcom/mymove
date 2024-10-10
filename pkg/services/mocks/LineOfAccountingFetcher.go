@@ -20,6 +20,10 @@ type LineOfAccountingFetcher struct {
 func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
 	ret := _m.Called(loa)
 
+	if len(ret) == 0 {
+		panic("no return value specified for BuildFullLineOfAccountingString")
+	}
+
 	var r0 string
 	if rf, ok := ret.Get(0).(func(models.LineOfAccounting) string); ok {
 		r0 = rf(loa)
@@ -33,6 +37,10 @@ func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.Li
 // FetchLongLinesOfAccounting provides a mock function with given fields: departmentIndicator, ordersIssueDate, tacCode, appCtx
 func (_m *LineOfAccountingFetcher) FetchLongLinesOfAccounting(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
 	ret := _m.Called(departmentIndicator, ordersIssueDate, tacCode, appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchLongLinesOfAccounting")
+	}
 
 	var r0 []models.LineOfAccounting
 	var r1 error

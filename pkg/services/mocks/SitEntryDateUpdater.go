@@ -18,6 +18,10 @@ type SitEntryDateUpdater struct {
 func (_m *SitEntryDateUpdater) UpdateSitEntryDate(appCtx appcontext.AppContext, sitEntryDateUpdate *models.SITEntryDateUpdate) (*models.MTOServiceItem, error) {
 	ret := _m.Called(appCtx, sitEntryDateUpdate)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateSitEntryDate")
+	}
+
 	var r0 *models.MTOServiceItem
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.SITEntryDateUpdate) (*models.MTOServiceItem, error)); ok {
