@@ -249,10 +249,17 @@ describe('EditPPMHeaderSummaryModal', () => {
 
     await act(async () => {
       await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
-      await userEvent.click(await screen.getByRole('button', { name: 'Save' }));
     });
 
     expect(await screen.findByText('Required')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
+
+    await act(async () => {
+      await userEvent.clear(await screen.getByLabelText('Allowable Weight'));
+      await userEvent.type(await screen.getByLabelText('Allowable Weight'), '-100');
+    });
+
+    expect(await screen.findByText('Allowable weight must be greater than or equal to zero')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('disabled');
   });
 });
