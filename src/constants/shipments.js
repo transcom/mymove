@@ -23,7 +23,6 @@ export const mtoShipmentTypes = {
   [SHIPMENT_OPTIONS.PPM]: 'Personally procured move',
   [SHIPMENT_OPTIONS.NTS]: 'Non-temp storage',
   [SHIPMENT_OPTIONS.NTSR]: 'Non-temp storage release',
-  [SHIPMENT_OPTIONS.HHG]: 'Household goods',
   [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE]: 'Unaccompanied baggage',
 };
 
