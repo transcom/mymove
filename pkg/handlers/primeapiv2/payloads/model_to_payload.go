@@ -452,6 +452,14 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primev2messages.PPMShipment {
 	return payloadPPMShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) *string {
+	if marketCode == nil {
+		return nil
+	}
+	return (*string)(marketCode)
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2messages.MTOShipmentWithoutServiceItems {
 	payload := &primev2messages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -484,6 +492,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev2mes
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		MarketCode:                       MarketCode(mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads

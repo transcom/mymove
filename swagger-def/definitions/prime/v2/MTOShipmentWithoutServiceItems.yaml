@@ -238,3 +238,11 @@ properties:
     type: string
     description: The SIT authorized end date for destination SIT.
     x-nullable: true
+  marketCode:
+    type: string
+    x-nullable: true
+    enum:
+      - 'd'
+      - 'i'
+    example: 'd'
+    description: 'Single-letter designator for domestic (d) or international (i) shipments'

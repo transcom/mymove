@@ -210,3 +210,12 @@ properties:
   destinationSitAuthEndDate:
     format: date-time
     type: string
+  marketCode:
+    type: string
+    x-nullable: true
+    enum:
+      - 'd'
+      - 'i'
+    example: 'd'
+    description: 'Single-letter designator for domestic (d) or international (i) shipments'
+
