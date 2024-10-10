@@ -78,7 +78,7 @@ export const SHIPMENT_OPTIONS = {
   NTS: 'HHG_INTO_NTS_DOMESTIC',
   NTSR: 'HHG_OUTOF_NTS_DOMESTIC',
   BOAT: 'BOAT',
-  MOTOR_HOME: 'MOTOR_HOME',
+  MOBILE_HOME: 'MOBILE_HOME',
 };
 
 export const SHIPMENT_TYPES = {
@@ -99,6 +99,7 @@ export const SHIPMENT_OPTIONS_URL = {
   NTS: 'NTS',
   NTSrelease: 'NTSrelease',
   BOAT: 'Boat',
+  MOBILE_HOME: 'Mobilehome',
 };
 
 export const LOA_TYPE = {
@@ -192,6 +193,7 @@ export const FEATURE_FLAG_KEYS = {
   NTS: 'nts',
   NTSR: 'ntsr',
   BOAT: 'boat',
+  MOBILE_HOME: 'mobile_home',
 };
 
 export const MOVE_DOCUMENT_TYPE = {
