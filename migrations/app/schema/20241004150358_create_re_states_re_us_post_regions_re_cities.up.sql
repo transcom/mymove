@@ -3,8 +3,8 @@ create table IF NOT EXISTS re_states
 state		varchar(2)	NOT NULL,
 state_name	varchar(50)	NOT NULL,
 is_oconus	bool		NOT NULL,
-created_at	timestamp	NOT NULL,
-updated_at	timestamp	NOT NULL,
+created_at	timestamp	NOT NULL default now(),
+updated_at	timestamp	NOT NULL default now(),
 CONSTRAINT re_states_pkey PRIMARY KEY (id),
 CONSTRAINT unique_re_states UNIQUE (state));
 
@@ -19,8 +19,8 @@ uspr_zip_id	varchar(5)	NOT NULL,
 state_id	uuid		NOT NULL
 	CONSTRAINT fk_re_us_post_regions_re_states REFERENCES re_states (id),
 zip3		varchar(3)	NOT NULL,
-created_at	timestamp	NOT NULL,
-updated_at	timestamp	NOT NULL,
+created_at	timestamp	NOT NULL default now(),
+updated_at	timestamp	NOT NULL default now(),
 CONSTRAINT re_us_post_regions_pkey PRIMARY KEY (id),
 CONSTRAINT unique_re_us_post_regions UNIQUE (uspr_zip_id, state_id));
 
@@ -39,8 +39,8 @@ state_id	uuid
 country_id	uuid		NOT NULL
 	CONSTRAINT rk_re_cities_re_countries REFERENCES re_countries (id),
 is_oconus	bool,
-created_at	timestamp	NOT NULL,
-updated_at	timestamp	NOT NULL,
+created_at	timestamp	NOT NULL default now(),
+updated_at	timestamp	NOT NULL default now(),
 CONSTRAINT re_cities_pkey PRIMARY KEY (id),
 CONSTRAINT unique_re_cities UNIQUE (city_name, state_id, country_id));
 
