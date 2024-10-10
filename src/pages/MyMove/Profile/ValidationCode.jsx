@@ -34,7 +34,7 @@ export const ValidationCode = () => {
       .then((response) => {
         const { parameterValue } = response.body;
         if (parameterValue === body.parameterValue) {
-          navigate(customerRoutes.CONUS_OCONUS_PATH);
+          navigate(customerRoutes.DOD_INFO_PATH);
         } else {
           setValidationError('Please try again');
         }

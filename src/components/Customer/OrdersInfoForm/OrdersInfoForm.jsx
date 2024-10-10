@@ -18,6 +18,8 @@ import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigat
 import Callout from 'components/Callout';
 import { formatLabelReportByDate, dropdownInputOptions } from 'utils/formatters';
 
+let originMeta;
+let newDutyMeta = '';
 const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
 
@@ -39,19 +41,32 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
   return (
     <Formik initialValues={initialValues} validateOnMount validationSchema={validationSchema} onSubmit={onSubmit}>
-      {({ isValid, isSubmitting, handleSubmit, values }) => {
+      {({ isValid, isSubmitting, handleSubmit, values, touched }) => {
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.orders_type);
+
+        if (!values.origin_duty_location && touched.origin_duty_location) originMeta = 'Required';
+        else originMeta = null;
+
+        if (!values.new_duty_location && touched.new_duty_location) newDutyMeta = 'Required';
+        else newDutyMeta = null;
 
         return (
           <Form className={`${formStyles.form} ${styles.OrdersInfoForm}`}>
             <h1>Tell us about your move orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
-              <DropdownInput label="Orders type" name="orders_type" options={ordersTypeOptions} required />
+              <DropdownInput
+                label="Orders type"
+                name="orders_type"
+                options={ordersTypeOptions}
+                required
+                hint="Required"
+              />
               <DatePickerInput
                 name="issue_date"
                 label="Orders date"
                 required
+                hint="Required"
                 renderInput={(input) => (
                   <>
                     {input}
@@ -61,9 +76,14 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                   </>
                 )}
               />
-              <DatePickerInput name="report_by_date" label={formatLabelReportByDate(values.orders_type)} required />
+              <DatePickerInput
+                hint="Required"
+                name="report_by_date"
+                label={formatLabelReportByDate(values.orders_type)}
+                required
+              />
               <FormGroup>
-                <Label>Are dependents included in your orders?</Label>
+                <Label hint="Required">Are dependents included in your orders?</Label>
                 <div>
                   <Field
                     as={Radio}
@@ -88,9 +108,11 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
 
               <DutyLocationInput
                 label="Current duty location"
+                hint="Required"
                 name="origin_duty_location"
                 id="origin_duty_location"
                 required
+                metaOverride={originMeta}
               />
 
               {isRetirementOrSeparation ? (
@@ -120,15 +142,29 @@ const OrdersInfoForm = ({ ordersTypeOptions, initialValues, onSubmit, onBack }) 
                     name="new_duty_location"
                     label="HOR, PLEAD or HOS"
                     displayAddress={false}
-                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you."
+                    hint="Enter the option closest to your destination. Your move counselor will identify if there might be a cost to you. (Required)"
+                    metaOverride={newDutyMeta}
                     placeholder="Enter a city or ZIP"
                   />
                 </>
               ) : (
-                <DutyLocationInput name="new_duty_location" label="New duty location" displayAddress={false} />
+                <DutyLocationInput
+                  name="new_duty_location"
+                  label="New duty location"
+                  displayAddress={false}
+                  hint="Required"
+                  metaOverride={newDutyMeta}
+                />
               )}
 
-              <DropdownInput label="Pay grade" name="grade" id="grade" required options={payGradeOptions} />
+              <DropdownInput
+                hint="Required"
+                label="Pay grade"
+                name="grade"
+                id="grade"
+                required
+                options={payGradeOptions}
+              />
             </SectionWrapper>
 
             <div className={formStyles.formActions}>
