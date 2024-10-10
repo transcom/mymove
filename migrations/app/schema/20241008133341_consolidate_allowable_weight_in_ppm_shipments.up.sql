@@ -26,4 +26,4 @@ WHERE ppm_shipments.id = summed_weights.ppm_shipment_id
 AND ppm_shipments.status = 'CLOSEOUT_COMPLETE';
 
 ALTER TABLE weight_tickets
-    DROP COLUMN allowable_weight;
+    DROP COLUMN IF EXISTS allowable_weight;
