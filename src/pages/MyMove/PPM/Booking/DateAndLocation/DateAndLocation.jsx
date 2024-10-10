@@ -73,7 +73,7 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
   };
 
   const handleSetError = (error, defaultError) => {
-    if (error?.response?.body.detail !== null && error?.response?.body.detail !== undefined) {
+    if (error?.response?.body?.detail !== null && error?.response?.body?.detail !== undefined) {
       if (error?.statusCode !== null && error?.statusCode !== undefined) {
         setErrorCode(error.statusCode);
       }
@@ -151,9 +151,9 @@ const DateAndLocation = ({ mtoShipment, serviceMember, destinationDutyLocation, 
             onShipmentSaveSuccess(shipmentResponse, setSubmitting);
           }
         })
-        .catch(() => {
+        .catch((error) => {
           setSubmitting(false);
-          setErrorMessage('There was an error attempting to create your shipment.');
+          handleSetError(error, 'There was an error attempting to create your shipment.');
         });
     } else {
       createOrUpdateShipment.id = mtoShipment.id;
