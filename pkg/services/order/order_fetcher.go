@@ -3,6 +3,7 @@ package order
 import (
 	"database/sql"
 	"fmt"
+	"regexp"
 	"strings"
 	"time"
 
@@ -501,9 +502,24 @@ func branchFilter(branch *string, needsCounseling bool, ppmCloseoutGblocs bool) 
 
 func nameFilter(name *string) QueryOption {
 	return func(query *pop.Query) {
-		if name != nil {
-			nameSearch := fmt.Sprintf("%%%s%%", *name)
-			query.Where("CONCAT(service_members.first_name, ' ', service_members.last_name) ILIKE ?", nameSearch)
+		if name == nil {
+			return
+		}
+
+		// Remove "," that user may enter between names (displayed on frontend column)
+		nameSearch := *name
+		for strings.ContainsAny(nameSearch, ",") {
+			index := strings.Index(nameSearch, ",")
+			if index != -1 {
+				nameSearch = string(append([]rune(nameSearch)[:index], []rune(nameSearch)[index+1:]...))
+			}
+		}
+
+		// Regex to avoid SQL Injections
+		regex := regexp.MustCompile("^[A-Za-z ]+$")
+		if regex.MatchString(nameSearch) {
+			nameSearch = fmt.Sprintf("%s%%", nameSearch)
+			query.Where("CONCAT(service_members.last_name, ' ', service_members.first_name) ILIKE ?", nameSearch)
 		}
 	}
 }
