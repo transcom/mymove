@@ -84,3 +84,16 @@ export { default as submitMoveForApprovalMTOShipments } from './SubmitMoveForApp
 export { default as submitMoveForApprovalPPMShipments } from './SubmitMoveForApproval/SubmitMoveForApprovalPPMShipments';
 export { default as submitPPMShipmentDocumentation } from './SubmitPPMShipmentDocumentation/SubmitPPMShipmentDocumentation';
 export { default as finishDocumentReview } from './FinishDocumentReview/finishDocumentReview';
+export { default as approveShipmentApproveMove } from './ApproveShipment/approveShipmentApproveMove';
+export { default as createPaymentRequestUpdateShipment } from './CreatePaymentRequest/createPaymentRequestUpdateShipment';
+export { default as updateOrderUpdateMove } from './UpdateOrders/updateOrderUpdateMove';
+export { default as updateMTOShipmentByServiceItemStatus } from './UpdateMTOShipment/updateMTOShipmentByServiceItemStatus';
+export { default as updateServiceItemStatusUpdateMove } from './UpdateServiceItemStatus/updateServiceItemStatusUpdateMove';
+export { default as approveShipmentUpdateMove } from './ApproveShipment/approveShipmentUpdateMove';
+export { default as createSITExtension } from './CreateSITExtension/createSITExtension';
+export { default as updateAllowanceUpdateOrder } from './UpdateAllowances/updateAllowanceUpdateOrder';
+export { default as updateAllowanceUpdateMTOShipment } from './UpdateAllowances/updateAllowanceUpdateMTOShipment';
+export { default as approveShipmentUpdateAllowances } from './ApproveShipment/approveShipmentUpdateAllowances';
+export { default as updateOrderUpdateAllowances } from './UpdateOrders/updateOrderUpdateAllowances';
+export { default as patchMTOShipment } from './UpdateMTOShipment/patchMTOShipment';
+export { default as uploadAdditionalDocuments } from './UploadAdditionalDocuments/uploadAdditionalDocuments';
