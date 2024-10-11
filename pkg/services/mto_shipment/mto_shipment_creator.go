@@ -336,6 +336,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 				marketCodeInternational := models.MarketCodeInternational
 				shipment.MarketCode = marketCodeInternational
 			}
+		} else {
+			// if the conditions aren't met then it is a PPM and this logic will be changed after PPM creation
+			// market code can't be null so we will set it here
+			shipment.MarketCode = models.MarketCodeDomestic
 		}
 
 		// create a shipment

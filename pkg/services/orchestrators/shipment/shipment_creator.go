@@ -82,7 +82,7 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			mtoShipment.PPMShipment.ShipmentID = mtoShipment.ID
 			mtoShipment.PPMShipment.Shipment = *mtoShipment
 
-			_, err := s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
+			_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
 			if err != nil {
 				return err
 			}

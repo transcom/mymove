@@ -379,6 +379,11 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 		}
 	}
 
+	mtoShipment.MarketCode = models.MarketCodeDomestic
+	if db != nil {
+		mustSave(db, &mtoShipment)
+	}
+
 	return mtoShipment
 }
 
