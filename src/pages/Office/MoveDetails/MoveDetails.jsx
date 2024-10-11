@@ -114,9 +114,7 @@ const MoveDetails = ({
     onSuccess: (data) => {
       queryClient.setQueryData([MOVES, data.locator], data);
       queryClient.invalidateQueries([MOVES, data.locator]);
-      queryClient
-        .invalidateQueries([MTO_SHIPMENTS, data.moveTaskOrderID])
-        .then(() => queryClient.refetchQueries([MTO_SHIPMENTS, data.moveTaskOrderID]));
+      queryClient.invalidateQueries({ queryKey: [MTO_SHIPMENTS] });
       setAlertMessage('Move canceled.');
       setAlertType('success');
     },
