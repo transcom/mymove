@@ -65,15 +65,12 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 	// If we have country data go through is_oconus logic if not default to false
 	if country.ID != uuid.Nil {
 		if country.Country != "US" || country.Country != "US" && transformedAddress.State == "AK" || country.Country != "US" && transformedAddress.State == "HI" {
-			boolTrueVal := true
-			transformedAddress.IsOconus = &boolTrueVal
+			transformedAddress.IsOconus = models.BoolPointer(true)
 		} else {
-			boolFalseVal := false
-			transformedAddress.IsOconus = &boolFalseVal
+			transformedAddress.IsOconus = models.BoolPointer(false)
 		}
 	} else {
-		boolFalseVal := false
-		transformedAddress.IsOconus = &boolFalseVal
+		transformedAddress.IsOconus = models.BoolPointer(false)
 	}
 
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {

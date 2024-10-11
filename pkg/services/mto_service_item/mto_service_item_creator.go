@@ -502,15 +502,12 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			// set SITOriginHHGActualAddress is_oconus value based on SITOriginHHGActualAddress country
 			if countrySITOriginHHGActualAddress.ID != uuid.Nil {
 				if serviceItem.SITOriginHHGActualAddress.State != "US" || serviceItem.SITOriginHHGActualAddress.Country.Country != "US" && serviceItem.SITOriginHHGActualAddress.State == "AK" || serviceItem.SITOriginHHGActualAddress.Country.Country != "US" && serviceItem.SITOriginHHGActualAddress.State == "HI" {
-					boolTrueVal := true
-					serviceItem.SITOriginHHGActualAddress.IsOconus = &boolTrueVal
+					serviceItem.SITOriginHHGActualAddress.IsOconus = models.BoolPointer(true)
 				} else {
-					boolFalseVal := false
-					serviceItem.SITOriginHHGActualAddress.IsOconus = &boolFalseVal
+					serviceItem.SITOriginHHGActualAddress.IsOconus = models.BoolPointer(false)
 				}
 			} else {
-				boolFalseVal := false
-				serviceItem.SITOriginHHGActualAddress.IsOconus = &boolFalseVal
+				serviceItem.SITOriginHHGActualAddress.IsOconus = models.BoolPointer(false)
 			}
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the

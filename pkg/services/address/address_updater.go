@@ -69,11 +69,9 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 	if mergedAddress.State != originalAddress.State && mergedAddress.Country != nil {
 		country := mergedAddress.Country
 		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
-			boolTrueVal := true
-			mergedAddress.IsOconus = &boolTrueVal
+			mergedAddress.IsOconus = models.BoolPointer(true)
 		} else {
-			boolFalseVal := false
-			mergedAddress.IsOconus = &boolFalseVal
+			mergedAddress.IsOconus = models.BoolPointer(false)
 		}
 	} else if mergedAddress.State != originalAddress.State && mergedAddress.CountryId != nil {
 		country, err := models.FetchCountryByID(appCtx.DB(), *mergedAddress.CountryId)
@@ -81,11 +79,9 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 			return nil, err
 		}
 		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
-			boolTrueVal := true
-			mergedAddress.IsOconus = &boolTrueVal
+			mergedAddress.IsOconus = models.BoolPointer(true)
 		} else {
-			boolFalseVal := false
-			mergedAddress.IsOconus = &boolFalseVal
+			mergedAddress.IsOconus = models.BoolPointer(false)
 		}
 	}
 
