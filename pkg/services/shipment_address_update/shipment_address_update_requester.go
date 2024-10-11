@@ -544,6 +544,21 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				addressUpdate.Shipment.MTOServiceItems = append(addressUpdate.Shipment.MTOServiceItems, regeneratedServiceItems...)
 			}
 		}
+
+		// need to assess if the shipment's market code should change
+		// when populating the market_code column, it is considered domestic if both pickup & the NEW dest are CONUS addresses
+		if shipment.PickupAddress.IsOconus != nil && addressUpdate.NewAddress.IsOconus != nil {
+			pickupAddress := shipment.PickupAddress
+			newAddress := addressUpdate.NewAddress
+			if !*pickupAddress.IsOconus && !*newAddress.IsOconus {
+				marketCodeDomestic := models.MarketCodeDomestic
+				shipment.MarketCode = &marketCodeDomestic
+			} else {
+				marketCodeInternational := models.MarketCodeInternational
+				shipment.MarketCode = &marketCodeInternational
+			}
+			addressUpdate.Shipment = shipment
+		}
 	}
 
 	if tooApprovalStatus == models.ShipmentAddressUpdateStatusRejected {
