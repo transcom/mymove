@@ -10,6 +10,7 @@ export const shipmentTypes = {
   [SHIPMENT_OPTIONS.BOAT]: 'Boat',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat',
+  [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE]: 'UB',
 };
 
 export const shipmentModificationTypes = {
@@ -24,6 +25,7 @@ export const mtoShipmentTypes = {
   [SHIPMENT_OPTIONS.NTSR]: 'Non-temp storage release',
   [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: 'Boat haul-away',
   [SHIPMENT_TYPES.BOAT_TOW_AWAY]: 'Boat tow-away',
+  [SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE]: 'Unaccompanied baggage',
 };
 
 export const shipmentStatuses = {
