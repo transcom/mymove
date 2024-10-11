@@ -18,6 +18,10 @@ type PPMShipmentRouter struct {
 func (_m *PPMShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SendToCustomer")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
 		r0 = rf(appCtx, ppmShipment)
@@ -31,6 +35,10 @@ func (_m *PPMShipmentRouter) SendToCustomer(appCtx appcontext.AppContext, ppmShi
 // SetToDraft provides a mock function with given fields: appCtx, ppmShipment
 func (_m *PPMShipmentRouter) SetToDraft(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	ret := _m.Called(appCtx, ppmShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SetToDraft")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
@@ -46,6 +54,10 @@ func (_m *PPMShipmentRouter) SetToDraft(appCtx appcontext.AppContext, ppmShipmen
 func (_m *PPMShipmentRouter) Submit(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for Submit")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
 		r0 = rf(appCtx, ppmShipment)
@@ -60,6 +72,10 @@ func (_m *PPMShipmentRouter) Submit(appCtx appcontext.AppContext, ppmShipment *m
 func (_m *PPMShipmentRouter) SubmitCloseOutDocumentation(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	ret := _m.Called(appCtx, ppmShipment)
 
+	if len(ret) == 0 {
+		panic("no return value specified for SubmitCloseOutDocumentation")
+	}
+
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {
 		r0 = rf(appCtx, ppmShipment)
@@ -73,6 +89,10 @@ func (_m *PPMShipmentRouter) SubmitCloseOutDocumentation(appCtx appcontext.AppCo
 // SubmitReviewedDocuments provides a mock function with given fields: appCtx, ppmShipment
 func (_m *PPMShipmentRouter) SubmitReviewedDocuments(appCtx appcontext.AppContext, ppmShipment *models.PPMShipment) error {
 	ret := _m.Called(appCtx, ppmShipment)
+
+	if len(ret) == 0 {
+		panic("no return value specified for SubmitReviewedDocuments")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.PPMShipment) error); ok {

@@ -9,7 +9,6 @@ import styles from './DatePickerInput.module.scss';
 import { ErrorMessage } from 'components/form/ErrorMessage';
 import SingleDatePicker from 'shared/JsonSchemaForm/SingleDatePicker';
 import { datePickerFormat, formatDate } from 'shared/dates';
-import Hint from 'components/Hint';
 
 export const DatePickerInput = (props) => {
   const {
@@ -36,12 +35,11 @@ export const DatePickerInput = (props) => {
       {renderInput(
         <>
           <div className="labelWrapper">
-            <Label className={styles.label} error={hasError} htmlFor={inputId.current}>
+            <Label hint={hint} className={styles.label} error={hasError} htmlFor={inputId.current}>
               {label}
               {showOptional && <div className={styles.optionalLabel}>Optional</div>}
             </Label>
           </div>
-          {hint && <Hint className={styles.hint}>{hint}</Hint>}
           <ErrorMessage display={hasError}>{meta.error}</ErrorMessage>
           <SingleDatePicker
             title={label}

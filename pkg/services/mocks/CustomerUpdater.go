@@ -18,6 +18,10 @@ type CustomerUpdater struct {
 func (_m *CustomerUpdater) UpdateCustomer(appCtx appcontext.AppContext, eTag string, customer models.ServiceMember) (*models.ServiceMember, error) {
 	ret := _m.Called(appCtx, eTag, customer)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateCustomer")
+	}
+
 	var r0 *models.ServiceMember
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string, models.ServiceMember) (*models.ServiceMember, error)); ok {
