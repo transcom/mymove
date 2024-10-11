@@ -158,6 +158,13 @@ function getShipmentOptions(shipmentType, userRole) {
         }
       }
 
+    case SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE:
+      return {
+        schema: hhgShipmentSchema,
+        showPickupFields: true,
+        showDeliveryFields: true,
+      };
+
     default:
       throw new Error('unrecognized shipment type');
   }
