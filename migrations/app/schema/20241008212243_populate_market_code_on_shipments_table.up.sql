@@ -1,3 +1,9 @@
+-- Set temp timeout due to potentially large modification
+-- Time is 5 minutes in milliseconds
+SET statement_timeout = 300000;
+SET lock_timeout = 300000;
+SET idle_in_transaction_session_timeout = 300000;
+
 -- Populate the new market_code column for shipments
 -- since we do not support OCONUS moves yet, these should all be "d"
 UPDATE mto_shipments
