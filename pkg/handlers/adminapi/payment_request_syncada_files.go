@@ -26,7 +26,7 @@ type IndexPaymentRequestSyncadaFilesHandler struct {
 func (h IndexPaymentRequestSyncadaFilesHandler) Handle(params pre.IndexPaymentRequestSyncadaFilesParams) middleware.Responder {
 	return h.AuditableAppContextFromRequestWithErrors(params.HTTPRequest,
 		func(appCtx appcontext.AppContext) (middleware.Responder, error) {
-			queryFilters := []services.QueryFilter{}
+			queryFilters := generateQueryFilters(appCtx.Logger(), params.Filter, paymentRequestNumberFilter)
 			ordering := query.NewQueryOrder(params.Sort, params.Order)
 			pagination := h.NewPagination(params.Page, params.PerPage)
 			var paymentRequestEdiFiles models.PaymentRequestEdiFiles
@@ -78,4 +78,11 @@ func (g GetPaymentRequestSyncadaFileHandler) Handle(params pp.PaymentRequestSync
 			payload := payloadForPaymentRequestEdiFile(paymentRequestSyncadaFile)
 			return pp.NewPaymentRequestSyncadaFileOK().WithPayload(payload), nil
 		})
+}
+
+var paymentRequestNumberFilter = map[string]func(string) []services.QueryFilter{
+	"paymentRequestNumber": func(content string) []services.QueryFilter {
+		return []services.QueryFilter{
+			query.NewQueryFilter("payment_request_number", "ILIKE", fmt.Sprintf("%%%s%%", content))}
+	},
 }

@@ -10,9 +10,9 @@ const ListActions = () => {
   return <TopToolbar />;
 };
 
-const PaymentRequestFilter = () => (
-  <Filter>
-    <TextInput source="search" alwaysOn />
+const PaymentRequestFilter = (props) => (
+  <Filter {...props}>
+    <TextInput source="paymentRequestNumber" alwaysOn resettable />
   </Filter>
 );
 
