@@ -1,4 +1,4 @@
-ALTER TABLE addresses ADD IF NOT EXISTS us_post_region_cities_id uuid;
+ALTER TABLE addresses ADD COLUMN IF NOT EXISTS us_post_region_cities_id uuid;
 
 update addresses set postal_code = substr(postal_code,1,5) where length(postal_code) > 5;
 update addresses set postal_code = '61866' where city = 'RANTOUL' and postal_code = '61868';
