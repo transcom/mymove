@@ -2546,7 +2546,6 @@ func init() {
             "d",
             "i"
           ],
-          "x-nullable": true,
           "example": "d"
         },
         "moveTaskOrderID": {
@@ -7269,7 +7268,6 @@ func init() {
             "d",
             "i"
           ],
-          "x-nullable": true,
           "example": "d"
         },
         "moveTaskOrderID": {

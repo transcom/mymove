@@ -1842,7 +1842,6 @@ func init() {
             "d",
             "i"
           ],
-          "x-nullable": true,
           "example": "d"
         },
         "mobileHomeShipment": {
@@ -5680,7 +5679,6 @@ func init() {
             "d",
             "i"
           ],
-          "x-nullable": true,
           "example": "d"
         },
         "mobileHomeShipment": {

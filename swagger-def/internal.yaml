@@ -1881,7 +1881,6 @@ definitions:
         example: '1K43AR-01'
       marketCode:
         type: string
-        x-nullable: true
         enum:
           - 'd'
           - 'i'

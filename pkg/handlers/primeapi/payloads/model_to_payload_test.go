@@ -744,13 +744,13 @@ func (suite *PayloadsSuite) TestMarketCode() {
 		marketCodeDomestic := models.MarketCodeDomestic
 		result := MarketCode(&marketCodeDomestic)
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
-		suite.Equal("d", *result, "Expected result to be 'd' for domestic market code")
+		suite.Equal("d", result, "Expected result to be 'd' for domestic market code")
 	})
 
 	suite.Run("returns string when marketCode is international", func() {
 		marketCodeInternational := models.MarketCodeInternational
 		result := MarketCode(&marketCodeInternational)
 		suite.NotNil(result, "Expected result to not be nil when marketCode is not nil")
-		suite.Equal("i", *result, "Expected result to be 'i' for international market code")
+		suite.Equal("i", result, "Expected result to be 'i' for international market code")
 	})
 }

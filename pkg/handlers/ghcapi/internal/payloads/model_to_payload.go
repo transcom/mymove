@@ -1372,11 +1372,11 @@ func LineOfAccounting(lineOfAccounting *models.LineOfAccounting) *ghcmessages.Li
 }
 
 // MarketCode payload
-func MarketCode(marketCode *models.MarketCode) *string {
+func MarketCode(marketCode *models.MarketCode) string {
 	if marketCode == nil {
-		return nil
+		return "" // Or a default string value
 	}
-	return (*string)(marketCode)
+	return string(*marketCode)
 }
 
 // MTOShipment payload
@@ -1427,7 +1427,7 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment, sit
 		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
 		DeliveryAddressUpdate:       ShipmentAddressUpdate(mtoShipment.DeliveryAddressUpdate),
 		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
-		MarketCode:                  MarketCode(mtoShipment.MarketCode),
+		MarketCode:                  MarketCode(&mtoShipment.MarketCode),
 	}
 
 	if mtoShipment.Distance != nil {

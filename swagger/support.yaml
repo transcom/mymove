@@ -1581,7 +1581,6 @@ definitions:
         description: Email or id of a contact person for this update.
       marketCode:
         type: string
-        x-nullable: true
         enum:
           - d
           - i

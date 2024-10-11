@@ -174,7 +174,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		// both pickup and destination addresses should be CONUS
 		suite.False(*createdShipment.PickupAddress.IsOconus)
 		suite.False(*createdShipment.DestinationAddress.IsOconus)
-		suite.Equal(*createdShipment.MarketCode, models.MarketCodeDomestic)
+		suite.Equal(createdShipment.MarketCode, models.MarketCodeDomestic)
 	})
 
 	suite.Run("If an international shipment is created successfully it should be returned", func() {
@@ -213,7 +213,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		// both pickup and destination addresses should be OCONUS since Alaska & Hawaii are considered OCONUS
 		suite.True(*createdShipment.PickupAddress.IsOconus)
 		suite.True(*createdShipment.DestinationAddress.IsOconus)
-		suite.Equal(*createdShipment.MarketCode, models.MarketCodeInternational)
+		suite.Equal(createdShipment.MarketCode, models.MarketCodeInternational)
 	})
 
 	suite.Run("If the shipment has an international address it should be returned", func() {

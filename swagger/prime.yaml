@@ -4187,7 +4187,6 @@ definitions:
         x-nullable: true
       marketCode:
         type: string
-        x-nullable: true
         enum:
           - d
           - i

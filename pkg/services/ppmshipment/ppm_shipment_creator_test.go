@@ -100,7 +100,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
-		suite.Equal(*createdPPMShipment.Shipment.MarketCode, models.MarketCodeDomestic)
+		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeDomestic)
 	})
 
 	suite.Run("Can successfully create an international PPMShipment", func() {
@@ -142,7 +142,7 @@ func (suite *PPMShipmentSuite) TestPPMShipmentCreator() {
 
 		suite.Nil(err)
 		suite.NotNil(createdPPMShipment)
-		suite.Equal(*createdPPMShipment.Shipment.MarketCode, models.MarketCodeInternational)
+		suite.Equal(createdPPMShipment.Shipment.MarketCode, models.MarketCodeInternational)
 	})
 
 	var invalidInputTests = []struct {
