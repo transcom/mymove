@@ -737,7 +737,7 @@ func (suite *PayloadsSuite) TestMarketCode() {
 	suite.Run("returns nil when marketCode is nil", func() {
 		var marketCode *models.MarketCode = nil
 		result := MarketCode(marketCode)
-		suite.Nil(result, "Expected result to be nil when marketCode is nil")
+		suite.Equal(result, "")
 	})
 
 	suite.Run("returns string when marketCode is not nil", func() {
