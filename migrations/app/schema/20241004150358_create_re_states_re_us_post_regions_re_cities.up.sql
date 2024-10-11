@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_re_us_post_regions_state_id ON re_us_post_regions
 create table IF NOT EXISTS re_cities
 (id			uuid			NOT NULL,
 city_name	varchar(100)	NOT NULL,
-state_id	uuid			NOT NULL,
+state_id	uuid			NOT NULL
 	CONSTRAINT fk_re_cities_re_states REFERENCES re_states (id),
 country_id	uuid		NOT NULL
 	CONSTRAINT fk_re_cities_re_countries REFERENCES re_countries (id),
