@@ -557,7 +557,6 @@ func (f *shipmentAddressUpdateRequester) ReviewShipmentAddressChange(appCtx appc
 				marketCodeInternational := models.MarketCodeInternational
 				shipment.MarketCode = &marketCodeInternational
 			}
-			addressUpdate.Shipment = shipment
 		}
 	}
 
