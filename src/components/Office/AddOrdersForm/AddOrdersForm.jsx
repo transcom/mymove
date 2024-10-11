@@ -11,6 +11,7 @@ import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isSafetyMoveSelected }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
@@ -37,6 +38,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         return (
           <Form className={`${formStyles.form}`}>
+            <ConnectedFlashMessage />
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
