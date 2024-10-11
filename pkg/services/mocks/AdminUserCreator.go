@@ -22,6 +22,10 @@ type AdminUserCreator struct {
 func (_m *AdminUserCreator) CreateAdminUser(appCtx appcontext.AppContext, user *models.AdminUser, organizationIDFilter []services.QueryFilter) (*models.AdminUser, *validate.Errors, error) {
 	ret := _m.Called(appCtx, user, organizationIDFilter)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAdminUser")
+	}
+
 	var r0 *models.AdminUser
 	var r1 *validate.Errors
 	var r2 error
