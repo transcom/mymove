@@ -58,6 +58,7 @@ export class Summary extends Component {
       enableNTSR: true,
       enableBoat: true,
       enableMobileHome: true,
+      enableUB: true,
     };
   }
 
@@ -99,7 +100,7 @@ export class Summary extends Component {
     });
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
       this.setState({
-        enableMobileHome: enabled,
+        enableUB: enabled,
       });
     });
   }
