@@ -1,3 +1,5 @@
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
+
 // List of states
 export const statesList = [
   { value: 'AL', key: 'AL' },
@@ -54,3 +56,17 @@ export const statesList = [
 ];
 
 export const unSupportedStates = [{ value: 'HI', key: 'HI' }];
+export const unSupportedStatesDisabledAlaska = [
+  { value: 'HI', key: 'HI' },
+  { value: 'AK', key: 'AK' },
+];
+
+export const getUnSupportedStates = async () => {
+  const enableAKFlag = await isBooleanFlagEnabled('enable_alaska');
+
+  if (!enableAKFlag) {
+    return unSupportedStatesDisabledAlaska;
+  }
+
+  return unSupportedStates;
+};
