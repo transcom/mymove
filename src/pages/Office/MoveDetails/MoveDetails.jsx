@@ -465,7 +465,7 @@ const MoveDetails = ({
             )}
           </Grid>
           <Grid row col={12}>
-            {!isMoveLocked && move.status !== MOVE_STATUSES.CANCELED && (
+            {!isMoveLocked && (
               <Restricted to={permissionTypes.createTxoShipment}>
                 <ButtonDropdown
                   ariaLabel="Add a new shipment"
