@@ -253,6 +253,7 @@ compile_app_server:
     - /builds/milmove/mymove/swagger/*
     - /builds/milmove/mymove/build
     - pkg/testdatagen/testdata
+    - /builds/milmove/mymove/config/otel/*
   #   paths:
   #     - Makefile
   #     - Dockerfile
@@ -270,24 +271,6 @@ compile_app_server:
   #     - swagger
   #     - pkg/testdatagen/testdata
     expire_in: 1 week
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
-
-push_otel_collector_image_demo:
-  stage: build  # Define the appropriate stage
-  image: 
-    name: gcr.io/kaniko-project/executor:v1.14.0-debug  # Uncomment if you need a specific Docker image to run your job.
-    entrypoint: [""]
-  needs: 
-    - compile_app_server
-  before_script:
-     - mkdir -p /kaniko/.docker
-     - echo "{\"credHelpers\":{\"${ECR_REPOSITORY_URI}\":\"ecr-login\"}}" > /kaniko/.docker/config.json
-  script:
-    - /kaniko/executor --context dir://dev/null --dockerfile /dev/null --destination "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/${ECR_REPOSITORY}:${OTEL_VERSION}" --build-arg BASE_IMAGE="public.ecr.aws/aws-observability/aws-otel-collector:${OTEL_VERSION}"
-  after_script:
-    - echo "Tagging and pushing the AWS OTel Collector image to ECR..."
-  allow_failure: false
   rules:
     - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
 
@@ -420,5 +403,27 @@ push_tasks_gov_dev:
   after_script:
     - echo "Tasks image pushed to AWS ECR successfully."
 
-
-
+push_otel_collector_image_demo:
+  stage: deploy
+  image: 
+    name: $DOCKER_BASE_IMAGE  # Uncomment if you need a specific Docker image to run your job.
+    entrypoint: [""]
+  needs: 
+    - compile_app_server
+  script:
+    - echo "Logging in to Amazon ECR..."
+    - aws ecr get-login-password --region us-gov-west-1 | docker login --username AWS --password-stdin 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com
+    
+    - echo "Pulling the AWS OTel Collector image from public registry..."
+    - docker pull public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0
+    
+    - echo "Tagging the image for our ECR repository..."
+    - docker tag public.ecr.aws/aws-observability/aws-otel-collector:v0.31.0 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
+    
+    - echo "Pushing the image to ECR..."
+    - docker push 447641181206.dkr.ecr.us-gov-west-1.amazonaws.com/otel-collector:${CI_COMMIT_SHORT_SHA}
+  after_script:
+    - echo "Tagging and pushing the AWS OTel Collector image to ECR..."
+  allow_failure: false
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "B-18585-gitlab-deploy" || $CI_COMMIT_BRANCH == "main"'
