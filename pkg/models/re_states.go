@@ -10,7 +10,7 @@ type ReStates struct {
 	ID         uuid.UUID `json:"id" db:"id"`
 	State      string    `json:"state" db:"state"`
 	State_Name string    `json:"state_name" db:"state_ame"`
-	IsConus    bool      `json:"is_conus" db:"is_conus"`
+	IsOconus   bool      `json:"is_oconus" db:"is_oconus"`
 	CreatedAt  time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt  time.Time `json:"updated_at" db:"updated_at"`
 }
