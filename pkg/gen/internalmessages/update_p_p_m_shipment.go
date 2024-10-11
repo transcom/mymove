@@ -48,7 +48,7 @@ type UpdatePPMShipment struct {
 	AdvanceAmountRequested *int64 `json:"advanceAmountRequested,omitempty"`
 
 	// destination address
-	DestinationAddress *Address `json:"destinationAddress,omitempty"`
+	DestinationAddress *PPMDestinationAddress `json:"destinationAddress,omitempty"`
 
 	// estimated weight
 	// Example: 4200
