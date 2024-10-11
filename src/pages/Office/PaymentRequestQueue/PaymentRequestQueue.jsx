@@ -154,7 +154,9 @@ export const columns = (moveLockFlag, isQueueManagementEnabled, showBranchFilter
             <div data-label="assignedSelect" data-testid="assigned-col" className={styles.assignedToCol}>
               <Dropdown
                 defaultValue={row.assignedTo?.officeUserId}
-                onChange={(e) => handleQueueAssignment(row.id, e.target.value, roleTypes.TIO)}
+                onChange={(e) => {
+                  handleQueueAssignment(row.moveID, e.target.value, roleTypes.TIO);
+                }}
                 title="Assigned dropdown"
               >
                 <option value={null}>{DEFAULT_EMPTY_VALUE}</option>

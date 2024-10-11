@@ -2255,6 +2255,10 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
 		}
 
+		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		}
+
 		isAssignable := false
 		if queuePaymentRequests[i].AssignedTo == nil {
 			isAssignable = true
