@@ -42,29 +42,31 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 	} else {
 		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
 		if err != nil {
 			return nil, err
 		}
+		transformedAddress.Country = &country
 		transformedAddress.CountryId = &country.ID
 	}
 
-	// Use country data we already have if not fetch the country data
-	var country models.Country
+	// use the data we have first, if it's not nil
 	if transformedAddress.Country != nil {
-		country = *transformedAddress.Country
+		country := transformedAddress.Country
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			transformedAddress.IsOconus = models.BoolPointer(true)
+		} else {
+			transformedAddress.IsOconus = models.BoolPointer(false)
+		}
 	} else if transformedAddress.CountryId != nil {
-		country, err = models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
+		country, err := models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
 		if err != nil {
 			return nil, err
 		}
-	}
-
-	// If we have country data go through is_oconus logic if not default to false
-	if country.ID != uuid.Nil {
-		if country.Country != "US" || country.Country != "US" && transformedAddress.State == "AK" || country.Country != "US" && transformedAddress.State == "HI" {
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
 			transformedAddress.IsOconus = models.BoolPointer(true)
 		} else {
 			transformedAddress.IsOconus = models.BoolPointer(false)
