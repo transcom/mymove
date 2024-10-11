@@ -120,7 +120,7 @@ describe('EditContactInfo page', () => {
       </MockProviders>,
     );
 
-    const backupNameInput = await screen.findByLabelText('Name');
+    const backupNameInput = await screen.findByLabelText(/Name/);
 
     await userEvent.clear(backupNameInput);
 
@@ -157,7 +157,7 @@ describe('EditContactInfo page', () => {
       </MockProviders>,
     );
 
-    const backupNameInput = await screen.findByLabelText('Name');
+    const backupNameInput = await screen.findByLabelText(/Name/);
 
     await userEvent.clear(backupNameInput);
 

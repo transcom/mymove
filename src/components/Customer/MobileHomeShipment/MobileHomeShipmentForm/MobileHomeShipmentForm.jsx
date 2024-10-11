@@ -17,6 +17,7 @@ import MaskedTextField from 'components/form/fields/MaskedTextField/MaskedTextFi
 import Callout from 'components/Callout';
 import { ErrorMessage } from 'components/form/index';
 import { convertInchesToFeetAndInches } from 'utils/formatMtoShipment';
+import RequiredTag from 'components/form/RequiredTag';
 
 const currentYear = new Date().getFullYear();
 const maxYear = currentYear + 2;
@@ -146,6 +147,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Length</legend>
+                      <RequiredTag />
                       <ErrorMessage display={lengthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -161,7 +163,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Length in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -177,7 +178,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Length in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -185,6 +185,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Width</legend>
+                      <RequiredTag />
                       <ErrorMessage display={widthHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -200,7 +201,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Width in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -216,7 +216,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Width in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -224,6 +223,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                   <Fieldset className={styles.formFieldContainer}>
                     <div className="labelWrapper">
                       <legend className="usa-label">Height</legend>
+                      <RequiredTag />
                       <ErrorMessage display={heightHasError}>Required</ErrorMessage>
                     </div>
                     <div className={classnames(styles.formTextFieldWrapper, 'grid-row grid-gap')}>
@@ -239,7 +239,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           suffix="Feet"
                           errorClassName={styles.hide}
                           title="Height in feet"
-                          optional
                         />
                       </div>
                       <div className="mobile-lg:grid-col-3">
@@ -255,7 +254,6 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                           max={11}
                           errorClassName={styles.hide}
                           title="Height in inches"
-                          optional
                         />
                       </div>
                     </div>
@@ -263,13 +261,7 @@ const MobileHomeShipmentForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </div>
               </SectionWrapper>
               <SectionWrapper className={formStyles.formSection}>
-                <Fieldset
-                  legend={
-                    <div className={formStyles.legendContent}>
-                      Remarks <span className={formStyles.optional}>Optional</span>
-                    </div>
-                  }
-                >
+                <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                   <Label htmlFor="customerRemarks">
                     Are there things about this mobile home shipment that your counselor or movers should know or
                     discuss with you?
