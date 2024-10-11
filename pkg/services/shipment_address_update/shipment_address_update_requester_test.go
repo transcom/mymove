@@ -853,12 +853,14 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 			{
 				Model: models.Address{
 					PostalCode: "89523",
+					IsOconus:   models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.PickupAddress,
 			},
 			{
 				Model: models.Address{
 					PostalCode: "90210",
+					IsOconus:   models.BoolPointer(false),
 				},
 				Type: &factory.Addresses.DeliveryAddress,
 			},
