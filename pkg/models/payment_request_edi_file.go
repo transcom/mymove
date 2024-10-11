@@ -29,6 +29,18 @@ func CreatePaymentRequestEdiFile(db *pop.Connection, fileName string, ediString 
 		PaymentRequestNumber: paymentRequestNumber,
 	}
 
+	if paymentRequestEdiFile.EdiString == "" {
+		return nil
+	}
+
+	if paymentRequestEdiFile.Filename == "" {
+		return nil
+	}
+
+	if paymentRequestEdiFile.PaymentRequestNumber == "" {
+		return nil
+	}
+
 	verrs, err := db.ValidateAndCreate(paymentRequestEdiFile)
 	if err != nil {
 		return err
