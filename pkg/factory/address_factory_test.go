@@ -59,7 +59,7 @@ func (suite *FactorySuite) TestBuildAddress() {
 			},
 			{
 				Model: models.Country{
-					Country:     "AL",
+					Country:     "US",
 					CountryName: "UNITED STATES",
 				},
 			},
