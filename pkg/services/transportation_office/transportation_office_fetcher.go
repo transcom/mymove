@@ -139,7 +139,7 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 
 	sqlQuery := `
 		with counseling_offices as (
-		SELECT transportation_offices.id, transportation_offices.name
+		SELECT transportation_offices.id, transportation_offices.name, addresses.postal_code
 				FROM postal_code_to_gblocs
 				JOIN addresses on postal_code_to_gblocs.postal_code = addresses.postal_code
 				JOIN duty_locations on addresses.id = duty_locations.address_id
@@ -149,9 +149,11 @@ func findCounselingOffice(appCtx appcontext.AppContext, dutyLocationID uuid.UUID
 		SELECT counseling_offices.id, counseling_offices.name
 		FROM counseling_offices
 		JOIN duty_locations duty_locations2 on counseling_offices.id = duty_locations2.transportation_office_id
+		JOIN addresses addy on duty_locations2.address_id = addy.id
+		JOIN zip3_distances zip3 on substring(addy.postal_code, 1,3 )  = zip3.from_zip3 and substring(counseling_offices.postal_code, 1,3) = zip3.to_zip3
 		WHERE duty_locations2.provides_services_counseling = true
-		GROUP BY counseling_offices.id, counseling_offices.name
-		ORDER BY counseling_offices.name asc`
+		GROUP BY counseling_offices.id, counseling_offices.name, zip3.distance_miles
+		ORDER BY zip3.distance_miles asc`
 
 	query := appCtx.DB().Q().RawQuery(sqlQuery, dutyLocationID)
 	if err := query.All(&officeList); err != nil {
