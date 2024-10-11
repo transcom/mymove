@@ -40,6 +40,7 @@ func (usprc *UsPostRegionCity) Validate(_ *pop.Connection) (*validate.Errors, er
 		&validators.StringLengthInRange{Field: usprc.UsprZipID, Name: "UsprZipID", Min: 5, Max: 5},
 		&validators.StringLengthInRange{Field: usprc.CtryGencDgphCd, Name: "CtryGencDgphCd", Min: 2, Max: 2},
 		&validators.StringIsPresent{Field: usprc.USPostRegionCityNm, Name: "USPostRegionCityNm"},
+		&validators.StringIsPresent{Field: usprc.UsprcPrfdLstLineCtystNm, Name: "UsprcPrfdLstLineCtystNm"},
 		&validators.StringIsPresent{Field: usprc.UsprcCountyNm, Name: "UsprcCountyNm"},
 	), nil
 }
