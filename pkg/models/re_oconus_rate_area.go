@@ -16,6 +16,6 @@ type ReOconusRateArea struct {
 	UpdatedAt          time.Time `json:"updated_at" db:"updated_at"`
 }
 
-func (ReOconusRateArea) TableName() string {
+func (o ReOconusRateArea) TableName() string {
 	return "re_oconus_rate_areas"
 }
