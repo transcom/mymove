@@ -312,22 +312,14 @@ class MtoShipmentForm extends Component {
 
                   <div className={styles.MTOShipmentForm}>
                     <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
-
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
-
-                    {!isUB && (
-                      <Alert headingLevel="h4" type="info" noIcon>
-                        Remember: You can move {formatWeight(orders.authorizedWeight)} total. You’ll be billed for any
-                        excess weight you move.
-                      </Alert>
-                    )}
-                    {isUB && (
-                      <Alert headingLevel="h4" type="info" noIcon>
-                        Remember: You can move up to your UB allowance for this move. You’ll be billed for any excess
-                        weight you move.
-                      </Alert>
-                    )}
-
+                    <Alert headingLevel="h4" type="info" noIcon>
+                      Remember: You can move
+                      {isUB
+                        ? ` up to your UB allowance for this move`
+                        : ` ${formatWeight(orders.authorizedWeight)} total`}
+                      . You’ll be billed for any excess weight you move.
+                    </Alert>
                     <Form className={formStyles.form}>
                       {showPickupFields && (
                         <SectionWrapper className={formStyles.formSection}>
