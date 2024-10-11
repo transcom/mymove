@@ -121,10 +121,8 @@ func payloadForInternalMove(storer storage.FileStorer, list models.Moves) []*int
 			currentMove.PrimeCounselingCompletedAt = *handlers.FmtDateTime(*move.PrimeCounselingCompletedAt)
 		}
 
-		var counselingOffice internalmessages.TransportationOffice
 		if move.CounselingOffice != nil {
-			counselingOffice = *payloads.TransportationOffice(*move.CounselingOffice)
-			currentMove.CounselingOffice = &counselingOffice
+			currentMove.CounselingOffice = payloads.TransportationOffice(*move.CounselingOffice)
 		}
 
 		convertedCurrentMovesList = append(convertedCurrentMovesList, currentMove)
