@@ -21,15 +21,16 @@ usprc_county_nm IS 'A name of the county or parish in which the UNITED-STATES- P
 ctry_genc_dgph_cd IS 'A 2-digit Geopolitical Entities, Names, and Codes (GENC) Standard.';
 */
 type UsPostRegionCity struct {
-	ID                 uuid.UUID `db:"id" json:"id"`
-	UsprZipID          string    `db:"uspr_zip_id" json:"uspr_zip_id"`
-	USPostRegionCityNm string    `db:"u_s_post_region_city_nm" json:"u_s_post_region_city_nm"`
-	UsprcCountyNm      string    `db:"usprc_county_nm" json:"usprc_county_nm"`
-	CtryGencDgphCd     string    `db:"ctry_genc_dgph_cd" json:"ctry_genc_dgph_cd"`
-	CreatedAt          time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt          time.Time `db:"updated_at" json:"updated_at"`
-	UsPostRegionsID    uuid.UUID `db:"us_post_regions_id" json:"us_post_regions_id"`
-	CitiesID           uuid.UUID `db:"cities_id" json:"cities_id"`
+	ID                      uuid.UUID `db:"id" json:"id"`
+	UsprZipID               string    `db:"uspr_zip_id" json:"uspr_zip_id"`
+	USPostRegionCityNm      string    `db:"u_s_post_region_city_nm" json:"u_s_post_region_city_nm"`
+	UsprcPrfdLstLineCtystNm string    `db:"usprc_prfd_lst_line_ctyst_nm" json:"usprc_prfd_lst_line_ctyst_nm"`
+	UsprcCountyNm           string    `db:"usprc_county_nm" json:"usprc_county_nm"`
+	CtryGencDgphCd          string    `db:"ctry_genc_dgph_cd" json:"ctry_genc_dgph_cd"`
+	CreatedAt               time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt               time.Time `db:"updated_at" json:"updated_at"`
+	UsPostRegionsID         uuid.UUID `db:"us_post_regions_id" json:"us_post_regions_id"`
+	CitiesID                uuid.UUID `db:"cities_id" json:"cities_id"`
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.

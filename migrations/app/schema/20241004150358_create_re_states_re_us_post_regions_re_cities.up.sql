@@ -49,7 +49,9 @@ COMMENT ON COLUMN re_cities.city_name IS 'The name of the city';
 COMMENT ON COLUMN re_cities.state_id IS 'The id for the 2 character US state code references re_states';
 COMMENT ON COLUMN re_cities.country_id IS 'The id for the 2 character country code references re_countries';
 
+-- Adds column to link the re_us_post_regions id to the appropriate us_post_region_cities record
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS us_post_regions_id uuid;
+-- Adds column to link the re_cities id to the appropriate us_post_region_cities record
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS cities_id uuid;
 
 CREATE INDEX IF NOT EXISTS idx_us_post_region_cities_uspr_id_cities_id ON us_post_region_cities (us_post_regions_id, cities_id);
