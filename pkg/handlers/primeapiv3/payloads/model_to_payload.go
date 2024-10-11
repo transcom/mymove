@@ -544,11 +544,11 @@ func MobileHomeShipment(mobileHomeShipment *models.MobileHome) *primev3messages.
 }
 
 // MarketCode payload
-func MarketCode(marketCode *models.MarketCode) *string {
+func MarketCode(marketCode *models.MarketCode) string {
 	if marketCode == nil {
-		return nil
+		return "" // Or a default string value
 	}
-	return (*string)(marketCode)
+	return string(*marketCode)
 }
 
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3messages.MTOShipmentWithoutServiceItems {
@@ -589,7 +589,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
 		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDeliveryAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
-		MarketCode:                       MarketCode(mtoShipment.MarketCode),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads

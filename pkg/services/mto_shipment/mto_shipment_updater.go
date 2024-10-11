@@ -850,10 +850,10 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 			destAddress := newShipment.DestinationAddress
 			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
 				marketCodeDomestic := models.MarketCodeDomestic
-				newShipment.MarketCode = &marketCodeDomestic
+				newShipment.MarketCode = marketCodeDomestic
 			} else {
 				marketCodeInternational := models.MarketCodeInternational
-				newShipment.MarketCode = &marketCodeInternational
+				newShipment.MarketCode = marketCodeInternational
 			}
 		}
 

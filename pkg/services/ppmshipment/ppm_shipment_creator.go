@@ -139,10 +139,10 @@ func (f *ppmShipmentCreator) createPPMShipment(appCtx appcontext.AppContext, ppm
 			destAddress := ppmShipment.DestinationAddress
 			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
 				marketCodeDomestic := models.MarketCodeDomestic
-				mtoShipment.MarketCode = &marketCodeDomestic
+				mtoShipment.MarketCode = marketCodeDomestic
 			} else {
 				marketCodeInternational := models.MarketCodeInternational
-				mtoShipment.MarketCode = &marketCodeInternational
+				mtoShipment.MarketCode = marketCodeInternational
 			}
 			if err := txnAppCtx.DB().Update(&mtoShipment); err != nil {
 				return err

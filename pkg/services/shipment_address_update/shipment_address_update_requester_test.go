@@ -774,7 +774,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		officeRemarks := "Changing to OCONUS address"
 
 		// check to make sure the market code is "d" prior to updating with OCONUS address
-		suite.Equal(*shipment.MarketCode, models.MarketCodeDomestic)
+		suite.Equal(shipment.MarketCode, models.MarketCodeDomestic)
 		update, err := addressUpdateRequester.ReviewShipmentAddressChange(suite.AppContextForTest(), addressChange.Shipment.ID, "APPROVED", officeRemarks)
 		suite.NoError(err)
 		suite.NotNil(update)
@@ -784,7 +784,7 @@ func (suite *ShipmentAddressUpdateServiceSuite) TestTOOApprovedShipmentAddressUp
 		err = suite.DB().EagerPreload("DestinationAddress", "MTOServiceItems").Find(&updatedShipment, update.ShipmentID)
 		suite.NoError(err)
 
-		suite.Equal(*updatedShipment.MarketCode, models.MarketCodeInternational)
+		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
 }
 

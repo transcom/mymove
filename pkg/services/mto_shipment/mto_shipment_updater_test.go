@@ -417,7 +417,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.Equal(tertiaryPickupAddress.StreetAddress1, updatedShipment.TertiaryPickupAddress.StreetAddress1)
 		suite.Equal(tertiaryDeliveryAddress.ID, *updatedShipment.TertiaryDeliveryAddressID)
 		suite.Equal(tertiaryDeliveryAddress.StreetAddress1, updatedShipment.TertiaryDeliveryAddress.StreetAddress1)
-		suite.Equal(*updatedShipment.MarketCode, models.MarketCodeDomestic)
+		suite.Equal(updatedShipment.MarketCode, models.MarketCodeDomestic)
 		// Verify that shipment recalculate was handled correctly
 		mockShipmentRecalculator.AssertNotCalled(suite.T(), "ShipmentRecalculatePaymentRequest", mock.AnythingOfType("*appcontext.appContext"), mock.AnythingOfType("uuid.UUID"))
 	})
@@ -429,7 +429,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		newDestinationAddress.State = "AK"
 		newPickupAddress.State = "HI"
 		// this should be "d" since it is default
-		suite.Equal(*previousShipment.MarketCode, models.MarketCodeDomestic)
+		suite.Equal(previousShipment.MarketCode, models.MarketCodeDomestic)
 
 		eTag := etag.GenerateEtag(previousShipment.UpdatedAt)
 
@@ -448,7 +448,7 @@ func (suite *MTOShipmentServiceSuite) TestMTOShipmentUpdater() {
 		suite.True(*updatedShipment.DestinationAddress.IsOconus)
 		suite.Equal(newPickupAddress.ID, *updatedShipment.PickupAddressID)
 		suite.True(*updatedShipment.PickupAddress.IsOconus)
-		suite.Equal(*updatedShipment.MarketCode, models.MarketCodeInternational)
+		suite.Equal(updatedShipment.MarketCode, models.MarketCodeInternational)
 	})
 
 	suite.Run("Successful update to a minimal MTO shipment", func() {

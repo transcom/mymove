@@ -76,7 +76,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		MoveTaskOrderID: move.ID,
 		ShipmentType:    defaultShipmentType,
 		Status:          defaultStatus,
-		MarketCode:      &defaultMarketCode,
+		MarketCode:      defaultMarketCode,
 	}
 
 	if cMtoShipment.Status == models.MTOShipmentStatusApproved {

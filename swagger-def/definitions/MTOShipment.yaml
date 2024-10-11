@@ -212,7 +212,6 @@ properties:
     type: string
   marketCode:
     type: string
-    x-nullable: true
     enum:
       - 'd'
       - 'i'

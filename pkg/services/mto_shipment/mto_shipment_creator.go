@@ -331,10 +331,10 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 			destAddress := shipment.DestinationAddress
 			if !*pickupAddress.IsOconus && !*destAddress.IsOconus {
 				marketCodeDomestic := models.MarketCodeDomestic
-				shipment.MarketCode = &marketCodeDomestic
+				shipment.MarketCode = marketCodeDomestic
 			} else {
 				marketCodeInternational := models.MarketCodeInternational
-				shipment.MarketCode = &marketCodeInternational
+				shipment.MarketCode = marketCodeInternational
 			}
 		}
 

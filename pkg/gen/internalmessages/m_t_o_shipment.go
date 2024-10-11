@@ -69,7 +69,7 @@ type MTOShipment struct {
 	// Single-letter designator for domestic (d) or international (i) shipments
 	// Example: d
 	// Enum: [d i]
-	MarketCode *string `json:"marketCode,omitempty"`
+	MarketCode string `json:"marketCode,omitempty"`
 
 	// mobile home shipment
 	MobileHomeShipment *MobileHome `json:"mobileHomeShipment,omitempty"`
@@ -325,7 +325,7 @@ func (m *MTOShipment) validateMarketCode(formats strfmt.Registry) error {
 	}
 
 	// value enum
-	if err := m.validateMarketCodeEnum("marketCode", "body", *m.MarketCode); err != nil {
+	if err := m.validateMarketCodeEnum("marketCode", "body", m.MarketCode); err != nil {
 		return err
 	}
 
