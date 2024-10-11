@@ -26,6 +26,7 @@ export const ShipmentListItem = ({
   showShipmentWeight,
   isOverweight,
   isMissingWeight,
+  showShipmentTooltip,
 }) => {
   const isMobileHome = shipment.shipmentType === SHIPMENT_OPTIONS.MOBILE_HOME;
   const isPPM = shipment.shipmentType === SHIPMENT_OPTIONS.PPM;
@@ -65,15 +66,17 @@ export const ShipmentListItem = ({
           {showNumber && ` ${shipmentNumber}`}
         </strong>{' '}
         <br />
-        {(shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
-          shipment.shipmentType === SHIPMENT_OPTIONS.NTS ||
-          isBoat) && (
-          <>
-            <span>{formatWeight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT)} </span>
-            <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
-          </>
-        )}
-        {shipment.shipmentType === SHIPMENT_OPTIONS.NTSR && (
+        {showShipmentTooltip &&
+          (shipment.shipmentType === SHIPMENT_OPTIONS.HHG ||
+            shipment.shipmentType === SHIPMENT_OPTIONS.NTS ||
+            isBoat ||
+            isMobileHome) && (
+            <>
+              <span>{formatWeight(shipment.primeEstimatedWeight * WEIGHT_ADJUSTMENT)} </span>
+              <ToolTip text="110% Prime Estimated Weight" icon="circle-question" closeOnLeave />
+            </>
+          )}
+        {showShipmentTooltip && shipment.shipmentType === SHIPMENT_OPTIONS.NTSR && (
           <>
             <span>{formatWeight(shipment.ntsRecordedWeight * WEIGHT_ADJUSTMENT)} </span>
             <ToolTip text="110% Previously Recorded Weight" icon="circle-question" closeOnLeave />
@@ -144,6 +147,7 @@ ShipmentListItem.propTypes = {
   showNumber: bool,
   showIncomplete: bool,
   showShipmentWeight: bool,
+  showShipmentTooltip: bool,
   isOverweight: bool,
   isMissingWeight: bool,
 };
@@ -152,13 +156,21 @@ ShipmentListItem.defaultProps = {
   showNumber: true,
   showIncomplete: false,
   showShipmentWeight: false,
+  showShipmentTooltip: false,
   isOverweight: false,
   isMissingWeight: false,
   onShipmentClick: null,
   onDeleteClick: null,
 };
 
-const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted, showShipmentWeight }) => {
+const ShipmentList = ({
+  shipments,
+  onShipmentClick,
+  onDeleteClick,
+  moveSubmitted,
+  showShipmentWeight,
+  showShipmentTooltip,
+}) => {
   const shipmentNumbersByType = {};
   const shipmentCountByType = {};
   shipments.forEach((shipment) => {
@@ -226,6 +238,7 @@ const ShipmentList = ({ shipments, onShipmentClick, onDeleteClick, moveSubmitted
             shipmentNumber={shipmentNumber}
             showNumber={showNumber}
             showShipmentWeight={showShipmentWeight}
+            showShipmentTooltip={showShipmentTooltip}
             canEditOrDelete={canEditOrDelete}
             isOverweight={isOverweight}
             showIncomplete={isIncomplete}
@@ -246,10 +259,12 @@ ShipmentList.propTypes = {
   onDeleteClick: func,
   moveSubmitted: bool.isRequired,
   showShipmentWeight: bool,
+  showShipmentTooltip: bool,
 };
 
 ShipmentList.defaultProps = {
   showShipmentWeight: false,
+  showShipmentTooltip: false,
   onShipmentClick: null,
   onDeleteClick: null,
 };
