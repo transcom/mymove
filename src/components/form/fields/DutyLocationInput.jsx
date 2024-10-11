@@ -1,4 +1,4 @@
-import { useField } from 'formik';
+import { useField, useFormikContext } from 'formik';
 import React from 'react';
 import PropTypes from 'prop-types';
 
@@ -19,6 +19,8 @@ export const DutyLocationInput = (props) => {
     onDutyLocationChange,
   } = props;
   const [field, meta, helpers] = useField(props);
+
+  const { touched } = useFormikContext();
   const handleDutyLocationChange = (event) => {
     if (onDutyLocationChange) {
       onDutyLocationChange(event);
@@ -32,13 +34,18 @@ export const DutyLocationInput = (props) => {
     errorString = meta.value?.name ? meta.error?.name || meta.error : '';
   }
 
+  const handleChange = (value) => {
+    touched[name] = true;
+    helpers.setValue(value);
+  };
+
   return (
     <LocationSearchBox
       title={label}
       name={name}
       input={{
         value: field.value,
-        onChange: helpers.setValue,
+        onChange: handleChange,
         locationState: handleDutyLocationChange,
         name,
       }}

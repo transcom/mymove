@@ -101,6 +101,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 <AddressFields
                   name="pickupAddress"
                   legend="Pickup Address"
+                  labelHint="Required"
                   className={styles.AddressFieldSet}
                   formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
@@ -138,6 +139,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                       {values.hasSecondaryPickupAddress === 'true' && (
                         <AddressFields
                           name="secondaryPickupAddress"
+                          labelHint="Required"
                           formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                         />
                       )}
@@ -148,6 +150,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                   name="destinationAddress"
                   legend="Destination Address"
                   className={styles.AddressFieldSet}
+                  labelHint="Required"
                   formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
                   render={(fields) => (
                     <>
@@ -185,6 +188,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                         <AddressFields
                           name="secondaryDestinationAddress"
                           formikFunctionsToValidatePostalCodeOnChange={{ handleChange, setFieldTouched }}
+                          labelHint="Required"
                         />
                       )}
                     </>
@@ -234,7 +238,7 @@ const AboutForm = ({ mtoShipment, onBack, onSubmit }) => {
                 </FormGroup>
                 <h2>W-2 address</h2>
                 <p>What is the address on your W-2?</p>
-                <AddressFields name={formFieldsName} className={styles.AddressFieldSet} />
+                <AddressFields name={formFieldsName} className={styles.AddressFieldSet} labelHint="Required" />
               </SectionWrapper>
               <div className={ppmStyles.buttonContainer}>
                 <Button className={ppmStyles.backButton} type="button" onClick={onBack} secondary outline>

@@ -230,13 +230,13 @@ describe('Add Orders page', () => {
     });
 
     await screen.findByRole('heading', { level: 1, name: 'Tell us about your move orders' });
-    expect(screen.getByLabelText('Orders type')).toBeInTheDocument();
-    expect(screen.getByLabelText('Orders date')).toBeInTheDocument();
-    expect(screen.getByLabelText('Report by date')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Orders type/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Orders date/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Report by date/)).toBeInTheDocument();
     expect(screen.getByText('Are dependents included in your orders?')).toBeInTheDocument();
-    expect(screen.getByLabelText('Current duty location')).toBeInTheDocument();
-    expect(screen.getByLabelText('New duty location')).toBeInTheDocument();
-    expect(screen.getByLabelText('Pay grade')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Current duty location/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/New duty location/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Pay grade/)).toBeInTheDocument();
 
     const backBtn = await screen.findByRole('button', { name: 'Back' });
     expect(backBtn).toBeInTheDocument();
