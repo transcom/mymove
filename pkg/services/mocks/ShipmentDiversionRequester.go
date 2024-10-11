@@ -20,6 +20,10 @@ type ShipmentDiversionRequester struct {
 func (_m *ShipmentDiversionRequester) RequestShipmentDiversion(appCtx appcontext.AppContext, shipmentID uuid.UUID, eTag string, diversionReason *string) (*models.MTOShipment, error) {
 	ret := _m.Called(appCtx, shipmentID, eTag, diversionReason)
 
+	if len(ret) == 0 {
+		panic("no return value specified for RequestShipmentDiversion")
+	}
+
 	var r0 *models.MTOShipment
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, string, *string) (*models.MTOShipment, error)); ok {

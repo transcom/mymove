@@ -34,6 +34,10 @@ jest.mock('store/entities/actions', () => ({
   updateAllMoves: jest.fn(),
 }));
 
+jest.mock('store/general/actions', () => ({
+  setCanAddOrders: jest.fn(),
+}));
+
 jest.mock('services/internalApi', () => ({
   getAllMoves: jest.fn().mockImplementation(() => Promise.resolve()),
 }));
@@ -50,6 +54,7 @@ jest.mock('store/entities/selectors', () => ({
   ...jest.requireActual('store/entities/selectors'),
   selectAllMoves: jest.fn(),
   selectServiceMemberFromLoggedInUser: jest.fn(),
+  selectCanAddOrders: jest.fn(),
 }));
 
 jest.mock('utils/featureFlags', () => ({
@@ -60,6 +65,7 @@ jest.mock('utils/featureFlags', () => ({
 const defaultProps = {
   showLoggedInUser: jest.fn(),
   updateAllMoves: jest.fn(),
+  setCanAddOrders: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
@@ -245,6 +251,7 @@ const defaultProps = {
 const defaultPropsNoMoves = {
   showLoggedInUser: jest.fn(),
   updateAllMoves: jest.fn(),
+  setCanAddOrders: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
@@ -294,6 +301,7 @@ const defaultPropsNoMoves = {
 const defaultPropsMultipleMove = {
   showLoggedInUser: jest.fn(),
   updateAllMoves: jest.fn(),
+  setCanAddOrders: jest.fn(),
   isLoggedIn: true,
   loggedInUserIsLoading: false,
   loggedInUserSuccess: true,
@@ -811,6 +819,7 @@ describe('MultiMovesLandingPage', () => {
 
     expect(screen.getByTestId('createMoveBtn')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('createMoveBtn'));
+    expect(defaultPropsMultipleMove.setCanAddOrders).toHaveBeenCalledWith(true);
     expect(mockNavigate).toHaveBeenCalled();
   });
 
