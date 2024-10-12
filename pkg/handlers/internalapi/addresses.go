@@ -28,7 +28,6 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 		State:          *rawAddress.State,
 		PostalCode:     *rawAddress.PostalCode,
 		County:         *rawAddress.County,
-		IsOconus:       models.BoolPointer(false), // Need is_oconus logic on updating customer
 	}
 }
 
@@ -44,8 +43,6 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	} else {
 		a.County = *payload.County
 	}
-
-	a.IsOconus = models.BoolPointer(false) // Need is_oconus logic on updating customer
 }
 
 // ShowAddressHandler returns an address
