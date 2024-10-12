@@ -482,33 +482,27 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 			}
 			serviceItem.SITOriginHHGActualAddress.County = county
 
-			var countrySITOriginHHGActualAddress models.Country
-			var errCountry error
 			// if there is a country code provided, we will search for it - else we will create it for CONUS
 			if serviceItem.SITOriginHHGActualAddress.Country != nil {
-				countrySITOriginHHGActualAddress, errCountry = models.FetchCountryByCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.Country.Country)
+				country, errCountry := models.FetchCountryByCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.Country.Country)
 				if errCountry != nil {
 					return nil, nil, errCounty
 				}
-				serviceItem.SITOriginHHGActualAddress.CountryId = &countrySITOriginHHGActualAddress.ID
+				serviceItem.SITOriginHHGActualAddress.CountryId = &country.ID
 			} else {
-				countrySITOriginHHGActualAddress, errCountry = models.FetchCountryByCode(appCtx.DB(), "US")
+				country, errCountry := models.FetchCountryByCode(appCtx.DB(), "US")
 				if errCountry != nil {
 					return nil, nil, errCounty
 				}
-				serviceItem.SITOriginHHGActualAddress.CountryId = &countrySITOriginHHGActualAddress.ID
+				serviceItem.SITOriginHHGActualAddress.CountryId = &country.ID
 			}
 
-			// set SITOriginHHGActualAddress is_oconus value based on SITOriginHHGActualAddress country
-			if countrySITOriginHHGActualAddress.ID != uuid.Nil {
-				if serviceItem.SITOriginHHGActualAddress.State != "US" || serviceItem.SITOriginHHGActualAddress.Country.Country != "US" && serviceItem.SITOriginHHGActualAddress.State == "AK" || serviceItem.SITOriginHHGActualAddress.Country.Country != "US" && serviceItem.SITOriginHHGActualAddress.State == "HI" {
-					serviceItem.SITOriginHHGActualAddress.IsOconus = models.BoolPointer(true)
-				} else {
-					serviceItem.SITOriginHHGActualAddress.IsOconus = models.BoolPointer(false)
-				}
-			} else {
-				serviceItem.SITOriginHHGActualAddress.IsOconus = models.BoolPointer(false)
+			// Evaluate address and populate addresses isOconus value
+			isOconus, err := models.IsAddressOconus(appCtx.DB(), *serviceItem.SITOriginHHGActualAddress)
+			if err != nil {
+				return nil, nil, err
 			}
+			serviceItem.SITOriginHHGActualAddress.IsOconus = &isOconus
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
