@@ -507,6 +507,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic creating customer
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -580,6 +581,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic creating customer
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -652,6 +654,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -724,6 +727,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -796,6 +800,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -868,6 +873,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -940,6 +946,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -1012,6 +1019,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
@@ -1085,6 +1093,7 @@ func createUser(h devlocalAuthHandler, w http.ResponseWriter, r *http.Request) (
 			State:          "CA",
 			PostalCode:     "94115",
 			County:         "SAINT CLAIR",
+			IsOconus:       models.BoolPointer(false), // Need is_oconus logic
 		}
 
 		verrs, err := appCtx.DB().ValidateAndSave(&address)
