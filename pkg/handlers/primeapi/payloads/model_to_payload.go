@@ -240,6 +240,14 @@ func DutyLocation(dutyLocation *models.DutyLocation) *primemessages.DutyLocation
 	return &payload
 }
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 // Address payload
 func Address(address *models.Address) *primemessages.Address {
 	if address == nil {
@@ -253,7 +261,7 @@ func Address(address *models.Address) *primemessages.Address {
 		City:           &address.City,
 		State:          &address.State,
 		PostalCode:     &address.PostalCode,
-		Country:        address.Country,
+		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
 	}
@@ -314,7 +322,7 @@ func MTOAgents(mtoAgents *models.MTOAgents) *primemessages.MTOAgents {
 
 func ProofOfServiceDoc(proofOfServiceDoc models.ProofOfServiceDoc) *primemessages.ProofOfServiceDoc {
 	uploads := make([]*primemessages.UploadWithOmissions, len(proofOfServiceDoc.PrimeUploads))
-	if proofOfServiceDoc.PrimeUploads != nil && len(proofOfServiceDoc.PrimeUploads) > 0 {
+	if len(proofOfServiceDoc.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfServiceDoc.PrimeUploads {
 			uploads[i] = basicUpload(&primeUpload.Upload) //#nosec G601
 		}
@@ -333,7 +341,7 @@ func PaymentRequest(paymentRequest *models.PaymentRequest) *primemessages.Paymen
 
 	serviceDocs := make(primemessages.ProofOfServiceDocs, len(paymentRequest.ProofOfServiceDocs))
 
-	if paymentRequest.ProofOfServiceDocs != nil && len(paymentRequest.ProofOfServiceDocs) > 0 {
+	if len(paymentRequest.ProofOfServiceDocs) > 0 {
 		for i, proofOfService := range paymentRequest.ProofOfServiceDocs {
 			serviceDocs[i] = ProofOfServiceDoc(proofOfService)
 		}
@@ -445,7 +453,7 @@ func PaymentServiceItemParams(paymentServiceItemParams *models.PaymentServiceIte
 //nolint:gosec //G601
 func ServiceRequestDocument(serviceRequestDocument models.ServiceRequestDocument) *primemessages.ServiceRequestDocument {
 	uploads := make([]*primemessages.UploadWithOmissions, len(serviceRequestDocument.ServiceRequestDocumentUploads))
-	if serviceRequestDocument.ServiceRequestDocumentUploads != nil && len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
+	if len(serviceRequestDocument.ServiceRequestDocumentUploads) > 0 {
 		for i, proofOfServiceDocumentUpload := range serviceRequestDocument.ServiceRequestDocumentUploads {
 			uploads[i] = basicUpload(&proofOfServiceDocumentUpload.Upload)
 		}
@@ -500,6 +508,14 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	return payloadPPMShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessages.MTOShipmentWithoutServiceItems {
 	payload := &primemessages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -530,6 +546,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -705,7 +722,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primemessages.MTOServ
 
 	serviceRequestDocuments := make(primemessages.ServiceRequestDocuments, len(mtoServiceItem.ServiceRequestDocuments))
 
-	if mtoServiceItem.ServiceRequestDocuments != nil && len(mtoServiceItem.ServiceRequestDocuments) > 0 {
+	if len(mtoServiceItem.ServiceRequestDocuments) > 0 {
 		for i, serviceRequestDocument := range mtoServiceItem.ServiceRequestDocuments {
 			serviceRequestDocuments[i] = ServiceRequestDocument(serviceRequestDocument)
 		}

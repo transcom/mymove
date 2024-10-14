@@ -9,7 +9,7 @@ import { officeRoles, roleTypes } from 'constants/userRoles';
 import DataTable from 'components/DataTable';
 import SectionWrapper from 'components/Customer/SectionWrapper';
 import Hint from 'components/Hint/index';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 
 const ShipmentFormRemarks = ({ userRole, shipmentType, customerRemarks, counselorRemarks, error, showHint }) => {
   return (
@@ -68,9 +68,10 @@ ShipmentFormRemarks.propTypes = {
     SHIPMENT_OPTIONS.NTS,
     SHIPMENT_OPTIONS.NTSR,
     SHIPMENT_OPTIONS.PPM,
+    SHIPMENT_OPTIONS.MOBILE_HOME,
     SHIPMENT_OPTIONS.BOAT,
-    SHIPMENT_OPTIONS.BOAT_HAUL_AWAY,
-    SHIPMENT_OPTIONS.BOAT_TOW_AWAY,
+    SHIPMENT_TYPES.BOAT_HAUL_AWAY,
+    SHIPMENT_TYPES.BOAT_TOW_AWAY,
   ]).isRequired,
   customerRemarks: PropTypes.string,
   counselorRemarks: PropTypes.string,

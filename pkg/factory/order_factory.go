@@ -234,7 +234,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		// make sure the origin duty location address is loaded as it
 		// may not be
 		if originDutyLocation.Address.PostalCode == "" {
-			err := db.EagerPreload("Address").Find(&originDutyLocation, originDutyLocation.ID)
+			err := db.EagerPreload("Address", "Address.Country").Find(&originDutyLocation, originDutyLocation.ID)
 			if err != nil {
 				log.Panicf("Error loading duty location by id %s: %s\n", originDutyLocation.ID.String(), err)
 			}
@@ -243,7 +243,7 @@ func buildOrderWithBuildType(db *pop.Connection, customs []Customization, traits
 		originDutyLocationGbloc = &originPostalCodeToGBLOC.GBLOC
 
 		if newDutyLocation.Address.PostalCode == "" {
-			err := db.EagerPreload("Address").Find(&newDutyLocation, newDutyLocation.ID)
+			err := db.EagerPreload("Address", "Address.Country").Find(&newDutyLocation, newDutyLocation.ID)
 			if err != nil {
 				log.Panicf("Error loading duty location by id %s: %s\n", newDutyLocation.ID.String(), err)
 			}

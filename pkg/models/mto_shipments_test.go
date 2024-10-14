@@ -15,6 +15,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		sitDaysAllowance := 90
 		tacType := models.LOATypeHHG
 		sacType := models.LOATypeHHG
+		marketCode := models.MarketCodeDomestic
 		validMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:      uuid.Must(uuid.NewV4()),
 			Status:               models.MTOShipmentStatusApproved,
@@ -23,6 +24,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			SITDaysAllowance:     &sitDaysAllowance,
 			TACType:              &tacType,
 			SACType:              &sacType,
+			MarketCode:           marketCode,
 		}
 		expErrors := map[string][]string{}
 		suite.verifyValidationErrors(&validMTOShipment, expErrors)
@@ -39,9 +41,11 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 
 	suite.Run("test rejected MTOShipment", func() {
 		rejectionReason := "bad shipment"
+		marketCode := models.MarketCodeDomestic
 		rejectedMTOShipment := models.MTOShipment{
 			MoveTaskOrderID: uuid.Must(uuid.NewV4()),
 			Status:          models.MTOShipmentStatusRejected,
+			MarketCode:      marketCode,
 			RejectionReason: &rejectionReason,
 		}
 		expErrors := map[string][]string{}
@@ -57,6 +61,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 		sitDaysAllowance := -1
 		serviceOrderNumber := ""
 		tacType := models.LOAType("FAKE")
+		marketCode := models.MarketCode("x")
 		invalidMTOShipment := models.MTOShipment{
 			MoveTaskOrderID:             uuid.Must(uuid.NewV4()),
 			Status:                      models.MTOShipmentStatusRejected,
@@ -69,6 +74,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			StorageFacilityID:           &uuid.Nil,
 			TACType:                     &tacType,
 			SACType:                     &tacType,
+			MarketCode:                  marketCode,
 		}
 		expErrors := map[string][]string{
 			"prime_estimated_weight":        {"-1000 is not greater than 0."},
@@ -81,6 +87,7 @@ func (suite *ModelSuite) TestMTOShipmentValidation() {
 			"storage_facility_id":           {"StorageFacilityID can not be blank."},
 			"tactype":                       {"TACType is not in the list [HHG, NTS]."},
 			"sactype":                       {"SACType is not in the list [HHG, NTS]."},
+			"market_code":                   {"MarketCode is not in the list [d, i]."},
 		}
 		suite.verifyValidationErrors(&invalidMTOShipment, expErrors)
 	})
