@@ -562,7 +562,7 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
                 {!hasSubmittedMove() && (
                   <Step
                     complete={hasOrdersAndUpload()}
-                    completedHeaderText="window.location.reloadOrders uploaded"
+                    completedHeaderText="Orders uploaded"
                     editBtnLabel={hasOrdersAndUpload() ? 'Edit' : ''}
                     onEditBtnClick={() => handleNewPathClick(ordersEditPath)}
                     headerText="Upload orders"
