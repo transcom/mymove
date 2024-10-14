@@ -143,7 +143,7 @@ func (p *paymentRequestReviewedProcessor) ProcessAndLockReviewedPR(appCtx appcon
 		lockedPR.Status = models.PaymentRequestStatusSentToGex
 		err = txnAppCtx.DB().Update(&lockedPR)
 
-		err1 := models.CreatePaymentRequestEdiFile(txnAppCtx.DB(), edi858cString, ediFileName, pr.PaymentRequestNumber)
+		err1 := models.CreatePaymentRequestEdiFile(txnAppCtx.DB(), ediFileName, edi858cString, pr.PaymentRequestNumber)
 		if err1 != nil {
 			return fmt.Errorf("failure creating payment request EDI file: %w", err1)
 		}
