@@ -160,10 +160,10 @@ const EditOrdersForm = ({
                 label="Current duty location"
                 name="origin_duty_location"
                 id="origin_duty_location"
+                hint="Required"
                 onDutyLocationChange={(e) => {
                   setDutyLocation(e);
                 }}
-                hint="Required"
                 required
                 metaOverride={originMeta}
               />

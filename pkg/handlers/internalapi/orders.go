@@ -342,7 +342,6 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 				order.OriginDutyLocationID = &originDutyLocationID
 
 				if payload.MoveID != "" {
-
 					moveID, err := uuid.FromString(payload.MoveID.String())
 					if err != nil {
 						return handlers.ResponseForError(appCtx.Logger(), err), err
@@ -356,9 +355,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 						if err != nil {
 							return handlers.ResponseForError(appCtx.Logger(), err), err
 						}
-						if move.CounselingOfficeID != &counselingOfficeID {
-							move.CounselingOfficeID = &counselingOfficeID
-						}
+						move.CounselingOfficeID = &counselingOfficeID
 					} else {
 						move.CounselingOfficeID = nil
 					}
