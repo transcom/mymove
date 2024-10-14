@@ -26,6 +26,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/notifications"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/organizations"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_file"
+	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/payment_request_syncada_files"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/requested_office_users"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/transportation_offices"
 	"github.com/transcom/mymove/pkg/gen/adminapi/adminoperations/uploads"
@@ -122,6 +124,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		OrganizationsIndexOrganizationsHandler: organizations.IndexOrganizationsHandlerFunc(func(params organizations.IndexOrganizationsParams) middleware.Responder {
 			return middleware.NotImplemented("operation organizations.IndexOrganizations has not yet been implemented")
 		}),
+		PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler: payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandlerFunc(func(params payment_request_syncada_files.IndexPaymentRequestSyncadaFilesParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request_syncada_files.IndexPaymentRequestSyncadaFiles has not yet been implemented")
+		}),
 		RequestedOfficeUsersIndexRequestedOfficeUsersHandler: requested_office_users.IndexRequestedOfficeUsersHandlerFunc(func(params requested_office_users.IndexRequestedOfficeUsersParams) middleware.Responder {
 			return middleware.NotImplemented("operation requested_office_users.IndexRequestedOfficeUsers has not yet been implemented")
 		}),
@@ -130,6 +135,9 @@ func NewMymoveAPI(spec *loads.Document) *MymoveAPI {
 		}),
 		WebhookSubscriptionsIndexWebhookSubscriptionsHandler: webhook_subscriptions.IndexWebhookSubscriptionsHandlerFunc(func(params webhook_subscriptions.IndexWebhookSubscriptionsParams) middleware.Responder {
 			return middleware.NotImplemented("operation webhook_subscriptions.IndexWebhookSubscriptions has not yet been implemented")
+		}),
+		PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler: payment_request_syncada_file.PaymentRequestSyncadaFileHandlerFunc(func(params payment_request_syncada_file.PaymentRequestSyncadaFileParams) middleware.Responder {
+			return middleware.NotImplemented("operation payment_request_syncada_file.PaymentRequestSyncadaFile has not yet been implemented")
 		}),
 		ClientCertificatesRemoveClientCertificateHandler: client_certificates.RemoveClientCertificateHandlerFunc(func(params client_certificates.RemoveClientCertificateParams) middleware.Responder {
 			return middleware.NotImplemented("operation client_certificates.RemoveClientCertificate has not yet been implemented")
@@ -239,12 +247,16 @@ type MymoveAPI struct {
 	TransportationOfficesIndexOfficesHandler transportation_offices.IndexOfficesHandler
 	// OrganizationsIndexOrganizationsHandler sets the operation handler for the index organizations operation
 	OrganizationsIndexOrganizationsHandler organizations.IndexOrganizationsHandler
+	// PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler sets the operation handler for the index payment request syncada files operation
+	PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandler
 	// RequestedOfficeUsersIndexRequestedOfficeUsersHandler sets the operation handler for the index requested office users operation
 	RequestedOfficeUsersIndexRequestedOfficeUsersHandler requested_office_users.IndexRequestedOfficeUsersHandler
 	// UsersIndexUsersHandler sets the operation handler for the index users operation
 	UsersIndexUsersHandler users.IndexUsersHandler
 	// WebhookSubscriptionsIndexWebhookSubscriptionsHandler sets the operation handler for the index webhook subscriptions operation
 	WebhookSubscriptionsIndexWebhookSubscriptionsHandler webhook_subscriptions.IndexWebhookSubscriptionsHandler
+	// PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler sets the operation handler for the payment request syncada file operation
+	PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler payment_request_syncada_file.PaymentRequestSyncadaFileHandler
 	// ClientCertificatesRemoveClientCertificateHandler sets the operation handler for the remove client certificate operation
 	ClientCertificatesRemoveClientCertificateHandler client_certificates.RemoveClientCertificateHandler
 	// AdminUsersUpdateAdminUserHandler sets the operation handler for the update admin user operation
@@ -404,6 +416,9 @@ func (o *MymoveAPI) Validate() error {
 	if o.OrganizationsIndexOrganizationsHandler == nil {
 		unregistered = append(unregistered, "organizations.IndexOrganizationsHandler")
 	}
+	if o.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler == nil {
+		unregistered = append(unregistered, "payment_request_syncada_files.IndexPaymentRequestSyncadaFilesHandler")
+	}
 	if o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler == nil {
 		unregistered = append(unregistered, "requested_office_users.IndexRequestedOfficeUsersHandler")
 	}
@@ -412,6 +427,9 @@ func (o *MymoveAPI) Validate() error {
 	}
 	if o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler == nil {
 		unregistered = append(unregistered, "webhook_subscriptions.IndexWebhookSubscriptionsHandler")
+	}
+	if o.PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler == nil {
+		unregistered = append(unregistered, "payment_request_syncada_file.PaymentRequestSyncadaFileHandler")
 	}
 	if o.ClientCertificatesRemoveClientCertificateHandler == nil {
 		unregistered = append(unregistered, "client_certificates.RemoveClientCertificateHandler")
@@ -616,6 +634,10 @@ func (o *MymoveAPI) initHandlerCache() {
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
+	o.handlers["GET"]["/payment-request-syncada-files"] = payment_request_syncada_files.NewIndexPaymentRequestSyncadaFiles(o.context, o.PaymentRequestSyncadaFilesIndexPaymentRequestSyncadaFilesHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
 	o.handlers["GET"]["/requested-office-users"] = requested_office_users.NewIndexRequestedOfficeUsers(o.context, o.RequestedOfficeUsersIndexRequestedOfficeUsersHandler)
 	if o.handlers["GET"] == nil {
 		o.handlers["GET"] = make(map[string]http.Handler)
@@ -625,6 +647,10 @@ func (o *MymoveAPI) initHandlerCache() {
 		o.handlers["GET"] = make(map[string]http.Handler)
 	}
 	o.handlers["GET"]["/webhook-subscriptions"] = webhook_subscriptions.NewIndexWebhookSubscriptions(o.context, o.WebhookSubscriptionsIndexWebhookSubscriptionsHandler)
+	if o.handlers["GET"] == nil {
+		o.handlers["GET"] = make(map[string]http.Handler)
+	}
+	o.handlers["GET"]["/payment-request-syncada-files/{paymentRequestSyncadaFileId}"] = payment_request_syncada_file.NewPaymentRequestSyncadaFile(o.context, o.PaymentRequestSyncadaFilePaymentRequestSyncadaFileHandler)
 	if o.handlers["DELETE"] == nil {
 		o.handlers["DELETE"] = make(map[string]http.Handler)
 	}
