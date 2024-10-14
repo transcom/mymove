@@ -213,6 +213,49 @@ func SaveServiceMember(appCtx appcontext.AppContext, serviceMember *ServiceMembe
 				return err
 			}
 			serviceMember.ResidentialAddress.County = county
+
+			// until international moves are supported, we will default the country for created addresses to "US"
+			if serviceMember.ResidentialAddress.Country != nil && serviceMember.ResidentialAddress.Country.Country != "" {
+				country, err := FetchCountryByCode(appCtx.DB(), serviceMember.ResidentialAddress.Country.Country)
+				if err != nil {
+					return err
+				}
+				serviceMember.ResidentialAddress.Country = &country
+				serviceMember.ResidentialAddress.CountryId = &country.ID
+			} else {
+				country, err := FetchCountryByCode(appCtx.DB(), "US")
+				if err != nil {
+					return err
+				}
+				serviceMember.ResidentialAddress.Country = &country
+				serviceMember.ResidentialAddress.CountryId = &country.ID
+			}
+
+			if serviceMember.ResidentialAddress.Country != nil {
+				country := serviceMember.ResidentialAddress.Country
+				if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+					boolTrueVal := true
+					serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
+				} else {
+					boolFalseVal := false
+					serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+				}
+			} else if serviceMember.ResidentialAddress.CountryId != nil {
+				country, err := FetchCountryByID(appCtx.DB(), *serviceMember.ResidentialAddress.CountryId)
+				if err != nil {
+					return err
+				}
+				if country.Country != "US" || country.Country == "US" && serviceMember.ResidentialAddress.State == "AK" || country.Country == "US" && serviceMember.ResidentialAddress.State == "HI" {
+					boolTrueVal := true
+					serviceMember.ResidentialAddress.IsOconus = &boolTrueVal
+				} else {
+					boolFalseVal := false
+					serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+				}
+			} else {
+				boolFalseVal := false
+				serviceMember.ResidentialAddress.IsOconus = &boolFalseVal
+			}
 			if verrs, err := txnAppCtx.DB().ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
