@@ -1,1 +1,1 @@
-CREATE INDEX full_name_idx ON service_members USING gin (to_tsvector('english', last_name || first_name));
+CREATE INDEX full_name_idx ON service_members USING gin(to_tsvector('english', last_name || ' ' || first_name));
