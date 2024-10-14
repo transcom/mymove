@@ -1,6 +1,8 @@
 package shipment
 
 import (
+	"database/sql"
+
 	"github.com/transcom/mymove/pkg/appcontext"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/services"
@@ -96,14 +98,16 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			// getting updated shipment since market code value was updated after PPM creation
 			var updatedShipment models.MTOShipment
 			err = txnAppCtx.DB().Find(&updatedShipment, mtoShipment.ID)
-			if err != nil {
+			if err != nil && err != sql.ErrNoRows {
 				return err
 			}
 			if mtoShipment.MarketCode != updatedShipment.MarketCode {
 				mtoShipment.MarketCode = updatedShipment.MarketCode
 			}
 			// since the shipment was updated, we need to ensure we have the most recent eTag
-			mtoShipment.UpdatedAt = updatedShipment.UpdatedAt
+			if mtoShipment.UpdatedAt != updatedShipment.UpdatedAt {
+				mtoShipment.UpdatedAt = updatedShipment.UpdatedAt
+			}
 			return nil
 		} else if isBoatShipment {
 			mtoShipment.BoatShipment.ShipmentID = mtoShipment.ID
