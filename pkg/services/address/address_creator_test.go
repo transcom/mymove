@@ -68,7 +68,7 @@ func (suite *AddressSuite) TestAddressCreator() {
 
 		suite.Error(err)
 		suite.Nil(address)
-		suite.Equal("- the country GB is not supported at this time", err.Error())
+		suite.Equal("- the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
 	suite.Run("Successfully creates an address with empty strings for optional fields", func() {
