@@ -92,6 +92,18 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			if err != nil {
 				return err
 			}
+
+			// getting updated shipment since market code value was updated after PPM creation
+			var updatedShipment models.MTOShipment
+			err = txnAppCtx.DB().Find(&updatedShipment, mtoShipment.ID)
+			if err != nil {
+				return err
+			}
+			if mtoShipment.MarketCode != updatedShipment.MarketCode {
+				mtoShipment.MarketCode = updatedShipment.MarketCode
+			}
+			// since the shipment was updated, we need to ensure we have the most recent eTag
+			mtoShipment.UpdatedAt = updatedShipment.UpdatedAt
 			return nil
 		} else if isBoatShipment {
 			mtoShipment.BoatShipment.ShipmentID = mtoShipment.ID
