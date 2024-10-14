@@ -443,7 +443,7 @@ describe('PaymentRequestQueue', () => {
       </reactRouterDom.BrowserRouter>,
     );
     await waitFor(() => {
-      const lockIcon = screen.queryByTestId('lock-icon');
+      const lockIcon = screen.queryAllByTestId('lock-icon')[0];
       expect(lockIcon).toBeInTheDocument();
     });
   });
