@@ -240,7 +240,7 @@ func (suite *MTOShipmentServiceSuite) TestCreateMTOShipment() {
 		_, err := creator.CreateMTOShipment(suite.AppContextForTest(), mtoShipmentClear)
 
 		suite.Error(err)
-		suite.Equal("failed to create pickup address - the country GB is not supported at this time", err.Error())
+		suite.Equal("failed to create pickup address - the country GB is not supported at this time - only US is allowed", err.Error())
 	})
 
 	suite.Run("If the shipment is created successfully it should return ShipmentLocator", func() {
