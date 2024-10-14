@@ -612,9 +612,9 @@ export const useServicesCounselingQueueQueries = ({
   );
 
   const { isLoading, isError, isSuccess } = servicesCounselingQueueQuery;
-  const { queueMoves, availableOfficeUsers, ...dataProps } = data;
+  const { queueMoves, ...dataProps } = data;
   return {
-    queueResult: { data: queueMoves, availableOfficeUsers, ...dataProps },
+    queueResult: { data: queueMoves, ...dataProps },
     isLoading,
     isError,
     isSuccess,
