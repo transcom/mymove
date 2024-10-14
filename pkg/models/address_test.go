@@ -82,3 +82,21 @@ func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
 
 	suite.Equal(false, result)
 }
+
+// Test IsOconus logic for an address with no country and a state of AK
+func (suite *ModelSuite) TestIsAddressOconusForAKState() {
+	address := m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "Anchorage",
+		State:          "AK",
+		PostalCode:     "99502",
+		County:         "county",
+	}
+
+	result, err := m.IsAddressOconus(suite.DB(), address)
+	suite.NoError(err)
+
+	suite.Equal(true, result)
+}

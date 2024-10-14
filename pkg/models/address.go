@@ -178,6 +178,9 @@ func IsAddressOconus(db *pop.Connection, address Address) (bool, error) {
 		isOconus := EvaluateIsOconus(address)
 		return isOconus, nil
 	} else {
+		if address.State == "HI" || address.State == "AK" {
+			return true, nil
+		}
 		return false, nil
 	}
 }
