@@ -56,7 +56,7 @@ COPY migrations/app/secure /migrate/secure
 COPY migrations/app/migrations_manifest.txt /migrate/migrations_manifest.txt
 
 COPY config/tls/milmove-cert-bundle.p7b /config/tls/milmove-cert-bundle.p7b
-COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-66.pem
+COPY config/tls/dod-sw-ca-66.pem /config/tls/dod-sw-ca-75.pem
 
 # While it's ok to have these certs copied locally, they should never be copied into Dockerfile.
 COPY config/tls/devlocal-ca.key /config/tls/devlocal-ca.key
