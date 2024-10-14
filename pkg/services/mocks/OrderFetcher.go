@@ -24,6 +24,10 @@ type OrderFetcher struct {
 func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UUID) (*models.Order, error) {
 	ret := _m.Called(appCtx, orderID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchOrder")
+	}
+
 	var r0 *models.Order
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (*models.Order, error)); ok {
@@ -50,6 +54,10 @@ func (_m *OrderFetcher) FetchOrder(appCtx appcontext.AppContext, orderID uuid.UU
 func (_m *OrderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, error) {
 	ret := _m.Called(appCtx, officeUserID, params)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ListAllOrderLocations")
+	}
+
 	var r0 []models.Move
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) ([]models.Move, error)); ok {
@@ -75,6 +83,10 @@ func (_m *OrderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, offi
 // ListOrders provides a mock function with given fields: appCtx, officeUserID, role, params
 func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
 	ret := _m.Called(appCtx, officeUserID, role, params)
+
+	if len(ret) == 0 {
+		panic("no return value specified for ListOrders")
+	}
 
 	var r0 []models.Move
 	var r1 int

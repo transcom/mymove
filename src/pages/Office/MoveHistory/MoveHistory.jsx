@@ -27,7 +27,7 @@ const columns = [
     { id: 'move-history-details' },
   ),
   createHeader(
-    'Modified By',
+    'Action Initiated By',
     (row) => (
       <ModifiedBy
         firstName={row.sessionUserFirstName}
@@ -36,7 +36,7 @@ const columns = [
         phone={row.sessionUserTelephone}
       />
     ),
-    { id: 'move-history-modified-by' },
+    { id: 'move-history-action-initiated-by' },
   ),
 ];
 

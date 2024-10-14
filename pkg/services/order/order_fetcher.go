@@ -160,6 +160,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 			"MTOShipments.PPMShipment",
 			"CloseoutOffice",
 			"LockedByOfficeUser",
+			"SCAssignedUser",
 			"CounselingOffice",
 			"SCAssignedUser",
 			"TOOAssignedUser",
