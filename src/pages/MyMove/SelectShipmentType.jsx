@@ -40,6 +40,7 @@ export class SelectShipmentType extends Component {
       enableNTSR: false,
       enableBoat: false,
       enableMobileHome: false,
+      enableUB: false,
     };
   }
 
@@ -69,6 +70,11 @@ export class SelectShipmentType extends Component {
     isBooleanFlagEnabled(FEATURE_FLAG_KEYS.MOBILE_HOME).then((enabled) => {
       this.setState({
         enableMobileHome: enabled,
+      });
+    });
+    isBooleanFlagEnabled(FEATURE_FLAG_KEYS.UNACCOMPANIED_BAGGAGE).then((enabled) => {
+      this.setState({
+        enableUB: enabled,
       });
     });
   }
@@ -122,6 +128,7 @@ export class SelectShipmentType extends Component {
       enableNTSR,
       enableBoat,
       enableMobileHome,
+      enableUB,
       errorMessage,
     } = this.state;
 
@@ -146,6 +153,9 @@ export class SelectShipmentType extends Component {
     const boatCardText = 'Provide information about your boat and we will determine how it will ship.';
 
     const mobileHomeCardText = 'Provide information about your mobile home.';
+
+    const ubCardText =
+      'Certain personal property items are packed and moved by professionals, paid for by the government. Subject to item type and weight limitations. This is an unaccompanied baggage shipment (UB).';
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setShipmentType(e),
@@ -209,6 +219,19 @@ export class SelectShipmentType extends Component {
                   cardText={ppmCardText}
                   checked={shipmentType === SHIPMENT_OPTIONS.PPM}
                   disabled={!shipmentInfo.isPPMSelectable}
+                  onHelpClick={this.toggleMoveInfoModal}
+                />
+              )}
+
+              {enableUB && (
+                <SelectableCard
+                  {...selectableCardDefaultProps}
+                  label="Movers pack and ship limited, essential personal property to arrive earlier (UB)"
+                  value={SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}
+                  id={SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE}
+                  cardText={ubCardText}
+                  checked={shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE && shipmentInfo.isUBSelectable}
+                  disabled={!shipmentInfo.isUBSelectable}
                   onHelpClick={this.toggleMoveInfoModal}
                 />
               )}
@@ -310,6 +333,7 @@ export class SelectShipmentType extends Component {
         <ConnectedMoveInfoModal
           isOpen={showMoveInfoModal}
           enablePPM={enablePPM}
+          enableUB={enableUB}
           closeModal={this.toggleMoveInfoModal}
         />
         <ConnectedStorageInfoModal
