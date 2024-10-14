@@ -383,7 +383,6 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
 
   const [isCounselorMoveCreateFFEnabled, setisCounselorMoveCreateFFEnabled] = useState(false);
   const [moveLockFlag, setMoveLockFlag] = useState(false);
-  const [isQueueManagementEnabled, setIsQueueManagementEnabled] = useState(false);
   const [setErrorState] = useState({ hasError: false, error: undefined, info: undefined });
   const [originLocationList, setOriginLocationList] = useState([]);
   const [ppmCloseoutOriginLocationList, setPpmCloseoutOriginLocationList] = useState([]);
@@ -414,8 +413,6 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
         setisCounselorMoveCreateFFEnabled(isEnabled);
         const lockedMoveFlag = await isBooleanFlagEnabled('move_lock');
         setMoveLockFlag(lockedMoveFlag);
-        const assignedColFlag = await isBooleanFlagEnabled('queue_management');
-        setIsQueueManagementEnabled(assignedColFlag);
       } catch (error) {
         const { message } = error;
         milmoveLogger.error({ message, info: null });
@@ -628,8 +625,6 @@ const ServicesCounselingQueue = ({ userPrivileges, isQueueManagementFFEnabled })
           csvExportQueueFetcherKey="queueMoves"
           sessionStorageKey={queueType}
           key={queueType}
-          isSupervisor={!!supervisor}
-          currentUserId={currentUserId}
         />
       </div>
     );
