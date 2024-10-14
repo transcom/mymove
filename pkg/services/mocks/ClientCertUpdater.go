@@ -24,6 +24,10 @@ type ClientCertUpdater struct {
 func (_m *ClientCertUpdater) UpdateClientCert(appCtx appcontext.AppContext, id uuid.UUID, payload *adminmessages.ClientCertificateUpdate) (*models.ClientCert, *validate.Errors, error) {
 	ret := _m.Called(appCtx, id, payload)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateClientCert")
+	}
+
 	var r0 *models.ClientCert
 	var r1 *validate.Errors
 	var r2 error

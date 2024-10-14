@@ -22,6 +22,10 @@ type PaymentServiceItemStatusUpdater struct {
 func (_m *PaymentServiceItemStatusUpdater) UpdatePaymentServiceItemStatus(appCtx appcontext.AppContext, paymentServiceItemID uuid.UUID, status models.PaymentServiceItemStatus, rejectionReason *string, eTag string) (models.PaymentServiceItem, *validate.Errors, error) {
 	ret := _m.Called(appCtx, paymentServiceItemID, status, rejectionReason, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdatePaymentServiceItemStatus")
+	}
+
 	var r0 models.PaymentServiceItem
 	var r1 *validate.Errors
 	var r2 error
