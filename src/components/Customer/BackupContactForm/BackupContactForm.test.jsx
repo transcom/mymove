@@ -20,18 +20,18 @@ describe('BackupContactForm Component', () => {
     const { getByLabelText } = render(<BackupContactForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Name')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Name')).toBeRequired();
-      expect(getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Phone')).toBeRequired();
-      expect(getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Email')).toBeRequired();
+      expect(getByLabelText(/Name/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Name/)).toBeRequired();
+      expect(getByLabelText(/Phone/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Phone/)).toBeRequired();
+      expect(getByLabelText(/Email/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Email/)).toBeRequired();
     });
   });
 
   it('validates the contact phone field', async () => {
     const { getByText, getByLabelText } = render(<BackupContactForm {...testProps} />);
-    await userEvent.type(getByLabelText('Phone'), '12345');
+    await userEvent.type(getByLabelText(/Phone/), '12345');
     await userEvent.tab();
 
     await waitFor(() => {
@@ -43,7 +43,7 @@ describe('BackupContactForm Component', () => {
 
   it('validates the email field', async () => {
     const { getByText, getByLabelText } = render(<BackupContactForm {...testProps} />);
-    await userEvent.type(getByLabelText('Email'), 'sample@');
+    await userEvent.type(getByLabelText(/Email/), 'sample@');
     await userEvent.tab();
 
     await waitFor(() => {
@@ -52,17 +52,17 @@ describe('BackupContactForm Component', () => {
   });
 
   it('shows an error message when trying to submit an invalid form', async () => {
-    const { getAllByText, getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
+    const { getAllByTestId, getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
     // Touch all of the required fields so that they show error messages
-    await userEvent.click(getByLabelText('Name'));
-    await userEvent.click(getByLabelText('Phone'));
-    await userEvent.click(getByLabelText('Email'));
+    await userEvent.click(getByLabelText(/Name/));
+    await userEvent.click(getByLabelText(/Phone/));
+    await userEvent.click(getByLabelText(/Email/));
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(3);
+      expect(getAllByTestId('errorMessage').length).toBe(3);
     });
 
     expect(testProps.onSubmit).not.toHaveBeenCalled();
@@ -72,9 +72,9 @@ describe('BackupContactForm Component', () => {
     const { getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Name'), 'Joe Schmoe');
-    await userEvent.type(getByLabelText('Phone'), '555-555-5555');
-    await userEvent.type(getByLabelText('Email'), 'test@sample.com');
+    await userEvent.type(getByLabelText(/Name/), 'Joe Schmoe');
+    await userEvent.type(getByLabelText(/Phone/), '555-555-5555');
+    await userEvent.type(getByLabelText(/Email/), 'test@sample.com');
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -86,9 +86,9 @@ describe('BackupContactForm Component', () => {
     const { getByRole, getByLabelText } = render(<BackupContactForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    await userEvent.type(getByLabelText('Name'), 'Janey Profaney');
-    await userEvent.type(getByLabelText('Phone'), '555-555-1111');
-    await userEvent.click(getByLabelText('Email'));
+    await userEvent.type(getByLabelText(/Name/), 'Janey Profaney');
+    await userEvent.type(getByLabelText(/Phone/), '555-555-1111');
+    await userEvent.click(getByLabelText(/Email/));
     await userEvent.click(backBtn);
 
     await waitFor(() => {
