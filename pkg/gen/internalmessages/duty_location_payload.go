@@ -48,6 +48,9 @@ type DutyLocationPayload struct {
 	// Required: true
 	Name *string `json:"name"`
 
+	// provides services counseling
+	ProvidesServicesCounseling bool `json:"provides_services_counseling,omitempty"`
+
 	// transportation office
 	TransportationOffice *TransportationOffice `json:"transportation_office,omitempty"`
 

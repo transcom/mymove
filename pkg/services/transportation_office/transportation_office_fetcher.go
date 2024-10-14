@@ -21,7 +21,7 @@ func NewTransportationOfficesFetcher() services.TransportationOfficesFetcher {
 
 func (o transportationOfficesFetcher) GetTransportationOffice(appCtx appcontext.AppContext, transportationOfficeID uuid.UUID, includeOnlyPPMCloseoutOffices bool) (*models.TransportationOffice, error) {
 	var transportationOffice models.TransportationOffice
-	err := appCtx.DB().EagerPreload("Address").
+	err := appCtx.DB().EagerPreload("Address", "Address.Country").
 		Where("provides_ppm_closeout = ?", includeOnlyPPMCloseoutOffices).
 		Find(&transportationOffice, transportationOfficeID)
 
@@ -84,7 +84,7 @@ func FindTransportationOffice(appCtx appcontext.AppContext, search string, forPp
 		}
 	}
 	for i := range officeList {
-		err := appCtx.DB().Load(&officeList[i], "Address")
+		err := appCtx.DB().Load(&officeList[i], "Address", "Address.Country")
 		if err != nil {
 			return officeList, err
 		}

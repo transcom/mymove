@@ -8,6 +8,8 @@ import (
 
 	models "github.com/transcom/mymove/pkg/models"
 
+	roles "github.com/transcom/mymove/pkg/models/roles"
+
 	services "github.com/transcom/mymove/pkg/services"
 
 	uuid "github.com/gofrs/uuid"
@@ -78,9 +80,9 @@ func (_m *OrderFetcher) ListAllOrderLocations(appCtx appcontext.AppContext, offi
 	return r0, r1
 }
 
-// ListOrders provides a mock function with given fields: appCtx, officeUserID, params
-func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, params *services.ListOrderParams) ([]models.Move, int, error) {
-	ret := _m.Called(appCtx, officeUserID, params)
+// ListOrders provides a mock function with given fields: appCtx, officeUserID, role, params
+func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid.UUID, role roles.RoleType, params *services.ListOrderParams) ([]models.Move, int, error) {
+	ret := _m.Called(appCtx, officeUserID, role, params)
 
 	if len(ret) == 0 {
 		panic("no return value specified for ListOrders")
@@ -89,25 +91,25 @@ func (_m *OrderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uu
 	var r0 []models.Move
 	var r1 int
 	var r2 error
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) ([]models.Move, int, error)); ok {
-		return rf(appCtx, officeUserID, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, roles.RoleType, *services.ListOrderParams) ([]models.Move, int, error)); ok {
+		return rf(appCtx, officeUserID, role, params)
 	}
-	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) []models.Move); ok {
-		r0 = rf(appCtx, officeUserID, params)
+	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, roles.RoleType, *services.ListOrderParams) []models.Move); ok {
+		r0 = rf(appCtx, officeUserID, role, params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]models.Move)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) int); ok {
-		r1 = rf(appCtx, officeUserID, params)
+	if rf, ok := ret.Get(1).(func(appcontext.AppContext, uuid.UUID, roles.RoleType, *services.ListOrderParams) int); ok {
+		r1 = rf(appCtx, officeUserID, role, params)
 	} else {
 		r1 = ret.Get(1).(int)
 	}
 
-	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, *services.ListOrderParams) error); ok {
-		r2 = rf(appCtx, officeUserID, params)
+	if rf, ok := ret.Get(2).(func(appcontext.AppContext, uuid.UUID, roles.RoleType, *services.ListOrderParams) error); ok {
+		r2 = rf(appCtx, officeUserID, role, params)
 	} else {
 		r2 = ret.Error(2)
 	}

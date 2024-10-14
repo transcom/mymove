@@ -137,4 +137,8 @@ func main() {
 	}
 
 	fmt.Print(edi858String)
+	err = models.CreatePaymentRequestEdiFile(appCtx.DB(), "858."+paymentRequest.PaymentRequestNumber, edi858String, paymentRequestNumber)
+	if err != nil {
+		logger.Fatal(err.Error())
+	}
 }

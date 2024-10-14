@@ -24,10 +24,10 @@ func NewLinesOfAccountingFetcher(tacFetcher services.TransportationAccountingCod
 }
 
 // This function returns all applicable long lines of accounting that can be sorted later according to business rules
-func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
-	// Fetch the TACs associated with this order and service member affiliation
+func (f linesOfAccountingFetcher) FetchLongLinesOfAccounting(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
+	// Fetch the TACs associated with this order and department indicator
 	// Our lines of accounting will be present here
-	tacs, err := f.FetchOrderTransportationAccountingCodes(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+	tacs, err := f.FetchOrderTransportationAccountingCodes(departmentIndicator, ordersIssueDate, tacCode, appCtx)
 	if err != nil {
 		return []models.LineOfAccounting{}, err
 	}

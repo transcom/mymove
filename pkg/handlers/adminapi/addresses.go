@@ -5,6 +5,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// Country payload
+func Country(country *models.Country) *string {
+	if country == nil {
+		return nil
+	}
+	return &country.Country
+}
+
 func payloadForAddressModel(a *models.Address) *adminmessages.Address {
 	if a == nil {
 		return nil
@@ -16,7 +24,7 @@ func payloadForAddressModel(a *models.Address) *adminmessages.Address {
 		City:           models.StringPointer(a.City),
 		State:          models.StringPointer(a.State),
 		PostalCode:     models.StringPointer(a.PostalCode),
-		Country:        a.Country,
+		Country:        Country(a.Country),
 		County:         &a.County,
 	}
 }

@@ -28,6 +28,9 @@ properties:
   updated_at:
     type: string
     format: date-time
+  provides_services_counseling:
+    type: boolean
+    x-nullable: false
 required:
   - id
   - name

@@ -22,10 +22,12 @@ const setUnapprovedSITExtensionCount = jest.fn();
 const setMissingOrdersInfoCount = jest.fn();
 const setShipmentErrorConcernCount = jest.fn();
 
+const mockNavigate = jest.fn();
+const mockRequestedMoveCode = 'TE5TC0DE';
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
-  useParams: () => ({ moveCode: 'TE5TC0DE' }),
-  useLocation: jest.fn(),
+  useParams: () => ({ moveCode: mockRequestedMoveCode }),
+  useNavigate: () => mockNavigate,
 }));
 
 const requestedMoveDetailsQuery = {
@@ -1106,6 +1108,16 @@ describe('MoveDetails page', () => {
 
       expect(await screen.getByRole('link', { name: 'Edit orders' })).toBeInTheDocument();
       expect(screen.queryByRole('link', { name: 'View orders' })).not.toBeInTheDocument();
+    });
+
+    it('renders add new shipment button when user has permission', async () => {
+      render(
+        <MockProviders permissions={[permissionTypes.createTxoShipment]}>
+          <MoveDetails {...testProps} />
+        </MockProviders>,
+      );
+
+      expect(await screen.getByRole('combobox', { name: 'Add a new shipment' })).toBeInTheDocument();
     });
 
     it('renders view orders button if user does not have permission to update', async () => {

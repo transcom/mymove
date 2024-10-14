@@ -14,6 +14,7 @@ import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentStatuses } from 'constants/shipments';
 import { shipment } from 'shared/Entities/schema';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -26,6 +27,12 @@ const mockRoutingConfig = {
     mtoShipmentId: mockMTOShipmentId,
   },
 };
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -277,6 +284,7 @@ describe('About page', () => {
   });
 
   it('displays an error when the patch shipment API fails', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
     const mockErrorMsg = 'Error Updating';
     await getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     await patchMTOShipment.mockRejectedValue(mockErrorMsg);

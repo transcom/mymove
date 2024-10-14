@@ -21,14 +21,14 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 	suite.Run("returns no error if send is false", func() {
 		sftpSender := services.SyncadaSFTPSender(nil)
 		gexSender := services.GexSender(nil)
-		err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, false)
+		_, err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, false)
 		suite.NoError(err)
 	})
 
 	suite.Run("returns error if no sender", func() {
 		sftpSender := services.SyncadaSFTPSender(nil)
 		gexSender := services.GexSender(nil)
-		err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Equal("cannot send to Syncada, SendToSyncada() senders are nil", err.Error())
 	})
@@ -40,7 +40,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		gexSender.
 			On("SendToGex", services.GEXChannelInvoice, fakeEdi, filenameMatcher).Return(response, nil)
-		err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.NoError(err)
 	})
 
@@ -51,7 +51,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		gexSender.
 			On("SendToGex", services.GEXChannelInvoice, fakeEdi, filenameMatcher).Return(response, nil)
-		err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Contains("received error response when sending EDI to GEX &{ 403  0 0 map[] <nil> 0 [] false false map[] <nil> <nil>}", err.Error())
 	})
@@ -62,7 +62,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		gexSender.
 			On("SendToGex", services.GEXChannelInvoice, fakeEdi, filenameMatcher).Return(nil, nil)
-		err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Contains("no response when sending EDI to GEX", err.Error())
 	})
@@ -73,7 +73,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		gexSender := &mocks.GexSender{}
 		gexSender.
 			On("SendToGex", services.GEXChannelInvoice, fakeEdi, filenameMatcher).Return(nil, fmt.Errorf("gex send threw error"))
-		err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Contains("GEX sender encountered an error: gex send threw error", err.Error())
 	})
@@ -85,7 +85,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		sftpSender.
 			On("SendToSyncadaViaSFTP", mock.AnythingOfType("*appcontext.appContext"), mock.Anything, filenameMatcher).Return(bytesSent, fmt.Errorf("test error"))
 		gexSender := services.GexSender(nil)
-		err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), "edi string", 12345, gexSender, sftpSender, true)
 		suite.Error(err)
 		suite.Equal("test error", err.Error())
 	})
@@ -98,7 +98,7 @@ func (suite *PaymentRequestHelperSuite) TestSendToSyncada() {
 		sftpSender.
 			On("SendToSyncadaViaSFTP", mock.AnythingOfType("*appcontext.appContext"), strings.NewReader(fakeEdi), filenameMatcher).Return(bytesSent, nil)
 		gexSender := services.GexSender(nil)
-		err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
+		_, err := SendToSyncada(suite.AppContextForTest(), fakeEdi, 12345, gexSender, sftpSender, true)
 		suite.NoError(err)
 	})
 }

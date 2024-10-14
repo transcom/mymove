@@ -190,8 +190,9 @@ class MtoShipmentForm extends Component {
     const isNTSR = shipmentType === SHIPMENT_OPTIONS.NTSR;
     const isBoat = shipmentType === SHIPMENT_TYPES.BOAT_HAUL_AWAY || shipmentType === SHIPMENT_TYPES.BOAT_TOW_AWAY;
     const isMobileHome = shipmentType === SHIPMENT_TYPES.MOBILE_HOME;
+    const isUB = shipmentType === SHIPMENT_OPTIONS.UNACCOMPANIED_BAGGAGE;
     const shipmentNumber =
-      shipmentType === SHIPMENT_OPTIONS.HHG || isBoat || isMobileHome ? this.getShipmentNumber() : null;
+      shipmentType === SHIPMENT_OPTIONS.HHG || isBoat || isMobileHome || isUB ? this.getShipmentNumber() : null;
     const isRetireeSeparatee =
       orders.orders_type === ORDERS_TYPE.RETIREMENT || orders.orders_type === ORDERS_TYPE.SEPARATION;
 
@@ -311,14 +312,14 @@ class MtoShipmentForm extends Component {
 
                   <div className={styles.MTOShipmentForm}>
                     <ShipmentTag shipmentType={shipmentType} shipmentNumber={shipmentNumber} />
-
                     <h1>{shipmentForm.header[`${shipmentType}`]}</h1>
-
                     <Alert headingLevel="h4" type="info" noIcon>
-                      Remember: You can move {formatWeight(orders.authorizedWeight)} total. You’ll be billed for any
-                      excess weight you move.
+                      Remember: You can move
+                      {isUB
+                        ? ` up to your UB allowance for this move`
+                        : ` ${formatWeight(orders.authorizedWeight)} total`}
+                      . You’ll be billed for any excess weight you move.
                     </Alert>
-
                     <Form className={formStyles.form}>
                       {showPickupFields && (
                         <SectionWrapper className={formStyles.formSection}>
@@ -628,7 +629,7 @@ class MtoShipmentForm extends Component {
                         </SectionWrapper>
                       )}
 
-                      {!isBoat && (
+                      {!isBoat && !isMobileHome && (
                         <SectionWrapper className={formStyles.formSection}>
                           <Fieldset legend={<div className={formStyles.legendContent}>Remarks</div>}>
                             <Label htmlFor="customerRemarks">

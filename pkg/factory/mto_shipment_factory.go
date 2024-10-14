@@ -41,6 +41,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 	// defaults change depending on mtoshipment build type
 	defaultShipmentType := models.MTOShipmentTypeHHG
 	defaultStatus := models.MTOShipmentStatusSubmitted
+	defaultMarketCode := models.MarketCodeDomestic
 	setupPickupAndDelivery := true
 	hasStorageFacilityCustom := findValidCustomization(customs, StorageFacility) != nil
 	buildStorageFacility :=
@@ -75,6 +76,7 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 		MoveTaskOrderID: move.ID,
 		ShipmentType:    defaultShipmentType,
 		Status:          defaultStatus,
+		MarketCode:      defaultMarketCode,
 	}
 
 	if cMtoShipment.Status == models.MTOShipmentStatusApproved {
@@ -375,6 +377,11 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 		if db != nil {
 			mustSave(db, &mtoShipment)
 		}
+	}
+
+	mtoShipment.MarketCode = models.MarketCodeDomestic
+	if db != nil {
+		mustSave(db, &mtoShipment)
 	}
 
 	return mtoShipment

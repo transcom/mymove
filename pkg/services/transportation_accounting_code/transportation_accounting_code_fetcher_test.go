@@ -60,14 +60,14 @@ func (suite *TransportationAccountingCodeServiceSuite) TestFetchOrderTransportat
 		}, nil)
 
 		testCases := []struct {
-			affiliation models.ServiceMemberAffiliation
-			shouldError bool
+			departmentIndicator models.DepartmentIndicator
+			shouldError         bool
 		}{
-			{models.AffiliationCOASTGUARD, false},
-			{models.AffiliationARMY, false},
+			{models.DepartmentIndicatorCOASTGUARD, false},
+			{models.DepartmentIndicatorARMY, false},
 		}
 		for _, testCase := range testCases {
-			tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(testCase.affiliation, ordersIssueDate, tacCode, suite.AppContextForTest())
+			tacs, err := suite.tacFetcher.FetchOrderTransportationAccountingCodes(testCase.departmentIndicator, ordersIssueDate, tacCode, suite.AppContextForTest())
 			if testCase.shouldError {
 				suite.Error(err)
 			} else {

@@ -15,8 +15,8 @@ import { customerRoutes } from 'constants/routes';
 import 'scenes/Review/Review.css';
 import { selectAllMoves, selectServiceMemberFromLoggedInUser } from 'store/entities/selectors';
 import formStyles from 'styles/form.module.scss';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
-import { isPPMShipmentComplete } from 'utils/shipments';
+import { SHIPMENT_TYPES } from 'shared/constants';
+import { isPPMShipmentComplete, isBoatShipmentComplete, isMobileHomeShipmentComplete } from 'utils/shipments';
 import { useTitle } from 'hooks/custom';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { getAllMoves } from 'services/internalApi';
@@ -71,11 +71,22 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
 
   const inDraftStatus = move.status === MOVE_STATUSES.DRAFT;
 
-  // PPM shipments can be left in an incomplete state, disable proceeding to the signature move
+  // PPM, boat, and mobile home shipments can be left in an incomplete state, disable proceeding to the signature move
   // submission page to force them to complete or delete the shipment.
-  const hasCompletedPPMShipments = mtoShipments
-    ?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)
-    ?.every((s) => isPPMShipmentComplete(s));
+  const hasIncompleteShipment = () => {
+    if (!mtoShipments) return false;
+    const shipmentValidators = {
+      [SHIPMENT_TYPES.PPM]: isPPMShipmentComplete,
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: isBoatShipmentComplete,
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY]: isBoatShipmentComplete,
+      [SHIPMENT_TYPES.MOBILE_HOME]: isMobileHomeShipmentComplete,
+    };
+
+    return mtoShipments.some((shipment) => {
+      const validateShipment = shipmentValidators[shipment.shipmentType];
+      return validateShipment && !validateShipment(shipment);
+    });
+  };
 
   return (
     <GridContainer>
@@ -98,7 +109,7 @@ const Review = ({ serviceMemberId, serviceMemberMoves, updateAllMoves }) => {
             <div className={formStyles.formActions}>
               <WizardNavigation
                 onNextClick={handleNext}
-                disableNext={!hasCompletedPPMShipments || !mtoShipments.length}
+                disableNext={hasIncompleteShipment() || !mtoShipments?.length}
                 onCancelClick={handleCancel}
                 isFirstPage
                 showFinishLater

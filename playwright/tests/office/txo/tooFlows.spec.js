@@ -701,7 +701,7 @@ test.describe('TOO user', () => {
         .press('Enter');
       await page.getByTestId('locator-0').click();
       await page.getByRole('link', { name: 'Payment requests' }).click();
-      await page.getByRole('button', { name: 'Review weights' }).click();
+      await page.getByRole('button', { name: 'Review shipment weights' }).click();
       await page.getByRole('button', { name: 'Review shipment weights' }).click();
       await page.getByRole('button', { name: 'Back' }).click();
       await page.getByRole('link', { name: 'Payment requests' }).click();

@@ -100,11 +100,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -274,8 +276,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {
@@ -989,11 +989,13 @@ func init() {
           "example": "Anytown"
         },
         "country": {
+          "description": "Two-letter country code",
           "type": "string",
           "title": "Country",
-          "default": "USA",
+          "default": "US",
+          "pattern": "^[A-Z]{2}$",
           "x-nullable": true,
-          "example": "USA"
+          "example": "US"
         },
         "county": {
           "type": "string",
@@ -1163,8 +1165,6 @@ func init() {
         "AIR_FORCE",
         "COAST_GUARD",
         "SPACE_FORCE",
-        "NAVY_AND_MARINES",
-        "AIR_AND_SPACE_FORCE",
         "OTHER"
       ],
       "x-display-value": {

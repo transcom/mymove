@@ -3,6 +3,8 @@ package notifications
 import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/factory"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (suite *NotificationSuite) TestMoveSubmitted() {
@@ -50,6 +52,103 @@ func (suite *NotificationSuite) TestMoveSubmittedoriginDSTransportInfoIsNil() {
 	suite.Contains(email.textBody, move.Orders.OriginDutyLocation.Name)
 }
 
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsFirstShipmentForSeparatee() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeSEPARATION,
+			},
+		},
+	}, nil)
+	notification := NewMoveSubmitted(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Thank you for submitting your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
+}
+
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsFirstShipmentForRetiree() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypeRETIREMENT,
+			},
+		},
+	}, nil)
+	notification := NewMoveSubmitted(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Thank you for submitting your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.Contains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.City)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.State)
+	suite.Contains(email.textBody, move.MTOShipments[0].DestinationAddress.PostalCode)
+}
+
+func (suite *NotificationSuite) TestMoveSubmittedDestinationIsDutyStationForPcsType() {
+	move := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+		{
+			Model: models.Order{
+				OrdersType: internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
+			},
+		},
+	}, nil)
+	notification := NewMoveSubmitted(move.ID)
+
+	emails, err := notification.emails(suite.AppContextWithSessionForTest(&auth.Session{
+		ServiceMemberID: move.Orders.ServiceMember.ID,
+		ApplicationName: auth.MilApp,
+	}))
+	subject := "Thank you for submitting your move details"
+
+	suite.NoError(err)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.Equal(email.subject, subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+	suite.Contains(email.textBody, move.Orders.NewDutyLocation.Name)
+	suite.NotContains(email.textBody, move.MTOShipments[0].DestinationAddress.StreetAddress1)
+	suite.NotContains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress2)
+	suite.NotContains(email.textBody, *move.MTOShipments[0].DestinationAddress.StreetAddress3)
+}
+
 func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounseling() {
 	approver := factory.BuildUser(nil, nil, nil)
 	move := factory.BuildMove(suite.DB(), nil, nil)
@@ -60,7 +159,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithGovCounse
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                &originDutyLocation,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
@@ -172,7 +271,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderWithoutGovCou
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                &originDutyLocation,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
@@ -271,7 +370,7 @@ func (suite *NotificationSuite) TestMoveSubmittedHTMLTemplateRenderNoDutyLocatio
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                nil,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       nil,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",
@@ -374,7 +473,7 @@ func (suite *NotificationSuite) TestMoveSubmittedTextTemplateRender() {
 
 	s := moveSubmittedEmailData{
 		OriginDutyLocation:                &originDutyLocation,
-		DestinationDutyLocation:           "destDutyLocation",
+		DestinationLocation:               "destDutyLocation",
 		OriginDutyLocationPhoneLine:       &originDutyLocationPhoneLine,
 		Locator:                           "abc123",
 		WeightAllowance:                   "7,999",

@@ -74,7 +74,7 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText(formatWeight(shipments[2].calculatedBillableWeight))).toBeInTheDocument();
   });
 
-  it('implements the review weights handler when the review weights button is clicked', async () => {
+  it('implements the review weights handler when the review shipment weights button is clicked', async () => {
     const shipments = [
       {
         id: '0001',
@@ -87,7 +87,7 @@ describe('BillableWeightCard', () => {
     ];
     renderWithPermission({ shipments });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
     await userEvent.click(reviewWeights);
 
@@ -96,17 +96,17 @@ describe('BillableWeightCard', () => {
     });
   });
 
-  it('should disable review weights button if no shipments are present', async () => {
+  it('should disable review shipment weights button if no shipments are present', async () => {
     const shipments = [];
     renderWithPermission({ shipments });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
     expect(reviewWeights).toHaveAttribute('disabled');
     expect(reviewWeights).toBeDisabled();
   });
 
-  it('should disable review weights button if the move is locked', async () => {
+  it('should disable review shipment weights button if the move is locked', async () => {
     const shipments = [
       {
         id: '0001',
@@ -120,7 +120,7 @@ describe('BillableWeightCard', () => {
     const isMoveLocked = true;
     renderWithPermission({ shipments, isMoveLocked });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
     expect(reviewWeights).toHaveAttribute('disabled');
     expect(reviewWeights).toBeDisabled();
@@ -139,7 +139,7 @@ describe('BillableWeightCard', () => {
     ];
     renderWithPermission({ shipments, secondaryReviewWeightsBtn: true });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
     expect(reviewWeights).toHaveClass('usa-button--secondary');
   });
 
@@ -155,7 +155,7 @@ describe('BillableWeightCard', () => {
     ];
     renderWithPermission({ shipments });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
   });
 
@@ -175,7 +175,7 @@ describe('BillableWeightCard', () => {
       </MockProviders>,
     );
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
   });
 
@@ -191,7 +191,7 @@ describe('BillableWeightCard', () => {
     ];
     renderWithPermission({ shipments });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
   });
 
@@ -216,7 +216,7 @@ describe('BillableWeightCard', () => {
     ];
     renderWithPermission({ ...props, shipments });
 
-    const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
     expect(reviewWeights).not.toHaveClass('usa-button--secondary');
   });
 
@@ -286,7 +286,7 @@ describe('BillableWeightCard', () => {
     expect(screen.getByText('4,500 lbs')).toBeInTheDocument();
   });
 
-  it('does not show the review weights button with no permission', () => {
+  it('does not show the review shipment weights button with no permission', () => {
     const shipments = [
       {
         id: '0001',
@@ -299,7 +299,7 @@ describe('BillableWeightCard', () => {
     ];
     render(<BillableWeightCard {...defaultProps} shipments={shipments} />);
 
-    const reviewWeights = screen.queryByRole('button', { name: 'Review weights' });
+    const reviewWeights = screen.queryByRole('button', { name: 'Review shipment weights' });
     expect(reviewWeights).not.toBeInTheDocument();
   });
 

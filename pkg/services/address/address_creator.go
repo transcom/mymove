@@ -1,6 +1,8 @@
 package address
 
 import (
+	"fmt"
+
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/appcontext"
@@ -36,6 +38,54 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		transformedAddress.County = county
 	}
 
+	// until international moves are supported, we will default the country for created addresses to "US"
+	if address.Country != nil && address.Country.Country != "US" {
+		return nil, fmt.Errorf("- the country %s is not supported at this time - only US is allowed", address.Country.Country)
+	}
+
+	if address.Country != nil && address.Country.Country != "" {
+		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.Country = &country
+		transformedAddress.CountryId = &country.ID
+	} else {
+		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.Country = &country
+		transformedAddress.CountryId = &country.ID
+	}
+
+	// use the data we have first, if it's not nil
+	if transformedAddress.Country != nil {
+		country := transformedAddress.Country
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			boolTrueVal := true
+			transformedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			transformedAddress.IsOconus = &boolFalseVal
+		}
+	} else if transformedAddress.CountryId != nil {
+		country, err := models.FetchCountryByID(appCtx.DB(), *transformedAddress.CountryId)
+		if err != nil {
+			return nil, err
+		}
+		if country.Country != "US" || country.Country == "US" && transformedAddress.State == "AK" || country.Country == "US" && transformedAddress.State == "HI" {
+			boolTrueVal := true
+			transformedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			transformedAddress.IsOconus = &boolFalseVal
+		}
+	} else {
+		boolFalseVal := false
+		transformedAddress.IsOconus = &boolFalseVal
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().Eager().ValidateAndCreate(&transformedAddress)
 		if verrs != nil && verrs.HasAny() {
@@ -63,7 +113,7 @@ func transformNilValuesForOptionalFields(address models.Address) models.Address 
 		transformedAddress.StreetAddress3 = nil
 	}
 
-	if transformedAddress.Country != nil && *transformedAddress.Country == "" {
+	if transformedAddress.Country != nil && transformedAddress.Country.Country == "" {
 		transformedAddress.Country = nil
 	}
 

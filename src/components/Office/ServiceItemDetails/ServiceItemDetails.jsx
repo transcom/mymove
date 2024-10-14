@@ -58,8 +58,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               'SIT entry date': details.sitEntryDate ? formatDateWithUTC(details.sitEntryDate, 'DD MMM YYYY') : '-',
             })
           : null}
-        {code === 'DDASIT'
-          ? generateDetailText(
+        {code === 'DDASIT' && (
+          <>
+            {generateDetailText(
               {
                 'Original delivery address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -71,8 +72,21 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                 'SIT expiration date': sitEndDate || '-',
               },
               id,
-            )
-          : null}
+            )}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
         {code === 'DDSFSC'
           ? generateDetailText(
               {
@@ -88,8 +102,9 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
               id,
             )
           : null}
-        {code === 'DDDSIT'
-          ? generateDetailText(
+        {code === 'DDDSIT' && (
+          <>
+            {generateDetailText(
               {
                 'Original delivery address': originalDeliveryAddress
                   ? formatCityStateAndPostalCode(originalDeliveryAddress)
@@ -110,8 +125,21 @@ const generateDestinationSITDetailSection = (id, serviceRequestDocUploads, detai
                   : '-',
               },
               id,
-            )
-          : null}
+            )}
+            {!isEmpty(serviceRequestDocUploads) ? (
+              <div className={styles.uploads}>
+                <p className={styles.detailType}>Download service item documentation:</p>
+                {serviceRequestDocUploads.map((file) => (
+                  <div className={styles.uploads}>
+                    <a href={file.url} download>
+                      {trimFileName(file.filename)}
+                    </a>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+          </>
+        )}
         {code === 'DDFSIT' && (
           <>
             {!isEmpty(sortedCustomerContacts)

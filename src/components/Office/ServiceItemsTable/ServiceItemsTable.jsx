@@ -146,17 +146,27 @@ const ServiceItemsTable = ({
   }
 
   function generateResubmissionDetailsText(details) {
-    let resultStringToDisplay = '';
-    if (details) {
-      const keys = Object.keys(details.changedValues);
-      keys.forEach((key) => {
-        const formattedKeyString = formatKeyStringsForToolTip(key);
-        const newValue = details.changedValues[key];
-        const oldValue = details.oldValues[key];
-        resultStringToDisplay += `${formattedKeyString}\nNew: ${newValue} \nPrevious: ${oldValue}\n\n`;
-      });
-    }
-    return resultStringToDisplay;
+    if (!details) return '';
+
+    const keys = Object.keys(details.changedValues);
+
+    return keys.map((key) => {
+      const formattedKeyString = formatKeyStringsForToolTip(key);
+      const newValue = details.changedValues[key];
+      const oldValue = details.oldValues[key];
+
+      return (
+        <div key={key} className={styles.resubmissionDetails}>
+          <div>{formattedKeyString?.toUpperCase()}</div>
+          <div>
+            <strong>New:</strong> <span className={styles.detailValue}>{newValue?.toString()}</span>
+          </div>
+          <div>
+            <strong>Previous:</strong> <span className={styles.detailValue}>{oldValue?.toString()}</span>
+          </div>
+        </div>
+      );
+    });
   }
 
   const history = useGHCGetMoveHistory({ moveCode });
@@ -201,7 +211,7 @@ const ServiceItemsTable = ({
         <tr key={id}>
           <td className={styles.nameAndDate}>
             <div className={styles.codeName}>
-              {serviceItem.serviceItem}
+              <span className={styles.serviceItemName}>{serviceItem.serviceItem}</span>
               {code === 'DCRT' && serviceItem.details.standaloneCrate && ' - Standalone'}
               {ALLOWED_RESUBMISSION_SI_CODES.includes(code) && resubmittedToolTip.isResubmitted ? (
                 <ToolTip
@@ -210,6 +220,8 @@ const ServiceItemsTable = ({
                   text={resubmittedToolTip.formattedResubmissionDetails}
                   position="bottom"
                   color="#0050d8"
+                  title={serviceItem.serviceItem}
+                  closeOnLeave
                 />
               ) : null}
               {ALLOWED_SIT_UPDATE_SI_CODES.includes(code) && hasPaymentRequestBeenMade ? (
@@ -217,6 +229,8 @@ const ServiceItemsTable = ({
                   text="This cannot be changed due to a payment request existing for this service item."
                   color="#d54309"
                   icon="circle-exclamation"
+                  title={serviceItem.serviceItem}
+                  closeOnLeave
                 />
               ) : null}
             </div>

@@ -148,6 +148,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		Status:                shipmentStatus,
 		StorageFacilityID:     storageFacilityID,
 		StorageFacility:       storageFacilityPtr,
+		MarketCode:            models.MarketCodeDomestic,
 	}
 
 	if assertions.MTOShipment.DestinationType != nil {

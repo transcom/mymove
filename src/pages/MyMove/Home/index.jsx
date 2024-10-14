@@ -33,7 +33,7 @@ import { ppmShipmentStatuses, shipmentTypes } from 'constants/shipments';
 import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 import { deleteMTOShipment, getMTOShipmentsForMove, downloadPPMAOAPacket } from 'services/internalApi';
 import { withContext } from 'shared/AppContext';
-import { SHIPMENT_OPTIONS } from 'shared/constants';
+import { SHIPMENT_OPTIONS, SHIPMENT_TYPES } from 'shared/constants';
 import {
   getSignedCertification as getSignedCertificationAction,
   selectSignedCertification,
@@ -53,7 +53,13 @@ import {
 import { MoveShape, OrdersShape, UploadShape } from 'types/customerShapes';
 import { ShipmentShape } from 'types/shipment';
 import { formatCustomerDate, formatWeight } from 'utils/formatters';
-import { isPPMAboutInfoComplete, isPPMShipmentComplete, isWeightTicketComplete } from 'utils/shipments';
+import {
+  isPPMAboutInfoComplete,
+  isPPMShipmentComplete,
+  isBoatShipmentComplete,
+  isMobileHomeShipmentComplete,
+  isWeightTicketComplete,
+} from 'utils/shipments';
 import withRouter from 'utils/routing';
 import { RouterShape } from 'types/router';
 import { ADVANCE_STATUSES } from 'constants/ppms';
@@ -132,11 +138,6 @@ export class Home extends Component {
     return !!Object.keys(move).length && move.status !== 'DRAFT';
   }
 
-  get hasPPMShipments() {
-    const { mtoShipments } = this.props;
-    return mtoShipments?.some((shipment) => shipment.ppmShipment);
-  }
-
   get hasSubmittedPPMCloseout() {
     const { mtoShipments } = this.props;
     const finishedCloseout = mtoShipments.filter(
@@ -145,9 +146,20 @@ export class Home extends Component {
     return !!finishedCloseout.length;
   }
 
-  get hasAllCompletedPPMShipments() {
+  get hasIncompleteShipment() {
     const { mtoShipments } = this.props;
-    return mtoShipments?.filter((s) => s.shipmentType === SHIPMENT_OPTIONS.PPM)?.every((s) => isPPMShipmentComplete(s));
+    if (!mtoShipments) return false;
+    const shipmentValidators = {
+      [SHIPMENT_TYPES.PPM]: isPPMShipmentComplete,
+      [SHIPMENT_TYPES.BOAT_HAUL_AWAY]: isBoatShipmentComplete,
+      [SHIPMENT_TYPES.BOAT_TOW_AWAY]: isBoatShipmentComplete,
+      [SHIPMENT_TYPES.MOBILE_HOME]: isMobileHomeShipmentComplete,
+    };
+
+    return mtoShipments.some((shipment) => {
+      const validateShipment = shipmentValidators[shipment.shipmentType];
+      return validateShipment && !validateShipment(shipment);
+    });
   }
 
   get hasAdvanceApproved() {
@@ -545,7 +557,7 @@ export class Home extends Component {
                     actionBtnDisabled={!this.hasOrders}
                     actionBtnId="shipment-selection-btn"
                     onActionBtnClick={() => this.handleNewPathClick(shipmentSelectionPath)}
-                    complete={this.hasPPMShipments ? this.hasAllCompletedPPMShipments : this.hasAnyShipments}
+                    complete={!this.hasIncompleteShipment && this.hasAnyShipments}
                     completedHeaderText="Shipments"
                     headerText="Set up shipments"
                     secondaryBtn={this.hasAnyShipments}
@@ -576,7 +588,7 @@ export class Home extends Component {
                     )}
                   </Step>
                   <Step
-                    actionBtnDisabled={this.hasPPMShipments ? !this.hasAllCompletedPPMShipments : !this.hasAnyShipments}
+                    actionBtnDisabled={this.hasIncompleteShipment || !this.hasAnyShipments}
                     actionBtnId="review-and-submit-btn"
                     actionBtnLabel={!this.hasSubmittedMove ? 'Review and submit' : 'Review your request'}
                     complete={this.hasSubmittedMove}

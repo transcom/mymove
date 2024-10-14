@@ -11,6 +11,7 @@ import { ORDERS_PAY_GRADE_OPTIONS } from 'constants/orders';
 import { dropdownInputOptions } from 'utils/formatters';
 import WizardNavigation from 'components/Customer/WizardNavigation/WizardNavigation';
 import Callout from 'components/Callout';
+import ConnectedFlashMessage from 'containers/FlashMessage/FlashMessage';
 
 const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isSafetyMoveSelected }) => {
   const payGradeOptions = dropdownInputOptions(ORDERS_PAY_GRADE_OPTIONS);
@@ -37,6 +38,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
         const isRetirementOrSeparation = ['RETIREMENT', 'SEPARATION'].includes(values.ordersType);
         return (
           <Form className={`${formStyles.form}`}>
+            <ConnectedFlashMessage />
             <h1>Tell us about the orders</h1>
 
             <SectionWrapper className={formStyles.formSection}>
@@ -50,7 +52,7 @@ const AddOrdersForm = ({ onSubmit, ordersTypeOptions, initialValues, onBack, isS
               <DatePickerInput name="issueDate" label="Orders date" required />
               <DatePickerInput name="reportByDate" label="Report by date" required />
               <FormGroup>
-                <Label>Are dependents included the orders?</Label>
+                <Label>Are dependents included in the orders?</Label>
                 <div>
                   <Field
                     as={Radio}

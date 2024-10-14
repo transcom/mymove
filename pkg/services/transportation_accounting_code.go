@@ -12,5 +12,5 @@ import (
 //
 //go:generate mockery --name TransportationAccountingCodeFetcher
 type TransportationAccountingCodeFetcher interface {
-	FetchOrderTransportationAccountingCodes(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error)
+	FetchOrderTransportationAccountingCodes(departmentIndicator models.DepartmentIndicator, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.TransportationAccountingCode, error)
 }

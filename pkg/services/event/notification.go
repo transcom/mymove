@@ -110,7 +110,7 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 	}
 
 	if mtoShipment.StorageFacility != nil && uuid.Nil != mtoShipment.StorageFacility.AddressID {
-		err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address")
+		err = appCtx.DB().Load(mtoShipment.StorageFacility, "Address", "Address.Country")
 		if err != nil {
 			notFoundError := apperror.NewNotFoundError(updatedObjectID, "looking for MTOShipment.StorageFacility.Address")
 			notFoundError.Wrap(err)
@@ -205,7 +205,7 @@ func assembleOrderPayload(appCtx appcontext.AppContext, updatedObjectID uuid.UUI
 	// cannot eager load the address as "OriginDutyLocation.Address" because
 	// OriginDutyLocation is a pointer.
 	if model.OriginDutyLocation != nil {
-		err = appCtx.DB().Load(model.OriginDutyLocation, "Address")
+		err = appCtx.DB().Load(model.OriginDutyLocation, "Address", "Address.Country")
 	}
 
 	if err != nil {

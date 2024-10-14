@@ -42,6 +42,24 @@ const DocumentViewerFileManager = ({
   const moveId = move?.id;
   const moveCode = move?.locator;
 
+  function appendTimestampToFilename(file) {
+    // Create a date-time stamp in the format "yyyymmddhh24miss"
+    const now = new Date();
+    const timestamp =
+      now.getFullYear().toString() +
+      (now.getMonth() + 1).toString().padStart(2, '0') +
+      now.getDate().toString().padStart(2, '0') +
+      now.getHours().toString().padStart(2, '0') +
+      now.getMinutes().toString().padStart(2, '0') +
+      now.getSeconds().toString().padStart(2, '0');
+
+    // Create a new filename with the timestamp prepended
+    const newFileName = `${file.name}-${timestamp}`;
+
+    // Create and return a new File object with the new filename
+    return new File([file], newFileName, { type: file.type });
+  }
+
   useEffect(() => {
     if (documentType === MOVE_DOCUMENT_TYPE.ORDERS) {
       setButtonHeaderText('Manage Orders');
@@ -74,7 +92,8 @@ const DocumentViewerFileManager = ({
   };
 
   const uploadOrders = async (file) => {
-    return createUploadForDocument(file, documentId)
+    const newFile = appendTimestampToFilename(file);
+    return createUploadForDocument(newFile, documentId)
       .catch((e) => {
         const { response } = e;
         const error = `Failed to upload due to server error: ${response?.body?.detail}`;
@@ -87,7 +106,8 @@ const DocumentViewerFileManager = ({
   };
 
   const uploadAmdendedOrders = async (file) => {
-    return createUploadForAmdendedOrders(file, orderId)
+    const newFile = appendTimestampToFilename(file);
+    return createUploadForAmdendedOrders(newFile, orderId)
       .then(async () => {
         return getOrder(null, orderId)
           .then((res) => {
@@ -129,7 +149,8 @@ const DocumentViewerFileManager = ({
   };
 
   const uploadSupportingDocuments = async (file) => {
-    return createUploadForSupportingDocuments(file, moveId)
+    const newFile = appendTimestampToFilename(file);
+    return createUploadForSupportingDocuments(newFile, moveId)
       .catch((e) => {
         const { response } = e;
         const error = `Failed to upload due to server error: ${response?.body?.detail}`;
