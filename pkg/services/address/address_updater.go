@@ -47,6 +47,48 @@ func (f *addressUpdater) UpdateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
+	// first we will check to see if the country values have changed at all
+	// until international moves are supported, we will default the country for created addresses to "US"
+	if mergedAddress.Country != nil && mergedAddress.Country.Country != "" && mergedAddress.Country != originalAddress.Country {
+		country, err := models.FetchCountryByCode(appCtx.DB(), address.Country.Country)
+		if err != nil {
+			return nil, err
+		}
+		mergedAddress.Country = &country
+		mergedAddress.CountryId = &country.ID
+	} else if mergedAddress.Country == nil {
+		country, err := models.FetchCountryByCode(appCtx.DB(), "US")
+		if err != nil {
+			return nil, err
+		}
+		mergedAddress.Country = &country
+		mergedAddress.CountryId = &country.ID
+	}
+
+	// use the data we have first, if it's not nil
+	if mergedAddress.State != originalAddress.State && mergedAddress.Country != nil {
+		country := mergedAddress.Country
+		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
+			boolTrueVal := true
+			mergedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			mergedAddress.IsOconus = &boolFalseVal
+		}
+	} else if mergedAddress.State != originalAddress.State && mergedAddress.CountryId != nil {
+		country, err := models.FetchCountryByID(appCtx.DB(), *mergedAddress.CountryId)
+		if err != nil {
+			return nil, err
+		}
+		if country.Country != "US" || country.Country == "US" && mergedAddress.State == "AK" || country.Country == "US" && mergedAddress.State == "HI" {
+			boolTrueVal := true
+			mergedAddress.IsOconus = &boolTrueVal
+		} else {
+			boolFalseVal := false
+			mergedAddress.IsOconus = &boolFalseVal
+		}
+	}
+
 	txnErr := appCtx.NewTransaction(func(txnCtx appcontext.AppContext) error {
 		verrs, err := txnCtx.DB().ValidateAndUpdate(&mergedAddress)
 		if verrs != nil && verrs.HasAny() {
