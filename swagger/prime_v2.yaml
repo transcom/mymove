@@ -564,11 +564,13 @@ definitions:
             type: string
             description: >
               A unique code for the service item. Indicates if shuttling is
-              requested for the shipment origin (`DOSHUT`) or destination
-              (`DDSHUT`).
+              requested for the shipment origin (`DOSHUT`, `IOSHUT`) or
+              destination (`DDSHUT`, `IDSHUT`).
             enum:
               - DOSHUT
               - DDSHUT
+              - IOSHUT
+              - IDSHUT
           reason:
             type: string
             example: Storage items need to be picked up.

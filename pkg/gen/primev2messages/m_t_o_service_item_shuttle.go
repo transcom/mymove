@@ -46,10 +46,10 @@ type MTOServiceItemShuttle struct {
 	// Example: 4200
 	EstimatedWeight *int64 `json:"estimatedWeight"`
 
-	// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
+	// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`, `IOSHUT`) or destination (`DDSHUT`, `IDSHUT`).
 	//
 	// Required: true
-	// Enum: [DOSHUT DDSHUT]
+	// Enum: [DOSHUT DDSHUT IOSHUT IDSHUT]
 	ReServiceCode *string `json:"reServiceCode"`
 
 	// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
@@ -170,10 +170,10 @@ func (m *MTOServiceItemShuttle) UnmarshalJSON(raw []byte) error {
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
-		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
+		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`, `IOSHUT`) or destination (`DDSHUT`, `IDSHUT`).
 		//
 		// Required: true
-		// Enum: [DOSHUT DDSHUT]
+		// Enum: [DOSHUT DDSHUT IOSHUT IDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
@@ -269,10 +269,10 @@ func (m MTOServiceItemShuttle) MarshalJSON() ([]byte, error) {
 		// Example: 4200
 		EstimatedWeight *int64 `json:"estimatedWeight"`
 
-		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`) or destination (`DDSHUT`).
+		// A unique code for the service item. Indicates if shuttling is requested for the shipment origin (`DOSHUT`, `IOSHUT`) or destination (`DDSHUT`, `IDSHUT`).
 		//
 		// Required: true
-		// Enum: [DOSHUT DDSHUT]
+		// Enum: [DOSHUT DDSHUT IOSHUT IDSHUT]
 		ReServiceCode *string `json:"reServiceCode"`
 
 		// The contractor's explanation for why a shuttle service is requested. Used by the TOO while deciding to approve or reject the service item.
@@ -459,7 +459,7 @@ var mTOServiceItemShuttleTypeReServiceCodePropEnum []interface{}
 
 func init() {
 	var res []string
-	if err := json.Unmarshal([]byte(`["DOSHUT","DDSHUT"]`), &res); err != nil {
+	if err := json.Unmarshal([]byte(`["DOSHUT","DDSHUT","IOSHUT","IDSHUT"]`), &res); err != nil {
 		panic(err)
 	}
 	for _, v := range res {

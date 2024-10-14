@@ -1359,11 +1359,13 @@ func init() {
               "example": 4200
             },
             "reServiceCode": {
-              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `, ` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `, ` + "`" + `IDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "DOSHUT",
-                "DDSHUT"
+                "DDSHUT",
+                "IOSHUT",
+                "IDSHUT"
               ]
             },
             "reason": {
@@ -4705,11 +4707,13 @@ func init() {
               "example": 4200
             },
             "reServiceCode": {
-              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `).\n",
+              "description": "A unique code for the service item. Indicates if shuttling is requested for the shipment origin (` + "`" + `DOSHUT` + "`" + `, ` + "`" + `IOSHUT` + "`" + `) or destination (` + "`" + `DDSHUT` + "`" + `, ` + "`" + `IDSHUT` + "`" + `).\n",
               "type": "string",
               "enum": [
                 "DOSHUT",
-                "DDSHUT"
+                "DDSHUT",
+                "IOSHUT",
+                "IDSHUT"
               ]
             },
             "reason": {

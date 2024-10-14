@@ -49,6 +49,12 @@ var (
 		models.ReServiceCodeDOSHUT: {
 			models.ServiceItemParamNameWeightBilled,
 		},
+		models.ReServiceCodeIDSHUT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
+		models.ReServiceCodeIOSHUT: {
+			models.ServiceItemParamNameWeightBilled,
+		},
 		models.ReServiceCodeDDFSIT: {
 			models.ServiceItemParamNameWeightBilled,
 		},

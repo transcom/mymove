@@ -649,7 +649,7 @@ func MTOServiceItem(mtoServiceItem *models.MTOServiceItem) primev3messages.MTOSe
 			Width:  crate.Width.Int32Ptr(),
 		}
 		payload = &cratingSI
-	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT:
+	case models.ReServiceCodeDDSHUT, models.ReServiceCodeDOSHUT, models.ReServiceCodeIDSHUT, models.ReServiceCodeIOSHUT:
 		payload = &primev3messages.MTOServiceItemShuttle{
 			ReServiceCode:   handlers.FmtString(string(mtoServiceItem.ReService.Code)),
 			Reason:          mtoServiceItem.Reason,
