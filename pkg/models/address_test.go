@@ -65,3 +65,20 @@ func (suite *ModelSuite) TestAddressCountryCode() {
 	suite.NoError(err)
 	suite.Equal("US", *countryCode)
 }
+
+func (suite *ModelSuite) TestIsAddressOconusNoCountry() {
+	address := m.Address{
+		StreetAddress1: "street 1",
+		StreetAddress2: m.StringPointer("street 2"),
+		StreetAddress3: m.StringPointer("street 3"),
+		City:           "city",
+		State:          "SC",
+		PostalCode:     "29229",
+		County:         "county",
+	}
+
+	result, err := m.IsAddressOconus(suite.DB(), address)
+	suite.NoError(err)
+
+	suite.Equal(false, result)
+}
