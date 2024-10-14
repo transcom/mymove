@@ -29,5 +29,24 @@ func (f fetchCustomer) FetchCustomer(appCtx appcontext.AppContext, customerID uu
 			return &models.ServiceMember{}, apperror.NewQueryError("ServiceMember", err, "")
 		}
 	}
+
+	if customer.ResidentialAddress.IsOconus == nil {
+		// Evaluate address and populate addresses isOconus value
+		isOconus, err := models.IsAddressOconus(appCtx.DB(), *customer.ResidentialAddress)
+		if err != nil {
+			return nil, err
+		}
+		customer.ResidentialAddress.IsOconus = &isOconus
+	}
+
+	if customer.BackupMailingAddress.IsOconus == nil {
+		// Evaluate address and populate addresses isOconus value
+		isOconus, err := models.IsAddressOconus(appCtx.DB(), *customer.BackupMailingAddress)
+		if err != nil {
+			return nil, err
+		}
+		customer.BackupMailingAddress.IsOconus = &isOconus
+	}
+
 	return customer, nil
 }
