@@ -51,7 +51,7 @@ func (suite *OfficeUserServiceSuite) TestUpdateOfficeUser() {
 		officeUser := factory.BuildOfficeUser(suite.DB(), []factory.Customization{
 			{
 				Model: models.Country{
-					Country:     "AL",
+					Country:     "US",
 					CountryName: "UNITED STATES",
 				},
 			},
