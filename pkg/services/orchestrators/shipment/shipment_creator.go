@@ -73,7 +73,6 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 		if !isPPMShipment {
 			// Update PPMType once shipment gets created.
 			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
-
 			if err != nil {
 				return err
 			}
@@ -84,13 +83,12 @@ func (s *shipmentCreator) CreateShipment(appCtx appcontext.AppContext, shipment 
 			mtoShipment.PPMShipment.Shipment = *mtoShipment
 
 			_, err = s.ppmShipmentCreator.CreatePPMShipmentWithDefaultCheck(txnAppCtx, mtoShipment.PPMShipment)
-
 			if err != nil {
 				return err
 			}
+
 			// Update PPMType once shipment gets created.
 			_, err = s.moveTaskOrderUpdater.UpdatePPMType(txnAppCtx, mtoShipment.MoveTaskOrderID)
-
 			if err != nil {
 				return err
 			}
