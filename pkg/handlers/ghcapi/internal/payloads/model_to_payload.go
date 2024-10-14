@@ -2270,7 +2270,7 @@ func queuePaymentRequestStatus(paymentRequest models.PaymentRequest) string {
 }
 
 // QueuePaymentRequests payload
-func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser) *ghcmessages.QueuePaymentRequests {
+func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers []models.OfficeUser, officeUser models.OfficeUser, isSupervisor bool) *ghcmessages.QueuePaymentRequests {
 	queuePaymentRequests := make(ghcmessages.QueuePaymentRequests, len(*paymentRequests))
 
 	for i, paymentRequest := range *paymentRequests {
@@ -2294,7 +2294,46 @@ func QueuePaymentRequests(paymentRequests *models.PaymentRequests, officeUsers [
 			OrderType:            (*string)(orders.OrdersType.Pointer()),
 			LockedByOfficeUserID: handlers.FmtUUIDPtr(moveTaskOrder.LockedByOfficeUserID),
 			LockExpiresAt:        handlers.FmtDateTimePtr(moveTaskOrder.LockExpiresAt),
-			AvailableOfficeUsers: *QueueAvailableOfficeUsers(officeUsers),
+		}
+
+		if paymentRequest.MoveTaskOrder.TIOAssignedUser != nil {
+			queuePaymentRequests[i].AssignedTo = AssignedOfficeUser(paymentRequest.MoveTaskOrder.TIOAssignedUser)
+		}
+
+		isAssignable := false
+		if queuePaymentRequests[i].AssignedTo == nil {
+			isAssignable = true
+		}
+		// if it is assigned
+		// it is only assignable if the user is a supervisor
+		// and if the move's counseling office is the supervisor's transportation office
+
+		if queuePaymentRequests[i].AssignedTo != nil && isSupervisor && paymentRequest.MoveTaskOrder.CounselingOfficeID != nil && *paymentRequest.MoveTaskOrder.CounselingOfficeID == officeUser.TransportationOfficeID {
+			isAssignable = true
+		}
+
+		queuePaymentRequests[i].Assignable = isAssignable
+
+		// only need to attach available office users if move is assignable
+		if queuePaymentRequests[i].Assignable {
+			availableOfficeUsers := officeUsers
+			// if there is no counseling office
+			// OR if our current user doesn't work at the move's counseling office
+			// only available user should be themself
+			if (paymentRequest.MoveTaskOrder.CounselingOfficeID == nil) || (paymentRequest.MoveTaskOrder.CounselingOfficeID != nil && *paymentRequest.MoveTaskOrder.CounselingOfficeID != officeUser.TransportationOfficeID) {
+				availableOfficeUsers = models.OfficeUsers{officeUser}
+			}
+
+			// // if the office user currently assigned to move works outside of the logged in users counseling office
+			// // add them to the set
+			// if role == roles.RoleTypeServicesCounselor && move.SCAssignedUser != nil && move.SCAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+			// 	availableOfficeUsers = append(availableOfficeUsers, *move.SCAssignedUser)
+			// }
+			// if role == roles.RoleTypeTOO && move.TOOAssignedUser != nil && move.TOOAssignedUser.TransportationOfficeID != officeUser.TransportationOfficeID {
+			// 	availableOfficeUsers = append(availableOfficeUsers, *move.TOOAssignedUser)
+			// }
+
+			queuePaymentRequests[i].AvailableOfficeUsers = *QueueAvailableOfficeUsers(availableOfficeUsers)
 		}
 
 		if orders.DepartmentIndicator != nil {

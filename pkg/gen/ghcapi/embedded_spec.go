@@ -12057,6 +12057,13 @@ func init() {
           "type": "number",
           "format": "double"
         },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
+        },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
         },
@@ -28015,6 +28022,13 @@ func init() {
           "description": "Days since the payment request has been requested.  Decimal representation will allow more accurate sorting.",
           "type": "number",
           "format": "double"
+        },
+        "assignable": {
+          "type": "boolean"
+        },
+        "assignedTo": {
+          "x-nullable": true,
+          "$ref": "#/definitions/AssignedOfficeUser"
         },
         "availableOfficeUsers": {
           "$ref": "#/definitions/AvailableOfficeUsers"
