@@ -106,7 +106,7 @@ describe('ResidentialAddress page', () => {
     await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
     await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
-    await userEvent.selectOptions(screen.getByLabelText(/State/), 'AK');
+    await userEvent.selectOptions(screen.getByLabelText(/State/), 'HI');
     await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
