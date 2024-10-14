@@ -169,12 +169,6 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 					RequestedPickupDate: &requestedPickupDate,
 					ScheduledPickupDate: &scheduledPickupDate,
 					ActualPickupDate:    &actualPickupDate,
-					PickupAddress: &models.Address{
-						StreetAddress1: "123 Main St",
-						City:           "Washington",
-						State:          "DC",
-						PostalCode:     "20001",
-					},
 				},
 			},
 		}, nil)
@@ -886,13 +880,12 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 		suite.FatalNoError(err1)
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
 		buyerOrg := result.Header.BuyerOrganizationName
-		originDutyLocationGbloc := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocationGBLOC
 		suite.IsType(edisegment.N1{}, buyerOrg)
 		suite.Equal("BY", buyerOrg.EntityIdentifierCode)
 		truncatedOriginDutyLocationName := truncateStr(*models.StringPointer(originDutyLocation.Name), 60)
 		suite.Equal(truncatedOriginDutyLocationName, buyerOrg.Name)
 		suite.Equal("92", buyerOrg.IdentificationCodeQualifier)
-		suite.Equal(*originDutyLocationGbloc, pickupGbloc.GBLOC)
+		suite.Equal(pickupGbloc.GBLOC, buyerOrg.IdentificationCode)
 
 		sellerOrg := result.Header.SellerOrganizationName
 		suite.IsType(edisegment.N1{}, sellerOrg)
