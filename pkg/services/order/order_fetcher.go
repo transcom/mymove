@@ -506,15 +506,15 @@ func nameFilter(name *string) QueryOption {
 			return
 		}
 
-		// Remove "," or " " that user may enter between names (displayed on frontend column)
+		// Remove "," that user may enter between names (displayed on frontend column)
 		nameSearch := *name
-		removeCharsRegex := regexp.MustCompile("[, ]+")
+		removeCharsRegex := regexp.MustCompile("^[,]+$")
 		removeCharsRegex.ReplaceAllString(nameSearch, "")
 
 		// Regex to avoid SQL Injections
 		approvedCharsRegex := regexp.MustCompile("^[A-Za-z]+$")
 		if approvedCharsRegex.MatchString(nameSearch) {
-			query.Where("to_tsvector(service_members.last_name || service_members.first_name) @@ to_tsquery('" + nameSearch + ":*')")
+			query.Where("to_tsvector(service_members.last_name || ' ' || service_members.first_name) @@ to_tsquery('" + nameSearch + ":*')")
 		}
 	}
 }
