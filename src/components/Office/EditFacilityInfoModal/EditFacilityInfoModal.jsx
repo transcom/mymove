@@ -16,12 +16,20 @@ import { AddressFields } from 'components/form/AddressFields/AddressFields';
 import ShipmentTag from 'components/ShipmentTag/ShipmentTag';
 import { StorageFacilityAddressSchema } from 'components/Customer/MtoShipmentForm/validationSchemas';
 
-export const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serviceOrderNumber, shipmentType }) => {
+export const EditFacilityInfoModal = ({
+  onClose,
+  onSubmit,
+  storageFacility,
+  serviceOrderNumber,
+  shipmentType,
+  enabledAK,
+}) => {
   const editFacilityInfoSchema = Yup.object().shape({
     serviceOrderNumber: Yup.string()
       .required('Required')
       .matches(/^[0-9a-zA-Z]+$/, 'Letters and numbers only'),
     storageFacility: StorageFacilityAddressSchema,
+    enabledAK,
   });
 
   return (
@@ -37,6 +45,7 @@ export const EditFacilityInfoModal = ({ onClose, onSubmit, storageFacility, serv
         initialValues={{
           storageFacility,
           serviceOrderNumber,
+          enabledAK,
         }}
       >
         {({ isValid }) => {

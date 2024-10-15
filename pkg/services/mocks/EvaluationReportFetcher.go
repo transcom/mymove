@@ -20,6 +20,10 @@ type EvaluationReportFetcher struct {
 func (_m *EvaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.AppContext, reportID uuid.UUID, officeUserID uuid.UUID) (*models.EvaluationReport, error) {
 	ret := _m.Called(appCtx, reportID, officeUserID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchEvaluationReportByID")
+	}
+
 	var r0 *models.EvaluationReport
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, uuid.UUID) (*models.EvaluationReport, error)); ok {
@@ -45,6 +49,10 @@ func (_m *EvaluationReportFetcher) FetchEvaluationReportByID(appCtx appcontext.A
 // FetchEvaluationReports provides a mock function with given fields: appCtx, reportType, moveID, officeUserID
 func (_m *EvaluationReportFetcher) FetchEvaluationReports(appCtx appcontext.AppContext, reportType models.EvaluationReportType, moveID uuid.UUID, officeUserID uuid.UUID) (models.EvaluationReports, error) {
 	ret := _m.Called(appCtx, reportType, moveID, officeUserID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchEvaluationReports")
+	}
 
 	var r0 models.EvaluationReports
 	var r1 error
