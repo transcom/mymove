@@ -497,6 +497,13 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 				serviceItem.SITOriginHHGActualAddress.CountryId = &country.ID
 			}
 
+			// Evaluate address and populate addresses isOconus value
+			isOconus, err := models.IsAddressOconus(appCtx.DB(), *serviceItem.SITOriginHHGActualAddress)
+			if err != nil {
+				return nil, nil, err
+			}
+			serviceItem.SITOriginHHGActualAddress.IsOconus = &isOconus
+
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
 			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()

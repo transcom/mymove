@@ -162,3 +162,34 @@ func (a *Address) Copy() *Address {
 	}
 	return nil
 }
+
+// Check if an address is CONUS or OCONUS
+func IsAddressOconus(db *pop.Connection, address Address) (bool, error) {
+	// use the data we have first, if it's not nil
+	if address.Country != nil {
+		isOconus := EvaluateIsOconus(address)
+		return isOconus, nil
+	} else if address.CountryId != nil {
+		country, err := FetchCountryByID(db, *address.CountryId)
+		if err != nil {
+			return false, err
+		}
+		address.Country = &country
+		isOconus := EvaluateIsOconus(address)
+		return isOconus, nil
+	} else {
+		if address.State == "HI" || address.State == "AK" {
+			return true, nil
+		}
+		return false, nil
+	}
+}
+
+// Conditional logic for a CONUS and OCONUS address
+func EvaluateIsOconus(address Address) bool {
+	if address.Country.Country != "US" || address.Country.Country == "US" && address.State == "AK" || address.Country.Country == "US" && address.State == "HI" {
+		return true
+	} else {
+		return false
+	}
+}
