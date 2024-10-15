@@ -248,7 +248,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		pickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
-		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		SecondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -267,9 +267,9 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
 			{
-				Model:    secondaryDeliveryAddress,
+				Model:    SecondaryDestinationAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+				Type:     &factory.Addresses.SecondaryDestinationAddress,
 			},
 			{
 				Model: models.Move{
@@ -298,7 +298,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		suite.Equal(shipment.PickupAddress.ID.String(), data.PickupAddress.ID.String())
 		suite.Equal(shipment.SecondaryPickupAddress.ID.String(), data.SecondaryPickupAddress.ID.String())
 		suite.Equal(shipment.DestinationAddress.ID.String(), data.DestinationAddress.ID.String())
-		suite.Equal(shipment.SecondaryDestinationAddress.ID.String(), data.SecondaryDeliveryAddress.ID.String())
+		suite.Equal(shipment.SecondaryDestinationAddress.ID.String(), data.SecondaryDestinationAddress.ID.String())
 		suite.Equal(agent.ID.String(), data.Agents[0].ID.String())
 	})
 

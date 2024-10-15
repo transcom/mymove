@@ -1706,7 +1706,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -1741,7 +1741,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -5246,7 +5246,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -5281,7 +5281,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {

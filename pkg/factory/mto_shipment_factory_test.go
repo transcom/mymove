@@ -183,11 +183,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "301 Another Good Street",
 		}
 
-		customSecondaryDeliveryAddress := models.Address{
+		customSecondaryDestinationAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
 		}
 
-		customTertiaryDeliveryAddress := models.Address{
+		customTertiaryDestinationAddress := models.Address{
 			StreetAddress1: "301 Big MTO Street",
 		}
 
@@ -218,16 +218,16 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Type:  &Addresses.SecondaryPickupAddress,
 			},
 			{
-				Model: customSecondaryDeliveryAddress,
-				Type:  &Addresses.SecondaryDeliveryAddress,
+				Model: customSecondaryDestinationAddress,
+				Type:  &Addresses.SecondaryDestinationAddress,
 			},
 			{
 				Model: customTertiaryPickupAddress,
 				Type:  &Addresses.TertiaryPickupAddress,
 			},
 			{
-				Model: customTertiaryDeliveryAddress,
-				Type:  &Addresses.TertiaryDeliveryAddress,
+				Model: customTertiaryDestinationAddress,
+				Type:  &Addresses.TertiaryDestinationAddress,
 			},
 		}, nil)
 
@@ -285,11 +285,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "301 Another Good Street",
 		}
 
-		customSecondaryDeliveryAddress := models.Address{
+		customSecondaryDestinationAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
 		}
 
-		customTertiaryDeliveryAddress := models.Address{
+		customTertiaryDestinationAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
 		}
 
@@ -312,12 +312,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Type:  &Addresses.DeliveryAddress,
 			},
 			{
-				Model: customSecondaryDeliveryAddress,
-				Type:  &Addresses.SecondaryDeliveryAddress,
+				Model: customSecondaryDestinationAddress,
+				Type:  &Addresses.SecondaryDestinationAddress,
 			},
 			{
-				Model: customSecondaryDeliveryAddress,
-				Type:  &Addresses.TertiaryDeliveryAddress,
+				Model: customSecondaryDestinationAddress,
+				Type:  &Addresses.TertiaryDestinationAddress,
 			},
 		}, nil)
 
@@ -331,11 +331,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check Delivery Address
 		suite.Equal(customDeliveryAddress.StreetAddress1, mtoShipment.DestinationAddress.StreetAddress1)
 		// Check Secondary DeliveryAddress
-		suite.Equal(customSecondaryDeliveryAddress.StreetAddress1, mtoShipment.SecondaryDestinationAddress.StreetAddress1)
+		suite.Equal(customSecondaryDestinationAddress.StreetAddress1, mtoShipment.SecondaryDestinationAddress.StreetAddress1)
 		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryDestinationAddress)
 
 		// Check Tertiary DeliveryAddress
-		suite.Equal(customTertiaryDeliveryAddress.StreetAddress1, mtoShipment.TertiaryDestinationAddress.StreetAddress1)
+		suite.Equal(customTertiaryDestinationAddress.StreetAddress1, mtoShipment.TertiaryDestinationAddress.StreetAddress1)
 		suite.Equal(models.BoolPointer(true), mtoShipment.HasTertiaryDestinationAddress)
 
 		// Check Storage Facility

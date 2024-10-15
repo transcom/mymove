@@ -1735,7 +1735,7 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -1756,7 +1756,7 @@ func init() {
           ],
           "readOnly": true
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -4569,7 +4569,7 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -4590,7 +4590,7 @@ func init() {
           ],
           "readOnly": true
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {

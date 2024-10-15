@@ -567,7 +567,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or SecondaryDestinationAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -2635,7 +2635,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -4038,7 +4038,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -5067,7 +5067,7 @@ func init() {
     },
     "/mto-shipments/{mtoShipmentID}/addresses/{addressID}": {
       "put": {
-        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
+        "description": "### Functionality\nThis endpoint is used to **update** the pickup, secondary, and destination addresses on an MTO Shipment. mto-shipments/{mtoShipmentID}/shipment-address-updates is for updating a delivery address. The address details completely replace the original, except for the UUID.\nTherefore a complete address should be sent in the request.\nWhen a destination address on a shipment is updated, the destination SIT service items address ID will also be updated so that shipment and service item final destinations match.\n\nThis endpoint **cannot create** an address.\nTo create an address on an MTO shipment, the caller must use [updateMTOShipment](#operation/updateMTOShipment) as the parent shipment has to be updated with the appropriate link to the address.\n\n### Errors\nThe address must be associated with the mtoShipment passed in the url.\nIn other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or SecondaryDestinationAddress on the mtoShipment provided.\nIf it is not, caller will receive a **Conflict** Error.\n\nThe mtoShipment should be associated with an MTO that is available to prime.\nIf the caller requests an update to an address, and the shipment is not on an available MTO, the caller will receive a **NotFound** Error.\n",
         "consumes": [
           "application/json"
         ],
@@ -7346,7 +7346,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -8754,7 +8754,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {

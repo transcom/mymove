@@ -213,21 +213,21 @@ func Address(address *models.Address) *supportmessages.Address {
 // MTOShipment converts MTOShipment model to payload
 func MTOShipment(mtoShipment *models.MTOShipment) *supportmessages.MTOShipment {
 	payload := &supportmessages.MTOShipment{
-		ID:                       strfmt.UUID(mtoShipment.ID.String()),
-		Agents:                   *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:          strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:             supportmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:          mtoShipment.CustomerRemarks,
-		PickupAddress:            Address(mtoShipment.PickupAddress),
-		Status:                   string(mtoShipment.Status),
-		DestinationAddress:       Address(mtoShipment.DestinationAddress),
-		SecondaryPickupAddress:   Address(mtoShipment.SecondaryPickupAddress),
-		SecondaryDeliveryAddress: Address(mtoShipment.SecondaryDestinationAddress),
-		TertiaryPickupAddress:    Address(mtoShipment.TertiaryPickupAddress),
-		TertiaryDeliveryAddress:  Address(mtoShipment.TertiaryDestinationAddress),
-		CreatedAt:                strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                strfmt.DateTime(mtoShipment.UpdatedAt),
-		ETag:                     etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ID:                          strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                      *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                supportmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:             mtoShipment.CustomerRemarks,
+		PickupAddress:               Address(mtoShipment.PickupAddress),
+		Status:                      string(mtoShipment.Status),
+		DestinationAddress:          Address(mtoShipment.DestinationAddress),
+		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
+		SecondaryDestinationAddress: Address(mtoShipment.SecondaryDestinationAddress),
+		TertiaryPickupAddress:       Address(mtoShipment.TertiaryPickupAddress),
+		TertiaryDestinationAddress:  Address(mtoShipment.TertiaryDestinationAddress),
+		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
+		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
 	}
 
 	if mtoShipment.MTOServiceItems != nil {

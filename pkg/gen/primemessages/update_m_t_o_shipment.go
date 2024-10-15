@@ -100,9 +100,9 @@ type UpdateMTOShipment struct {
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 	// A second delivery address for this shipment, if the customer entered one. An optional field.
-	SecondaryDeliveryAddress struct {
+	SecondaryDestinationAddress struct {
 		Address
-	} `json:"secondaryDeliveryAddress,omitempty"`
+	} `json:"SecondaryDestinationAddress,omitempty"`
 
 	// A second pickup address for this shipment, if the customer entered one. An optional field.
 	SecondaryPickupAddress struct {
@@ -172,7 +172,7 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -356,8 +356,8 @@ func (m *UpdateMTOShipment) validateScheduledPickupDate(formats strfmt.Registry)
 	return nil
 }
 
-func (m *UpdateMTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+func (m *UpdateMTOShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 		return nil
 	}
 
@@ -428,7 +428,7 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -502,7 +502,7 @@ func (m *UpdateMTOShipment) contextValidatePpmShipment(ctx context.Context, form
 	return nil
 }
 
-func (m *UpdateMTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *UpdateMTOShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

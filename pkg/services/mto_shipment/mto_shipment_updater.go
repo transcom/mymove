@@ -182,7 +182,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.HasSecondaryPickupAddress = models.BoolPointer(true)
 	}
 
-	// If HasSecondaryDeliveryAddress is false, we want to remove the secondary address as well as the tertiary address
+	// If HasSecondaryDestinationAddress is false, we want to remove the secondary address as well as the tertiary address
 	// Otherwise, if a non-nil address is in the payload, we should save it
 	if requestedUpdatedShipment.HasSecondaryDestinationAddress != nil && !*requestedUpdatedShipment.HasSecondaryDestinationAddress {
 		dbShipment.HasSecondaryDestinationAddress = requestedUpdatedShipment.HasSecondaryDestinationAddress
@@ -205,7 +205,7 @@ func setNewShipmentFields(appCtx appcontext.AppContext, dbShipment *models.MTOSh
 		dbShipment.HasTertiaryPickupAddress = models.BoolPointer(true)
 	}
 
-	// If HasTertiaryDeliveryAddress is false, we want to remove the address
+	// If HasTertiaryDestinationAddress is false, we want to remove the address
 	// Otherwise, if a non-nil address is in the payload, we should save it
 	if requestedUpdatedShipment.HasTertiaryDestinationAddress != nil && !*requestedUpdatedShipment.HasTertiaryDestinationAddress {
 		dbShipment.HasTertiaryDestinationAddress = requestedUpdatedShipment.HasTertiaryDestinationAddress
@@ -352,9 +352,9 @@ func (f *mtoShipmentUpdater) UpdateMTOShipment(appCtx appcontext.AppContext, mto
 		"PickupAddress",
 		"DestinationAddress",
 		"SecondaryPickupAddress",
-		"SecondaryDeliveryAddress",
+		"SecondaryDestinationAddress",
 		"TertiaryPickupAddress",
-		"TertiaryDeliveryAddress",
+		"TertiaryDestinationAddress",
 		"SITDurationUpdates",
 		"MTOServiceItems.ReService",
 		"MTOServiceItems.Dimensions",
@@ -555,19 +555,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			if dbShipment.SecondaryDestinationAddress != nil {
 				// Secondary delivery address exists, meaning it should be updated
-				newSecondaryDeliveryAddress, secondaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.SecondaryDestinationAddress, etag.GenerateEtag(dbShipment.SecondaryDestinationAddress.UpdatedAt))
+				newSecondaryDestinationAddress, secondaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.SecondaryDestinationAddress, etag.GenerateEtag(dbShipment.SecondaryDestinationAddress.UpdatedAt))
 				if secondaryDeliveryUpdateErr != nil {
 					return secondaryDeliveryUpdateErr
 				}
-				newShipment.SecondaryDestinationAddressID = &newSecondaryDeliveryAddress.ID
+				newShipment.SecondaryDestinationAddressID = &newSecondaryDestinationAddress.ID
 			} else if newShipment.SecondaryDestinationAddressID == nil {
 				// Secondary delivery address appears to not exist yet, meaning it should be created
 				if newShipment.SecondaryDestinationAddress.ID == uuid.Nil {
-					newSecondaryDeliveryAddress, secondaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.SecondaryDestinationAddress)
+					newSecondaryDestinationAddress, secondaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.SecondaryDestinationAddress)
 					if secondaryDeliveryCreateErr != nil {
 						return secondaryDeliveryCreateErr
 					}
-					newShipment.SecondaryDestinationAddressID = &newSecondaryDeliveryAddress.ID
+					newShipment.SecondaryDestinationAddressID = &newSecondaryDestinationAddress.ID
 				} else {
 					// No original address to update, and the new address already has an ID so we should just assign it to the shipment
 					newShipment.SecondaryDestinationAddressID = &newShipment.SecondaryDestinationAddress.ID
@@ -620,19 +620,19 @@ func (f *mtoShipmentUpdater) updateShipmentRecord(appCtx appcontext.AppContext, 
 
 			if dbShipment.TertiaryDestinationAddress != nil {
 				// Tertiary delivery address exists, meaning it should be updated
-				newTertiaryDeliveryAddress, tertiaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.TertiaryDestinationAddress, etag.GenerateEtag(dbShipment.TertiaryDestinationAddress.UpdatedAt))
+				newTertiaryDestinationAddress, tertiaryDeliveryUpdateErr := f.addressUpdater.UpdateAddress(txnAppCtx, newShipment.TertiaryDestinationAddress, etag.GenerateEtag(dbShipment.TertiaryDestinationAddress.UpdatedAt))
 				if tertiaryDeliveryUpdateErr != nil {
 					return tertiaryDeliveryUpdateErr
 				}
-				newShipment.TertiaryDestinationAddressID = &newTertiaryDeliveryAddress.ID
+				newShipment.TertiaryDestinationAddressID = &newTertiaryDestinationAddress.ID
 			} else if newShipment.TertiaryDestinationAddressID == nil {
 				// Tertiary delivery address appears to not exist yet, meaning it should be created
 				if newShipment.TertiaryDestinationAddress.ID == uuid.Nil {
-					newTertiaryDeliveryAddress, tertiaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.TertiaryDestinationAddress)
+					newTertiaryDestinationAddress, tertiaryDeliveryCreateErr := f.addressCreator.CreateAddress(txnAppCtx, newShipment.TertiaryDestinationAddress)
 					if tertiaryDeliveryCreateErr != nil {
 						return tertiaryDeliveryCreateErr
 					}
-					newShipment.TertiaryDestinationAddressID = &newTertiaryDeliveryAddress.ID
+					newShipment.TertiaryDestinationAddressID = &newTertiaryDestinationAddress.ID
 				} else {
 					// No original address to update, and the new address already has an ID so we should just assign it to the shipment
 					newShipment.TertiaryDestinationAddressID = &newShipment.TertiaryDestinationAddress.ID

@@ -256,11 +256,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.SecondaryDestinationAddress != nil {
-			secondaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDestinationAddress)
+			SecondaryDestinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.SecondaryDestinationAddress)
 			if errAddress != nil {
 				return fmt.Errorf("failed to create secondary delivery address %#v %e", verrs, err)
 			}
-			shipment.SecondaryDestinationAddress = secondaryDeliveryAddress
+			shipment.SecondaryDestinationAddress = SecondaryDestinationAddress
 			shipment.SecondaryDestinationAddressID = &shipment.SecondaryDestinationAddress.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.SecondaryDestinationAddress.PostalCode)
 			if errCounty != nil {
@@ -270,11 +270,11 @@ func (f mtoShipmentCreator) CreateMTOShipment(appCtx appcontext.AppContext, ship
 		}
 
 		if shipment.TertiaryDestinationAddress != nil {
-			tertiaryDeliveryAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryDestinationAddress)
+			TertiaryDestinationAddress, errAddress := f.addressCreator.CreateAddress(txnAppCtx, shipment.TertiaryDestinationAddress)
 			if errAddress != nil {
 				return fmt.Errorf("failed to create tertiary pickup address %#v %e", verrs, err)
 			}
-			shipment.TertiaryDestinationAddress = tertiaryDeliveryAddress
+			shipment.TertiaryDestinationAddress = TertiaryDestinationAddress
 			shipment.TertiaryDestinationAddressID = &shipment.TertiaryDestinationAddress.ID
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), shipment.TertiaryDestinationAddress.PostalCode)
 			if errCounty != nil {
@@ -479,7 +479,7 @@ func checkShipmentIDFields(shipment *models.MTOShipment, serviceItems models.MTO
 		verrs.Add("secondaryPickupAddress:id", addressMsg)
 	}
 	if shipment.SecondaryDestinationAddress != nil && shipment.SecondaryDestinationAddress.ID != uuid.Nil {
-		verrs.Add("SecondaryDeliveryAddress:id", addressMsg)
+		verrs.Add("SecondaryDestinationAddress:id", addressMsg)
 	}
 
 	if verrs.HasAny() {

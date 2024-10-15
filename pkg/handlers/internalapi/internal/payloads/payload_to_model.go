@@ -105,11 +105,11 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 
-	model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
-	model.HasSecondaryDestinationAddress = handlers.FmtBool(mtoShipment.SecondaryDeliveryAddress != nil)
+	model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDestinationAddress)
+	model.HasSecondaryDestinationAddress = handlers.FmtBool(mtoShipment.SecondaryDestinationAddress != nil)
 
-	model.TertiaryDestinationAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
-	model.HasTertiaryDestinationAddress = handlers.FmtBool(mtoShipment.TertiaryDeliveryAddress != nil)
+	model.TertiaryDestinationAddress = AddressModel(mtoShipment.TertiaryDestinationAddress)
+	model.HasTertiaryDestinationAddress = handlers.FmtBool(mtoShipment.TertiaryDestinationAddress != nil)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
@@ -424,9 +424,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 		CustomerRemarks:                mtoShipment.CustomerRemarks,
 		Status:                         models.MTOShipmentStatus(mtoShipment.Status),
 		HasSecondaryPickupAddress:      mtoShipment.HasSecondaryPickupAddress,
-		HasSecondaryDestinationAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasSecondaryDestinationAddress: mtoShipment.HasSecondaryDestinationAddress,
 		HasTertiaryPickupAddress:       mtoShipment.HasTertiaryPickupAddress,
-		HasTertiaryDestinationAddress:  mtoShipment.HasTertiaryDeliveryAddress,
+		HasTertiaryDestinationAddress:  mtoShipment.HasTertiaryDestinationAddress,
 		ActualProGearWeight:            handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:      handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
@@ -442,18 +442,18 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 			model.TertiaryPickupAddress = AddressModel(mtoShipment.TertiaryPickupAddress)
 		}
 	}
-	if mtoShipment.HasSecondaryDeliveryAddress != nil {
-		if *mtoShipment.HasSecondaryDeliveryAddress {
-			model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+	if mtoShipment.HasSecondaryDestinationAddress != nil {
+		if *mtoShipment.HasSecondaryDestinationAddress {
+			model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDestinationAddress)
 		}
 	}
-	if mtoShipment.HasTertiaryDeliveryAddress != nil {
-		if *mtoShipment.HasTertiaryDeliveryAddress {
-			model.TertiaryDestinationAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
+	if mtoShipment.HasTertiaryDestinationAddress != nil {
+		if *mtoShipment.HasTertiaryDestinationAddress {
+			model.TertiaryDestinationAddress = AddressModel(mtoShipment.TertiaryDestinationAddress)
 		}
 	}
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
-	model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+	model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDestinationAddress)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

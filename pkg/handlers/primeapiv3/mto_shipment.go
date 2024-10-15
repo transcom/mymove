@@ -129,9 +129,9 @@ func (h UpdateMTOShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipment
 			dbShipment, err := mtoshipment.FindShipment(appCtx, mtoShipment.ID,
 				"DestinationAddress",
 				"SecondaryPickupAddress",
-				"SecondaryDeliveryAddress",
+				"SecondaryDestinationAddress",
 				"TertiaryPickupAddress",
-				"TertiaryDeliveryAddress",
+				"TertiaryDestinationAddress",
 				"StorageFacility",
 				"PPMShipment")
 			if err != nil {

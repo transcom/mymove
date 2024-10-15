@@ -1022,7 +1022,7 @@ func (suite *MoveHistoryServiceSuite) TestMoveHistoryFetcherScenarios() {
 			{
 				Model:    secondaryDestinationAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+				Type:     &factory.Addresses.SecondaryDestinationAddress,
 			},
 		}, nil)
 

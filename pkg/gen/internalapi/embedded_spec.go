@@ -4061,7 +4061,7 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -4070,7 +4070,7 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -4730,7 +4730,7 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -4740,7 +4740,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -4783,7 +4783,7 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -4801,7 +4801,7 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -7566,7 +7566,7 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -7576,7 +7576,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -7605,7 +7605,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -7617,7 +7617,7 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -12669,7 +12669,7 @@ func init() {
           "type": "string",
           "format": "date"
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -12678,7 +12678,7 @@ func init() {
         "shipmentType": {
           "$ref": "#/definitions/MTOShipmentType"
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -13340,7 +13340,7 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -13350,7 +13350,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -13393,7 +13393,7 @@ func init() {
           "x-nullable": true,
           "readOnly": true
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -13411,7 +13411,7 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
@@ -16181,7 +16181,7 @@ func init() {
         "destinationAddress": {
           "$ref": "#/definitions/Address"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -16191,7 +16191,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -16220,7 +16220,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "secondaryDeliveryAddress": {
+        "SecondaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "secondaryPickupAddress": {
@@ -16232,7 +16232,7 @@ func init() {
         "status": {
           "$ref": "#/definitions/MTOShipmentStatus"
         },
-        "tertiaryDeliveryAddress": {
+        "TertiaryDestinationAddress": {
           "$ref": "#/definitions/Address"
         },
         "tertiaryPickupAddress": {
