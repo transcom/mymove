@@ -113,6 +113,7 @@ const PrimeUIShipmentCreateForm = () => {
           <AddressFields
             name="ppmShipment.destinationAddress"
             legend="Destination Address"
+            address1LabelHint="Optional"
             render={(fields) => (
               <>
                 {fields}

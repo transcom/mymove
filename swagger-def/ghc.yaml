@@ -6019,7 +6019,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       actualDestinationPostalCode:
         description: >
           The actual postal code where the PPM shipment ended. To be filled once the customer has moved the shipment.
@@ -6079,6 +6079,12 @@ definitions:
       estimatedWeight:
         type: integer
         example: 4200
+        x-nullable: true
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        minimum: 0
+        example: 4300
         x-nullable: true
       hasProGear:
         description: >
@@ -6213,10 +6219,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   UpdateMovingExpense:
     type: object
     properties:
@@ -6427,7 +6429,7 @@ definitions:
           - $ref: 'definitions/Address.yaml'
       destinationAddress:
         allOf:
-          - $ref: 'definitions/Address.yaml'
+          - $ref: 'definitions/PPMDestinationAddress.yaml'
       secondaryDestinationAddress:
         allOf:
           - $ref: 'definitions/Address.yaml'

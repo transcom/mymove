@@ -77,6 +77,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
     miles: ppmShipmentInfo.miles,
     estimatedWeight: ppmShipmentInfo.estimatedWeight,
     actualWeight: ppmShipmentInfo.actualWeight,
+    allowableWeight: ppmShipmentInfo.allowableWeight,
   };
 
   return (
@@ -94,6 +95,7 @@ export default function PPMHeaderSummary({ ppmShipmentInfo, ppmNumber, showAllFi
             updatedItemName={updatedItemName}
             setUpdatedItemName={setUpdatedItemName}
             readOnly={readOnly}
+            expanded
           />
         </section>
         {showAllFields && (
