@@ -49,7 +49,7 @@ type ListOrderParams struct {
 	Locator                 *string
 	DodID                   *string
 	Emplid                  *string
-	LastName                *string
+	CustomerName            *string
 	DestinationDutyLocation *string
 	OriginDutyLocation      []string
 	OriginGBLOC             *string

@@ -3476,7 +3476,7 @@ paths:
           type: string
           enum:
             [
-              lastName,
+              customerName,
               dodID,
               emplid,
               branch,
@@ -3500,7 +3500,7 @@ paths:
           name: locator
           type: string
         - in: query
-          name: lastName
+          name: customerName
           type: string
         - in: query
           name: dodID

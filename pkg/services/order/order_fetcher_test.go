@@ -1994,3 +1994,110 @@ func (suite *OrderServiceSuite) TestListAllOrderLocations() {
 		suite.Equal(0, len(moves))
 	})
 }
+
+func (suite *OrderServiceSuite) TestListOrdersFilteredByCustomerName() {
+	// SET UP: Service Members for sorting by Service Member Last Name and Branch
+	// - We'll need two other service members to test the last name sort, Lea Spacemen and Leo Zephyer
+	serviceMemberFirstName := "Hanna"
+	serviceMemberLastName := "Starlight"
+	edipi := "9999999998"
+	var officeUser models.OfficeUser
+
+	// SET UP: Dates for sorting by Requested Move Date
+	// - We want dates 2 and 3 to sandwich requestedMoveDate1 so we can test that the min() query is working
+	requestedMoveDate1 := time.Date(testdatagen.GHCTestYear, 05, 20, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate2 := time.Date(testdatagen.GHCTestYear, 07, 03, 0, 0, 0, 0, time.UTC)
+	requestedMoveDate3 := time.Date(testdatagen.GHCTestYear, 04, 15, 0, 0, 0, 0, time.UTC)
+
+	setupTestData := func() (models.Move, models.Move, models.Move, auth.Session) {
+
+		// CREATE EXPECTED MOVES
+		expectedMove1 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Status:  models.MoveStatusAPPROVED,
+					Locator: "AA1235",
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate1,
+				},
+			},
+		}, nil)
+		expectedMove2 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.Move{
+					Locator: "TTZ125",
+				},
+			},
+			{
+				Model: models.ServiceMember{
+					FirstName: &serviceMemberFirstName,
+					Edipi:     &edipi,
+				},
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate2,
+				},
+			},
+		}, nil)
+		expectedMove3 := factory.BuildMoveWithShipment(suite.DB(), []factory.Customization{
+			{
+				Model: models.ServiceMember{ // Leo Zephyer
+					LastName: &serviceMemberLastName,
+				},
+			},
+		}, nil)
+		// Create a second shipment so we can test min() sort
+		factory.BuildMTOShipmentWithMove(&expectedMove2, suite.DB(), []factory.Customization{
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedMoveDate3,
+				},
+			},
+		}, nil)
+		officeUser = factory.BuildOfficeUserWithRoles(suite.DB(), nil, []roles.RoleType{roles.RoleTypeTOO})
+		session := auth.Session{
+			ApplicationName: auth.OfficeApp,
+			Roles:           officeUser.User.Roles,
+			OfficeUserID:    officeUser.ID,
+			IDToken:         "fake_token",
+			AccessToken:     "fakeAccessToken",
+		}
+
+		return expectedMove1, expectedMove2, expectedMove3, session
+	}
+
+	orderFetcher := NewOrderFetcher()
+
+	suite.Run("returns moves filtered by full name", func() {
+		_, _, _, session := setupTestData()
+
+		// Search "Spacemen, Hanna"
+		params := services.ListOrderParams{CustomerName: models.StringPointer("Spacemen, Hanna"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		for _, val := range moves {
+			suite.Logger().Info(*val.Orders.ServiceMember.FirstName + *val.Orders.ServiceMember.LastName)
+		}
+		suite.Equal(1, len(moves))
+		suite.Equal("Spacemen, Hanna", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+
+		// Search "space"
+		params = services.ListOrderParams{CustomerName: models.StringPointer("space"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(2, len(moves))
+		suite.Equal("Spacemen, Hanna", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+		suite.Equal("Spacemen, Leo", *moves[1].Orders.ServiceMember.LastName+", "+*moves[1].Orders.ServiceMember.FirstName)
+
+		// Search "starLight"
+		params = services.ListOrderParams{CustomerName: models.StringPointer("starLight"), Sort: models.StringPointer("customerName"), Order: models.StringPointer("asc")}
+		moves, _, err = orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, &params)
+		suite.NoError(err)
+		suite.Equal(1, len(moves))
+		suite.Equal("Starlight, Leo", *moves[0].Orders.ServiceMember.LastName+", "+*moves[0].Orders.ServiceMember.FirstName)
+	})
+}
