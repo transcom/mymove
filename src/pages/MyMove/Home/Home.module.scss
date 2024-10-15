@@ -205,11 +205,11 @@
   }
 }
 
-.confirm_cancel_container {
+.cancelMoveContainer {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+  justify-content: flex-end;
+  margin: 20px 0 !important;
 
   button {
     height: auto;
