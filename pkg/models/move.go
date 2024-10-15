@@ -157,8 +157,8 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 		"SecondaryPickupAddress",
 		"TertiaryPickupAddress",
 		"DestinationAddress",
-		"SecondaryDeliveryAddress",
-		"TertiaryDeliveryAddress",
+		"SecondaryDestinationAddress",
+		"TertiaryDestinationAddress",
 		"PPMShipment").Where("mto_shipments.move_id = ?", move.ID).All(&shipments)
 
 	if err != nil {
@@ -459,8 +459,8 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"MTOShipments.PPMShipment.ProgearWeightTickets",
 		"MTOShipments.PPMShipment.ProgearWeightTickets.Document.UserUploads.Upload",
 		"MTOShipments.DestinationAddress",
-		"MTOShipments.SecondaryDeliveryAddress",
-		"MTOShipments.TertiaryDeliveryAddress",
+		"MTOShipments.SecondaryDestinationAddress",
+		"MTOShipments.TertiaryDestinationAddress",
 		"MTOShipments.PickupAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.TertiaryPickupAddress",

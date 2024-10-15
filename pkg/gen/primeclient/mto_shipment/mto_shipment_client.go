@@ -328,7 +328,7 @@ To create an address on an MTO shipment, the caller must use [updateMTOShipment]
 
 ### Errors
 The address must be associated with the mtoShipment passed in the url.
-In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress on the mtoShipment provided.
+In other words, it should be listed as pickupAddress, destinationAddress, secondaryPickupAddress or secondaryDestinationAddress on the mtoShipment provided.
 If it is not, caller will receive a **Conflict** Error.
 
 The mtoShipment should be associated with an MTO that is available to prime.

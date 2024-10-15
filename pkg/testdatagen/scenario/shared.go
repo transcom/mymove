@@ -3754,7 +3754,7 @@ func createUnsubmittedHHGMoveMultipleDestinations(appCtx appcontext.AppContext) 
 		},
 		{
 			Model:    destinationAddress2,
-			Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			Type:     &factory.Addresses.SecondaryDestinationAddress,
 			LinkOnly: true,
 		},
 	}, nil)

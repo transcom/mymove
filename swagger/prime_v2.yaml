@@ -1009,7 +1009,7 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
@@ -2695,7 +2695,7 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.

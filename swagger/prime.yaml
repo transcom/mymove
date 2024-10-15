@@ -382,8 +382,8 @@ paths:
         The address must be associated with the mtoShipment passed in the url.
 
         In other words, it should be listed as pickupAddress,
-        destinationAddress, secondaryPickupAddress or secondaryDeliveryAddress
-        on the mtoShipment provided.
+        destinationAddress, secondaryPickupAddress or
+        secondaryDestinationAddress on the mtoShipment provided.
 
         If it is not, caller will receive a **Conflict** Error.
 
@@ -2508,7 +2508,7 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
@@ -4110,7 +4110,7 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.

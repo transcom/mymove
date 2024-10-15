@@ -183,11 +183,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "301 Another Good Street",
 		}
 
-		customSecondaryDeliveryAddress := models.Address{
+		customSecondaryDestinationAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
 		}
 
-		customTertiaryDeliveryAddress := models.Address{
+		customTertiaryDestinationAddress := models.Address{
 			StreetAddress1: "301 Big MTO Street",
 		}
 
@@ -218,16 +218,16 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Type:  &Addresses.SecondaryPickupAddress,
 			},
 			{
-				Model: customSecondaryDeliveryAddress,
-				Type:  &Addresses.SecondaryDeliveryAddress,
+				Model: customSecondaryDestinationAddress,
+				Type:  &Addresses.SecondaryDestinationAddress,
 			},
 			{
 				Model: customTertiaryPickupAddress,
 				Type:  &Addresses.TertiaryPickupAddress,
 			},
 			{
-				Model: customTertiaryDeliveryAddress,
-				Type:  &Addresses.TertiaryDeliveryAddress,
+				Model: customTertiaryDestinationAddress,
+				Type:  &Addresses.TertiaryDestinationAddress,
 			},
 		}, nil)
 
@@ -285,11 +285,11 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 			StreetAddress1: "301 Another Good Street",
 		}
 
-		customSecondaryDeliveryAddress := models.Address{
+		customSecondaryDestinationAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
 		}
 
-		customTertiaryDeliveryAddress := models.Address{
+		customTertiaryDestinationAddress := models.Address{
 			StreetAddress1: "401 Big MTO Street",
 		}
 
@@ -312,12 +312,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 				Type:  &Addresses.DeliveryAddress,
 			},
 			{
-				Model: customSecondaryDeliveryAddress,
-				Type:  &Addresses.SecondaryDeliveryAddress,
+				Model: customSecondaryDestinationAddress,
+				Type:  &Addresses.SecondaryDestinationAddress,
 			},
 			{
-				Model: customSecondaryDeliveryAddress,
-				Type:  &Addresses.TertiaryDeliveryAddress,
+				Model: customSecondaryDestinationAddress,
+				Type:  &Addresses.TertiaryDestinationAddress,
 			},
 		}, nil)
 
@@ -331,12 +331,12 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		// Check Delivery Address
 		suite.Equal(customDeliveryAddress.StreetAddress1, mtoShipment.DestinationAddress.StreetAddress1)
 		// Check Secondary DeliveryAddress
-		suite.Equal(customSecondaryDeliveryAddress.StreetAddress1, mtoShipment.SecondaryDeliveryAddress.StreetAddress1)
-		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryDeliveryAddress)
+		suite.Equal(customSecondaryDestinationAddress.StreetAddress1, mtoShipment.SecondaryDestinationAddress.StreetAddress1)
+		suite.Equal(models.BoolPointer(true), mtoShipment.HasSecondaryDestinationAddress)
 
 		// Check Tertiary DeliveryAddress
-		suite.Equal(customTertiaryDeliveryAddress.StreetAddress1, mtoShipment.TertiaryDeliveryAddress.StreetAddress1)
-		suite.Equal(models.BoolPointer(true), mtoShipment.HasTertiaryDeliveryAddress)
+		suite.Equal(customTertiaryDestinationAddress.StreetAddress1, mtoShipment.TertiaryDestinationAddress.StreetAddress1)
+		suite.Equal(models.BoolPointer(true), mtoShipment.HasTertiaryDestinationAddress)
 
 		// Check Storage Facility
 		suite.Equal(customStorageFacility.Email, mtoShipment.StorageFacility.Email)
@@ -449,19 +449,19 @@ func (suite *FactorySuite) TestBuildMTOShipment() {
 		suite.False(ntsrShipment.DestinationAddressID.IsNil())
 		suite.False(ntsrShipment.DestinationAddress.ID.IsNil())
 
-		suite.NotNil(ntsrShipment.SecondaryDeliveryAddressID)
-		suite.NotNil(ntsrShipment.SecondaryDeliveryAddress)
-		suite.False(ntsrShipment.SecondaryDeliveryAddressID.IsNil())
-		suite.False(ntsrShipment.SecondaryDeliveryAddress.ID.IsNil())
-		suite.NotNil(ntsrShipment.HasSecondaryDeliveryAddress)
-		suite.True(*ntsrShipment.HasSecondaryDeliveryAddress)
+		suite.NotNil(ntsrShipment.SecondaryDestinationAddressID)
+		suite.NotNil(ntsrShipment.SecondaryDestinationAddress)
+		suite.False(ntsrShipment.SecondaryDestinationAddressID.IsNil())
+		suite.False(ntsrShipment.SecondaryDestinationAddress.ID.IsNil())
+		suite.NotNil(ntsrShipment.HasSecondaryDestinationAddress)
+		suite.True(*ntsrShipment.HasSecondaryDestinationAddress)
 
-		suite.NotNil(ntsrShipment.TertiaryDeliveryAddressID)
-		suite.NotNil(ntsrShipment.TertiaryDeliveryAddress)
-		suite.False(ntsrShipment.TertiaryDeliveryAddressID.IsNil())
-		suite.False(ntsrShipment.TertiaryDeliveryAddress.ID.IsNil())
-		suite.NotNil(ntsrShipment.HasTertiaryDeliveryAddress)
-		suite.True(*ntsrShipment.HasTertiaryDeliveryAddress)
+		suite.NotNil(ntsrShipment.TertiaryDestinationAddressID)
+		suite.NotNil(ntsrShipment.TertiaryDestinationAddress)
+		suite.False(ntsrShipment.TertiaryDestinationAddressID.IsNil())
+		suite.False(ntsrShipment.TertiaryDestinationAddress.ID.IsNil())
+		suite.NotNil(ntsrShipment.HasTertiaryDestinationAddress)
+		suite.True(*ntsrShipment.HasTertiaryDestinationAddress)
 
 		suite.NotNil(ntsrShipment.CustomerRemarks)
 		suite.Equal("Please treat gently", *ntsrShipment.CustomerRemarks)

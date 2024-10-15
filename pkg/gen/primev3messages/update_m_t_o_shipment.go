@@ -98,9 +98,9 @@ type UpdateMTOShipment struct {
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 	// A second delivery address for this shipment, if the customer entered one. An optional field.
-	SecondaryDeliveryAddress struct {
+	SecondaryDestinationAddress struct {
 		Address
-	} `json:"secondaryDeliveryAddress,omitempty"`
+	} `json:"secondaryDestinationAddress,omitempty"`
 
 	// A second pickup address for this shipment, if the customer entered one. An optional field.
 	SecondaryPickupAddress struct {
@@ -114,9 +114,9 @@ type UpdateMTOShipment struct {
 	StorageFacility *StorageFacility `json:"storageFacility,omitempty"`
 
 	// A third delivery address for this shipment, if the customer entered one. An optional field.
-	TertiaryDeliveryAddress struct {
+	TertiaryDestinationAddress struct {
 		Address
-	} `json:"tertiaryDeliveryAddress,omitempty"`
+	} `json:"tertiaryDestinationAddress,omitempty"`
 
 	// A third pickup address for this shipment, if the customer entered one. An optional field.
 	TertiaryPickupAddress struct {
@@ -172,7 +172,7 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -188,7 +188,7 @@ func (m *UpdateMTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -340,8 +340,8 @@ func (m *UpdateMTOShipment) validateScheduledPickupDate(formats strfmt.Registry)
 	return nil
 }
 
-func (m *UpdateMTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+func (m *UpdateMTOShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 		return nil
 	}
 
@@ -392,8 +392,8 @@ func (m *UpdateMTOShipment) validateStorageFacility(formats strfmt.Registry) err
 	return nil
 }
 
-func (m *UpdateMTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+func (m *UpdateMTOShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
 		return nil
 	}
 
@@ -428,7 +428,7 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -444,7 +444,7 @@ func (m *UpdateMTOShipment) ContextValidate(ctx context.Context, formats strfmt.
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -510,7 +510,7 @@ func (m *UpdateMTOShipment) contextValidatePpmShipment(ctx context.Context, form
 	return nil
 }
 
-func (m *UpdateMTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *UpdateMTOShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
@@ -559,7 +559,7 @@ func (m *UpdateMTOShipment) contextValidateStorageFacility(ctx context.Context, 
 	return nil
 }
 
-func (m *UpdateMTOShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *UpdateMTOShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

@@ -1548,11 +1548,11 @@ definitions:
         $ref: '#/definitions/Address'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       tertiaryPickupAddress:
         $ref: '#/definitions/Address'
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
       eTag:
         type: string

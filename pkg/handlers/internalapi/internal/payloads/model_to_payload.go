@@ -174,44 +174,44 @@ func MobileHomeShipment(storer storage.FileStorer, mobileHomeShipment *models.Mo
 // MTOShipment payload
 func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *internalmessages.MTOShipment {
 	payload := &internalmessages.MTOShipment{
-		ID:                          strfmt.UUID(mtoShipment.ID.String()),
-		Agents:                      *MTOAgents(&mtoShipment.MTOAgents),
-		MoveTaskOrderID:             strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
-		ShipmentType:                internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		PickupAddress:               Address(mtoShipment.PickupAddress),
-		SecondaryPickupAddress:      Address(mtoShipment.SecondaryPickupAddress),
-		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
-		TertiaryPickupAddress:       Address(mtoShipment.TertiaryPickupAddress),
-		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
-		DestinationAddress:          Address(mtoShipment.DestinationAddress),
-		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
-		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
-		TertiaryDeliveryAddress:     Address(mtoShipment.TertiaryDeliveryAddress),
-		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
-		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
-		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
-		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(mtoShipment.UpdatedAt),
-		Status:                      internalmessages.MTOShipmentStatus(mtoShipment.Status),
-		PpmShipment:                 PPMShipment(storer, mtoShipment.PPMShipment),
-		BoatShipment:                BoatShipment(storer, mtoShipment.BoatShipment),
-		MobileHomeShipment:          MobileHomeShipment(storer, mtoShipment.MobileHome),
-		ETag:                        etag.GenerateEtag(mtoShipment.UpdatedAt),
-		ShipmentLocator:             handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
+		ID:                             strfmt.UUID(mtoShipment.ID.String()),
+		Agents:                         *MTOAgents(&mtoShipment.MTOAgents),
+		MoveTaskOrderID:                strfmt.UUID(mtoShipment.MoveTaskOrderID.String()),
+		ShipmentType:                   internalmessages.MTOShipmentType(mtoShipment.ShipmentType),
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		PickupAddress:                  Address(mtoShipment.PickupAddress),
+		SecondaryPickupAddress:         Address(mtoShipment.SecondaryPickupAddress),
+		HasSecondaryPickupAddress:      mtoShipment.HasSecondaryPickupAddress,
+		TertiaryPickupAddress:          Address(mtoShipment.TertiaryPickupAddress),
+		HasTertiaryPickupAddress:       mtoShipment.HasTertiaryPickupAddress,
+		DestinationAddress:             Address(mtoShipment.DestinationAddress),
+		SecondaryDestinationAddress:    Address(mtoShipment.SecondaryDestinationAddress),
+		HasSecondaryDestinationAddress: mtoShipment.HasSecondaryDestinationAddress,
+		TertiaryDestinationAddress:     Address(mtoShipment.TertiaryDestinationAddress),
+		HasTertiaryDestinationAddress:  mtoShipment.HasTertiaryDestinationAddress,
+		ActualProGearWeight:            handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:      handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
+		CreatedAt:                      strfmt.DateTime(mtoShipment.CreatedAt),
+		UpdatedAt:                      strfmt.DateTime(mtoShipment.UpdatedAt),
+		Status:                         internalmessages.MTOShipmentStatus(mtoShipment.Status),
+		PpmShipment:                    PPMShipment(storer, mtoShipment.PPMShipment),
+		BoatShipment:                   BoatShipment(storer, mtoShipment.BoatShipment),
+		MobileHomeShipment:             MobileHomeShipment(storer, mtoShipment.MobileHome),
+		ETag:                           etag.GenerateEtag(mtoShipment.UpdatedAt),
+		ShipmentLocator:                handlers.FmtStringPtr(mtoShipment.ShipmentLocator),
 	}
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil
 	}
-	if mtoShipment.HasSecondaryDeliveryAddress != nil && !*mtoShipment.HasSecondaryDeliveryAddress {
-		payload.SecondaryDeliveryAddress = nil
+	if mtoShipment.HasSecondaryDestinationAddress != nil && !*mtoShipment.HasSecondaryDestinationAddress {
+		payload.SecondaryDestinationAddress = nil
 	}
 
 	if mtoShipment.HasTertiaryPickupAddress != nil && !*mtoShipment.HasTertiaryPickupAddress {
 		payload.TertiaryPickupAddress = nil
 	}
-	if mtoShipment.HasTertiaryDeliveryAddress != nil && !*mtoShipment.HasTertiaryDeliveryAddress {
-		payload.TertiaryDeliveryAddress = nil
+	if mtoShipment.HasTertiaryDestinationAddress != nil && !*mtoShipment.HasTertiaryDestinationAddress {
+		payload.TertiaryDestinationAddress = nil
 	}
 
 	if mtoShipment.RequestedPickupDate != nil && !mtoShipment.RequestedPickupDate.IsZero() {

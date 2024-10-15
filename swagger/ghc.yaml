@@ -6171,7 +6171,7 @@ definitions:
       destinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
       secondaryPickupAddress:
@@ -6181,11 +6181,11 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      hasSecondaryDeliveryAddress:
+      hasSecondaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         allOf:
           - $ref: '#/definitions/Address'
       tertiaryPickupAddress:
@@ -6195,7 +6195,7 @@ definitions:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      hasTertiaryDeliveryAddress:
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
@@ -6620,11 +6620,11 @@ definitions:
         description: The address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
-      hasSecondaryDeliveryAddress:
+      hasSecondaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -6636,11 +6636,11 @@ definitions:
         description: The address where the movers should pick up this shipment.
         allOf:
           - $ref: '#/definitions/Address'
-      hasTertiaryDeliveryAddress:
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         description: Where the movers should deliver this shipment.
         allOf:
           - $ref: '#/definitions/Address'
@@ -9839,28 +9839,28 @@ definitions:
       secondaryPickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
       hasSecondaryPickupAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      hasSecondaryDeliveryAddress:
+      hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
       tertiaryPickupAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         x-nullable: true
         $ref: '#/definitions/Address'
       hasTertiaryPickupAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      hasTertiaryDeliveryAddress:
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true

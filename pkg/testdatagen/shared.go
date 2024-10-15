@@ -85,9 +85,9 @@ type Assertions struct {
 	ReZip3                                   models.ReZip3
 	ReZip5RateArea                           models.ReZip5RateArea
 	Role                                     roles.Role
-	SecondaryDeliveryAddress                 models.Address
+	SecondaryDestinationAddress              models.Address
 	SecondaryPickupAddress                   models.Address
-	TertiaryDeliveryAddress                  models.Address
+	TertiaryDestinationAddress               models.Address
 	TertiaryPickupAddress                    models.Address
 	ServiceItemParamKey                      models.ServiceItemParamKey
 	ServiceMember                            models.ServiceMember
