@@ -3141,6 +3141,36 @@ paths:
       summary: Updates status of a payment request by id
       x-permissions:
         - update.paymentRequest
+  '/payment-requests/{paymentRequestID}/bulkDownload':
+    parameters:
+      - description: the id for the payment-request with files to be downloaded
+        in: path
+        name: paymentRequestID
+        required: true
+        type: string
+    get:
+      summary: Downloads all Payment Request documents as a PDF
+      description: |
+        This endpoint downloads all uploaded payment request documentation combined into a single PDF.
+      operationId: bulkDownload
+      tags:
+        - paymentRequests
+      produces:
+        - application/pdf
+      responses:
+        '200':
+          headers:
+            Content-Disposition:
+              type: string
+              description: File name to download
+          description: Payment Request Files PDF
+          schema:
+            format: binary
+            type: file
+        '400':
+          $ref: '#/responses/InvalidRequest'
+        '500':
+          $ref: '#/responses/ServerError'
   /documents/{documentId}:
     get:
       summary: Returns a document
@@ -3797,8 +3827,8 @@ paths:
     get:
       produces:
         - application/json
-      summary: Returns the transportation offices matching the search query
-      description: Returns the transportation offices matching the search query
+      summary: Returns the transportation offices matching the search query that is enabled for PPM closeout
+      description: Returns the transportation offices matching the search query that is enabled for PPM closeout
       operationId: getTransportationOffices
       tags:
         - transportationOffice
@@ -4079,6 +4109,70 @@ paths:
           $ref: "#/responses/NotFound"
         "500":
           $ref: "#/responses/ServerError"
+  /moves/{moveID}/assignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          required: true
+          schema:
+            $ref: '#/definitions/AssignOfficeUserBody'
+      responses:
+        '200':
+          description: Successfully assigned office user to the move
+          schema:
+            $ref: '#/definitions/Move'
+        '404':
+          $ref: '#/responses/NotFound'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: assigns either a services counselor, task ordering officer, or task invoicing officer to the move
+      operationId: updateAssignedOfficeUser
+  /moves/{moveID}/unassignOfficeUser:
+    parameters:
+      - description: ID of the move
+        in: path
+        name: moveID
+        required: true
+        format: uuid
+        type: string
+      - in: body
+        name: body
+        schema:
+          properties:
+            roleType:
+              type: string
+          required:
+            - roleType
+    patch:
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: Successfully unassigned office user from the move
+          schema:
+            $ref: '#/definitions/Move'
+        '500':
+          $ref: '#/responses/ServerError'
+      tags:
+        - move
+      description: unassigns either a services counselor, task ordering officer, or task invoicing officer from the move
+      operationId: deleteAssignedOfficeUser
 definitions:
   ApplicationParameters:
     type: object
@@ -4516,8 +4610,9 @@ definitions:
         $ref: 'definitions/Affiliation.yaml'
       edipi:
         type: string
-        example: John
-        x-nullable: true
+        example: '1234567890'
+        maxLength: 10
+        x-nullable: false
       emplid:
         type: string
         example: '9485155'
@@ -4870,6 +4965,12 @@ definitions:
         x-nullable: true
       additionalDocuments:
         $ref: 'definitions/Document.yaml'
+      SCAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TOOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
+      TIOAssignedUser:
+        $ref: '#/definitions/AssignedOfficeUser'
   MoveHistory:
     properties:
       id:
@@ -6678,6 +6779,9 @@ definitions:
       counselingOffice:
         type: string
         x-nullable: true
+      assignedTo:
+        $ref: '#/definitions/AssignedOfficeUser'
+        x-nullable: true
   QueueMovesResult:
     type: object
     properties:
@@ -7277,6 +7381,28 @@ definitions:
       - date
       - is_weekend
       - is_holiday
+  AssignOfficeUserBody:
+    type: object
+    properties:
+      officeUserId:
+        type: string
+        format: uuid
+      roleType:
+        type: string
+    required:
+      - officeUserId
+      - roleType
+  AssignedOfficeUser:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      firstName:
+        type: string
+      lastName:
+        type: string
 responses:
   InvalidRequest:
     description: The request payload is invalid

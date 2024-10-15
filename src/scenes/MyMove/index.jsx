@@ -66,6 +66,9 @@ const EditOrders = lazy(() => import('pages/MyMove/EditOrders'));
 const BoatShipmentLocationInfo = lazy(() =>
   import('pages/MyMove/Boat/BoatShipmentLocationInfo/BoatShipmentLocationInfo'),
 );
+const MobileHomeShipmentLocationInfo = lazy(() =>
+  import('pages/MyMove/MobileHome/MobileHomeShipmentLocationInfo/MobileHomeShipmentLocationInfo'),
+);
 const EstimatedWeightsProGear = lazy(() =>
   import('pages/MyMove/PPM/Booking/EstimatedWeightsProGear/EstimatedWeightsProGear'),
 );
@@ -353,6 +356,10 @@ export class CustomerApp extends Component {
                       element={<ConnectedCreateOrEditMtoShipment />}
                     />
                     <Route path={customerRoutes.SHIPMENT_BOAT_LOCATION_INFO} element={<BoatShipmentLocationInfo />} />
+                    <Route
+                      path={customerRoutes.SHIPMENT_MOBILE_HOME_LOCATION_INFO}
+                      element={<MobileHomeShipmentLocationInfo />}
+                    />
                     <Route
                       path={customerRoutes.SHIPMENT_PPM_ESTIMATED_WEIGHT_PATH}
                       element={<EstimatedWeightsProGear />}

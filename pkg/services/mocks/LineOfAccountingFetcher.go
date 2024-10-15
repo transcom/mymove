@@ -16,9 +16,31 @@ type LineOfAccountingFetcher struct {
 	mock.Mock
 }
 
+// BuildFullLineOfAccountingString provides a mock function with given fields: loa
+func (_m *LineOfAccountingFetcher) BuildFullLineOfAccountingString(loa models.LineOfAccounting) string {
+	ret := _m.Called(loa)
+
+	if len(ret) == 0 {
+		panic("no return value specified for BuildFullLineOfAccountingString")
+	}
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(models.LineOfAccounting) string); ok {
+		r0 = rf(loa)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // FetchLongLinesOfAccounting provides a mock function with given fields: serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx
 func (_m *LineOfAccountingFetcher) FetchLongLinesOfAccounting(serviceMemberAffiliation models.ServiceMemberAffiliation, ordersIssueDate time.Time, tacCode string, appCtx appcontext.AppContext) ([]models.LineOfAccounting, error) {
 	ret := _m.Called(serviceMemberAffiliation, ordersIssueDate, tacCode, appCtx)
+
+	if len(ret) == 0 {
+		panic("no return value specified for FetchLongLinesOfAccounting")
+	}
 
 	var r0 []models.LineOfAccounting
 	var r1 error

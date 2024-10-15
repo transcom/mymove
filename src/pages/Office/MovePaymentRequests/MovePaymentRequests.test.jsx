@@ -498,10 +498,10 @@ describe('MovePaymentRequests', () => {
       });
     });
 
-    it('displays the number of payment request on leftnav sidebar', async () => {
+    it('displays the number of pending payment requests on leftnav sidebar', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
-        expect(screen.getByTestId('numOfPaymentRequestsTag').textContent).toEqual('2');
+        expect(screen.getByTestId('numOfPendingPaymentRequestsTag').textContent).toEqual('1');
       });
     });
   });
@@ -525,10 +525,10 @@ describe('MovePaymentRequests', () => {
       expect(paymentRequstNavLink.text).toContain(name);
     });
 
-    it('displays the number of payment request on leftnav sidebar', async () => {
+    it('does not display the number of pending payment requests on leftnav sidebar if no pending exist', async () => {
       renderMovePaymentRequests(testProps);
       await waitFor(() => {
-        expect(screen.getByTestId('numOfPaymentRequestsTag').textContent).toEqual('1');
+        expect(screen.queryByTestId('numOfPendingPaymentRequestsTag')).not.toBeInTheDocument();
       });
     });
   });
@@ -623,7 +623,7 @@ describe('MovePaymentRequests', () => {
       jest.spyOn(console, 'error').mockImplementation(() => {});
       renderMovePaymentRequests(testProps);
 
-      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
 
       await userEvent.click(reviewWeights);
 
@@ -659,7 +659,7 @@ describe('MovePaymentRequests', () => {
     });
   });
 
-  describe('a move that does not have a billableWeightsReviewedAt timestamp displays a primary styled Review Weights btn', () => {
+  describe('a move that does not have a billableWeightsReviewedAt timestamp displays a primary styled Review shipment weights btn', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(moveShipmentMissingReweighWeight);
     });
@@ -667,12 +667,12 @@ describe('MovePaymentRequests', () => {
     it('shows the max billable weight warning tag in sidebar', async () => {
       renderMovePaymentRequests(testProps);
 
-      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
       expect(reviewWeights).not.toHaveClass('usa-button--secondary');
     });
   });
 
-  describe('a move that has a billableWeightsReviewedAt timestamp displays a secondary styled Review Weights btn', () => {
+  describe('a move that has a billableWeightsReviewedAt timestamp displays a secondary styled Review shipment weights btn', () => {
     beforeEach(() => {
       useMovePaymentRequestsQueries.mockReturnValue(returnWithBillableWeightsReviewed);
     });
@@ -680,7 +680,7 @@ describe('MovePaymentRequests', () => {
     it('shows the max billable weight warning tag in sidebar', async () => {
       renderMovePaymentRequests(testProps);
 
-      const reviewWeights = screen.getByRole('button', { name: 'Review weights' });
+      const reviewWeights = screen.getByRole('button', { name: 'Review shipment weights' });
       expect(reviewWeights).toHaveClass('usa-button--secondary');
     });
   });
