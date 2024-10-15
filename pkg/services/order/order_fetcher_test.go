@@ -2020,7 +2020,7 @@ func (suite *OrderServiceSuite) TestOriginDutyLocationFilter() {
     suite.Run("Returns orders matching the originDutyLocation filter", func() {
 		locationName := expectedMove.Orders.OriginDutyLocation.Name
 		params := &services.ListOrderParams{OriginDutyLocation: strings.Split(locationName, " ")}
-        expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, params)
+        expectedMoves, _, err := orderFetcher.ListOrders(suite.AppContextWithSessionForTest(&session), officeUser.ID, roles.RoleTypeTOO, params)
         suite.NoError(err)
 		suite.Equal(1, len(expectedMoves))
         suite.Contains(locationName, string(expectedMoves[0].Orders.OriginDutyLocation.Name))
