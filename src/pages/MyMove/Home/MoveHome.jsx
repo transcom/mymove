@@ -113,7 +113,6 @@ const MoveHome = ({ serviceMemberMoves, isProfileComplete, serviceMember, signed
       })
       .finally(() => {
         setShowCancelMoveModal(false);
-        // window.location.reload();
       });
   };
 
