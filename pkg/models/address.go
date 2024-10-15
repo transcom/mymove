@@ -26,6 +26,7 @@ type Address struct {
 	PostalCode     string    `json:"postal_code" db:"postal_code"`
 	Country        *string   `json:"country" db:"country"`
 	County         string    `json:"county" db:"county"`
+	IsOconus       *bool     `json:"is_oconus" db:"is_oconus"`
 }
 
 // TableName overrides the table name used by Pop.

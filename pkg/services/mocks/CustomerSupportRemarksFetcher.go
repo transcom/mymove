@@ -18,6 +18,10 @@ type CustomerSupportRemarksFetcher struct {
 func (_m *CustomerSupportRemarksFetcher) ListCustomerSupportRemarks(appCtx appcontext.AppContext, moveCode string) (*models.CustomerSupportRemarks, error) {
 	ret := _m.Called(appCtx, moveCode)
 
+	if len(ret) == 0 {
+		panic("no return value specified for ListCustomerSupportRemarks")
+	}
+
 	var r0 *models.CustomerSupportRemarks
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, string) (*models.CustomerSupportRemarks, error)); ok {

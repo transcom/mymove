@@ -67,7 +67,7 @@ describe('ResidentialAddress page', () => {
 
     render(<ResidentialAddress {...testProps} />);
 
-    const postalCodeInput = await screen.findByLabelText('ZIP');
+    const postalCodeInput = await screen.findByLabelText(/ZIP/);
 
     const postalCode = '99999';
 
@@ -103,23 +103,23 @@ describe('ResidentialAddress page', () => {
 
     const { getByLabelText, getByText } = render(<ResidentialAddress {...testProps} />);
 
-    await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(screen.getByLabelText('State'), 'AK');
-    await userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
+    await userEvent.selectOptions(screen.getByLabelText(/State/), 'HI');
+    await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
     let msg = getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
 
-    await userEvent.selectOptions(getByLabelText('State'), 'AL');
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.selectOptions(getByLabelText(/State/), 'AL');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
     expect(msg).not.toBeVisible();
 
-    await userEvent.selectOptions(getByLabelText('State'), 'HI');
-    await userEvent.type(getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.selectOptions(getByLabelText(/State/), 'HI');
+    await userEvent.type(getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
     msg = getByText('Moves to this state are not supported at this time.');
     expect(msg).toBeVisible();
@@ -137,11 +137,11 @@ describe('ResidentialAddress page', () => {
 
     render(<ResidentialAddress {...testProps} />);
 
-    await userEvent.type(screen.getByLabelText('Address 1'), fakeAddress.streetAddress1);
+    await userEvent.type(screen.getByLabelText(/Address 1/), fakeAddress.streetAddress1);
     await userEvent.type(screen.getByLabelText(/Address 2/), fakeAddress.streetAddress2);
-    await userEvent.type(screen.getByLabelText('City'), fakeAddress.city);
-    await userEvent.selectOptions(screen.getByLabelText('State'), [fakeAddress.state]);
-    await userEvent.type(screen.getByLabelText('ZIP'), fakeAddress.postalCode);
+    await userEvent.type(screen.getByLabelText(/City/), fakeAddress.city);
+    await userEvent.selectOptions(screen.getByLabelText(/State/), [fakeAddress.state]);
+    await userEvent.type(screen.getByLabelText(/ZIP/), fakeAddress.postalCode);
     await userEvent.tab();
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
@@ -167,7 +167,7 @@ describe('ResidentialAddress page', () => {
     render(<ResidentialAddress {...testProps} />);
 
     // Touch field so that error message can be displayed
-    await userEvent.click(screen.getByLabelText('ZIP'));
+    await userEvent.click(screen.getByLabelText(/ZIP/));
 
     const submitButton = screen.getByRole('button', { name: 'Next' });
     expect(submitButton).toBeInTheDocument();

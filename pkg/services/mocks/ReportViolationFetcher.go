@@ -20,6 +20,10 @@ type ReportViolationFetcher struct {
 func (_m *ReportViolationFetcher) FetchReportViolationsByReportID(appCtx appcontext.AppContext, reportID uuid.UUID) (models.ReportViolations, error) {
 	ret := _m.Called(appCtx, reportID)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchReportViolationsByReportID")
+	}
+
 	var r0 models.ReportViolations
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) (models.ReportViolations, error)); ok {

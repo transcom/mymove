@@ -18,6 +18,10 @@ type MTOAgentUpdater struct {
 func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
 	ret := _m.Called(appCtx, mtoAgent, eTag)
 
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMTOAgentBasic")
+	}
+
 	var r0 *models.MTOAgent
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, *models.MTOAgent, string) (*models.MTOAgent, error)); ok {
@@ -43,6 +47,10 @@ func (_m *MTOAgentUpdater) UpdateMTOAgentBasic(appCtx appcontext.AppContext, mto
 // UpdateMTOAgentPrime provides a mock function with given fields: appCtx, mtoAgent, eTag
 func (_m *MTOAgentUpdater) UpdateMTOAgentPrime(appCtx appcontext.AppContext, mtoAgent *models.MTOAgent, eTag string) (*models.MTOAgent, error) {
 	ret := _m.Called(appCtx, mtoAgent, eTag)
+
+	if len(ret) == 0 {
+		panic("no return value specified for UpdateMTOAgentPrime")
+	}
 
 	var r0 *models.MTOAgent
 	var r1 error
