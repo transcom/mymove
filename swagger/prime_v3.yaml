@@ -214,6 +214,22 @@ paths:
                   counselorRemarks: test
                   moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
                   shipmentType: HAUL_AWAY
+              mobileHome:
+                summary: Mobile Home Shipment
+                value:
+                  mobileHomeShipment:
+                    heightFeet: 2
+                    heightInches: 2
+                    lengthFeet: 2
+                    lengthInches: 0
+                    make: make
+                    model: model
+                    widthFeet: 2
+                    widthInches: 2
+                    year: 1999
+                  counselorRemarks: test
+                  moveTaskOrderID: d4d95b22-2d9d-428b-9a11-284455aa87ba
+                  shipmentType: MOBILE_HOME
       responses:
         '200':
           description: Successfully created a MTO shipment.
@@ -694,6 +710,8 @@ definitions:
         $ref: '#/definitions/CreatePPMShipment'
       boatShipment:
         $ref: '#/definitions/CreateBoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/CreateMobileHomeShipment'
     required:
       - moveTaskOrderID
       - shipmentType
@@ -729,7 +747,7 @@ definitions:
           The address of the destination location where goods are being
           delivered to.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         description: >-
           An optional secondary address near the destination where goods will be
@@ -802,7 +820,7 @@ definitions:
       - hasProGear
   CreateBoatShipment:
     description: >-
-      Creation object containing the `PPM` shipmentType specific data, not used
+      Creation object containing the `Boat` shipmentType specific data, not used
       for other shipment types.
     type: object
     properties:
@@ -839,6 +857,37 @@ definitions:
       - widthInInches
       - heightInInches
       - hasTrailer
+  CreateMobileHomeShipment:
+    description: >-
+      Creation object containing the `MobileHome` shipmentType specific data,
+      not used for other shipment types.
+    type: object
+    properties:
+      year:
+        type: integer
+        description: Year of the Mobile Home
+      make:
+        type: string
+        description: Make of the Mobile Home
+      model:
+        type: string
+        description: Model of the Mobile Home
+      lengthInInches:
+        type: integer
+        description: Length of the Mobile Home in inches
+      widthInInches:
+        type: integer
+        description: Width of the Mobile Home in inches
+      heightInInches:
+        type: integer
+        description: Height of the Mobile Home in inches
+    required:
+      - year
+      - make
+      - model
+      - lengthInInches
+      - widthInInches
+      - heightInInches
   MTOShipment:
     type: object
     properties:
@@ -966,7 +1015,7 @@ definitions:
           The address of the destination location where goods are being
           delivered to.
         allOf:
-          - $ref: '#/definitions/Address'
+          - $ref: '#/definitions/PPMDestinationAddress'
       hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
@@ -2352,6 +2401,164 @@ definitions:
       - NEEDS_CLOSEOUT
       - CLOSEOUT_COMPLETE
       - CANCELED
+  PPMDestinationAddress:
+    description: A postal address
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      streetAddress1:
+        type: string
+        example: 123 Main Ave
+        x-nullable: true
+        title: Street address 1
+      streetAddress2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Street address 2
+      streetAddress3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      eTag:
+        type: string
+        readOnly: true
+      state:
+        title: State
+        type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AR: AR
+          AZ: AZ
+          CA: CA
+          CO: CO
+          CT: CT
+          DC: DC
+          DE: DE
+          FL: FL
+          GA: GA
+          HI: HI
+          IA: IA
+          ID: ID
+          IL: IL
+          IN: IN
+          KS: KS
+          KY: KY
+          LA: LA
+          MA: MA
+          MD: MD
+          ME: ME
+          MI: MI
+          MN: MN
+          MO: MO
+          MS: MS
+          MT: MT
+          NC: NC
+          ND: ND
+          NE: NE
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NV: NV
+          NY: NY
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VA: VA
+          VT: VT
+          WA: WA
+          WI: WI
+          WV: WV
+          WY: WY
+        enum:
+          - AL
+          - AK
+          - AR
+          - AZ
+          - CA
+          - CO
+          - CT
+          - DC
+          - DE
+          - FL
+          - GA
+          - HI
+          - IA
+          - ID
+          - IL
+          - IN
+          - KS
+          - KY
+          - LA
+          - MA
+          - MD
+          - ME
+          - MI
+          - MN
+          - MO
+          - MS
+          - MT
+          - NC
+          - ND
+          - NE
+          - NH
+          - NJ
+          - NM
+          - NV
+          - NY
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VA
+          - VT
+          - WA
+          - WI
+          - WV
+          - WY
+      postalCode:
+        type: string
+        format: zip
+        title: ZIP
+        example: '90210'
+        pattern: ^(\d{5}([\-]\d{4})?)$
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: USA
+        default: USA
+      county:
+        type: string
+        title: County
+        x-nullable: true
+        example: LOS ANGELES
+    required:
+      - city
+      - state
+      - postalCode
   SITLocationType:
     description: The list of SIT location types.
     type: string
@@ -2449,7 +2656,7 @@ definitions:
         x-nullable: true
         x-omitempty: false
       destinationAddress:
-        $ref: '#/definitions/Address'
+        $ref: '#/definitions/PPMDestinationAddress'
       secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       hasSecondaryDestinationAddress:
@@ -2669,6 +2876,55 @@ definitions:
       - heightInInches
       - hasTrailer
       - eTag
+  MobileHome:
+    description: >-
+      A mobile home is a type of shipment that a service member moves a mobile
+      home.
+    x-nullable: true
+    properties:
+      id:
+        description: Primary auto-generated unique identifier of the Mobile Home object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      shipmentId:
+        description: The id of the parent MTOShipment object
+        example: 1f2270c7-7166-40ae-981e-b200ebdf3054
+        format: uuid
+        type: string
+        readOnly: true
+      make:
+        description: The make of the mobile home
+        type: string
+      model:
+        description: The model of the mobile home.
+        type: string
+      year:
+        description: The year the mobile home was made.
+        type: integer
+      lengthInInches:
+        type: integer
+      widthInInches:
+        type: integer
+      heightInInches:
+        type: integer
+      updatedAt:
+        description: Timestamp of when a property of this object was last updated (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      createdAt:
+        description: Timestamp of when a property of this object was created (UTC)
+        format: date-time
+        type: string
+        readOnly: true
+      eTag:
+        description: >-
+          A hash unique to this shipment that should be used as the "If-Match"
+          header for any updates.
+        type: string
+        readOnly: true
   ShipmentAddressUpdateStatus:
     type: string
     title: Status
@@ -2983,6 +3239,8 @@ definitions:
         $ref: '#/definitions/PPMShipment'
       boatShipment:
         $ref: '#/definitions/BoatShipment'
+      mobileHomeShipment:
+        $ref: '#/definitions/MobileHome'
       deliveryAddressUpdate:
         $ref: '#/definitions/ShipmentAddressUpdate'
       eTag:
@@ -3015,6 +3273,15 @@ definitions:
         type: string
         description: The SIT authorized end date for destination SIT.
         x-nullable: true
+      marketCode:
+        type: string
+        enum:
+          - d
+          - i
+        example: d
+        description: >-
+          Single-letter designator for domestic (d) or international (i)
+          shipments
   MTOShipmentsWithoutServiceObjects:
     description: A list of shipments without their associated service items.
     items:

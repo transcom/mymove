@@ -52,11 +52,10 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 			/** Feature Flag - Boat Shipment **/
 			isBoatFeatureOn := false
-			featureFlagName := "boat"
+			const featureFlagName = "boat"
 			flag, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagName, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flag", zap.String("featureFlagKey", featureFlagName), zap.Error(err))
-				isBoatFeatureOn = false
 			} else {
 				isBoatFeatureOn = flag.Match
 			}
@@ -80,11 +79,10 @@ func (h GetMoveTaskOrderHandler) Handle(params movetaskorderops.GetMoveTaskOrder
 
 			/** Feature Flag - Mobile Home Shipment **/
 			isMobileHomeFeatureOn := false
-			featureFlagNameMH := "mobile_home"
+			const featureFlagNameMH = "mobile_home"
 			flagMH, err := h.FeatureFlagFetcher().GetBooleanFlagForUser(params.HTTPRequest.Context(), appCtx, featureFlagNameMH, map[string]string{})
 			if err != nil {
 				appCtx.Logger().Error("Error fetching feature flagMH", zap.String("featureFlagKey", featureFlagNameMH), zap.Error(err))
-				isMobileHomeFeatureOn = false
 			} else {
 				isMobileHomeFeatureOn = flagMH.Match
 			}

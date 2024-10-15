@@ -19,13 +19,13 @@ export const DutyLocationInput = (props) => {
     onDutyLocationChange,
   } = props;
   const [field, meta, helpers] = useField(props);
+
+  const { touched } = useFormikContext();
   const handleDutyLocationChange = (event) => {
     if (onDutyLocationChange) {
       onDutyLocationChange(event);
     }
   };
-
-  const { touched } = useFormikContext();
 
   let errorString = '';
   if (metaOverride && metaOverride !== '') {
@@ -45,8 +45,8 @@ export const DutyLocationInput = (props) => {
       name={name}
       input={{
         value: field.value,
-        locationState: handleDutyLocationChange,
         onChange: handleChange,
+        locationState: handleDutyLocationChange,
         name,
       }}
       errorMsg={errorString}

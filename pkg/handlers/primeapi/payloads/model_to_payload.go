@@ -508,6 +508,14 @@ func PPMShipment(ppmShipment *models.PPMShipment) *primemessages.PPMShipment {
 	return payloadPPMShipment
 }
 
+// MarketCode payload
+func MarketCode(marketCode *models.MarketCode) string {
+	if marketCode == nil {
+		return "" // Or a default string value
+	}
+	return string(*marketCode)
+}
+
 func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessages.MTOShipmentWithoutServiceItems {
 	payload := &primemessages.MTOShipmentWithoutServiceItems{
 		ID:                               strfmt.UUID(mtoShipment.ID.String()),
@@ -538,6 +546,7 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primemessa
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
+		MarketCode:                       MarketCode(&mtoShipment.MarketCode),
 	}
 
 	// Set up address payloads
@@ -801,7 +810,7 @@ func Upload(appCtx appcontext.AppContext, storer storage.FileStorer, upload *mod
 		UpdatedAt:   strfmt.DateTime(upload.UpdatedAt),
 	}
 
-	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType, upload.Filename)
 	if err == nil {
 		payload.URL = *handlers.FmtURI(url)
 	} else {
