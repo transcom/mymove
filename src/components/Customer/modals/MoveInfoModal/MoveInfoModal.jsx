@@ -4,7 +4,7 @@ import { Button } from '@trussworks/react-uswds';
 
 import Modal, { ModalTitle, ModalClose, ModalActions, connectModal } from 'components/Modal/Modal';
 
-export const MoveInfoModal = ({ closeModal, enablePPM, enableUB }) => (
+export const MoveInfoModal = ({ closeModal, enablePPM, enableUB, hasOconusDutyLocation }) => (
   <Modal>
     <ModalClose handleClick={closeModal} />
     <ModalTitle>
@@ -47,7 +47,7 @@ export const MoveInfoModal = ({ closeModal, enablePPM, enableUB }) => (
         </ul>
       </>
     )}
-    {enableUB && (
+    {enableUB && hasOconusDutyLocation && (
       <>
         <h4>
           <strong>

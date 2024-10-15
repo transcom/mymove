@@ -340,6 +340,7 @@ export class SelectShipmentType extends Component {
           isOpen={showMoveInfoModal}
           enablePPM={enablePPM}
           enableUB={enableUB}
+          hasOconusDutyLocation={hasOconusDutyLocation}
           closeModal={this.toggleMoveInfoModal}
         />
         <ConnectedStorageInfoModal
