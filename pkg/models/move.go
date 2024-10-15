@@ -419,7 +419,9 @@ func FetchMoveForMoveDates(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
 	err := db.
 		Eager(
+			"Orders.OriginDutyLocation.Address.State",
 			"Orders.OriginDutyLocation.Address.Country",
+			"Orders.NewDutyLocation.Address.State",
 			"Orders.NewDutyLocation.Address.Country",
 			"Orders.ServiceMember",
 		).
@@ -480,13 +482,18 @@ func FetchMovesByOrderID(db *pop.Connection, orderID uuid.UUID) (Moves, error) {
 		"Orders.Entitlement",
 		"Orders.ServiceMember",
 		"Orders.ServiceMember.User",
+		"Orders.OriginDutyLocation.Address.State",
 		"Orders.OriginDutyLocation.Address.Country",
 		"Orders.OriginDutyLocation.TransportationOffice",
+		"Orders.OriginDutyLocation.TransportationOffice.Address.State",
 		"Orders.OriginDutyLocation.TransportationOffice.Address.Country",
+		"Orders.NewDutyLocation.Address.State",
 		"Orders.NewDutyLocation.Address.Country",
 		"Orders.NewDutyLocation.TransportationOffice",
+		"Orders.NewDutyLocation.TransportationOffice.Address.State",
 		"Orders.NewDutyLocation.TransportationOffice.Address.Country",
 		"CloseoutOffice",
+		"CloseoutOffice.Address.State",
 		"CloseoutOffice.Address.Country",
 		"CounselingOffice",
 	).All(&moves)

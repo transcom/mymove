@@ -476,6 +476,23 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 					fmt.Sprintf("A service item with reServiceCode %s must have the sitHHGActualOrigin field set.", serviceItem.ReService.Code))
 			}
 
+			// if there is a state code provided, we will search for it - else we will create it for CONUS
+			if serviceItem.SITOriginHHGActualAddress.State.State != "" {
+				state, errState := models.FetchStateByCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.State.State)
+				if errState != nil {
+					return nil, nil, errState
+				}
+				serviceItem.SITOriginHHGActualAddress.State = state
+				serviceItem.SITOriginHHGActualAddress.StateId = state.ID
+			} else {
+				state, errState := models.FetchStateByCode(appCtx.DB(), "CA")
+				if errState != nil {
+					return nil, nil, errState
+				}
+				serviceItem.SITOriginHHGActualAddress.State = state
+				serviceItem.SITOriginHHGActualAddress.StateId = state.ID
+			}
+
 			county, errCounty := models.FindCountyByZipCode(appCtx.DB(), serviceItem.SITOriginHHGActualAddress.PostalCode)
 			if errCounty != nil {
 				return nil, nil, errCounty
@@ -499,6 +516,23 @@ func (o *mtoServiceItemCreator) CreateMTOServiceItem(appCtx appcontext.AppContex
 
 			// update the SIT service item to track/save the HHG original pickup address (that came from the
 			// MTO shipment
+			// check if shipment exists linked by MoveTaskOrderID
+			// need to fetch state information since it can't be null and this will be copied over
+			var state models.State
+			stateID := mtoShipment.PickupAddress.StateId
+			queryFilters = []services.QueryFilter{
+				query.NewQueryFilter("id", "=", stateID),
+			}
+			err = o.builder.FetchOne(appCtx, &state, queryFilters)
+			if err != nil {
+				switch err {
+				case sql.ErrNoRows:
+					return nil, nil, apperror.NewNotFoundError(mtoShipmentID, fmt.Sprintf("for mtoShipment with pickup address state: %s", mtoShipmentID.String()))
+				default:
+					return nil, nil, apperror.NewQueryError("State", err, "")
+				}
+			}
+			mtoShipment.PickupAddress.State = state
 			serviceItem.SITOriginHHGOriginalAddress = mtoShipment.PickupAddress.Copy()
 			serviceItem.SITOriginHHGOriginalAddress.ID = uuid.Nil
 			serviceItem.SITOriginHHGOriginalAddressID = nil

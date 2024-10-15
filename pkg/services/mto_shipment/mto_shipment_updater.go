@@ -1016,7 +1016,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGIntoNTSDom)
 			}
-			err := appCtx.DB().Load(shipment.StorageFacility, "Address", "Address.Country")
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address.State", "Address.Country")
 			if err != nil {
 				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
 			}
@@ -1027,7 +1027,7 @@ func (o *mtoShipmentStatusUpdater) setRequiredDeliveryDate(appCtx appcontext.App
 			if shipment.StorageFacility == nil || shipment.StorageFacility.AddressID == uuid.Nil {
 				return errors.Errorf("StorageFacility is required for %s shipments", models.MTOShipmentTypeHHGOutOfNTSDom)
 			}
-			err := appCtx.DB().Load(shipment.StorageFacility, "Address", "Address.Country")
+			err := appCtx.DB().Load(shipment.StorageFacility, "Address.State", "Address.Country")
 			if err != nil {
 				return apperror.NewNotFoundError(shipment.StorageFacility.AddressID, "looking for MTOShipment.StorageFacility.Address")
 			}

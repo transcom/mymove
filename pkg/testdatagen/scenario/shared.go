@@ -4263,6 +4263,7 @@ func createHHGWithOriginSITServiceItems(
 	originSITAddress := shipment.PickupAddress
 	originSITAddress.ID = uuid.Nil
 	originSITAddress.Country = nil
+	originSITAddress.State = models.State{}
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
 		{
@@ -4966,10 +4967,13 @@ func createHHGWithPaymentServiceItems(
 
 	// Prep country with a real db
 	country := factory.FetchOrBuildCountry(db, nil, nil)
+	state := factory.FetchOrBuildState(db, nil, nil)
 	originSITAddress := factory.BuildAddress(nil, nil, []factory.Trait{factory.GetTraitAddress2})
 	// Manually set Country ID. Customizations will not work because DB is nil
 	originSITAddress.CountryId = &country.ID
 	originSITAddress.Country = nil
+	originSITAddress.StateId = state.ID
+	originSITAddress.State = models.State{}
 	originSITAddress.ID = uuid.Nil
 
 	originSIT := factory.BuildMTOServiceItem(nil, []factory.Customization{
@@ -4984,7 +4988,8 @@ func createHHGWithPaymentServiceItems(
 		{
 			Model: models.ReService{
 				Code: models.ReServiceCodeDOFSIT,
-			}},
+			},
+		},
 		{
 			Model: originSITAddress,
 			Type:  &factory.Addresses.SITOriginHHGActualAddress,
@@ -10201,7 +10206,6 @@ func createMoveWithUniqueDestinationAddress(appCtx appcontext.AppContext) {
 			Model: models.State{
 				State: "SC",
 			},
-			Type: &factory.Addresses.DutyLocationAddress,
 		},
 		{
 			Model: models.Order{

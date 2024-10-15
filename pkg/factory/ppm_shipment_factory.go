@@ -92,7 +92,6 @@ func buildPPMShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 			Model: models.Address{
 				StreetAddress1: "987 New Street",
 				City:           oldDutyLocationAddress.City,
-				State:          oldDutyLocationAddress.State,
 				PostalCode:     oldDutyLocationAddress.PostalCode,
 			},
 		},

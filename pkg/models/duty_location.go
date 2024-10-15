@@ -79,14 +79,14 @@ func FetchDLContactInfo(db *pop.Connection, dutyLocationID *uuid.UUID) (*DutyLoc
 // FetchDutyLocation returns a DutyLocation for a given id
 func FetchDutyLocation(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
 	var dutyLocation DutyLocation
-	err := tx.Q().Eager("Address", "Address.Country").Find(&dutyLocation, id)
+	err := tx.Q().Eager("Address.State", "Address.Country").Find(&dutyLocation, id)
 	return dutyLocation, err
 }
 
 // FetchDutyLocationByName returns a DutyLocation for a given unique name
 func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, error) {
 	var dutyLocation DutyLocation
-	err := tx.Where("name = ?", name).Eager("Address", "Address.Country", "TransportationOffice",
+	err := tx.Where("name = ?", name).Eager("Address.State", "Address.Country", "TransportationOffice",
 		"TransportationOffice.Address", "TransportationOffice.PhoneLines").First(&dutyLocation)
 	return dutyLocation, err
 }
@@ -95,7 +95,7 @@ func FetchDutyLocationByName(tx *pop.Connection, name string) (DutyLocation, err
 // with the associated transportation office eagerly loaded
 func FetchDutyLocationWithTransportationOffice(tx *pop.Connection, id uuid.UUID) (DutyLocation, error) {
 	var dutyLocation DutyLocation
-	err := tx.Q().Eager("Address", "Address.Country", "TransportationOffice", "TransportationOffice.Address",
+	err := tx.Q().Eager("Address.State", "Address.Country", "TransportationOffice", "TransportationOffice.Address",
 		"TransportationOffice.PhoneLines").Find(&dutyLocation, id)
 	return dutyLocation, err
 }

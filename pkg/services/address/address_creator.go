@@ -30,6 +30,29 @@ func (f *addressCreator) CreateAddress(appCtx appcontext.AppContext, address *mo
 		return nil, err
 	}
 
+	if address.State.State != "" {
+		state, err := models.FetchStateByCode(appCtx.DB(), address.State.State)
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.State = state
+		transformedAddress.StateId = state.ID
+	} else if address.StateId != uuid.Nil {
+		state, err := models.FetchStateByID(appCtx.DB(), address.StateId)
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.State = state
+		transformedAddress.StateId = state.ID
+	} else {
+		defaultState, err := models.FetchStateByCode(appCtx.DB(), "CA")
+		if err != nil {
+			return nil, err
+		}
+		transformedAddress.State = defaultState
+		transformedAddress.StateId = defaultState.ID
+	}
+
 	if address.PostalCode != "" {
 		county, err := models.FindCountyByZipCode(appCtx.DB(), address.PostalCode)
 		if err != nil {

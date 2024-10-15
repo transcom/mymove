@@ -8,19 +8,17 @@ import (
 
 // MakeAddress creates a single Address and associated service member.
 func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
+	state, _ := models.FetchStateByCode(db, "CA")
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
 		StreetAddress2: models.StringPointer("P.O. Box 12345"),
 		StreetAddress3: models.StringPointer("c/o Some Person"),
 		City:           "Beverly Hills",
-		State: models.State{
-			State:     "CA",
-			StateName: "CALIFORNIA",
-			IsOconus:  *models.BoolPointer(false),
-		},
-		PostalCode: "90210",
-		County:     "LOS ANGELES",
+		PostalCode:     "90210",
+		County:         "LOS ANGELES",
 	}
+	address.State = state
+	address.StateId = state.ID
 
 	mergeModels(&address, assertions.Address)
 
@@ -31,20 +29,17 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress2 creates a different single Address and associated service member.
 func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
+	state, _ := models.FetchStateByCode(db, "CA")
 	address := models.Address{
 		StreetAddress1: "987 Any Avenue",
 		StreetAddress2: models.StringPointer("P.O. Box 9876"),
 		StreetAddress3: models.StringPointer("c/o Some Person"),
 		City:           "Fairfield",
-		State: models.State{
-			State:     "CA",
-			StateName: "CALIFORNIA",
-			IsOconus:  *models.BoolPointer(false),
-		},
-		PostalCode: "94535",
-
-		County: "SOLANO",
+		PostalCode:     "94535",
+		County:         "SOLANO",
 	}
+	address.State = state
+	address.StateId = state.ID
 
 	mergeModels(&address, assertions.Address)
 
@@ -55,19 +50,17 @@ func MakeAddress2(db *pop.Connection, assertions Assertions) models.Address {
 
 // MakeAddress3 creates a different single Address and associated service member.
 func MakeAddress3(db *pop.Connection, assertions Assertions) models.Address {
+	state, _ := models.FetchStateByCode(db, "IA")
 	address := models.Address{
 		StreetAddress1: "987 Other Avenue",
 		StreetAddress2: models.StringPointer("P.O. Box 1234"),
 		StreetAddress3: models.StringPointer("c/o Another Person"),
 		City:           "Des Moines",
-		State: models.State{
-			State:     "IA",
-			StateName: "IOWA",
-			IsOconus:  *models.BoolPointer(false),
-		},
-		PostalCode: "50309",
-		County:     "POLK",
+		PostalCode:     "50309",
+		County:         "POLK",
 	}
+	address.State = state
+	address.StateId = state.ID
 
 	mergeModels(&address, assertions.Address)
 

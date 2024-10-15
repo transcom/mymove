@@ -378,7 +378,7 @@ func (suite *QueryBuilderSuite) TestFetchManyAssociations() {
 		setupTestData()
 		var dutyLocations models.DutyLocations
 		associations := NewQueryAssociations([]services.QueryAssociation{
-			NewQueryAssociation("Address"),
+			NewQueryAssociation("Address.State"),
 			NewQueryAssociation("Address.Country"),
 		})
 
