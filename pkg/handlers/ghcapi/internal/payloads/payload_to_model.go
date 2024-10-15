@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/validate/v3"
 	"github.com/gofrs/uuid"
 
 	"github.com/transcom/mymove/pkg/apperror"
@@ -159,9 +160,18 @@ func ApprovedSITExtensionFromCreate(sitExtension *ghcmessages.CreateApprovedSITD
 }
 
 // MTOShipmentModelFromCreate model
-func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *models.MTOShipment {
+func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) (*models.MTOShipment, error) {
+	verrs := validate.NewErrors()
+	var mtoID uuid.UUID
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("error creating MTO Shipment", "Cannot create MTO Shipment without a payload")
+		return nil, verrs
+	}
+	if mtoShipment.MoveTaskOrderID == nil {
+		verrs.Add("error creating MTO Shipment", "Cannot create MTO Shipment without a move task order ID")
+		return nil, verrs
+	} else {
+		mtoID = uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String())
 	}
 
 	var tacType *models.LOAType
@@ -182,7 +192,7 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID:    uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		MoveTaskOrderID:    mtoID,
 		Status:             models.MTOShipmentStatusSubmitted,
 		CustomerRemarks:    mtoShipment.CustomerRemarks,
 		CounselorRemarks:   mtoShipment.CounselorRemarks,
@@ -211,30 +221,38 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	if addressModel != nil {
 		model.PickupAddress = addressModel
 	}
+	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		model.SecondaryPickupAddress = addressModel
+	}
+	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		model.TertiaryPickupAddress = addressModel
+	}
+
+	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
 
 	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
 	}
 
-	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.SecondaryPickupAddress = addressModel
+		model.SecondaryDestinationAddress = addressModel
 	}
 
-	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.SecondaryDeliveryAddress = addressModel
+		model.TertiaryDestinationAddress = addressModel
 	}
 
-	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
-	if addressModel != nil {
-		model.TertiaryPickupAddress = addressModel
-	}
-
-	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
-	if addressModel != nil {
-		model.TertiaryDeliveryAddress = addressModel
+	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return nil, verrs
 	}
 
 	if mtoShipment.DestinationType != nil {
@@ -257,7 +275,11 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 	}
 
 	if mtoShipment.PpmShipment != nil {
-		model.PPMShipment = PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		ppmShipment, err := PPMShipmentModelFromCreate(mtoShipment.PpmShipment)
+		if err != nil {
+			return nil, err
+		}
+		model.PPMShipment = ppmShipment
 		model.PPMShipment.Shipment = *model
 	} else if mtoShipment.BoatShipment != nil {
 		model.BoatShipment = BoatShipmentModelFromCreate(mtoShipment.BoatShipment)
@@ -267,13 +289,15 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.MobileHome.Shipment = *model
 	}
 
-	return model
+	return model, nil
 }
 
 // PPMShipmentModelFromCreate model
-func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *models.PPMShipment {
+func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) (*models.PPMShipment, error) {
+	verrs := validate.NewErrors()
 	if ppmShipment == nil {
-		return nil
+		verrs.Add("ppm shipment create error", "Cannot create a PPM shipment with an empty argument")
+		return nil, verrs
 	}
 
 	model := &models.PPMShipment{
@@ -308,6 +332,16 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
 
+	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
+
+	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -323,6 +357,11 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 	if addressModel != nil {
 		model.TertiaryDestinationAddress = addressModel
 		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+		return nil, verrs
 	}
 
 	if model.SITExpected != nil && *model.SITExpected {
@@ -348,7 +387,7 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) *mod
 		model.SpouseProGearWeight = handlers.PoundPtrFromInt64Ptr(ppmShipment.SpouseProGearWeight)
 	}
 
-	return model
+	return model, nil
 }
 
 // BoatShipmentModelFromCreate model
@@ -448,9 +487,11 @@ func CustomerSupportRemarkModelFromCreate(remark *ghcmessages.CreateCustomerSupp
 }
 
 // MTOShipmentModelFromUpdate model
-func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models.MTOShipment {
+func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) (*models.MTOShipment, error) {
+	verrs := validate.NewErrors()
 	if mtoShipment == nil {
-		return nil
+		verrs.Add("mtoShipment", "mtoShipment object is nil.")
+		return nil, verrs
 	}
 
 	var requestedPickupDate *time.Time
@@ -487,23 +528,23 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	model := &models.MTOShipment{
-		BillableWeightCap:           billableWeightCap,
-		BillableWeightJustification: mtoShipment.BillableWeightJustification,
-		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:         requestedPickupDate,
-		RequestedDeliveryDate:       requestedDeliveryDate,
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		TACType:                     tacType,
-		SACType:                     sacType,
-		UsesExternalVendor:          usesExternalVendor,
-		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
-		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
-		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
-		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
-		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
-		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
-		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
+		BillableWeightCap:              billableWeightCap,
+		BillableWeightJustification:    mtoShipment.BillableWeightJustification,
+		ShipmentType:                   models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:            requestedPickupDate,
+		RequestedDeliveryDate:          requestedDeliveryDate,
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		CounselorRemarks:               mtoShipment.CounselorRemarks,
+		TACType:                        tacType,
+		SACType:                        sacType,
+		UsesExternalVendor:             usesExternalVendor,
+		ServiceOrderNumber:             mtoShipment.ServiceOrderNumber,
+		HasSecondaryPickupAddress:      mtoShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: mtoShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  mtoShipment.HasTertiaryDestinationAddress,
+		ActualProGearWeight:            handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:      handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
@@ -513,9 +554,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 			model.SecondaryPickupAddress = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
 		}
 	}
-	if mtoShipment.HasSecondaryDeliveryAddress != nil {
-		if *mtoShipment.HasSecondaryDeliveryAddress {
-			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if mtoShipment.HasSecondaryDestinationAddress != nil {
+		if *mtoShipment.HasSecondaryDestinationAddress {
+			model.SecondaryDestinationAddress = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 		}
 	}
 
@@ -524,10 +565,21 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 			model.TertiaryPickupAddress = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
 		}
 	}
-	if mtoShipment.HasTertiaryDeliveryAddress != nil {
-		if *mtoShipment.HasTertiaryDeliveryAddress {
-			model.TertiaryDeliveryAddress = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+
+	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
+
+	if mtoShipment.HasTertiaryDestinationAddress != nil {
+		if *mtoShipment.HasTertiaryDestinationAddress {
+			model.TertiaryDestinationAddress = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 		}
+	}
+
+	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return nil, verrs
 	}
 
 	if mtoShipment.DestinationType != nil {
@@ -550,10 +602,17 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	if mtoShipment.PpmShipment != nil {
-		model.PPMShipment = PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
+		ppmShipment, err := PPMShipmentModelFromUpdate(mtoShipment.PpmShipment)
+		model.PPMShipment = ppmShipment
 		model.PPMShipment.Shipment = *model
+		if err != nil {
+			verrs.Add("Error creating PPM Shipment", "An error occurred while creating the ppm shipment")
+			return nil, verrs
+		} else {
+			model.PPMShipment = ppmShipment
+			model.PPMShipment.Shipment = *model
+		}
 	}
-
 	// making sure both shipmentType and boatShipment.Type match
 	if mtoShipment.BoatShipment != nil && mtoShipment.BoatShipment.Type != nil {
 		if *mtoShipment.BoatShipment.Type == string(models.BoatShipmentTypeHaulAway) {
@@ -570,13 +629,15 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 		model.MobileHome.Shipment = *model
 	}
 
-	return model
+	return model, nil
 }
 
 // PPMShipmentModelFromUpdate model
-func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *models.PPMShipment {
+func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) (*models.PPMShipment, error) {
+	verrs := validate.NewErrors()
 	if ppmShipment == nil {
-		return nil
+		verrs.Add("ppmShipment", "ppmShipment object is nil.")
+		return nil, verrs
 	}
 	model := &models.PPMShipment{
 		ActualMoveDate:                 (*time.Time)(ppmShipment.ActualMoveDate),
@@ -624,6 +685,11 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
 	}
 
+	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+		return nil, verrs
+	}
+
 	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
 	if addressModel != nil {
 		model.DestinationAddress = addressModel
@@ -641,6 +707,11 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.TertiaryDestinationAddress = addressModel
 		tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
 		model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
+	}
+
+	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
+		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+		return nil, verrs
 	}
 
 	if ppmShipment.W2Address != nil {
@@ -669,7 +740,7 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) *mod
 		model.SITEstimatedDepartureDate = sitEstimatedDepartureDate
 	}
 
-	return model
+	return model, nil
 }
 
 // BoatShipmentModelFromUpdate model

@@ -185,10 +185,10 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 		TertiaryPickupAddress:       Address(mtoShipment.TertiaryPickupAddress),
 		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
 		DestinationAddress:          Address(mtoShipment.DestinationAddress),
-		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDeliveryAddress),
-		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
-		TertiaryDeliveryAddress:     Address(mtoShipment.TertiaryDeliveryAddress),
-		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
+		SecondaryDeliveryAddress:    Address(mtoShipment.SecondaryDestinationAddress),
+		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDestinationAddress,
+		TertiaryDeliveryAddress:     Address(mtoShipment.TertiaryDestinationAddress),
+		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDestinationAddress,
 		ActualProGearWeight:         handlers.FmtPoundPtr(mtoShipment.ActualProGearWeight),
 		ActualSpouseProGearWeight:   handlers.FmtPoundPtr(mtoShipment.ActualSpouseProGearWeight),
 		CreatedAt:                   strfmt.DateTime(mtoShipment.CreatedAt),
@@ -203,14 +203,14 @@ func MTOShipment(storer storage.FileStorer, mtoShipment *models.MTOShipment) *in
 	if mtoShipment.HasSecondaryPickupAddress != nil && !*mtoShipment.HasSecondaryPickupAddress {
 		payload.SecondaryPickupAddress = nil
 	}
-	if mtoShipment.HasSecondaryDeliveryAddress != nil && !*mtoShipment.HasSecondaryDeliveryAddress {
+	if mtoShipment.HasSecondaryDestinationAddress != nil && !*mtoShipment.HasSecondaryDestinationAddress {
 		payload.SecondaryDeliveryAddress = nil
 	}
 
 	if mtoShipment.HasTertiaryPickupAddress != nil && !*mtoShipment.HasTertiaryPickupAddress {
 		payload.TertiaryPickupAddress = nil
 	}
-	if mtoShipment.HasTertiaryDeliveryAddress != nil && !*mtoShipment.HasTertiaryDeliveryAddress {
+	if mtoShipment.HasTertiaryDestinationAddress != nil && !*mtoShipment.HasTertiaryDestinationAddress {
 		payload.TertiaryDeliveryAddress = nil
 	}
 

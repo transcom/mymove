@@ -298,7 +298,7 @@ func (suite *EventServiceSuite) TestAssembleMTOShipmentPayload() {
 		suite.Equal(shipment.PickupAddress.ID.String(), data.PickupAddress.ID.String())
 		suite.Equal(shipment.SecondaryPickupAddress.ID.String(), data.SecondaryPickupAddress.ID.String())
 		suite.Equal(shipment.DestinationAddress.ID.String(), data.DestinationAddress.ID.String())
-		suite.Equal(shipment.SecondaryDeliveryAddress.ID.String(), data.SecondaryDeliveryAddress.ID.String())
+		suite.Equal(shipment.SecondaryDestinationAddress.ID.String(), data.SecondaryDeliveryAddress.ID.String())
 		suite.Equal(agent.ID.String(), data.Agents[0].ID.String())
 	})
 

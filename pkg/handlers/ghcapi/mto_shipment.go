@@ -243,8 +243,10 @@ func (h CreateMTOShipmentHandler) Handle(params mtoshipmentops.CreateMTOShipment
 				}
 			}
 
-			mtoShipment := payloads.MTOShipmentModelFromCreate(payload)
-
+			mtoShipment, verr := payloads.MTOShipmentModelFromCreate(payload)
+			if verr != nil {
+				appCtx.Logger().Error("Error creating MTO Shipment: ", zap.Error(verr))
+			}
 			if mtoShipment.ShipmentType == models.MTOShipmentTypeHHGOutOfNTSDom && mtoShipment.NTSRecordedWeight != nil {
 				previouslyRecordedWeight := *mtoShipment.NTSRecordedWeight
 				mtoShipment.PrimeEstimatedWeight = &previouslyRecordedWeight
@@ -318,7 +320,10 @@ func (h UpdateShipmentHandler) Handle(params mtoshipmentops.UpdateMTOShipmentPar
 				}
 			}
 
-			mtoShipment := payloads.MTOShipmentModelFromUpdate(payload)
+			mtoShipment, verr := payloads.MTOShipmentModelFromUpdate(payload)
+			if verr != nil {
+				appCtx.Logger().Error("Error creating MTO Shipment: ", zap.Error(verr))
+			}
 			mtoShipment.ID = shipmentID
 			isBoatShipment := mtoShipment.ShipmentType == models.MTOShipmentTypeBoatHaulAway || mtoShipment.ShipmentType == models.MTOShipmentTypeBoatTowAway
 			if !isBoatShipment {

@@ -381,13 +381,13 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 			TertiaryDestinationAddress:  struct{ primev3messages.Address }{genericAddressMessage},
 		}
 		mtoShipment := &primev3messages.UpdateMTOShipment{
-			PickupAddress:            struct{ primev3messages.Address }{genericAddressMessage},
-			SecondaryPickupAddress:   struct{ primev3messages.Address }{genericAddressMessage},
-			TertiaryPickupAddress:    struct{ primev3messages.Address }{genericAddressMessage},
-			DestinationAddress:       struct{ primev3messages.Address }{genericAddressMessage},
-			SecondaryDeliveryAddress: struct{ primev3messages.Address }{genericAddressMessage},
-			TertiaryDeliveryAddress:  struct{ primev3messages.Address }{genericAddressMessage},
-			PpmShipment:              &ppmShipment,
+			PickupAddress:               struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryPickupAddress:      struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryPickupAddress:       struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:          struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryDestinationAddress: struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDestinationAddress:  struct{ primev3messages.Address }{genericAddressMessage},
+			PpmShipment:                 &ppmShipment,
 		}
 		mtoShipmentID := strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 		model, verr := MTOShipmentModelFromUpdate(mtoShipment, mtoShipmentID)
@@ -416,9 +416,9 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 	suite.Run("tertiaryDestinationAddress with secondaryDestinationAddressNil produces error", func() {
 
 		createMTOShipmentMessage := &primev3messages.UpdateMTOShipment{
-			PickupAddress:           struct{ primev3messages.Address }{genericAddressMessage},
-			DestinationAddress:      struct{ primev3messages.Address }{genericAddressMessage},
-			TertiaryDeliveryAddress: struct{ primev3messages.Address }{genericAddressMessage},
+			PickupAddress:              struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:         struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDestinationAddress: struct{ primev3messages.Address }{genericAddressMessage},
 		}
 
 		model, err := MTOShipmentModelFromUpdate(createMTOShipmentMessage, newMtoShipmentID)
@@ -430,12 +430,12 @@ func (suite *PayloadsSuite) TestMTOShipmentModelFromUpdate() {
 	suite.Run("tertiaryDestinationAddress with secondaryDestinationAddress provided does not produce error", func() {
 
 		createMTOShipmentMessage := &primev3messages.UpdateMTOShipment{
-			PickupAddress:            struct{ primev3messages.Address }{genericAddressMessage},
-			SecondaryPickupAddress:   struct{ primev3messages.Address }{genericAddressMessage},
-			TertiaryPickupAddress:    struct{ primev3messages.Address }{genericAddressMessage},
-			DestinationAddress:       struct{ primev3messages.Address }{genericAddressMessage},
-			SecondaryDeliveryAddress: struct{ primev3messages.Address }{genericAddressMessage},
-			TertiaryDeliveryAddress:  struct{ primev3messages.Address }{genericAddressMessage},
+			PickupAddress:               struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryPickupAddress:      struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryPickupAddress:       struct{ primev3messages.Address }{genericAddressMessage},
+			DestinationAddress:          struct{ primev3messages.Address }{genericAddressMessage},
+			SecondaryDestinationAddress: struct{ primev3messages.Address }{genericAddressMessage},
+			TertiaryDestinationAddress:  struct{ primev3messages.Address }{genericAddressMessage},
 		}
 
 		model, err := MTOShipmentModelFromUpdate(createMTOShipmentMessage, newMtoShipmentID)

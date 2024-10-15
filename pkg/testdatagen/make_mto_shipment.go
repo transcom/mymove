@@ -159,15 +159,15 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		MTOShipment.DestinationAddressID = &destinationAddress.ID
 
 		if !isZeroUUID(secondaryDeliveryAddress.ID) {
-			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
-			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
-			MTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+			MTOShipment.SecondaryDestinationAddress = &secondaryDeliveryAddress
+			MTOShipment.SecondaryDestinationAddressID = &secondaryDeliveryAddress.ID
+			MTOShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 		}
 
 		if !isZeroUUID(tertiaryDeliveryAddress.ID) {
-			MTOShipment.TertiaryDeliveryAddress = &tertiaryDeliveryAddress
-			MTOShipment.TertiaryDeliveryAddressID = &tertiaryDeliveryAddress.ID
-			MTOShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
+			MTOShipment.TertiaryDestinationAddress = &tertiaryDeliveryAddress
+			MTOShipment.TertiaryDestinationAddressID = &tertiaryDeliveryAddress.ID
+			MTOShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 		}
 	}
 

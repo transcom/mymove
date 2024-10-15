@@ -105,11 +105,11 @@ func MTOShipmentModelFromCreate(mtoShipment *internalmessages.CreateShipment) *m
 
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
 
-	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
-	model.HasSecondaryDeliveryAddress = handlers.FmtBool(mtoShipment.SecondaryDeliveryAddress != nil)
+	model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+	model.HasSecondaryDestinationAddress = handlers.FmtBool(mtoShipment.SecondaryDeliveryAddress != nil)
 
-	model.TertiaryDeliveryAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
-	model.HasTertiaryDeliveryAddress = handlers.FmtBool(mtoShipment.TertiaryDeliveryAddress != nil)
+	model.TertiaryDestinationAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
+	model.HasTertiaryDestinationAddress = handlers.FmtBool(mtoShipment.TertiaryDeliveryAddress != nil)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)
@@ -418,17 +418,17 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 
 	model := &models.MTOShipment{
-		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:         requestedPickupDate,
-		RequestedDeliveryDate:       requestedDeliveryDate,
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		Status:                      models.MTOShipmentStatus(mtoShipment.Status),
-		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
-		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
-		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
-		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
-		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
-		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
+		ShipmentType:                   models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:            requestedPickupDate,
+		RequestedDeliveryDate:          requestedDeliveryDate,
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		Status:                         models.MTOShipmentStatus(mtoShipment.Status),
+		HasSecondaryPickupAddress:      mtoShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: mtoShipment.HasSecondaryDeliveryAddress,
+		HasTertiaryPickupAddress:       mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  mtoShipment.HasTertiaryDeliveryAddress,
+		ActualProGearWeight:            handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:      handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(mtoShipment.PickupAddress)
@@ -444,16 +444,16 @@ func MTOShipmentModelFromUpdate(mtoShipment *internalmessages.UpdateShipment) *m
 	}
 	if mtoShipment.HasSecondaryDeliveryAddress != nil {
 		if *mtoShipment.HasSecondaryDeliveryAddress {
-			model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+			model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 		}
 	}
 	if mtoShipment.HasTertiaryDeliveryAddress != nil {
 		if *mtoShipment.HasTertiaryDeliveryAddress {
-			model.TertiaryDeliveryAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
+			model.TertiaryDestinationAddress = AddressModel(mtoShipment.TertiaryDeliveryAddress)
 		}
 	}
 	model.DestinationAddress = AddressModel(mtoShipment.DestinationAddress)
-	model.SecondaryDeliveryAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
+	model.SecondaryDestinationAddress = AddressModel(mtoShipment.SecondaryDeliveryAddress)
 
 	if mtoShipment.Agents != nil {
 		model.MTOAgents = *MTOAgentsModel(&mtoShipment.Agents)

@@ -525,7 +525,7 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 
 		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
-		verifyAddressFields(successShipment.SecondaryDeliveryAddress, &shipment.SecondaryDeliveryAddress.Address)
+		verifyAddressFields(successShipment.SecondaryDestinationAddress, &shipment.SecondaryDeliveryAddress.Address)
 
 		verifyAddressFields(successShipment.SecondaryPickupAddress, &shipment.SecondaryPickupAddress.Address)
 

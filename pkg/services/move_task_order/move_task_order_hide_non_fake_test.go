@@ -532,7 +532,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
 			{
-				Model:    *validShipment.SecondaryDeliveryAddress,
+				Model:    *validShipment.SecondaryDestinationAddress,
 				LinkOnly: true,
 				Type:     &factory.Addresses.SecondaryDeliveryAddress,
 			},

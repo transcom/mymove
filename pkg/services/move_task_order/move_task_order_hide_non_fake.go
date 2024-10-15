@@ -189,13 +189,13 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		}
 	}
 
-	if s.SecondaryDeliveryAddress != nil {
-		ok, err := isValidFakeModelAddress(s.SecondaryDeliveryAddress)
+	if s.SecondaryDestinationAddress != nil {
+		ok, err := isValidFakeModelAddress(s.SecondaryDestinationAddress)
 		if err != nil {
 			return false, invalidReasons, err
 		}
 		if !ok {
-			invalidReasons["mtoshipment.secondarydeliveryaddress"] = s.SecondaryDeliveryAddress.StreetAddress1
+			invalidReasons["mtoshipment.secondarydeliveryaddress"] = s.SecondaryDestinationAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
 	}

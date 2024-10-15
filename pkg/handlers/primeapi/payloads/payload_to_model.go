@@ -127,12 +127,12 @@ func MTOShipmentModelFromCreate(mtoShipment *primemessages.CreateMTOShipment) *m
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID:             uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		Diversion:                   mtoShipment.Diversion,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		HasSecondaryPickupAddress:   handlers.FmtBool(false),
-		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
+		MoveTaskOrderID:                uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		Diversion:                      mtoShipment.Diversion,
+		CounselorRemarks:               mtoShipment.CounselorRemarks,
+		HasSecondaryPickupAddress:      handlers.FmtBool(false),
+		HasSecondaryDestinationAddress: handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
@@ -324,10 +324,10 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 
 	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 	if addressModel != nil {
-		model.SecondaryDeliveryAddress = addressModel
+		model.SecondaryDestinationAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+		model.SecondaryDestinationAddressID = &secondaryDeliveryAddressID
+		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.PpmShipment != nil {

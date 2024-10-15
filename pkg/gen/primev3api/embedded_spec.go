@@ -3128,7 +3128,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "secondaryDestinationAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -3157,7 +3157,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDeliveryAddress": {
+        "tertiaryDestinationAddress": {
           "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -6670,7 +6670,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "secondaryDeliveryAddress": {
+        "secondaryDestinationAddress": {
           "description": "A second delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {
@@ -6699,7 +6699,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDeliveryAddress": {
+        "tertiaryDestinationAddress": {
           "description": "A third delivery address for this shipment, if the customer entered one. An optional field.",
           "allOf": [
             {

@@ -252,14 +252,14 @@ func checkPrimeValidationsOnModel(planner route.Planner) validator {
 		if older.SecondaryPickupAddress != nil && newer.SecondaryPickupAddress != nil { // If both are populated, return error
 			verrs.Add("secondaryPickupAddress", "the secondary pickup address already exists and cannot be updated with this endpoint")
 		}
-		if older.SecondaryDeliveryAddress != nil && newer.SecondaryDeliveryAddress != nil {
+		if older.SecondaryDestinationAddress != nil && newer.SecondaryDestinationAddress != nil {
 			verrs.Add("secondaryDeliveryAddress", "the secondary delivery address already exists and cannot be updated with this endpoint")
 		}
 
 		if older.TertiaryPickupAddress != nil && newer.TertiaryPickupAddress != nil { // If both are populated, return error
 			verrs.Add("tertiaryPickupAddress", "the tertiary pickup address already exists and cannot be updated with this endpoint")
 		}
-		if older.TertiaryDeliveryAddress != nil && newer.TertiaryDeliveryAddress != nil {
+		if older.TertiaryDestinationAddress != nil && newer.TertiaryDestinationAddress != nil {
 			verrs.Add("tertiaryDeliveryAddress", "the tertiary delivery address already exists and cannot be updated with this endpoint")
 		}
 

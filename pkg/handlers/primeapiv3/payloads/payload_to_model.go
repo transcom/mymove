@@ -143,13 +143,13 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID:             mtoID,
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		Diversion:                   mtoShipment.Diversion,
-		DivertedFromShipmentID:      divertedFromShipmentID,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		HasSecondaryPickupAddress:   handlers.FmtBool(false),
-		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
+		MoveTaskOrderID:                mtoID,
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		Diversion:                      mtoShipment.Diversion,
+		DivertedFromShipmentID:         divertedFromShipmentID,
+		CounselorRemarks:               mtoShipment.CounselorRemarks,
+		HasSecondaryPickupAddress:      handlers.FmtBool(false),
+		HasSecondaryDestinationAddress: handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
@@ -198,16 +198,16 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 
 	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.SecondaryDeliveryAddress = addressModel
-		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+		model.SecondaryDestinationAddress = addressModel
+		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.TertiaryDeliveryAddress = addressModel
-		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
+		model.TertiaryDestinationAddress = addressModel
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
-	if models.IsAddressEmpty(model.SecondaryDeliveryAddress) && !models.IsAddressEmpty(model.TertiaryDeliveryAddress) {
+	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
 		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
 		return nil, verrs
 	}
@@ -423,22 +423,22 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		return nil, verrs
 	}
 
-	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.SecondaryDeliveryAddress = addressModel
+		model.SecondaryDestinationAddress = addressModel
 		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+		model.SecondaryDestinationAddressID = &secondaryDeliveryAddressID
+		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.TertiaryDeliveryAddress = addressModel
+		model.TertiaryDestinationAddress = addressModel
 		tertiaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.TertiaryDeliveryAddressID = &tertiaryDeliveryAddressID
-		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
+		model.TertiaryDestinationAddressID = &tertiaryDeliveryAddressID
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
-	if models.IsAddressEmpty(model.SecondaryDeliveryAddress) && !models.IsAddressEmpty(model.TertiaryDeliveryAddress) {
+	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
 		verrs.Add("tertiary address", "Cannot add tertiary delivery address without a secondary delivery address set")
 		return nil, verrs
 	}
@@ -952,3 +952,62 @@ func validateReasonOriginSIT(m primev3messages.MTOServiceItemOriginSIT) *validat
 	}
 	return verrs
 }
+
+/* func setShipmentAddresses(x interface{}, currentModel *models.MTOShipment)(*models.MTOShipment, error){
+
+	verrs := validate.NewErrors()
+
+	switch shipmentType := x.(type){
+	case *primev3messages.CreateMTOShipment:
+		x.SecondaryPickupAddress
+	case *primev3messages.UpdateMTOShipment:
+	case *primev3messages.CreatePPMShipment:
+	case *primev3messages.UpdatePPMShipment:
+	}
+
+
+	// Set up address models
+	var addressModel *models.Address
+
+	addressModel = AddressModel(&incoming.PickupAddress.Address)
+	if addressModel != nil {
+		currentModel.PickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(&incoming.SecondaryPickupAddress.Address)
+	if addressModel != nil {
+		currentModel.SecondaryPickupAddress = addressModel
+		currentModel.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&incoming.TertiaryPickupAddress.Address)
+	if addressModel != nil {
+		currentModel.TertiaryPickupAddress = addressModel
+		currentModel.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+	if models.IsAddressEmpty(currentModel.SecondaryPickupAddress) && !models.IsAddressEmpty(currentModel.TertiaryPickupAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return nil, verrs
+	}
+
+	addressModel = AddressModel(&incoming.DestinationAddress.Address)
+	if addressModel != nil {
+		currentModel.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(&incoming.SecondaryDestinationAddress.Address)
+	if addressModel != nil {
+		currentModel.SecondaryDestinationAddress = addressModel
+		currentModel.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(&incoming.TertiaryDestinationAddress.Address)
+	if addressModel != nil {
+		currentModel.TertiaryDestinationAddress = addressModel
+		currentModel.HasTertiaryDestinationAddress = handlers.FmtBool(true)
+	}
+	if models.IsAddressEmpty(currentModel.SecondaryDestinationAddress) && !models.IsAddressEmpty(currentModel.TertiaryDestinationAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return nil, verrs
+	}
+} */

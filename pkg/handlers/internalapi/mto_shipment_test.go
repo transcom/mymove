@@ -1636,13 +1636,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.DestinationAddress.State, *returnedShipment.DestinationAddress.State)
 			suite.Equal(expectedShipment.DestinationAddress.PostalCode, *returnedShipment.DestinationAddress.PostalCode)
 
-			if expectedShipment.SecondaryDeliveryAddress != nil {
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
-				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
-				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
+			if expectedShipment.SecondaryDestinationAddress != nil {
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
+				suite.Equal(*expectedShipment.SecondaryDestinationAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
+				suite.Equal(*expectedShipment.SecondaryDestinationAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
 			}
 		}
 	})

@@ -178,9 +178,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				tempSecondaryDeliveryAddressCustoms = convertCustomizationInList(tempSecondaryDeliveryAddressCustoms, Addresses.SecondaryDeliveryAddress, Address)
 				secondaryDeliveryAddress := BuildAddress(db, tempSecondaryDeliveryAddressCustoms, traits)
 
-				newMTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
-				newMTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
-				newMTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+				newMTOShipment.SecondaryDestinationAddress = &secondaryDeliveryAddress
+				newMTOShipment.SecondaryDestinationAddressID = &secondaryDeliveryAddress.ID
+				newMTOShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 
 			}
 
@@ -191,9 +191,9 @@ func buildMTOShipmentWithBuildType(db *pop.Connection, customs []Customization, 
 				tempTertiaryDeliveryAddressCustoms = convertCustomizationInList(tempTertiaryDeliveryAddressCustoms, Addresses.TertiaryDeliveryAddress, Address)
 				tertiaryDeliveryAddress := BuildAddress(db, tempTertiaryDeliveryAddressCustoms, traits)
 
-				newMTOShipment.TertiaryDeliveryAddress = &tertiaryDeliveryAddress
-				newMTOShipment.TertiaryDeliveryAddressID = &tertiaryDeliveryAddress.ID
-				newMTOShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
+				newMTOShipment.TertiaryDestinationAddress = &tertiaryDeliveryAddress
+				newMTOShipment.TertiaryDestinationAddressID = &tertiaryDeliveryAddress.ID
+				newMTOShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 			}
 		}
 
@@ -327,9 +327,9 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 			// fake an id for stubbed address, needed by the MTOShipmentCreator
 			secondaryDeliveryAddress.ID = uuid.Must(uuid.NewV4())
 		}
-		mtoShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
-		mtoShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
-		mtoShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+		mtoShipment.SecondaryDestinationAddress = &secondaryDeliveryAddress
+		mtoShipment.SecondaryDestinationAddressID = &secondaryDeliveryAddress.ID
+		mtoShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 
 		if db != nil {
 			mustSave(db, &mtoShipment)
@@ -346,9 +346,9 @@ func BuildMTOShipmentMinimal(db *pop.Connection, customs []Customization, traits
 			// fake an id for stubbed address, needed by the MTOShipmentCreator
 			tertiaryDeliveryAddress.ID = uuid.Must(uuid.NewV4())
 		}
-		mtoShipment.TertiaryDeliveryAddress = &tertiaryDeliveryAddress
-		mtoShipment.TertiaryDeliveryAddressID = &tertiaryDeliveryAddress.ID
-		mtoShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
+		mtoShipment.TertiaryDestinationAddress = &tertiaryDeliveryAddress
+		mtoShipment.TertiaryDestinationAddressID = &tertiaryDeliveryAddress.ID
+		mtoShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 
 		if db != nil {
 			mustSave(db, &mtoShipment)

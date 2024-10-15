@@ -6940,7 +6940,7 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -6950,7 +6950,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -7012,7 +7012,7 @@ func init() {
             }
           ]
         },
-        "secondaryDeliveryAddress": {
+        "secondaryDestinationAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -7049,7 +7049,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDeliveryAddress": {
+        "tertiaryDestinationAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -13617,7 +13617,7 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -13627,7 +13627,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -13670,7 +13670,7 @@ func init() {
         "sacType": {
           "$ref": "#/definitions/LOATypeNullable"
         },
-        "secondaryDeliveryAddress": {
+        "secondaryDestinationAddress": {
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -13698,7 +13698,7 @@ func init() {
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
         },
-        "tertiaryDeliveryAddress": {
+        "tertiaryDestinationAddress": {
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -22600,7 +22600,7 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -22610,7 +22610,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -22672,7 +22672,7 @@ func init() {
             }
           ]
         },
-        "secondaryDeliveryAddress": {
+        "secondaryDestinationAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -22709,7 +22709,7 @@ func init() {
             }
           ]
         },
-        "tertiaryDeliveryAddress": {
+        "tertiaryDestinationAddress": {
           "description": "Where the movers should deliver this shipment.",
           "allOf": [
             {
@@ -29409,7 +29409,7 @@ func init() {
         "destinationType": {
           "$ref": "#/definitions/DestinationType"
         },
-        "hasSecondaryDeliveryAddress": {
+        "hasSecondaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -29419,7 +29419,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDeliveryAddress": {
+        "hasTertiaryDestinationAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -29462,7 +29462,7 @@ func init() {
         "sacType": {
           "$ref": "#/definitions/LOATypeNullable"
         },
-        "secondaryDeliveryAddress": {
+        "secondaryDestinationAddress": {
           "allOf": [
             {
               "$ref": "#/definitions/Address"
@@ -29490,7 +29490,7 @@ func init() {
         "tacType": {
           "$ref": "#/definitions/LOATypeNullable"
         },
-        "tertiaryDeliveryAddress": {
+        "tertiaryDestinationAddress": {
           "allOf": [
             {
               "$ref": "#/definitions/Address"

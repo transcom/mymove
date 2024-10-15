@@ -1082,18 +1082,18 @@ func clearShipmentIDFields(shipment *models.MTOShipment) *models.MTOShipment {
 		shipment.SecondaryPickupAddress.ID = uuid.Nil
 	}
 
-	if shipment.SecondaryDeliveryAddress != nil {
-		shipment.SecondaryDeliveryAddressID = nil
-		shipment.SecondaryDeliveryAddress.ID = uuid.Nil
+	if shipment.SecondaryDestinationAddress != nil {
+		shipment.SecondaryDestinationAddressID = nil
+		shipment.SecondaryDestinationAddress.ID = uuid.Nil
 	}
 	if shipment.HasTertiaryPickupAddress != nil {
 		shipment.TertiaryPickupAddressID = nil
 		shipment.TertiaryPickupAddress.ID = uuid.Nil
 	}
 
-	if shipment.HasTertiaryDeliveryAddress != nil {
-		shipment.TertiaryDeliveryAddressID = nil
-		shipment.TertiaryDeliveryAddress.ID = uuid.Nil
+	if shipment.HasTertiaryDestinationAddress != nil {
+		shipment.TertiaryDestinationAddressID = nil
+		shipment.TertiaryDestinationAddress.ID = uuid.Nil
 	}
 
 	if shipment.StorageFacility != nil {
