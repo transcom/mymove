@@ -174,10 +174,6 @@ describe('PPMHeaderSummary component', () => {
         expect(screen.getByRole('heading', { level: 3, name: 'PPM 1' })).toBeInTheDocument();
       });
 
-      fireEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
-      await waitFor(() => {
-        expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
-      });
       expect(screen.getByText('Planned Move Start Date')).toBeInTheDocument();
       expect(screen.getByText('02-Dec-2022')).toBeInTheDocument();
       expect(screen.getByText('Actual Move Start Date')).toBeInTheDocument();
@@ -192,6 +188,11 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('3,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Actual Net Weight')).toBeInTheDocument();
       expect(screen.getByText('3,500 lbs')).toBeInTheDocument();
+
+      fireEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
+      await waitFor(() => {
+        expect(screen.getByText('Show Details', { exact: false })).toBeInTheDocument();
+      });
     });
   });
 });

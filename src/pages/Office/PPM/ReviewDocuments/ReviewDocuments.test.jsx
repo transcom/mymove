@@ -337,7 +337,7 @@ describe('ReviewDocuments', () => {
 
       await userEvent.click(screen.getByTestId('shipmentInfo-showRequestDetailsButton'));
       await waitFor(() => {
-        expect(screen.getByText('Hide Details', { exact: false })).toBeInTheDocument();
+        expect(screen.getByText('Show Details', { exact: false })).toBeInTheDocument();
       });
 
       const h2 = await screen.findByRole('heading', { name: 'Loading, please wait...', level: 2 });
@@ -421,11 +421,6 @@ describe('ReviewDocuments', () => {
       await userEvent.clear(fullWeightInput);
       await userEvent.type(fullWeightInput, newFullWeight.toString());
 
-      const newAllowableWeight = 20000;
-      const reimbursableInput = screen.getByTestId('allowableWeight');
-      await userEvent.clear(reimbursableInput);
-      await userEvent.type(reimbursableInput, newAllowableWeight.toString());
-
       const netWeightDisplay = screen.getByTestId('net-weight-display');
       expect(netWeightDisplay).toHaveTextContent('4,000 lbs');
 
@@ -455,7 +450,6 @@ describe('ReviewDocuments', () => {
           ppmShipmentId: mtoShipmentWithOneWeightTicket.ppmShipment.id,
           vehicleDescription: weightTicket.vehicleDescription,
           emptyWeight: newEmptyWeight,
-          allowableWeight: newAllowableWeight,
           missingEmptyWeightTicket: weightTicket.missingEmptyWeightTicket,
           fullWeight: newFullWeight,
           missingFullWeightTicket: weightTicket.missingFullWeightTicket,
@@ -659,8 +653,6 @@ describe('ReviewDocuments', () => {
       expect(screen.getByTestId('emptyWeight')).toHaveValue('14,500');
       expect(weightTicketOne.fullWeight).toBe(18500);
       expect(screen.getByTestId('fullWeight')).toHaveValue('18,500');
-      expect(weightTicketOne.allowableWeight).toBe(20000);
-      expect(screen.getByTestId('allowableWeight')).toHaveValue('20,000');
 
       await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
       expect(screen.getByRole('heading', { level: 2, name: '2 of 4 Document Sets' }));
@@ -672,8 +664,6 @@ describe('ReviewDocuments', () => {
       expect(screen.getByTestId('emptyWeight')).toHaveValue('10,000');
       expect(weightTicketTwo.fullWeight).toBe(12000);
       expect(screen.getByTestId('fullWeight')).toHaveValue('12,000');
-      expect(weightTicketTwo.allowableWeight).toBe(18000);
-      expect(screen.getByTestId('allowableWeight')).toHaveValue('18,000');
     });
 
     it('only shows uploads for the document set being reviewed', async () => {

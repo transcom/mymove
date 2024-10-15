@@ -734,6 +734,7 @@ func Address(address *models.Address) *ghcmessages.Address {
 		Country:        Country(address.Country),
 		County:         &address.County,
 		ETag:           etag.GenerateEtag(address.UpdatedAt),
+		IsOconus:       address.IsOconus,
 	}
 }
 
@@ -915,6 +916,7 @@ func PPMShipment(_ storage.FileStorer, ppmShipment *models.PPMShipment) *ghcmess
 		HasTertiaryPickupAddress:       ppmShipment.HasTertiaryPickupAddress,
 		HasTertiaryDestinationAddress:  ppmShipment.HasTertiaryDestinationAddress,
 		EstimatedWeight:                handlers.FmtPoundPtr(ppmShipment.EstimatedWeight),
+		AllowableWeight:                handlers.FmtPoundPtr(ppmShipment.AllowableWeight),
 		HasProGear:                     ppmShipment.HasProGear,
 		ProGearWeight:                  handlers.FmtPoundPtr(ppmShipment.ProGearWeight),
 		SpouseProGearWeight:            handlers.FmtPoundPtr(ppmShipment.SpouseProGearWeight),
@@ -1177,7 +1179,6 @@ func WeightTicket(storer storage.FileStorer, weightTicket *models.WeightTicket) 
 		ProofOfTrailerOwnershipDocumentID: *handlers.FmtUUID(weightTicket.ProofOfTrailerOwnershipDocumentID),
 		ProofOfTrailerOwnershipDocument:   proofOfTrailerOwnershipDocument,
 		AdjustedNetWeight:                 handlers.FmtPoundPtr(weightTicket.AdjustedNetWeight),
-		AllowableWeight:                   handlers.FmtPoundPtr(weightTicket.AllowableWeight),
 		NetWeightRemarks:                  weightTicket.NetWeightRemarks,
 		ETag:                              etag.GenerateEtag(weightTicket.UpdatedAt),
 	}
@@ -1733,7 +1734,7 @@ func ServiceRequestDoc(serviceRequest models.ServiceRequestDocument, storer stor
 
 	if len(serviceRequest.ServiceRequestDocumentUploads) > 0 {
 		for i, serviceRequestUpload := range serviceRequest.ServiceRequestDocumentUploads {
-			url, err := storer.PresignedURL(serviceRequestUpload.Upload.StorageKey, serviceRequestUpload.Upload.ContentType)
+			url, err := storer.PresignedURL(serviceRequestUpload.Upload.StorageKey, serviceRequestUpload.Upload.ContentType, serviceRequestUpload.Upload.Filename)
 			if err != nil {
 				return nil, err
 			}
@@ -1970,7 +1971,7 @@ func ProofOfServiceDoc(proofOfService models.ProofOfServiceDoc, storer storage.F
 	uploads := make([]*ghcmessages.Upload, len(proofOfService.PrimeUploads))
 	if len(proofOfService.PrimeUploads) > 0 {
 		for i, primeUpload := range proofOfService.PrimeUploads {
-			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType)
+			url, err := storer.PresignedURL(primeUpload.Upload.StorageKey, primeUpload.Upload.ContentType, primeUpload.Upload.Filename)
 			if err != nil {
 				return nil, err
 			}
@@ -2026,7 +2027,7 @@ func PayloadForDocumentModel(storer storage.FileStorer, document models.Document
 		if userUpload.Upload.ID == uuid.Nil {
 			return nil, errors.New("no uploads for user")
 		}
-		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType)
+		url, err := storer.PresignedURL(userUpload.Upload.StorageKey, userUpload.Upload.ContentType, userUpload.Upload.Filename)
 		if err != nil {
 			return nil, err
 		}
