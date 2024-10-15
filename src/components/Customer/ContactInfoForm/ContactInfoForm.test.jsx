@@ -22,20 +22,20 @@ describe('ContactInfoForm Component', () => {
     const { getByLabelText } = render(<ContactInfoForm {...testProps} />);
 
     await waitFor(() => {
-      expect(getByLabelText('Best contact phone')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Best contact phone')).toBeRequired();
+      expect(getByLabelText(/Best contact phone/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Best contact phone/)).toBeRequired();
       expect(getByLabelText(/Alt. phone/)).toBeInstanceOf(HTMLInputElement);
       expect(getByLabelText(/Alt. phone/)).not.toBeRequired();
-      expect(getByLabelText('Personal email')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Personal email')).toBeRequired();
-      expect(getByLabelText('Phone')).toBeInstanceOf(HTMLInputElement);
-      expect(getByLabelText('Email')).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Personal email/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Personal email/)).toBeRequired();
+      expect(getByLabelText(/Phone/)).toBeInstanceOf(HTMLInputElement);
+      expect(getByLabelText(/Email/)).toBeInstanceOf(HTMLInputElement);
     });
   });
 
   it('validates the contact phone field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    await userEvent.type(getByLabelText('Best contact phone'), '12345');
+    await userEvent.type(getByLabelText(/Best contact phone/), '12345');
     await userEvent.tab();
 
     await waitFor(() => {
@@ -59,7 +59,7 @@ describe('ContactInfoForm Component', () => {
 
   it('validates the email field', async () => {
     const { getByText, getByLabelText } = render(<ContactInfoForm {...testProps} />);
-    await userEvent.type(getByLabelText('Personal email'), 'sample@');
+    await userEvent.type(getByLabelText(/Personal email/), 'sample@');
     await userEvent.tab();
 
     await waitFor(() => {
@@ -68,16 +68,16 @@ describe('ContactInfoForm Component', () => {
   });
 
   it('shows an error message when trying to submit an invalid form', async () => {
-    const { getAllByText, getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
+    const { getAllByTestId, getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     // Touch required fields to show validation errors
-    await userEvent.click(getByLabelText('Best contact phone'));
-    await userEvent.click(getByLabelText('Personal email'));
+    await userEvent.click(getByLabelText(/Best contact phone/));
+    await userEvent.click(getByLabelText(/Personal email/));
 
     const submitBtn = getByRole('button', { name: 'Next' });
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
-      expect(getAllByText('Required').length).toBe(2);
+      expect(getAllByTestId('errorMessage').length).toBe(2);
     });
 
     expect(testProps.onSubmit).not.toHaveBeenCalled();
@@ -87,8 +87,8 @@ describe('ContactInfoForm Component', () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
-    await userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
+    await userEvent.type(getByLabelText(/Best contact phone/), '555-555-5555');
+    await userEvent.type(getByLabelText(/Personal email/), 'test@sample.com');
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -102,9 +102,9 @@ describe('ContactInfoForm Component', () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const submitBtn = getByRole('button', { name: 'Next' });
 
-    await userEvent.type(getByLabelText('Best contact phone'), '555-555-5555');
-    await userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
-    await userEvent.click(getByLabelText('Email'));
+    await userEvent.type(getByLabelText(/Best contact phone/), '555-555-5555');
+    await userEvent.type(getByLabelText(/Personal email/), 'test@sample.com');
+    await userEvent.click(getByLabelText(/Email/));
     await userEvent.click(submitBtn);
 
     await waitFor(() => {
@@ -116,9 +116,9 @@ describe('ContactInfoForm Component', () => {
     const { getByRole, getByLabelText } = render(<ContactInfoForm {...testProps} />);
     const backBtn = getByRole('button', { name: 'Back' });
 
-    await userEvent.type(getByLabelText('Best contact phone'), '555-555-1111');
-    await userEvent.type(getByLabelText('Personal email'), 'test@sample.com');
-    await userEvent.click(getByLabelText('Email'));
+    await userEvent.type(getByLabelText(/Best contact phone/), '555-555-1111');
+    await userEvent.type(getByLabelText(/Personal email/), 'test@sample.com');
+    await userEvent.click(getByLabelText(/Email/));
     await userEvent.click(backBtn);
 
     await waitFor(() => {
