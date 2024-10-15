@@ -103,7 +103,7 @@ type InternationalOriginShuttlingPricer interface {
 
 // InternationalDestinationShuttlingPricer prices the international origin shuttling service for a GHC Move
 //
-//go:generate mockery --name InterntionalDestinationShuttlingPricer
+//go:generate mockery --name InternationalDestinationShuttlingPricer
 type InternationalDestinationShuttlingPricer interface {
 	Price(appCtx appcontext.AppContext, contractCode string, requestedPickupDate time.Time, weight unit.Pound, servicesScheduleDest int) (unit.Cents, PricingDisplayParams, error)
 	ParamsPricer
