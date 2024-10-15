@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS re_oconus_rate_areas
 (id 			uuid		NOT NULL,
-rate_area_id	uuid		NOT NULL,
+rate_area_id	uuid		NOT NULL
+	CONSTRAINT fk_re_oconus_rate_areas_rate_area_id REFERENCES re_rate_areas (id),
 country_id	    uuid	    NOT NULL
 	CONSTRAINT fk_re_oconus_rate_areas_country_id REFERENCES re_countries (id),
 us_post_region_cities_id	uuid	NOT NULL
