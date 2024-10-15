@@ -14,6 +14,7 @@ import { MockProviders } from 'testUtils';
 import { SHIPMENT_OPTIONS } from 'shared/constants';
 import { shipmentStatuses } from 'constants/shipments';
 import { shipment } from 'shared/Entities/schema';
+import { isBooleanFlagEnabled } from 'utils/featureFlags';
 
 const mockMoveId = v4();
 const mockMTOShipmentId = v4();
@@ -26,6 +27,12 @@ const mockRoutingConfig = {
     mtoShipmentId: mockMTOShipmentId,
   },
 };
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve()),
+}));
+
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
@@ -135,7 +142,9 @@ const fillOutBasicForm = async (form) => {
   within(form).getByLabelText('When did you leave your origin?').focus();
   await userEvent.paste('2022-05-31');
 
-  within(form).getAllByLabelText('Address 1')[0].focus();
+  within(form)
+    .getAllByLabelText(/Address 1/)[0]
+    .focus();
   await userEvent.paste('812 S 129th St');
 
   within(form)
@@ -148,16 +157,18 @@ const fillOutBasicForm = async (form) => {
     .focus();
   await userEvent.paste('Some Person');
 
-  within(form).getAllByLabelText('City')[0].focus();
+  within(form).getAllByLabelText(/City/)[0].focus();
   await userEvent.paste('San Antonio');
 
-  within(form).getAllByLabelText('State')[0].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[0], 'TX');
+  within(form).getAllByLabelText(/State/)[0].focus();
+  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[0], 'TX');
 
-  within(form).getAllByLabelText('ZIP')[0].focus();
+  within(form).getAllByLabelText(/ZIP/)[0].focus();
   await userEvent.paste('78234');
 
-  within(form).getAllByLabelText('Address 1')[1].focus();
+  within(form)
+    .getAllByLabelText(/Address 1/)[1]
+    .focus();
   await userEvent.paste('441 SW Rio de la Plata Drive');
 
   within(form)
@@ -170,25 +181,27 @@ const fillOutBasicForm = async (form) => {
     .focus();
   await userEvent.paste('Some Person');
 
-  within(form).getAllByLabelText('City')[1].focus();
+  within(form).getAllByLabelText(/City/)[1].focus();
   await userEvent.paste('Tacoma');
 
-  within(form).getAllByLabelText('State')[1].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[1], 'WA');
+  within(form).getAllByLabelText(/State/)[1].focus();
+  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[1], 'WA');
 
-  within(form).getAllByLabelText('ZIP')[1].focus();
+  within(form).getAllByLabelText(/ZIP/)[1].focus();
   await userEvent.paste('98421');
 
-  within(form).getAllByLabelText('Address 1')[2].focus();
+  within(form)
+    .getAllByLabelText(/Address 1/)[2]
+    .focus();
   await userEvent.paste('11 NE Elm Road');
 
-  within(form).getAllByLabelText('City')[2].focus();
+  within(form).getAllByLabelText(/City/)[2].focus();
   await userEvent.paste('Jacksonville');
 
-  within(form).getAllByLabelText('State')[2].focus();
-  await userEvent.selectOptions(within(form).getAllByLabelText('State')[2], 'FL');
+  within(form).getAllByLabelText(/State/)[2].focus();
+  await userEvent.selectOptions(within(form).getAllByLabelText(/State/)[2], 'FL');
 
-  within(form).getAllByLabelText('ZIP')[2].focus();
+  within(form).getAllByLabelText(/ZIP/)[2].focus();
   await userEvent.paste('32217');
 };
 
@@ -271,6 +284,7 @@ describe('About page', () => {
   });
 
   it('displays an error when the patch shipment API fails', async () => {
+    isBooleanFlagEnabled.mockResolvedValue(true);
     const mockErrorMsg = 'Error Updating';
     await getMTOShipmentsForMove.mockResolvedValueOnce(shipment);
     await patchMTOShipment.mockRejectedValue(mockErrorMsg);

@@ -18,7 +18,12 @@ const emptyInitialValues = {
 };
 
 export const DefaultState = (argTypes) => (
-  <BackupContactForm initialValues={emptyInitialValues} onSubmit={argTypes.onSubmit} onBack={argTypes.onBack} />
+  <BackupContactForm
+    initialValues={emptyInitialValues}
+    onSubmit={argTypes.onSubmit}
+    onBack={argTypes.onBack}
+    labelHint="Required"
+  />
 );
 
 export const WithInitialValues = (argTypes) => (
@@ -30,5 +35,6 @@ export const WithInitialValues = (argTypes) => (
     }}
     onSubmit={argTypes.onSubmit}
     onBack={argTypes.onBack}
+    labelHint="Required"
   />
 );

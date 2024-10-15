@@ -70,6 +70,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
                 label="Branch of service"
                 name="affiliation"
                 id="affiliation"
+                hint="Required"
                 required
                 options={branchOptions}
                 onChange={(e) => {
@@ -85,6 +86,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
                 maxLength="10"
                 inputMode="numeric"
                 pattern="[0-9]{10}"
+                labelHint="Required"
                 isDisabled={isDodidDisabled}
               />
               {showEmplid && (
@@ -93,6 +95,7 @@ const DodInfoForm = ({ initialValues, onSubmit }) => {
                   name="emplid"
                   id="emplid"
                   required
+                  labelHint="Required"
                   maxLength="7"
                   inputMode="numeric"
                   pattern="[0-9]{7}"
