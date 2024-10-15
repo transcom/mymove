@@ -666,7 +666,7 @@ definitions:
         description: A second pickup address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: 'definitions/Address.yaml'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: A second delivery address for this shipment, if the customer entered one. An optional field.
         allOf:
           - $ref: 'definitions/Address.yaml'

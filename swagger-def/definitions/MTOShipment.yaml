@@ -91,28 +91,28 @@ properties:
   secondaryPickupAddress:
     x-nullable: true
     $ref: 'Address.yaml'
-  secondaryDeliveryAddress:
+  secondaryDestinationAddress:
     x-nullable: true
     $ref: 'Address.yaml'
   hasSecondaryPickupAddress:
     type: boolean
     x-omitempty: false
     x-nullable: true
-  hasSecondaryDeliveryAddress:
+  hasSecondaryDestinationAddress:
     type: boolean
     x-omitempty: false
     x-nullable: true
   tertiaryPickupAddress:
     x-nullable: true
     $ref: 'Address.yaml'
-  tertiaryDeliveryAddress:
+  tertiaryDestinationAddress:
     x-nullable: true
     $ref: 'Address.yaml'
   hasTertiaryPickupAddress:
     type: boolean
     x-omitempty: false
     x-nullable: true
-  hasTertiaryDeliveryAddress:
+  hasTertiaryDestinationAddress:
     type: boolean
     x-omitempty: false
     x-nullable: true

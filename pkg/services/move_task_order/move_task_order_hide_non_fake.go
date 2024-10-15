@@ -35,9 +35,9 @@ func (o *moveTaskOrderHider) Hide(appCtx appcontext.AppContext) (services.Hidden
 			"MTOShipments.PickupAddress",
 			"MTOShipments.DestinationAddress",
 			"MTOShipments.SecondaryPickupAddress",
-			"MTOShipments.SecondaryDeliveryAddress",
+			"MTOShipments.SecondaryDestinationAddress",
 			"MTOShipments.TertiaryPickupAddress",
-			"MTOShipments.TertiaryDeliveryAddress",
+			"MTOShipments.TertiaryDestinationAddress",
 			"MTOShipments.MTOAgents",
 		).
 		Where("show = ?", models.BoolPointer(true)).
@@ -189,13 +189,13 @@ func isValidFakeModelMTOShipment(s models.MTOShipment) (bool, invalidReasonsType
 		}
 	}
 
-	if s.SecondaryDeliveryAddress != nil {
-		ok, err := isValidFakeModelAddress(s.SecondaryDeliveryAddress)
+	if s.SecondaryDestinationAddress != nil {
+		ok, err := isValidFakeModelAddress(s.SecondaryDestinationAddress)
 		if err != nil {
 			return false, invalidReasons, err
 		}
 		if !ok {
-			invalidReasons["mtoshipment.secondarydeliveryaddress"] = s.SecondaryDeliveryAddress.StreetAddress1
+			invalidReasons["mtoshipment.secondarydestinationaddress"] = s.SecondaryDestinationAddress.StreetAddress1
 			return false, invalidReasons, nil
 		}
 	}

@@ -103,14 +103,14 @@ type MTOShipment struct {
 	// e tag
 	ETag string `json:"eTag,omitempty"`
 
-	// has secondary delivery address
-	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
+	// has secondary destination address
+	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
 
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
-	// has tertiary delivery address
-	HasTertiaryDeliveryAddress *bool `json:"hasTertiaryDeliveryAddress"`
+	// has tertiary destination address
+	HasTertiaryDestinationAddress *bool `json:"hasTertiaryDestinationAddress"`
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
@@ -186,8 +186,8 @@ type MTOShipment struct {
 	// Format: date
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-	// secondary delivery address
-	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
+	// secondary destination address
+	SecondaryDestinationAddress *Address `json:"secondaryDestinationAddress,omitempty"`
 
 	// secondary pickup address
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
@@ -221,8 +221,8 @@ type MTOShipment struct {
 	// tac type
 	TacType *LOAType `json:"tacType,omitempty"`
 
-	// tertiary delivery address
-	TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
+	// tertiary destination address
+	TertiaryDestinationAddress *Address `json:"tertiaryDestinationAddress,omitempty"`
 
 	// tertiary pickup address
 	TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
@@ -340,7 +340,7 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -372,7 +372,7 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -763,17 +763,17 @@ func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+func (m *MTOShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 		return nil
 	}
 
-	if m.SecondaryDeliveryAddress != nil {
-		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
+	if m.SecondaryDestinationAddress != nil {
+		if err := m.SecondaryDestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryDeliveryAddress")
+				return ve.ValidateName("secondaryDestinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("secondaryDeliveryAddress")
+				return ce.ValidateName("secondaryDestinationAddress")
 			}
 			return err
 		}
@@ -909,17 +909,17 @@ func (m *MTOShipment) validateTacType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+func (m *MTOShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
 		return nil
 	}
 
-	if m.TertiaryDeliveryAddress != nil {
-		if err := m.TertiaryDeliveryAddress.Validate(formats); err != nil {
+	if m.TertiaryDestinationAddress != nil {
+		if err := m.TertiaryDestinationAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tertiaryDeliveryAddress")
+				return ve.ValidateName("tertiaryDestinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("tertiaryDeliveryAddress")
+				return ce.ValidateName("tertiaryDestinationAddress")
 			}
 			return err
 		}
@@ -1011,7 +1011,7 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1047,7 +1047,7 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1287,19 +1287,19 @@ func (m *MTOShipment) contextValidateSacType(ctx context.Context, formats strfmt
 	return nil
 }
 
-func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.SecondaryDeliveryAddress != nil {
+	if m.SecondaryDestinationAddress != nil {
 
-		if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+		if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 			return nil
 		}
 
-		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
+		if err := m.SecondaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("secondaryDeliveryAddress")
+				return ve.ValidateName("secondaryDestinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("secondaryDeliveryAddress")
+				return ce.ValidateName("secondaryDestinationAddress")
 			}
 			return err
 		}
@@ -1451,19 +1451,19 @@ func (m *MTOShipment) contextValidateTacType(ctx context.Context, formats strfmt
 	return nil
 }
 
-func (m *MTOShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.TertiaryDeliveryAddress != nil {
+	if m.TertiaryDestinationAddress != nil {
 
-		if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+		if swag.IsZero(m.TertiaryDestinationAddress) { // not required
 			return nil
 		}
 
-		if err := m.TertiaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
+		if err := m.TertiaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("tertiaryDeliveryAddress")
+				return ve.ValidateName("tertiaryDestinationAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("tertiaryDeliveryAddress")
+				return ce.ValidateName("tertiaryDestinationAddress")
 			}
 			return err
 		}

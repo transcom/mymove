@@ -134,13 +134,13 @@ func MTOShipmentModelFromCreate(mtoShipment *primev3messages.CreateMTOShipment) 
 	}
 
 	model := &models.MTOShipment{
-		MoveTaskOrderID:             uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		Diversion:                   mtoShipment.Diversion,
-		DivertedFromShipmentID:      divertedFromShipmentID,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		HasSecondaryPickupAddress:   handlers.FmtBool(false),
-		HasSecondaryDeliveryAddress: handlers.FmtBool(false),
+		MoveTaskOrderID:                uuid.FromStringOrNil(mtoShipment.MoveTaskOrderID.String()),
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		Diversion:                      mtoShipment.Diversion,
+		DivertedFromShipmentID:         divertedFromShipmentID,
+		CounselorRemarks:               mtoShipment.CounselorRemarks,
+		HasSecondaryPickupAddress:      handlers.FmtBool(false),
+		HasSecondaryDestinationAddress: handlers.FmtBool(false),
 	}
 
 	if mtoShipment.ShipmentType != nil {
@@ -349,20 +349,20 @@ func MTOShipmentModelFromUpdate(mtoShipment *primev3messages.UpdateMTOShipment, 
 		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.SecondaryDeliveryAddress = addressModel
-		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.SecondaryDeliveryAddressID = &secondaryDeliveryAddressID
-		model.HasSecondaryDeliveryAddress = handlers.FmtBool(true)
+		model.SecondaryDestinationAddress = addressModel
+		secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
+		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.TertiaryDeliveryAddress = addressModel
-		tertiaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.TertiaryDeliveryAddressID = &tertiaryDeliveryAddressID
-		model.HasTertiaryDeliveryAddress = handlers.FmtBool(true)
+		model.TertiaryDestinationAddress = addressModel
+		tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
+		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
 	}
 
 	if mtoShipment.PpmShipment != nil {

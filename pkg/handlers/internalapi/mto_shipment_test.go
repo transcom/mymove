@@ -134,7 +134,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress3})
-		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
 
 		subtestData.mtoShipment = factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -193,14 +193,14 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 					StreetAddress2: destinationAddress.StreetAddress2,
 					StreetAddress3: destinationAddress.StreetAddress3,
 				},
-				SecondaryDeliveryAddress: &internalmessages.Address{
-					City:           &secondaryDeliveryAddress.City,
-					Country:        secondaryDeliveryAddress.Country,
-					PostalCode:     &secondaryDeliveryAddress.PostalCode,
-					State:          &secondaryDeliveryAddress.State,
-					StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
-					StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
-					StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
+				SecondaryDestinationAddress: &internalmessages.Address{
+					City:           &secondaryDestinationAddress.City,
+					Country:        secondaryDestinationAddress.Country,
+					PostalCode:     &secondaryDestinationAddress.PostalCode,
+					State:          &secondaryDestinationAddress.State,
+					StreetAddress1: &secondaryDestinationAddress.StreetAddress1,
+					StreetAddress2: secondaryDestinationAddress.StreetAddress2,
+					StreetAddress3: secondaryDestinationAddress.StreetAddress3,
 				},
 				RequestedPickupDate:   strfmt.Date(*subtestData.mtoShipment.RequestedPickupDate),
 				RequestedDeliveryDate: strfmt.Date(*subtestData.mtoShipment.RequestedDeliveryDate),
@@ -235,7 +235,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
-		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDestinationAddress.StreetAddress1, *createdShipment.SecondaryDestinationAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), createdShipment.RequestedPickupDate.String())
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
@@ -428,7 +428,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(models.MTOShipmentStatusSubmitted, models.MTOShipmentStatus(createdShipment.Status))
 		suite.Equal(*params.Body.CustomerRemarks, *createdShipment.CustomerRemarks)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
-		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDestinationAddress.StreetAddress1, *createdShipment.SecondaryDestinationAddress.StreetAddress1)
 		suite.Nil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
@@ -478,7 +478,7 @@ func (suite *HandlerSuite) TestCreateMTOShipmentHandlerV1() {
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *createdShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *createdShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *createdShipment.DestinationAddress.StreetAddress1)
-		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *createdShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDestinationAddress.StreetAddress1, *createdShipment.SecondaryDestinationAddress.StreetAddress1)
 		suite.Nil(createdShipment.RequestedPickupDate)
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), createdShipment.RequestedDeliveryDate.String())
 
@@ -732,8 +732,8 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationAddress.StreetAddress1 = "54321 Test Fake Rd SE"
 
-		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		secondaryDeliveryAddress.StreetAddress1 = "9999 Test Fake Rd SE"
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryDestinationAddress.StreetAddress1 = "9999 Test Fake Rd SE"
 
 		mtoAgent := factory.BuildMTOAgent(suite.DB(), nil, nil)
 		agents := internalmessages.MTOAgents{&internalmessages.MTOAgent{
@@ -760,16 +760,16 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 				StreetAddress2: destinationAddress.StreetAddress2,
 				StreetAddress3: destinationAddress.StreetAddress3,
 			},
-			SecondaryDeliveryAddress: &internalmessages.Address{
-				City:           &secondaryDeliveryAddress.City,
-				Country:        secondaryDeliveryAddress.Country,
-				PostalCode:     &secondaryDeliveryAddress.PostalCode,
-				State:          &secondaryDeliveryAddress.State,
-				StreetAddress1: &secondaryDeliveryAddress.StreetAddress1,
-				StreetAddress2: secondaryDeliveryAddress.StreetAddress2,
-				StreetAddress3: secondaryDeliveryAddress.StreetAddress3,
+			SecondaryDestinationAddress: &internalmessages.Address{
+				City:           &secondaryDestinationAddress.City,
+				Country:        secondaryDestinationAddress.Country,
+				PostalCode:     &secondaryDestinationAddress.PostalCode,
+				State:          &secondaryDestinationAddress.State,
+				StreetAddress1: &secondaryDestinationAddress.StreetAddress1,
+				StreetAddress2: secondaryDestinationAddress.StreetAddress2,
+				StreetAddress3: secondaryDestinationAddress.StreetAddress3,
 			},
-			HasSecondaryDeliveryAddress: handlers.FmtBool(true),
+			HasSecondaryDestinationAddress: handlers.FmtBool(true),
 			PickupAddress: &internalmessages.Address{
 				City:           &pickupAddress.City,
 				Country:        pickupAddress.Country,
@@ -820,7 +820,7 @@ func (suite *HandlerSuite) TestUpdateMTOShipmentHandler() {
 		suite.Equal(*params.Body.PickupAddress.StreetAddress1, *updatedShipment.PickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.SecondaryPickupAddress.StreetAddress1, *updatedShipment.SecondaryPickupAddress.StreetAddress1)
 		suite.Equal(*params.Body.DestinationAddress.StreetAddress1, *updatedShipment.DestinationAddress.StreetAddress1)
-		suite.Equal(*params.Body.SecondaryDeliveryAddress.StreetAddress1, *updatedShipment.SecondaryDeliveryAddress.StreetAddress1)
+		suite.Equal(*params.Body.SecondaryDestinationAddress.StreetAddress1, *updatedShipment.SecondaryDestinationAddress.StreetAddress1)
 		suite.Equal(params.Body.RequestedPickupDate.String(), updatedShipment.RequestedPickupDate.String())
 		suite.Equal(params.Body.RequestedDeliveryDate.String(), updatedShipment.RequestedDeliveryDate.String())
 
@@ -1455,7 +1455,7 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 	}, nil)
 
 	deliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress4})
-	secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+	secondaryDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "5432 Everywhere",
@@ -1496,8 +1496,8 @@ func (suite *HandlerSuite) makeListSubtestData() (subtestData *mtoListSubtestDat
 			LinkOnly: true,
 		},
 		{
-			Model:    secondaryDeliveryAddress,
-			Type:     &factory.Addresses.SecondaryDeliveryAddress,
+			Model:    secondaryDestinationAddress,
+			Type:     &factory.Addresses.SecondaryDestinationAddress,
 			LinkOnly: true,
 		},
 	}, nil)
@@ -1636,13 +1636,13 @@ func (suite *HandlerSuite) TestListMTOShipmentsHandler() {
 			suite.Equal(expectedShipment.DestinationAddress.State, *returnedShipment.DestinationAddress.State)
 			suite.Equal(expectedShipment.DestinationAddress.PostalCode, *returnedShipment.DestinationAddress.PostalCode)
 
-			if expectedShipment.SecondaryDeliveryAddress != nil {
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.StreetAddress1, *returnedShipment.SecondaryDeliveryAddress.StreetAddress1)
-				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress2, *returnedShipment.SecondaryDeliveryAddress.StreetAddress2)
-				suite.Equal(*expectedShipment.SecondaryDeliveryAddress.StreetAddress3, *returnedShipment.SecondaryDeliveryAddress.StreetAddress3)
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.City, *returnedShipment.SecondaryDeliveryAddress.City)
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.State, *returnedShipment.SecondaryDeliveryAddress.State)
-				suite.Equal(expectedShipment.SecondaryDeliveryAddress.PostalCode, *returnedShipment.SecondaryDeliveryAddress.PostalCode)
+			if expectedShipment.SecondaryDestinationAddress != nil {
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.StreetAddress1, *returnedShipment.SecondaryDestinationAddress.StreetAddress1)
+				suite.Equal(*expectedShipment.SecondaryDestinationAddress.StreetAddress2, *returnedShipment.SecondaryDestinationAddress.StreetAddress2)
+				suite.Equal(*expectedShipment.SecondaryDestinationAddress.StreetAddress3, *returnedShipment.SecondaryDestinationAddress.StreetAddress3)
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.City, *returnedShipment.SecondaryDestinationAddress.City)
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.State, *returnedShipment.SecondaryDestinationAddress.State)
+				suite.Equal(expectedShipment.SecondaryDestinationAddress.PostalCode, *returnedShipment.SecondaryDestinationAddress.PostalCode)
 			}
 		}
 	})

@@ -189,9 +189,9 @@ type MTOShipmentWithoutServiceItems struct {
 	ScheduledPickupDate *strfmt.Date `json:"scheduledPickupDate"`
 
 	// A second delivery address for this shipment, if the customer entered one. An optional field.
-	SecondaryDeliveryAddress struct {
+	SecondaryDestinationAddress struct {
 		Address
-	} `json:"secondaryDeliveryAddress,omitempty"`
+	} `json:"secondaryDestinationAddress,omitempty"`
 
 	// A second pickup address for this shipment, if the customer entered one. An optional field.
 	SecondaryPickupAddress struct {
@@ -319,7 +319,7 @@ func (m *MTOShipmentWithoutServiceItems) Validate(formats strfmt.Registry) error
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -666,8 +666,8 @@ func (m *MTOShipmentWithoutServiceItems) validateScheduledPickupDate(formats str
 	return nil
 }
 
-func (m *MTOShipmentWithoutServiceItems) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+func (m *MTOShipmentWithoutServiceItems) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 		return nil
 	}
 
@@ -881,7 +881,7 @@ func (m *MTOShipmentWithoutServiceItems) ContextValidate(ctx context.Context, fo
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1131,7 +1131,7 @@ func (m *MTOShipmentWithoutServiceItems) contextValidateReweigh(ctx context.Cont
 	return nil
 }
 
-func (m *MTOShipmentWithoutServiceItems) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipmentWithoutServiceItems) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

@@ -222,9 +222,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.SecondaryPickupAddress = addressModel
 	}
 
-	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.SecondaryDeliveryAddress = addressModel
+		model.SecondaryDestinationAddress = addressModel
 	}
 
 	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
@@ -232,9 +232,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) *mod
 		model.TertiaryPickupAddress = addressModel
 	}
 
-	addressModel = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 	if addressModel != nil {
-		model.TertiaryDeliveryAddress = addressModel
+		model.TertiaryDestinationAddress = addressModel
 	}
 
 	if mtoShipment.DestinationType != nil {
@@ -487,23 +487,23 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 	}
 
 	model := &models.MTOShipment{
-		BillableWeightCap:           billableWeightCap,
-		BillableWeightJustification: mtoShipment.BillableWeightJustification,
-		ShipmentType:                models.MTOShipmentType(mtoShipment.ShipmentType),
-		RequestedPickupDate:         requestedPickupDate,
-		RequestedDeliveryDate:       requestedDeliveryDate,
-		CustomerRemarks:             mtoShipment.CustomerRemarks,
-		CounselorRemarks:            mtoShipment.CounselorRemarks,
-		TACType:                     tacType,
-		SACType:                     sacType,
-		UsesExternalVendor:          usesExternalVendor,
-		ServiceOrderNumber:          mtoShipment.ServiceOrderNumber,
-		HasSecondaryPickupAddress:   mtoShipment.HasSecondaryPickupAddress,
-		HasSecondaryDeliveryAddress: mtoShipment.HasSecondaryDeliveryAddress,
-		HasTertiaryPickupAddress:    mtoShipment.HasTertiaryPickupAddress,
-		HasTertiaryDeliveryAddress:  mtoShipment.HasTertiaryDeliveryAddress,
-		ActualProGearWeight:         handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
-		ActualSpouseProGearWeight:   handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
+		BillableWeightCap:              billableWeightCap,
+		BillableWeightJustification:    mtoShipment.BillableWeightJustification,
+		ShipmentType:                   models.MTOShipmentType(mtoShipment.ShipmentType),
+		RequestedPickupDate:            requestedPickupDate,
+		RequestedDeliveryDate:          requestedDeliveryDate,
+		CustomerRemarks:                mtoShipment.CustomerRemarks,
+		CounselorRemarks:               mtoShipment.CounselorRemarks,
+		TACType:                        tacType,
+		SACType:                        sacType,
+		UsesExternalVendor:             usesExternalVendor,
+		ServiceOrderNumber:             mtoShipment.ServiceOrderNumber,
+		HasSecondaryPickupAddress:      mtoShipment.HasSecondaryPickupAddress,
+		HasSecondaryDestinationAddress: mtoShipment.HasSecondaryDestinationAddress,
+		HasTertiaryPickupAddress:       mtoShipment.HasTertiaryPickupAddress,
+		HasTertiaryDestinationAddress:  mtoShipment.HasTertiaryDestinationAddress,
+		ActualProGearWeight:            handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualProGearWeight),
+		ActualSpouseProGearWeight:      handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
 	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
@@ -513,9 +513,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 			model.SecondaryPickupAddress = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
 		}
 	}
-	if mtoShipment.HasSecondaryDeliveryAddress != nil {
-		if *mtoShipment.HasSecondaryDeliveryAddress {
-			model.SecondaryDeliveryAddress = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
+	if mtoShipment.HasSecondaryDestinationAddress != nil {
+		if *mtoShipment.HasSecondaryDestinationAddress {
+			model.SecondaryDestinationAddress = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
 		}
 	}
 
@@ -524,9 +524,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) *models
 			model.TertiaryPickupAddress = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
 		}
 	}
-	if mtoShipment.HasTertiaryDeliveryAddress != nil {
-		if *mtoShipment.HasTertiaryDeliveryAddress {
-			model.TertiaryDeliveryAddress = AddressModel(&mtoShipment.TertiaryDeliveryAddress.Address)
+	if mtoShipment.HasTertiaryDestinationAddress != nil {
+		if *mtoShipment.HasTertiaryDestinationAddress {
+			model.TertiaryDestinationAddress = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
 		}
 	}
 

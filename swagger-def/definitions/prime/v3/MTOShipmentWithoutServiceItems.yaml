@@ -167,11 +167,11 @@ properties:
     $ref: '../../DestinationType.yaml'
   secondaryPickupAddress:
     $ref: '../../Address.yaml'
-  secondaryDeliveryAddress:
+  secondaryDestinationAddress:
     $ref: '../../Address.yaml'
   tertiaryPickupAddress:
     $ref: '../../Address.yaml'
-  tertiaryDeliveryAddress:
+  tertiaryDestinationAddress:
     $ref: '../../Address.yaml'
   storageFacility:
     allOf:

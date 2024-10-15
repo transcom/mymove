@@ -165,9 +165,9 @@ type addressGroup struct {
 	PickupAddress                 CustomType
 	DeliveryAddress               CustomType
 	SecondaryPickupAddress        CustomType
-	SecondaryDeliveryAddress      CustomType
+	SecondaryDestinationAddress   CustomType
 	TertiaryPickupAddress         CustomType
-	TertiaryDeliveryAddress       CustomType
+	TertiaryDestinationAddress    CustomType
 	ResidentialAddress            CustomType
 	BackupMailingAddress          CustomType
 	DutyLocationAddress           CustomType
@@ -186,9 +186,9 @@ var Addresses = addressGroup{
 	PickupAddress:                 "PickupAddress",
 	DeliveryAddress:               "DeliveryAddress",
 	SecondaryPickupAddress:        "SecondaryPickupAddress",
-	SecondaryDeliveryAddress:      "SecondaryDeliveryAddress",
+	SecondaryDestinationAddress:   "SecondaryDestinationAddress",
 	TertiaryPickupAddress:         "TertiaryPickupAddress",
-	TertiaryDeliveryAddress:       "TertiaryDeliveryAddress",
+	TertiaryDestinationAddress:    "TertiaryDestinationAddress",
 	ResidentialAddress:            "ResidentialAddress",
 	BackupMailingAddress:          "BackupMailingAddress",
 	DutyLocationAddress:           "DutyLocationAddress",

@@ -60,7 +60,7 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		}
 	}
 
-	var destinationAddress, secondaryDeliveryAddress, tertiaryDeliveryAddress models.Address
+	var destinationAddress, secondaryDestinationAddress, tertiaryDestinationAddress models.Address
 	if shipmentHasDeliveryDetails {
 		// Make destination address if it was not provided
 		destinationAddress = assertions.DestinationAddress
@@ -70,8 +70,8 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 			})
 		}
 
-		secondaryDeliveryAddress = assertions.SecondaryDeliveryAddress
-		tertiaryDeliveryAddress = assertions.TertiaryDeliveryAddress
+		secondaryDestinationAddress = assertions.SecondaryDestinationAddress
+		tertiaryDestinationAddress = assertions.TertiaryDestinationAddress
 	}
 
 	// mock weights
@@ -158,16 +158,16 @@ func makeMTOShipment(db *pop.Connection, assertions Assertions) models.MTOShipme
 		MTOShipment.DestinationAddress = &destinationAddress
 		MTOShipment.DestinationAddressID = &destinationAddress.ID
 
-		if !isZeroUUID(secondaryDeliveryAddress.ID) {
-			MTOShipment.SecondaryDeliveryAddress = &secondaryDeliveryAddress
-			MTOShipment.SecondaryDeliveryAddressID = &secondaryDeliveryAddress.ID
-			MTOShipment.HasSecondaryDeliveryAddress = models.BoolPointer(true)
+		if !isZeroUUID(secondaryDestinationAddress.ID) {
+			MTOShipment.SecondaryDestinationAddress = &secondaryDestinationAddress
+			MTOShipment.SecondaryDestinationAddressID = &secondaryDestinationAddress.ID
+			MTOShipment.HasSecondaryDestinationAddress = models.BoolPointer(true)
 		}
 
-		if !isZeroUUID(tertiaryDeliveryAddress.ID) {
-			MTOShipment.TertiaryDeliveryAddress = &tertiaryDeliveryAddress
-			MTOShipment.TertiaryDeliveryAddressID = &tertiaryDeliveryAddress.ID
-			MTOShipment.HasTertiaryDeliveryAddress = models.BoolPointer(true)
+		if !isZeroUUID(tertiaryDestinationAddress.ID) {
+			MTOShipment.TertiaryDestinationAddress = &tertiaryDestinationAddress
+			MTOShipment.TertiaryDestinationAddressID = &tertiaryDestinationAddress.ID
+			MTOShipment.HasTertiaryDestinationAddress = models.BoolPointer(true)
 		}
 	}
 

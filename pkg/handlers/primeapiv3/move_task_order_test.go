@@ -299,9 +299,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		successMove := factory.BuildAvailableToPrimeMove(suite.DB(), nil, nil)
 		destinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		destinationType := models.DestinationTypeHomeOfRecord
-		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		secondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		tertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, nil)
+		tertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		tertiaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
 		now := time.Now()
 		nowDate := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC)
@@ -324,8 +324,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				},
 			},
 			{
-				Model:    secondaryDeliveryAddress,
-				Type:     &factory.Addresses.SecondaryDeliveryAddress,
+				Model:    secondaryDestinationAddress,
+				Type:     &factory.Addresses.SecondaryDestinationAddress,
 				LinkOnly: true,
 			},
 			{
@@ -334,8 +334,8 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 				LinkOnly: true,
 			},
 			{
-				Model:    tertiaryDeliveryAddress,
-				Type:     &factory.Addresses.TertiaryDeliveryAddress,
+				Model:    tertiaryDestinationAddress,
+				Type:     &factory.Addresses.TertiaryDestinationAddress,
 				LinkOnly: true,
 			},
 			{
@@ -402,9 +402,9 @@ func (suite *HandlerSuite) TestGetMoveTaskOrder() {
 		suite.Equal(successShipment.ScheduledDeliveryDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledDeliveryDate).Format(time.RFC3339))
 		suite.Equal(successShipment.ScheduledPickupDate.Format(time.RFC3339), handlers.FmtDatePtrToPop(shipment.ScheduledPickupDate).Format(time.RFC3339))
 
-		verifyAddressFields(successShipment.SecondaryDeliveryAddress, shipment.SecondaryDeliveryAddress)
+		verifyAddressFields(successShipment.SecondaryDestinationAddress, shipment.SecondaryDestinationAddress)
 		verifyAddressFields(successShipment.SecondaryPickupAddress, shipment.SecondaryPickupAddress)
-		verifyAddressFields(successShipment.TertiaryDeliveryAddress, shipment.TertiaryDeliveryAddress)
+		verifyAddressFields(successShipment.TertiaryDestinationAddress, shipment.TertiaryDestinationAddress)
 		verifyAddressFields(successShipment.TertiaryPickupAddress, shipment.TertiaryPickupAddress)
 
 		suite.Equal(string(successShipment.ShipmentType), string(shipment.ShipmentType))

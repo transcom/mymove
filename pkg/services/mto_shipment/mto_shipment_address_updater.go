@@ -34,9 +34,9 @@ func isAddressOnShipment(address *models.Address, mtoShipment *models.MTOShipmen
 	addressIDs := []*uuid.UUID{
 		mtoShipment.PickupAddressID,
 		mtoShipment.DestinationAddressID,
-		mtoShipment.SecondaryDeliveryAddressID,
+		mtoShipment.SecondaryDestinationAddressID,
 		mtoShipment.SecondaryPickupAddressID,
-		mtoShipment.TertiaryDeliveryAddressID,
+		mtoShipment.TertiaryDestinationAddressID,
 		mtoShipment.TertiaryPickupAddressID,
 	}
 

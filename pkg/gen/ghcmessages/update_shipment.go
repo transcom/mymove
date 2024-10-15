@@ -56,14 +56,14 @@ type UpdateShipment struct {
 	// destination type
 	DestinationType *DestinationType `json:"destinationType,omitempty"`
 
-	// has secondary delivery address
-	HasSecondaryDeliveryAddress *bool `json:"hasSecondaryDeliveryAddress"`
+	// has secondary destination address
+	HasSecondaryDestinationAddress *bool `json:"hasSecondaryDestinationAddress"`
 
 	// has secondary pickup address
 	HasSecondaryPickupAddress *bool `json:"hasSecondaryPickupAddress"`
 
-	// has tertiary delivery address
-	HasTertiaryDeliveryAddress *bool `json:"hasTertiaryDeliveryAddress"`
+	// has tertiary destination address
+	HasTertiaryDestinationAddress *bool `json:"hasTertiaryDestinationAddress"`
 
 	// has tertiary pickup address
 	HasTertiaryPickupAddress *bool `json:"hasTertiaryPickupAddress"`
@@ -94,10 +94,10 @@ type UpdateShipment struct {
 	// sac type
 	SacType nullable.String `json:"sacType,omitempty"`
 
-	// secondary delivery address
-	SecondaryDeliveryAddress struct {
+	// secondary destination address
+	SecondaryDestinationAddress struct {
 		Address
-	} `json:"secondaryDeliveryAddress,omitempty"`
+	} `json:"secondaryDestinationAddress,omitempty"`
 
 	// secondary pickup address
 	SecondaryPickupAddress struct {
@@ -116,10 +116,10 @@ type UpdateShipment struct {
 	// tac type
 	TacType nullable.String `json:"tacType,omitempty"`
 
-	// tertiary delivery address
-	TertiaryDeliveryAddress struct {
+	// tertiary destination address
+	TertiaryDestinationAddress struct {
 		Address
-	} `json:"tertiaryDeliveryAddress,omitempty"`
+	} `json:"tertiaryDestinationAddress,omitempty"`
 
 	// tertiary pickup address
 	TertiaryPickupAddress struct {
@@ -175,7 +175,7 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
+	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -195,7 +195,7 @@ func (m *UpdateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
+	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -359,8 +359,8 @@ func (m *UpdateShipment) validateSacType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
+func (m *UpdateShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
 		return nil
 	}
 
@@ -428,8 +428,8 @@ func (m *UpdateShipment) validateTacType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *UpdateShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
+func (m *UpdateShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
 		return nil
 	}
 
@@ -480,7 +480,7 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -500,7 +500,7 @@ func (m *UpdateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
+	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -640,7 +640,7 @@ func (m *UpdateShipment) contextValidateSacType(ctx context.Context, formats str
 	return nil
 }
 
-func (m *UpdateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *UpdateShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }
@@ -707,7 +707,7 @@ func (m *UpdateShipment) contextValidateTacType(ctx context.Context, formats str
 	return nil
 }
 
-func (m *UpdateShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *UpdateShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
 
 	return nil
 }

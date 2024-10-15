@@ -1866,15 +1866,15 @@ definitions:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         $ref: '#/definitions/Address'
-      hasSecondaryDeliveryAddress:
+      hasSecondaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
-      hasTertiaryDeliveryAddress:
+      hasTertiaryDestinationAddress:
         type: boolean
         x-omitempty: false
         x-nullable: true
@@ -1938,9 +1938,9 @@ definitions:
         $ref: '#/definitions/Address'
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         $ref: '#/definitions/Address'
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
       agents:
         $ref: '#/definitions/MTOAgents'
@@ -2276,15 +2276,15 @@ definitions:
         x-omitempty: false
       destinationAddress:
         $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         $ref: '#/definitions/Address'
-      hasSecondaryDeliveryAddress:
+      hasSecondaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
-      hasTertiaryDeliveryAddress:
+      hasTertiaryDestinationAddress:
         type: boolean
         x-nullable: true
         x-omitempty: false

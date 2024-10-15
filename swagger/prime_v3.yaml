@@ -1061,7 +1061,7 @@ definitions:
           one. An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         description: >-
           A second delivery address for this shipment, if the customer entered
           one. An optional field.
@@ -1073,7 +1073,7 @@ definitions:
           An optional field.
         allOf:
           - $ref: '#/definitions/Address'
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         description: >-
           A third delivery address for this shipment, if the customer entered
           one. An optional field.
@@ -2777,11 +2777,11 @@ definitions:
         $ref: '#/definitions/DestinationType'
       secondaryPickupAddress:
         $ref: '#/definitions/Address'
-      secondaryDeliveryAddress:
+      secondaryDestinationAddress:
         $ref: '#/definitions/Address'
       tertiaryPickupAddress:
         $ref: '#/definitions/Address'
-      tertiaryDeliveryAddress:
+      tertiaryDestinationAddress:
         $ref: '#/definitions/Address'
       storageFacility:
         allOf:
