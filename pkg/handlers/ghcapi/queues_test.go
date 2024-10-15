@@ -796,8 +796,8 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 
 	suite.Run("returns results matching last name search term", func() {
 		params := queues.GetMovesQueueParams{
-			HTTPRequest: request,
-			LastName:    models.StringPointer("Nan"),
+			HTTPRequest:  request,
+			CustomerName: models.StringPointer("Nan"),
 		}
 
 		// Validate incoming payload: no body to validate
@@ -886,7 +886,7 @@ func (suite *HandlerSuite) TestGetMoveQueuesHandlerCustomerInfoFilters() {
 		originDutyLocations = append(originDutyLocations, dutyLocation1.Name)
 		params := queues.GetMovesQueueParams{
 			HTTPRequest:        request,
-			LastName:           models.StringPointer("Dar"),
+			CustomerName:       models.StringPointer("Dar"),
 			DodID:              serviceMember1.Edipi,
 			Locator:            &move1.Locator,
 			OriginDutyLocation: originDutyLocations,

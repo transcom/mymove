@@ -4377,7 +4377,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -4415,7 +4415,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {
@@ -19663,7 +19663,7 @@ func init() {
           },
           {
             "enum": [
-              "lastName",
+              "customerName",
               "dodID",
               "emplid",
               "branch",
@@ -19701,7 +19701,7 @@ func init() {
           },
           {
             "type": "string",
-            "name": "lastName",
+            "name": "customerName",
             "in": "query"
           },
           {

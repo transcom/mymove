@@ -106,7 +106,7 @@ func (f orderFetcher) ListOrders(appCtx appcontext.AppContext, officeUserID uuid
 	locatorQuery := locatorFilter(params.Locator)
 	dodIDQuery := dodIDFilter(params.DodID)
 	emplidQuery := emplidFilter(params.Emplid)
-	nameQuery := nameFilter(params.LastName)
+	nameQuery := nameFilter(params.CustomerName)
 	originDutyLocationQuery := originDutyLocationFilter(params.OriginDutyLocation)
 	destinationDutyLocationQuery := destinationDutyLocationFilter(params.DestinationDutyLocation)
 	moveStatusQuery := moveStatusFilter(params.Status)
@@ -508,13 +508,13 @@ func nameFilter(name *string) QueryOption {
 
 		// Remove "," that user may enter between names (displayed on frontend column)
 		nameSearch := *name
-		removeCharsRegex := regexp.MustCompile("^[,]+$")
-		removeCharsRegex.ReplaceAllString(nameSearch, "")
+		removeCharsRegex := regexp.MustCompile("[,]+")
+		nameSearch = removeCharsRegex.ReplaceAllString(nameSearch, "")
 
 		// Regex to avoid SQL Injections
-		approvedCharsRegex := regexp.MustCompile("^[A-Za-z]+$")
+		approvedCharsRegex := regexp.MustCompile("^[A-Za-z ]+$")
 		if approvedCharsRegex.MatchString(nameSearch) {
-			query.Where("to_tsvector(service_members.last_name || ' ' || service_members.first_name) @@ to_tsquery('" + nameSearch + ":*')")
+			query.Where("(service_members.last_name || ' ' || service_members.first_name) ILIKE '%" + nameSearch + "%'")
 		}
 	}
 }
