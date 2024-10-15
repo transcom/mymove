@@ -216,7 +216,7 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
       initialValues.ppmShipment.tertiaryPickupAddress.postalCode,
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[3]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[3]).toHaveValue(
       initialValues.ppmShipment.destinationAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[3]).toHaveValue(
@@ -224,39 +224,39 @@ describe('PrimeUIShipmentUpdatePPMForm', () => {
     );
     expect(await screen.getAllByLabelText('City')[3]).toHaveValue(initialValues.ppmShipment.destinationAddress.city);
     expect(await screen.getAllByLabelText('State')[3]).toHaveValue(initialValues.ppmShipment.destinationAddress.state);
-    expect(await screen.getAllByLabelText('ZIP')[3]).toHaveValue(
+    expect(await screen.getAllByLabelText(/ZIP/)[3]).toHaveValue(
       initialValues.ppmShipment.destinationAddress.postalCode,
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[4]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.streetAddress2,
     );
-    expect(await screen.getAllByLabelText('City')[4]).toHaveValue(
+    expect(await screen.getAllByLabelText(/City/)[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.city,
     );
     expect(await screen.getAllByLabelText('State')[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.state,
     );
-    expect(await screen.getAllByLabelText('ZIP')[4]).toHaveValue(
+    expect(await screen.getAllByLabelText(/ZIP/)[4]).toHaveValue(
       initialValues.ppmShipment.secondaryDestinationAddress.postalCode,
     );
 
-    expect(await screen.getAllByLabelText('Address 1')[5]).toHaveValue(
+    expect(await screen.getAllByLabelText(/Address 1/)[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.streetAddress1,
     );
     expect(await screen.getAllByLabelText(/Address 2/)[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.streetAddress2,
     );
-    expect(await screen.getAllByLabelText('City')[5]).toHaveValue(
+    expect(await screen.getAllByLabelText(/City/)[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.city,
     );
     expect(await screen.getAllByLabelText('State')[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.state,
     );
-    expect(await screen.getAllByLabelText('ZIP')[5]).toHaveValue(
+    expect(await screen.getAllByLabelText(/ZIP/)[5]).toHaveValue(
       initialValues.ppmShipment.tertiaryDestinationAddress.postalCode,
     );
 

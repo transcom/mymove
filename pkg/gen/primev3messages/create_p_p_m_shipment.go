@@ -22,7 +22,7 @@ type CreatePPMShipment struct {
 	// The address of the destination location where goods are being delivered to.
 	// Required: true
 	DestinationAddress struct {
-		Address
+		PPMDestinationAddress
 	} `json:"destinationAddress"`
 
 	// The estimated weight of the PPM shipment goods being moved in pounds.
