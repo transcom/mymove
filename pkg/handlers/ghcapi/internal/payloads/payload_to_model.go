@@ -214,44 +214,9 @@ func MTOShipmentModelFromCreate(mtoShipment *ghcmessages.CreateMTOShipment) (*mo
 		model.RequestedDeliveryDate = models.TimePointer(time.Time(*mtoShipment.RequestedDeliveryDate))
 	}
 
-	// Set up address models
-	var addressModel *models.Address
-
-	addressModel = AddressModel(&mtoShipment.PickupAddress.Address)
-	if addressModel != nil {
-		model.PickupAddress = addressModel
-	}
-	addressModel = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
-	if addressModel != nil {
-		model.SecondaryPickupAddress = addressModel
-	}
-	addressModel = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
-	if addressModel != nil {
-		model.TertiaryPickupAddress = addressModel
-	}
-
-	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
-		verrs.Add("tertiary delivery address", "Cannot add tertiary pickup address without a secondary pickup address set")
-		return nil, verrs
-	}
-
-	addressModel = AddressModel(&mtoShipment.DestinationAddress.Address)
-	if addressModel != nil {
-		model.DestinationAddress = addressModel
-	}
-
-	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.SecondaryDestinationAddress = addressModel
-	}
-
-	addressModel = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.TertiaryDestinationAddress = addressModel
-	}
-
-	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
-		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
+	err := SetAddressForShipments(model, mtoShipment.PickupAddress.Address, &mtoShipment.SecondaryPickupAddress.Address, &mtoShipment.TertiaryPickupAddress.Address, mtoShipment.DestinationAddress.Address, &mtoShipment.SecondaryDestinationAddress.Address, &mtoShipment.TertiaryDestinationAddress.Address)
+	if err != nil {
+		verrs.Add("Error setting up addresses", "An error occurred while creating the mto shipment")
 		return nil, verrs
 	}
 
@@ -312,55 +277,9 @@ func PPMShipmentModelFromCreate(ppmShipment *ghcmessages.CreatePPMShipment) (*mo
 		model.ExpectedDepartureDate = *expectedDepartureDate
 	}
 
-	// Set up address models
-	var addressModel *models.Address
-
-	addressModel = AddressModel(&ppmShipment.PickupAddress.Address)
-	if addressModel != nil {
-		model.PickupAddress = addressModel
-	}
-
-	addressModel = AddressModel(&ppmShipment.SecondaryPickupAddress.Address)
-	if addressModel != nil {
-		model.SecondaryPickupAddress = addressModel
-		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
-	}
-
-	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
-	if addressModel != nil {
-		model.TertiaryPickupAddress = addressModel
-		model.HasTertiaryPickupAddress = handlers.FmtBool(true)
-	}
-
-	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
-		return nil, verrs
-	}
-
-	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
-		return nil, verrs
-	}
-
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
-	if addressModel != nil {
-		model.DestinationAddress = addressModel
-	}
-
-	addressModel = AddressModel(&ppmShipment.SecondaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.SecondaryDestinationAddress = addressModel
-		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
-	}
-
-	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.TertiaryDestinationAddress = addressModel
-		model.HasTertiaryDestinationAddress = handlers.FmtBool(true)
-	}
-
-	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
+	err := SetAddressForShipmentsPPM(model, ppmShipment.PickupAddress.Address, &ppmShipment.SecondaryPickupAddress.Address, &ppmShipment.TertiaryPickupAddress.Address, ppmShipment.DestinationAddress.Address, &ppmShipment.SecondaryDestinationAddress.Address, &ppmShipment.TertiaryDestinationAddress.Address)
+	if err != nil {
+		verrs.Add("Error setting up addresses", "An error occurred while creating the mto shipment")
 		return nil, verrs
 	}
 
@@ -547,38 +466,9 @@ func MTOShipmentModelFromUpdate(mtoShipment *ghcmessages.UpdateShipment) (*model
 		ActualSpouseProGearWeight:      handlers.PoundPtrFromInt64Ptr(mtoShipment.ActualSpouseProGearWeight),
 	}
 
-	model.PickupAddress = AddressModel(&mtoShipment.PickupAddress.Address)
-	model.DestinationAddress = AddressModel(&mtoShipment.DestinationAddress.Address)
-	if mtoShipment.HasSecondaryPickupAddress != nil {
-		if *mtoShipment.HasSecondaryPickupAddress {
-			model.SecondaryPickupAddress = AddressModel(&mtoShipment.SecondaryPickupAddress.Address)
-		}
-	}
-	if mtoShipment.HasSecondaryDestinationAddress != nil {
-		if *mtoShipment.HasSecondaryDestinationAddress {
-			model.SecondaryDestinationAddress = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
-		}
-	}
-
-	if mtoShipment.HasTertiaryPickupAddress != nil {
-		if *mtoShipment.HasTertiaryPickupAddress {
-			model.TertiaryPickupAddress = AddressModel(&mtoShipment.TertiaryPickupAddress.Address)
-		}
-	}
-
-	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary pickup address without a secondary pickup address set")
-		return nil, verrs
-	}
-
-	if mtoShipment.HasTertiaryDestinationAddress != nil {
-		if *mtoShipment.HasTertiaryDestinationAddress {
-			model.TertiaryDestinationAddress = AddressModel(&mtoShipment.TertiaryDestinationAddress.Address)
-		}
-	}
-
-	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary delivery address without a secondary delivery address set")
+	err := SetAddressForShipments(model, mtoShipment.PickupAddress.Address, &mtoShipment.SecondaryPickupAddress.Address, &mtoShipment.TertiaryPickupAddress.Address, mtoShipment.DestinationAddress.Address, &mtoShipment.SecondaryDestinationAddress.Address, &mtoShipment.TertiaryDestinationAddress.Address)
+	if err != nil {
+		verrs.Add("Error setting up addresses", "An error occurred while creating the mto shipment")
 		return nil, verrs
 	}
 
@@ -663,56 +553,14 @@ func PPMShipmentModelFromUpdate(ppmShipment *ghcmessages.UpdatePPMShipment) (*mo
 		model.ExpectedDepartureDate = *expectedDepartureDate
 	}
 
+	err := SetAddressForShipmentsPPM(model, ppmShipment.PickupAddress.Address, &ppmShipment.SecondaryPickupAddress.Address, &ppmShipment.TertiaryPickupAddress.Address, ppmShipment.DestinationAddress.Address, &ppmShipment.SecondaryDestinationAddress.Address, &ppmShipment.TertiaryDestinationAddress.Address)
+	if err != nil {
+		verrs.Add("Error setting up addresses", "An error occurred while creating the mto shipment")
+		return nil, verrs
+	}
+
 	// Set up address models
 	var addressModel *models.Address
-
-	addressModel = AddressModel(&ppmShipment.PickupAddress.Address)
-	if addressModel != nil {
-		model.PickupAddress = addressModel
-	}
-
-	addressModel = AddressModel(&ppmShipment.SecondaryPickupAddress.Address)
-	if addressModel != nil {
-		model.SecondaryPickupAddress = addressModel
-		secondaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.SecondaryPickupAddressID = &secondaryPickupAddressID
-	}
-
-	addressModel = AddressModel(&ppmShipment.TertiaryPickupAddress.Address)
-	if addressModel != nil {
-		model.TertiaryPickupAddress = addressModel
-		tertiaryPickupAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.TertiaryPickupAddressID = &tertiaryPickupAddressID
-	}
-
-	if models.IsAddressEmpty(model.SecondaryPickupAddress) && !models.IsAddressEmpty(model.TertiaryPickupAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
-		return nil, verrs
-	}
-
-	addressModel = AddressModel(&ppmShipment.DestinationAddress.Address)
-	if addressModel != nil {
-		model.DestinationAddress = addressModel
-	}
-
-	addressModel = AddressModel(&ppmShipment.SecondaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.SecondaryDestinationAddress = addressModel
-		secondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.SecondaryDestinationAddressID = &secondaryDestinationAddressID
-	}
-
-	addressModel = AddressModel(&ppmShipment.TertiaryDestinationAddress.Address)
-	if addressModel != nil {
-		model.TertiaryDestinationAddress = addressModel
-		tertiaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.TertiaryDestinationAddressID = &tertiaryDestinationAddressID
-	}
-
-	if models.IsAddressEmpty(model.SecondaryDestinationAddress) && !models.IsAddressEmpty(model.TertiaryDestinationAddress) {
-		verrs.Add("tertiary address", "Cannot add tertiary destination address without a secondary destination address set")
-		return nil, verrs
-	}
 
 	if ppmShipment.W2Address != nil {
 		addressModel = AddressModel(ppmShipment.W2Address)
@@ -979,4 +827,101 @@ func EvaluationReportFromUpdate(evaluationReport *ghcmessages.EvaluationReport) 
 		SubmittedAt:                        handlers.FmtDateTimePtrToPopPtr(evaluationReport.SubmittedAt),
 	}
 	return &model, nil
+}
+
+func SetAddressForShipments(shipment *models.MTOShipment, pickupAddr ghcmessages.Address, secondPickupAddr *ghcmessages.Address, thirdPickupAddr *ghcmessages.Address, destAddr ghcmessages.Address, secondDestAddr *ghcmessages.Address, thirdDestAddr *ghcmessages.Address) error {
+	// Set up address models
+	var addressModel *models.Address
+	verrs := validate.NewErrors()
+
+	addressModel = AddressModel(&pickupAddr)
+	if addressModel != nil {
+		shipment.PickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(secondPickupAddr)
+	if addressModel != nil {
+		shipment.SecondaryPickupAddress = addressModel
+		shipment.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(thirdPickupAddr)
+	if addressModel != nil {
+		shipment.TertiaryPickupAddress = addressModel
+		shipment.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+	if models.IsAddressEmpty(shipment.SecondaryPickupAddress) && !models.IsAddressEmpty(shipment.TertiaryPickupAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return verrs
+	}
+
+	addressModel = AddressModel(&destAddr)
+	if addressModel != nil {
+		shipment.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(secondDestAddr)
+	if addressModel != nil {
+		shipment.SecondaryDestinationAddress = addressModel
+		shipment.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(thirdDestAddr)
+	if addressModel != nil {
+		shipment.TertiaryDestinationAddress = addressModel
+		shipment.HasTertiaryDestinationAddress = handlers.FmtBool(true)
+	}
+	if models.IsAddressEmpty(shipment.SecondaryDestinationAddress) && !models.IsAddressEmpty(shipment.TertiaryDestinationAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return verrs
+	}
+	return nil
+}
+func SetAddressForShipmentsPPM(shipment *models.PPMShipment, pickupAddr ghcmessages.Address, secondPickupAddr *ghcmessages.Address, thirdPickupAddr *ghcmessages.Address, destAddr ghcmessages.Address, secondDestAddr *ghcmessages.Address, thirdDestAddr *ghcmessages.Address) error {
+	// Set up address models
+	var addressModel *models.Address
+	verrs := validate.NewErrors()
+
+	addressModel = AddressModel(&pickupAddr)
+	if addressModel != nil {
+		shipment.PickupAddress = addressModel
+	}
+
+	addressModel = AddressModel(secondPickupAddr)
+	if addressModel != nil {
+		shipment.SecondaryPickupAddress = addressModel
+		shipment.HasSecondaryPickupAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(thirdPickupAddr)
+	if addressModel != nil {
+		shipment.TertiaryPickupAddress = addressModel
+		shipment.HasTertiaryPickupAddress = handlers.FmtBool(true)
+	}
+	if models.IsAddressEmpty(shipment.SecondaryPickupAddress) && !models.IsAddressEmpty(shipment.TertiaryPickupAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary pickup address without a secondary pickup address set")
+		return verrs
+	}
+
+	addressModel = AddressModel(&destAddr)
+	if addressModel != nil {
+		shipment.DestinationAddress = addressModel
+	}
+
+	addressModel = AddressModel(secondDestAddr)
+	if addressModel != nil {
+		shipment.SecondaryDestinationAddress = addressModel
+		shipment.HasSecondaryDestinationAddress = handlers.FmtBool(true)
+	}
+
+	addressModel = AddressModel(thirdDestAddr)
+	if addressModel != nil {
+		shipment.TertiaryDestinationAddress = addressModel
+		shipment.HasTertiaryDestinationAddress = handlers.FmtBool(true)
+	}
+	if models.IsAddressEmpty(shipment.SecondaryDestinationAddress) && !models.IsAddressEmpty(shipment.TertiaryDestinationAddress) {
+		verrs.Add("tertiary delivery address", "Cannot add tertiary delivery address without a secondary delivery address set")
+		return verrs
+	}
+	return nil
 }
