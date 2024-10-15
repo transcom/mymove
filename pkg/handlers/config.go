@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"regexp"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop/v6"
@@ -10,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/appcontext"
+	"github.com/transcom/mymove/pkg/apperror"
 	"github.com/transcom/mymove/pkg/audit"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/db/sequence"
@@ -21,6 +23,8 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/trace"
 )
+
+var uuidRegex = regexp.MustCompile("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$")
 
 // HandlerConfig provides access to all the contextual references
 // needed by individual handlers
@@ -131,9 +135,12 @@ func (c *Config) AuditableAppContextFromRequestWithErrors(
 	appCtx := c.AppContextFromRequest(r)
 	err := appCtx.NewTransaction(func(txnAppCtx appcontext.AppContext) error {
 		auditUserID := audit.RetrieveAuditUserIDFromContext(r.Context())
-		// not sure why, but using RawQuery("SET LOCAL foo = ?",
-		// thing) did not work
-		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUserID.String() + "'").Exec()
+		auditUserIDString := auditUserID.String()
+		//Apply the uuid regex below to ensure the user ID is a valid uuid and not anything potentially malicious.
+		if !uuidRegex.MatchString(auditUserIDString) {
+			return apperror.NewBadDataError("Encountered an invalid user ID. The user ID should be a valid uuid.")
+		}
+		err := txnAppCtx.DB().RawQuery("SET LOCAL audit.current_user_id = '" + auditUserIDString + "'").Exec()
 		if err != nil {
 			return err
 		}
