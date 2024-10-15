@@ -874,8 +874,21 @@ func (suite *GHCInvoiceSuite) TestAllGenerateEdi() {
 
 	suite.Run("adds buyer and seller organization name", func() {
 		setupTestData(nil, nil, nil, nil)
+		mtoShipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
+			{
+				Model:    mto,
+				LinkOnly: true,
+			},
+			{
+				Model: models.MTOShipment{
+					RequestedPickupDate: &requestedPickupDate,
+					ScheduledPickupDate: &scheduledPickupDate,
+					ActualPickupDate:    &actualPickupDate,
+				},
+			},
+		}, nil)
 		// buyer name
-		pickupGbloc, err1 := models.FetchGBLOCForPostalCode(suite.DB(), mto.MTOShipments[0].PickupAddress.PostalCode)
+		pickupGbloc, err1 := models.FetchGBLOCForPostalCode(suite.DB(), mtoShipment.PickupAddress.PostalCode)
 
 		suite.FatalNoError(err1)
 		originDutyLocation := paymentRequest.MoveTaskOrder.Orders.OriginDutyLocation
