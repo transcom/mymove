@@ -18,6 +18,10 @@ type ElectronicOrderCategoryCountFetcher struct {
 func (_m *ElectronicOrderCategoryCountFetcher) FetchElectronicOrderCategoricalCounts(appCtx appcontext.AppContext, filters []services.QueryFilter, andFilters *[]services.QueryFilter) (map[interface{}]int, error) {
 	ret := _m.Called(appCtx, filters, andFilters)
 
+	if len(ret) == 0 {
+		panic("no return value specified for FetchElectronicOrderCategoricalCounts")
+	}
+
 	var r0 map[interface{}]int
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, []services.QueryFilter, *[]services.QueryFilter) (map[interface{}]int, error)); ok {

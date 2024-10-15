@@ -19,6 +19,10 @@ type AOAPacketCreator struct {
 func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID, isPaymentPacket bool) (afero.File, error) {
 	ret := _m.Called(appCtx, ppmShipmentID, isPaymentPacket)
 
+	if len(ret) == 0 {
+		panic("no return value specified for CreateAOAPacket")
+	}
+
 	var r0 afero.File
 	var r1 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID, bool) (afero.File, error)); ok {
@@ -44,6 +48,10 @@ func (_m *AOAPacketCreator) CreateAOAPacket(appCtx appcontext.AppContext, ppmShi
 // VerifyAOAPacketInternal provides a mock function with given fields: appCtx, ppmShipmentID
 func (_m *AOAPacketCreator) VerifyAOAPacketInternal(appCtx appcontext.AppContext, ppmShipmentID uuid.UUID) error {
 	ret := _m.Called(appCtx, ppmShipmentID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for VerifyAOAPacketInternal")
+	}
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(appcontext.AppContext, uuid.UUID) error); ok {
