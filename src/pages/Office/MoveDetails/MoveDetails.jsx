@@ -33,26 +33,15 @@ import { permissionTypes } from 'constants/permissions';
 import { objectIsMissingFieldWithCondition } from 'utils/displayFlags';
 import formattedCustomerName from 'utils/formattedCustomerName';
 import { calculateEstimatedWeight } from 'hooks/custom';
-
-const errorIfMissing = {
-  HHG_INTO_NTS_DOMESTIC: [
-    { fieldName: 'storageFacility' },
-    { fieldName: 'serviceOrderNumber' },
-    { fieldName: 'tacType' },
-  ],
-  HHG_OUTOF_NTS_DOMESTIC: [
-    { fieldName: 'storageFacility' },
-    { fieldName: 'ntsRecordedWeight' },
-    { fieldName: 'serviceOrderNumber' },
-    { fieldName: 'tacType' },
-  ],
-};
+import { ADVANCE_STATUSES } from 'constants/ppms';
 
 const MoveDetails = ({
   setUnapprovedShipmentCount,
   setUnapprovedServiceItemCount,
   setExcessWeightRiskCount,
   setUnapprovedSITExtensionCount,
+  setShipmentErrorConcernCount,
+  shipmentErrorConcernCount,
   setShipmentsWithDeliveryAddressUpdateRequestedCount,
   missingOrdersInfoCount,
   setMissingOrdersInfoCount,
@@ -60,9 +49,37 @@ const MoveDetails = ({
 }) => {
   const { moveCode } = useParams();
   const [isFinancialModalVisible, setIsFinancialModalVisible] = useState(false);
-  const [shipmentMissingRequiredInformation, setShipmentMissingRequiredInformation] = useState(false);
   const [alertMessage, setAlertMessage] = useState(null);
   const [alertType, setAlertType] = useState('success');
+
+  // RA Summary: eslint-disable-next-line react-hooks/exhaustive-deps
+  // RA: This rule is used to enforce correct dependency arrays in hooks like useEffect, useCallback, and useMemo.
+  // RA: We are disabling this rule here because adding useMemo causes undesired behavior in our case.
+  // RA Developer Status: Known Issue - Intentional decision to prevent page refresh issues related to action counts.
+  // RA Validator Status: CODEOWNER ACCEPTED
+  // RA Modified Severity: N/A
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const errorIfMissing = {
+    HHG_INTO_NTS_DOMESTIC: [
+      { fieldName: 'storageFacility' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'tacType' },
+    ],
+    HHG_OUTOF_NTS_DOMESTIC: [
+      { fieldName: 'storageFacility' },
+      { fieldName: 'ntsRecordedWeight' },
+      { fieldName: 'serviceOrderNumber' },
+      { fieldName: 'tacType' },
+    ],
+    PPM: [
+      {
+        fieldName: 'advanceStatus',
+        condition: (mtoShipment) =>
+          mtoShipment?.ppmShipment?.hasRequestedAdvance === true &&
+          mtoShipment?.ppmShipment?.advanceStatus !== ADVANCE_STATUSES.APPROVED.apiValue,
+      },
+    ],
+  };
 
   const navigate = useNavigate();
 
@@ -210,21 +227,25 @@ const MoveDetails = ({
   }, [mtoShipments, setUnapprovedSITExtensionCount]);
 
   useEffect(() => {
-    let shipmentIsMissingInformation = false;
+    // Reset the error count before running any logic
+    let numberOfErrorIfMissingForAllShipments = 0;
 
+    // Process each shipment to accumulate errors
     mtoShipments?.forEach((mtoShipment) => {
-      const fieldsToCheckForShipment = errorIfMissing[mtoShipment.shipmentType];
-      const existsMissingFieldsOnShipment = fieldsToCheckForShipment?.some((field) =>
-        objectIsMissingFieldWithCondition(mtoShipment, field),
-      );
+      const errorIfMissingList = errorIfMissing[mtoShipment.shipmentType];
 
-      // If there were no fields to check, then nothing was required.
-      if (fieldsToCheckForShipment && existsMissingFieldsOnShipment) {
-        shipmentIsMissingInformation = true;
+      if (errorIfMissingList) {
+        errorIfMissingList.forEach((fieldToCheck) => {
+          if (objectIsMissingFieldWithCondition(mtoShipment, fieldToCheck)) {
+            numberOfErrorIfMissingForAllShipments += 1;
+          }
+        });
       }
     });
-    setShipmentMissingRequiredInformation(shipmentIsMissingInformation);
-  }, [mtoShipments]);
+
+    // Set the error concern count after processing
+    setShipmentErrorConcernCount(numberOfErrorIfMissingForAllShipments);
+  }, [errorIfMissing, mtoShipments, setShipmentErrorConcernCount]);
 
   // using useMemo here due to this being used in a useEffect
   // using useMemo prevents the useEffect from being rendered on ever render by memoizing the object
@@ -330,18 +351,18 @@ const MoveDetails = ({
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="requested-shipments"
-            showTag={!shipmentMissingRequiredInformation}
+            showTag={submittedShipments?.length > 0}
             testID="requestedShipmentsTag"
           >
             {submittedShipments?.length || 0}
           </LeftNavTag>
           <LeftNavTag
-            className="usa-tag usa-tag--alert"
+            background="#e34b11"
             associatedSectionName="requested-shipments"
-            showTag={shipmentMissingRequiredInformation}
+            showTag={shipmentErrorConcernCount !== 0}
             testID="shipment-missing-info-alert"
           >
-            <FontAwesomeIcon icon="exclamation" />
+            {shipmentErrorConcernCount}
           </LeftNavTag>
           <LeftNavTag
             associatedSectionName="approved-shipments"
@@ -494,6 +515,7 @@ MoveDetails.propTypes = {
   setUnapprovedServiceItemCount: func.isRequired,
   setExcessWeightRiskCount: func.isRequired,
   setUnapprovedSITExtensionCount: func.isRequired,
+  setShipmentErrorConcernCount: func.isRequired,
   setShipmentsWithDeliveryAddressUpdateRequestedCount: func,
 };
 

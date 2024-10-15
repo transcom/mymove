@@ -63,7 +63,7 @@ describe('EditFacilityInfoModal', () => {
         shipmentType="HHG_INTO_NTS_DOMESTIC"
       />,
     );
-    const addressInput = screen.getByLabelText('Address 1');
+    const addressInput = screen.getByLabelText(/Address 1/);
     const submitBtn = screen.getByRole('button', { name: 'Save' });
 
     await userEvent.type(addressInput, '123 Fake Street');

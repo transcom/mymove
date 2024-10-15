@@ -20,6 +20,7 @@ const setUnapprovedServiceItemCount = jest.fn();
 const setExcessWeightRiskCount = jest.fn();
 const setUnapprovedSITExtensionCount = jest.fn();
 const setMissingOrdersInfoCount = jest.fn();
+const setShipmentErrorConcernCount = jest.fn();
 
 const mockNavigate = jest.fn();
 const mockRequestedMoveCode = 'TE5TC0DE';
@@ -789,6 +790,7 @@ describe('MoveDetails page', () => {
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
             missingOrdersInfoCount={0}
             setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
@@ -809,6 +811,7 @@ describe('MoveDetails page', () => {
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
             missingOrdersInfoCount={0}
             setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
@@ -829,6 +832,7 @@ describe('MoveDetails page', () => {
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           missingOrdersInfoCount={0}
           setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -897,6 +901,7 @@ describe('MoveDetails page', () => {
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           missingOrdersInfoCount={0}
           setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -919,6 +924,7 @@ describe('MoveDetails page', () => {
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           missingOrdersInfoCount={0}
           setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -944,6 +950,7 @@ describe('MoveDetails page', () => {
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           missingOrdersInfoCount={0}
           setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -985,6 +992,7 @@ describe('MoveDetails page', () => {
               setUnapprovedSITExtensionCount={setUnapprovedServiceItemCount}
               missingOrdersInfoCount={0}
               setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+              setShipmentErrorConcernCount={setShipmentErrorConcernCount}
             />
           </MockProviders>,
         );
@@ -1006,6 +1014,7 @@ describe('MoveDetails page', () => {
           setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
           missingOrdersInfoCount={2}
           setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+          setShipmentErrorConcernCount={setShipmentErrorConcernCount}
         />
       </MockProviders>,
     );
@@ -1029,6 +1038,7 @@ describe('MoveDetails page', () => {
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
             missingOrdersInfoCount={0}
             setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
@@ -1050,6 +1060,7 @@ describe('MoveDetails page', () => {
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
             missingOrdersInfoCount={0}
             setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
@@ -1065,6 +1076,7 @@ describe('MoveDetails page', () => {
       setExcessWeightRiskCount,
       setUnapprovedSITExtensionCount,
       setMissingOrdersInfoCount,
+      setShipmentErrorConcernCount,
     };
 
     it('renders the financial review flag button when user has permission', async () => {
@@ -1188,6 +1200,7 @@ describe('MoveDetails page', () => {
             setUnapprovedSITExtensionCount={setUnapprovedSITExtensionCount}
             missingOrdersInfoCount={0}
             setMissingOrdersInfoCount={setMissingOrdersInfoCount}
+            setShipmentErrorConcernCount={setShipmentErrorConcernCount}
           />
         </MockProviders>,
       );
