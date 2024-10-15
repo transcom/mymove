@@ -444,7 +444,7 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 		case sql.ErrNoRows:
 			return apperror.NewNotFoundError(paymentRequestID, "for mto shipments associated with PaymentRequest")
 		default:
-			return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments pickup address gbloc to use in G62 segments in PaymentRequest %s: %s", paymentRequestID, err))
+			return apperror.NewQueryError("MTOShipments", err, fmt.Sprintf("error querying for shipments pickup address gbloc to use in N1*BY segments in PaymentRequest %s: %s", paymentRequestID, err))
 		}
 	}
 	pickupPostalCodeToGbloc, gblocErr := models.FetchGBLOCForPostalCode(appCtx.DB(), address.PostalCode)
