@@ -436,14 +436,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				},
 			},
 		}, nil)
-		validSecondaryDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		validSecondaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "142 E Barrel Hoop Circle #4A",
 				},
 			},
 		}, nil)
-		validTertiaryDestinationAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
+		validTertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), []factory.Customization{
 			{
 				Model: models.Address{
 					StreetAddress1: "448 Washington Blvd NE",
@@ -477,14 +477,14 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 				Type:     &factory.Addresses.DeliveryAddress,
 			},
 			{
-				Model:    validSecondaryDestinationAddress,
+				Model:    validSecondaryDeliveryAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.SecondaryDestinationAddress,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
 			},
 			{
-				Model:    validTertiaryDestinationAddress,
+				Model:    validTertiaryDeliveryAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.TertiaryDestinationAddress,
+				Type:     &factory.Addresses.TertiaryDeliveryAddress,
 			},
 		}, nil)
 		return shipment
@@ -507,7 +507,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 		{"pickupaddress", "1600 pennsylvania ave"},
 		{"secondarypickupaddress", "20 W 34th St"},
 		{"destinationaddress", "86 Pike Pl"},
-		{"SecondaryDestinationAddress", "4000 Central Florida Blvd"},
+		{"secondarydeliveryaddress", "4000 Central Florida Blvd"},
 	}
 
 	setupInvalidTestData := func(index int) (models.MTOShipment, []string) {
@@ -534,7 +534,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 			{
 				Model:    *validShipment.SecondaryDestinationAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.SecondaryDestinationAddress,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
 			},
 		}
 
@@ -594,7 +594,7 @@ func (suite *MoveTaskOrderServiceSuite) TestMoveTaskOrderHider_isValidFakeModelM
 					},
 				}, nil),
 				LinkOnly: true,
-				Type:     &factory.Addresses.SecondaryDestinationAddress,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
 			}
 			shipment = factory.BuildMTOShipment(suite.DB(), invalidCustomization, nil)
 		}

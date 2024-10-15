@@ -6780,7 +6780,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 		},
 	}, nil)
 
-	SecondaryDestinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+	secondaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "123 2nd Address",
@@ -6788,7 +6788,7 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 		},
 	}, nil)
 
-	TertiaryDestinationAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
+	tertiaryDeliveryAddress := factory.BuildAddress(appCtx.DB(), []factory.Customization{
 		{
 			Model: models.Address{
 				StreetAddress1: "123 3rd Address",
@@ -6830,14 +6830,14 @@ func MakeHHGMoveWithAddressChangeRequestAndSecondDeliveryLocation(appCtx appcont
 			},
 		},
 		{
-			Model:    TertiaryDestinationAddress,
+			Model:    tertiaryDeliveryAddress,
 			LinkOnly: true,
-			Type:     &factory.Addresses.TertiaryDestinationAddress,
+			Type:     &factory.Addresses.TertiaryDeliveryAddress,
 		},
 		{
-			Model:    SecondaryDestinationAddress,
+			Model:    secondaryDeliveryAddress,
 			LinkOnly: true,
-			Type:     &factory.Addresses.SecondaryDestinationAddress,
+			Type:     &factory.Addresses.SecondaryDeliveryAddress,
 		},
 		{
 			Model:    originalDeliveryAddress,

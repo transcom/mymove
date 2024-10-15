@@ -9144,7 +9144,7 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "hasSecondaryDestinationAddress": {
+        "hasSecondaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -9154,7 +9154,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDestinationAddress": {
+        "hasTertiaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -9256,7 +9256,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "SecondaryDestinationAddress": {
+        "secondaryDeliveryAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -9304,7 +9304,7 @@ func init() {
             }
           ]
         },
-        "TertiaryDestinationAddress": {
+        "tertiaryDeliveryAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -24804,7 +24804,7 @@ func init() {
         "eTag": {
           "type": "string"
         },
-        "hasSecondaryDestinationAddress": {
+        "hasSecondaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -24814,7 +24814,7 @@ func init() {
           "x-nullable": true,
           "x-omitempty": false
         },
-        "hasTertiaryDestinationAddress": {
+        "hasTertiaryDeliveryAddress": {
           "type": "boolean",
           "x-nullable": true,
           "x-omitempty": false
@@ -24916,7 +24916,7 @@ func init() {
           "format": "date",
           "x-nullable": true
         },
-        "SecondaryDestinationAddress": {
+        "secondaryDeliveryAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },
@@ -24964,7 +24964,7 @@ func init() {
             }
           ]
         },
-        "TertiaryDestinationAddress": {
+        "tertiaryDeliveryAddress": {
           "x-nullable": true,
           "$ref": "#/definitions/Address"
         },

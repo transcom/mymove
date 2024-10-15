@@ -56,7 +56,7 @@ type CreateShipment struct {
 	RequestedPickupDate strfmt.Date `json:"requestedPickupDate,omitempty"`
 
 	// secondary delivery address
-	SecondaryDestinationAddress *Address `json:"SecondaryDestinationAddress,omitempty"`
+	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
 
 	// secondary pickup address
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
@@ -66,7 +66,7 @@ type CreateShipment struct {
 	ShipmentType *MTOShipmentType `json:"shipmentType"`
 
 	// tertiary delivery address
-	TertiaryDestinationAddress *Address `json:"TertiaryDestinationAddress,omitempty"`
+	TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
 
 	// tertiary pickup address
 	TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
@@ -112,7 +112,7 @@ func (m *CreateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -124,7 +124,7 @@ func (m *CreateShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -287,17 +287,17 @@ func (m *CreateShipment) validateRequestedPickupDate(formats strfmt.Registry) er
 	return nil
 }
 
-func (m *CreateShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+func (m *CreateShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
 	}
 
-	if m.SecondaryDestinationAddress != nil {
-		if err := m.SecondaryDestinationAddress.Validate(formats); err != nil {
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("SecondaryDestinationAddress")
+				return ve.ValidateName("secondaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("SecondaryDestinationAddress")
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -349,17 +349,17 @@ func (m *CreateShipment) validateShipmentType(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *CreateShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+func (m *CreateShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
 		return nil
 	}
 
-	if m.TertiaryDestinationAddress != nil {
-		if err := m.TertiaryDestinationAddress.Validate(formats); err != nil {
+	if m.TertiaryDeliveryAddress != nil {
+		if err := m.TertiaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("TertiaryDestinationAddress")
+				return ve.ValidateName("tertiaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("TertiaryDestinationAddress")
+				return ce.ValidateName("tertiaryDeliveryAddress")
 			}
 			return err
 		}
@@ -415,7 +415,7 @@ func (m *CreateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -427,7 +427,7 @@ func (m *CreateShipment) ContextValidate(ctx context.Context, formats strfmt.Reg
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -560,19 +560,19 @@ func (m *CreateShipment) contextValidatePpmShipment(ctx context.Context, formats
 	return nil
 }
 
-func (m *CreateShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.SecondaryDestinationAddress != nil {
+	if m.SecondaryDeliveryAddress != nil {
 
-		if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+		if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 			return nil
 		}
 
-		if err := m.SecondaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
+		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("SecondaryDestinationAddress")
+				return ve.ValidateName("secondaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("SecondaryDestinationAddress")
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -619,19 +619,19 @@ func (m *CreateShipment) contextValidateShipmentType(ctx context.Context, format
 	return nil
 }
 
-func (m *CreateShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *CreateShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.TertiaryDestinationAddress != nil {
+	if m.TertiaryDeliveryAddress != nil {
 
-		if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+		if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
 			return nil
 		}
 
-		if err := m.TertiaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
+		if err := m.TertiaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("TertiaryDestinationAddress")
+				return ve.ValidateName("tertiaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("TertiaryDestinationAddress")
+				return ce.ValidateName("tertiaryDeliveryAddress")
 			}
 			return err
 		}

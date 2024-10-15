@@ -491,9 +491,9 @@ func MTOShipmentWithoutServiceItems(mtoShipment *models.MTOShipment) *primev3mes
 		ETag:                             etag.GenerateEtag(mtoShipment.UpdatedAt),
 		OriginSitAuthEndDate:             (*strfmt.Date)(mtoShipment.OriginSITAuthEndDate),
 		DestinationSitAuthEndDate:        (*strfmt.Date)(mtoShipment.DestinationSITAuthEndDate),
-		SecondaryDestinationAddress:      Address(mtoShipment.SecondaryDestinationAddress),
+		SecondaryDeliveryAddress:         Address(mtoShipment.SecondaryDestinationAddress),
 		SecondaryPickupAddress:           Address(mtoShipment.SecondaryPickupAddress),
-		TertiaryDestinationAddress:       Address(mtoShipment.TertiaryDestinationAddress),
+		TertiaryDeliveryAddress:          Address(mtoShipment.TertiaryDestinationAddress),
 		TertiaryPickupAddress:            Address(mtoShipment.TertiaryPickupAddress),
 	}
 

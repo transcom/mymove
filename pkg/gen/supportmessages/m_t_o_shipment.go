@@ -113,7 +113,7 @@ type MTOShipment struct {
 	ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
 	// secondary delivery address
-	SecondaryDestinationAddress *Address `json:"SecondaryDestinationAddress,omitempty"`
+	SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
 
 	// secondary pickup address
 	SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
@@ -127,7 +127,7 @@ type MTOShipment struct {
 	Status string `json:"status,omitempty"`
 
 	// tertiary delivery address
-	TertiaryDestinationAddress *Address `json:"TertiaryDestinationAddress,omitempty"`
+	TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
 
 	// tertiary pickup address
 	TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
@@ -193,7 +193,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-		SecondaryDestinationAddress *Address `json:"SecondaryDestinationAddress,omitempty"`
+		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
 
 		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
@@ -201,7 +201,7 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 
 		Status string `json:"status,omitempty"`
 
-		TertiaryDestinationAddress *Address `json:"TertiaryDestinationAddress,omitempty"`
+		TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
 
 		TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
 
@@ -289,8 +289,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// scheduledPickupDate
 	result.ScheduledPickupDate = data.ScheduledPickupDate
 
-	// SecondaryDestinationAddress
-	result.SecondaryDestinationAddress = data.SecondaryDestinationAddress
+	// secondaryDeliveryAddress
+	result.SecondaryDeliveryAddress = data.SecondaryDeliveryAddress
 
 	// secondaryPickupAddress
 	result.SecondaryPickupAddress = data.SecondaryPickupAddress
@@ -301,8 +301,8 @@ func (m *MTOShipment) UnmarshalJSON(raw []byte) error {
 	// status
 	result.Status = data.Status
 
-	// TertiaryDestinationAddress
-	result.TertiaryDestinationAddress = data.TertiaryDestinationAddress
+	// tertiaryDeliveryAddress
+	result.TertiaryDeliveryAddress = data.TertiaryDeliveryAddress
 
 	// tertiaryPickupAddress
 	result.TertiaryPickupAddress = data.TertiaryPickupAddress
@@ -360,7 +360,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ScheduledPickupDate strfmt.Date `json:"scheduledPickupDate,omitempty"`
 
-		SecondaryDestinationAddress *Address `json:"SecondaryDestinationAddress,omitempty"`
+		SecondaryDeliveryAddress *Address `json:"secondaryDeliveryAddress,omitempty"`
 
 		SecondaryPickupAddress *Address `json:"secondaryPickupAddress,omitempty"`
 
@@ -368,7 +368,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		Status string `json:"status,omitempty"`
 
-		TertiaryDestinationAddress *Address `json:"TertiaryDestinationAddress,omitempty"`
+		TertiaryDeliveryAddress *Address `json:"tertiaryDeliveryAddress,omitempty"`
 
 		TertiaryPickupAddress *Address `json:"tertiaryPickupAddress,omitempty"`
 
@@ -415,7 +415,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		ScheduledPickupDate: m.ScheduledPickupDate,
 
-		SecondaryDestinationAddress: m.SecondaryDestinationAddress,
+		SecondaryDeliveryAddress: m.SecondaryDeliveryAddress,
 
 		SecondaryPickupAddress: m.SecondaryPickupAddress,
 
@@ -423,7 +423,7 @@ func (m MTOShipment) MarshalJSON() ([]byte, error) {
 
 		Status: m.Status,
 
-		TertiaryDestinationAddress: m.TertiaryDestinationAddress,
+		TertiaryDeliveryAddress: m.TertiaryDeliveryAddress,
 
 		TertiaryPickupAddress: m.TertiaryPickupAddress,
 
@@ -505,7 +505,7 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateSecondaryDestinationAddress(formats); err != nil {
+	if err := m.validateSecondaryDeliveryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -521,7 +521,7 @@ func (m *MTOShipment) Validate(formats strfmt.Registry) error {
 		res = append(res, err)
 	}
 
-	if err := m.validateTertiaryDestinationAddress(formats); err != nil {
+	if err := m.validateTertiaryDeliveryAddress(formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -735,17 +735,17 @@ func (m *MTOShipment) validateScheduledPickupDate(formats strfmt.Registry) error
 	return nil
 }
 
-func (m *MTOShipment) validateSecondaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+func (m *MTOShipment) validateSecondaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 		return nil
 	}
 
-	if m.SecondaryDestinationAddress != nil {
-		if err := m.SecondaryDestinationAddress.Validate(formats); err != nil {
+	if m.SecondaryDeliveryAddress != nil {
+		if err := m.SecondaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("SecondaryDestinationAddress")
+				return ve.ValidateName("secondaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("SecondaryDestinationAddress")
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -844,17 +844,17 @@ func (m *MTOShipment) validateStatus(formats strfmt.Registry) error {
 	return nil
 }
 
-func (m *MTOShipment) validateTertiaryDestinationAddress(formats strfmt.Registry) error {
-	if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+func (m *MTOShipment) validateTertiaryDeliveryAddress(formats strfmt.Registry) error {
+	if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
 		return nil
 	}
 
-	if m.TertiaryDestinationAddress != nil {
-		if err := m.TertiaryDestinationAddress.Validate(formats); err != nil {
+	if m.TertiaryDeliveryAddress != nil {
+		if err := m.TertiaryDeliveryAddress.Validate(formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("TertiaryDestinationAddress")
+				return ve.ValidateName("tertiaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("TertiaryDestinationAddress")
+				return ce.ValidateName("tertiaryDeliveryAddress")
 			}
 			return err
 		}
@@ -954,7 +954,7 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateSecondaryDestinationAddress(ctx, formats); err != nil {
+	if err := m.contextValidateSecondaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -970,7 +970,7 @@ func (m *MTOShipment) ContextValidate(ctx context.Context, formats strfmt.Regist
 		res = append(res, err)
 	}
 
-	if err := m.contextValidateTertiaryDestinationAddress(ctx, formats); err != nil {
+	if err := m.contextValidateTertiaryDeliveryAddress(ctx, formats); err != nil {
 		res = append(res, err)
 	}
 
@@ -1156,19 +1156,19 @@ func (m *MTOShipment) contextValidateRequiredDeliveryDate(ctx context.Context, f
 	return nil
 }
 
-func (m *MTOShipment) contextValidateSecondaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipment) contextValidateSecondaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.SecondaryDestinationAddress != nil {
+	if m.SecondaryDeliveryAddress != nil {
 
-		if swag.IsZero(m.SecondaryDestinationAddress) { // not required
+		if swag.IsZero(m.SecondaryDeliveryAddress) { // not required
 			return nil
 		}
 
-		if err := m.SecondaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
+		if err := m.SecondaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("SecondaryDestinationAddress")
+				return ve.ValidateName("secondaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("SecondaryDestinationAddress")
+				return ce.ValidateName("secondaryDeliveryAddress")
 			}
 			return err
 		}
@@ -1225,19 +1225,19 @@ func (m *MTOShipment) contextValidateStatus(ctx context.Context, formats strfmt.
 	return nil
 }
 
-func (m *MTOShipment) contextValidateTertiaryDestinationAddress(ctx context.Context, formats strfmt.Registry) error {
+func (m *MTOShipment) contextValidateTertiaryDeliveryAddress(ctx context.Context, formats strfmt.Registry) error {
 
-	if m.TertiaryDestinationAddress != nil {
+	if m.TertiaryDeliveryAddress != nil {
 
-		if swag.IsZero(m.TertiaryDestinationAddress) { // not required
+		if swag.IsZero(m.TertiaryDeliveryAddress) { // not required
 			return nil
 		}
 
-		if err := m.TertiaryDestinationAddress.ContextValidate(ctx, formats); err != nil {
+		if err := m.TertiaryDeliveryAddress.ContextValidate(ctx, formats); err != nil {
 			if ve, ok := err.(*errors.Validation); ok {
-				return ve.ValidateName("TertiaryDestinationAddress")
+				return ve.ValidateName("tertiaryDeliveryAddress")
 			} else if ce, ok := err.(*errors.CompositeError); ok {
-				return ce.ValidateName("TertiaryDestinationAddress")
+				return ce.ValidateName("tertiaryDeliveryAddress")
 			}
 			return err
 		}

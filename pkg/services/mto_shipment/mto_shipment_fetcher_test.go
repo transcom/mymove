@@ -173,10 +173,10 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		move := factory.BuildMove(suite.DB(), nil, nil)
 
 		secondaryPickupAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		SecondaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		secondaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		tertiaryPickuupAddress := factory.BuildAddress(suite.DB(), nil, nil)
-		TertiaryDestinationAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
+		tertiaryDeliveryAddress := factory.BuildAddress(suite.DB(), nil, []factory.Trait{factory.GetTraitAddress2})
 
 		shipment := factory.BuildMTOShipment(suite.DB(), []factory.Customization{
 			{
@@ -185,9 +185,9 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 				Type:     &factory.Addresses.SecondaryPickupAddress,
 			},
 			{
-				Model:    SecondaryDestinationAddress,
+				Model:    secondaryDeliveryAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.SecondaryDestinationAddress,
+				Type:     &factory.Addresses.SecondaryDeliveryAddress,
 			},
 			{
 				Model:    tertiaryPickuupAddress,
@@ -195,9 +195,9 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 				Type:     &factory.Addresses.TertiaryPickupAddress,
 			},
 			{
-				Model:    TertiaryDestinationAddress,
+				Model:    tertiaryDeliveryAddress,
 				LinkOnly: true,
-				Type:     &factory.Addresses.TertiaryDestinationAddress,
+				Type:     &factory.Addresses.TertiaryDeliveryAddress,
 			},
 			{
 				Model:    move,
@@ -259,8 +259,8 @@ func (suite *MTOShipmentServiceSuite) TestListMTOShipments() {
 		suite.Equal(secondaryPickupAddress.ID.String(), actualShipment.SecondaryPickupAddress.ID.String())
 		suite.Equal(tertiaryPickuupAddress.ID.String(), actualShipment.TertiaryPickupAddress.ID.String())
 		suite.Equal(shipment.DestinationAddress.ID.String(), actualShipment.DestinationAddress.ID.String())
-		suite.Equal(SecondaryDestinationAddress.ID.String(), actualShipment.SecondaryDestinationAddress.ID.String())
-		suite.Equal(TertiaryDestinationAddress.ID.String(), actualShipment.TertiaryDestinationAddress.ID.String())
+		suite.Equal(secondaryDeliveryAddress.ID.String(), actualShipment.SecondaryDestinationAddress.ID.String())
+		suite.Equal(tertiaryDeliveryAddress.ID.String(), actualShipment.TertiaryDestinationAddress.ID.String())
 		suite.Len(actualShipment.MTOServiceItems[0].Dimensions, 2)
 		suite.Equal(SITExtension.ID.String(), actualShipment.SITDurationUpdates[0].ID.String())
 		suite.Equal(reweigh.ID.String(), actualShipment.Reweigh.ID.String())

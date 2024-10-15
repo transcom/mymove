@@ -100,9 +100,9 @@ func assembleMTOShipmentPayload(appCtx appcontext.AppContext, updatedObjectID uu
 		"PickupAddress",
 		"DestinationAddress",
 		"SecondaryPickupAddress",
-		"SecondaryDestinationAddress",
+		"SecondaryDeliveryAddress",
 		"TertiaryPickupAddress",
-		"TertiaryDestinationAddress",
+		"TertiaryDeliveryAddress",
 		"MTOAgents",
 		"StorageFacility")
 	if err != nil {

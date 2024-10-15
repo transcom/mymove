@@ -152,7 +152,7 @@ func (h GetMTOShipmentHandler) Handle(params mtoshipmentops.GetShipmentParams) m
 				"PickupAddress",
 				"DestinationAddress",
 				"SecondaryPickupAddress",
-				"SecondaryDestinationAddress",
+				"SecondaryDeliveryAddress",
 				"MTOServiceItems.CustomerContacts",
 				"StorageFacility.Address",
 				"PPMShipment",

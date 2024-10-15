@@ -67,7 +67,7 @@ func (f moveFetcher) FetchMovesForPPTASReports(appCtx appcontext.AppContext, par
 	query := appCtx.DB().EagerPreload(
 		"MTOShipments.DestinationAddress",
 		"MTOShipments.PickupAddress",
-		"MTOShipments.SecondaryDestinationAddress",
+		"MTOShipments.SecondaryDeliveryAddress",
 		"MTOShipments.SecondaryPickupAddress",
 		"MTOShipments.MTOAgents",
 		"MTOShipments.Reweigh",

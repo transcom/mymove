@@ -322,11 +322,11 @@ func MTOShipmentModelFromUpdate(mtoShipment *primemessages.UpdateMTOShipment, mt
 		model.HasSecondaryPickupAddress = handlers.FmtBool(true)
 	}
 
-	addressModel = AddressModel(&mtoShipment.SecondaryDestinationAddress.Address)
+	addressModel = AddressModel(&mtoShipment.SecondaryDeliveryAddress.Address)
 	if addressModel != nil {
 		model.SecondaryDestinationAddress = addressModel
-		SecondaryDestinationAddressID := uuid.FromStringOrNil(addressModel.ID.String())
-		model.SecondaryDestinationAddressID = &SecondaryDestinationAddressID
+		secondaryDeliveryAddressID := uuid.FromStringOrNil(addressModel.ID.String())
+		model.SecondaryDestinationAddressID = &secondaryDeliveryAddressID
 		model.HasSecondaryDestinationAddress = handlers.FmtBool(true)
 	}
 

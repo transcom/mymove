@@ -140,9 +140,9 @@ func (h UpdateMTOServiceItemHandler) Handle(params mtoserviceitemops.UpdateMTOSe
 				"PickupAddress",
 				"DestinationAddress",
 				"SecondaryPickupAddress",
-				"SecondaryDestinationAddress",
+				"SecondaryDeliveryAddress",
 				"TertiaryPickupAddress",
-				"TertiaryDestinationAddress",
+				"TertiaryDeliveryAddress",
 				"MTOServiceItems.ReService",
 				"StorageFacility.Address",
 				"PPMShipment"}
