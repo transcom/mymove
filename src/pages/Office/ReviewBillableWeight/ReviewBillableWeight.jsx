@@ -35,6 +35,7 @@ export default function ReviewBillableWeight() {
   const [selectedShipmentIndex, setSelectedShipmentIndex] = React.useState(0);
   const [selectedShipment, setSelectedShipment] = React.useState({});
   const [sidebarType, setSidebarType] = React.useState('MAX');
+  const [ppmShipmentInfo, setPpmShipmentInfo] = React.useState({});
 
   const { moveCode } = useParams();
   const handleClickNextButton = () => {
@@ -136,6 +137,21 @@ export default function ReviewBillableWeight() {
       filteredShipments && filteredShipments.length > 0 ? filteredShipments[selectedShipmentIndex] : {},
     );
   }, [filteredShipments, selectedShipmentIndex]);
+
+  useEffect(() => {
+    if (selectedShipment.shipmentType === 'PPM') {
+      let currentTotalWeight = 0;
+      selectedShipment.ppmShipment.weightTickets.forEach((weight) => {
+        currentTotalWeight += weight.fullWeight - weight.emptyWeight;
+      });
+      const updatedPpmShipmentInfo = {
+        ...selectedShipment.ppmShipment,
+        miles: selectedShipment.distance,
+        actualWeight: currentTotalWeight,
+      };
+      setPpmShipmentInfo(updatedPpmShipmentInfo);
+    }
+  }, [selectedShipment]);
 
   const queryClient = useQueryClient();
   const { mutate: mutateMTOShipment } = useMutation(updateMTOShipment, {
@@ -386,12 +402,13 @@ export default function ReviewBillableWeight() {
               ) : (
                 <ReviewDocumentsSidePanel
                   ppmShipment={selectedShipment.ppmShipment}
-                  ppmShipmentInfo={selectedShipment.ppmShipment}
+                  ppmShipmentInfo={ppmShipmentInfo}
                   ppmNumber={selectedShipment.shipmentLocator}
                   weightTickets={selectedShipment.ppmShipment.weightTickets}
                   proGearTickets={selectedShipment.ppmShipment.proGearWeightTickets}
                   expenseTickets={selectedShipment.ppmShipment.movingExpenses}
                   readOnly={readOnly}
+                  showAllFields={false}
                 />
               )}
             </DocumentViewerSidebar.Content>

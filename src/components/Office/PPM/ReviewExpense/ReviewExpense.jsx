@@ -304,7 +304,7 @@ export default function ReviewExpense({
               <div className={classnames(formStyles.form, styles.ReviewExpense, styles.headerContainer)}>
                 <PPMHeaderSummary
                   ppmShipmentInfo={ppmShipmentInfo}
-                  ppmNumber={ppmNumber}
+                  ppmNumber={ppmNumber.toString()}
                   showAllFields={false}
                   readOnly={readOnly}
                 />

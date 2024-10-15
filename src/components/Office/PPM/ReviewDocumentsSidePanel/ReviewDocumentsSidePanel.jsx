@@ -4,7 +4,7 @@ import { Form } from '@trussworks/react-uswds';
 import { Formik } from 'formik';
 import classnames from 'classnames';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { arrayOf, func, number, object } from 'prop-types';
+import { arrayOf, bool, func, string, object } from 'prop-types';
 import moment from 'moment';
 
 import PPMHeaderSummary from '../PPMHeaderSummary/PPMHeaderSummary';
@@ -30,9 +30,11 @@ export default function ReviewDocumentsSidePanel({
   proGearTickets,
   weightTickets,
   readOnly,
+  showAllFields,
 }) {
   let status;
   let showReason;
+  const showAllFieldsBool = showAllFields;
 
   const { mutate: patchDocumentsSetStatusMutation } = useMutation(patchPPMDocumentsSetStatus, {
     onSuccess,
@@ -100,10 +102,15 @@ export default function ReviewDocumentsSidePanel({
   return (
     <Formik initialValues innerRef={formRef} onSubmit={handleSubmit}>
       <div className={classnames(styles.container, 'container--accent--ppm')}>
-        <div className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel, styles.PPMHeaderSummary)}>
-          <PPMHeaderSummary ppmShipmentInfo={ppmShipmentInfo} ppmNumber={ppmNumber} showAllFields readOnly={readOnly} />
+        <div className={classnames(styles.ReviewDocumentsSidePanel, formStyles.form, styles.PPMHeaderSummary)}>
+          <PPMHeaderSummary
+            ppmShipmentInfo={ppmShipmentInfo}
+            ppmNumber={ppmNumber}
+            showAllFields={showAllFieldsBool}
+            readOnly={readOnly}
+          />
         </div>
-        <Form className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
+        <Form style={{ maxWidth: 'none' }} className={classnames(formStyles.form, styles.ReviewDocumentsSidePanel)}>
           <hr />
           <h3 className={styles.send}>{readOnly ? 'Sent to customer' : 'Send to customer?'}</h3>
           <DocumentViewerSidebar.Content className={styles.sideBar}>
@@ -260,13 +267,14 @@ export default function ReviewDocumentsSidePanel({
 
 ReviewDocumentsSidePanel.propTypes = {
   ppmShipment: PPMShipmentShape,
-  ppmNumber: number,
+  ppmNumber: string,
   formRef: object,
   onSuccess: func,
   onError: func,
   expenseTickets: arrayOf(ExpenseShape),
   proGearTickets: arrayOf(ProGearTicketShape),
   weightTickets: arrayOf(WeightTicketShape),
+  showAllFields: bool,
 };
 
 ReviewDocumentsSidePanel.defaultProps = {
@@ -278,4 +286,5 @@ ReviewDocumentsSidePanel.defaultProps = {
   expenseTickets: [],
   proGearTickets: [],
   weightTickets: [],
+  showAllFields: false,
 };
