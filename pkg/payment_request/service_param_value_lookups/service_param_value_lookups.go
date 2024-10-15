@@ -510,6 +510,10 @@ func (s *ServiceItemParamKeyData) ServiceParamValue(appCtx appcontext.AppContext
 	if lookup, ok := s.lookups[key]; ok {
 		value, err := lookup.lookup(appCtx, s)
 		if err != nil {
+			switch err.(type) {
+			case apperror.EventError:
+				return "", err
+			}
 			return "", fmt.Errorf(" failed ServiceParamValue %sLookup with error %w", key, err)
 		}
 		// Save param value to cache
