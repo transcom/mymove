@@ -159,8 +159,9 @@ export class SelectShipmentType extends Component {
       ? 'Certain personal property items are packed and moved by professionals, paid for by the government. Subject to item type and weight limitations. This is an unaccompanied baggage shipment (UB).'
       : 'Talk with your movers directly if you want to add or change shipments.';
 
-    const hasOconusDutyLocation =
-      orders[0].origin_duty_location.address.isOconus || orders[0].new_duty_location.address.isOconus;
+    const hasOconusDutyLocation = orders[0]
+      ? orders[0].origin_duty_location.address.isOconus || orders[0].new_duty_location.address.isOconus
+      : false;
 
     const selectableCardDefaultProps = {
       onChange: (e) => this.setShipmentType(e),
