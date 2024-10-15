@@ -34,7 +34,7 @@ CREATE INDEX IF NOT EXISTS idx_re_us_post_regions_state_id ON re_us_post_regions
 create table IF NOT EXISTS re_cities
 (id			uuid			NOT NULL,
 city_name	varchar(100)	NOT NULL,
-state_id	uuid
+state_id	uuid			NOT NULL
 	CONSTRAINT fk_re_cities_re_states REFERENCES re_states (id),
 country_id	uuid		NOT NULL
 	CONSTRAINT fk_re_cities_re_countries REFERENCES re_countries (id),
@@ -51,8 +51,10 @@ COMMENT ON COLUMN re_cities.country_id IS 'The id for the 2 character country co
 
 -- Adds column to link the re_us_post_regions id to the appropriate us_post_region_cities record
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS us_post_regions_id uuid;
+ALTER TABLE us_post_region_cities ADD CONSTRAINT fk_us_post_region_cities_upr_id FOREIGN KEY (us_post_regions_id) REFERENCES re_us_post_regions (id);
 -- Adds column to link the re_cities id to the appropriate us_post_region_cities record
 ALTER TABLE us_post_region_cities ADD COLUMN IF NOT EXISTS cities_id uuid;
+ALTER TABLE us_post_region_cities ADD CONSTRAINT fk_us_post_region_cities_cities_id FOREIGN KEY (cities_id) REFERENCES re_cities (id);
 -- Drops the unused column
 ALTER TABLE us_post_region_cities DROP COLUMN IF EXISTS usprc_prfd_lst_line_ctyst_nm;
 
