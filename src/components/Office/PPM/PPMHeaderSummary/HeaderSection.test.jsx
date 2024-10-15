@@ -129,7 +129,7 @@ const useEditShipmentQueriesReturnValue = {
   isSuccess: true,
 };
 
-const shipmentInfoProps = {
+const ppmShipmentInfoProps = {
   sectionInfo: {
     type: 'shipmentInfo',
     plannedMoveDate: '2020-03-15',
@@ -139,6 +139,7 @@ const shipmentInfoProps = {
     miles: 513,
     estimatedWeight: 4000,
     actualWeight: 4200,
+    allowableWeight: 4300,
   },
 };
 
@@ -204,7 +205,7 @@ describe('PPMHeaderSummary component', () => {
       usePPMShipmentDocsQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       useEditShipmentQueries.mockReturnValue(useEditShipmentQueriesReturnValue);
       await act(async () => {
-        renderWithProviders(<HeaderSection {...shipmentInfoProps} />, mockRoutingConfig);
+        renderWithProviders(<HeaderSection {...ppmShipmentInfoProps} />, mockRoutingConfig);
       });
 
       await waitFor(() => {
@@ -228,6 +229,8 @@ describe('PPMHeaderSummary component', () => {
       expect(screen.getByText('4,000 lbs')).toBeInTheDocument();
       expect(screen.getByText('Actual Net Weight')).toBeInTheDocument();
       expect(screen.getByText('4,200 lbs')).toBeInTheDocument();
+      expect(screen.getByText('Allowable Weight')).toBeInTheDocument();
+      expect(screen.getByText('4,300 lbs')).toBeInTheDocument();
     });
   });
 

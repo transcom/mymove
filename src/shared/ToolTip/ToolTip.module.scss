@@ -144,4 +144,19 @@
     font-size: 14px;
     white-space: pre-wrap;
   }
+
+  .toolTipTextAreaLarge {
+    width: 300px;
+    height: fit-content;
+
+    &.tooltipTextTop {
+      bottom: 100%;
+      top: auto;
+    }
+
+    &.tooltipTextBottom {
+      top: 100%;
+      bottom: none;
+    }
+  }
 }
