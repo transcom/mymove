@@ -28,7 +28,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   const [selectedFileIndex, selectFile] = useState(0);
   const [disableSaveButton, setDisableSaveButton] = useState(false);
   const [menuIsOpen, setMenuOpen] = useState(false);
-  const [showErrorMessage, setShowErrorMessage] = useState(false);
+  const [showContentError, setShowContentError] = useState(false);
   const sortedFiles = files.sort((a, b) => moment(b.createdAt) - moment(a.createdAt));
   const selectedFile = sortedFiles[parseInt(selectedFileIndex, 10)];
 
@@ -70,6 +70,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   }, []);
 
   useEffect(() => {
+    setShowContentError(false);
     selectFile(0);
   }, [files.length]);
 
@@ -91,7 +92,10 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   };
 
   const handleSelectFile = (index) => {
-    setShowErrorMessage(false);
+    milmoveLogger.info('Selected index: %s', index);
+    if (selectedFileIndex !== index) {
+      setShowContentError(false);
+    }
     selectFile(index);
     closeMenu();
   };
@@ -111,7 +115,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
   const selectedFileDate = formatDate(moment(selectedFile?.createdAt), 'DD MMM YYYY');
 
   const onContentError = (errorObject) => {
-    setShowErrorMessage(true);
+    setShowContentError(true);
     milmoveLogger.error(errorObject);
   };
 
@@ -148,7 +152,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
         <p title={selectedFilename} className={styles.documentTitle} data-testid="documentTitle">
           <span>{selectedFilename}</span> <span>- Added on {selectedFileDate}</span>
         </p>
-        {allowDownload && !showErrorMessage && (
+        {allowDownload && !showContentError && (
           <p className={styles.downloadLink}>
             <a href={selectedFile?.url} download tabIndex={menuIsOpen ? '-1' : '0'}>
               <span>Download file</span> <FontAwesomeIcon icon="download" />
@@ -157,7 +161,7 @@ const DocumentViewer = ({ files, allowDownload, paymentRequestId }) => {
         )}
         {paymentRequestId !== undefined ? paymentPacketDownload : null}
       </div>
-      {showErrorMessage && (
+      {showContentError && (
         <div className={styles.errorMessage}>
           <h2>File Not Found</h2>The document is not yet available for viewing. Please try again in a moment.
         </div>
