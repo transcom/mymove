@@ -430,10 +430,13 @@ func (g ghcPaymentRequestInvoiceGenerator) createBuyerAndSellerOrganizationNames
 
 	var address models.Address
 	err = appCtx.DB().Q().
+		Select("addresses.*").
 		Join("mto_shipments", "addresses.id = mto_shipments.pickup_address_id").
-		Join("mto_service_items", "mto_shipments.id = mto_service_items.mto_shipment_id").
-		Join("payment_service_items", "mto_service_items.id = payment_service_items.mto_service_item_id").
+		Join("moves", "mto_shipments.move_id = moves.id").
+		Join("mto_service_items", "mto_service_items.move_id = moves.id").
+		Join("payment_service_items", "payment_service_items.mto_service_item_id = mto_service_items.id").
 		Where("payment_service_items.payment_request_id = ?", paymentRequestID).
+		Order("mto_shipments.created_at").
 		First(&address)
 
 	if err != nil {
