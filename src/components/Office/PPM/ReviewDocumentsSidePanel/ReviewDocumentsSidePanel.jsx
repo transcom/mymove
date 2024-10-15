@@ -286,5 +286,5 @@ ReviewDocumentsSidePanel.defaultProps = {
   expenseTickets: [],
   proGearTickets: [],
   weightTickets: [],
-  showAllFields: false,
+  showAllFields: true,
 };
