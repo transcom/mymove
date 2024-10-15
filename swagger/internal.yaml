@@ -202,6 +202,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeout_office:
         $ref: '#/definitions/TransportationOffice'
+      counseling_office:
+        $ref: '#/definitions/TransportationOffice'
       cancel_reason:
         type: string
         example: Change of orders
@@ -602,10 +604,6 @@ definitions:
       netWeightRemarks:
         description: Remarks explaining any edits made to the net weight
         type: string
-      allowableWeight:
-        description: Indicates the maximum reimbursable weight of the shipment
-        type: integer
-        minimum: 0
   TransportationOffices:
     type: array
     items:
@@ -1494,6 +1492,10 @@ definitions:
         format: uuid
         example: cf1addea-a4f9-4173-8506-2bb82a064cb7
         x-nullable: true
+      move_id:
+        type: string
+        format: uuid
+        example: cf1addea-a4f9-4173-8506-2bb82a064cb7
       orders_number:
         type: string
         title: Orders Number
@@ -2403,6 +2405,8 @@ definitions:
         $ref: '#/definitions/MTOShipments'
       closeoutOffice:
         $ref: '#/definitions/TransportationOffice'
+      counselingOffice:
+        $ref: '#/definitions/TransportationOffice'
       eTag:
         type: string
         readOnly: true
@@ -3083,12 +3087,6 @@ definitions:
         description: A hash that should be used as the "If-Match" header for any updates.
         type: string
         readOnly: true
-      allowableWeight:
-        description: Maximum reimbursable weight.
-        type: integer
-        minimum: 0
-        x-nullable: true
-        x-omitempty: false
     required:
       - ppmShipmentId
       - createdAt
@@ -3644,6 +3642,13 @@ definitions:
         description: The estimated weight of the PPM shipment goods being moved.
         type: integer
         example: 4200
+        x-nullable: true
+        x-omitempty: false
+      allowableWeight:
+        description: The allowable weight of the PPM shipment goods being moved.
+        type: integer
+        example: 4300
+        minimum: 0
         x-nullable: true
         x-omitempty: false
       hasProGear:
