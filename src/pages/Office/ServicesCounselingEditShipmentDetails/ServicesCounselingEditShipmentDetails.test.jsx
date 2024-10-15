@@ -17,6 +17,12 @@ jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: () => mockNavigate,
 }));
+
+jest.mock('utils/featureFlags', () => ({
+  ...jest.requireActual('utils/featureFlags'),
+  isBooleanFlagEnabled: jest.fn().mockImplementation(() => Promise.resolve(false)),
+}));
+
 const mockRoutingParams = { moveCode: 'move123', shipmentId: 'shipment123' };
 const mockRoutingConfig = { path: servicesCounselingRoutes.BASE_SHIPMENT_EDIT_PATH, params: mockRoutingParams };
 const mockTransportationOffice = [
